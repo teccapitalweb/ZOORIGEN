@@ -347,6 +347,15 @@ window.ZOORIGEN_DATA = {
       ]
     }
   ],
+  "companies": [
+    {"name": "Grand Bahía Príncipe", "image": "assets/img/logos/14365.jpg"},
+    {"name": "IAAMB", "image": "assets/img/logos/1607989806975.jpg"},
+    {"name": "AGROPEC comercializadora", "image": "assets/img/logos/AGROPEC LOGO.jpg"},
+    {"name": "Mayakoba", "image": "assets/img/logos/mayakoba-header.jpg"},
+    {"name": "Omron", "image": "assets/img/logos/OMRON_Logo.svg.png"},
+    {"name": "Gran Acuario Mazatlán", "image": "assets/img/logos/P7508.jpg"},
+    {"name": "Sierra Mazati", "image": "assets/img/logos/sierra_mazati_logo.jpg"}
+  ],
   "students": [
     "assets/img/alumnos/556039285_122117027300987474_4460183418776072849_n.jpg",
     "assets/img/alumnos/558936934_122118651386987474_8876696167276015156_n.jpg",

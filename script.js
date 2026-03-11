@@ -1,10 +1,11 @@
 const data = window.ZOORIGEN_DATA;
+
 const areasGrid = document.getElementById('areasGrid');
 const coursesGrid = document.getElementById('coursesGrid');
 const toolbar = document.querySelector('.course-toolbar');
 const galleryGrid = document.getElementById('galleryGrid');
 const reviewsGrid = document.getElementById('reviewsGrid');
-const gallerySection = document.getElementById('galeria');
+const logosGrid = document.getElementById('logosGrid');
 const modal = document.getElementById('courseModal');
 const modalContent = document.getElementById('modalContent');
 const closeModalBtn = document.getElementById('closeModal');
@@ -19,6 +20,10 @@ const lightboxCaption = document.getElementById('lightboxCaption');
 const lightboxClose = document.getElementById('lightboxClose');
 const lightboxPrev = document.getElementById('lightboxPrev');
 const lightboxNext = document.getElementById('lightboxNext');
+const coursesPrev = document.getElementById('coursesPrev');
+const coursesNext = document.getElementById('coursesNext');
+const logosPrev = document.getElementById('logosPrev');
+const logosNext = document.getElementById('logosNext');
 
 let activeFilter = 'all';
 let searchTerm = '';
@@ -57,7 +62,6 @@ function renderAreas() {
       renderCourses();
       document.getElementById('cursos').scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
-
     card.addEventListener('click', activate);
     card.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
@@ -95,6 +99,7 @@ function renderCourses() {
   coursesCount.textContent = `${filtered.length} curso${filtered.length === 1 ? '' : 's'} disponible${filtered.length === 1 ? '' : 's'}`;
 
   if (!filtered.length) {
+    coursesGrid.className = 'courses-grid';
     coursesGrid.innerHTML = `
       <article class="empty-state">
         <h3>No encontramos cursos con ese filtro</h3>
@@ -102,7 +107,6 @@ function renderCourses() {
         <button class="btn btn--primary" id="resetFilters">Ver todos los cursos</button>
       </article>
     `;
-
     document.getElementById('resetFilters')?.addEventListener('click', () => {
       activeFilter = 'all';
       searchTerm = '';
@@ -111,11 +115,14 @@ function renderCourses() {
       renderAreas();
       renderCourses();
     });
+    coursesPrev.style.display = 'none';
+    coursesNext.style.display = 'none';
     return;
   }
 
+  coursesGrid.className = 'courses-grid courses-track';
   coursesGrid.innerHTML = filtered.map(course => `
-    <article class="course-card">
+    <article class="course-card carousel-card">
       <div class="course-card__image">
         <img src="${course.image}" alt="${course.name}" loading="lazy">
       </div>
@@ -137,6 +144,10 @@ function renderCourses() {
   coursesGrid.querySelectorAll('[data-course]').forEach(button => {
     button.addEventListener('click', () => openCourseModal(button.dataset.course));
   });
+
+  coursesPrev.style.display = '';
+  coursesNext.style.display = '';
+  initAutoCarousel(coursesGrid, '.course-card', 0.38);
 }
 
 function openCourseModal(courseId) {
@@ -195,7 +206,7 @@ function renderGallery() {
   `).join('');
 
   reviewsGrid.innerHTML = reviewItems.map((item, index) => `
-    <button class="media-card" data-lightbox-group="reviews" data-index="${index}" aria-label="Abrir reseña ${index + 1}">
+    <button class="media-card media-card--review" data-lightbox-group="reviews" data-index="${index}" aria-label="Abrir reseña ${index + 1}">
       <img src="${item.src}" alt="${item.alt}" loading="lazy">
     </button>
   `).join('');
@@ -208,13 +219,24 @@ function renderGallery() {
     });
   });
 
-  initAutoCarousel(galleryGrid, 0.55);
-  initAutoCarousel(reviewsGrid, 0.45);
+  initAutoCarousel(galleryGrid, '.media-card', 0.55);
+  initAutoCarousel(reviewsGrid, '.media-card', 0.45);
+}
+
+function renderCompanies() {
+  if (!logosGrid) return;
+  logosGrid.className = 'logos-grid logos-track';
+  logosGrid.innerHTML = data.companies.map(company => `
+    <article class="logo-card carousel-card" aria-label="${company.name}">
+      <img src="${company.image}" alt="${company.name}" loading="lazy">
+    </article>
+  `).join('');
+  initAutoCarousel(logosGrid, '.logo-card', 0.40);
 }
 
 const carouselStates = new WeakMap();
 
-function initAutoCarousel(track, speed = 0.45) {
+function initAutoCarousel(track, selector = '.media-card', speed = 0.45) {
   if (!track) return;
 
   const existingState = carouselStates.get(track);
@@ -222,13 +244,14 @@ function initAutoCarousel(track, speed = 0.45) {
 
   track.querySelectorAll('.is-clone').forEach(item => item.remove());
 
-  const cards = Array.from(track.querySelectorAll('.media-card'));
+  const cards = Array.from(track.querySelectorAll(selector));
   if (cards.length < 2) return;
 
   cards.forEach(card => {
     const clone = card.cloneNode(true);
     clone.classList.add('is-clone');
     clone.setAttribute('aria-hidden', 'true');
+    clone.querySelectorAll('button, a').forEach(el => el.tabIndex = -1);
     clone.tabIndex = -1;
     track.appendChild(clone);
   });
@@ -268,6 +291,14 @@ function initAutoCarousel(track, speed = 0.45) {
   carouselStates.set(track, state);
 }
 
+function hookArrow(button, track, direction = 1) {
+  if (!button || !track) return;
+  button.addEventListener('click', () => {
+    const amount = Math.max(track.clientWidth * 0.82, 280) * direction;
+    track.scrollBy({ left: amount, behavior: 'smooth' });
+  });
+}
+
 function updateLightbox() {
   const current = lightboxItems[lightboxIndex];
   if (!current) return;
@@ -286,9 +317,7 @@ function openLightbox() {
 function closeLightbox() {
   lightbox.classList.remove('is-open');
   lightbox.setAttribute('aria-hidden', 'true');
-  if (!modal.classList.contains('is-open')) {
-    document.body.classList.remove('is-locked');
-  }
+  if (!modal.classList.contains('is-open')) document.body.classList.remove('is-locked');
 }
 
 function moveLightbox(step) {
@@ -304,13 +333,12 @@ function initCounters() {
       if (!entry.isIntersecting) return;
       const el = entry.target;
       const target = Number(el.dataset.counter);
-      let current = 0;
       const duration = 1100;
       const start = performance.now();
 
       const animate = (time) => {
         const progress = Math.min((time - start) / duration, 1);
-        current = Math.floor(progress * target);
+        const current = Math.floor(progress * target);
         el.textContent = progress === 1 ? formatCounter(target) : `${current}`;
         if (progress < 1) requestAnimationFrame(animate);
       };
@@ -362,12 +390,19 @@ document.addEventListener('keydown', (event) => {
 
 window.addEventListener('resize', () => {
   if (window.innerWidth > 768) navLinks.classList.remove('is-open');
-  initAutoCarousel(galleryGrid, 0.55);
-  initAutoCarousel(reviewsGrid, 0.45);
+  initAutoCarousel(galleryGrid, '.media-card', 0.55);
+  initAutoCarousel(reviewsGrid, '.media-card', 0.45);
+  initAutoCarousel(coursesGrid, '.course-card', 0.38);
+  initAutoCarousel(logosGrid, '.logo-card', 0.40);
 });
 
 renderToolbar();
 renderAreas();
 renderCourses();
 renderGallery();
+renderCompanies();
 initCounters();
+hookArrow(coursesPrev, coursesGrid, -1);
+hookArrow(coursesNext, coursesGrid, 1);
+hookArrow(logosPrev, logosGrid, -1);
+hookArrow(logosNext, logosGrid, 1);
