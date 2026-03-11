@@ -4,6 +4,7 @@ const coursesGrid = document.getElementById('coursesGrid');
 const toolbar = document.querySelector('.course-toolbar');
 const galleryGrid = document.getElementById('galleryGrid');
 const reviewsGrid = document.getElementById('reviewsGrid');
+const gallerySection = document.getElementById('galeria');
 const modal = document.getElementById('courseModal');
 const modalContent = document.getElementById('modalContent');
 const closeModalBtn = document.getElementById('closeModal');
@@ -23,14 +24,13 @@ let activeFilter = 'all';
 let searchTerm = '';
 let lightboxItems = [];
 let lightboxIndex = 0;
-const carouselStates = new WeakMap();
 
 function formatCounter(value) {
   return `${value}+`;
 }
 
 function getFilteredCourses() {
-  return data.courses.filter((course) => {
+  return data.courses.filter(course => {
     const matchesArea = activeFilter === 'all' || course.area === activeFilter;
     const haystack = `${course.name} ${course.summary} ${course.area}`.toLowerCase();
     const matchesSearch = haystack.includes(searchTerm.toLowerCase().trim());
@@ -39,7 +39,7 @@ function getFilteredCourses() {
 }
 
 function renderAreas() {
-  areasGrid.innerHTML = data.areas.map((area) => `
+  areasGrid.innerHTML = data.areas.map(area => `
     <article class="area-card ${activeFilter === area.name ? 'is-active' : ''}" data-area="${area.name}" tabindex="0" role="button" aria-label="Filtrar cursos de ${area.name}">
       <img src="${area.cover}" alt="${area.name}" loading="lazy">
       <div class="area-card__body">
@@ -49,7 +49,7 @@ function renderAreas() {
     </article>
   `).join('');
 
-  areasGrid.querySelectorAll('.area-card').forEach((card) => {
+  areasGrid.querySelectorAll('.area-card').forEach(card => {
     const activate = () => {
       activeFilter = card.dataset.area;
       updateFilterButtons();
@@ -69,12 +69,12 @@ function renderAreas() {
 }
 
 function renderToolbar() {
-  const buttons = ['all', ...data.areas.map((area) => area.name)];
-  toolbar.innerHTML = buttons.map((item) => `
+  const buttons = ['all', ...data.areas.map(area => area.name)];
+  toolbar.innerHTML = buttons.map(item => `
     <button class="filter-chip ${activeFilter === item ? 'is-active' : ''}" data-filter="${item}">${item === 'all' ? 'Todos' : item}</button>
   `).join('');
 
-  toolbar.querySelectorAll('.filter-chip').forEach((btn) => {
+  toolbar.querySelectorAll('.filter-chip').forEach(btn => {
     btn.addEventListener('click', () => {
       activeFilter = btn.dataset.filter;
       updateFilterButtons();
@@ -85,7 +85,7 @@ function renderToolbar() {
 }
 
 function updateFilterButtons() {
-  toolbar.querySelectorAll('.filter-chip').forEach((btn) => {
+  toolbar.querySelectorAll('.filter-chip').forEach(btn => {
     btn.classList.toggle('is-active', btn.dataset.filter === activeFilter);
   });
 }
@@ -102,6 +102,7 @@ function renderCourses() {
         <button class="btn btn--primary" id="resetFilters">Ver todos los cursos</button>
       </article>
     `;
+
     document.getElementById('resetFilters')?.addEventListener('click', () => {
       activeFilter = 'all';
       searchTerm = '';
@@ -113,7 +114,7 @@ function renderCourses() {
     return;
   }
 
-  coursesGrid.innerHTML = filtered.map((course) => `
+  coursesGrid.innerHTML = filtered.map(course => `
     <article class="course-card">
       <div class="course-card__image">
         <img src="${course.image}" alt="${course.name}" loading="lazy">
@@ -133,13 +134,13 @@ function renderCourses() {
     </article>
   `).join('');
 
-  coursesGrid.querySelectorAll('[data-course]').forEach((button) => {
+  coursesGrid.querySelectorAll('[data-course]').forEach(button => {
     button.addEventListener('click', () => openCourseModal(button.dataset.course));
   });
 }
 
 function openCourseModal(courseId) {
-  const course = data.courses.find((item) => item.id === courseId);
+  const course = data.courses.find(item => item.id === courseId);
   if (!course) return;
 
   modalContent.innerHTML = `
@@ -151,13 +152,13 @@ function openCourseModal(courseId) {
           <span class="badge badge--soft">${course.badge || 'Modalidad online'}</span>
         </div>
         <h2 style="margin-top:12px;">${course.name}</h2>
-        <p style="margin-top:12px;">${course.summary}</p>
-        <p style="margin-top:12px;"><strong>Dirigido a:</strong> ${course.audience}</p>
-        <h3 style="margin-top:20px;">Este curso incluye</h3>
+        <p>${course.summary}</p>
+        <p><strong>Dirigido a:</strong> ${course.audience}</p>
+        <h3>Este curso incluye</h3>
         <ul class="modal__list">
-          ${course.benefits.map((item) => `<li>${item}</li>`).join('')}
+          ${course.benefits.map(item => `<li>${item}</li>`).join('')}
         </ul>
-        <div style="margin-top:22px;">
+        <div class="modal__cta">
           <a class="btn btn--primary" href="https://wa.me/5212361113237?text=${encodeURIComponent('Hola, me interesa el curso: ' + course.name)}" target="_blank" rel="noopener">Solicitar informes</a>
         </div>
       </div>
@@ -175,31 +176,31 @@ function closeModal() {
   document.body.classList.remove('is-locked');
 }
 
-function buildMediaButton(item, index, group) {
-  return `
-    <button class="media-card" data-lightbox-group="${group}" data-index="${index}" aria-label="Abrir ${group === 'gallery' ? 'imagen' : 'reseña'} ${index + 1}">
-      <img src="${item.src}" alt="${item.alt}" loading="lazy">
-    </button>
-  `;
-}
-
 function renderGallery() {
   const galleryItems = data.students.map((src, index) => ({
     src,
     alt: `Alumno Zoorigen ${index + 1}`,
-    caption: `Alumno graduado ${index + 1}`,
+    caption: `Alumno graduado ${index + 1}`
   }));
-
   const reviewItems = data.reviews.map((src, index) => ({
     src,
     alt: `Reseña Zoorigen ${index + 1}`,
-    caption: `Reseña de la comunidad ${index + 1}`,
+    caption: `Reseña de la comunidad ${index + 1}`
   }));
 
-  galleryGrid.innerHTML = galleryItems.map((item, index) => buildMediaButton(item, index, 'gallery')).join('');
-  reviewsGrid.innerHTML = reviewItems.map((item, index) => buildMediaButton(item, index, 'reviews')).join('');
+  galleryGrid.innerHTML = galleryItems.map((item, index) => `
+    <button class="media-card" data-lightbox-group="gallery" data-index="${index}" aria-label="Abrir imagen ${index + 1}">
+      <img src="${item.src}" alt="${item.alt}" loading="lazy">
+    </button>
+  `).join('');
 
-  document.querySelectorAll('[data-lightbox-group]').forEach((button) => {
+  reviewsGrid.innerHTML = reviewItems.map((item, index) => `
+    <button class="media-card" data-lightbox-group="reviews" data-index="${index}" aria-label="Abrir reseña ${index + 1}">
+      <img src="${item.src}" alt="${item.alt}" loading="lazy">
+    </button>
+  `).join('');
+
+  document.querySelectorAll('[data-lightbox-group]').forEach(button => {
     button.addEventListener('click', () => {
       lightboxItems = button.dataset.lightboxGroup === 'gallery' ? galleryItems : reviewItems;
       lightboxIndex = Number(button.dataset.index);
@@ -207,21 +208,24 @@ function renderGallery() {
     });
   });
 
-  initAutoCarousel(galleryGrid, 0.35);
-  initAutoCarousel(reviewsGrid, 0.25);
+  initAutoCarousel(galleryGrid, 0.55);
+  initAutoCarousel(reviewsGrid, 0.45);
 }
 
-function initAutoCarousel(track, speed = 0.3) {
+const carouselStates = new WeakMap();
+
+function initAutoCarousel(track, speed = 0.45) {
   if (!track) return;
 
   const existingState = carouselStates.get(track);
   if (existingState?.frame) cancelAnimationFrame(existingState.frame);
-  track.querySelectorAll('.is-clone').forEach((item) => item.remove());
+
+  track.querySelectorAll('.is-clone').forEach(item => item.remove());
 
   const cards = Array.from(track.querySelectorAll('.media-card'));
   if (cards.length < 2) return;
 
-  cards.forEach((card) => {
+  cards.forEach(card => {
     const clone = card.cloneNode(true);
     clone.classList.add('is-clone');
     clone.setAttribute('aria-hidden', 'true');
@@ -229,26 +233,34 @@ function initAutoCarousel(track, speed = 0.3) {
     track.appendChild(clone);
   });
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
 
   const state = { paused: false, frame: null };
+  const pause = () => { state.paused = true; };
+  const resume = () => { state.paused = false; };
+
   const step = () => {
     if (!state.paused) {
       track.scrollLeft += speed;
       const resetPoint = track.scrollWidth / 2;
-      if (track.scrollLeft >= resetPoint) track.scrollLeft = 0;
+      if (track.scrollLeft >= resetPoint) {
+        track.scrollLeft = 0;
+      }
     }
     state.frame = requestAnimationFrame(step);
   };
 
-  ['mouseenter', 'focusin', 'touchstart', 'pointerdown'].forEach((eventName) => {
-    track.addEventListener(eventName, () => { state.paused = true; }, { passive: true });
+  ['mouseenter', 'focusin', 'touchstart', 'pointerdown'].forEach(eventName => {
+    track.addEventListener(eventName, pause, { passive: true });
   });
-  ['mouseleave', 'focusout'].forEach((eventName) => {
-    track.addEventListener(eventName, () => { state.paused = false; });
+
+  ['mouseleave', 'focusout'].forEach(eventName => {
+    track.addEventListener(eventName, resume);
   });
+
   track.addEventListener('touchend', () => {
-    window.setTimeout(() => { state.paused = false; }, 1200);
+    window.setTimeout(resume, 1200);
   }, { passive: true });
 
   track.scrollLeft = 0;
@@ -274,7 +286,9 @@ function openLightbox() {
 function closeLightbox() {
   lightbox.classList.remove('is-open');
   lightbox.setAttribute('aria-hidden', 'true');
-  if (!modal.classList.contains('is-open')) document.body.classList.remove('is-locked');
+  if (!modal.classList.contains('is-open')) {
+    document.body.classList.remove('is-locked');
+  }
 }
 
 function moveLightbox(step) {
@@ -285,25 +299,28 @@ function moveLightbox(step) {
 
 function initCounters() {
   const counters = document.querySelectorAll('[data-counter]');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       const el = entry.target;
       const target = Number(el.dataset.counter);
+      let current = 0;
       const duration = 1100;
       const start = performance.now();
+
       const animate = (time) => {
         const progress = Math.min((time - start) / duration, 1);
-        const current = Math.floor(progress * target);
+        current = Math.floor(progress * target);
         el.textContent = progress === 1 ? formatCounter(target) : `${current}`;
         if (progress < 1) requestAnimationFrame(animate);
       };
+
       requestAnimationFrame(animate);
       observer.unobserve(el);
     });
   }, { threshold: 0.45 });
 
-  counters.forEach((counter) => observer.observe(counter));
+  counters.forEach(counter => observer.observe(counter));
 }
 
 window.addEventListener('scroll', () => {
@@ -312,7 +329,7 @@ window.addEventListener('scroll', () => {
 
 backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 navToggle.addEventListener('click', () => navLinks.classList.toggle('is-open'));
-document.querySelectorAll('.nav-links a').forEach((link) => {
+document.querySelectorAll('.nav-links a').forEach(link => {
   link.addEventListener('click', () => navLinks.classList.remove('is-open'));
 });
 
@@ -345,6 +362,8 @@ document.addEventListener('keydown', (event) => {
 
 window.addEventListener('resize', () => {
   if (window.innerWidth > 768) navLinks.classList.remove('is-open');
+  initAutoCarousel(galleryGrid, 0.55);
+  initAutoCarousel(reviewsGrid, 0.45);
 });
 
 renderToolbar();
