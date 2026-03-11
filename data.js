@@ -97,7 +97,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "etologia_fauna_silvestre",
       "name": "Etología de fauna silvestre",
-      "image": "assets/img/areas/etologia-manejo-animal.jpg",
+      "image": "assets/img/cursos/etologia_fauna_silvestre.jpg",
       "area": "Etología y manejo animal",
       "badge": "Modalidad online",
       "summary": "Comportamiento, observación e interpretación de fauna silvestre.",
@@ -111,7 +111,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "fauna_ponzonosa_mexico",
       "name": "Fauna ponzoñosa de México",
-      "image": "assets/img/areas/fauna-ponzonosa-toxicologia.jpg",
+      "image": "assets/img/cursos/fauna_ponzonosa_mexico.jpg",
       "area": "Fauna ponzoñosa y toxicología",
       "badge": "Modalidad online",
       "summary": "Panorama de especies ponzoñosas en México, identificación y prevención.",
@@ -125,7 +125,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "fototrampeo_monitoreo_mamiferos",
       "name": "Fototrampeo y monitoreo de mamíferos",
-      "image": "assets/img/areas/investigacion-cientifica-monitoreo.jpg",
+      "image": "assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg",
       "area": "Investigación científica y monitoreo",
       "badge": "Modalidad online",
       "summary": "Diseño, instalación y análisis básico de monitoreo con cámaras trampa.",
@@ -167,7 +167,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "manejo_integral_colmenas",
       "name": "Manejo integral de colmenas",
-      "image": "assets/img/areas/apicultura-polinizacion.jpg",
+      "image": "assets/img/cursos/manejo_integral_colmenas.jpg",
       "area": "Apicultura y polinización",
       "badge": "Modalidad online",
       "summary": "Buenas prácticas para revisión, manejo y fortalecimiento de colmenas.",
