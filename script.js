@@ -4,6 +4,7 @@ const coursesGrid = document.getElementById('coursesGrid');
 const toolbar = document.querySelector('.course-toolbar');
 const galleryGrid = document.getElementById('galleryGrid');
 const reviewsGrid = document.getElementById('reviewsGrid');
+const gallerySection = document.getElementById('galeria');
 const modal = document.getElementById('courseModal');
 const modalContent = document.getElementById('modalContent');
 const closeModalBtn = document.getElementById('closeModal');
@@ -207,18 +208,21 @@ function renderGallery() {
     });
   });
 
-  initReviewsCarousel();
+  initAutoCarousel(galleryGrid, 0.55);
+  initAutoCarousel(reviewsGrid, 0.45);
 }
 
-let reviewsCarouselFrame = null;
+const carouselStates = new WeakMap();
 
-function initReviewsCarousel() {
-  if (!reviewsGrid) return;
+function initAutoCarousel(track, speed = 0.45) {
+  if (!track) return;
 
-  cancelAnimationFrame(reviewsCarouselFrame);
-  reviewsGrid.querySelectorAll('.is-clone').forEach(item => item.remove());
+  const existingState = carouselStates.get(track);
+  if (existingState?.frame) cancelAnimationFrame(existingState.frame);
 
-  const cards = Array.from(reviewsGrid.querySelectorAll('.media-card'));
+  track.querySelectorAll('.is-clone').forEach(item => item.remove());
+
+  const cards = Array.from(track.querySelectorAll('.media-card'));
   if (cards.length < 2) return;
 
   cards.forEach(card => {
@@ -226,39 +230,42 @@ function initReviewsCarousel() {
     clone.classList.add('is-clone');
     clone.setAttribute('aria-hidden', 'true');
     clone.tabIndex = -1;
-    reviewsGrid.appendChild(clone);
+    track.appendChild(clone);
   });
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return;
 
-  let paused = false;
+  const state = { paused: false, frame: null };
+  const pause = () => { state.paused = true; };
+  const resume = () => { state.paused = false; };
 
   const step = () => {
-    if (!paused) {
-      reviewsGrid.scrollLeft += 0.45;
-      const resetPoint = reviewsGrid.scrollWidth / 2;
-      if (reviewsGrid.scrollLeft >= resetPoint) {
-        reviewsGrid.scrollLeft = 0;
+    if (!state.paused) {
+      track.scrollLeft += speed;
+      const resetPoint = track.scrollWidth / 2;
+      if (track.scrollLeft >= resetPoint) {
+        track.scrollLeft = 0;
       }
     }
-    reviewsCarouselFrame = requestAnimationFrame(step);
+    state.frame = requestAnimationFrame(step);
   };
 
   ['mouseenter', 'focusin', 'touchstart', 'pointerdown'].forEach(eventName => {
-    reviewsGrid.addEventListener(eventName, () => { paused = true; }, { passive: true });
+    track.addEventListener(eventName, pause, { passive: true });
   });
 
   ['mouseleave', 'focusout'].forEach(eventName => {
-    reviewsGrid.addEventListener(eventName, () => { paused = false; });
+    track.addEventListener(eventName, resume);
   });
 
-  reviewsGrid.addEventListener('touchend', () => {
-    window.setTimeout(() => { paused = false; }, 1200);
+  track.addEventListener('touchend', () => {
+    window.setTimeout(resume, 1200);
   }, { passive: true });
 
-  reviewsGrid.scrollLeft = 0;
-  step();
+  track.scrollLeft = 0;
+  state.frame = requestAnimationFrame(step);
+  carouselStates.set(track, state);
 }
 
 function updateLightbox() {
@@ -355,6 +362,8 @@ document.addEventListener('keydown', (event) => {
 
 window.addEventListener('resize', () => {
   if (window.innerWidth > 768) navLinks.classList.remove('is-open');
+  initAutoCarousel(galleryGrid, 0.55);
+  initAutoCarousel(reviewsGrid, 0.45);
 });
 
 renderToolbar();
