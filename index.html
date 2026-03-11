@@ -128,9 +128,17 @@
           <div>
             <p class="eyebrow">Cursos</p>
             <h2>Oferta formativa de ZOORIGEN</h2>
+            <p class="section-copy">Filtra por área o busca un curso específico para encontrar la capacitación ideal.</p>
           </div>
-          <div class="course-toolbar">
-            <button class="filter-chip is-active" data-filter="all">Todos</button>
+          <div class="courses-controls">
+            <label class="search-box" for="courseSearch">
+              <span>🔎</span>
+              <input type="search" id="courseSearch" placeholder="Buscar curso..." autocomplete="off" />
+            </label>
+            <div class="course-toolbar">
+              <button class="filter-chip is-active" data-filter="all">Todos</button>
+            </div>
+            <p class="courses-count" id="coursesCount"></p>
           </div>
         </div>
         <div class="courses-grid" id="coursesGrid"></div>
@@ -207,6 +215,16 @@
       <button class="modal__close" id="closeModal" aria-label="Cerrar">×</button>
       <div class="modal__content" id="modalContent"></div>
     </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lightbox__close" id="lightboxClose" aria-label="Cerrar imagen">×</button>
+    <button class="lightbox__nav lightbox__nav--prev" id="lightboxPrev" aria-label="Imagen anterior">‹</button>
+    <figure class="lightbox__figure">
+      <img id="lightboxImage" alt="Vista ampliada" />
+      <figcaption id="lightboxCaption"></figcaption>
+    </figure>
+    <button class="lightbox__nav lightbox__nav--next" id="lightboxNext" aria-label="Siguiente imagen">›</button>
   </div>
 
   <script src="data.js"></script>
