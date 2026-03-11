@@ -16,7 +16,7 @@ window.ZOORIGEN_DATA = {
       "slug": "etologia-manejo-animal",
       "name": "Etología y manejo animal",
       "desc": "Comportamiento, bienestar y técnicas de manejo con enfoque aplicado.",
-      "cover": "assets/img/cursos/entrenamiento_basico_canino.jpg"
+      "cover": "assets/img/areas/etologia-manejo-animal.jpg"
     },
     {
       "slug": "apicultura-polinizacion",
