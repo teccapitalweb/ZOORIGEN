@@ -68,7 +68,7 @@ p { line-height: 1.75; color: var(--muted); }
 .hero__bg {
   position:absolute; inset:0;
   background: linear-gradient(90deg, rgba(12,27,20,.78) 0%, rgba(17,35,25,.68) 42%, rgba(24,46,34,.26) 100%),
-    url('assets/img/banner/hero-banner.jpg') center/cover no-repeat;
+    url('assets/img/banner/BANNER.png') center/cover no-repeat;
   transform: scale(1.03);
 }
 .hero__content { position: relative; z-index: 1; width: var(--container); display:grid; place-items:center; text-align:center; }
@@ -465,3 +465,7 @@ body.is-locked { overflow: hidden; }
   .lightbox__nav--prev { left: 10px; }
   .lightbox__nav--next { right: 10px; }
 }
+
+
+/* Banner actualizado */
+.hero__bg { background-position: center center; }
