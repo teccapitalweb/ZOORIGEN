@@ -1,245 +1,32 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZOORIGEN | Líderes en capacitación científica en fauna, biodiversidad y manejo animal</title>
-  <meta name="description" content="ZOORIGEN ofrece capacitación científica en fauna silvestre, apicultura, biodiversidad, manejo animal e investigación aplicada." />
-  <meta name="theme-color" content="#1F5F3A" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZOORIGEN</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="container topbar__inner">
-      <a href="https://wa.me/5212361113237" target="_blank" rel="noopener">WhatsApp: +52 1 236 111 3237</a>
-      <a href="mailto:zooorigen@gmail.com">zooorigen@gmail.com</a>
-      <a href="https://www.facebook.com/profile.php?id=61579624231627" target="_blank" rel="noopener">Facebook oficial</a>
-    </div>
-  </header>
 
-  <nav class="navbar" id="navbar">
-    <div class="container nav__inner">
-      <a class="brand" href="#inicio" aria-label="Ir al inicio de Zoorigen">
-        <img src="assets/img/logo/logo.jpg" alt="Logo ZOORIGEN" />
-        <span>ZOORIGEN</span>
-      </a>
+<section class="stats">
 
-      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
-        <span></span><span></span><span></span>
-      </button>
-
-      <div class="nav-links" id="navLinks">
-        <a href="#inicio">Inicio</a>
-        <a href="#areas">Áreas</a>
-        <a href="#cursos">Cursos</a>
-        <a href="#galeria">Galería</a>
-        <a href="#nosotros">Nosotros</a>
-        <a href="#faq">Preguntas</a>
-        <a href="#contacto">Contacto</a>
-        <a class="btn btn--primary nav-cta" href="https://wa.me/5212361113237" target="_blank" rel="noopener">WhatsApp</a>
-      </div>
-    </div>
-  </nav>
-
-  <main>
-    <section class="hero" id="inicio">
-      <div class="hero__bg"></div>
-      <div class="container hero__content">
-        <div class="hero__text">
-          <p class="eyebrow">Cursos especializados en áreas científicas y de conservación</p>
-          <h1>Líderes en capacitación científica en fauna, biodiversidad y manejo animal</h1>
-          <p class="hero__lead">Formación especializada para estudiantes, profesionistas y personas interesadas en conservación, zoología aplicada y educación científica.</p>
-          <div class="hero__actions">
-            <a class="btn btn--accent" href="#cursos">Ver cursos</a>
-            <a class="btn btn--ghost" href="https://wa.me/5212361113237" target="_blank" rel="noopener">Solicitar información</a>
-          </div>
-          <div class="hero__badges">
-            <span>Modalidad online</span>
-            <span>Certificado con folio y QR</span>
-            <span>Acceso desde cualquier lugar</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="stats section">
-      <div class="container stats__grid">
-        <article class="stat-card"><strong data-counter="22">0</strong><span>Cursos especializados</span></article>
-        <article class="stat-card"><strong data-counter="6">0</strong><span>Áreas de capacitación</span></article>
-        <article class="stat-card"><strong data-counter="2000">0</strong><span>Alumnos graduados</span></article>
-      </div>
-    </section>
-
-    <section class="section section--soft" id="nosotros">
-      <div class="container about">
-        <div>
-          <p class="eyebrow">Quiénes somos</p>
-          <h2>Capacitación especializada con enfoque profesional</h2>
-          <p>ZOORIGEN es una marca orientada a la formación especializada en fauna silvestre, biodiversidad, apicultura, manejo animal y temas aplicados a la conservación e investigación.</p>
-          <p>Trabajamos para acercar conocimiento útil, actualizado y accesible a estudiantes, profesionistas y personas interesadas en el estudio de la vida silvestre.</p>
-        </div>
-        <div class="about__panel">
-          <h3>¿Por qué elegir ZOORIGEN?</h3>
-          <ul>
-            <li>Capacitación científica y profesional</li>
-            <li>Cursos organizados por áreas para encontrar fácilmente cada temática</li>
-            <li>Contenido claro, visual y confiable</li>
-            <li>Experiencia cómoda en celular, tablet y computadora</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="areas">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Áreas de capacitación</p>
-            <h2>Explora nuestras áreas de capacitación</h2>
-          </div>
-          <p>Selecciona un área y descubre los cursos relacionados.</p>
-        </div>
-        <div class="areas-grid" id="areasGrid"></div>
-      </div>
-    </section>
-
-    <section class="section section--soft" id="beneficios">
-      <div class="container">
-        <div class="section-head center">
-          <p class="eyebrow">Beneficios</p>
-          <h2>Una experiencia de formación clara, accesible y confiable</h2>
-        </div>
-        <div class="benefits-grid">
-          <article class="benefit-card"><span>🎓</span><h3>Certificado con folio y QR</h3><p>Refuerza la presentación profesional de cada curso.</p></article>
-          <article class="benefit-card"><span>💻</span><h3>Modalidad online</h3><p>Acceso desde cualquier lugar con una experiencia cómoda.</p></article>
-          <article class="benefit-card"><span>📚</span><h3>Material de apoyo</h3><p>Recursos complementarios para fortalecer el aprendizaje.</p></article>
-          <article class="benefit-card"><span>🧠</span><h3>Contenido especializado</h3><p>Temáticas de fauna, biodiversidad, apicultura y manejo animal.</p></article>
-          <article class="benefit-card"><span>📱</span><h3>Diseño adaptado</h3><p>La web funciona correctamente en móvil, tablet y computadora.</p></article>
-          <article class="benefit-card"><span>🟢</span><h3>Contacto directo</h3><p>Botones rápidos para enviar mensajes por WhatsApp.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="cursos">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Cursos</p>
-            <h2>Oferta formativa de ZOORIGEN</h2>
-          </div>
-          <div class="course-toolbar">
-            <button class="filter-chip is-active" data-filter="all">Todos</button>
-          </div>
-        </div>
-        <div class="courses-grid" id="coursesGrid"></div>
-      </div>
-    </section>
-
-    <section class="section section--soft" id="galeria">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Galería</p>
-            <h2>Más de 2000 alumnos graduados</h2>
-          </div>
-          <p>Conoce parte de la comunidad que ha confiado en nuestras capacitaciones.</p>
-        </div>
-        <div class="gallery-grid" id="galleryGrid"></div>
-      </div>
-    </section>
-
-    <section class="section" id="resenas">
-      <div class="container">
-        <div class="section-head center">
-          <p class="eyebrow">Reseñas</p>
-          <h2>Opiniones de nuestra comunidad</h2>
-        </div>
-        <div class="reviews-grid" id="reviewsGrid"></div>
-      </div>
-    </section>
-
-    <section class="section section--soft" id="faq">
-      <div class="container faq-wrap">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Preguntas frecuentes</p>
-            <h2>Respuestas claras para facilitar la inscripción</h2>
-          </div>
-        </div>
-        <div class="faq-list">
-          <details open>
-            <summary>¿Los cursos incluyen certificado?</summary>
-            <p>Sí. Nuestros cursos están pensados para brindar una experiencia de aprendizaje profesional y especializada.</p>
-          </details>
-          <details>
-            <summary>¿La modalidad es en línea?</summary>
-            <p>Sí. La página está preparada para comunicar modalidad online y contacto inmediato por WhatsApp.</p>
-          </details>
-          <details>
-            <summary>¿Puedo organizar los cursos por áreas?</summary>
-            <p>Sí. Nuestra oferta está organizada por áreas para que encuentres con facilidad el curso que buscas.</p>
-          </details>
-          <details>
-            <summary>¿Cómo puedo solicitar información o inscribirme?</summary>
-            <p>Puedes comunicarte directamente por WhatsApp o correo para recibir información sobre fechas, costos y disponibilidad.</p>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <section class="section contact-section" id="contacto">
-      <div class="container contact-box">
-        <div>
-          <p class="eyebrow">Contacto</p>
-          <h2>Solicita información de cursos y capacitaciones</h2>
-          <p>Estamos listos para ayudarte a elegir la capacitación ideal para ti.</p>
-        </div>
-        <div class="contact-cards">
-          <a href="https://wa.me/5212361113237" target="_blank" rel="noopener">WhatsApp<br><strong>+52 1 236 111 3237</strong></a>
-          <a href="mailto:zooorigen@gmail.com">Correo<br><strong>zooorigen@gmail.com</strong></a>
-          <a href="https://www.facebook.com/profile.php?id=61579624231627" target="_blank" rel="noopener">Facebook<br><strong>Ver perfil oficial</strong></a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container footer__inner">
-      <div>
-        <img class="footer__logo" src="assets/img/logo/logo.jpg" alt="Logo ZOORIGEN" />
-        <p>Capacitación científica orientada al estudio, manejo y conservación de la fauna y la biodiversidad.</p>
-      </div>
-      <div>
-        <h3>Enlaces</h3>
-        <a href="#areas">Áreas</a>
-        <a href="#cursos">Cursos</a>
-        <a href="#galeria">Galería</a>
-        <a href="#contacto">Contacto</a>
-      </div>
-      <div>
-        <h3>Contacto</h3>
-        <a href="https://wa.me/5212361113237" target="_blank" rel="noopener">WhatsApp</a>
-        <a href="mailto:zooorigen@gmail.com">Correo</a>
-        <a href="https://www.facebook.com/profile.php?id=61579624231627" target="_blank" rel="noopener">Facebook</a>
-      </div>
-    </div>
-  </footer>
-
-  <a class="floating-whatsapp" href="https://wa.me/5212361113237" target="_blank" rel="noopener" aria-label="Abrir WhatsApp">✆</a>
-  <button id="backToTop" aria-label="Regresar arriba">↑</button>
-
-  <div class="modal" id="courseModal" aria-hidden="true">
-    <div class="modal__overlay" data-close="true"></div>
-    <div class="modal__dialog">
-      <button class="modal__close" id="closeModal" aria-label="Cerrar">×</button>
-      <div class="modal__content" id="modalContent"></div>
-    </div>
+  <div class="stat-card">
+    <h2>22+</h2>
+    <p>Cursos especializados</p>
   </div>
 
-  <script src="data.js"></script>
-  <script src="script.js"></script>
+  <div class="stat-card">
+    <h2>6+</h2>
+    <p>Áreas de capacitación</p>
+  </div>
+
+  <div class="stat-card">
+    <h2>2000+</h2>
+    <p>Alumnos graduados</p>
+  </div>
+
+</section>
+
 </body>
 </html>
