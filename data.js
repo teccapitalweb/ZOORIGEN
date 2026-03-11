@@ -4,13 +4,13 @@ window.ZOORIGEN_DATA = {
       "slug": "fauna-ponzonosa-toxicologia",
       "name": "Fauna ponzoñosa y toxicología",
       "desc": "Capacitación enfocada en identificación, prevención y manejo inicial ante especies de importancia médica.",
-      "cover": "assets/img/cursos/fauna_ponzonosa_mexico.jpg"
+      "cover": "assets/img/areas/fauna-ponzonosa-toxicologia.jpg"
     },
     {
       "slug": "fauna-silvestre-conservacion",
       "name": "Fauna silvestre y conservación",
       "desc": "Formación en monitoreo, rescate, manejo y conservación de especies y ecosistemas.",
-      "cover": "assets/img/cursos/rescate_fauna_silvestre.jpg"
+      "cover": "assets/img/areas/fauna-silvestre-conservacion.webp"
     },
     {
       "slug": "etologia-manejo-animal",
@@ -22,19 +22,19 @@ window.ZOORIGEN_DATA = {
       "slug": "apicultura-polinizacion",
       "name": "Apicultura y polinización",
       "desc": "Cursos orientados al manejo de colmenas, sanidad apícola y servicios de polinización.",
-      "cover": "assets/img/cursos/manejo_integral_colmenas.jpg"
+      "cover": "assets/img/areas/apicultura-polinizacion.jpg"
     },
     {
       "slug": "investigacion-cientifica-monitoreo",
       "name": "Investigación científica y monitoreo",
       "desc": "Herramientas y metodologías para generar información útil en campo y laboratorio.",
-      "cover": "assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg"
+      "cover": "assets/img/areas/investigacion-cientifica-monitoreo.jpg"
     },
     {
       "slug": "manejo-fauna-cautiverio-exhibicion",
       "name": "Manejo de fauna en cautiverio y exhibición",
       "desc": "Diseño, operación y conservación aplicada en recintos, exhibiciones y colecciones vivas.",
-      "cover": "assets/img/cursos/zooingenieria_habitats_exhibiciones.jpg"
+      "cover": "assets/img/areas/manejo-fauna-cautiverio-exhibicion.jpg"
     }
   ],
   "courses": [
@@ -97,7 +97,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "etologia_fauna_silvestre",
       "name": "Etología de fauna silvestre",
-      "image": "assets/img/cursos/etologia_fauna_silvestre.jpg",
+      "image": "assets/img/areas/etologia-manejo-animal.jpg",
       "area": "Etología y manejo animal",
       "badge": "Modalidad online",
       "summary": "Comportamiento, observación e interpretación de fauna silvestre.",
@@ -111,7 +111,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "fauna_ponzonosa_mexico",
       "name": "Fauna ponzoñosa de México",
-      "image": "assets/img/cursos/fauna_ponzonosa_mexico.jpg",
+      "image": "assets/img/areas/fauna-ponzonosa-toxicologia.jpg",
       "area": "Fauna ponzoñosa y toxicología",
       "badge": "Modalidad online",
       "summary": "Panorama de especies ponzoñosas en México, identificación y prevención.",
@@ -125,7 +125,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "fototrampeo_monitoreo_mamiferos",
       "name": "Fototrampeo y monitoreo de mamíferos",
-      "image": "assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg",
+      "image": "assets/img/areas/investigacion-cientifica-monitoreo.jpg",
       "area": "Investigación científica y monitoreo",
       "badge": "Modalidad online",
       "summary": "Diseño, instalación y análisis básico de monitoreo con cámaras trampa.",
@@ -167,7 +167,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "manejo_integral_colmenas",
       "name": "Manejo integral de colmenas",
-      "image": "assets/img/cursos/manejo_integral_colmenas.jpg",
+      "image": "assets/img/areas/apicultura-polinizacion.jpg",
       "area": "Apicultura y polinización",
       "badge": "Modalidad online",
       "summary": "Buenas prácticas para revisión, manejo y fortalecimiento de colmenas.",
@@ -265,7 +265,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "rescate_fauna_silvestre",
       "name": "Rescate de fauna silvestre",
-      "image": "assets/img/cursos/rescate_fauna_silvestre.jpg",
+      "image": "assets/img/areas/fauna-silvestre-conservacion.webp",
       "area": "Fauna silvestre y conservación",
       "badge": "Modalidad online",
       "summary": "Protocolos básicos para atención, resguardo y canalización de fauna silvestre.",
@@ -335,7 +335,7 @@ window.ZOORIGEN_DATA = {
     {
       "id": "zooingenieria_habitats_exhibiciones",
       "name": "Zooingeniería de hábitats y exhibiciones",
-      "image": "assets/img/cursos/zooingenieria_habitats_exhibiciones.jpg",
+      "image": "assets/img/areas/manejo-fauna-cautiverio-exhibicion.jpg",
       "area": "Manejo de fauna en cautiverio y exhibición",
       "badge": "Modalidad online",
       "summary": "Principios de diseño funcional y bienestar animal en hábitats y exhibiciones.",

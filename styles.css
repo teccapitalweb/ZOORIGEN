@@ -201,3 +201,143 @@ p { line-height: 1.75; color: var(--muted); }
   .topbar__inner { justify-content:flex-start; gap:10px 18px; }
   .floating-whatsapp { bottom: 88px; }
 }
+
+
+/* Ajustes premium de centrado y visualización */
+.topbar__inner,
+.brand,
+.section-heading,
+.hero__content,
+.hero__text,
+.stat-card,
+.area-card__content,
+.course-card__body,
+.benefit-card,
+.gallery-tabs,
+.contact-box,
+.footer__inner,
+.info-card,
+.modal__content {
+  text-align: center;
+}
+
+.topbar__inner,
+.footer__inner,
+.contact-box,
+.split,
+.hero__content {
+  justify-items: center;
+}
+
+.hero__content {
+  display: grid;
+  place-items: center;
+}
+
+.hero__text {
+  margin-inline: auto;
+  max-width: 860px;
+}
+
+.hero__actions,
+.course-card__actions,
+.filters,
+.contact-list,
+.check-list {
+  justify-content: center;
+}
+
+.section-heading {
+  max-width: 840px;
+  margin-inline: auto;
+}
+
+.section-heading--between {
+  align-items: center;
+}
+
+.split,
+.contact-box {
+  align-items: center;
+}
+
+.info-card,
+.stat-card,
+.benefit-card,
+.course-card__body {
+  align-items: center;
+}
+
+.area-card__content,
+.course-card__body,
+.benefit-card,
+.stat-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.area-card__content p,
+.course-card__body p,
+.benefit-card p,
+.info-card p,
+.contact-box p,
+.split p,
+.faq-list p {
+  margin-inline: auto;
+  max-width: 72ch;
+}
+
+.area-card {
+  min-height: 320px;
+}
+
+.course-card__media {
+  aspect-ratio: 1 / 1;
+}
+
+.course-card__media img,
+.gallery-item img,
+.area-card img {
+  object-position: center;
+}
+
+.gallery-item {
+  aspect-ratio: 1 / 1;
+}
+
+.footer__inner > div,
+.info-card ul,
+.footer ul,
+.contact-list,
+.check-list {
+  text-align: center;
+  padding-left: 0;
+  list-style-position: inside;
+}
+
+.modal-grid {
+  align-items: center;
+}
+
+.modal-grid > div:last-child {
+  text-align: center;
+}
+
+@media (max-width: 820px) {
+  .section-heading--between { align-items: center; }
+  .nav-links { text-align: center; }
+}
+
+@media (max-width: 640px) {
+  .hero__text h1 { font-size: clamp(2rem, 10vw, 2.8rem); }
+  .hero__actions { flex-direction: column; width: 100%; }
+  .hero__actions .btn,
+  .course-card__actions .btn {
+    width: 100%;
+  }
+  .course-card__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .area-card { min-height: 270px; }
+}
