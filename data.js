@@ -347,15 +347,6 @@ window.ZOORIGEN_DATA = {
       ]
     }
   ],
-  "companies": [
-    {"name": "Grand Bahía Príncipe", "image": "assets/img/logos/14365.jpg"},
-    {"name": "IAAMB", "image": "assets/img/logos/1607989806975.jpg"},
-    {"name": "AGROPEC comercializadora", "image": "assets/img/logos/AGROPEC LOGO.jpg"},
-    {"name": "Mayakoba", "image": "assets/img/logos/mayakoba-header.jpg"},
-    {"name": "Omron", "image": "assets/img/logos/OMRON_Logo.svg.png"},
-    {"name": "Gran Acuario Mazatlán", "image": "assets/img/logos/P7508.jpg"},
-    {"name": "Sierra Mazati", "image": "assets/img/logos/sierra_mazati_logo.jpg"}
-  ],
   "students": [
     "assets/img/alumnos/556039285_122117027300987474_4460183418776072849_n.jpg",
     "assets/img/alumnos/558936934_122118651386987474_8876696167276015156_n.jpg",
@@ -377,5 +368,15 @@ window.ZOORIGEN_DATA = {
     "assets/img/resenas/resena_captura_de_pantalla_2026-03-07_181513.png",
     "assets/img/resenas/resena_captura_de_pantalla_2026-03-07_181529.png",
     "assets/img/resenas/resena_captura_de_pantalla_2026-03-07_181539.png"
+  ],
+  "companies": [
+    {"name": "Grand Bahía Príncipe", "image": "assets/img/empresas/grand-bahia-principe.jpg"},
+    {"name": "IAAMB", "image": "assets/img/empresas/iaamb.jpg"},
+    {"name": "AGROPEC Comercializadora", "image": "assets/img/empresas/agropec.jpg"},
+    {"name": "Mayakoba", "image": "assets/img/empresas/mayakoba.jpg"},
+    {"name": "Omron", "image": "assets/img/empresas/omron.png"},
+    {"name": "Gran Acuario Mazatlán", "image": "assets/img/empresas/gran-acuario-mazatlan.jpg"},
+    {"name": "Sierra Mazati", "image": "assets/img/empresas/sierra-mazati.jpg"}
   ]
+
 };

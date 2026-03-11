@@ -1,11 +1,10 @@
 const data = window.ZOORIGEN_DATA;
-
 const areasGrid = document.getElementById('areasGrid');
 const coursesGrid = document.getElementById('coursesGrid');
 const toolbar = document.querySelector('.course-toolbar');
 const galleryGrid = document.getElementById('galleryGrid');
 const reviewsGrid = document.getElementById('reviewsGrid');
-const logosGrid = document.getElementById('logosGrid');
+const companiesGrid = document.getElementById('companiesGrid');
 const modal = document.getElementById('courseModal');
 const modalContent = document.getElementById('modalContent');
 const closeModalBtn = document.getElementById('closeModal');
@@ -20,19 +19,14 @@ const lightboxCaption = document.getElementById('lightboxCaption');
 const lightboxClose = document.getElementById('lightboxClose');
 const lightboxPrev = document.getElementById('lightboxPrev');
 const lightboxNext = document.getElementById('lightboxNext');
-const coursesPrev = document.getElementById('coursesPrev');
-const coursesNext = document.getElementById('coursesNext');
-const logosPrev = document.getElementById('logosPrev');
-const logosNext = document.getElementById('logosNext');
 
 let activeFilter = 'all';
 let searchTerm = '';
 let lightboxItems = [];
 let lightboxIndex = 0;
+const carouselStates = new WeakMap();
 
-function formatCounter(value) {
-  return `${value}+`;
-}
+function formatCounter(value) { return `${value}+`; }
 
 function getFilteredCourses() {
   return data.courses.filter(course => {
@@ -99,7 +93,6 @@ function renderCourses() {
   coursesCount.textContent = `${filtered.length} curso${filtered.length === 1 ? '' : 's'} disponible${filtered.length === 1 ? '' : 's'}`;
 
   if (!filtered.length) {
-    coursesGrid.className = 'courses-grid';
     coursesGrid.innerHTML = `
       <article class="empty-state">
         <h3>No encontramos cursos con ese filtro</h3>
@@ -115,14 +108,11 @@ function renderCourses() {
       renderAreas();
       renderCourses();
     });
-    coursesPrev.style.display = 'none';
-    coursesNext.style.display = 'none';
     return;
   }
 
-  coursesGrid.className = 'courses-grid courses-track';
   coursesGrid.innerHTML = filtered.map(course => `
-    <article class="course-card carousel-card">
+    <article class="course-card course-card--carousel">
       <div class="course-card__image">
         <img src="${course.image}" alt="${course.name}" loading="lazy">
       </div>
@@ -144,16 +134,11 @@ function renderCourses() {
   coursesGrid.querySelectorAll('[data-course]').forEach(button => {
     button.addEventListener('click', () => openCourseModal(button.dataset.course));
   });
-
-  coursesPrev.style.display = '';
-  coursesNext.style.display = '';
-  initAutoCarousel(coursesGrid, '.course-card', 0.38);
 }
 
 function openCourseModal(courseId) {
   const course = data.courses.find(item => item.id === courseId);
   if (!course) return;
-
   modalContent.innerHTML = `
     <div class="modal__hero">
       <img src="${course.image}" alt="${course.name}">
@@ -166,16 +151,13 @@ function openCourseModal(courseId) {
         <p>${course.summary}</p>
         <p><strong>Dirigido a:</strong> ${course.audience}</p>
         <h3>Este curso incluye</h3>
-        <ul class="modal__list">
-          ${course.benefits.map(item => `<li>${item}</li>`).join('')}
-        </ul>
+        <ul class="modal__list">${course.benefits.map(item => `<li>${item}</li>`).join('')}</ul>
         <div class="modal__cta">
           <a class="btn btn--primary" href="https://wa.me/5212361113237?text=${encodeURIComponent('Hola, me interesa el curso: ' + course.name)}" target="_blank" rel="noopener">Solicitar informes</a>
         </div>
       </div>
     </div>
   `;
-
   modal.classList.add('is-open');
   modal.setAttribute('aria-hidden', 'false');
   document.body.classList.add('is-locked');
@@ -187,29 +169,23 @@ function closeModal() {
   document.body.classList.remove('is-locked');
 }
 
+function renderMediaTrack(track, items, type) {
+  if (!track) return;
+  track.innerHTML = items.map((item, index) => `
+    <button class="media-card ${type === 'company' ? 'media-card--logo' : ''}" ${type === 'company' ? '' : `data-lightbox-group="${type}" data-index="${index}"`} aria-label="${item.caption || item.name}">
+      <img src="${item.src || item.image}" alt="${item.alt || item.name}" loading="lazy">
+    </button>
+  `).join('');
+}
+
 function renderGallery() {
-  const galleryItems = data.students.map((src, index) => ({
-    src,
-    alt: `Alumno Zoorigen ${index + 1}`,
-    caption: `Alumno graduado ${index + 1}`
-  }));
-  const reviewItems = data.reviews.map((src, index) => ({
-    src,
-    alt: `Reseña Zoorigen ${index + 1}`,
-    caption: `Reseña de la comunidad ${index + 1}`
-  }));
+  const galleryItems = data.students.map((src, index) => ({ src, alt: `Alumno Zoorigen ${index + 1}`, caption: `Alumno graduado ${index + 1}` }));
+  const reviewItems = data.reviews.map((src, index) => ({ src, alt: `Reseña Zoorigen ${index + 1}`, caption: `Reseña de la comunidad ${index + 1}` }));
+  const companyItems = data.companies.map(item => ({ image: item.image, name: item.name }));
 
-  galleryGrid.innerHTML = galleryItems.map((item, index) => `
-    <button class="media-card" data-lightbox-group="gallery" data-index="${index}" aria-label="Abrir imagen ${index + 1}">
-      <img src="${item.src}" alt="${item.alt}" loading="lazy">
-    </button>
-  `).join('');
-
-  reviewsGrid.innerHTML = reviewItems.map((item, index) => `
-    <button class="media-card media-card--review" data-lightbox-group="reviews" data-index="${index}" aria-label="Abrir reseña ${index + 1}">
-      <img src="${item.src}" alt="${item.alt}" loading="lazy">
-    </button>
-  `).join('');
+  renderMediaTrack(galleryGrid, galleryItems, 'gallery');
+  renderMediaTrack(reviewsGrid, reviewItems, 'reviews');
+  renderMediaTrack(companiesGrid, companyItems, 'company');
 
   document.querySelectorAll('[data-lightbox-group]').forEach(button => {
     button.addEventListener('click', () => {
@@ -219,83 +195,54 @@ function renderGallery() {
     });
   });
 
-  initAutoCarousel(galleryGrid, '.media-card', 0.55);
-  initAutoCarousel(reviewsGrid, '.media-card', 0.45);
+  initAutoCarousel(galleryGrid, 0.55);
+  initAutoCarousel(reviewsGrid, 0.38);
+  initAutoCarousel(companiesGrid, 0.3);
 }
 
-function renderCompanies() {
-  if (!logosGrid) return;
-  logosGrid.className = 'logos-grid logos-track';
-  logosGrid.innerHTML = data.companies.map(company => `
-    <article class="logo-card carousel-card" aria-label="${company.name}">
-      <img src="${company.image}" alt="${company.name}" loading="lazy">
-    </article>
-  `).join('');
-  initAutoCarousel(logosGrid, '.logo-card', 0.40);
-}
-
-const carouselStates = new WeakMap();
-
-function initAutoCarousel(track, selector = '.media-card', speed = 0.45) {
+function initAutoCarousel(track, speed = 0.45) {
   if (!track) return;
-
   const existingState = carouselStates.get(track);
   if (existingState?.frame) cancelAnimationFrame(existingState.frame);
-
   track.querySelectorAll('.is-clone').forEach(item => item.remove());
-
-  const cards = Array.from(track.querySelectorAll(selector));
+  const cards = Array.from(track.children);
   if (cards.length < 2) return;
-
   cards.forEach(card => {
     const clone = card.cloneNode(true);
     clone.classList.add('is-clone');
     clone.setAttribute('aria-hidden', 'true');
-    clone.querySelectorAll('button, a').forEach(el => el.tabIndex = -1);
     clone.tabIndex = -1;
     track.appendChild(clone);
   });
-
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduceMotion) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const state = { paused: false, frame: null };
   const pause = () => { state.paused = true; };
   const resume = () => { state.paused = false; };
-
   const step = () => {
     if (!state.paused) {
       track.scrollLeft += speed;
       const resetPoint = track.scrollWidth / 2;
-      if (track.scrollLeft >= resetPoint) {
-        track.scrollLeft = 0;
-      }
+      if (track.scrollLeft >= resetPoint) track.scrollLeft = 0;
     }
     state.frame = requestAnimationFrame(step);
   };
-
-  ['mouseenter', 'focusin', 'touchstart', 'pointerdown'].forEach(eventName => {
-    track.addEventListener(eventName, pause, { passive: true });
-  });
-
-  ['mouseleave', 'focusout'].forEach(eventName => {
-    track.addEventListener(eventName, resume);
-  });
-
-  track.addEventListener('touchend', () => {
-    window.setTimeout(resume, 1200);
-  }, { passive: true });
-
+  ['mouseenter', 'focusin', 'touchstart', 'pointerdown'].forEach(evt => track.addEventListener(evt, pause, { passive: true }));
+  ['mouseleave', 'focusout'].forEach(evt => track.addEventListener(evt, resume));
+  track.addEventListener('touchend', () => window.setTimeout(resume, 1200), { passive: true });
   track.scrollLeft = 0;
   state.frame = requestAnimationFrame(step);
   carouselStates.set(track, state);
 }
 
-function hookArrow(button, track, direction = 1) {
-  if (!button || !track) return;
-  button.addEventListener('click', () => {
-    const amount = Math.max(track.clientWidth * 0.82, 280) * direction;
-    track.scrollBy({ left: amount, behavior: 'smooth' });
+function bindCarouselButtons() {
+  document.querySelectorAll('.carousel-arrow').forEach(button => {
+    button.addEventListener('click', () => {
+      const track = document.getElementById(button.dataset.target);
+      if (!track) return;
+      const amount = Math.max(track.clientWidth * 0.85, 320);
+      track.scrollBy({ left: button.classList.contains('carousel-arrow--next') ? amount : -amount, behavior: 'smooth' });
+    });
   });
 }
 
@@ -335,74 +282,46 @@ function initCounters() {
       const target = Number(el.dataset.counter);
       const duration = 1100;
       const start = performance.now();
-
       const animate = (time) => {
         const progress = Math.min((time - start) / duration, 1);
         const current = Math.floor(progress * target);
         el.textContent = progress === 1 ? formatCounter(target) : `${current}`;
         if (progress < 1) requestAnimationFrame(animate);
       };
-
       requestAnimationFrame(animate);
       observer.unobserve(el);
     });
   }, { threshold: 0.45 });
-
   counters.forEach(counter => observer.observe(counter));
 }
 
-window.addEventListener('scroll', () => {
-  backToTop.classList.toggle('is-visible', window.scrollY > 500);
-});
-
+window.addEventListener('scroll', () => backToTop.classList.toggle('is-visible', window.scrollY > 500));
 backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 navToggle.addEventListener('click', () => navLinks.classList.toggle('is-open'));
-document.querySelectorAll('.nav-links a').forEach(link => {
-  link.addEventListener('click', () => navLinks.classList.remove('is-open'));
-});
-
-courseSearch?.addEventListener('input', (event) => {
-  searchTerm = event.target.value;
-  renderCourses();
-});
-
+document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => navLinks.classList.remove('is-open')));
+courseSearch?.addEventListener('input', (event) => { searchTerm = event.target.value; renderCourses(); });
 closeModalBtn.addEventListener('click', closeModal);
-modal.addEventListener('click', (event) => {
-  if (event.target.dataset.close) closeModal();
-});
-
+modal.addEventListener('click', (event) => { if (event.target.dataset.close) closeModal(); });
 lightboxClose?.addEventListener('click', closeLightbox);
 lightboxPrev?.addEventListener('click', () => moveLightbox(-1));
 lightboxNext?.addEventListener('click', () => moveLightbox(1));
-lightbox?.addEventListener('click', (event) => {
-  if (event.target === lightbox) closeLightbox();
-});
-
+lightbox?.addEventListener('click', (event) => { if (event.target === lightbox) closeLightbox(); });
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
-    closeModal();
-    closeLightbox();
-  }
+  if (event.key === 'Escape') { closeModal(); closeLightbox(); }
   if (!lightbox.classList.contains('is-open')) return;
   if (event.key === 'ArrowRight') moveLightbox(1);
   if (event.key === 'ArrowLeft') moveLightbox(-1);
 });
-
 window.addEventListener('resize', () => {
   if (window.innerWidth > 768) navLinks.classList.remove('is-open');
-  initAutoCarousel(galleryGrid, '.media-card', 0.55);
-  initAutoCarousel(reviewsGrid, '.media-card', 0.45);
-  initAutoCarousel(coursesGrid, '.course-card', 0.38);
-  initAutoCarousel(logosGrid, '.logo-card', 0.40);
+  initAutoCarousel(galleryGrid, 0.55);
+  initAutoCarousel(reviewsGrid, 0.38);
+  initAutoCarousel(companiesGrid, 0.3);
 });
 
 renderToolbar();
 renderAreas();
 renderCourses();
 renderGallery();
-renderCompanies();
+bindCarouselButtons();
 initCounters();
-hookArrow(coursesPrev, coursesGrid, -1);
-hookArrow(coursesNext, coursesGrid, 1);
-hookArrow(logosPrev, logosGrid, -1);
-hookArrow(logosNext, logosGrid, 1);

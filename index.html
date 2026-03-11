@@ -36,8 +36,8 @@
         <a href="#areas">Áreas</a>
         <a href="#cursos">Cursos</a>
         <a href="#galeria">Galería</a>
-        <a href="#nosotros">Nosotros</a>
         <a href="#empresas">Empresas</a>
+        <a href="#nosotros">Nosotros</a>
         <a href="#contacto">Contacto</a>
         <a class="btn btn--primary nav-cta" href="https://wa.me/5212361113237" target="_blank" rel="noopener">WhatsApp</a>
       </div>
@@ -142,9 +142,9 @@
           </div>
         </div>
         <div class="carousel-shell courses-shell">
-          <button class="carousel-arrow carousel-arrow--prev" id="coursesPrev" aria-label="Ver cursos anteriores">&#10094;</button>
+          <button class="carousel-arrow carousel-arrow--prev" type="button" data-target="coursesGrid" aria-label="Cursos anteriores">‹</button>
           <div class="courses-grid" id="coursesGrid"></div>
-          <button class="carousel-arrow carousel-arrow--next" id="coursesNext" aria-label="Ver más cursos">&#10095;</button>
+          <button class="carousel-arrow carousel-arrow--next" type="button" data-target="coursesGrid" aria-label="Siguientes cursos">›</button>
         </div>
       </div>
     </section>
@@ -158,7 +158,11 @@
           </div>
           <p>Conoce parte de nuestra comunidad y el impacto de nuestras capacitaciones.</p>
         </div>
-        <div class="gallery-grid" id="galleryGrid"></div>
+        <div class="carousel-shell">
+          <button class="carousel-arrow carousel-arrow--prev" type="button" data-target="galleryGrid" aria-label="Fotos anteriores">‹</button>
+          <div class="gallery-grid" id="galleryGrid"></div>
+          <button class="carousel-arrow carousel-arrow--next" type="button" data-target="galleryGrid" aria-label="Siguientes fotos">›</button>
+        </div>
       </div>
     </section>
 
@@ -168,21 +172,26 @@
           <p class="eyebrow">Reseñas</p>
           <h2>Opiniones de nuestra comunidad</h2>
         </div>
-        <div class="reviews-grid" id="reviewsGrid"></div>
+        <div class="carousel-shell">
+          <button class="carousel-arrow carousel-arrow--prev" type="button" data-target="reviewsGrid" aria-label="Reseñas anteriores">‹</button>
+          <div class="reviews-grid" id="reviewsGrid"></div>
+          <button class="carousel-arrow carousel-arrow--next" type="button" data-target="reviewsGrid" aria-label="Siguientes reseñas">›</button>
+        </div>
       </div>
     </section>
 
+
     <section class="section section--soft" id="empresas">
       <div class="container">
-        <div class="section-head center trust-head">
-          <p class="eyebrow">Confianza institucional</p>
+        <div class="section-head center">
+          <p class="eyebrow">Confianza</p>
           <h2>Empresas y organizaciones que han confiado en nosotros</h2>
-          <p>Alianzas y clientes que respaldan la calidad de nuestras capacitaciones especializadas.</p>
+          <p>Compartimos capacitación con instituciones, empresas y organizaciones comprometidas con la formación y el desarrollo profesional.</p>
         </div>
-        <div class="carousel-shell logos-shell">
-          <button class="carousel-arrow carousel-arrow--prev" id="logosPrev" aria-label="Ver logos anteriores">&#10094;</button>
-          <div class="logos-grid" id="logosGrid"></div>
-          <button class="carousel-arrow carousel-arrow--next" id="logosNext" aria-label="Ver más logos">&#10095;</button>
+        <div class="carousel-shell companies-shell">
+          <button class="carousel-arrow carousel-arrow--prev" type="button" data-target="companiesGrid" aria-label="Logos anteriores">‹</button>
+          <div class="companies-grid" id="companiesGrid"></div>
+          <button class="carousel-arrow carousel-arrow--next" type="button" data-target="companiesGrid" aria-label="Siguientes logos">›</button>
         </div>
       </div>
     </section>
@@ -214,7 +223,6 @@
         <a href="#areas">Áreas</a>
         <a href="#cursos">Cursos</a>
         <a href="#galeria">Galería</a>
-        <a href="#empresas">Empresas</a>
         <a href="#contacto">Contacto</a>
       </div>
       <div>
