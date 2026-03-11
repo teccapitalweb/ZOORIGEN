@@ -206,6 +206,59 @@ function renderGallery() {
       openLightbox();
     });
   });
+
+  initReviewsCarousel();
+}
+
+let reviewsCarouselFrame = null;
+
+function initReviewsCarousel() {
+  if (!reviewsGrid) return;
+
+  cancelAnimationFrame(reviewsCarouselFrame);
+  reviewsGrid.querySelectorAll('.is-clone').forEach(item => item.remove());
+
+  const cards = Array.from(reviewsGrid.querySelectorAll('.media-card'));
+  if (cards.length < 2) return;
+
+  cards.forEach(card => {
+    const clone = card.cloneNode(true);
+    clone.classList.add('is-clone');
+    clone.setAttribute('aria-hidden', 'true');
+    clone.tabIndex = -1;
+    reviewsGrid.appendChild(clone);
+  });
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+
+  let paused = false;
+
+  const step = () => {
+    if (!paused) {
+      reviewsGrid.scrollLeft += 0.45;
+      const resetPoint = reviewsGrid.scrollWidth / 2;
+      if (reviewsGrid.scrollLeft >= resetPoint) {
+        reviewsGrid.scrollLeft = 0;
+      }
+    }
+    reviewsCarouselFrame = requestAnimationFrame(step);
+  };
+
+  ['mouseenter', 'focusin', 'touchstart', 'pointerdown'].forEach(eventName => {
+    reviewsGrid.addEventListener(eventName, () => { paused = true; }, { passive: true });
+  });
+
+  ['mouseleave', 'focusout'].forEach(eventName => {
+    reviewsGrid.addEventListener(eventName, () => { paused = false; });
+  });
+
+  reviewsGrid.addEventListener('touchend', () => {
+    window.setTimeout(() => { paused = false; }, 1200);
+  }, { passive: true });
+
+  reviewsGrid.scrollLeft = 0;
+  step();
 }
 
 function updateLightbox() {
