@@ -870,80 +870,112 @@ body.is-locked { overflow: hidden; }
 }
 
 
-/* ===== CARRUSEL AUTOMÁTICO DE EMPRESAS — CSS PURO ===== */
-.companies-auto-wrap {
-  position: relative;
+/* ============================================
+   CARRUSEL AUTOMÁTICO EMPRESAS — CSS PURO
+   Compatible con GitHub Pages, sin JS
+   ============================================ */
+
+.companies-marquee-wrap {
   overflow: hidden;
-  /* Fade en los bordes */
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    #000 10%,
-    #000 90%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    #000 10%,
-    #000 90%,
-    transparent 100%
-  );
+  /* Fade suave en los bordes */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
 }
 
-/* El track ahora es un simple contenedor sin scroll */
-.companies-grid {
-  display: flex !important;
-  overflow: visible !important;
-  padding: 10px 0 !important;
-  gap: 0 !important;
-  pointer-events: none;
+.companies-marquee-track {
+  /* Necesario para que la band no haga overflow extraño */
+  overflow: visible;
 }
 
-/* La banda animada */
-.companies-marquee {
+/* La banda que se anima */
+.companies-band {
   display: flex;
-  gap: 28px;
-  align-items: center;
-  /* Anima desde 0 hasta -50% (una copia completa) */
-  animation: marquee-scroll 22s linear infinite;
-  will-change: transform;
+  gap: 24px;
   width: max-content;
+  align-items: center;
+  padding: 12px 0;
+  animation: companies-scroll 20s linear infinite;
+  will-change: transform;
 }
 
-@keyframes marquee-scroll {
+@keyframes companies-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
-/* Respeta preferencia de movimiento reducido */
 @media (prefers-reduced-motion: reduce) {
-  .companies-marquee { animation: none; }
+  .companies-band { animation: none; }
 }
 
 .company-logo {
   flex: 0 0 auto;
-  width: 180px;
-  height: 100px;
+  width: 170px;
+  height: 96px;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 4px 18px rgba(20,57,38,.08);
+  box-shadow: 0 4px 18px rgba(20,57,38,.09);
+  border: 1px solid rgba(31,95,58,.07);
   display: grid;
   place-items: center;
-  padding: 16px 20px;
-  border: 1px solid rgba(31,95,58,.07);
+  padding: 14px 18px;
 }
 
 .company-logo img {
   max-width: 100%;
-  max-height: 60px;
+  max-height: 58px;
   width: auto;
   height: auto;
   object-fit: contain;
-  filter: grayscale(20%);
-  transition: filter .3s ease;
 }
 
-.company-logo:hover img {
-  filter: grayscale(0%);
+/* ============================================
+   FOOTER — BARRA LEGAL
+   ============================================ */
+
+.footer__legal {
+  margin-top: 32px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: .88rem;
+  color: #8fa896;
+}
+
+.footer__legal p {
+  margin: 0;
+  color: #8fa896;
+  line-height: 1;
+}
+
+.footer__legal-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer__legal-links a {
+  color: #8fa896;
+  text-decoration: none;
+  transition: color .2s;
+  margin: 0;
+}
+
+.footer__legal-links a:hover {
+  color: #fff;
+}
+
+.footer__legal-links span {
+  color: #4d6155;
+}
+
+@media (max-width: 600px) {
+  .footer__legal {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
