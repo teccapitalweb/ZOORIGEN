@@ -996,3 +996,180 @@ body.is-locked { overflow: hidden; }
     text-align: center;
   }
 }
+
+
+/* ============================================
+   MEJORAS MÓVIL — TARJETAS DE CURSOS Y MODAL
+   Sin afectar escritorio
+   ============================================ */
+
+@media (max-width: 768px) {
+
+  /* --- Carrusel de cursos --- */
+  .courses-carousel-track,
+  .courses-grid {
+    padding: 8px 16px 20px !important;
+    gap: 16px !important;
+  }
+
+  .course-card--carousel,
+  .course-card {
+    flex: 0 0 82vw !important;
+    max-width: 82vw !important;
+    border-radius: 20px !important;
+  }
+
+  /* Imagen cuadrada y bien recortada */
+  .course-card__image,
+  .course-card--carousel .course-card__image {
+    aspect-ratio: 4 / 3 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Cuerpo centrado y con buen espaciado */
+  .course-card__body,
+  .course-card--carousel .course-card__body {
+    padding: 18px 16px 20px !important;
+    text-align: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  /* Badges centrados */
+  .course-card__meta {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Título bien proporcionado */
+  .course-card h3,
+  .course-card--carousel h3 {
+    font-size: 1.05rem !important;
+    min-height: auto !important;
+    text-align: center !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Descripción centrada */
+  .course-card p,
+  .course-card--carousel p {
+    font-size: .9rem !important;
+    text-align: center !important;
+    max-width: none !important;
+  }
+
+  /* Acciones centradas y botón ancho */
+  .course-card__actions,
+  .course-card--carousel .course-card__actions {
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .course-card__actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 14px !important;
+    font-size: 1rem !important;
+  }
+
+  /* --- Modal de detalle del curso --- */
+  .modal__dialog {
+    width: calc(100% - 12px) !important;
+    margin: 6px auto !important;
+    border-radius: 20px !important;
+    max-height: calc(100vh - 12px) !important;
+  }
+
+  .modal__hero {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+
+  /* Imagen del modal arriba y bien recortada */
+  .modal__hero img {
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 240px !important;
+    object-fit: cover !important;
+    width: 100% !important;
+  }
+
+  /* Contenido del modal centrado */
+  .modal__content {
+    padding: 0 16px 28px !important;
+  }
+
+  .modal__content h2 {
+    font-size: 1.3rem !important;
+    text-align: center !important;
+    margin-top: 16px !important;
+  }
+
+  .modal__content p,
+  .modal__content h3 {
+    text-align: center !important;
+  }
+
+  .modal__badges {
+    justify-content: center !important;
+    margin-top: 12px !important;
+  }
+
+  .modal__list {
+    text-align: left !important;
+    padding-left: 20px !important;
+  }
+
+  .modal__cta {
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .modal__cta .btn {
+    width: 100% !important;
+    padding: 15px !important;
+    font-size: 1rem !important;
+  }
+
+  /* Botón cerrar bien posicionado */
+  .modal__close {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    z-index: 10 !important;
+    background: rgba(255,255,255,.9) !important;
+    backdrop-filter: blur(4px) !important;
+  }
+
+  /* --- Sección cursos general --- */
+  #cursos .section-head {
+    padding: 0 4px !important;
+  }
+
+  #cursos h2 {
+    font-size: 1.7rem !important;
+  }
+
+  .search-box {
+    width: 100% !important;
+  }
+
+  .courses-count {
+    text-align: center !important;
+    width: 100% !important;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 400px) {
+  .course-card--carousel,
+  .course-card {
+    flex: 0 0 88vw !important;
+    max-width: 88vw !important;
+  }
+
+  .modal__hero img {
+    max-height: 200px !important;
+  }
+}
