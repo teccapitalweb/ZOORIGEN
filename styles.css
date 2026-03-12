@@ -173,7 +173,8 @@ p { line-height: 1.75; color: var(--muted); }
 .modal__hero img { width:100%; border-radius: 20px; object-fit:cover; }
 .modal__list { padding-left:18px; color:var(--muted); }
 @media (max-width: 1080px) {
-  .areas-grid, .courses-grid, .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+  .courses-grid, .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+  .areas-grid { grid-template-columns: repeat(2, 1fr); }
   .reviews-grid, .contact-cards, .stats__grid, .footer__inner, .about, .contact-box, .modal__hero { grid-template-columns: 1fr; }
   .stats__grid { margin-top: 0; }
 }
@@ -1171,5 +1172,51 @@ body.is-locked { overflow: hidden; }
 
   .modal__hero img {
     max-height: 200px !important;
+  }
+}
+
+
+/* ============================================
+   MEJORAS MÓVIL — SECCIÓN ÁREAS
+   ============================================ */
+
+@media (max-width: 768px) {
+
+  /* Una sola columna, tarjetas horizontales */
+  .areas-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .area-card {
+    min-height: 200px !important;
+    border-radius: 20px !important;
+  }
+
+  /* Texto más compacto y legible */
+  .area-card__body {
+    inset: auto 18px 18px 18px !important;
+  }
+
+  .area-card__body h3 {
+    font-size: 1.15rem !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+  }
+
+  .area-card__body p {
+    font-size: .88rem !important;
+    line-height: 1.5 !important;
+    margin-top: 6px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .area-card {
+    min-height: 180px !important;
   }
 }
