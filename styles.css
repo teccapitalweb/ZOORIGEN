@@ -1004,135 +1004,58 @@ body.is-locked { overflow: hidden; }
 
 
 /* ============================================
-   MÓVIL — ÁREAS, BENEFICIOS Y CURSOS
+   MÓVIL ≤768px — ÁREAS: imagen arriba + texto abajo
    ============================================ */
 
 @media (max-width: 768px) {
 
-  /* ÁREAS: cuadrícula de 2 columnas intacta
-     imagen cubre la celda, texto se adapta al ancho pequeño */
+  /* Tarjeta: de overlay a flex columna */
   .area-card {
-    min-height: 180px !important;
-  }
-
-  .area-card img {
-    object-fit: cover !important;
-    object-position: center !important;
-  }
-
-  .area-card__body h3 {
-    font-size: .82rem !important;
-    line-height: 1.2 !important;
-    word-break: break-word !important;
-  }
-
-  .area-card__body p {
-    font-size: .72rem !important;
-    line-height: 1.35 !important;
-    margin-top: 3px !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-  }
-
-  /* BENEFICIOS: cuadrícula de 2 columnas intacta
-     icono más pequeño, texto centrado y ajustado */
-  .benefit-card {
-    padding: 14px 10px !important;
-    gap: 6px !important;
-  }
-
-  .benefit-card > span {
-    font-size: 1.5rem !important;
-    margin-bottom: 4px !important;
-  }
-
-  .benefit-card h3 {
-    font-size: .82rem !important;
-    line-height: 1.2 !important;
-    text-align: center !important;
-    word-break: break-word !important;
-  }
-
-  .benefit-card p {
-    font-size: .74rem !important;
-    line-height: 1.35 !important;
-    text-align: center !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 3 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-  }
-
-  /* CURSOS: imagen se ve completa (contain) dentro del espacio */
-  .course-card__image,
-  .course-card--carousel .course-card__image {
-    aspect-ratio: unset !important;
-    height: 220px !important;
-  }
-
-  .course-card__image img,
-  .course-card--carousel .course-card__image img {
-    object-fit: contain !important;
-    object-position: center !important;
-    background: #111d14 !important;
-  }
-}
-
-
-/* ============================================
-   MÓVIL — ÁREAS: imagen arriba + texto abajo (como tarjeta de curso)
-   ============================================ */
-
-@media (max-width: 768px) {
-
-  /* Resetear el layout de overlay — pasar a flex columna */
-  .area-card {
+    position: relative !important;
     display: flex !important;
     flex-direction: column !important;
     min-height: unset !important;
     height: auto !important;
-    overflow: hidden !important;
     background: #fff !important;
+    overflow: hidden !important;
   }
 
-  /* Imagen ocupa la parte superior, proporción fija */
+  /* Imagen: sacarla del absolute, altura fija arriba */
   .area-card img {
     position: relative !important;
     inset: unset !important;
     width: 100% !important;
-    height: 140px !important;
+    height: 130px !important;
+    flex-shrink: 0 !important;
     object-fit: cover !important;
     object-position: center !important;
-    flex-shrink: 0 !important;
   }
 
-  /* Ocultar el gradiente overlay en móvil */
+  /* Quitar el gradiente oscuro */
   .area-card::after {
     display: none !important;
   }
 
-  /* Texto abajo sobre fondo blanco */
+  /* Cuerpo: de absolute a estático, fondo blanco */
   .area-card__body {
     position: relative !important;
     inset: unset !important;
-    z-index: 1 !important;
-    padding: 12px 14px 14px !important;
+    padding: 10px 12px 14px !important;
     background: #fff !important;
+    z-index: 1 !important;
   }
 
   .area-card__body h3 {
-    font-size: .88rem !important;
+    font-size: .85rem !important;
     font-weight: 700 !important;
-    line-height: 1.25 !important;
+    line-height: 1.2 !important;
     color: #1a2a1e !important;
-    margin: 0 0 5px !important;
+    margin: 0 0 4px !important;
   }
 
   .area-card__body p {
-    font-size: .78rem !important;
-    line-height: 1.45 !important;
+    font-size: .76rem !important;
+    line-height: 1.4 !important;
     color: #555 !important;
     margin: 0 !important;
     display: -webkit-box !important;
