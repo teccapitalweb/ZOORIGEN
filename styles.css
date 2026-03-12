@@ -877,24 +877,31 @@ body.is-locked { overflow: hidden; }
 
 .companies-marquee-wrap {
   overflow: hidden;
-  /* Fade suave en los bordes */
+  width: 100%;
   -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
   mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
 }
 
+/* Anular todos los estilos heredados del .companies-grid original */
 .companies-marquee-track {
-  /* Necesario para que la band no haga overflow extraño */
-  overflow: visible;
+  display: block !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  width: 100% !important;
+  scroll-behavior: auto !important;
 }
 
-/* La banda que se anima */
+/* La banda animada — SIEMPRE horizontal */
 .companies-band {
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
   gap: 24px;
   width: max-content;
   align-items: center;
-  padding: 12px 0;
-  animation: companies-scroll 20s linear infinite;
+  padding: 14px 0;
+  animation: companies-scroll 22s linear infinite;
   will-change: transform;
 }
 
@@ -918,6 +925,16 @@ body.is-locked { overflow: hidden; }
   display: grid;
   place-items: center;
   padding: 14px 18px;
+}
+
+.company-logo img {
+  max-width: 100%;
+  max-height: 58px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
 }
 
 .company-logo img {
