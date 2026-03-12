@@ -171,8 +171,23 @@ function closeModal() {
 
 function renderMediaTrack(track, items, type) {
   if (!track) return;
+  if (type === 'company') {
+    // Carrusel CSS puro: duplicamos los logos para bucle infinito sin JS
+    const logoHTML = items.map(item => `
+      <div class="company-logo" aria-label="${item.name}">
+        <img src="${item.image}" alt="${item.name}" loading="lazy">
+      </div>
+    `).join('');
+    // Dos copias = bucle perfecto con CSS translate
+    track.innerHTML = `
+      <div class="companies-marquee" aria-hidden="true">
+        ${logoHTML}${logoHTML}
+      </div>
+    `;
+    return;
+  }
   track.innerHTML = items.map((item, index) => `
-    <button class="media-card ${type === 'company' ? 'media-card--logo' : ''}" ${type === 'company' ? '' : `data-lightbox-group="${type}" data-index="${index}"`} aria-label="${item.caption || item.name}">
+    <button class="media-card" data-lightbox-group="${type}" data-index="${index}" aria-label="${item.caption || item.name}">
       <img src="${item.src || item.image}" alt="${item.alt || item.name}" loading="lazy">
     </button>
   `).join('');
@@ -197,7 +212,7 @@ function renderGallery() {
 
   initAutoCarousel(galleryGrid, 0.55);
   initAutoCarousel(reviewsGrid, 0.38);
-  initAutoCarousel(companiesGrid, 0.3);
+  // companiesGrid usa animación CSS pura — no necesita JS
 }
 
 function initAutoCarousel(track, speed = 0.45) {
@@ -235,7 +250,42 @@ function initAutoCarousel(track, speed = 0.45) {
   carouselStates.set(track, state);
 }
 
-function bindCarouselButtons() {
+function initAutoCarouselNonStop(track, speed = 0.42) {
+  if (!track) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const existingState = carouselStates.get(track);
+  if (existingState?.frame) cancelAnimationFrame(existingState.frame);
+  track.querySelectorAll('.is-clone').forEach(item => item.remove());
+
+  const cards = Array.from(track.children);
+  if (cards.length < 2) return;
+
+  // Duplicar suficientes veces para llenar el ancho sin huecos
+  const copies = Math.ceil(window.innerWidth / (track.scrollWidth || 1)) + 2;
+  for (let i = 0; i < copies; i++) {
+    cards.forEach(card => {
+      const clone = card.cloneNode(true);
+      clone.classList.add('is-clone');
+      clone.setAttribute('aria-hidden', 'true');
+      clone.tabIndex = -1;
+      track.appendChild(clone);
+    });
+  }
+
+  const state = { frame: null };
+  const step = () => {
+    track.scrollLeft += speed;
+    const resetPoint = track.scrollWidth / (copies + 1);
+    if (track.scrollLeft >= resetPoint) track.scrollLeft = 0;
+    state.frame = requestAnimationFrame(step);
+  };
+  track.scrollLeft = 0;
+  state.frame = requestAnimationFrame(step);
+  carouselStates.set(track, state);
+}
+
+
   document.querySelectorAll('.carousel-arrow').forEach(button => {
     button.addEventListener('click', () => {
       const track = document.getElementById(button.dataset.target);
@@ -316,7 +366,7 @@ window.addEventListener('resize', () => {
   if (window.innerWidth > 768) navLinks.classList.remove('is-open');
   initAutoCarousel(galleryGrid, 0.55);
   initAutoCarousel(reviewsGrid, 0.38);
-  initAutoCarousel(companiesGrid, 0.3);
+  // companiesGrid usa animación CSS pura — no necesita JS
 });
 
 renderToolbar();

@@ -868,3 +868,82 @@ body.is-locked { overflow: hidden; }
   .media-card--logo { min-height: 128px; }
   .media-card--logo img { max-height: 72px; }
 }
+
+
+/* ===== CARRUSEL AUTOMÁTICO DE EMPRESAS — CSS PURO ===== */
+.companies-auto-wrap {
+  position: relative;
+  overflow: hidden;
+  /* Fade en los bordes */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 10%,
+    #000 90%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 10%,
+    #000 90%,
+    transparent 100%
+  );
+}
+
+/* El track ahora es un simple contenedor sin scroll */
+.companies-grid {
+  display: flex !important;
+  overflow: visible !important;
+  padding: 10px 0 !important;
+  gap: 0 !important;
+  pointer-events: none;
+}
+
+/* La banda animada */
+.companies-marquee {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  /* Anima desde 0 hasta -50% (una copia completa) */
+  animation: marquee-scroll 22s linear infinite;
+  will-change: transform;
+  width: max-content;
+}
+
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Respeta preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .companies-marquee { animation: none; }
+}
+
+.company-logo {
+  flex: 0 0 auto;
+  width: 180px;
+  height: 100px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(20,57,38,.08);
+  display: grid;
+  place-items: center;
+  padding: 16px 20px;
+  border: 1px solid rgba(31,95,58,.07);
+}
+
+.company-logo img {
+  max-width: 100%;
+  max-height: 60px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(20%);
+  transition: filter .3s ease;
+}
+
+.company-logo:hover img {
+  filter: grayscale(0%);
+}
