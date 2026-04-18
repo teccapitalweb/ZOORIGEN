@@ -39,7 +39,7 @@
           </div>
 
           <div>
-            <div class="section-title">📰 Noticias y novedades</div>
+            <div class="section-title">📰 Noticias y novedades<a href="club-noticias.html" class="see-all">Ver todas</a></div>
             <div id="newsList">Cargando noticias...</div>
           </div>
 
@@ -158,15 +158,15 @@
       // Noticias
       const nl = document.getElementById('newsList');
       if (noticias.length === 0) {
-        nl.innerHTML = `<div class="news-item"><h4>🦒 Bienvenido al Club Zoorigen</h4><p>Las noticias de fauna y biodiversidad se sincronizan automáticamente cada 6 horas. En un rato verás aquí lo más relevante del sector.</p><small>Zoorigen</small></div>`;
-      } else {
-        nl.innerHTML = noticias.map(n => `
-          <div class="news-item">
-            <h4>${n.title}</h4>
-            <p>${n.summary || ''}</p>
-            <small>${n.source || ''}${n.link ? ` · <a href="${n.link}" target="_blank" style="color:var(--zoo-green-500);">Leer más ↗</a>` : ''}</small>
+        nl.innerHTML = `<div class="news-card" style="grid-template-columns:1fr;">
+          <div class="news-card__body" style="padding:22px;">
+            <span class="news-card__source">🦒 Zoorigen</span>
+            <h4 class="news-card__title">Bienvenido al Club Zoorigen</h4>
+            <p class="news-card__summary">Las noticias de fauna y biodiversidad se sincronizan automáticamente desde Mongabay, SciDev y DW cada 6 horas. Pronto verás aquí lo más relevante del sector.</p>
           </div>
-        `).join('');
+        </div>`;
+      } else {
+        nl.innerHTML = `<div class="news-grid">${noticias.map(n => ZOORIGEN_CLUB.renderNewsCard(n)).join('')}</div>`;
       }
 
       // Contenido reciente (primeros 4 cursos)

@@ -50,6 +50,64 @@ const ZOORIGEN_CLUB = {
     } catch (err) { console.error('Error cargando noticias:', err); return []; }
   },
 
+  // Devuelve clase CSS para colorear la fuente según el medio
+  sourceColorClass(source) {
+    const s = (source || '').toLowerCase();
+    if (s.includes('mongabay'))      return 'amber';
+    if (s.includes('dw'))            return 'blue';
+    if (s.includes('bbc'))           return 'orange';
+    if (s.includes('scidev'))        return 'blue';
+    if (s.includes('semarnat'))      return '';
+    if (s.includes('conanp'))        return '';
+    return ''; // default verde
+  },
+
+  // Formatea fecha relativa (Hace X días / Hoy / Ayer)
+  timeAgo(isoDate) {
+    if (!isoDate) return '';
+    try {
+      const d = new Date(isoDate);
+      if (isNaN(d.getTime())) return '';
+      const diff = Date.now() - d.getTime();
+      const min = Math.floor(diff / 60000);
+      const hrs = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      if (min < 1) return 'Ahora mismo';
+      if (min < 60) return `Hace ${min} min`;
+      if (hrs < 24) return `Hace ${hrs} h`;
+      if (days === 0) return 'Hoy';
+      if (days === 1) return 'Ayer';
+      if (days < 7) return `Hace ${days} días`;
+      return this.formatShort(isoDate);
+    } catch { return ''; }
+  },
+
+  // Renderiza una tarjeta de noticia bonita con imagen, fuente, resumen y fecha
+  renderNewsCard(n) {
+    const hasImage = n.image && n.image.startsWith('http');
+    const sourceColor = this.sourceColorClass(n.source);
+    const linkAttr = n.link ? `href="${n.link}" target="_blank" rel="noopener"` : '';
+    const tag = n.link ? 'a' : 'div';
+    const dateText = this.timeAgo(n.pubDate || n.createdAt);
+    const source = n.source || 'Zoorigen';
+
+    return `
+      <${tag} class="news-card" ${linkAttr}>
+        <div class="news-card__img ${hasImage ? '' : 'no-image'}" ${hasImage ? `style="background-image:url('${n.image}');"` : ''}>
+          ${!hasImage ? (n.icon || '📰') : ''}
+        </div>
+        <div class="news-card__body">
+          <span class="news-card__source ${sourceColor}">${n.icon || '●'} ${source}</span>
+          <h4 class="news-card__title">${n.title || ''}</h4>
+          ${n.summary ? `<p class="news-card__summary">${n.summary}</p>` : ''}
+          <div class="news-card__footer">
+            ${dateText ? `<span>${dateText}</span>` : ''}
+            ${n.link ? `<span class="read-more">Leer ↗</span>` : ''}
+          </div>
+        </div>
+      </${tag}>`;
+  },
+
   // Helper: genera URL embebida de Google Drive para videos
   buildDriveEmbed(driveId) {
     if (!driveId) return null;
