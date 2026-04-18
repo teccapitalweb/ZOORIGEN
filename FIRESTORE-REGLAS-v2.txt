@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ══ MIEMBROS ══
+    match /miembros/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin');
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['planActivo', 'planVence', 'planInicio', 'ultimoPago', 'role']);
+      allow list: if request.auth != null && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ══ CONTENIDO DEL CLUB (cursos, videos, pdfs, sesiones) ══
+    // Cualquier usuario autenticado puede LEER
+    // Solo admins pueden CREAR/EDITAR/BORRAR
+    match /cursos/{cursoId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /videos/{videoId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /pdfs/{pdfId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /sesiones/{sesionId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ══ NOTICIAS ══
+    // Cualquiera autenticado puede leer
+    // Admins pueden crear/editar manuales
+    // El servidor Railway (via Admin SDK) bypasea estas reglas para sync automático
+    match /noticias/{noticiaId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}
