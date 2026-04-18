@@ -6,6 +6,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/club.css">
+  <style>
+    .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .player-overlay.is-open { display: flex; }
+    .player-box { width: 100%; max-width: 960px; background: var(--zoo-bg-card); border-radius: var(--zoo-radius); overflow: hidden; }
+    .player-box__header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--zoo-border); }
+    .player-box__header h3 { color: #fff; font-size: 1.04rem; margin: 0; }
+    .player-box__close { background: transparent; border: 0; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
+    .player-box__video { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
+    .player-box__video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  </style>
 </head>
 <body>
   <div class="club-layout">
@@ -13,8 +23,17 @@
     <main class="club-main">
       <div class="page-header"><h1>🎥 Videos prácticos</h1><p>Técnicas de campo explicadas paso a paso por profesionales</p></div>
       <div id="lockedNotice"></div>
-      <div class="content-list" id="videosList"></div>
+      <div class="content-list" id="videosList">Cargando...</div>
     </main>
+  </div>
+  <div class="player-overlay" id="playerOverlay">
+    <div class="player-box">
+      <div class="player-box__header">
+        <h3 id="playerTitle">—</h3>
+        <button class="player-box__close" onclick="closePlayer()">×</button>
+      </div>
+      <div class="player-box__video" id="playerVideo"></div>
+    </div>
   </div>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -29,20 +48,39 @@
       if (session.planStatus !== 'active') {
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para ver los videos. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
       }
+      const videos = await ZOORIGEN_CLUB.getVideos();
       const isActive = session.planStatus === 'active';
-      document.getElementById('videosList').innerHTML = ZOORIGEN_CLUB.VIDEOS.map(v => `
+      const list = document.getElementById('videosList');
+      if (videos.length === 0) {
+        list.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);">🎥 Aún no hay videos disponibles. Pronto tendrás técnicas de campo explicadas paso a paso.</div>`;
+        return;
+      }
+      list.innerHTML = videos.map(v => `
         <div class="content-item">
-          <div class="content-item__thumb">${v.thumb}</div>
+          <div class="content-item__thumb">🎥</div>
           <div class="content-item__info">
             <div class="content-item__title">${v.title}</div>
-            <div class="content-item__meta">${v.area} · ${v.duration}</div>
+            <div class="content-item__meta">${v.area || ''} · ${v.duration || '—'}</div>
           </div>
-          ${isActive
-            ? `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20video%3A%20${encodeURIComponent(v.title)}" target="_blank" class="content-item__tag">Ver</a>`
-            : `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;">🔒 Activar</a>`}
+          ${isActive && v.driveId
+            ? `<button class="content-item__tag" style="border:0;cursor:pointer;font-family:inherit;" onclick='openPlayer("${v.driveId}", ${JSON.stringify(v.title)})'>▶ Ver</button>`
+            : !isActive ? `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;">🔒 Activar</a>`
+            : `<span class="content-item__tag" style="opacity:0.6;">Sin link</span>`}
         </div>
       `).join('');
     })();
+    function openPlayer(driveId, title) {
+      document.getElementById('playerTitle').textContent = title;
+      document.getElementById('playerVideo').innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
+      document.getElementById('playerOverlay').classList.add('is-open');
+    }
+    function closePlayer() {
+      document.getElementById('playerOverlay').classList.remove('is-open');
+      document.getElementById('playerVideo').innerHTML = '';
+    }
+    document.getElementById('playerOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'playerOverlay') closePlayer();
+    });
   </script>
 </body>
 </html>

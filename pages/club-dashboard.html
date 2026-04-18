@@ -27,15 +27,7 @@
 
       <div class="dashboard-grid">
         <div class="dashboard-main">
-          <div class="card card-resume">
-            <div class="card-resume__icon">▶</div>
-            <div class="card-resume__text">
-              <div class="card-resume__eyebrow">Continúa donde te quedaste</div>
-              <div class="card-resume__title">Fototrampeo: monitoreo de mamíferos</div>
-              <div class="card-resume__meta">Fauna silvestre · 45% completado</div>
-            </div>
-            <a href="club-biblioteca.html" class="card-resume__action">Reanudar</a>
-          </div>
+          <div id="resumeCard"></div>
 
           <div class="card card-promo">
             <div class="card-promo__icon">🎓</div>
@@ -47,23 +39,20 @@
           </div>
 
           <div>
-            <div class="section-title">📰 Noticias y novedades<a href="#" class="see-all">Ver todas</a></div>
-            <div id="newsList"></div>
+            <div class="section-title">📰 Noticias y novedades</div>
+            <div id="newsList">Cargando noticias...</div>
           </div>
 
           <div>
             <div class="section-title">📚 Contenido reciente<a href="club-biblioteca.html" class="see-all">Ver biblioteca</a></div>
-            <div class="content-list" id="recentContent"></div>
+            <div class="content-list" id="recentContent">Cargando...</div>
           </div>
         </div>
 
         <aside class="dashboard-aside">
-          <div class="card aside-card" style="background: rgba(31,95,58,0.3); border-color: var(--zoo-border-strong);">
+          <div id="nextSessionCard" class="card aside-card" style="background: rgba(31,95,58,0.3); border-color: var(--zoo-border-strong);">
             <div class="aside-card__eyebrow">● Próximamente</div>
-            <div class="aside-card__title" id="nextSessionTitle">Sesión en vivo</div>
-            <div class="aside-card__meta" id="nextSessionMeta">—</div>
-            <div class="countdown" id="countdown"></div>
-            <a href="club-sesiones.html" class="btn-mini">Ver todas las sesiones</a>
+            <div class="aside-card__title">Cargando sesión...</div>
           </div>
 
           <a href="https://wa.me/5212361113237?text=Hola%20quiero%20entrar%20al%20canal%20VIP%20de%20Zoorigen" target="_blank" class="card aside-channel">
@@ -79,14 +68,6 @@
             <span class="percent">20%</span>
             <div class="aside-discount__desc">En todos los cursos Zoorigen</div>
             <a href="https://wa.me/5212361113237?text=Hola%2C%20quiero%20aplicar%20mi%2020%25%20VIP" target="_blank" class="btn-gold">Canjear</a>
-          </div>
-
-          <div class="card aside-card progress-card">
-            <div class="aside-card__eyebrow">Certificado abril</div>
-            <div class="aside-card__title">Completa para obtenerlo</div>
-            <div class="aside-card__meta">3/4 videos + 1 sesión en vivo</div>
-            <div class="progress-bar"><div style="width:75%;"></div></div>
-            <div class="progress-label"><span>Progreso</span><strong>75%</strong></div>
           </div>
         </aside>
       </div>
@@ -119,30 +100,91 @@
       if (session.planStatus === 'active') {
         sb.innerHTML = `<div class="status-banner active"><span>✓</span>Membresía VIP activa · Acceso hasta ${ZOORIGEN_CLUB.formatShort(session.planVence)}</div>`;
       } else if (session.planStatus === 'pending_payment') {
-        sb.innerHTML = `<div class="status-banner"><span>⚠️</span>Tu cuenta está creada. Completa el pago de $199/mes para activar todos los beneficios VIP. <a href="club-suscripcion.html" style="color:inherit; text-decoration:underline; margin-left:6px;">Activar ahora →</a></div>`;
+        sb.innerHTML = `<div class="status-banner"><span>⚠️</span>Tu cuenta está creada. Completa el pago para activar los beneficios VIP. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar ahora →</a></div>`;
       } else if (session.planStatus === 'cancelled') {
-        sb.innerHTML = `<div class="status-banner cancelled"><span>✕</span>Tu membresía está cancelada. Tienes acceso hasta ${ZOORIGEN_CLUB.formatShort(session.planVence)}. <a href="club-suscripcion.html" style="color:inherit; text-decoration:underline; margin-left:6px;">Reactivar →</a></div>`;
+        sb.innerHTML = `<div class="status-banner cancelled"><span>✕</span>Membresía cancelada. Acceso hasta ${ZOORIGEN_CLUB.formatShort(session.planVence)}. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Reactivar →</a></div>`;
       }
 
-      const next = ZOORIGEN_CLUB.SESSIONS[0];
-      document.getElementById('nextSessionTitle').textContent = next.title;
-      document.getElementById('nextSessionMeta').textContent = `${next.speaker} · ${ZOORIGEN_CLUB.formatShort(next.date)} · ${next.time}`;
-      ZOORIGEN_CLUB.startCountdown('countdown', next.date);
+      // Cargar datos desde Firestore en paralelo
+      const [cursos, noticias, proximaSesion] = await Promise.all([
+        ZOORIGEN_CLUB.getCursos(),
+        ZOORIGEN_CLUB.getNoticias(3),
+        ZOORIGEN_CLUB.getProximaSesion()
+      ]);
 
-      document.getElementById('newsList').innerHTML = ZOORIGEN_CLUB.NEWS.slice(0,3).map(n => `
-        <div class="news-item"><h4>${n.title}</h4><p>${n.summary}</p><small>${n.date} · ${n.source}</small></div>
-      `).join('');
+      // Card de "continúa donde te quedaste" (usa el primer curso)
+      const resume = document.getElementById('resumeCard');
+      if (cursos.length > 0) {
+        const c = cursos[0];
+        resume.innerHTML = `
+          <div class="card card-resume">
+            <div class="card-resume__icon">▶</div>
+            <div class="card-resume__text">
+              <div class="card-resume__eyebrow">Empieza con tu primer curso</div>
+              <div class="card-resume__title">${c.title}</div>
+              <div class="card-resume__meta">${c.area} · ${c.duration || ''}${c.level ? ' · ' + c.level : ''}</div>
+            </div>
+            <a href="club-biblioteca.html" class="card-resume__action">Ver curso</a>
+          </div>`;
+      } else {
+        resume.innerHTML = `
+          <div class="card card-resume" style="opacity:0.7;">
+            <div class="card-resume__icon" style="background:var(--zoo-green-900);">🎓</div>
+            <div class="card-resume__text">
+              <div class="card-resume__eyebrow">Biblioteca VIP</div>
+              <div class="card-resume__title">Pronto tendrás cursos disponibles</div>
+              <div class="card-resume__meta">El equipo Zoorigen está subiendo los primeros cursos de la biblioteca</div>
+            </div>
+          </div>`;
+      }
 
-      document.getElementById('recentContent').innerHTML = ZOORIGEN_CLUB.LIBRARY.slice(0,4).map(c => `
-        <a href="club-biblioteca.html" class="content-item">
-          <div class="content-item__thumb">🎓</div>
-          <div class="content-item__info">
-            <div class="content-item__title">${c.title}</div>
-            <div class="content-item__meta">${c.area} · ${c.duration} · ${c.level}</div>
+      // Próxima sesión
+      const ns = document.getElementById('nextSessionCard');
+      if (proximaSesion) {
+        ns.innerHTML = `
+          <div class="aside-card__eyebrow">● Próximamente</div>
+          <div class="aside-card__title">${proximaSesion.title}</div>
+          <div class="aside-card__meta">${proximaSesion.speaker || ''} · ${ZOORIGEN_CLUB.formatShort(proximaSesion.date)} · ${proximaSesion.time || '19:00'}</div>
+          <div class="countdown" id="countdown"></div>
+          <a href="club-sesiones.html" class="btn-mini">Ver todas las sesiones</a>`;
+        ZOORIGEN_CLUB.startCountdown('countdown', proximaSesion.date);
+      } else {
+        ns.innerHTML = `
+          <div class="aside-card__eyebrow">● Próximamente</div>
+          <div class="aside-card__title">Pronto habrá nuevas sesiones</div>
+          <div class="aside-card__meta">Mantente pendiente del canal oficial</div>`;
+      }
+
+      // Noticias
+      const nl = document.getElementById('newsList');
+      if (noticias.length === 0) {
+        nl.innerHTML = `<div class="news-item"><h4>🦒 Bienvenido al Club Zoorigen</h4><p>Las noticias de fauna y biodiversidad se sincronizan automáticamente cada 6 horas. En un rato verás aquí lo más relevante del sector.</p><small>Zoorigen</small></div>`;
+      } else {
+        nl.innerHTML = noticias.map(n => `
+          <div class="news-item">
+            <h4>${n.title}</h4>
+            <p>${n.summary || ''}</p>
+            <small>${n.source || ''}${n.link ? ` · <a href="${n.link}" target="_blank" style="color:var(--zoo-green-500);">Leer más ↗</a>` : ''}</small>
           </div>
-          ${c.tag ? `<span class="content-item__tag">${c.tag}</span>` : ''}
-        </a>
-      `).join('');
+        `).join('');
+      }
+
+      // Contenido reciente (primeros 4 cursos)
+      const rc = document.getElementById('recentContent');
+      if (cursos.length === 0) {
+        rc.innerHTML = `<div class="no-data" style="text-align:center;padding:30px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);">Aún no hay cursos en la biblioteca.</div>`;
+      } else {
+        rc.innerHTML = cursos.slice(0,4).map(c => `
+          <a href="club-biblioteca.html" class="content-item">
+            <div class="content-item__thumb" ${c.image ? `style="background-image:url('${c.image}');background-size:cover;"` : ''}>${c.image ? '' : '🎓'}</div>
+            <div class="content-item__info">
+              <div class="content-item__title">${c.title}</div>
+              <div class="content-item__meta">${c.area} · ${c.duration || ''}${c.level ? ' · ' + c.level : ''}</div>
+            </div>
+            ${c.tag ? `<span class="content-item__tag">${c.tag}</span>` : ''}
+          </a>
+        `).join('');
+      }
     })();
   </script>
 </body>

@@ -13,7 +13,7 @@
     <main class="club-main">
       <div class="page-header"><h1>📄 PDFs y material descargable</h1><p>Guías de identificación, protocolos, fichas técnicas y manuales científicos</p></div>
       <div id="lockedNotice"></div>
-      <div class="content-list" id="pdfsList"></div>
+      <div class="content-list" id="pdfsList">Cargando...</div>
     </main>
   </div>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -27,19 +27,26 @@
       if (!session) return;
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('pdfs', session);
       if (session.planStatus !== 'active') {
-        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para descargar PDFs. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
+        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para descargar los PDFs. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
       }
+      const pdfs = await ZOORIGEN_CLUB.getPdfs();
       const isActive = session.planStatus === 'active';
-      document.getElementById('pdfsList').innerHTML = ZOORIGEN_CLUB.PDFS.map(p => `
+      const list = document.getElementById('pdfsList');
+      if (pdfs.length === 0) {
+        list.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);">📄 Aún no hay PDFs disponibles. Pronto tendrás guías y manuales científicos.</div>`;
+        return;
+      }
+      list.innerHTML = pdfs.map(p => `
         <div class="content-item">
-          <div class="content-item__thumb" style="background:var(--zoo-blue);color:#fff;">${p.thumb}</div>
+          <div class="content-item__thumb" style="background:var(--zoo-blue);color:#fff;">📄</div>
           <div class="content-item__info">
             <div class="content-item__title">${p.title}</div>
-            <div class="content-item__meta">${p.area} · ${p.pages} páginas</div>
+            <div class="content-item__meta">${p.area || ''}${p.pages ? ' · ' + p.pages + ' páginas' : ''}</div>
           </div>
-          ${isActive
-            ? `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20PDF%3A%20${encodeURIComponent(p.title)}" target="_blank" class="content-item__tag">⬇ Descargar</a>`
-            : `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;">🔒 Activar</a>`}
+          ${isActive && p.driveId
+            ? `<a href="https://drive.google.com/file/d/${p.driveId}/view" target="_blank" class="content-item__tag">⬇ Abrir</a>`
+            : !isActive ? `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;">🔒 Activar</a>`
+            : `<span class="content-item__tag" style="opacity:0.6;">Sin link</span>`}
         </div>
       `).join('');
     })();

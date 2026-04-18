@@ -4,42 +4,62 @@
 /* ============================================================ */
 
 const ZOORIGEN_CLUB = {
-  // --- Biblioteca del Club (curada con criterio - 8 estrella) ---
-  LIBRARY: [
-    { id: 'fototrampeo', title: 'Fototrampeo: monitoreo de mamíferos', area: 'Fauna silvestre', image: '../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg', duration: '6 h', level: 'Intermedio', tag: 'Más visto' },
-    { id: 'tortugas', title: 'Manejo de tortugas marinas', area: 'Fauna silvestre', image: '../assets/img/cursos/manejo_tortugas_marinas.jpg', duration: '5 h', level: 'Intermedio', tag: 'Popular' },
-    { id: 'rescate', title: 'Rescate de fauna silvestre', area: 'Fauna silvestre', image: '../assets/img/cursos/rescate_fauna_silvestre.jpg', duration: '7 h', level: 'Avanzado', tag: 'Nuevo' },
-    { id: 'colmenas', title: 'Manejo integral de colmenas', area: 'Apicultura', image: '../assets/img/cursos/manejo_integral_colmenas.jpg', duration: '8 h', level: 'Básico', tag: 'Estrella' },
-    { id: 'sanidad', title: 'Sanidad apícola', area: 'Apicultura', image: '../assets/img/cursos/sanidad_apicola.jpg', duration: '6 h', level: 'Intermedio' },
-    { id: 'aracnidos', title: 'Arácnidos de importancia médica', area: 'Fauna ponzoñosa', image: '../assets/img/cursos/identificacion_aracnidos_mexico.jpg', duration: '4 h', level: 'Básico' },
-    { id: 'serpientes', title: 'Manejo de picaduras de serpientes y escorpiones', area: 'Fauna ponzoñosa', image: '../assets/img/cursos/manejo_picaduras_serpientes_escorpiones.jpg', duration: '5 h', level: 'Intermedio', tag: 'Destacado' },
-    { id: 'etologia', title: 'Etología y manejo animal', area: 'Etología', image: '../assets/img/cursos/etologia_fauna_silvestre.jpg', duration: '6 h', level: 'Intermedio' }
-  ],
-  VIDEOS: [
-    { id: 'v1', title: 'Cómo colocar una cámara trampa en campo', area: 'Fauna silvestre', duration: '12 min', thumb: '🎥' },
-    { id: 'v2', title: 'Identificación rápida de abejas vs avispas', area: 'Apicultura', duration: '8 min', thumb: '🎥' },
-    { id: 'v3', title: 'Primeros auxilios tras mordedura de serpiente', area: 'Fauna ponzoñosa', duration: '15 min', thumb: '🎥' },
-    { id: 'v4', title: 'Manejo seguro de tarántulas en cautiverio', area: 'Manejo en cautiverio', duration: '10 min', thumb: '🎥' },
-    { id: 'v5', title: 'Técnica de pitfall para herpetofauna', area: 'Investigación', duration: '14 min', thumb: '🎥' },
-    { id: 'v6', title: 'Enriquecimiento ambiental para mamíferos', area: 'Etología', duration: '11 min', thumb: '🎥' }
-  ],
-  PDFS: [
-    { id: 'p1', title: 'Guía de identificación de serpientes mexicanas', area: 'Fauna ponzoñosa', pages: 48, thumb: '📄' },
-    { id: 'p2', title: 'Protocolo de rescate de fauna silvestre', area: 'Conservación', pages: 32, thumb: '📄' },
-    { id: 'p3', title: 'Manual básico de apicultura', area: 'Apicultura', pages: 64, thumb: '📄' },
-    { id: 'p4', title: 'Fichas técnicas de mamíferos mexicanos', area: 'Fauna silvestre', pages: 120, thumb: '📄' },
-    { id: 'p5', title: 'Calendario de reproducción de fauna endémica', area: 'Conservación', pages: 24, thumb: '📄' }
-  ],
-  SESSIONS: [
-    { id: 's1', title: 'Fauna ponzoñosa: atención inicial en campo', speaker: 'Dr. Alberto Vargas', date: '2026-04-20', time: '19:00', status: 'upcoming' },
-    { id: 's2', title: 'Apicultura y cambio climático', speaker: 'Biól. Marta Rodríguez', date: '2026-04-27', time: '19:00', status: 'upcoming' },
-    { id: 's3', title: 'Fototrampeo y conservación de jaguares', speaker: 'Dr. Iván Coronel', date: '2026-05-04', time: '19:00', status: 'upcoming' }
-  ],
-  NEWS: [
-    { title: 'Nueva especie de rana descubierta en Oaxaca', source: 'Conservation International', date: '17 abril 2026', summary: 'Biólogos del IPN registraron una nueva especie de anuro endémico en la Sierra Mazateca.' },
-    { title: 'Temporada de nidificación de tortugas marinas', source: 'CONANP', date: '17 abril 2026', summary: 'Inicia la temporada de arribada en playas de Oaxaca y Guerrero con récord de nidos.' },
-    { title: 'Programa de recuperación del lobo mexicano cumple 10 años', source: 'SEMARNAT', date: '16 abril 2026', summary: 'Se han reintroducido 45 ejemplares en la Sierra de San Luis, Sonora.' }
-  ],
+
+  // ============== LECTURA DE CONTENIDO DESDE FIRESTORE ==============
+  // Estos métodos reemplazan los arrays estáticos anteriores
+  // El admin sube contenido y automáticamente aparece en el club
+
+  async getCursos() {
+    try {
+      const snap = await db.collection('cursos').orderBy('createdAt', 'desc').get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (err) { console.error('Error cargando cursos:', err); return []; }
+  },
+
+  async getVideos() {
+    try {
+      const snap = await db.collection('videos').orderBy('createdAt', 'desc').get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (err) { console.error('Error cargando videos:', err); return []; }
+  },
+
+  async getPdfs() {
+    try {
+      const snap = await db.collection('pdfs').orderBy('createdAt', 'desc').get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (err) { console.error('Error cargando pdfs:', err); return []; }
+  },
+
+  async getSesiones() {
+    try {
+      const hoy = new Date().toISOString().slice(0, 10);
+      const snap = await db.collection('sesiones').where('date', '>=', hoy).orderBy('date', 'asc').get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (err) { console.error('Error cargando sesiones:', err); return []; }
+  },
+
+  async getProximaSesion() {
+    const lista = await this.getSesiones();
+    return lista.length > 0 ? lista[0] : null;
+  },
+
+  async getNoticias(limit = 10) {
+    try {
+      const snap = await db.collection('noticias').orderBy('createdAt', 'desc').limit(limit).get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (err) { console.error('Error cargando noticias:', err); return []; }
+  },
+
+  // Helper: genera URL embebida de Google Drive para videos
+  buildDriveEmbed(driveId) {
+    if (!driveId) return null;
+    return `https://drive.google.com/file/d/${driveId}/preview`;
+  },
+
+  buildDrivePdfView(driveId) {
+    if (!driveId) return null;
+    return `https://drive.google.com/file/d/${driveId}/view`;
+  },
 
   // ============== AUTH CON FIREBASE ==============
   async register(data) {
@@ -230,7 +250,7 @@ const ZOORIGEN_CLUB = {
 
     const items = [
       { id: 'inicio', label: 'Inicio', icon: '🏠', href: 'club-dashboard.html' },
-      { id: 'biblioteca', label: 'Biblioteca', icon: '📚', href: 'club-biblioteca.html', badge: this.LIBRARY.length },
+      { id: 'biblioteca', label: 'Biblioteca', icon: '📚', href: 'club-biblioteca.html' },
       { id: 'videos', label: 'Videos', icon: '🎥', href: 'club-videos.html' },
       { id: 'sesiones', label: 'Sesiones en vivo', icon: '🔴', href: 'club-sesiones.html' },
       { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' }
