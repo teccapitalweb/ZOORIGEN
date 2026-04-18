@@ -259,9 +259,7 @@ const ZOORIGEN_CLUB = {
       { id: 'perfil', label: 'Mi perfil', icon: '👤', href: 'club-perfil.html' },
       { id: 'suscripcion', label: 'Suscripción', icon: '💳', href: 'club-suscripcion.html' }
     ];
-    if (session?.role === 'admin') {
-      itemsCuenta.push({ id: 'admin', label: 'Panel admin', icon: '⚙️', href: 'club-admin.html' });
-    }
+    // Nota: el panel admin es URL oculta /pages/admin-club.html (con contraseña)
     return `
       <div class="club-sidebar__brand">
         <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
