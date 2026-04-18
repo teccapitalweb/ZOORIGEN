@@ -29,8 +29,8 @@
       let html = '';
 
       if (session.planStatus === 'pending_payment') {
-        const checkoutMensual = SHOPIFY_CHECKOUT_URL + '?customer[email]=' + encodeURIComponent(session.email);
-        const checkoutAnual = SHOPIFY_ANNUAL_CHECKOUT_URL + '?customer[email]=' + encodeURIComponent(session.email);
+        const checkoutMensual = buildCheckoutURL('mensual', session.email);
+        const checkoutAnual = buildCheckoutURL('anual', session.email);
         html += `
           <div class="card" style="background:linear-gradient(135deg,rgba(232,163,23,0.12),rgba(213,90,40,0.08));border-color:var(--zoo-amber);margin-bottom:20px;">
             <h2 style="color:var(--zoo-amber);font-size:1.3rem;margin-bottom:10px;">⏳ Activa tu membresía VIP</h2>
@@ -85,7 +85,7 @@
               : 'Reactiva tu membresía para volver a tener acceso completo a todo el contenido VIP.'}</p>
             ${session.planStatus === 'active'
               ? '<button class="btn-danger" id="cancelBtn">Cancelar membresía</button>'
-              : `<a href="${SHOPIFY_CHECKOUT_URL}?customer[email]=${encodeURIComponent(session.email)}" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;text-decoration:none;">Reactivar por $199 MXN</a>`}
+              : `<a href="${buildCheckoutURL("mensual", session.email)}" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;text-decoration:none;">Reactivar por $199 MXN</a>`}
             <div id="cancelMsg" style="margin-top:14px;"></div>
           </div>`;
       }

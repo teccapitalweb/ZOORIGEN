@@ -90,7 +90,7 @@
         successMsg.classList.add('show');
         // Redirigir a Shopify checkout con email prellenado
         setTimeout(() => {
-          const url = SHOPIFY_CHECKOUT_URL + '?customer[email]=' + encodeURIComponent(data.email);
+          const url = buildCheckoutURL('mensual', data.email);
           window.location.href = url;
         }, 1500);
       } else {
@@ -105,7 +105,7 @@
       const result = await ZOORIGEN_CLUB.loginWithGoogle();
       if (result.ok) {
         const user = auth.currentUser;
-        const url = SHOPIFY_CHECKOUT_URL + '?customer[email]=' + encodeURIComponent(user.email);
+        const url = buildCheckoutURL('mensual', user.email);
         window.location.href = url;
       } else {
         showError(result.msg);
