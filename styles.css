@@ -1064,3 +1064,168 @@ body.is-locked { overflow: hidden; }
     overflow: hidden !important;
   }
 }
+
+/* ============================================== */
+/* MODIFICADO: ESTILOS CLUB VIP ZOORIGEN          */
+/* Agregado por TEC CAPITAL - no tocar lo de arriba */
+/* ============================================== */
+
+:root {
+  --zoo-orange: #D55A28;
+  --zoo-blue: #2AA4D5;
+  --club-gold: #E8A317;
+  --club-dark: #0E1F14;
+}
+
+/* Botón Club VIP en navbar */
+.btn--club {
+  background: linear-gradient(135deg, var(--club-gold) 0%, #F4B942 100%);
+  color: #1f1d17;
+  box-shadow: 0 6px 20px rgba(232, 163, 23, .35);
+  font-weight: 800;
+}
+.btn--club:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(232, 163, 23, .45);
+  filter: brightness(1.05);
+}
+
+/* Sección destacada Club VIP en el home */
+.club-vip-banner {
+  position: relative;
+  padding: 100px 0;
+  background:
+    linear-gradient(135deg, rgba(14, 31, 20, .92) 0%, rgba(31, 95, 58, .88) 100%),
+    url('assets/img/banner/BANNER.png') center/cover no-repeat;
+  color: #fff;
+  overflow: hidden;
+}
+.club-vip-banner::before {
+  content: '';
+  position: absolute;
+  top: -50px; right: -50px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(232,163,23,.22) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.club-vip-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: -80px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(42,164,213,.18) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.club-vip-banner__inner {
+  position: relative;
+  text-align: center;
+  max-width: 920px;
+  z-index: 1;
+}
+.club-vip-banner__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--club-gold);
+  color: #1f1d17;
+  font-weight: 800;
+  font-size: .82rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border-radius: 999px;
+  margin-bottom: 22px;
+}
+.club-vip-banner__title {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+  font-weight: 800;
+  margin: 0 0 18px;
+  color: #fff;
+  line-height: 1.05;
+}
+.club-vip-banner__subtitle {
+  font-size: 1.12rem;
+  color: rgba(255,255,255,.88);
+  max-width: 720px;
+  margin: 0 auto 34px;
+  line-height: 1.7;
+}
+.club-vip-banner__subtitle strong {
+  color: var(--club-gold);
+  font-weight: 700;
+}
+.club-vip-banner__features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.club-vip-banner__features span {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  font-size: .92rem;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+}
+.club-vip-banner__price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  background: rgba(232,163,23,.15);
+  border: 1.5px solid rgba(232,163,23,.5);
+  padding: 14px 28px;
+  border-radius: 16px;
+  margin-bottom: 28px;
+}
+.club-vip-banner__price .price-amount {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--club-gold);
+  line-height: 1;
+}
+.club-vip-banner__price .price-unit {
+  color: rgba(255,255,255,.85);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.club-vip-banner__actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.btn--club-cta {
+  background: var(--club-gold);
+  color: #1f1d17;
+  font-weight: 800;
+  padding: 16px 30px;
+  font-size: 1.02rem;
+}
+.btn--club-cta:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 10px 30px rgba(232,163,23,.45);
+}
+.btn--ghost-dark {
+  border: 1.5px solid rgba(255,255,255,.35);
+  color: #fff;
+  background: rgba(255,255,255,.05);
+}
+.btn--ghost-dark:hover {
+  background: rgba(255,255,255,.15);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .club-vip-banner { padding: 70px 0; }
+  .club-vip-banner__features span { font-size: .82rem; padding: 8px 14px; }
+  .club-vip-banner__price .price-amount { font-size: 2rem; }
+}
