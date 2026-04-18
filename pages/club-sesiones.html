@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesiones en vivo · Club VIP Zoorigen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="page-header"><h1>🔴 Sesiones en vivo</h1><p>Masterclasses mensuales con especialistas invitados · En directo por Zoom</p></div>
+      <div id="lockedNotice"></div>
+      <div id="nextSession" style="margin-bottom: 30px;"></div>
+      <div class="section-title">📅 Próximas sesiones</div>
+      <div class="content-list" id="sessionsList"></div>
+      <div style="background:var(--zoo-bg-card);border:1px solid var(--zoo-border);border-radius:var(--zoo-radius);padding:22px;margin-top:30px;">
+        <h3 style="color:#fff;font-size:1.1rem;margin-bottom:10px;">🎥 Grabaciones de sesiones anteriores</h3>
+        <p style="color:var(--zoo-text-muted);font-size:.94rem;">Si no pudiste asistir en vivo, todas las sesiones pasadas quedan disponibles aquí para que las veas cuando quieras.</p>
+      </div>
+    </main>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('sesiones', session);
+      if (session.planStatus !== 'active') {
+        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para recibir el link de Zoom de las sesiones. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
+      }
+      const isActive = session.planStatus === 'active';
+      const next = ZOORIGEN_CLUB.SESSIONS[0];
+      document.getElementById('nextSession').innerHTML = `
+        <div class="card aside-card" style="background:linear-gradient(135deg,rgba(31,95,58,0.5),rgba(213,90,40,0.25));border-color:var(--zoo-amber);">
+          <div class="aside-card__eyebrow" style="color:var(--zoo-amber);">● PRÓXIMA SESIÓN EN VIVO</div>
+          <div class="aside-card__title" style="font-size:1.3rem;margin-top:10px;">${next.title}</div>
+          <div class="aside-card__meta">Con ${next.speaker} · ${ZOORIGEN_CLUB.formatShort(next.date)} · ${next.time} hrs</div>
+          <div class="countdown" id="liveCountdown"></div>
+          ${isActive
+            ? `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20link%20de%20la%20sesi%C3%B3n%3A%20${encodeURIComponent(next.title)}" target="_blank" class="btn-mini" style="background:var(--zoo-amber);color:#1f1d17;border:0;font-weight:700;">Obtener link de Zoom →</a>`
+            : `<a href="club-suscripcion.html" class="btn-mini" style="background:var(--zoo-orange);color:#fff;border:0;font-weight:700;">🔒 Activar para recibir link</a>`}
+        </div>`;
+      ZOORIGEN_CLUB.startCountdown('liveCountdown', next.date);
+      document.getElementById('sessionsList').innerHTML = ZOORIGEN_CLUB.SESSIONS.map(s => `
+        <div class="content-item">
+          <div class="content-item__thumb" style="background:var(--zoo-orange);color:#fff;">🔴</div>
+          <div class="content-item__info">
+            <div class="content-item__title">${s.title}</div>
+            <div class="content-item__meta">${s.speaker} · ${ZOORIGEN_CLUB.formatShort(s.date)} · ${s.time} hrs</div>
+          </div>
+          <span class="content-item__tag">En vivo</span>
+        </div>
+      `).join('');
+    })();
+  </script>
+</body>
+</html>

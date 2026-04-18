@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca · Club VIP Zoorigen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="page-header">
+        <h1>📚 Biblioteca exclusiva</h1>
+        <p>Cursos completos seleccionados para miembros VIP · Acceso ilimitado</p>
+      </div>
+      <div id="lockedNotice"></div>
+      <div class="filter-bar" id="filterBar"></div>
+      <div class="course-grid-club" id="coursesGrid"></div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('biblioteca', session);
+
+      if (session.planStatus !== 'active') {
+        document.getElementById('lockedNotice').innerHTML = `
+          <div class="status-banner" style="margin-bottom: 20px;">
+            <span>🔒</span>Necesitas membresía activa para acceder al contenido completo.
+            <a href="club-suscripcion.html" style="color:inherit; text-decoration:underline; margin-left:6px;">Activar $199/mes →</a>
+          </div>`;
+      }
+
+      const areas = ['Todas', ...new Set(ZOORIGEN_CLUB.LIBRARY.map(c => c.area))];
+      const filterBar = document.getElementById('filterBar');
+      filterBar.innerHTML = areas.map((a, i) => `<button class="filter-chip-club ${i === 0 ? 'is-active' : ''}" data-area="${a}">${a}</button>`).join('');
+
+      const grid = document.getElementById('coursesGrid');
+      const isActive = session.planStatus === 'active';
+
+      const render = (filter = 'Todas') => {
+        const list = filter === 'Todas' ? ZOORIGEN_CLUB.LIBRARY : ZOORIGEN_CLUB.LIBRARY.filter(c => c.area === filter);
+        grid.innerHTML = list.map(c => `
+          <article class="course-card-club">
+            <div class="course-card-club__img" style="background-image:url('${c.image}');">
+              ${c.tag ? `<span class="course-card-club__tag">${c.tag}</span>` : ''}
+            </div>
+            <div class="course-card-club__body">
+              <div class="course-card-club__area">${c.area}</div>
+              <h3 class="course-card-club__title">${c.title}</h3>
+              <p class="course-card-club__desc">Duración: ${c.duration} · Nivel: ${c.level}</p>
+              ${isActive
+                ? `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20curso%3A%20${encodeURIComponent(c.title)}" target="_blank" class="course-card-club__action">▶ Acceder al curso</a>`
+                : `<a href="club-suscripcion.html" class="course-card-club__action" style="background: var(--zoo-orange);">🔒 Activar membresía</a>`}
+            </div>
+          </article>
+        `).join('');
+      };
+      render();
+
+      filterBar.addEventListener('click', (e) => {
+        const btn = e.target.closest('.filter-chip-club');
+        if (!btn) return;
+        filterBar.querySelectorAll('.filter-chip-club').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        render(btn.dataset.area);
+      });
+    })();
+  </script>
+</body>
+</html>

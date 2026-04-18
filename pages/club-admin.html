@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel admin · Club VIP Zoorigen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+  <style>
+    .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .stat-box { background: var(--zoo-bg-card); border: 1px solid var(--zoo-border); border-radius: var(--zoo-radius); padding: 18px 20px; }
+    .stat-box__label { color: var(--zoo-text-dim); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+    .stat-box__value { font-family: 'Poppins', sans-serif; font-size: 2.2rem; font-weight: 800; color: #fff; line-height: 1; margin-top: 8px; }
+    .stat-box.green { border-color: var(--zoo-green-500); } .stat-box.green .stat-box__value { color: var(--zoo-green-500); }
+    .stat-box.amber { border-color: var(--zoo-amber); } .stat-box.amber .stat-box__value { color: var(--zoo-amber); }
+    .stat-box.orange { border-color: var(--zoo-orange); } .stat-box.orange .stat-box__value { color: var(--zoo-orange); }
+    .members-table { width: 100%; background: var(--zoo-bg-card); border: 1px solid var(--zoo-border); border-radius: var(--zoo-radius); overflow: hidden; }
+    .members-table table { width: 100%; border-collapse: collapse; }
+    .members-table th { background: rgba(111,191,115,0.08); color: var(--zoo-green-500); font-weight: 700; padding: 14px 16px; text-align: left; font-size: .82rem; letter-spacing: .05em; text-transform: uppercase; border-bottom: 1px solid var(--zoo-border); }
+    .members-table td { padding: 14px 16px; border-bottom: 1px solid var(--zoo-border); font-size: .9rem; color: #fff; }
+    .members-table tr:last-child td { border-bottom: 0; }
+    .members-table tr:hover td { background: rgba(111,191,115,0.04); }
+    .status-pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: .75rem; font-weight: 700; letter-spacing: .04em; }
+    .status-pill.active { background: rgba(111,191,115,0.15); color: var(--zoo-green-500); }
+    .status-pill.pending { background: rgba(232,163,23,0.15); color: var(--zoo-amber); }
+    .status-pill.cancelled { background: rgba(213,90,40,0.15); color: var(--zoo-orange); }
+    .admin-search { background: var(--zoo-bg-card); border: 1px solid var(--zoo-border); color: #fff; padding: 12px 16px; border-radius: var(--zoo-radius-sm); width: 100%; max-width: 420px; margin-bottom: 18px; font-family: inherit; font-size: .95rem; }
+    .admin-search:focus { outline: none; border-color: var(--zoo-green-500); }
+    .btn-small { padding: 6px 12px; border-radius: 8px; font-size: .78rem; font-weight: 700; cursor: pointer; border: 0; margin-right: 4px; }
+    .btn-small.activate { background: var(--zoo-green-700); color: #fff; }
+    .btn-small.cancel { background: var(--zoo-orange); color: #fff; }
+    .btn-small:hover { filter: brightness(1.1); }
+    .no-access { text-align: center; padding: 80px 20px; color: var(--zoo-text-muted); }
+    .no-access h2 { color: var(--zoo-orange); font-size: 1.4rem; margin-bottom: 10px; }
+    @media (max-width: 768px) { .members-table { overflow-x: auto; } .members-table table { min-width: 700px; } }
+  </style>
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="page-header">
+        <h1>⚙️ Panel Admin</h1>
+        <p>Gestión de miembros del Club VIP Zoorigen</p>
+      </div>
+
+      <div id="adminContent">Cargando...</div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('admin', session);
+
+      const content = document.getElementById('adminContent');
+
+      // Solo role:admin puede ver esta página
+      if (session.role !== 'admin') {
+        content.innerHTML = `
+          <div class="no-access">
+            <h2>🔒 Acceso restringido</h2>
+            <p>Esta sección es exclusiva para administradores del Club VIP Zoorigen.</p>
+            <p style="margin-top:12px; font-size:.88rem; color:var(--zoo-text-dim);">
+              Si necesitas acceso, contacta al administrador para que te asigne el rol en Firestore.
+            </p>
+            <a href="club-dashboard.html" class="btn-club-outline" style="display:inline-block;width:auto;padding:12px 24px;margin-top:20px;">← Volver al dashboard</a>
+          </div>`;
+        return;
+      }
+
+      // Cargar todos los miembros desde Firestore
+      let allMembers = [];
+      try {
+        const snap = await db.collection('miembros').orderBy('createdAt', 'desc').get();
+        allMembers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      } catch (err) {
+        console.error(err);
+        content.innerHTML = '<div class="error-msg show">Error al cargar miembros: ' + err.message + '</div>';
+        return;
+      }
+
+      const render = (filter = '') => {
+        const filtered = filter
+          ? allMembers.filter(m =>
+              (m.name || '').toLowerCase().includes(filter.toLowerCase()) ||
+              (m.email || '').toLowerCase().includes(filter.toLowerCase()) ||
+              (m.phone || '').includes(filter))
+          : allMembers;
+
+        const stats = {
+          total: allMembers.length,
+          active: allMembers.filter(m => m.planActivo && !m.planCancelado).length,
+          pending: allMembers.filter(m => !m.planActivo).length,
+          cancelled: allMembers.filter(m => m.planCancelado).length
+        };
+
+        const mrr = stats.active * 199;
+
+        content.innerHTML = `
+          <div class="admin-stats">
+            <div class="stat-box"><div class="stat-box__label">Total miembros</div><div class="stat-box__value">${stats.total}</div></div>
+            <div class="stat-box green"><div class="stat-box__label">Activos VIP</div><div class="stat-box__value">${stats.active}</div></div>
+            <div class="stat-box amber"><div class="stat-box__label">Pendientes de pago</div><div class="stat-box__value">${stats.pending}</div></div>
+            <div class="stat-box orange"><div class="stat-box__label">Cancelados</div><div class="stat-box__value">${stats.cancelled}</div></div>
+            <div class="stat-box green"><div class="stat-box__label">Ingreso mensual (MRR)</div><div class="stat-box__value">$${mrr.toLocaleString('es-MX')}</div></div>
+          </div>
+
+          <input type="search" class="admin-search" id="searchBox" placeholder="🔎 Buscar por nombre, correo o WhatsApp..." value="${filter}">
+
+          <div class="members-table">
+            <table>
+              <thead>
+                <tr><th>Miembro</th><th>Correo</th><th>WhatsApp</th><th>Estado</th><th>Inicio plan</th><th>Vence</th><th>Acciones</th></tr>
+              </thead>
+              <tbody>
+                ${filtered.length === 0 ? `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--zoo-text-dim);">No hay miembros que coincidan con "${filter}"</td></tr>` : filtered.map(m => {
+                  const status = m.planActivo && !m.planCancelado ? 'active' : m.planCancelado ? 'cancelled' : 'pending';
+                  const statusLabel = { active: '● Activo', pending: '⏳ Pendiente', cancelled: '✕ Cancelado' }[status];
+                  return `
+                    <tr>
+                      <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                          <div style="width:34px;height:34px;border-radius:50%;background:var(--zoo-green-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;color:var(--zoo-green-500);">${ZOORIGEN_CLUB.getInitials(m.name)}</div>
+                          <div><div style="font-weight:600;">${m.name || '—'}</div>
+                          <div style="font-size:.76rem;color:var(--zoo-text-dim);">${m.role || 'member'}</div></div>
+                        </div>
+                      </td>
+                      <td style="font-size:.84rem;">${m.email || '—'}</td>
+                      <td style="font-size:.84rem;">${m.phone || '—'}</td>
+                      <td><span class="status-pill ${status}">${statusLabel}</span></td>
+                      <td style="font-size:.84rem;">${m.planInicio ? ZOORIGEN_CLUB.formatShort(m.planInicio) : '—'}</td>
+                      <td style="font-size:.84rem;">${m.planVence ? ZOORIGEN_CLUB.formatShort(m.planVence) : '—'}</td>
+                      <td>
+                        ${status !== 'active'
+                          ? `<button class="btn-small activate" onclick="activarManual('${m.id}', '${(m.name || '').replace(/'/g,"\\'")}')">Activar</button>`
+                          : ''}
+                        ${status === 'active'
+                          ? `<button class="btn-small cancel" onclick="cancelarManual('${m.id}', '${(m.name || '').replace(/'/g,"\\'")}')">Cancelar</button>`
+                          : ''}
+                      </td>
+                    </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>`;
+
+        document.getElementById('searchBox').addEventListener('input', (e) => render(e.target.value));
+      };
+      render();
+
+      // Funciones expuestas globalmente para los botones inline
+      window.activarManual = async (uid, name) => {
+        if (!confirm(`¿Activar plan VIP de 30 días para ${name}?\n\n(Normalmente se activa automáticamente al pagar en Shopify. Úsalo solo para activaciones manuales.)`)) return;
+        try {
+          const now = new Date();
+          const vence = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+          await db.collection('miembros').doc(uid).update({
+            planActivo: true,
+            planCancelado: false,
+            planTipo: 'mensual',
+            planInicio: now.toISOString(),
+            planVence: vence.toISOString(),
+            ultimoPago: now.toISOString()
+          });
+          alert('✅ Plan activado. Refrescando lista...');
+          location.reload();
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      };
+
+      window.cancelarManual = async (uid, name) => {
+        if (!confirm(`¿Cancelar la membresía de ${name}?\n\n(Mantendrá acceso hasta el final de su período pagado.)`)) return;
+        try {
+          await db.collection('miembros').doc(uid).update({
+            planCancelado: true,
+            canceladoEn: new Date().toISOString()
+          });
+          alert('✅ Cancelación registrada. Refrescando...');
+          location.reload();
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      };
+    })();
+  </script>
+</body>
+</html>
