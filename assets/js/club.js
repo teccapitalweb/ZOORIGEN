@@ -63,16 +63,34 @@ const ZOORIGEN_CLUB = {
   },
 
   // ============== CHECKOUT MODAL POPUP ==============
-  // Abre el checkout de Shopify en un modal dentro de la misma página.
-  // Si Shopify bloquea el iframe (X-Frame-Options), automáticamente
-  // muestra un botón de fallback que abre en la misma pestaña.
+  // Abre un modal bonito con resumen del plan y botón que lleva al checkout.
+  // No usa iframe porque Shopify bloquea el embebido por seguridad (X-Frame-Options).
+  // Al clic del botón redirige en la misma pestaña — NO abre pestaña nueva.
   openCheckoutModal(plan, email) {
     const checkoutURL = (typeof buildCheckoutURL === 'function')
       ? buildCheckoutURL(plan, email)
       : (plan === 'anual' ? SHOPIFY_ANNUAL_CHECKOUT_URL : SHOPIFY_CHECKOUT_URL) +
         (email ? `?checkout[email]=${encodeURIComponent(email)}` : '');
 
-    const planLabel = plan === 'anual' ? 'Plan Anual · $1,899 MXN' : 'Plan Mensual · $199 MXN/mes';
+    const isAnual = plan === 'anual';
+    const price = isAnual ? '$1,899 MXN' : '$199 MXN';
+    const periodo = isAnual ? 'al año' : 'al mes';
+    const planLabel = isAnual ? 'Plan Anual' : 'Plan Mensual';
+    const ahorro = isAnual ? '<div class="zoo-save-badge">✨ Ahorras $489 MXN · 2 meses gratis</div>' : '';
+
+    const beneficios = isAnual ? [
+      'Acceso completo 365 días',
+      'Todos los cursos + videos + PDFs',
+      'Sesiones en vivo todo el año',
+      '20% OFF en capacitaciones',
+      'Sin cobros sorpresa'
+    ] : [
+      'Acceso completo 30 días',
+      'Todos los cursos + videos + PDFs',
+      'Sesiones en vivo mensuales',
+      '20% OFF en capacitaciones',
+      'Cancela cuando quieras'
+    ];
 
     // Remover modal previo si existe
     const existing = document.getElementById('zoo-checkout-modal');
@@ -82,33 +100,34 @@ const ZOORIGEN_CLUB = {
     modal.id = 'zoo-checkout-modal';
     modal.innerHTML = `
       <div class="zoo-modal-backdrop"></div>
-      <div class="zoo-modal-box">
-        <div class="zoo-modal-header">
-          <div>
-            <div class="zoo-modal-title">💳 Pago seguro</div>
-            <div class="zoo-modal-subtitle">${planLabel} · Procesado por Shopify</div>
-          </div>
-          <button class="zoo-modal-close" aria-label="Cerrar">×</button>
+      <div class="zoo-modal-box zoo-modal-checkout">
+        <button class="zoo-modal-close-float" aria-label="Cerrar">×</button>
+
+        <div class="zoo-checkout-hero">
+          <div class="zoo-checkout-emoji">🦒</div>
+          <div class="zoo-checkout-eyebrow">${planLabel} · Club VIP Zoorigen</div>
+          <div class="zoo-checkout-price">${price}<span>/${periodo}</span></div>
+          ${ahorro}
         </div>
-        <div class="zoo-modal-body">
-          <div class="zoo-modal-loading" id="zoo-modal-loading">
-            <div class="zoo-spinner"></div>
-            <p>Cargando pago seguro...</p>
+
+        <div class="zoo-checkout-content">
+          <div class="zoo-checkout-email">
+            ${email ? `<span class="zoo-checkout-email-label">Correo:</span> <strong>${email}</strong>` : ''}
           </div>
-          <iframe id="zoo-checkout-iframe" src="${checkoutURL}" style="display:none;"></iframe>
-          <div class="zoo-modal-fallback" id="zoo-modal-fallback" style="display:none;">
-            <div style="font-size:3rem;text-align:center;margin-bottom:14px;">🔒</div>
-            <h3 style="color:#fff;text-align:center;margin-bottom:8px;font-size:1.2rem;">Redirigiéndote al pago seguro</h3>
-            <p style="color:var(--zoo-text-muted);text-align:center;margin-bottom:22px;font-size:.92rem;line-height:1.5;">
-              Shopify procesa los pagos en su plataforma segura por tu protección.
-              Haz clic para continuar — regresarás automáticamente al terminar.
-            </p>
-            <a href="${checkoutURL}" class="zoo-modal-btn-continue">
-              Continuar al pago seguro →
-            </a>
-            <p style="text-align:center;color:var(--zoo-text-dim);font-size:.78rem;margin-top:16px;">
-              🔐 Pago encriptado · Sin compartir tu tarjeta con Zoorigen
-            </p>
+
+          <div class="zoo-checkout-benefits">
+            ${beneficios.map(b => `<div class="zoo-checkout-benefit">✓ ${b}</div>`).join('')}
+          </div>
+
+          <a href="${checkoutURL}" class="zoo-checkout-btn">
+            💳 Pagar ${price} ${isAnual ? 'ahora' : 'y activar'}
+          </a>
+
+          <div class="zoo-checkout-secure">
+            🔒 Pago 100% seguro · Procesado por Shopify
+          </div>
+          <div class="zoo-checkout-secure-sub">
+            Acepta Visa, Mastercard, Amex, PayPal y OXXO
           </div>
         </div>
       </div>
@@ -121,31 +140,11 @@ const ZOORIGEN_CLUB = {
       modal.remove();
       document.body.style.overflow = '';
     };
-    modal.querySelector('.zoo-modal-close').addEventListener('click', close);
+    modal.querySelector('.zoo-modal-close-float').addEventListener('click', close);
     modal.querySelector('.zoo-modal-backdrop').addEventListener('click', close);
     document.addEventListener('keydown', function onEsc(e) {
       if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onEsc); }
     });
-
-    const iframe = document.getElementById('zoo-checkout-iframe');
-    const loading = document.getElementById('zoo-modal-loading');
-    const fallback = document.getElementById('zoo-modal-fallback');
-
-    // Detectar si Shopify permitió el iframe (load event) o lo bloqueó
-    let loaded = false;
-    iframe.addEventListener('load', () => {
-      loaded = true;
-      loading.style.display = 'none';
-      iframe.style.display = 'block';
-    });
-    // Si después de 4 segundos no cargó, mostrar fallback
-    setTimeout(() => {
-      if (!loaded) {
-        loading.style.display = 'none';
-        iframe.style.display = 'none';
-        fallback.style.display = 'block';
-      }
-    }, 4000);
   },
 
   // Formatea fecha relativa (Hace X días / Hoy / Ayer)
