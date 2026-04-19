@@ -84,19 +84,49 @@
         password: document.getElementById('password').value
       };
 
+      // TRUCO: abrimos ventana ANTES de await para que el navegador no bloquee el popup.
+      // Le pasamos una URL temporal, y después la redirigimos al checkout real.
+      const w = 500, h = 720;
+      const left = (screen.width / 2) - (w / 2);
+      const top = (screen.height / 2) - (h / 2);
+      const popup = window.open(
+        'about:blank',
+        'zooCheckout',
+        `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no,resizable=yes,scrollbars=yes`
+      );
+
+      if (!popup || popup.closed) {
+        showError('⚠️ Tu navegador bloqueó la ventana de pago. Por favor permite pop-ups para zoorigen.com y vuelve a intentarlo.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Crear cuenta y continuar al pago →';
+        return;
+      }
+
+      // Mostrar pantalla de "creando cuenta" en el popup
+      popup.document.write('<!DOCTYPE html><html><head><title>Creando cuenta...</title><style>body{font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#131816;color:#e5e9e7;text-align:center}.sp{width:48px;height:48px;border:4px solid rgba(232,163,23,0.2);border-top-color:#E8A317;border-radius:50%;animation:s 0.8s linear infinite;margin:0 auto 20px}@keyframes s{to{transform:rotate(360deg)}}h2{margin:0;font-weight:600}</style></head><body><div><div class="sp"></div><h2>🦒 Creando tu cuenta...</h2></div></body></html>');
+
       const result = await ZOORIGEN_CLUB.register(data);
       if (result.ok) {
-        successMsg.textContent = '✅ Cuenta creada. Abriendo pago seguro...';
+        successMsg.textContent = '✅ Cuenta creada. Completa el pago en la ventana emergente.';
         successMsg.classList.add('show');
-        // Abrir checkout en modal pop-up dentro de la misma página
-        setTimeout(() => {
-          ZOORIGEN_CLUB.openCheckoutModal('mensual', data.email);
-          // Reset del botón por si el usuario cierra el modal
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Crear cuenta y continuar al pago →';
-          successMsg.textContent = '✅ Cuenta creada. Si cerraste el pago, puedes volver a abrirlo o iniciar sesión.';
-        }, 1200);
+
+        // Redirigir el popup al checkout real
+        const checkoutURL = buildCheckoutURL('mensual', data.email);
+        popup.location.href = checkoutURL;
+
+        // Guardar referencia para los botones de la pantalla de espera
+        window.__zooCheckoutURL = checkoutURL;
+        window.__zooPlanLabel = 'Plan Mensual';
+        window.__zooPrice = '$199 MXN';
+        window.__zooPopup = popup;
+
+        // Mostrar pantalla de espera en Zoorigen
+        ZOORIGEN_CLUB._showPaymentWaitingScreen('mensual');
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Crear cuenta y continuar al pago →';
       } else {
+        popup.close();
         showError(result.msg);
         submitBtn.disabled = false;
         submitBtn.textContent = 'Crear cuenta y continuar al pago →';
@@ -105,12 +135,35 @@
 
     googleBtn.addEventListener('click', async () => {
       googleBtn.disabled = true;
+
+      // Abrir ventana antes del login de Google para no bloquearse
+      const w = 500, h = 720;
+      const left = (screen.width / 2) - (w / 2);
+      const top = (screen.height / 2) - (h / 2);
+      const popup = window.open(
+        'about:blank', 'zooCheckout',
+        `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,resizable=yes,scrollbars=yes`
+      );
+      if (!popup || popup.closed) {
+        showError('⚠️ Permite pop-ups para zoorigen.com');
+        googleBtn.disabled = false;
+        return;
+      }
+      popup.document.write('<!DOCTYPE html><html><head><title>Iniciando sesión...</title></head><body style="font-family:system-ui;background:#131816;color:#fff;text-align:center;padding:40px;"><p>🦒 Iniciando sesión con Google...</p></body></html>');
+
       const result = await ZOORIGEN_CLUB.loginWithGoogle();
       if (result.ok) {
         const user = auth.currentUser;
-        ZOORIGEN_CLUB.openCheckoutModal('mensual', user.email);
+        const checkoutURL = buildCheckoutURL('mensual', user.email);
+        popup.location.href = checkoutURL;
+        window.__zooCheckoutURL = checkoutURL;
+        window.__zooPlanLabel = 'Plan Mensual';
+        window.__zooPrice = '$199 MXN';
+        window.__zooPopup = popup;
+        ZOORIGEN_CLUB._showPaymentWaitingScreen('mensual');
         googleBtn.disabled = false;
       } else {
+        popup.close();
         showError(result.msg);
         googleBtn.disabled = false;
       }

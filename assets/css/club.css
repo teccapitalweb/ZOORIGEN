@@ -1290,3 +1290,193 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 
 
+
+/* ============ CHECKOUT VENTANA EMERGENTE (pantalla de espera) ============ */
+#zoo-pay-waiting {
+  position: fixed; inset: 0; z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: zooFadeIn .25s ease-out;
+}
+@keyframes zooFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.zoo-pay-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.zoo-pay-box {
+  position: relative;
+  background: var(--zoo-bg-card, #131816);
+  border: 1px solid var(--zoo-border-strong, #2a3530);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  padding: 36px 32px 28px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(232,163,23,0.1);
+  animation: zooSlideUp .35s cubic-bezier(.16,.84,.44,1);
+}
+@keyframes zooSlideUp {
+  from { transform: translateY(30px) scale(.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.zoo-pay-icon-wrap {
+  position: relative;
+  width: 90px; height: 90px;
+  margin: 0 auto 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+.zoo-pay-icon {
+  position: relative;
+  z-index: 2;
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--zoo-amber, #E8A317), #D68A0A);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 8px 24px rgba(232,163,23,0.4);
+}
+.zoo-pay-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--zoo-amber, #E8A317);
+  opacity: 0.3;
+  animation: zooPulse 2s ease-out infinite;
+}
+@keyframes zooPulse {
+  0% { transform: scale(0.85); opacity: 0.3; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.zoo-pay-eyebrow {
+  color: var(--zoo-amber, #E8A317);
+  font-size: .76rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.zoo-pay-title {
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+.zoo-pay-desc {
+  color: var(--zoo-text-muted, #a0a8a4);
+  font-size: .94rem;
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+
+.zoo-pay-steps {
+  list-style: none;
+  padding: 14px 18px;
+  margin: 0 0 24px;
+  background: rgba(111,191,115,0.06);
+  border: 1px solid rgba(111,191,115,0.15);
+  border-radius: 12px;
+  text-align: left;
+}
+.zoo-pay-steps li {
+  color: var(--zoo-text-muted, #a0a8a4);
+  font-size: .88rem;
+  padding: 6px 0 6px 24px;
+  position: relative;
+  counter-increment: step;
+}
+.zoo-pay-steps {
+  counter-reset: step;
+}
+.zoo-pay-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0; top: 6px;
+  width: 18px; height: 18px;
+  background: var(--zoo-green-700, #3d8b42);
+  color: #fff;
+  border-radius: 50%;
+  font-size: .7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoo-pay-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.zoo-pay-reopen {
+  background: transparent;
+  color: var(--zoo-text, #e5e9e7);
+  border: 1px solid var(--zoo-border-strong, #2a3530);
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: .92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.zoo-pay-reopen:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--zoo-amber, #E8A317);
+}
+
+.zoo-pay-done {
+  background: linear-gradient(135deg, var(--zoo-amber, #E8A317) 0%, #D68A0A 100%);
+  color: #1f1d17;
+  border: 0;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 8px 20px rgba(232,163,23,0.25);
+}
+.zoo-pay-done:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(232,163,23,0.4);
+  filter: brightness(1.04);
+}
+
+.zoo-pay-cancel {
+  background: transparent;
+  color: var(--zoo-text-dim, #6b7370);
+  border: 0;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: .82rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.zoo-pay-cancel:hover {
+  color: var(--zoo-orange, #D55A28);
+}
+
+@media (max-width: 500px) {
+  #zoo-pay-waiting { padding: 0; }
+  .zoo-pay-box {
+    max-width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    padding: 32px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}

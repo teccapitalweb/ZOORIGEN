@@ -62,17 +62,121 @@ const ZOORIGEN_CLUB = {
     return ''; // default verde
   },
 
-  // ============== CHECKOUT DIRECTO ==============
-  // Redirige directamente al checkout de Shopify en la misma pestaña.
-  // Sin modal intermedio, sin iframe. Experiencia rápida al estilo Netflix/Amazon.
+  // ============== CHECKOUT VENTANA EMERGENTE (estilo OdonTeck) ==============
+  // Abre el checkout de Shopify en una VENTANA POP-UP del navegador.
+  // El usuario original queda en Zoorigen con una pantalla de espera.
+  // Puede volver a abrir la ventana si la cerró, o confirmar que pagó.
   openCheckoutModal(plan, email) {
     const checkoutURL = (typeof buildCheckoutURL === 'function')
       ? buildCheckoutURL(plan, email)
       : (plan === 'anual' ? SHOPIFY_ANNUAL_CHECKOUT_URL : SHOPIFY_CHECKOUT_URL) +
         (email ? `?checkout[email]=${encodeURIComponent(email)}` : '');
 
-    // Redirect inmediato en la misma pestaña
-    window.location.href = checkoutURL;
+    const isAnual = plan === 'anual';
+    const price = isAnual ? '$1,899 MXN' : '$199 MXN';
+    const planLabel = isAnual ? 'Plan Anual' : 'Plan Mensual';
+
+    // Guardar URL y plan para poder reabrir la ventana
+    window.__zooCheckoutURL = checkoutURL;
+    window.__zooPlanLabel = planLabel;
+    window.__zooPrice = price;
+
+    // Abrir ventana emergente (centrada, 500x720)
+    const w = 500, h = 720;
+    const left = (screen.width / 2) - (w / 2);
+    const top = (screen.height / 2) - (h / 2);
+    const popup = window.open(
+      checkoutURL,
+      'zooCheckout',
+      `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no,resizable=yes,scrollbars=yes`
+    );
+
+    if (!popup || popup.closed) {
+      // El navegador bloqueó el pop-up
+      alert('⚠️ Tu navegador bloqueó la ventana de pago. Por favor permite pop-ups para zoorigen.com y vuelve a intentarlo.');
+      return;
+    }
+
+    window.__zooPopup = popup;
+
+    // Mostrar pantalla de espera en Zoorigen
+    this._showPaymentWaitingScreen(plan);
+  },
+
+  // Pantalla de espera mientras el usuario paga en la ventana pop-up
+  _showPaymentWaitingScreen(plan) {
+    const price = window.__zooPrice || '$199 MXN';
+    const planLabel = window.__zooPlanLabel || 'Plan Mensual';
+
+    // Remover pantalla previa si existe
+    const existing = document.getElementById('zoo-pay-waiting');
+    if (existing) existing.remove();
+
+    const screen = document.createElement('div');
+    screen.id = 'zoo-pay-waiting';
+    screen.innerHTML = `
+      <div class="zoo-pay-backdrop"></div>
+      <div class="zoo-pay-box">
+        <div class="zoo-pay-icon-wrap">
+          <div class="zoo-pay-icon">💳</div>
+          <div class="zoo-pay-pulse"></div>
+        </div>
+        <div class="zoo-pay-eyebrow">${planLabel} · Club VIP Zoorigen</div>
+        <h2 class="zoo-pay-title">Completa tu pago de ${price}</h2>
+        <p class="zoo-pay-desc">
+          Se abrió una ventana nueva con el pago seguro de Shopify.
+          Sigue los pasos ahí y regresa cuando termines.
+        </p>
+        <ul class="zoo-pay-steps">
+          <li>Elige tu método de pago (tarjeta, OXXO, PayPal)</li>
+          <li>Confirma tu membresía de ${price}</li>
+          <li>Regresa aquí y haz clic en "Ya pagué"</li>
+        </ul>
+        <div class="zoo-pay-actions">
+          <button class="zoo-pay-reopen" onclick="ZOORIGEN_CLUB._reopenCheckoutWindow()">
+            🔄 Abrir ventana de nuevo
+          </button>
+          <button class="zoo-pay-done" onclick="ZOORIGEN_CLUB._confirmPayment()">
+            ✓ Ya pagué — Entrar al Club
+          </button>
+        </div>
+        <button class="zoo-pay-cancel" onclick="ZOORIGEN_CLUB._cancelPayment()">
+          Cancelar
+        </button>
+      </div>
+    `;
+    document.body.appendChild(screen);
+    document.body.style.overflow = 'hidden';
+  },
+
+  _reopenCheckoutWindow() {
+    const url = window.__zooCheckoutURL;
+    if (!url) return;
+    const w = 500, h = 720;
+    const left = (screen.width / 2) - (w / 2);
+    const top = (screen.height / 2) - (h / 2);
+    window.__zooPopup = window.open(
+      url, 'zooCheckout',
+      `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no,resizable=yes,scrollbars=yes`
+    );
+    if (!window.__zooPopup) {
+      alert('⚠️ Tu navegador bloqueó la ventana. Permite pop-ups para zoorigen.com.');
+    }
+  },
+
+  _confirmPayment() {
+    // Cerrar la ventana pop-up si sigue abierta
+    try { if (window.__zooPopup && !window.__zooPopup.closed) window.__zooPopup.close(); } catch {}
+    // Ir al dashboard — el webhook de Railway ya habrá activado el plan vía Shopify
+    window.location.href = 'club-dashboard.html';
+  },
+
+  _cancelPayment() {
+    if (!confirm('¿Seguro que quieres cancelar? Tu membresía no se activará.')) return;
+    try { if (window.__zooPopup && !window.__zooPopup.closed) window.__zooPopup.close(); } catch {}
+    const screen = document.getElementById('zoo-pay-waiting');
+    if (screen) screen.remove();
+    document.body.style.overflow = '';
   },
 
   // Formatea fecha relativa (Hace X días / Hoy / Ayer)
