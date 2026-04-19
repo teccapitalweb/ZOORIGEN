@@ -216,6 +216,18 @@ const ZOORIGEN_CLUB = {
     { id: 'night_owl',     icon: '🌙', name: 'Nocturno',           desc: 'Estudia después de las 11pm',   xp: 15 }
   ],
 
+  // Recompensas reales desbloqueadas por nivel (códigos únicos)
+  REWARDS: [
+    { level: 2, icon: '🎁', title: 'Descuento 10%',    code: 'BIOLOGO10',   desc: 'En cualquier curso Zoorigen' },
+    { level: 3, icon: '📘', title: 'PDF Premium',       code: 'PDF-FAUNA',   desc: 'Guía exclusiva de 80 páginas' },
+    { level: 4, icon: '🦒', title: 'Sticker digital',   code: 'STICKER-BIO', desc: 'Pack de 5 stickers para WhatsApp' },
+    { level: 5, icon: '💰', title: 'Descuento 30%',     code: 'EXPLORA30',   desc: 'En cualquier curso premium' },
+    { level: 6, icon: '🎟️', title: 'Acceso anticipado', code: 'PRIORIDAD',   desc: 'A sesiones con cupo limitado' },
+    { level: 7, icon: '🏆', title: 'Sesión privada',    code: 'EXPERTO1A1',  desc: '30 min gratis con un especialista' },
+    { level: 8, icon: '👑', title: 'Descuento 50%',     code: 'MAESTRO50',   desc: 'En cualquier curso del catálogo' },
+    { level: 9, icon: '🌟', title: 'Mes gratis',        code: 'SABIO-FREE',  desc: '1 mes extra de VIP sin costo' }
+  ],
+
   // Calcula el progreso del usuario (XP, nivel, logros, etc)
   getProgress(session) {
     // Lee el progreso guardado en localStorage (o crea uno nuevo)
@@ -278,6 +290,7 @@ const ZOORIGEN_CLUB = {
   // Renderiza la tarjeta grande de nivel arriba del dashboard
   renderLevelCard(progress, session) {
     const isMax = progress.isMaxLevel;
+    const unlockedRewards = this.REWARDS.filter(r => progress.level.level >= r.level).length;
     return `
       <div class="gami-level-card">
         <div class="gami-level-card__left">
@@ -297,6 +310,9 @@ const ZOORIGEN_CLUB = {
           </div>
         </div>
         <div class="gami-level-card__right">
+          <button class="gami-rewards-btn" onclick='ZOORIGEN_CLUB.showRewardsModal(ZOORIGEN_CLUB.getProgress(${JSON.stringify(session).replace(/'/g, "&#39;")}))'>
+            🎁 <span>${unlockedRewards}</span>
+          </button>
           <div class="gami-streak">
             <div class="gami-streak__num">${progress.streak}</div>
             <div class="gami-streak__label">🔥 días</div>
@@ -403,7 +419,7 @@ const ZOORIGEN_CLUB = {
       </div>`;
   },
 
-  // Otorga XP y desbloquea logro si aplica
+  // Otorga XP y desbloquea logro si aplica + muestra toast celebratorio
   awardAchievement(userUid, achievementId) {
     const key = 'zoo_progress_' + userUid;
     let data = {};
@@ -412,10 +428,220 @@ const ZOORIGEN_CLUB = {
     if (data.unlockedAchievements.includes(achievementId)) return false;
     const ach = this.ACHIEVEMENTS.find(a => a.id === achievementId);
     if (!ach) return false;
+
+    // Verificar si sube de nivel
+    const prevLevel = this._calculateLevel(data.xp || 0);
     data.unlockedAchievements.push(achievementId);
     data.xp = (data.xp || 0) + ach.xp;
+    const newLevel = this._calculateLevel(data.xp);
+
     localStorage.setItem(key, JSON.stringify(data));
+
+    // Mostrar toast de logro
+    this.showAchievementToast(ach);
+
+    // Si subió de nivel, mostrar modal de level up
+    if (newLevel.level > prevLevel.level) {
+      setTimeout(() => this.showLevelUpModal(newLevel), 3200);
+    }
     return true;
+  },
+
+  _calculateLevel(xp) {
+    let current = this.LEVELS[0];
+    for (const lvl of this.LEVELS) {
+      if (xp >= lvl.minXP) current = lvl;
+    }
+    return current;
+  },
+
+  // Toast celebratorio con confetti y sonido cuando desbloqueas logro
+  showAchievementToast(achievement) {
+    // Remover toast previo si existe
+    const existing = document.getElementById('zoo-ach-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'zoo-ach-toast';
+    toast.innerHTML = `
+      <div class="zoo-ach-toast-confetti">
+        ${Array.from({length: 20}, () =>
+          `<div class="zoo-ach-confetti-piece" style="
+            left: ${Math.random() * 100}%;
+            animation-delay: ${Math.random() * 0.8}s;
+            background: ${['#E8A317','#6FBF73','#D55A28','#F5C62E'][Math.floor(Math.random() * 4)]};
+          "></div>`
+        ).join('')}
+      </div>
+      <div class="zoo-ach-toast__icon">${achievement.icon}</div>
+      <div class="zoo-ach-toast__content">
+        <div class="zoo-ach-toast__label">🏆 ¡Logro desbloqueado!</div>
+        <div class="zoo-ach-toast__name">${achievement.name}</div>
+        <div class="zoo-ach-toast__xp">+${achievement.xp} XP</div>
+      </div>
+    `;
+    document.body.appendChild(toast);
+
+    // Sonido opcional (beep suave con Web Audio API)
+    this._playAchievementSound();
+
+    // Auto-desaparece después de 4.5s
+    setTimeout(() => toast.classList.add('leaving'), 4200);
+    setTimeout(() => toast.remove(), 4700);
+  },
+
+  // Modal grande cuando el usuario sube de nivel
+  showLevelUpModal(newLevel) {
+    const reward = this.REWARDS.find(r => r.level === newLevel.level);
+
+    const modal = document.createElement('div');
+    modal.id = 'zoo-levelup-modal';
+    modal.innerHTML = `
+      <div class="zoo-levelup-backdrop"></div>
+      <div class="zoo-levelup-confetti">
+        ${Array.from({length: 50}, () =>
+          `<div class="zoo-confetti-piece" style="
+            left: ${Math.random() * 100}%;
+            animation-delay: ${Math.random() * 2.5}s;
+            animation-duration: ${3 + Math.random() * 2.5}s;
+            background: ${['#E8A317','#6FBF73','#D55A28','#F5C62E','#2AA4D5'][Math.floor(Math.random() * 5)]};
+          "></div>`
+        ).join('')}
+      </div>
+      <div class="zoo-levelup-box">
+        <button class="zoo-welcome-close" aria-label="Cerrar">×</button>
+        <div class="zoo-levelup-badge">🎉 ¡SUBISTE DE NIVEL!</div>
+        <div class="zoo-levelup-icon" style="background:linear-gradient(135deg, ${newLevel.color}, ${newLevel.color}dd);">
+          ${newLevel.icon}
+        </div>
+        <div class="zoo-levelup-level">Nivel ${newLevel.level}</div>
+        <h2 class="zoo-levelup-name">${newLevel.name}</h2>
+        ${reward ? `
+          <div class="zoo-levelup-reward">
+            <div class="zoo-levelup-reward-title">🎁 Desbloqueaste una recompensa</div>
+            <div class="zoo-levelup-reward-icon">${reward.icon}</div>
+            <div class="zoo-levelup-reward-name">${reward.title}</div>
+            <div class="zoo-levelup-reward-desc">${reward.desc}</div>
+            <div class="zoo-levelup-reward-code">
+              <span>Código:</span>
+              <code>${reward.code}</code>
+            </div>
+            <div class="zoo-levelup-reward-note">Úsalo por WhatsApp para canjearlo</div>
+          </div>
+        ` : ''}
+        <button class="zoo-welcome-cta" id="zoo-levelup-close-btn">🚀 Continuar</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    const close = () => {
+      modal.remove();
+      document.body.style.overflow = '';
+    };
+    modal.querySelector('.zoo-welcome-close').addEventListener('click', close);
+    modal.querySelector('#zoo-levelup-close-btn').addEventListener('click', close);
+    modal.querySelector('.zoo-levelup-backdrop').addEventListener('click', close);
+
+    this._playLevelUpSound();
+  },
+
+  // Modal grande con todas las recompensas (canjeadas y pendientes)
+  showRewardsModal(progress) {
+    const modal = document.createElement('div');
+    modal.id = 'zoo-rewards-modal';
+    modal.innerHTML = `
+      <div class="zoo-welcome-backdrop"></div>
+      <div class="zoo-rewards-box">
+        <button class="zoo-welcome-close" aria-label="Cerrar">×</button>
+        <div class="zoo-rewards-header">
+          <div class="zoo-rewards-emoji">🎁</div>
+          <h2>Mis recompensas</h2>
+          <p>Desbloquea recompensas reales al subir de nivel</p>
+        </div>
+        <div class="zoo-rewards-list">
+          ${this.REWARDS.map(r => {
+            const unlocked = progress.level.level >= r.level;
+            return `
+              <div class="zoo-reward-item ${unlocked ? 'is-unlocked' : 'is-locked'}">
+                <div class="zoo-reward-icon">${unlocked ? r.icon : '🔒'}</div>
+                <div class="zoo-reward-info">
+                  <div class="zoo-reward-title">${r.title}</div>
+                  <div class="zoo-reward-desc">${r.desc}</div>
+                  ${unlocked
+                    ? `<div class="zoo-reward-code-wrap">
+                        <code>${r.code}</code>
+                        <button class="zoo-reward-copy" onclick="ZOORIGEN_CLUB._copyCode('${r.code}', this)">Copiar</button>
+                      </div>`
+                    : `<div class="zoo-reward-need">Nivel ${r.level} requerido</div>`
+                  }
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+        <div class="zoo-rewards-footer">
+          💬 Canjea tus códigos con nosotros por <a href="https://wa.me/5212361113237?text=Hola%2C%20quiero%20canjear%20mi%20c%C3%B3digo%20de%20recompensa%20VIP" target="_blank">WhatsApp</a>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    const close = () => { modal.remove(); document.body.style.overflow = ''; };
+    modal.querySelector('.zoo-welcome-close').addEventListener('click', close);
+    modal.querySelector('.zoo-welcome-backdrop').addEventListener('click', close);
+  },
+
+  _copyCode(code, btn) {
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = '✓ Copiado';
+      btn.classList.add('is-copied');
+      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('is-copied'); }, 1800);
+    });
+  },
+
+  // Sonidos simples con Web Audio (sin archivos externos)
+  _playAchievementSound() {
+    if (localStorage.getItem('zoo_mute') === 'yes') return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      // Secuencia de 3 notas ascendentes tipo "achievement unlocked"
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'triangle';
+        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
+        gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + i * 0.12 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.2);
+        osc.start(ctx.currentTime + i * 0.12);
+        osc.stop(ctx.currentTime + i * 0.12 + 0.25);
+      });
+    } catch {}
+  },
+
+  _playLevelUpSound() {
+    if (localStorage.getItem('zoo_mute') === 'yes') return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      // Fanfarria de 4 notas
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'triangle';
+        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.15);
+        gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + i * 0.15 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+        osc.start(ctx.currentTime + i * 0.15);
+        osc.stop(ctx.currentTime + i * 0.15 + 0.45);
+      });
+    } catch {}
   },
 
   // ============== MODAL DE BIENVENIDA VIP ==============
