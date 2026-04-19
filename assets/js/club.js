@@ -183,8 +183,242 @@ const ZOORIGEN_CLUB = {
     document.body.style.overflow = '';
   },
 
+  // ============== SISTEMA DE GAMIFICACIÓN ==============
+  // Niveles, XP, logros y metas semanales basados en actividad del miembro
+
+  // Definición de niveles con XP requerido
+  LEVELS: [
+    { level: 1, name: 'Aprendiz',        icon: '🌱', minXP: 0,    color: '#6FBF73' },
+    { level: 2, name: 'Observador',      icon: '🔍', minXP: 100,  color: '#6FBF73' },
+    { level: 3, name: 'Biólogo Jr',      icon: '🦎', minXP: 250,  color: '#F5C62E' },
+    { level: 4, name: 'Biólogo',         icon: '🦒', minXP: 500,  color: '#F5C62E' },
+    { level: 5, name: 'Explorador',      icon: '🧭', minXP: 900,  color: '#E8A317' },
+    { level: 6, name: 'Investigador',    icon: '🔬', minXP: 1400, color: '#E8A317' },
+    { level: 7, name: 'Experto Fauna',   icon: '🏆', minXP: 2000, color: '#D55A28' },
+    { level: 8, name: 'Maestro Zoólogo', icon: '👑', minXP: 3000, color: '#D55A28' },
+    { level: 9, name: 'Sabio Zoorigen',  icon: '🌟', minXP: 5000, color: '#2AA4D5' }
+  ],
+
+  // Definición de todos los logros posibles
+  ACHIEVEMENTS: [
+    { id: 'first_login',   icon: '🚪', name: 'Primer paso',        desc: 'Entrar al Club VIP',            xp: 20 },
+    { id: 'first_course',  icon: '🎓', name: 'Primer curso',       desc: 'Completa tu primer curso',      xp: 50 },
+    { id: 'five_courses',  icon: '📚', name: 'Biblioteca activa',  desc: 'Completa 5 cursos',             xp: 200 },
+    { id: 'ten_courses',   icon: '🏛️', name: 'Devorador de saber', desc: 'Completa 10 cursos',            xp: 400 },
+    { id: 'first_session', icon: '🎥', name: 'En vivo y directo',  desc: 'Asiste a tu primera sesión',    xp: 75 },
+    { id: 'three_sessions',icon: '📡', name: 'Fiel seguidor',      desc: 'Asiste a 3 sesiones en vivo',   xp: 200 },
+    { id: 'streak_3',      icon: '🔥', name: '3 días seguidos',    desc: 'Racha de 3 días activos',       xp: 30 },
+    { id: 'streak_7',      icon: '⚡', name: 'Semana completa',    desc: 'Racha de 7 días activos',       xp: 100 },
+    { id: 'streak_30',     icon: '💎', name: 'Mes perfecto',       desc: 'Racha de 30 días activos',      xp: 500 },
+    { id: 'first_pdf',     icon: '📄', name: 'Lector',             desc: 'Descarga tu primer PDF',        xp: 25 },
+    { id: 'vip_annual',    icon: '🏅', name: 'Compromiso anual',   desc: 'Adquiere plan anual',           xp: 300 },
+    { id: 'early_bird',    icon: '🌅', name: 'Madrugador',         desc: 'Entra antes de las 7am',        xp: 15 },
+    { id: 'night_owl',     icon: '🌙', name: 'Nocturno',           desc: 'Estudia después de las 11pm',   xp: 15 }
+  ],
+
+  // Calcula el progreso del usuario (XP, nivel, logros, etc)
+  getProgress(session) {
+    // Lee el progreso guardado en localStorage (o crea uno nuevo)
+    const key = 'zoo_progress_' + session.uid;
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
+
+    // Inicializar datos si es nuevo
+    if (!data.xp) data.xp = 0;
+    if (!data.coursesCompleted) data.coursesCompleted = 0;
+    if (!data.sessionsAttended) data.sessionsAttended = 0;
+    if (!data.pdfsDownloaded) data.pdfsDownloaded = 0;
+    if (!data.streak) data.streak = 0;
+    if (!data.unlockedAchievements) data.unlockedAchievements = [];
+    if (!data.lastActive) data.lastActive = new Date().toISOString();
+    if (!data.weeklyMinutes) data.weeklyMinutes = 0;
+    if (!data.joinedAt) data.joinedAt = session.createdAt || new Date().toISOString();
+
+    // Auto-otorgar "Primer paso" si es su primer login
+    if (!data.unlockedAchievements.includes('first_login')) {
+      data.unlockedAchievements.push('first_login');
+      data.xp += 20;
+    }
+
+    // Auto-otorgar logro de plan anual
+    if (session.planTipo === 'anual' && !data.unlockedAchievements.includes('vip_annual')) {
+      data.unlockedAchievements.push('vip_annual');
+      data.xp += 300;
+    }
+
+    // Calcular nivel actual
+    let currentLevel = this.LEVELS[0];
+    let nextLevel = this.LEVELS[1];
+    for (let i = 0; i < this.LEVELS.length; i++) {
+      if (data.xp >= this.LEVELS[i].minXP) {
+        currentLevel = this.LEVELS[i];
+        nextLevel = this.LEVELS[i + 1] || this.LEVELS[i];
+      }
+    }
+
+    // Progreso hasta siguiente nivel (0-100)
+    const xpInLevel = data.xp - currentLevel.minXP;
+    const xpNeeded = nextLevel.minXP - currentLevel.minXP;
+    const progressPercent = xpNeeded > 0 ? Math.min(100, Math.round((xpInLevel / xpNeeded) * 100)) : 100;
+    const xpToNext = Math.max(0, nextLevel.minXP - data.xp);
+
+    // Guardar
+    localStorage.setItem(key, JSON.stringify(data));
+
+    return {
+      ...data,
+      level: currentLevel,
+      nextLevel: nextLevel,
+      progressPercent,
+      xpToNext,
+      isMaxLevel: currentLevel.level === this.LEVELS[this.LEVELS.length - 1].level
+    };
+  },
+
+  // Renderiza la tarjeta grande de nivel arriba del dashboard
+  renderLevelCard(progress, session) {
+    const isMax = progress.isMaxLevel;
+    return `
+      <div class="gami-level-card">
+        <div class="gami-level-card__left">
+          <div class="gami-level-icon" style="background:linear-gradient(135deg, ${progress.level.color}, ${progress.level.color}dd);">
+            ${progress.level.icon}
+          </div>
+        </div>
+        <div class="gami-level-card__center">
+          <div class="gami-level-badge">NIVEL ${progress.level.level}</div>
+          <div class="gami-level-name">${progress.level.name}</div>
+          <div class="gami-level-xp">
+            <span class="gami-xp-count">${progress.xp.toLocaleString()} XP</span>
+            ${!isMax ? `<span class="gami-xp-next">· ${progress.xpToNext} XP para ${progress.nextLevel.name}</span>` : '<span class="gami-xp-next">· ¡Nivel máximo! 🌟</span>'}
+          </div>
+          <div class="gami-progress-bar">
+            <div class="gami-progress-bar__fill" style="width: ${progress.progressPercent}%; background:linear-gradient(90deg, ${progress.level.color}, ${progress.nextLevel.color});"></div>
+          </div>
+        </div>
+        <div class="gami-level-card__right">
+          <div class="gami-streak">
+            <div class="gami-streak__num">${progress.streak}</div>
+            <div class="gami-streak__label">🔥 días</div>
+          </div>
+        </div>
+      </div>`;
+  },
+
+  // Renderiza las metas semanales
+  renderWeeklyGoals(progress) {
+    const goals = [
+      { icon: '📚', label: 'Ver 3 cursos esta semana', current: Math.min(3, progress.coursesCompleted % 10), target: 3 },
+      { icon: '🔴', label: 'Asistir a 1 sesión en vivo',  current: Math.min(1, progress.sessionsAttended), target: 1 },
+      { icon: '📄', label: 'Descargar 2 PDFs',            current: Math.min(2, progress.pdfsDownloaded), target: 2 }
+    ];
+
+    return `
+      <div class="gami-goals-card">
+        <div class="gami-goals-header">
+          <div class="gami-goals-title">🎯 Metas de la semana</div>
+          <div class="gami-goals-sub">Completa para ganar XP extra</div>
+        </div>
+        <div class="gami-goals-list">
+          ${goals.map(g => {
+            const percent = Math.min(100, (g.current / g.target) * 100);
+            const done = g.current >= g.target;
+            return `
+              <div class="gami-goal ${done ? 'is-done' : ''}">
+                <div class="gami-goal__icon">${done ? '✅' : g.icon}</div>
+                <div class="gami-goal__info">
+                  <div class="gami-goal__label">${g.label}</div>
+                  <div class="gami-goal__progress-wrap">
+                    <div class="gami-goal__progress">
+                      <div class="gami-goal__fill" style="width: ${percent}%;"></div>
+                    </div>
+                    <div class="gami-goal__count">${g.current}/${g.target}</div>
+                  </div>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  },
+
+  // Renderiza galería de logros (desbloqueados y bloqueados)
+  renderAchievements(progress) {
+    const unlockedCount = progress.unlockedAchievements.length;
+    const totalCount = this.ACHIEVEMENTS.length;
+
+    return `
+      <div class="gami-achievements-card">
+        <div class="gami-achievements-header">
+          <div>
+            <div class="gami-achievements-title">🏆 Logros</div>
+            <div class="gami-achievements-sub">${unlockedCount} de ${totalCount} desbloqueados</div>
+          </div>
+          <div class="gami-achievements-count">
+            <span class="gami-big-num">${unlockedCount}</span>
+            <span class="gami-small-num">/${totalCount}</span>
+          </div>
+        </div>
+        <div class="gami-achievements-grid">
+          ${this.ACHIEVEMENTS.map(a => {
+            const unlocked = progress.unlockedAchievements.includes(a.id);
+            return `
+              <div class="gami-achievement ${unlocked ? 'is-unlocked' : 'is-locked'}" title="${a.desc}">
+                <div class="gami-achievement__icon">${unlocked ? a.icon : '🔒'}</div>
+                <div class="gami-achievement__name">${a.name}</div>
+                <div class="gami-achievement__xp">+${a.xp} XP</div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  },
+
+  // Renderiza stats pequeñas en el sidebar derecho
+  renderMyStats(progress, session) {
+    const daysAsMember = Math.floor((Date.now() - new Date(progress.joinedAt).getTime()) / 86400000);
+    return `
+      <div class="card gami-stats-card">
+        <div class="gami-stats-header">Mi progreso</div>
+        <div class="gami-stats-grid">
+          <div class="gami-stat">
+            <div class="gami-stat__icon">📚</div>
+            <div class="gami-stat__val">${progress.coursesCompleted}</div>
+            <div class="gami-stat__lbl">Cursos</div>
+          </div>
+          <div class="gami-stat">
+            <div class="gami-stat__icon">🔴</div>
+            <div class="gami-stat__val">${progress.sessionsAttended}</div>
+            <div class="gami-stat__lbl">Sesiones</div>
+          </div>
+          <div class="gami-stat">
+            <div class="gami-stat__icon">📄</div>
+            <div class="gami-stat__val">${progress.pdfsDownloaded}</div>
+            <div class="gami-stat__lbl">PDFs</div>
+          </div>
+          <div class="gami-stat">
+            <div class="gami-stat__icon">🗓️</div>
+            <div class="gami-stat__val">${daysAsMember}</div>
+            <div class="gami-stat__lbl">Días VIP</div>
+          </div>
+        </div>
+      </div>`;
+  },
+
+  // Otorga XP y desbloquea logro si aplica
+  awardAchievement(userUid, achievementId) {
+    const key = 'zoo_progress_' + userUid;
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
+    data.unlockedAchievements = data.unlockedAchievements || [];
+    if (data.unlockedAchievements.includes(achievementId)) return false;
+    const ach = this.ACHIEVEMENTS.find(a => a.id === achievementId);
+    if (!ach) return false;
+    data.unlockedAchievements.push(achievementId);
+    data.xp = (data.xp || 0) + ach.xp;
+    localStorage.setItem(key, JSON.stringify(data));
+    return true;
+  },
+
   // ============== MODAL DE BIENVENIDA VIP ==============
-  // Aparece SOLO la primera vez después de pagar. Celebra al nuevo VIP con confetti.
   showWelcomeModal(session) {
     const firstName = (session.name || 'Miembro').split(' ')[0];
     const planLabel = session.planTipo === 'anual' ? 'Plan Anual' : 'Plan Mensual';

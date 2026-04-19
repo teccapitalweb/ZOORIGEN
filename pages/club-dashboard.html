@@ -14,20 +14,28 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <div id="statusBanner"></div>
+      <div id="pendingBanner"></div>
 
       <div class="club-main__header">
         <div class="club-main__greeting">
           <h1 id="greeting">Cargando...</h1>
           <p class="date" id="date"></p>
-          <div class="streak-badge" id="streak" style="display:none;"></div>
         </div>
         <div class="notif-icon" title="Notificaciones">🔔</div>
       </div>
 
+      <!-- ════ TARJETA DE NIVEL (solo si es VIP activo) ════ -->
+      <div id="levelCard"></div>
+
       <div class="dashboard-grid">
         <div class="dashboard-main">
           <div id="resumeCard"></div>
+
+          <!-- ════ METAS SEMANALES ════ -->
+          <div id="weeklyGoalsCard"></div>
+
+          <!-- ════ LOGROS ════ -->
+          <div id="achievementsCard"></div>
 
           <div class="card card-promo">
             <div class="card-promo__icon">🎓</div>
@@ -50,6 +58,9 @@
         </div>
 
         <aside class="dashboard-aside">
+          <!-- ════ STATS PEQUEÑAS DE MI PROGRESO ════ -->
+          <div id="myStatsCard"></div>
+
           <div id="nextSessionCard" class="card aside-card" style="background: rgba(31,95,58,0.3); border-color: var(--zoo-border-strong);">
             <div class="aside-card__eyebrow">● Próximamente</div>
             <div class="aside-card__title">Cargando sesión...</div>
@@ -90,25 +101,16 @@
       document.getElementById('greeting').innerHTML = `${ZOORIGEN_CLUB.getGreeting()}, <span class="accent">${firstName}</span> 🦒`;
       document.getElementById('date').textContent = ZOORIGEN_CLUB.formatDate();
 
-      if (session.streak > 0) {
-        const s = document.getElementById('streak');
-        s.innerHTML = `🔥 Llevas ${session.streak} día${session.streak !== 1 ? 's' : ''} consecutivo${session.streak !== 1 ? 's' : ''} aprendiendo`;
-        s.style.display = 'inline-flex';
+      // Solo mostrar banner si hay problema con el plan
+      const pb = document.getElementById('pendingBanner');
+      if (session.planStatus === 'pending_payment') {
+        pb.innerHTML = `<div class="status-banner"><span>⚠️</span>Tu cuenta está creada. Completa el pago para activar los beneficios VIP. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar ahora →</a></div>`;
+      } else if (session.planStatus === 'cancelled') {
+        pb.innerHTML = `<div class="status-banner cancelled"><span>✕</span>Membresía cancelada. Acceso hasta ${ZOORIGEN_CLUB.formatShort(session.planVence)}. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Reactivar →</a></div>`;
       }
 
-      const sb = document.getElementById('statusBanner');
+      // Modal de bienvenida solo primera vez
       if (session.planStatus === 'active') {
-        // Badge elegante en lugar de banner horizontal
-        sb.innerHTML = `
-          <div class="vip-badge-top">
-            <div class="vip-badge-top__icon">✨</div>
-            <div class="vip-badge-top__text">
-              <div class="vip-badge-top__label">Miembro VIP Activo</div>
-              <div class="vip-badge-top__sub">Renovación ${ZOORIGEN_CLUB.formatShort(session.planVence)}</div>
-            </div>
-          </div>`;
-
-        // Mostrar modal de bienvenida SOLO la primera vez después de pagar
         const welcomeKey = 'zoo_welcome_shown_' + session.uid;
         if (!localStorage.getItem(welcomeKey)) {
           setTimeout(() => {
@@ -116,20 +118,29 @@
             localStorage.setItem(welcomeKey, 'yes');
           }, 600);
         }
-      } else if (session.planStatus === 'pending_payment') {
-        sb.innerHTML = `<div class="status-banner"><span>⚠️</span>Tu cuenta está creada. Completa el pago para activar los beneficios VIP. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar ahora →</a></div>`;
-      } else if (session.planStatus === 'cancelled') {
-        sb.innerHTML = `<div class="status-banner cancelled"><span>✕</span>Membresía cancelada. Acceso hasta ${ZOORIGEN_CLUB.formatShort(session.planVence)}. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Reactivar →</a></div>`;
       }
 
-      // Cargar datos desde Firestore en paralelo
+      // Cargar datos desde Firestore
       const [cursos, noticias, proximaSesion] = await Promise.all([
         ZOORIGEN_CLUB.getCursos(),
         ZOORIGEN_CLUB.getNoticias(3),
         ZOORIGEN_CLUB.getProximaSesion()
       ]);
 
-      // Card de "continúa donde te quedaste" (usa el primer curso)
+      // ════════════════════════════════════════════
+      // SISTEMA DE GAMIFICACIÓN
+      // ════════════════════════════════════════════
+      const progress = ZOORIGEN_CLUB.getProgress(session);
+
+      // Solo mostrar nivel y logros si es VIP activo
+      if (session.planStatus === 'active') {
+        document.getElementById('levelCard').innerHTML = ZOORIGEN_CLUB.renderLevelCard(progress, session);
+        document.getElementById('weeklyGoalsCard').innerHTML = ZOORIGEN_CLUB.renderWeeklyGoals(progress);
+        document.getElementById('achievementsCard').innerHTML = ZOORIGEN_CLUB.renderAchievements(progress);
+        document.getElementById('myStatsCard').innerHTML = ZOORIGEN_CLUB.renderMyStats(progress, session);
+      }
+
+      // Card resumen de curso
       const resume = document.getElementById('resumeCard');
       if (cursos.length > 0) {
         const c = cursos[0];
@@ -179,14 +190,14 @@
           <div class="news-card__body" style="padding:22px;">
             <span class="news-card__source">🦒 Zoorigen</span>
             <h4 class="news-card__title">Bienvenido al Club Zoorigen</h4>
-            <p class="news-card__summary">Las noticias de fauna y biodiversidad se sincronizan automáticamente desde Mongabay, SciDev y DW cada 6 horas. Pronto verás aquí lo más relevante del sector.</p>
+            <p class="news-card__summary">Las noticias de fauna y biodiversidad se sincronizan automáticamente desde Mongabay, SciDev y DW cada 6 horas.</p>
           </div>
         </div>`;
       } else {
         nl.innerHTML = `<div class="news-grid">${noticias.map(n => ZOORIGEN_CLUB.renderNewsCard(n)).join('')}</div>`;
       }
 
-      // Contenido reciente (primeros 4 cursos)
+      // Contenido reciente
       const rc = document.getElementById('recentContent');
       if (cursos.length === 0) {
         rc.innerHTML = `<div class="no-data" style="text-align:center;padding:30px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);">Aún no hay cursos en la biblioteca.</div>`;

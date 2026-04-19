@@ -1481,43 +1481,6 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   }
 }
 
-/* ============ BADGE VIP ELEGANTE (sustituye al banner horizontal) ============ */
-.vip-badge-top {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(135deg, rgba(232,163,23,0.15) 0%, rgba(111,191,115,0.1) 100%);
-  border: 1px solid rgba(232,163,23,0.3);
-  border-radius: 100px;
-  padding: 8px 18px 8px 8px;
-  margin-bottom: 18px;
-  box-shadow: 0 4px 14px rgba(232,163,23,0.12);
-}
-.vip-badge-top__icon {
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--zoo-amber, #E8A317), #D68A0A);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem;
-  box-shadow: 0 4px 12px rgba(232,163,23,0.4);
-}
-.vip-badge-top__text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-.vip-badge-top__label {
-  color: var(--zoo-amber, #E8A317);
-  font-size: .82rem;
-  font-weight: 700;
-  letter-spacing: .02em;
-}
-.vip-badge-top__sub {
-  color: var(--zoo-text-dim, #6b7370);
-  font-size: .72rem;
-  margin-top: 1px;
-}
-
 /* ============ MODAL DE BIENVENIDA VIP (con confetti) ============ */
 #zoo-welcome-modal {
   position: fixed; inset: 0; z-index: 10000;
@@ -1769,4 +1732,335 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   }
   .zoo-welcome-title { font-size: 1.6rem; }
   .zoo-welcome-emoji { font-size: 4rem; }
+}
+
+/* ============================================================
+   SISTEMA DE GAMIFICACIÓN — Nivel, XP, Logros, Metas
+   ============================================================ */
+
+/* ── TARJETA GRANDE DE NIVEL ── */
+.gami-level-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(31,95,58,0.3) 0%, rgba(232,163,23,0.15) 50%, rgba(213,90,40,0.15) 100%);
+  border: 1px solid rgba(232,163,23,0.25);
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.gami-level-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 50%, rgba(232,163,23,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.gami-level-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  box-shadow: 0 10px 30px rgba(232,163,23,0.3), inset 0 2px 8px rgba(255,255,255,0.15);
+  flex-shrink: 0;
+  z-index: 1;
+}
+.gami-level-card__center {
+  min-width: 0;
+  z-index: 1;
+}
+.gami-level-badge {
+  color: var(--zoo-amber, #E8A317);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.gami-level-name {
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.gami-level-xp {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.gami-xp-count {
+  color: var(--zoo-amber, #E8A317);
+  font-weight: 700;
+  font-size: .94rem;
+}
+.gami-xp-next {
+  color: var(--zoo-text-dim, #6b7370);
+  font-size: .8rem;
+}
+.gami-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.gami-progress-bar__fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.8s cubic-bezier(.16,.84,.44,1);
+  box-shadow: 0 0 12px rgba(232,163,23,0.5);
+}
+.gami-level-card__right { z-index: 1; }
+.gami-streak {
+  text-align: center;
+  padding: 10px 14px;
+  background: rgba(213,90,40,0.15);
+  border: 1px solid rgba(213,90,40,0.3);
+  border-radius: 12px;
+}
+.gami-streak__num {
+  color: var(--zoo-orange, #D55A28);
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.gami-streak__label {
+  color: var(--zoo-text-muted, #a0a8a4);
+  font-size: .72rem;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .gami-level-card { grid-template-columns: auto 1fr; padding: 16px; gap: 14px; }
+  .gami-level-card__right { grid-column: 1 / 3; margin-top: 8px; }
+  .gami-streak { padding: 8px 10px; display: inline-flex; align-items: center; gap: 10px; }
+  .gami-streak__num { font-size: 1.2rem; }
+  .gami-streak__label { margin-top: 0; }
+  .gami-level-icon { width: 56px; height: 56px; font-size: 1.7rem; }
+  .gami-level-name { font-size: 1.15rem; }
+}
+
+/* ── TARJETA DE METAS SEMANALES ── */
+.gami-goals-card {
+  background: var(--zoo-bg-card, #131816);
+  border: 1px solid var(--zoo-border, #1e2522);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.gami-goals-header { margin-bottom: 16px; }
+.gami-goals-title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+.gami-goals-sub {
+  color: var(--zoo-text-dim, #6b7370);
+  font-size: .8rem;
+}
+.gami-goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.gami-goal {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 12px;
+  transition: all .2s;
+}
+.gami-goal.is-done {
+  background: rgba(111,191,115,0.08);
+  border-color: rgba(111,191,115,0.25);
+}
+.gami-goal__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.gami-goal__info { flex: 1; min-width: 0; }
+.gami-goal__label {
+  color: #fff;
+  font-size: .88rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.gami-goal.is-done .gami-goal__label {
+  color: var(--zoo-green-500, #6FBF73);
+  text-decoration: line-through;
+  text-decoration-color: rgba(111,191,115,0.4);
+}
+.gami-goal__progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.gami-goal__progress {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.gami-goal__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--zoo-green-700, #3d8b42), var(--zoo-green-500, #6FBF73));
+  border-radius: 100px;
+  transition: width .8s ease-out;
+}
+.gami-goal__count {
+  color: var(--zoo-text-muted, #a0a8a4);
+  font-size: .78rem;
+  font-weight: 700;
+  min-width: 30px;
+  text-align: right;
+}
+
+/* ── GALERÍA DE LOGROS ── */
+.gami-achievements-card {
+  background: var(--zoo-bg-card, #131816);
+  border: 1px solid var(--zoo-border, #1e2522);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.gami-achievements-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.gami-achievements-title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.gami-achievements-sub {
+  color: var(--zoo-text-dim, #6b7370);
+  font-size: .8rem;
+  margin-top: 2px;
+}
+.gami-achievements-count {
+  display: flex;
+  align-items: baseline;
+  font-family: 'Poppins', sans-serif;
+}
+.gami-big-num {
+  color: var(--zoo-amber, #E8A317);
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.gami-small-num {
+  color: var(--zoo-text-dim, #6b7370);
+  font-size: .9rem;
+  font-weight: 600;
+}
+.gami-achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+  gap: 10px;
+}
+.gami-achievement {
+  text-align: center;
+  padding: 14px 8px;
+  border-radius: 12px;
+  transition: all .2s;
+  cursor: default;
+}
+.gami-achievement.is-unlocked {
+  background: linear-gradient(135deg, rgba(232,163,23,0.12), rgba(111,191,115,0.08));
+  border: 1px solid rgba(232,163,23,0.25);
+}
+.gami-achievement.is-unlocked:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(232,163,23,0.2);
+}
+.gami-achievement.is-locked {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  opacity: 0.55;
+  filter: grayscale(0.3);
+}
+.gami-achievement__icon {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.gami-achievement.is-locked .gami-achievement__icon { opacity: 0.45; }
+.gami-achievement__name {
+  color: #fff;
+  font-size: .74rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 3px;
+}
+.gami-achievement.is-locked .gami-achievement__name {
+  color: var(--zoo-text-dim, #6b7370);
+}
+.gami-achievement__xp {
+  color: var(--zoo-amber, #E8A317);
+  font-size: .68rem;
+  font-weight: 700;
+}
+.gami-achievement.is-locked .gami-achievement__xp {
+  color: var(--zoo-text-dim, #6b7370);
+}
+
+/* ── STATS EN SIDEBAR DERECHA ── */
+.gami-stats-card {
+  padding: 18px 16px !important;
+}
+.gami-stats-header {
+  color: var(--zoo-amber, #E8A317);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.gami-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.gami-stat {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.gami-stat__icon {
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+.gami-stat__val {
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.gami-stat__lbl {
+  color: var(--zoo-text-dim, #6b7370);
+  font-size: .7rem;
+  margin-top: 3px;
+  font-weight: 600;
 }
