@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function isActiveVIP() {
+      return isAuthed()
+        && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planActivo == true;
+    }
+
+    // ══ MIEMBROS ══
+    match /miembros/{uid} {
+      allow read: if isAuthed() && (request.auth.uid == uid || isAdmin());
+      allow create: if isAuthed() && request.auth.uid == uid;
+      allow update: if isAdmin() || (
+        isAuthed() && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['planActivo', 'planCancelado', 'planTipo', 'planVence', 'planInicio', 'ultimoPago', 'role'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ══ CONTENIDO DEL CLUB ══
+    match /cursos/{cursoId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /videos/{videoId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /pdfs/{pdfId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /sesiones/{sesionId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /noticias/{noticiaId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // ══ FORO VIP ══
+    // Solo VIPs activos pueden leer/escribir
+    // Admins tienen control total (moderar, eliminar)
+    match /foroPosts/{postId} {
+      allow read: if isActiveVIP() || isAdmin();
+      allow create: if isActiveVIP()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.content is string;
+      // El autor puede editar/borrar su post, admin puede todo
+      allow update: if isAdmin()
+        || (isActiveVIP() && resource.data.authorUid == request.auth.uid)
+        // Permitir incrementar contadores (views, repliesCount) desde cualquier VIP
+        || (isActiveVIP() && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['views', 'repliesCount', 'lastReplyAt']));
+      allow delete: if isAdmin() || (isActiveVIP() && resource.data.authorUid == request.auth.uid);
+
+      // Respuestas del foro
+      match /replies/{replyId} {
+        allow read: if isActiveVIP() || isAdmin();
+        allow create: if isActiveVIP()
+          && request.resource.data.authorUid == request.auth.uid;
+        allow update: if isAdmin()
+          || (isActiveVIP() && resource.data.authorUid == request.auth.uid);
+        allow delete: if isAdmin() || (isActiveVIP() && resource.data.authorUid == request.auth.uid);
+      }
+    }
+  }
+}

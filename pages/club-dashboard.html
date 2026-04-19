@@ -31,12 +31,6 @@
         <div class="dashboard-main">
           <div id="resumeCard"></div>
 
-          <!-- ════ METAS SEMANALES ════ -->
-          <div id="weeklyGoalsCard"></div>
-
-          <!-- ════ LOGROS ════ -->
-          <div id="achievementsCard"></div>
-
           <div class="card card-promo">
             <div class="card-promo__icon">🎓</div>
             <div class="card-promo__text">
@@ -132,11 +126,9 @@
       // ════════════════════════════════════════════
       const progress = ZOORIGEN_CLUB.getProgress(session);
 
-      // Solo mostrar nivel y logros si es VIP activo
+      // Solo mostrar nivel y stats si es VIP activo
       if (session.planStatus === 'active') {
         document.getElementById('levelCard').innerHTML = ZOORIGEN_CLUB.renderLevelCard(progress, session);
-        document.getElementById('weeklyGoalsCard').innerHTML = ZOORIGEN_CLUB.renderWeeklyGoals(progress);
-        document.getElementById('achievementsCard').innerHTML = ZOORIGEN_CLUB.renderAchievements(progress);
         document.getElementById('myStatsCard').innerHTML = ZOORIGEN_CLUB.renderMyStats(progress, session);
       }
 

@@ -213,7 +213,9 @@ const ZOORIGEN_CLUB = {
     { id: 'first_pdf',     icon: '📄', name: 'Lector',             desc: 'Descarga tu primer PDF',        xp: 25 },
     { id: 'vip_annual',    icon: '🏅', name: 'Compromiso anual',   desc: 'Adquiere plan anual',           xp: 300 },
     { id: 'early_bird',    icon: '🌅', name: 'Madrugador',         desc: 'Entra antes de las 7am',        xp: 15 },
-    { id: 'night_owl',     icon: '🌙', name: 'Nocturno',           desc: 'Estudia después de las 11pm',   xp: 15 }
+    { id: 'night_owl',     icon: '🌙', name: 'Nocturno',           desc: 'Estudia después de las 11pm',   xp: 15 },
+    { id: 'first_post',    icon: '📝', name: 'Primera discusión',  desc: 'Inicia tu primera discusión',   xp: 60 },
+    { id: 'first_reply',   icon: '💬', name: 'Primera respuesta',  desc: 'Responde a un colega',          xp: 30 }
   ],
 
   // Recompensas reales desbloqueadas por nivel (códigos únicos)
@@ -984,6 +986,8 @@ const ZOORIGEN_CLUB = {
     const items = [
       { id: 'inicio', label: 'Inicio', icon: '🏠', href: 'club-dashboard.html' },
       { id: 'biblioteca', label: 'Biblioteca', icon: '📚', href: 'club-biblioteca.html' },
+      { id: 'especies', label: 'Directorio de especies', icon: '🐆', href: 'club-especies.html' },
+      { id: 'foro', label: 'Foro VIP', icon: '💬', href: 'club-foro.html' },
       { id: 'videos', label: 'Videos', icon: '🎥', href: 'club-videos.html' },
       { id: 'sesiones', label: 'Sesiones en vivo', icon: '🔴', href: 'club-sesiones.html' },
       { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' }
