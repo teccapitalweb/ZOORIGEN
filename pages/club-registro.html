@@ -86,13 +86,16 @@
 
       const result = await ZOORIGEN_CLUB.register(data);
       if (result.ok) {
-        successMsg.textContent = '✅ Cuenta creada. Redirigiendo al pago seguro...';
+        successMsg.textContent = '✅ Cuenta creada. Abriendo pago seguro...';
         successMsg.classList.add('show');
-        // Redirigir a Shopify checkout con email prellenado
+        // Abrir checkout en modal pop-up dentro de la misma página
         setTimeout(() => {
-          const url = buildCheckoutURL('mensual', data.email);
-          window.location.href = url;
-        }, 1500);
+          ZOORIGEN_CLUB.openCheckoutModal('mensual', data.email);
+          // Reset del botón por si el usuario cierra el modal
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Crear cuenta y continuar al pago →';
+          successMsg.textContent = '✅ Cuenta creada. Si cerraste el pago, puedes volver a abrirlo o iniciar sesión.';
+        }, 1200);
       } else {
         showError(result.msg);
         submitBtn.disabled = false;
@@ -105,8 +108,8 @@
       const result = await ZOORIGEN_CLUB.loginWithGoogle();
       if (result.ok) {
         const user = auth.currentUser;
-        const url = buildCheckoutURL('mensual', user.email);
-        window.location.href = url;
+        ZOORIGEN_CLUB.openCheckoutModal('mensual', user.email);
+        googleBtn.disabled = false;
       } else {
         showError(result.msg);
         googleBtn.disabled = false;

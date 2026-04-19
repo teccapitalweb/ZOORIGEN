@@ -62,6 +62,92 @@ const ZOORIGEN_CLUB = {
     return ''; // default verde
   },
 
+  // ============== CHECKOUT MODAL POPUP ==============
+  // Abre el checkout de Shopify en un modal dentro de la misma página.
+  // Si Shopify bloquea el iframe (X-Frame-Options), automáticamente
+  // muestra un botón de fallback que abre en la misma pestaña.
+  openCheckoutModal(plan, email) {
+    const checkoutURL = (typeof buildCheckoutURL === 'function')
+      ? buildCheckoutURL(plan, email)
+      : (plan === 'anual' ? SHOPIFY_ANNUAL_CHECKOUT_URL : SHOPIFY_CHECKOUT_URL) +
+        (email ? `?checkout[email]=${encodeURIComponent(email)}` : '');
+
+    const planLabel = plan === 'anual' ? 'Plan Anual · $1,899 MXN' : 'Plan Mensual · $199 MXN/mes';
+
+    // Remover modal previo si existe
+    const existing = document.getElementById('zoo-checkout-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'zoo-checkout-modal';
+    modal.innerHTML = `
+      <div class="zoo-modal-backdrop"></div>
+      <div class="zoo-modal-box">
+        <div class="zoo-modal-header">
+          <div>
+            <div class="zoo-modal-title">💳 Pago seguro</div>
+            <div class="zoo-modal-subtitle">${planLabel} · Procesado por Shopify</div>
+          </div>
+          <button class="zoo-modal-close" aria-label="Cerrar">×</button>
+        </div>
+        <div class="zoo-modal-body">
+          <div class="zoo-modal-loading" id="zoo-modal-loading">
+            <div class="zoo-spinner"></div>
+            <p>Cargando pago seguro...</p>
+          </div>
+          <iframe id="zoo-checkout-iframe" src="${checkoutURL}" style="display:none;"></iframe>
+          <div class="zoo-modal-fallback" id="zoo-modal-fallback" style="display:none;">
+            <div style="font-size:3rem;text-align:center;margin-bottom:14px;">🔒</div>
+            <h3 style="color:#fff;text-align:center;margin-bottom:8px;font-size:1.2rem;">Redirigiéndote al pago seguro</h3>
+            <p style="color:var(--zoo-text-muted);text-align:center;margin-bottom:22px;font-size:.92rem;line-height:1.5;">
+              Shopify procesa los pagos en su plataforma segura por tu protección.
+              Haz clic para continuar — regresarás automáticamente al terminar.
+            </p>
+            <a href="${checkoutURL}" class="zoo-modal-btn-continue">
+              Continuar al pago seguro →
+            </a>
+            <p style="text-align:center;color:var(--zoo-text-dim);font-size:.78rem;margin-top:16px;">
+              🔐 Pago encriptado · Sin compartir tu tarjeta con Zoorigen
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    // Listeners para cerrar
+    const close = () => {
+      modal.remove();
+      document.body.style.overflow = '';
+    };
+    modal.querySelector('.zoo-modal-close').addEventListener('click', close);
+    modal.querySelector('.zoo-modal-backdrop').addEventListener('click', close);
+    document.addEventListener('keydown', function onEsc(e) {
+      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onEsc); }
+    });
+
+    const iframe = document.getElementById('zoo-checkout-iframe');
+    const loading = document.getElementById('zoo-modal-loading');
+    const fallback = document.getElementById('zoo-modal-fallback');
+
+    // Detectar si Shopify permitió el iframe (load event) o lo bloqueó
+    let loaded = false;
+    iframe.addEventListener('load', () => {
+      loaded = true;
+      loading.style.display = 'none';
+      iframe.style.display = 'block';
+    });
+    // Si después de 4 segundos no cargó, mostrar fallback
+    setTimeout(() => {
+      if (!loaded) {
+        loading.style.display = 'none';
+        iframe.style.display = 'none';
+        fallback.style.display = 'block';
+      }
+    }, 4000);
+  },
+
   // Formatea fecha relativa (Hace X días / Hoy / Ayer)
   timeAgo(isoDate) {
     if (!isoDate) return '';
