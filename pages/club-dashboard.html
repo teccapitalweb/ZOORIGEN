@@ -98,7 +98,24 @@
 
       const sb = document.getElementById('statusBanner');
       if (session.planStatus === 'active') {
-        sb.innerHTML = `<div class="status-banner active"><span>✓</span>Membresía VIP activa · Acceso hasta ${ZOORIGEN_CLUB.formatShort(session.planVence)}</div>`;
+        // Badge elegante en lugar de banner horizontal
+        sb.innerHTML = `
+          <div class="vip-badge-top">
+            <div class="vip-badge-top__icon">✨</div>
+            <div class="vip-badge-top__text">
+              <div class="vip-badge-top__label">Miembro VIP Activo</div>
+              <div class="vip-badge-top__sub">Renovación ${ZOORIGEN_CLUB.formatShort(session.planVence)}</div>
+            </div>
+          </div>`;
+
+        // Mostrar modal de bienvenida SOLO la primera vez después de pagar
+        const welcomeKey = 'zoo_welcome_shown_' + session.uid;
+        if (!localStorage.getItem(welcomeKey)) {
+          setTimeout(() => {
+            ZOORIGEN_CLUB.showWelcomeModal(session);
+            localStorage.setItem(welcomeKey, 'yes');
+          }, 600);
+        }
       } else if (session.planStatus === 'pending_payment') {
         sb.innerHTML = `<div class="status-banner"><span>⚠️</span>Tu cuenta está creada. Completa el pago para activar los beneficios VIP. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar ahora →</a></div>`;
       } else if (session.planStatus === 'cancelled') {

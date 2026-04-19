@@ -167,6 +167,10 @@ const ZOORIGEN_CLUB = {
   _confirmPayment() {
     // Cerrar la ventana pop-up si sigue abierta
     try { if (window.__zooPopup && !window.__zooPopup.closed) window.__zooPopup.close(); } catch {}
+    // Limpiar flag de bienvenida para que aparezca el modal celebratorio
+    if (auth.currentUser) {
+      localStorage.removeItem('zoo_welcome_shown_' + auth.currentUser.uid);
+    }
     // Ir al dashboard — el webhook de Railway ya habrá activado el plan vía Shopify
     window.location.href = 'club-dashboard.html';
   },
@@ -179,7 +183,101 @@ const ZOORIGEN_CLUB = {
     document.body.style.overflow = '';
   },
 
-  // Formatea fecha relativa (Hace X días / Hoy / Ayer)
+  // ============== MODAL DE BIENVENIDA VIP ==============
+  // Aparece SOLO la primera vez después de pagar. Celebra al nuevo VIP con confetti.
+  showWelcomeModal(session) {
+    const firstName = (session.name || 'Miembro').split(' ')[0];
+    const planLabel = session.planTipo === 'anual' ? 'Plan Anual' : 'Plan Mensual';
+    const venceLabel = session.planVence ? this.formatShort(session.planVence) : '';
+
+    const modal = document.createElement('div');
+    modal.id = 'zoo-welcome-modal';
+    modal.innerHTML = `
+      <div class="zoo-welcome-backdrop"></div>
+      <div class="zoo-welcome-confetti">
+        ${Array.from({length: 40}, (_, i) =>
+          `<div class="zoo-confetti-piece" style="
+            left: ${Math.random() * 100}%;
+            animation-delay: ${Math.random() * 2}s;
+            animation-duration: ${3 + Math.random() * 2}s;
+            background: ${['#E8A317','#6FBF73','#D55A28','#F5C62E','#2AA4D5'][Math.floor(Math.random() * 5)]};
+          "></div>`
+        ).join('')}
+      </div>
+      <div class="zoo-welcome-box">
+        <button class="zoo-welcome-close" aria-label="Cerrar">×</button>
+
+        <div class="zoo-welcome-emoji-wrap">
+          <div class="zoo-welcome-emoji">🦒</div>
+          <div class="zoo-welcome-sparkle zoo-welcome-sparkle-1">✨</div>
+          <div class="zoo-welcome-sparkle zoo-welcome-sparkle-2">⭐</div>
+          <div class="zoo-welcome-sparkle zoo-welcome-sparkle-3">✨</div>
+        </div>
+
+        <div class="zoo-welcome-badge">🎉 ¡BIENVENIDO AL CLUB VIP!</div>
+
+        <h1 class="zoo-welcome-title">
+          ¡Felicidades <span>${firstName}</span>!
+        </h1>
+
+        <p class="zoo-welcome-desc">
+          Eres parte oficial de <strong>Zoorigen</strong>, la comunidad científica de fauna más completa de México.
+        </p>
+
+        <div class="zoo-welcome-plan">
+          <div class="zoo-welcome-plan-icon">🏆</div>
+          <div>
+            <div class="zoo-welcome-plan-label">${planLabel} activo</div>
+            <div class="zoo-welcome-plan-sub">Acceso hasta ${venceLabel}</div>
+          </div>
+        </div>
+
+        <div class="zoo-welcome-benefits">
+          <div class="zoo-welcome-benefit">
+            <span>📚</span>
+            <div>
+              <strong>Biblioteca completa</strong>
+              <small>Todos los cursos desbloqueados</small>
+            </div>
+          </div>
+          <div class="zoo-welcome-benefit">
+            <span>🔴</span>
+            <div>
+              <strong>Sesiones en vivo</strong>
+              <small>Masterclasses mensuales con especialistas</small>
+            </div>
+          </div>
+          <div class="zoo-welcome-benefit">
+            <span>💰</span>
+            <div>
+              <strong>20% OFF permanente</strong>
+              <small>En todas las capacitaciones Zoorigen</small>
+            </div>
+          </div>
+        </div>
+
+        <button class="zoo-welcome-cta" id="zoo-welcome-cta-btn">
+          🚀 Empezar a explorar
+        </button>
+
+        <div class="zoo-welcome-footer">
+          ¿Necesitas ayuda? Contáctanos por <a href="https://wa.me/5212361113237" target="_blank">WhatsApp</a>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    const close = () => {
+      modal.remove();
+      document.body.style.overflow = '';
+    };
+    modal.querySelector('.zoo-welcome-close').addEventListener('click', close);
+    modal.querySelector('#zoo-welcome-cta-btn').addEventListener('click', close);
+    modal.querySelector('.zoo-welcome-backdrop').addEventListener('click', close);
+  },
+
+
   timeAgo(isoDate) {
     if (!isoDate) return '';
     try {
