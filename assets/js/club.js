@@ -62,89 +62,17 @@ const ZOORIGEN_CLUB = {
     return ''; // default verde
   },
 
-  // ============== CHECKOUT MODAL POPUP ==============
-  // Abre un modal bonito con resumen del plan y botón que lleva al checkout.
-  // No usa iframe porque Shopify bloquea el embebido por seguridad (X-Frame-Options).
-  // Al clic del botón redirige en la misma pestaña — NO abre pestaña nueva.
+  // ============== CHECKOUT DIRECTO ==============
+  // Redirige directamente al checkout de Shopify en la misma pestaña.
+  // Sin modal intermedio, sin iframe. Experiencia rápida al estilo Netflix/Amazon.
   openCheckoutModal(plan, email) {
     const checkoutURL = (typeof buildCheckoutURL === 'function')
       ? buildCheckoutURL(plan, email)
       : (plan === 'anual' ? SHOPIFY_ANNUAL_CHECKOUT_URL : SHOPIFY_CHECKOUT_URL) +
         (email ? `?checkout[email]=${encodeURIComponent(email)}` : '');
 
-    const isAnual = plan === 'anual';
-    const price = isAnual ? '$1,899 MXN' : '$199 MXN';
-    const periodo = isAnual ? 'al año' : 'al mes';
-    const planLabel = isAnual ? 'Plan Anual' : 'Plan Mensual';
-    const ahorro = isAnual ? '<div class="zoo-save-badge">✨ Ahorras $489 MXN · 2 meses gratis</div>' : '';
-
-    const beneficios = isAnual ? [
-      'Acceso completo 365 días',
-      'Todos los cursos + videos + PDFs',
-      'Sesiones en vivo todo el año',
-      '20% OFF en capacitaciones',
-      'Sin cobros sorpresa'
-    ] : [
-      'Acceso completo 30 días',
-      'Todos los cursos + videos + PDFs',
-      'Sesiones en vivo mensuales',
-      '20% OFF en capacitaciones',
-      'Cancela cuando quieras'
-    ];
-
-    // Remover modal previo si existe
-    const existing = document.getElementById('zoo-checkout-modal');
-    if (existing) existing.remove();
-
-    const modal = document.createElement('div');
-    modal.id = 'zoo-checkout-modal';
-    modal.innerHTML = `
-      <div class="zoo-modal-backdrop"></div>
-      <div class="zoo-modal-box zoo-modal-checkout">
-        <button class="zoo-modal-close-float" aria-label="Cerrar">×</button>
-
-        <div class="zoo-checkout-hero">
-          <div class="zoo-checkout-emoji">🦒</div>
-          <div class="zoo-checkout-eyebrow">${planLabel} · Club VIP Zoorigen</div>
-          <div class="zoo-checkout-price">${price}<span>/${periodo}</span></div>
-          ${ahorro}
-        </div>
-
-        <div class="zoo-checkout-content">
-          <div class="zoo-checkout-email">
-            ${email ? `<span class="zoo-checkout-email-label">Correo:</span> <strong>${email}</strong>` : ''}
-          </div>
-
-          <div class="zoo-checkout-benefits">
-            ${beneficios.map(b => `<div class="zoo-checkout-benefit">✓ ${b}</div>`).join('')}
-          </div>
-
-          <a href="${checkoutURL}" class="zoo-checkout-btn">
-            💳 Pagar ${price} ${isAnual ? 'ahora' : 'y activar'}
-          </a>
-
-          <div class="zoo-checkout-secure">
-            🔒 Pago 100% seguro · Procesado por Shopify
-          </div>
-          <div class="zoo-checkout-secure-sub">
-            Acepta Visa, Mastercard, Amex, PayPal y OXXO
-          </div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-
-    // Listeners para cerrar
-    const close = () => {
-      modal.remove();
-      document.body.style.overflow = '';
-    };
-    modal.querySelector('.zoo-modal-close-float').addEventListener('click', close);
-    modal.querySelector('.zoo-modal-backdrop').addEventListener('click', close);
-    document.addEventListener('keydown', function onEsc(e) {
-      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onEsc); }
-    });
+    // Redirect inmediato en la misma pestaña
+    window.location.href = checkoutURL;
   },
 
   // Formatea fecha relativa (Hace X días / Hoy / Ayer)
