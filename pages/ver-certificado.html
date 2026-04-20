@@ -330,9 +330,9 @@
     <h2>⏳ Cargando certificado...</h2>
   </div>
 
-  <div id="errorState" class="cert-state" style="display:none;">
+  <div id="errorState" class="cert-state" style="display:none;max-width:640px;">
     <h2>⚠️ Certificado no encontrado</h2>
-    <p style="margin-bottom:20px;">El folio no existe o es inválido.</p>
+    <p style="margin-bottom:20px;line-height:1.6;text-align:left;">El folio no existe o es inválido.</p>
     <a href="club-biblioteca.html" class="cert-btn cert-btn--ghost">← Volver a biblioteca</a>
   </div>
 
@@ -419,41 +419,72 @@
       const params = new URLSearchParams(window.location.search);
       const folio = params.get('folio');
 
-      if (!folio) {
+      // Función para mostrar error con detalle visible en pantalla
+      function showError(title, detail) {
         document.getElementById('loading').style.display = 'none';
-        document.getElementById('errorState').style.display = 'block';
-        return;
+        const errorEl = document.getElementById('errorState');
+        errorEl.style.display = 'block';
+        errorEl.querySelector('h2').textContent = title;
+        const p = errorEl.querySelector('p');
+        if (p && detail) p.innerHTML = detail;
+        console.error('[CERT ERROR]', title, detail);
       }
 
       try {
+        if (!folio) {
+          showError('⚠️ Falta el folio', 'La URL no tiene <code>?folio=XXX</code>');
+          return;
+        }
+
+        console.log('[CERT] Buscando folio:', folio);
+
+        // Verificar que Firebase esté inicializado
+        if (typeof firebase === 'undefined' || !window.db) {
+          showError('⚠️ Firebase no cargó', 'El script <code>firebase-config.js</code> no se cargó correctamente. Revisa la consola F12.');
+          return;
+        }
+
+        console.log('[CERT] Firebase OK, consultando Firestore...');
+
         const doc = await db.collection('certificados').doc(folio).get();
+
+        console.log('[CERT] Respuesta:', doc.exists ? 'EXISTE' : 'NO EXISTE', doc);
+
         if (!doc.exists) {
-          document.getElementById('loading').style.display = 'none';
-          document.getElementById('errorState').style.display = 'block';
+          showError('❌ Folio no existe en Firebase',
+            `El folio <code style="color:#E8A317;">${folio}</code> no está en la base de datos.<br><br>
+            Verifica en: <a href="https://console.firebase.google.com/project/club-zoorigen/firestore/data/~2Fcertificados~2F${folio}" target="_blank" style="color:#E8A317;">Firebase Console</a>`);
           return;
         }
 
         const c = doc.data();
-        document.getElementById('folioDisplay').textContent = c.folio;
-        document.getElementById('certName').textContent = c.memberName || 'Miembro VIP';
-        document.getElementById('certCourse').textContent = '"' + c.courseTitle + '"';
-        document.getElementById('certMeta').textContent = `${c.courseArea} · ${c.courseDuration || ''} · ${c.totalClases || 0} clases · Modalidad en línea`.replace(/ · ·/g, ' ·').trim();
+        console.log('[CERT] Datos:', c);
 
-        const fecha = new Date(c.issuedAt);
+        document.getElementById('folioDisplay').textContent = c.folio || folio;
+        document.getElementById('certName').textContent = c.memberName || 'Miembro VIP';
+        document.getElementById('certCourse').textContent = '"' + (c.courseTitle || '—') + '"';
+        document.getElementById('certMeta').textContent = `${c.courseArea || ''} · ${c.courseDuration || ''} · ${c.totalClases || 0} clases · Modalidad en línea`.replace(/ · ·/g, ' ·').replace(/^· /, '').trim();
+
+        const fecha = new Date(c.issuedAt || Date.now());
         const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
         document.getElementById('certDate').textContent = `${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
 
-        // Generar QR code con Google Chart API (no requiere librería)
-        const verifyUrl = `https://www.zoorigen.com/pages/verificar.html?folio=${c.folio}`;
+        // QR de verificación
+        const verifyUrl = `https://www.zoorigen.com/pages/verificar.html?folio=${c.folio || folio}`;
         document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyUrl)}&color=1F5F3A&bgcolor=ffffff&margin=2`;
 
         window.__cert = c;
         document.getElementById('loading').style.display = 'none';
         document.getElementById('certWrap').style.display = 'block';
       } catch (err) {
-        console.error(err);
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('errorState').style.display = 'block';
+        console.error('[CERT] Error completo:', err);
+        showError('❌ Error al leer Firebase',
+          `<strong>Código:</strong> <code>${err.code || 'unknown'}</code><br>
+          <strong>Mensaje:</strong> <code>${err.message || err.toString()}</code><br><br>
+          <strong>Causas posibles:</strong><br>
+          • Las reglas de Firestore no permiten lectura pública de certificados<br>
+          • Problema de conexión<br><br>
+          Abre F12 → Console para más detalles.`);
       }
     })();
 
