@@ -75,28 +75,59 @@
       filterBar.innerHTML = areas.map((a, i) => `<button class="filter-chip-club ${i === 0 ? 'is-active' : ''}" data-area="${a}">${a}</button>`).join('');
 
       const isActive = session.planStatus === 'active';
+
+      // Cargar progreso de cursos del usuario
+      const progress = JSON.parse(localStorage.getItem('zoo_course_progress_' + session.uid) || '{}');
+      window.__zooCourseProgress = progress;
+      window.__zooSession = session;
+
       const render = (filter = 'Todas') => {
         const list = filter === 'Todas' ? cursos : cursos.filter(c => c.area === filter);
         grid.innerHTML = list.map(c => {
-          // Determinar lecciones: si no hay array, convertir el driveId viejo en una sola clase
           const lecciones = (c.lecciones && c.lecciones.length) ? c.lecciones : (c.driveId ? [{titulo: c.title, driveId: c.driveId, duration: c.duration}] : []);
           const totalClases = lecciones.length;
           const hasContent = totalClases > 0;
+
+          // Calcular progreso
+          const prog = progress[c.id] || { completedLessons: [], isCompleted: false, completedAt: null, certificateFolio: null };
+          const completedCount = prog.completedLessons.length;
+          const percent = totalClases > 0 ? Math.round((completedCount / totalClases) * 100) : 0;
+          const isCertified = prog.isCompleted;
 
           return `
             <article class="course-card-club">
               <div class="course-card-club__img" ${c.image ? `style="background-image:url('${c.image}');"` : 'style="background:var(--zoo-green-800);"'}>
                 ${c.tag ? `<span class="course-card-club__tag">${c.tag}</span>` : ''}
                 ${totalClases > 1 ? `<span class="course-card-club__classes">📹 ${totalClases} clases</span>` : ''}
+                ${isCertified ? `<span class="course-card-club__certified">🏆 Certificado</span>` : ''}
               </div>
               <div class="course-card-club__body">
                 <div class="course-card-club__area">${c.area || ''}</div>
                 <h3 class="course-card-club__title">${c.title}</h3>
                 <p class="course-card-club__desc">${c.description || `Duración: ${c.duration || '—'} · Nivel: ${c.level || '—'}`}</p>
+
+                ${hasContent && completedCount > 0 ? `
+                  <div class="course-progress-wrap">
+                    <div class="course-progress-info">
+                      <span>${percent}% completado</span>
+                      <span>${completedCount}/${totalClases}</span>
+                    </div>
+                    <div class="course-progress-bar">
+                      <div class="course-progress-bar__fill" style="width:${percent}%;"></div>
+                    </div>
+                  </div>
+                ` : ''}
+
                 ${isActive && hasContent
                   ? `<button class="course-card-club__action" onclick='openCourseDetail(${JSON.stringify({...c, lecciones}).replace(/'/g, "&#39;")})'>${totalClases > 1 ? `▶ Ver ${totalClases} clases` : '▶ Ver curso'}</button>`
                   : !isActive ? `<a href="club-suscripcion.html" class="course-card-club__action" style="background:var(--zoo-orange);">🔒 Activar membresía</a>`
                   : `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20curso%3A%20${encodeURIComponent(c.title)}" target="_blank" class="course-card-club__action">▶ Solicitar acceso</a>`}
+
+                ${isCertified ? `
+                  <button class="course-certificate-btn" onclick='descargarCertificado("${c.id}", ${JSON.stringify(c.title).replace(/'/g, "&#39;")})'>
+                    🎓 Descargar certificado
+                  </button>
+                ` : ''}
               </div>
             </article>
           `;
@@ -115,37 +146,153 @@
 
     function openCourseDetail(course) {
       const lecciones = course.lecciones || [];
+      window.__currentCourse = course;
+      window.__currentLecciones = lecciones;
+
       if (lecciones.length === 1) {
         // Solo 1 clase → abrir player directo
-        openPlayer(lecciones[0].driveId, course.title, course.description || '');
+        openPlayer(lecciones[0].driveId, course.title, course.description || '', course.id, 0);
         return;
       }
-      // Mostrar lista de clases
+
+      // Mostrar lista de clases con estado de completado
+      renderCourseModal();
+    }
+
+    function renderCourseModal() {
+      const course = window.__currentCourse;
+      const lecciones = window.__currentLecciones;
+      const progress = window.__zooCourseProgress[course.id] || { completedLessons: [], isCompleted: false };
+      const completedCount = progress.completedLessons.length;
+      const totalClases = lecciones.length;
+      const allCompleted = completedCount >= totalClases;
+
       const modal = document.getElementById('playerOverlay');
       document.getElementById('playerTitle').textContent = course.title;
       document.getElementById('playerVideo').innerHTML = `
         <div style="background:var(--zoo-bg-card);padding:20px;position:absolute;inset:0;overflow-y:auto;">
-          <h4 style="color:var(--zoo-amber);font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;margin:0 0 14px;">📚 ${lecciones.length} clases disponibles</h4>
-          ${lecciones.map((l, i) => `
-            <div onclick='openPlayer("${l.driveId}", ${JSON.stringify(l.titulo || "Clase " + (i+1))}, ${JSON.stringify(l.duration || "")})' style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;gap:14px;align-items:center;transition:all .15s;" onmouseover="this.style.background='rgba(232,163,23,0.08)';this.style.borderColor='rgba(232,163,23,0.3)';" onmouseout="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.08)';">
-              <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#E8A317,#D68A0A);display:flex;align-items:center;justify-content:center;color:#1f1d17;font-weight:800;flex-shrink:0;">${i + 1}</div>
-              <div style="flex:1;">
-                <div style="color:#fff;font-weight:600;font-size:.96rem;">${l.titulo || 'Clase ' + (i + 1)}</div>
-                ${l.duration ? `<div style="color:var(--zoo-text-dim);font-size:.78rem;margin-top:2px;">⏱️ ${l.duration}</div>` : ''}
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <h4 style="color:var(--zoo-amber);font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;margin:0;">📚 ${totalClases} clases · ${completedCount}/${totalClases} completadas</h4>
+            ${allCompleted && !progress.isCompleted ? `<button onclick="generarCertificado('${course.id}')" style="background:linear-gradient(135deg,#E8A317,#D68A0A);color:#1f1d17;border:0;padding:8px 16px;border-radius:100px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;">🎓 Obtener certificado</button>` : ''}
+            ${progress.isCompleted ? `<button onclick='descargarCertificado("${course.id}", ${JSON.stringify(course.title).replace(/'/g, "&#39;")})' style="background:rgba(111,191,115,0.2);color:#6FBF73;border:1px solid rgba(111,191,115,0.4);padding:8px 16px;border-radius:100px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;">🎓 Ver certificado</button>` : ''}
+          </div>
+          <div class="course-progress-bar" style="margin-bottom:18px;">
+            <div class="course-progress-bar__fill" style="width:${(completedCount/totalClases*100)}%;"></div>
+          </div>
+          ${lecciones.map((l, i) => {
+            const done = progress.completedLessons.includes(i);
+            return `
+              <div style="background:${done ? 'rgba(111,191,115,0.08)' : 'rgba(255,255,255,0.03)'};border:1px solid ${done ? 'rgba(111,191,115,0.3)' : 'rgba(255,255,255,0.08)'};border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;gap:14px;align-items:center;">
+                <div style="width:40px;height:40px;border-radius:50%;background:${done ? 'linear-gradient(135deg,#6FBF73,#3d8b42)' : 'linear-gradient(135deg,#E8A317,#D68A0A)'};display:flex;align-items:center;justify-content:center;color:#1f1d17;font-weight:800;flex-shrink:0;">${done ? '✓' : i + 1}</div>
+                <div style="flex:1;cursor:pointer;" onclick='openPlayer("${l.driveId}", ${JSON.stringify(l.titulo || "Clase " + (i+1))}, ${JSON.stringify(l.duration || "")}, "${course.id}", ${i})'>
+                  <div style="color:#fff;font-weight:600;font-size:.96rem;">${l.titulo || 'Clase ' + (i + 1)}</div>
+                  ${l.duration ? `<div style="color:var(--zoo-text-dim);font-size:.78rem;margin-top:2px;">⏱️ ${l.duration}${done ? ' · ✓ Completada' : ''}</div>` : (done ? '<div style="color:#6FBF73;font-size:.78rem;margin-top:2px;">✓ Completada</div>' : '')}
+                </div>
+                <button onclick="toggleLessonComplete('${course.id}', ${i})" style="background:${done ? 'rgba(213,90,40,0.15)' : 'rgba(111,191,115,0.15)'};border:1px solid ${done ? 'rgba(213,90,40,0.3)' : 'rgba(111,191,115,0.3)'};color:${done ? '#D55A28' : '#6FBF73'};padding:7px 12px;border-radius:8px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.78rem;white-space:nowrap;">${done ? 'Desmarcar' : '✓ Completada'}</button>
               </div>
-              <div style="color:var(--zoo-amber);font-size:1.2rem;">▶</div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>`;
       document.getElementById('playerDesc').textContent = course.description || '';
       modal.classList.add('is-open');
     }
 
-    function openPlayer(driveId, title, desc) {
+    function toggleLessonComplete(courseId, lessonIdx) {
+      const progress = window.__zooCourseProgress;
+      if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
+
+      const idx = progress[courseId].completedLessons.indexOf(lessonIdx);
+      if (idx > -1) {
+        progress[courseId].completedLessons.splice(idx, 1);
+        // Si estaba certificado y quitas una lección, desmarcar certificación (pero conservar folio)
+        if (progress[courseId].isCompleted) {
+          progress[courseId].isCompleted = false;
+        }
+      } else {
+        progress[courseId].completedLessons.push(lessonIdx);
+      }
+
+      localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+      renderCourseModal();
+    }
+
+    async function generarCertificado(courseId) {
+      const progress = window.__zooCourseProgress;
+      if (!progress[courseId]) return;
+
+      // Generar folio único: ZOO-YYYY-XXXXX
+      const year = new Date().getFullYear();
+      const random = Math.floor(Math.random() * 90000) + 10000;
+      const folio = `ZOO-${year}-${random}`;
+
+      progress[courseId].isCompleted = true;
+      progress[courseId].completedAt = new Date().toISOString();
+      progress[courseId].certificateFolio = folio;
+
+      localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+
+      // Guardar certificado en Firestore (colección pública para verificación)
+      try {
+        await db.collection('certificados').doc(folio).set({
+          folio,
+          courseId,
+          courseTitle: window.__currentCourse.title,
+          courseArea: window.__currentCourse.area || '',
+          courseDuration: window.__currentCourse.duration || '',
+          memberUid: window.__zooSession.uid,
+          memberName: window.__zooSession.name,
+          memberEmail: window.__zooSession.email,
+          issuedAt: new Date().toISOString(),
+          totalClases: window.__currentLecciones.length
+        });
+      } catch (err) {
+        console.error('Error guardando certificado:', err);
+      }
+
+      // Otorgar XP y logro
+      if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB.awardAchievement) {
+        ZOORIGEN_CLUB.awardAchievement(window.__zooSession.uid, 'first_course');
+      }
+
+      // Mostrar celebración
+      showCertificadoCelebration(folio);
+    }
+
+    function showCertificadoCelebration(folio) {
+      closePlayer();
+      // Esperar cierre del modal para mostrar el certificado
+      setTimeout(() => {
+        descargarCertificado(window.__currentCourse.id, window.__currentCourse.title);
+        // Recargar para mostrar estado actualizado
+        setTimeout(() => window.location.reload(), 500);
+      }, 300);
+    }
+
+    function descargarCertificado(courseId, courseTitle) {
+      const progress = window.__zooCourseProgress[courseId];
+      if (!progress || !progress.certificateFolio) return;
+      // Redirigir a la página del certificado
+      window.open(`ver-certificado.html?folio=${progress.certificateFolio}`, '_blank');
+    }
+
+    function openPlayer(driveId, title, desc, courseId, lessonIdx) {
       document.getElementById('playerTitle').textContent = title;
       document.getElementById('playerDesc').textContent = desc || '';
       document.getElementById('playerVideo').innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
       document.getElementById('playerOverlay').classList.add('is-open');
+
+      // Auto-marcar como completado después de 30 segundos de abrir (si es de un curso)
+      if (courseId !== undefined && lessonIdx !== undefined) {
+        clearTimeout(window.__autoCompleteTimer);
+        window.__autoCompleteTimer = setTimeout(() => {
+          const progress = window.__zooCourseProgress;
+          if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
+          if (!progress[courseId].completedLessons.includes(lessonIdx)) {
+            progress[courseId].completedLessons.push(lessonIdx);
+            localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+          }
+        }, 30000);
+      }
     }
     function closePlayer() {
       document.getElementById('playerOverlay').classList.remove('is-open');

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis certificados · Club VIP Zoorigen</title>
+  <meta name="theme-color" content="#1F5F3A">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="club-main__header">
+        <div class="club-main__greeting">
+          <h1>🎓 Mis certificados</h1>
+          <p class="date">Completa cursos para ganar certificados descargables</p>
+        </div>
+      </div>
+
+      <div id="certsContent">Cargando...</div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('certificados', session);
+
+      const content = document.getElementById('certsContent');
+
+      try {
+        // Buscar todos los certificados del miembro
+        const snap = await db.collection('certificados').where('memberUid', '==', session.uid).get();
+        const certs = snap.docs.map(d => d.data()).sort((a, b) => new Date(b.issuedAt) - new Date(a.issuedAt));
+
+        if (certs.length === 0) {
+          content.innerHTML = `
+            <div class="certs-empty">
+              <div style="font-size:4rem;margin-bottom:16px;">🎓</div>
+              <h2>Aún no tienes certificados</h2>
+              <p style="color:var(--zoo-text-muted);margin:10px 0 24px;max-width:460px;margin-left:auto;margin-right:auto;">
+                Completa cursos en la biblioteca y obtén certificados descargables con folio único y verificación QR.
+                Perfectos para tu CV o LinkedIn.
+              </p>
+              <a href="club-biblioteca.html" class="btn-club" style="display:inline-block;width:auto;padding:14px 32px;text-decoration:none;">Ir a la biblioteca</a>
+            </div>`;
+          return;
+        }
+
+        content.innerHTML = `
+          <div class="certs-stats">
+            <div class="certs-stat">
+              <div class="certs-stat__val">${certs.length}</div>
+              <div class="certs-stat__lbl">Certificados obtenidos</div>
+            </div>
+          </div>
+          <div class="certs-grid">
+            ${certs.map(c => {
+              const fecha = new Date(c.issuedAt);
+              const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+              const fechaStr = `${fecha.getDate()} ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
+              return `
+                <div class="cert-item-card">
+                  <div class="cert-item-card__icon">🏆</div>
+                  <div class="cert-item-card__body">
+                    <div class="cert-item-card__label">CERTIFICADO OFICIAL</div>
+                    <h3>${c.courseTitle}</h3>
+                    <div class="cert-item-card__meta">
+                      <span>📁 ${c.courseArea || 'General'}</span>
+                      <span>📅 ${fechaStr}</span>
+                      <span>🔢 ${c.folio}</span>
+                    </div>
+                    <div class="cert-item-card__actions">
+                      <a href="ver-certificado.html?folio=${c.folio}" target="_blank" class="btn-club" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;">📥 Ver / Descargar</a>
+                      <a href="verificar.html?folio=${c.folio}" target="_blank" class="btn-club-outline" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;">🔗 Link público</a>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>`;
+      } catch (err) {
+        console.error(err);
+        content.innerHTML = '<div class="certs-empty"><h2>Error cargando certificados</h2><p>Intenta recargar la página.</p></div>';
+      }
+    })();
+  </script>
+</body>
+</html>

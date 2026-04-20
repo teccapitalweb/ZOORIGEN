@@ -1018,6 +1018,7 @@ const ZOORIGEN_CLUB = {
       { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' }
     ];
     const itemsCuenta = [
+      { id: 'certificados', label: 'Mis certificados', icon: '🎓', href: 'club-certificados.html' },
       { id: 'perfil', label: 'Mi perfil', icon: '👤', href: 'club-perfil.html' },
       { id: 'suscripcion', label: 'Suscripción', icon: '💳', href: 'club-suscripcion.html' }
     ];
