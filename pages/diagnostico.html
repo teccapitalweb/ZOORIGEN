@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔧 Diagnóstico · Zoorigen</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0e0c;
+      color: #e5e9e7;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 30px 20px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 { color: #E8A317; margin-bottom: 8px; font-size: 1.6rem; }
+    .sub { color: #a0a8a4; margin-bottom: 30px; font-size: .9rem; }
+    .check {
+      background: #131816;
+      border: 1px solid #2a3530;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .check__icon { font-size: 1.5rem; flex-shrink: 0; }
+    .check__body { flex: 1; }
+    .check__title { color: #fff; font-weight: 600; font-size: .98rem; margin-bottom: 4px; }
+    .check__detail { color: #a0a8a4; font-size: .84rem; line-height: 1.5; }
+    .check__detail code { background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; color: #E8A317; font-size: .82rem; }
+    .check--pass { border-color: rgba(111,191,115,0.3); background: rgba(111,191,115,0.05); }
+    .check--fail { border-color: rgba(213,90,40,0.3); background: rgba(213,90,40,0.05); }
+    .check--warn { border-color: rgba(232,163,23,0.3); background: rgba(232,163,23,0.05); }
+    .check--fail .check__title { color: #D55A28; }
+    .check--pass .check__title { color: #6FBF73; }
+    .check--warn .check__title { color: #E8A317; }
+    .actions { margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
+    button {
+      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      color: #1f1d17;
+      border: 0;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: .92rem;
+      font-family: inherit;
+    }
+    button.secondary {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    button.danger {
+      background: transparent;
+      color: #D55A28;
+      border: 1px solid rgba(213,90,40,0.4);
+    }
+    .log {
+      background: #000;
+      border: 1px solid #2a3530;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: .78rem;
+      color: #6FBF73;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .log-error { color: #D55A28; }
+    .log-warn { color: #E8A317; }
+    .back { color: #E8A317; text-decoration: none; font-weight: 600; display: inline-block; margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Diagnóstico del sistema de certificados</h1>
+  <p class="sub">Detecta automáticamente por qué los certificados no se están guardando.</p>
+
+  <div id="checks"></div>
+
+  <div class="actions">
+    <button onclick="runDiagnostic()">🔄 Volver a verificar</button>
+    <button class="secondary" onclick="testCreateCert()">🧪 Probar crear certificado de prueba</button>
+    <button class="danger" onclick="limpiarLocalStorage()">🗑️ Limpiar folios del navegador</button>
+  </div>
+
+  <div id="log" class="log" style="display:none;"></div>
+
+  <a href="club-biblioteca.html" class="back">← Volver a la biblioteca</a>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script>
+    const checks = document.getElementById('checks');
+    const logEl = document.getElementById('log');
+
+    function log(msg, type='info') {
+      logEl.style.display = 'block';
+      const span = document.createElement('span');
+      span.className = type === 'error' ? 'log-error' : (type === 'warn' ? 'log-warn' : '');
+      span.textContent = `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+      logEl.appendChild(span);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function addCheck(status, title, detail) {
+      const icons = { pass: '✅', fail: '❌', warn: '⚠️' };
+      const div = document.createElement('div');
+      div.className = `check check--${status}`;
+      div.innerHTML = `
+        <div class="check__icon">${icons[status]}</div>
+        <div class="check__body">
+          <div class="check__title">${title}</div>
+          <div class="check__detail">${detail}</div>
+        </div>`;
+      checks.appendChild(div);
+    }
+
+    async function runDiagnostic() {
+      checks.innerHTML = '';
+      logEl.innerHTML = '';
+      logEl.style.display = 'none';
+
+      // ═══ Check 1: Firebase conectado ═══
+      if (typeof firebase === 'undefined' || !db) {
+        addCheck('fail', 'Firebase NO conectado', 'No se pudo cargar Firebase. Revisa que <code>firebase-config.js</code> esté presente.');
+        return;
+      }
+      addCheck('pass', 'Firebase conectado', 'El SDK de Firebase carga correctamente.');
+
+      // ═══ Check 2: Usuario autenticado ═══
+      const user = await new Promise(resolve => {
+        const unsub = auth.onAuthStateChanged(u => { unsub(); resolve(u); });
+      });
+
+      if (!user) {
+        addCheck('fail', 'NO has iniciado sesión', `Entra primero al club con tu cuenta. <a href="club-login.html" style="color:#E8A317;">Ir al login</a>`);
+        return;
+      }
+      addCheck('pass', 'Usuario autenticado',
+        `Email: <code>${user.email}</code><br>UID: <code>${user.uid}</code>`
+      );
+
+      // ═══ Check 3: Documento de miembro ═══
+      let memberDoc;
+      try {
+        memberDoc = await db.collection('miembros').doc(user.uid).get();
+      } catch (err) {
+        addCheck('fail', 'No se puede leer tu documento de miembro',
+          `Error: <code>${err.code || err.message}</code><br>
+           Las reglas de Firestore NO te permiten leer tu propio documento.`);
+        return;
+      }
+
+      if (!memberDoc.exists) {
+        addCheck('fail', 'NO existe tu documento en <code>miembros</code>',
+          `Tu UID <code>${user.uid}</code> no tiene documento en la colección <code>miembros</code>.
+           Registra tu cuenta de nuevo o crea el documento manualmente.`);
+        return;
+      }
+
+      const member = memberDoc.data();
+      addCheck('pass', 'Documento de miembro encontrado',
+        `Nombre: <code>${member.name || '(sin nombre)'}</code>`
+      );
+
+      // ═══ Check 4: role ═══
+      if (member.role === 'admin') {
+        addCheck('pass', 'Eres ADMIN', 'Tu campo <code>role</code> es <code>admin</code>.');
+      } else {
+        addCheck('warn', 'role = "member"',
+          `Tu campo <code>role</code> es <code>${member.role || '(vacío)'}</code>.
+           Los miembros normales pueden generar certificados también si tienen <code>planActivo: true</code>.`);
+      }
+
+      // ═══ Check 5: planActivo ═══
+      const planActivoType = typeof member.planActivo;
+      if (member.planActivo === true) {
+        addCheck('pass', 'planActivo = <code>true</code> (boolean) ✨',
+          `Tipo: <code>${planActivoType}</code> — ¡Perfecto!`);
+      } else if (member.planActivo === "true") {
+        addCheck('fail', 'planActivo es STRING, debe ser BOOLEAN',
+          `Valor actual: <code>"true"</code> (string) — Firebase exige que sea <code>true</code> (boolean).<br>
+           Ve a Firebase Console → miembros → tu doc → edita <code>planActivo</code> → cambia el tipo a <strong>boolean</strong>.`);
+      } else if (member.planActivo === false || member.planActivo === "false") {
+        addCheck('fail', 'planActivo es FALSE',
+          `Tu plan aparece como inactivo. Valor: <code>${member.planActivo}</code><br>
+           Si eres admin, ponlo en <code>true</code> (boolean) para probar.`);
+      } else {
+        addCheck('fail', 'planActivo NO existe o es inválido',
+          `Valor: <code>${member.planActivo}</code> (tipo: <code>${planActivoType}</code>)<br>
+           Este campo DEBE existir como boolean <code>true</code> para que puedas crear certificados.`);
+      }
+
+      // ═══ Check 6: Reglas de certificados (intentar leer) ═══
+      try {
+        await db.collection('certificados').limit(1).get();
+        addCheck('pass', 'Colección certificados accesible',
+          'Las reglas permiten leer la colección <code>certificados</code>.');
+      } catch (err) {
+        addCheck('fail', 'NO puedes leer la colección certificados',
+          `Error: <code>${err.code}</code><br>
+           Tus reglas Firestore NO tienen configurada la colección <code>certificados</code>. Publica las reglas v6.`);
+        return;
+      }
+
+      // ═══ Check 7: Intentar escribir un certificado de prueba ═══
+      const testFolio = 'ZOO-TEST-' + Date.now();
+      try {
+        await db.collection('certificados').doc(testFolio).set({
+          folio: testFolio,
+          courseId: 'test',
+          courseTitle: 'Certificado de prueba',
+          courseArea: 'Diagnóstico',
+          courseDuration: '0 min',
+          memberUid: user.uid,
+          memberName: member.name || user.email,
+          memberEmail: user.email,
+          issuedAt: new Date().toISOString(),
+          totalClases: 0,
+          _test: true
+        });
+        // Limpiar el test
+        await db.collection('certificados').doc(testFolio).delete().catch(()=>{});
+        addCheck('pass', 'PUEDES crear certificados ✨',
+          `Se creó y eliminó el folio de prueba <code>${testFolio}</code> correctamente. <strong>Todo debería funcionar.</strong>`);
+      } catch (err) {
+        addCheck('fail', 'NO puedes crear certificados',
+          `Error: <code>${err.code}</code><br>
+           Mensaje: <code>${err.message}</code><br><br>
+           <strong>Causa más común:</strong> las reglas v6 no están publicadas, o <code>planActivo</code> no es boolean <code>true</code>.`);
+      }
+
+      // ═══ Check 8: localStorage ═══
+      const progressKeys = Object.keys(localStorage).filter(k => k.startsWith('zoo_course_progress_'));
+      const foliosInvalidos = [];
+      for (const key of progressKeys) {
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+          for (const courseId of Object.keys(data)) {
+            if (data[courseId].certificateFolio) {
+              // Verificar si existe en Firestore
+              const existe = await db.collection('certificados').doc(data[courseId].certificateFolio).get();
+              if (!existe.exists) {
+                foliosInvalidos.push(data[courseId].certificateFolio);
+              }
+            }
+          }
+        } catch(e) {}
+      }
+
+      if (foliosInvalidos.length > 0) {
+        addCheck('warn', `Tienes ${foliosInvalidos.length} folio(s) inválido(s) en localStorage`,
+          `Folios: ${foliosInvalidos.map(f => `<code>${f}</code>`).join(', ')}<br>
+           Estos folios están guardados en tu navegador pero no existen en Firebase.<br>
+           Usa el botón <strong>"Limpiar folios del navegador"</strong> abajo.`);
+      } else if (progressKeys.length > 0) {
+        addCheck('pass', 'localStorage limpio', 'No hay folios inválidos en tu navegador.');
+      }
+    }
+
+    async function testCreateCert() {
+      log('🧪 Iniciando prueba de creación de certificado...');
+      const user = auth.currentUser;
+      if (!user) { log('❌ No hay usuario autenticado', 'error'); return; }
+
+      const memberDoc = await db.collection('miembros').doc(user.uid).get();
+      const member = memberDoc.data();
+
+      const folio = 'ZOO-TEST-' + Date.now();
+      log(`📝 Folio generado: ${folio}`);
+      log(`👤 memberUid: ${user.uid}`);
+      log(`📧 memberEmail: ${user.email}`);
+      log(`🏷️ planActivo: ${member.planActivo} (tipo: ${typeof member.planActivo})`);
+
+      try {
+        await db.collection('certificados').doc(folio).set({
+          folio,
+          courseId: 'test',
+          courseTitle: 'Prueba manual',
+          courseArea: 'Test',
+          memberUid: user.uid,
+          memberName: member.name || 'Test',
+          memberEmail: user.email,
+          issuedAt: new Date().toISOString(),
+          totalClases: 0
+        });
+        log('✅ CERTIFICADO CREADO EXITOSAMENTE');
+        log(`🔗 Ver: ${location.origin}/pages/ver-certificado.html?folio=${folio}`);
+        log('Eliminando prueba...');
+        await db.collection('certificados').doc(folio).delete();
+        log('✅ Prueba limpia. Los certificados funcionan correctamente.');
+      } catch (err) {
+        log(`❌ ERROR: ${err.code}`, 'error');
+        log(`Mensaje: ${err.message}`, 'error');
+        log(`\n💡 Causas probables:`, 'warn');
+        log(`  1. Las reglas v6 NO están publicadas en Firebase Console`, 'warn');
+        log(`  2. Tu planActivo no es boolean true`, 'warn');
+        log(`  3. Tu UID no coincide con memberUid en los datos`, 'warn');
+      }
+    }
+
+    function limpiarLocalStorage() {
+      let count = 0;
+      Object.keys(localStorage).filter(k => k.startsWith('zoo_course_progress_')).forEach(k => {
+        const data = JSON.parse(localStorage.getItem(k));
+        Object.keys(data).forEach(id => {
+          if (data[id].certificateFolio) count++;
+          data[id].isCompleted = false;
+          delete data[id].certificateFolio;
+          delete data[id].completedAt;
+        });
+        localStorage.setItem(k, JSON.stringify(data));
+      });
+      log(`✅ ${count} folios inválidos eliminados del navegador`);
+      setTimeout(runDiagnostic, 500);
+    }
+
+    // Auto-run al cargar
+    runDiagnostic();
+  </script>
+</body>
+</html>
