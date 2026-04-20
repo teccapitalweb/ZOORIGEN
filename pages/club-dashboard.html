@@ -117,7 +117,7 @@
       // Cargar datos desde Firestore
       const [cursos, noticias, proximaSesion] = await Promise.all([
         ZOORIGEN_CLUB.getCursos(),
-        ZOORIGEN_CLUB.getNoticias(3),
+        ZOORIGEN_CLUB.getNoticias(5),
         ZOORIGEN_CLUB.getProximaSesion()
       ]);
 

@@ -343,7 +343,6 @@
       const active = members.filter(m => m.planActivo && !m.planCancelado);
       const pending = members.filter(m => !m.planActivo);
       const cancelled = members.filter(m => m.planCancelado);
-      const mrr = active.reduce((sum, m) => sum + (m.planTipo === 'anual' ? 1899/12 : 199), 0);
 
       v.innerHTML = `
         <h1>👥 Miembros</h1>
@@ -353,7 +352,6 @@
           <div class="stat-box green"><div class="stat-box__label">Activos VIP</div><div class="stat-box__value">${active.length}</div></div>
           <div class="stat-box amber"><div class="stat-box__label">Pendientes</div><div class="stat-box__value">${pending.length}</div></div>
           <div class="stat-box orange"><div class="stat-box__label">Cancelados</div><div class="stat-box__value">${cancelled.length}</div></div>
-          <div class="stat-box green"><div class="stat-box__label">MRR</div><div class="stat-box__value">$${Math.round(mrr).toLocaleString('es-MX')}</div></div>
         </div>
         <input type="search" class="admin-search" id="searchMembers" placeholder="🔎 Buscar nombre, correo o WhatsApp..." value="${filter}">
         <div class="mtable">
@@ -438,38 +436,88 @@
     }
 
     window.formCurso = (data = {}) => {
+      // Convertir lecciones viejas (driveId único) al formato nuevo de array
+      let lecciones = data.lecciones || [];
+      if (!lecciones.length && data.driveId) {
+        lecciones = [{ titulo: data.title || 'Clase 1', driveId: data.driveId, duration: data.duration || '' }];
+      }
+      if (!lecciones.length) lecciones = [{ titulo: '', driveId: '', duration: '' }];
+
+      window.__leccionesTemp = lecciones;
+
       openModal(`
         <h3>${data.id ? '✏️ Editar' : '➕ Nuevo'} curso</h3>
-        <div class="field"><label>Título *</label><input type="text" id="f_title" value="${data.title || ''}" placeholder="Ej. Fototrampeo de jaguares"></div>
+        <div class="field"><label>Título del curso *</label><input type="text" id="f_title" value="${data.title || ''}" placeholder="Ej. Fototrampeo de jaguares"></div>
         <div class="field"><label>Área *</label><select id="f_area">${AREAS.map(a => `<option ${data.area === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
-        <div class="field"><label>Duración</label><input type="text" id="f_duration" value="${data.duration || ''}" placeholder="Ej. 6 h"></div>
+        <div class="field"><label>Duración total</label><input type="text" id="f_duration" value="${data.duration || ''}" placeholder="Ej. 6 h"></div>
         <div class="field"><label>Nivel</label><select id="f_level">
           <option value="Básico" ${data.level === 'Básico' ? 'selected' : ''}>Básico</option>
           <option value="Intermedio" ${data.level === 'Intermedio' ? 'selected' : ''}>Intermedio</option>
           <option value="Avanzado" ${data.level === 'Avanzado' ? 'selected' : ''}>Avanzado</option>
         </select></div>
-        <div class="field"><label>Link o ID de Google Drive (video del curso)</label><input type="text" id="f_drive" value="${data.driveId || ''}" placeholder="Pega link completo de Drive o solo el ID"><p class="hint">Drive → clic derecho al video → Compartir → "Cualquiera con el link"</p></div>
-        <div class="field"><label>URL de imagen (opcional)</label><input type="text" id="f_image" value="${data.image || ''}" placeholder="https://..."><p class="hint">Puedes usar: <code>../assets/img/cursos/nombre.jpg</code></p></div>
+
+        <div class="field">
+          <label>📚 Clases del curso</label>
+          <p class="hint" style="margin-top:0;margin-bottom:10px;">Agrega una o varias clases. Cada clase necesita su propio link de Drive.</p>
+          <div id="leccionesContainer"></div>
+          <button type="button" onclick="agregarLeccion()" style="background:rgba(111,191,115,0.15);border:1px dashed rgba(111,191,115,0.4);color:#6FBF73;padding:10px;border-radius:8px;width:100%;cursor:pointer;font-family:inherit;font-weight:600;margin-top:6px;">+ Agregar otra clase</button>
+        </div>
+
+        <div class="field"><label>URL de imagen (opcional)</label><input type="text" id="f_image" value="${data.image || ''}" placeholder="https://..."></div>
         <div class="field"><label>Descripción</label><textarea id="f_desc" placeholder="Breve descripción">${data.description || ''}</textarea></div>
-        <div class="field"><label>Tag destacado (opcional)</label><input type="text" id="f_tag" value="${data.tag || ''}" placeholder="Ej. Más visto, Nuevo"></div>
+        <div class="field"><label>Tag destacado (opcional)</label><input type="text" id="f_tag" value="${data.tag || ''}" placeholder="Ej. Nuevo, Popular"></div>
         <div class="modal-actions">
           <button class="btn-cancel" onclick="closeM()">Cancelar</button>
           <button class="btn-save" onclick="saveCurso('${data.id || ''}')">${data.id ? 'Guardar' : 'Crear'}</button>
         </div>`);
+
+      renderLeccionesForm();
+    };
+
+    window.renderLeccionesForm = () => {
+      const cont = document.getElementById('leccionesContainer');
+      if (!cont) return;
+      cont.innerHTML = window.__leccionesTemp.map((l, i) => `
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <strong style="color:#E8A317;font-size:.84rem;">Clase ${i + 1}</strong>
+            ${window.__leccionesTemp.length > 1 ? `<button type="button" onclick="eliminarLeccion(${i})" style="background:transparent;border:0;color:#D55A28;cursor:pointer;font-size:1.2rem;padding:0 6px;">🗑️</button>` : ''}
+          </div>
+          <input type="text" placeholder="Título de la clase" value="${l.titulo || ''}" onchange="window.__leccionesTemp[${i}].titulo=this.value" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">
+          <input type="text" placeholder="Link o ID de Google Drive" value="${l.driveId || ''}" onchange="window.__leccionesTemp[${i}].driveId=extractDriveId(this.value);this.value=window.__leccionesTemp[${i}].driveId;" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">
+          <input type="text" placeholder="Duración (ej. 25 min)" value="${l.duration || ''}" onchange="window.__leccionesTemp[${i}].duration=this.value" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;">
+        </div>
+      `).join('');
+    };
+
+    window.agregarLeccion = () => {
+      window.__leccionesTemp.push({ titulo: '', driveId: '', duration: '' });
+      renderLeccionesForm();
+    };
+
+    window.eliminarLeccion = (i) => {
+      window.__leccionesTemp.splice(i, 1);
+      renderLeccionesForm();
     };
 
     window.saveCurso = async (id) => {
+      // Filtrar lecciones vacías
+      const lecciones = (window.__leccionesTemp || []).filter(l => l.driveId && l.driveId.trim());
       const data = {
         title: document.getElementById('f_title').value.trim(),
         area: document.getElementById('f_area').value,
         duration: document.getElementById('f_duration').value.trim(),
         level: document.getElementById('f_level').value,
-        driveId: extractDriveId(document.getElementById('f_drive').value),
+        lecciones: lecciones,
+        totalClases: lecciones.length,
+        // Mantener driveId de primera clase para retrocompatibilidad
+        driveId: lecciones[0]?.driveId || '',
         image: document.getElementById('f_image').value.trim(),
         description: document.getElementById('f_desc').value.trim(),
         tag: document.getElementById('f_tag').value.trim()
       };
       if (!data.title) { toast('Título requerido', true); return; }
+      if (lecciones.length === 0) { toast('Agrega al menos 1 clase con link de Drive', true); return; }
       try {
         if (id) { await db.collection('cursos').doc(id).update(data); toast('✅ Actualizado'); }
         else { data.createdAt = new Date().toISOString(); await db.collection('cursos').add(data); toast('✅ Creado'); }

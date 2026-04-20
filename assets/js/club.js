@@ -45,8 +45,33 @@ const ZOORIGEN_CLUB = {
 
   async getNoticias(limit = 10) {
     try {
-      const snap = await db.collection('noticias').orderBy('createdAt', 'desc').limit(limit).get();
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Traer más noticias de las que pedimos para poder filtrar por fuente
+      const snap = await db.collection('noticias').orderBy('createdAt', 'desc').limit(Math.max(limit * 4, 20)).get();
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // Algoritmo para mezclar fuentes: round-robin por fuente distinta
+      // Garantiza que no se repita la misma fuente consecutivamente cuando hay variedad
+      const bySource = {};
+      all.forEach(n => {
+        const src = (n.source || 'Zoorigen').trim();
+        if (!bySource[src]) bySource[src] = [];
+        bySource[src].push(n);
+      });
+
+      const sources = Object.keys(bySource);
+      const mixed = [];
+      let i = 0;
+      while (mixed.length < limit && sources.some(s => bySource[s].length > 0)) {
+        const src = sources[i % sources.length];
+        if (bySource[src].length > 0) {
+          mixed.push(bySource[src].shift());
+        }
+        i++;
+        // Evitar loop infinito
+        if (i > limit * sources.length * 2) break;
+      }
+
+      return mixed.slice(0, limit);
     } catch (err) { console.error('Error cargando noticias:', err); return []; }
   },
 

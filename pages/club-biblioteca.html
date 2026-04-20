@@ -77,22 +77,30 @@
       const isActive = session.planStatus === 'active';
       const render = (filter = 'Todas') => {
         const list = filter === 'Todas' ? cursos : cursos.filter(c => c.area === filter);
-        grid.innerHTML = list.map(c => `
-          <article class="course-card-club">
-            <div class="course-card-club__img" ${c.image ? `style="background-image:url('${c.image}');"` : 'style="background:var(--zoo-green-800);"'}>
-              ${c.tag ? `<span class="course-card-club__tag">${c.tag}</span>` : ''}
-            </div>
-            <div class="course-card-club__body">
-              <div class="course-card-club__area">${c.area || ''}</div>
-              <h3 class="course-card-club__title">${c.title}</h3>
-              <p class="course-card-club__desc">${c.description || `Duración: ${c.duration || '—'} · Nivel: ${c.level || '—'}`}</p>
-              ${isActive && c.driveId
-                ? `<button class="course-card-club__action" onclick='openPlayer("${c.driveId}", ${JSON.stringify(c.title)}, ${JSON.stringify(c.description || "")})'>▶ Ver curso</button>`
-                : !isActive ? `<a href="club-suscripcion.html" class="course-card-club__action" style="background:var(--zoo-orange);">🔒 Activar membresía</a>`
-                : `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20curso%3A%20${encodeURIComponent(c.title)}" target="_blank" class="course-card-club__action">▶ Solicitar acceso</a>`}
-            </div>
-          </article>
-        `).join('');
+        grid.innerHTML = list.map(c => {
+          // Determinar lecciones: si no hay array, convertir el driveId viejo en una sola clase
+          const lecciones = (c.lecciones && c.lecciones.length) ? c.lecciones : (c.driveId ? [{titulo: c.title, driveId: c.driveId, duration: c.duration}] : []);
+          const totalClases = lecciones.length;
+          const hasContent = totalClases > 0;
+
+          return `
+            <article class="course-card-club">
+              <div class="course-card-club__img" ${c.image ? `style="background-image:url('${c.image}');"` : 'style="background:var(--zoo-green-800);"'}>
+                ${c.tag ? `<span class="course-card-club__tag">${c.tag}</span>` : ''}
+                ${totalClases > 1 ? `<span class="course-card-club__classes">📹 ${totalClases} clases</span>` : ''}
+              </div>
+              <div class="course-card-club__body">
+                <div class="course-card-club__area">${c.area || ''}</div>
+                <h3 class="course-card-club__title">${c.title}</h3>
+                <p class="course-card-club__desc">${c.description || `Duración: ${c.duration || '—'} · Nivel: ${c.level || '—'}`}</p>
+                ${isActive && hasContent
+                  ? `<button class="course-card-club__action" onclick='openCourseDetail(${JSON.stringify({...c, lecciones}).replace(/'/g, "&#39;")})'>${totalClases > 1 ? `▶ Ver ${totalClases} clases` : '▶ Ver curso'}</button>`
+                  : !isActive ? `<a href="club-suscripcion.html" class="course-card-club__action" style="background:var(--zoo-orange);">🔒 Activar membresía</a>`
+                  : `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20curso%3A%20${encodeURIComponent(c.title)}" target="_blank" class="course-card-club__action">▶ Solicitar acceso</a>`}
+              </div>
+            </article>
+          `;
+        }).join('');
       };
       render();
 
@@ -104,6 +112,34 @@
         render(btn.dataset.area);
       });
     })();
+
+    function openCourseDetail(course) {
+      const lecciones = course.lecciones || [];
+      if (lecciones.length === 1) {
+        // Solo 1 clase → abrir player directo
+        openPlayer(lecciones[0].driveId, course.title, course.description || '');
+        return;
+      }
+      // Mostrar lista de clases
+      const modal = document.getElementById('playerOverlay');
+      document.getElementById('playerTitle').textContent = course.title;
+      document.getElementById('playerVideo').innerHTML = `
+        <div style="background:var(--zoo-bg-card);padding:20px;position:absolute;inset:0;overflow-y:auto;">
+          <h4 style="color:var(--zoo-amber);font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;margin:0 0 14px;">📚 ${lecciones.length} clases disponibles</h4>
+          ${lecciones.map((l, i) => `
+            <div onclick='openPlayer("${l.driveId}", ${JSON.stringify(l.titulo || "Clase " + (i+1))}, ${JSON.stringify(l.duration || "")})' style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;gap:14px;align-items:center;transition:all .15s;" onmouseover="this.style.background='rgba(232,163,23,0.08)';this.style.borderColor='rgba(232,163,23,0.3)';" onmouseout="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.08)';">
+              <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#E8A317,#D68A0A);display:flex;align-items:center;justify-content:center;color:#1f1d17;font-weight:800;flex-shrink:0;">${i + 1}</div>
+              <div style="flex:1;">
+                <div style="color:#fff;font-weight:600;font-size:.96rem;">${l.titulo || 'Clase ' + (i + 1)}</div>
+                ${l.duration ? `<div style="color:var(--zoo-text-dim);font-size:.78rem;margin-top:2px;">⏱️ ${l.duration}</div>` : ''}
+              </div>
+              <div style="color:var(--zoo-amber);font-size:1.2rem;">▶</div>
+            </div>
+          `).join('')}
+        </div>`;
+      document.getElementById('playerDesc').textContent = course.description || '';
+      modal.classList.add('is-open');
+    }
 
     function openPlayer(driveId, title, desc) {
       document.getElementById('playerTitle').textContent = title;
