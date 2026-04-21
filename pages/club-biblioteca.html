@@ -300,6 +300,39 @@
       window.__zooCourseProgress = progress;
       window.__zooSession = session;
 
+      // Convertir URL de Google Drive a URL directa de imagen
+      // Soporta varios formatos:
+      // - https://drive.google.com/file/d/FILE_ID/view
+      // - https://drive.google.com/open?id=FILE_ID
+      // - https://drive.google.com/uc?id=FILE_ID
+      // - https://drive.google.com/thumbnail?id=FILE_ID
+      function convertImageUrl(url) {
+        if (!url) return '';
+        url = String(url).trim();
+
+        // Ya es URL directa de imagen
+        if (!url.includes('drive.google.com')) return url;
+
+        // Extraer FILE_ID de Drive
+        let fileId = null;
+        const patterns = [
+          /\/file\/d\/([a-zA-Z0-9_-]+)/,
+          /\/open\?id=([a-zA-Z0-9_-]+)/,
+          /[?&]id=([a-zA-Z0-9_-]+)/,
+          /\/d\/([a-zA-Z0-9_-]+)/
+        ];
+        for (const p of patterns) {
+          const m = url.match(p);
+          if (m) { fileId = m[1]; break; }
+        }
+
+        if (!fileId) return url; // No pudo extraer, dejar original
+
+        // Usar endpoint de thumbnail (más confiable para hotlink que uc?export=view)
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+      }
+      window.__convertImg = convertImageUrl;
+
       const render = (filter = 'Todas') => {
         const list = filter === 'Todas' ? cursos : cursos.filter(c => c.area === filter);
         grid.innerHTML = list.map(c => {
@@ -313,10 +346,13 @@
           const percent = totalClases > 0 ? Math.round((completedCount / totalClases) * 100) : 0;
           const isCertified = prog.isCompleted;
 
+          // Convertir URL de imagen (soporta Drive)
+          const imageUrl = convertImageUrl(c.image);
+
           return `
             <article class="course-card-club">
               <div class="course-card-club__img">
-                ${c.image ? `<img src="${c.image}" alt="${(c.title || '').replace(/"/g, '&quot;')}" loading="lazy" onerror="this.style.display='none';this.parentElement.classList.add('no-image');">` : ''}
+                ${imageUrl ? `<img src="${imageUrl}" alt="${(c.title || '').replace(/"/g, '&quot;')}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.parentElement.classList.add('no-image');">` : ''}
                 <div class="course-card-club__img-placeholder">
                   <span style="font-size:3.5rem;opacity:.3;">🦒</span>
                 </div>

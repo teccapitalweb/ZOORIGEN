@@ -463,7 +463,16 @@
           <button type="button" onclick="agregarLeccion()" style="background:rgba(111,191,115,0.15);border:1px dashed rgba(111,191,115,0.4);color:#6FBF73;padding:10px;border-radius:8px;width:100%;cursor:pointer;font-family:inherit;font-weight:600;margin-top:6px;">+ Agregar otra clase</button>
         </div>
 
-        <div class="field"><label>URL de imagen (opcional)</label><input type="text" id="f_image" value="${data.image || ''}" placeholder="https://..."></div>
+        <div class="field">
+          <label>🖼️ URL de imagen (opcional)</label>
+          <input type="text" id="f_image" value="${data.image || ''}" placeholder="Pega link de Google Drive o URL directa">
+          <p class="hint" style="margin-top:6px;line-height:1.5;">
+            ✅ <strong>Drive:</strong> Comparte → "Cualquiera con el link" → pega el link normal<br>
+            ✅ <strong>Unsplash:</strong> clic derecho en la foto → "Copiar dirección de imagen"<br>
+            ✅ <strong>Upload a GitHub:</strong> sube a <code>assets/img/</code> y usa URL raw<br>
+            📐 Medida ideal: 800×450px horizontal · JPG &lt; 300KB
+          </p>
+        </div>
         <div class="field"><label>Descripción</label><textarea id="f_desc" placeholder="Breve descripción">${data.description || ''}</textarea></div>
         <div class="field"><label>Tag destacado (opcional)</label><input type="text" id="f_tag" value="${data.tag || ''}" placeholder="Ej. Nuevo, Popular"></div>
         <div class="modal-actions">

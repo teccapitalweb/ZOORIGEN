@@ -180,24 +180,76 @@
           return;
         }
 
-        list.innerHTML = filtered.map(p => `
-          <div class="foro-post" onclick="viewPost('${p.id}')">
-            <div class="foro-post__avatar">${(p.authorName || 'U').charAt(0).toUpperCase()}</div>
-            <div class="foro-post__body">
-              <div class="foro-post__meta">
-                <span class="foro-post__cat">${CAT_LABELS[p.category] || p.category}</span>
-                <span class="foro-post__time">${ZOORIGEN_CLUB.timeAgo(p.createdAt)}</span>
-              </div>
-              <h3 class="foro-post__title">${escapeHtml(p.title)}</h3>
-              <p class="foro-post__excerpt">${escapeHtml((p.content || '').substring(0, 160))}${(p.content || '').length > 160 ? '...' : ''}</p>
-              <div class="foro-post__footer">
-                <span class="foro-post__author">👤 ${escapeHtml(p.authorName || 'Colega')}</span>
-                <span class="foro-post__replies">💬 ${p.repliesCount || 0} respuesta${p.repliesCount !== 1 ? 's' : ''}</span>
-                <span class="foro-post__views">👁️ ${p.views || 0}</span>
+        // Pre-cargar primeras 2 respuestas de cada post para preview
+        const postsWithPreviews = await Promise.all(filtered.map(async (p) => {
+          try {
+            const rs = await db.collection('foroPosts').doc(p.id).collection('replies')
+              .orderBy('createdAt', 'asc').limit(2).get();
+            p._previewReplies = rs.docs.map(d => ({ id: d.id, ...d.data() }));
+          } catch(e) { p._previewReplies = []; }
+          return p;
+        }));
+
+        list.innerHTML = postsWithPreviews.map(p => {
+          const likes = p.likes || [];
+          const userLiked = likes.includes(currentSession.uid);
+          return `
+          <div class="foro-post">
+            <div class="foro-post__main" onclick="viewPost('${p.id}')">
+              <div class="foro-post__avatar">${(p.authorName || 'U').charAt(0).toUpperCase()}</div>
+              <div class="foro-post__body">
+                <div class="foro-post__meta">
+                  <span class="foro-post__cat">${CAT_LABELS[p.category] || p.category}</span>
+                  <span class="foro-post__time">${ZOORIGEN_CLUB.timeAgo(p.createdAt)}</span>
+                </div>
+                <h3 class="foro-post__title">${escapeHtml(p.title)}</h3>
+                <p class="foro-post__excerpt">${escapeHtml((p.content || '').substring(0, 180))}${(p.content || '').length > 180 ? '...' : ''}</p>
+                <div class="foro-post__footer">
+                  <span class="foro-post__author">👤 ${escapeHtml(p.authorName || 'Colega')}</span>
+                  <span class="foro-post__replies">💬 ${p.repliesCount || 0} respuesta${p.repliesCount !== 1 ? 's' : ''}</span>
+                  <span class="foro-post__views">👁️ ${p.views || 0}</span>
+                </div>
               </div>
             </div>
+
+            <!-- Barra de reacciones -->
+            <div class="foro-post__reactions">
+              <button class="foro-like-btn ${userLiked ? 'is-liked' : ''}" onclick="event.stopPropagation();toggleLike('${p.id}')" data-post="${p.id}">
+                <span class="foro-like-icon">${userLiked ? '❤️' : '🤍'}</span>
+                <span class="foro-like-count">${likes.length}</span>
+                <span class="foro-like-label">${userLiked ? 'Te gusta' : 'Me gusta'}</span>
+              </button>
+              <button class="foro-reply-btn" onclick="viewPost('${p.id}')">
+                <span>💬</span>
+                <span>Responder</span>
+              </button>
+              <button class="foro-share-btn" onclick="event.stopPropagation();compartirPost('${p.id}', ${JSON.stringify(p.title).replace(/"/g, '&quot;')})">
+                <span>↗️</span>
+                <span>Compartir</span>
+              </button>
+            </div>
+
+            <!-- Preview de respuestas -->
+            ${p._previewReplies && p._previewReplies.length > 0 ? `
+              <div class="foro-preview-replies">
+                <div class="foro-preview-replies__header">💬 Últimas respuestas</div>
+                ${p._previewReplies.map(r => `
+                  <div class="foro-preview-reply">
+                    <div class="foro-preview-reply__avatar">${(r.authorName || 'U').charAt(0).toUpperCase()}</div>
+                    <div class="foro-preview-reply__body">
+                      <div class="foro-preview-reply__meta">
+                        <strong>${escapeHtml(r.authorName || 'Colega')}</strong>
+                        <span>· ${ZOORIGEN_CLUB.timeAgo(r.createdAt)}</span>
+                      </div>
+                      <div class="foro-preview-reply__content">${escapeHtml((r.content || '').substring(0, 140))}${(r.content || '').length > 140 ? '...' : ''}</div>
+                    </div>
+                  </div>
+                `).join('')}
+                ${(p.repliesCount || 0) > 2 ? `<button class="foro-see-all" onclick="viewPost('${p.id}')">Ver las ${p.repliesCount} respuestas →</button>` : ''}
+              </div>
+            ` : ''}
           </div>
-        `).join('');
+        `}).join('');
       } catch (err) {
         console.error(err);
         list.innerHTML = `<div class="foro-empty"><p>Error cargando el foro. Intenta recargar la página.</p></div>`;
@@ -304,7 +356,10 @@
 
               ${replies.length === 0 ? '<p style="color:var(--zoo-text-dim);text-align:center;padding:20px;">Sé el primero en responder</p>' : ''}
 
-              ${replies.map(r => `
+              ${replies.map(r => {
+                const rLikes = r.likes || [];
+                const rLiked = rLikes.includes(currentSession.uid);
+                return `
                 <div class="foro-reply">
                   <div class="foro-post__avatar" style="width:36px;height:36px;font-size:.9rem;flex-shrink:0;">${(r.authorName || 'U').charAt(0).toUpperCase()}</div>
                   <div class="foro-reply__body">
@@ -313,9 +368,13 @@
                       <span>${ZOORIGEN_CLUB.timeAgo(r.createdAt)}</span>
                     </div>
                     <div class="foro-reply__content">${escapeHtml(r.content).replace(/\n/g, '<br>')}</div>
+                    <button class="reply-like-btn ${rLiked ? 'is-liked' : ''}" onclick="toggleReplyLike('${postId}', '${r.id}')" data-reply="${r.id}">
+                      <span class="reply-like-icon">${rLiked ? '❤️' : '🤍'}</span>
+                      <span class="reply-like-count">${rLikes.length}</span>
+                    </button>
                   </div>
                 </div>
-              `).join('')}
+              `}).join('')}
             </div>
 
             <div class="foro-reply-form">
@@ -329,6 +388,80 @@
         content.innerHTML = '<p style="padding:40px;text-align:center;color:var(--zoo-orange);">Error al cargar la discusión</p>';
       }
     }
+
+    window.toggleLike = async (postId) => {
+      try {
+        const btn = document.querySelector(`.foro-like-btn[data-post="${postId}"]`);
+        const ref = db.collection('foroPosts').doc(postId);
+        const doc = await ref.get();
+        const likes = doc.data().likes || [];
+        const uid = currentSession.uid;
+
+        let newLikes;
+        if (likes.includes(uid)) {
+          newLikes = likes.filter(u => u !== uid);
+        } else {
+          newLikes = [...likes, uid];
+          // Animación de corazón
+          if (btn) {
+            btn.classList.add('is-bumping');
+            setTimeout(() => btn.classList.remove('is-bumping'), 600);
+          }
+        }
+
+        await ref.update({ likes: newLikes });
+
+        // Actualizar UI sin recargar todo
+        if (btn) {
+          const isLiked = newLikes.includes(uid);
+          btn.classList.toggle('is-liked', isLiked);
+          btn.querySelector('.foro-like-icon').textContent = isLiked ? '❤️' : '🤍';
+          btn.querySelector('.foro-like-count').textContent = newLikes.length;
+          btn.querySelector('.foro-like-label').textContent = isLiked ? 'Te gusta' : 'Me gusta';
+        }
+      } catch (err) {
+        console.error('Error toggle like:', err);
+      }
+    };
+
+    window.compartirPost = (postId, title) => {
+      const url = `${location.origin}/pages/club-foro.html?post=${postId}`;
+      const text = `Mira esta discusión en el Foro VIP Zoorigen: "${title}"\n\n${url}`;
+
+      if (navigator.share) {
+        navigator.share({ title: 'Zoorigen Foro VIP', text, url }).catch(() => {
+          navigator.clipboard.writeText(url).then(() => alert('✅ Link copiado al portapapeles'));
+        });
+      } else {
+        navigator.clipboard.writeText(url).then(() => alert('✅ Link copiado al portapapeles'));
+      }
+    };
+
+    window.toggleReplyLike = async (postId, replyId) => {
+      try {
+        const btn = document.querySelector(`.reply-like-btn[data-reply="${replyId}"]`);
+        const ref = db.collection('foroPosts').doc(postId).collection('replies').doc(replyId);
+        const doc = await ref.get();
+        const likes = doc.data().likes || [];
+        const uid = currentSession.uid;
+
+        let newLikes;
+        if (likes.includes(uid)) newLikes = likes.filter(u => u !== uid);
+        else {
+          newLikes = [...likes, uid];
+          if (btn) { btn.classList.add('is-bumping'); setTimeout(() => btn.classList.remove('is-bumping'), 600); }
+        }
+
+        await ref.update({ likes: newLikes });
+
+        if (btn) {
+          const isLiked = newLikes.includes(uid);
+          btn.classList.toggle('is-liked', isLiked);
+          btn.querySelector('.reply-like-icon').textContent = isLiked ? '❤️' : '🤍';
+          btn.querySelector('.reply-like-count').textContent = newLikes.length;
+        }
+      } catch (err) { console.error(err); }
+    };
 
     window.closeViewPost = () => {
       document.getElementById('viewPostModal').classList.remove('is-open');

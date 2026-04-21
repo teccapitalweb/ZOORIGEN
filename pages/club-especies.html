@@ -103,7 +103,7 @@
         grid.innerHTML = filtered.map((e, idx) => `
           <div class="species-card" onclick="showSpecies(${ESPECIES_DATA.indexOf(e)})">
             <div class="species-card__img">
-              <img src="${e.imagen}" alt="${e.nombre}" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,rgba(31,95,58,0.4),rgba(232,163,23,0.2))';this.parentElement.insertAdjacentHTML('beforeend','<div class=\\'species-card__placeholder\\'>${e.grupoEmoji}</div>');">
+              <img src="${e.imagen}" alt="${e.nombre}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.style.display='none';this.parentElement.classList.add('no-image');this.parentElement.insertAdjacentHTML('beforeend','<div class=\\'species-card__placeholder\\'>${e.grupoEmoji}</div>');">
               <span class="species-card__status species-status--${e.nom059}">${e.nom059}</span>
               <span class="species-card__group">${e.grupoEmoji}</span>
             </div>
@@ -146,7 +146,7 @@
           <div class="species-modal-box">
             <button class="species-modal-close" onclick="closeSpecies()">×</button>
             <div class="species-modal-hero">
-              <img src="${e.imagen}" alt="${e.nombre}" class="species-modal-hero__img" onerror="this.style.display='none';">
+              <img src="${e.imagen}" alt="${e.nombre}" class="species-modal-hero__img" referrerpolicy="no-referrer" onerror="this.style.display='none';this.parentElement.innerHTML += '<div style=\\'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:0.35;\\'>' + '${e.grupoEmoji}' + '</div>';">
               <div class="species-modal-hero__overlay">
                 <span class="species-modal-hero__group">${e.grupoEmoji} ${e.grupoLabel}</span>
                 <h2>${e.nombre}</h2>
