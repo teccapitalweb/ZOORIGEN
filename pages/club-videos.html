@@ -52,7 +52,61 @@
       const isActive = session.planStatus === 'active';
       const list = document.getElementById('videosList');
       if (videos.length === 0) {
-        list.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);">🎥 Aún no hay videos disponibles. Pronto tendrás técnicas de campo explicadas paso a paso.</div>`;
+        list.innerHTML = `
+          <div class="coming-soon-card">
+            <div class="coming-soon-card__badge">
+              <span class="coming-soon-card__pulse"></span>
+              PRÓXIMAMENTE
+            </div>
+
+            <div class="coming-soon-card__icon">🎬</div>
+
+            <h2 class="coming-soon-card__title">Videos prácticos en preparación</h2>
+            <p class="coming-soon-card__sub">
+              Nuestro equipo está grabando contenido exclusivo con expertos en fauna mexicana.
+              <br>Prepárate para técnicas de campo explicadas paso a paso.
+            </p>
+
+            <div class="coming-soon-card__topics">
+              <div class="coming-soon-card__topic-title">Algunos temas que vienen:</div>
+              <div class="coming-soon-card__grid">
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🎥</span>
+                  <span>Fototrampeo profesional de campo</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🧤</span>
+                  <span>Captura y manejo de fauna silvestre</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🔬</span>
+                  <span>Necropsias veterinarias de fauna</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🦒</span>
+                  <span>Identificación morfológica de especies</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">💉</span>
+                  <span>Anestesia en fauna silvestre</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🚁</span>
+                  <span>Monitoreo con drones y telemetría</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="coming-soon-card__footer">
+              <div class="coming-soon-card__progress-wrap">
+                <div class="coming-soon-card__progress-label">Producción en curso</div>
+                <div class="coming-soon-card__progress-bar">
+                  <div class="coming-soon-card__progress-fill"></div>
+                </div>
+                <div class="coming-soon-card__progress-hint">Primeros videos disponibles muy pronto</div>
+              </div>
+            </div>
+          </div>`;
         return;
       }
       list.innerHTML = videos.map(v => `

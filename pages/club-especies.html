@@ -100,10 +100,47 @@
           return;
         }
 
-        grid.innerHTML = filtered.map((e, idx) => `
+      // Genera un SVG de fallback bonito con silueta + nombre
+      function generarPlaceholderSVG(especie) {
+        const gradientes = {
+          'mamifero':  ['#E8A317', '#D55A28'],
+          'ave':       ['#3A9CC4', '#1F5F3A'],
+          'reptil':    ['#6FBF73', '#1F5F3A'],
+          'anfibio':   ['#3d8b42', '#2a7a4d'],
+          'pez':       ['#2196C9', '#0D6B9E']
+        };
+        const [c1, c2] = gradientes[especie.grupo] || ['#1F5F3A', '#0F3B22'];
+        const emoji = especie.grupoEmoji || '🐾';
+        const nombre = especie.nombre.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="${c1}" stop-opacity="0.85"/>
+              <stop offset="100%" stop-color="${c2}" stop-opacity="0.95"/>
+            </linearGradient>
+            <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <circle cx="20" cy="20" r="1.5" fill="white" fill-opacity="0.08"/>
+            </pattern>
+          </defs>
+          <rect width="800" height="450" fill="url(#g)"/>
+          <rect width="800" height="450" fill="url(#dots)"/>
+          <text x="400" y="210" font-size="140" text-anchor="middle" opacity="0.22" font-family="Apple Color Emoji, Segoe UI Emoji">${emoji}</text>
+          <text x="400" y="335" fill="white" font-size="38" font-weight="700" text-anchor="middle" font-family="Poppins, sans-serif" opacity="0.95">${nombre}</text>
+          <text x="400" y="372" fill="white" font-size="18" font-style="italic" text-anchor="middle" font-family="Cormorant Garamond, serif" opacity="0.75">${especie.cientifico}</text>
+        </svg>`;
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      }
+      window.__generarPlaceholderSVG = generarPlaceholderSVG;
+
+      grid.innerHTML = filtered.map((e, idx) => {
+        const placeholderSVG = generarPlaceholderSVG(e);
+        // La estrategia: el SVG placeholder siempre funciona como background.
+        // La img de Unsplash se superpone solo SI carga. Si falla, queda el SVG abajo.
+        return `
           <div class="species-card" onclick="showSpecies(${ESPECIES_DATA.indexOf(e)})">
-            <div class="species-card__img">
-              <img src="${e.imagen}" alt="${e.nombre}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.style.display='none';this.parentElement.classList.add('no-image');this.parentElement.insertAdjacentHTML('beforeend','<div class=\\'species-card__placeholder\\'>${e.grupoEmoji}</div>');">
+            <div class="species-card__img" style="background-image:url('${placeholderSVG}');background-size:cover;background-position:center;">
+              <img src="${e.imagen}" alt="${e.nombre}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';">
               <span class="species-card__status species-status--${e.nom059}">${e.nom059}</span>
               <span class="species-card__group">${e.grupoEmoji}</span>
             </div>
@@ -117,7 +154,8 @@
               </div>
             </div>
           </div>
-        `).join('');
+        `;
+      }).join('');
       }
 
       // Listeners
