@@ -249,6 +249,7 @@
         <p>Cursos completos seleccionados para miembros VIP · Acceso ilimitado</p>
       </div>
       <div id="lockedNotice"></div>
+      <div id="unlockInfo"></div>
       <div class="filter-bar" id="filterBar"></div>
       <div class="course-grid-club" id="coursesGrid">Cargando cursos...</div>
     </main>
@@ -335,22 +336,51 @@
 
       const render = (filter = 'Todas') => {
         const list = filter === 'Todas' ? cursos : cursos.filter(c => c.area === filter);
-        grid.innerHTML = list.map(c => {
+
+        // ═══════════════ DESBLOQUEO PROGRESIVO — 1 curso/8 días ═══════════════
+        const memberSince = session.planActivadoEn || session.createdAt || new Date().toISOString();
+        const daysAsMember = Math.floor((Date.now() - new Date(memberSince).getTime()) / (1000 * 60 * 60 * 24));
+        const DAYS_PER_UNLOCK = 8;
+        const maxUnlockedIndex = Math.floor(daysAsMember / DAYS_PER_UNLOCK);
+        window.__zooMaxUnlocked = maxUnlockedIndex;
+        window.__zooDaysAsMember = daysAsMember;
+
+        // Mostrar banner de desbloqueo si es miembro activo y hay cursos aún bloqueados
+        const unlockInfo = document.getElementById('unlockInfo');
+        if (isActive && list.length > (maxUnlockedIndex + 1)) {
+          const nextUnlockIn = Math.max(0, ((maxUnlockedIndex + 1) * DAYS_PER_UNLOCK) - daysAsMember);
+          unlockInfo.innerHTML = `
+            <div class="unlock-schedule-banner">
+              <div class="unlock-schedule-banner__icon">🔓</div>
+              <div class="unlock-schedule-banner__text">
+                Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>.
+                Llevas <strong>${daysAsMember} día${daysAsMember !== 1 ? 's' : ''}</strong> como miembro,
+                tienes <strong>${Math.min(list.length, maxUnlockedIndex + 1)}</strong> de ${list.length} cursos disponibles.
+                ${nextUnlockIn > 0 ? `El siguiente se desbloquea en <strong>${nextUnlockIn} día${nextUnlockIn !== 1 ? 's' : ''}</strong>.` : ''}
+              </div>
+            </div>`;
+        } else {
+          unlockInfo.innerHTML = '';
+        }
+
+        grid.innerHTML = list.map((c, courseIdx) => {
           const lecciones = (c.lecciones && c.lecciones.length) ? c.lecciones : (c.driveId ? [{titulo: c.title, driveId: c.driveId, duration: c.duration}] : []);
           const totalClases = lecciones.length;
           const hasContent = totalClases > 0;
 
-          // Calcular progreso
           const prog = progress[c.id] || { completedLessons: [], isCompleted: false, completedAt: null, certificateFolio: null };
           const completedCount = prog.completedLessons.length;
           const percent = totalClases > 0 ? Math.round((completedCount / totalClases) * 100) : 0;
           const isCertified = prog.isCompleted;
 
-          // Convertir URL de imagen (soporta Drive)
+          // Desbloqueo: curso 0 siempre disponible; curso N disponible a partir del día N*8
+          const isUnlockedByTime = courseIdx <= maxUnlockedIndex;
+          const daysUntilUnlock = Math.max(0, (courseIdx * DAYS_PER_UNLOCK) - daysAsMember);
+
           const imageUrl = convertImageUrl(c.image);
 
           return `
-            <article class="course-card-club">
+            <article class="course-card-club ${!isUnlockedByTime && isActive ? 'is-time-locked' : ''}">
               <div class="course-card-club__img">
                 ${imageUrl ? `<img src="${imageUrl}" alt="${(c.title || '').replace(/"/g, '&quot;')}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.parentElement.classList.add('no-image');">` : ''}
                 <div class="course-card-club__img-placeholder">
@@ -359,13 +389,21 @@
                 ${c.tag ? `<span class="course-card-club__tag">${c.tag}</span>` : ''}
                 ${totalClases > 1 ? `<span class="course-card-club__classes">📹 ${totalClases} clases</span>` : ''}
                 ${isCertified ? `<span class="course-card-club__certified">🏆 Certificado</span>` : ''}
+                ${!isUnlockedByTime && isActive ? `
+                  <div class="course-time-lock">
+                    <div class="course-time-lock__icon">🔒</div>
+                    <div class="course-time-lock__text">
+                      Se desbloquea en<br><strong>${daysUntilUnlock} día${daysUntilUnlock !== 1 ? 's' : ''}</strong>
+                    </div>
+                  </div>
+                ` : ''}
               </div>
               <div class="course-card-club__body">
                 <div class="course-card-club__area">${c.area || ''}</div>
                 <h3 class="course-card-club__title">${c.title}</h3>
                 <p class="course-card-club__desc">${c.description || `Duración: ${c.duration || '—'} · Nivel: ${c.level || '—'}`}</p>
 
-                ${hasContent && completedCount > 0 ? `
+                ${hasContent && completedCount > 0 && isUnlockedByTime ? `
                   <div class="course-progress-wrap">
                     <div class="course-progress-info">
                       <span>${percent}% completado</span>
@@ -377,8 +415,10 @@
                   </div>
                 ` : ''}
 
-                ${isActive && hasContent
+                ${isActive && hasContent && isUnlockedByTime
                   ? `<button class="course-card-club__action" onclick='openCourseDetail(${JSON.stringify({...c, lecciones}).replace(/'/g, "&#39;")})'>${totalClases > 1 ? `▶ Ver ${totalClases} clases` : '▶ Ver curso'}</button>`
+                  : isActive && hasContent && !isUnlockedByTime
+                  ? `<button class="course-card-club__action course-card-club__action--locked" disabled>🔒 Desbloquea en ${daysUntilUnlock} día${daysUntilUnlock !== 1 ? 's' : ''}</button>`
                   : !isActive ? `<a href="club-suscripcion.html" class="course-card-club__action" style="background:var(--zoo-orange);">🔒 Activar membresía</a>`
                   : `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20curso%3A%20${encodeURIComponent(c.title)}" target="_blank" class="course-card-club__action">▶ Solicitar acceso</a>`}
 

@@ -3824,3 +3824,83 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   margin-top: 8px;
   font-style: italic;
 }
+
+/* ═══════════════ DESBLOQUEO PROGRESIVO DE CURSOS ═══════════════ */
+.course-card-club.is-time-locked {
+  opacity: 0.82;
+}
+.course-card-club.is-time-locked .course-card-club__img {
+  filter: grayscale(0.4) brightness(0.7);
+}
+
+.course-time-lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(0,0,0,0.82), rgba(31,95,58,0.75));
+  color: #fff;
+  z-index: 4;
+  text-align: center;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.course-time-lock__icon {
+  font-size: 2.4rem;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+}
+.course-time-lock__text {
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  line-height: 1.35;
+  color: #fff;
+}
+.course-time-lock__text strong {
+  color: var(--zoo-amber, #E8A317);
+  font-size: 1.15rem;
+  font-weight: 800;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.course-card-club__action--locked {
+  background: rgba(107,115,112,0.25) !important;
+  color: var(--zoo-text-dim, #6b7370) !important;
+  cursor: not-allowed !important;
+  border: 1px dashed rgba(255,255,255,0.15) !important;
+}
+.course-card-club__action--locked:hover {
+  background: rgba(107,115,112,0.25) !important;
+  transform: none !important;
+}
+
+/* Banner informativo arriba de la lista */
+.unlock-schedule-banner {
+  background: linear-gradient(135deg, rgba(31,95,58,0.12), rgba(232,163,23,0.08));
+  border: 1px solid rgba(232,163,23,0.25);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.unlock-schedule-banner__icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.unlock-schedule-banner__text {
+  flex: 1;
+  color: var(--zoo-text-muted, #a0a8a4);
+  font-size: .88rem;
+  line-height: 1.45;
+}
+.unlock-schedule-banner__text strong {
+  color: var(--zoo-amber, #E8A317);
+  font-weight: 700;
+}

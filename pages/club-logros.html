@@ -303,7 +303,8 @@
 
       const progress = ZOORIGEN_CLUB.getProgress(session);
       const achievements = ZOORIGEN_CLUB.ACHIEVEMENTS;
-      const unlocked = new Set(progress.achievements || []);
+      // FIX: el campo correcto es unlockedAchievements, no achievements
+      const unlocked = new Set(progress.unlockedAchievements || progress.achievements || []);
 
       const totalUnlocked = Array.from(unlocked).filter(id => achievements.some(a => a.id === id)).length;
       const totalXpEarned = achievements.filter(a => unlocked.has(a.id)).reduce((sum, a) => sum + a.xp, 0);
@@ -322,10 +323,10 @@
       };
 
       const content = document.getElementById('logrosContent');
-      const nivel = progress.level || { level: 1, name: 'Aprendiz', icon: '🌱', minXP: 0, nextXP: 100 };
-      const xpEnNivel = (progress.xp || 0) - nivel.minXP;
-      const xpNecesario = (nivel.nextXP || 100) - nivel.minXP;
-      const progPct = Math.min(100, Math.round((xpEnNivel / xpNecesario) * 100));
+      const nivel = progress.level || { level: 1, name: 'Aprendiz', icon: '🌱', minXP: 0 };
+      const xpTotal = progress.xp || 0;
+      const progPct = progress.progressPercent || 0;
+      const xpToNext = progress.xpToNext || 100;
 
       content.innerHTML = `
         <div class="ach-hero">
@@ -340,8 +341,8 @@
               <div class="ach-hero__bar-fill" style="width:0%" id="xpBar"></div>
             </div>
             <div class="ach-hero__bar-info">
-              <span><strong>${progress.xp || 0} XP</strong> total</span>
-              <span>${xpNecesario - xpEnNivel} XP para Nv ${(nivel.level || 1) + 1}</span>
+              <span><strong>${xpTotal} XP</strong> total</span>
+              <span>${xpToNext} XP para Nv ${(nivel.level || 1) + 1}</span>
             </div>
           </div>
           <div class="ach-hero__stats">

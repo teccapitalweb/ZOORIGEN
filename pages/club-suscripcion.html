@@ -35,6 +35,17 @@
           <div class="card" style="background:linear-gradient(135deg,rgba(232,163,23,0.12),rgba(213,90,40,0.08));border-color:var(--zoo-amber);margin-bottom:20px;">
             <h2 style="color:var(--zoo-amber);font-size:1.3rem;margin-bottom:10px;">⏳ Activa tu membresía VIP</h2>
             <p style="margin-bottom:20px;">Tu cuenta está creada. Elige tu plan y activa todos los beneficios VIP ahora mismo.</p>
+
+            <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,163,23,0.3);border-radius:10px;padding:14px 18px;margin-top:16px;">
+              <div style="color:#fff;font-weight:600;font-size:.95rem;margin-bottom:6px;">💰 ¿Ya realizaste el pago?</div>
+              <p style="color:var(--zoo-text-muted);font-size:.84rem;margin-bottom:12px;line-height:1.5;">
+                Si ya pagaste pero tu membresía no se activó, presiona el botón para verificar tu pago manualmente.
+              </p>
+              <button id="verifyPaymentBtn" class="btn-club-outline" style="width:auto;padding:10px 22px;border:1px solid var(--zoo-amber);color:var(--zoo-amber);font-family:inherit;font-size:.92rem;cursor:pointer;">
+                🔍 Verificar mi pago
+              </button>
+              <div id="verifyMsg" style="margin-top:10px;"></div>
+            </div>
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;">
@@ -90,6 +101,71 @@
           </div>`;
       }
       content.innerHTML = html;
+
+      // ═══════════════ AUTO-CHECK: Verifica si el pago ya se procesó ═══════════════
+      // Si viene con ?paid=1 en la URL (después de checkout de Shopify), verificar cada 3s por 30s
+      const urlParams = new URLSearchParams(window.location.search);
+      if (session.planStatus === 'pending_payment' && urlParams.has('paid')) {
+        let attempts = 0;
+        const maxAttempts = 10;
+        const autoCheck = setInterval(async () => {
+          attempts++;
+          try {
+            const doc = await db.collection('miembros').doc(session.uid).get();
+            const data = doc.data() || {};
+            if (data.planActivo === true || data.planStatus === 'active') {
+              clearInterval(autoCheck);
+              alert('🎉 ¡Tu membresía VIP está activa!');
+              window.location.href = 'club-dashboard.html';
+            }
+          } catch (e) {}
+          if (attempts >= maxAttempts) clearInterval(autoCheck);
+        }, 3000);
+      }
+
+      // ═══════════════ VERIFICAR PAGO MANUAL ═══════════════
+      const verifyBtn = document.getElementById('verifyPaymentBtn');
+      if (verifyBtn) {
+        verifyBtn.addEventListener('click', async () => {
+          const msgEl = document.getElementById('verifyMsg');
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = '⏳ Verificando...';
+          msgEl.innerHTML = '';
+
+          try {
+            // Recargar el doc del miembro desde Firestore
+            const doc = await db.collection('miembros').doc(session.uid).get();
+            const data = doc.data() || {};
+
+            if (data.planActivo === true || data.planStatus === 'active') {
+              msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ ¡Pago encontrado! Tu membresía está activa. Recargando...</div>`;
+              setTimeout(() => window.location.href = 'club-dashboard.html', 1500);
+              return;
+            }
+
+            // Si el webhook no ha activado, mostrar info de contacto
+            msgEl.innerHTML = `
+              <div style="background:rgba(232,163,23,0.08);border:1px solid rgba(232,163,23,0.3);padding:14px;border-radius:8px;margin-top:6px;">
+                <div style="color:var(--zoo-amber);font-weight:700;margin-bottom:8px;font-size:.92rem;">⚠️ Aún no recibimos la confirmación del pago</div>
+                <p style="color:var(--zoo-text-muted);font-size:.84rem;line-height:1.5;margin-bottom:10px;">
+                  Si ya pagaste, espera 1-2 minutos y vuelve a presionar el botón.<br>
+                  Si ya esperaste más de 5 minutos, envía captura de tu pago a soporte:
+                </p>
+                <a href="https://wa.me/5212361113237?text=Hola%2C%20ya%20pagu%C3%A9%20Club%20VIP%20Zoorigen%20pero%20no%20se%20activa%20mi%20membres%C3%ADa.%20Mi%20email%20es%3A%20${encodeURIComponent(session.email)}" target="_blank" style="display:inline-block;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.88rem;">
+                  💬 Contactar soporte por WhatsApp
+                </a>
+              </div>
+            `;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = '🔍 Verificar mi pago';
+          } catch (err) {
+            console.error(err);
+            msgEl.innerHTML = `<div style="color:var(--zoo-orange);font-size:.88rem;">Error al verificar. Intenta de nuevo.</div>`;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = '🔍 Verificar mi pago';
+          }
+        });
+      }
 
       const cancelBtn = document.getElementById('cancelBtn');
       if (cancelBtn) {

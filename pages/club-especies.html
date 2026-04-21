@@ -100,7 +100,8 @@
           return;
         }
 
-      // Genera un SVG de fallback bonito con silueta + nombre
+      // Genera un SVG de fallback bonito con silueta dibujada + nombre
+      // Los iconos son SVG paths reales, no emojis del sistema (para Windows)
       function generarPlaceholderSVG(especie) {
         const gradientes = {
           'mamifero':  ['#E8A317', '#D55A28'],
@@ -110,13 +111,23 @@
           'pez':       ['#2196C9', '#0D6B9E']
         };
         const [c1, c2] = gradientes[especie.grupo] || ['#1F5F3A', '#0F3B22'];
-        const emoji = especie.grupoEmoji || '🐾';
         const nombre = especie.nombre.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+        const cientifico = (especie.cientifico || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+        // Siluetas SVG simples por grupo — siempre se ven en cualquier OS
+        const siluetas = {
+          'mamifero': '<path d="M 320 180 Q 300 160 280 170 Q 260 180 250 200 L 240 230 Q 230 250 240 270 L 250 290 Q 245 305 255 315 L 270 320 L 285 315 L 300 325 L 320 320 L 340 330 L 360 325 L 380 335 L 420 330 L 460 335 L 500 325 Q 520 320 510 300 L 505 280 Q 515 260 505 240 L 495 220 Q 510 200 490 190 Q 475 175 455 180 L 430 175 Q 400 170 370 175 L 340 172 Z M 285 200 Q 290 195 295 200 L 293 210 Z M 305 195 Q 310 190 315 195 L 313 205 Z" fill="white" opacity="0.18"/>',
+          'ave':      '<path d="M 400 180 Q 380 170 360 180 L 340 195 Q 330 210 335 225 L 345 240 L 320 255 Q 305 265 315 280 L 340 285 L 365 280 L 380 295 Q 395 310 410 305 L 440 300 Q 470 295 480 275 L 490 255 Q 495 235 485 220 L 475 205 Q 470 195 455 190 Z M 370 195 L 380 200 M 460 220 L 510 215 L 520 225 L 505 235 Z" fill="white" opacity="0.18"/>',
+          'reptil':   '<path d="M 240 250 Q 260 240 285 245 L 310 255 L 340 250 L 370 260 L 400 255 L 430 265 L 460 260 L 490 270 L 520 265 Q 540 260 545 275 Q 550 290 530 295 L 500 290 L 470 300 L 440 295 L 410 305 L 380 300 L 350 310 L 320 305 L 290 300 L 265 295 Q 245 290 240 275 Z M 525 272 Q 540 268 548 272 L 548 278 Q 540 282 525 278 Z" fill="white" opacity="0.18"/>',
+          'anfibio':  '<ellipse cx="400" cy="260" rx="130" ry="80" fill="white" opacity="0.18"/><circle cx="355" cy="225" r="20" fill="white" opacity="0.28"/><circle cx="445" cy="225" r="20" fill="white" opacity="0.28"/><circle cx="355" cy="225" r="8" fill="#1a1a1a" opacity="0.4"/><circle cx="445" cy="225" r="8" fill="#1a1a1a" opacity="0.4"/>',
+          'pez':      '<path d="M 260 250 Q 290 210 360 220 Q 440 230 490 260 L 520 240 L 540 250 L 540 280 L 520 290 L 490 270 Q 440 300 360 290 Q 290 300 260 260 Z M 290 245 Q 295 240 300 245 L 300 255 Q 295 260 290 255 Z" fill="white" opacity="0.18"/>'
+        };
+        const silueta = siluetas[especie.grupo] || siluetas['mamifero'];
 
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
           <defs>
             <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="${c1}" stop-opacity="0.85"/>
+              <stop offset="0%" stop-color="${c1}" stop-opacity="0.88"/>
               <stop offset="100%" stop-color="${c2}" stop-opacity="0.95"/>
             </linearGradient>
             <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -125,9 +136,9 @@
           </defs>
           <rect width="800" height="450" fill="url(#g)"/>
           <rect width="800" height="450" fill="url(#dots)"/>
-          <text x="400" y="210" font-size="140" text-anchor="middle" opacity="0.22" font-family="Apple Color Emoji, Segoe UI Emoji">${emoji}</text>
-          <text x="400" y="335" fill="white" font-size="38" font-weight="700" text-anchor="middle" font-family="Poppins, sans-serif" opacity="0.95">${nombre}</text>
-          <text x="400" y="372" fill="white" font-size="18" font-style="italic" text-anchor="middle" font-family="Cormorant Garamond, serif" opacity="0.75">${especie.cientifico}</text>
+          ${silueta}
+          <text x="400" y="380" fill="white" font-size="38" font-weight="700" text-anchor="middle" font-family="Poppins, Arial, sans-serif" opacity="0.96">${nombre}</text>
+          <text x="400" y="415" fill="white" font-size="18" font-style="italic" text-anchor="middle" font-family="Georgia, serif" opacity="0.78">${cientifico}</text>
         </svg>`;
         return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
       }
