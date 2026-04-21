@@ -226,21 +226,50 @@ const ZOORIGEN_CLUB = {
 
   // Definición de todos los logros posibles
   ACHIEVEMENTS: [
-    { id: 'first_login',   icon: '🚪', name: 'Primer paso',        desc: 'Entrar al Club VIP',            xp: 20 },
-    { id: 'first_course',  icon: '🎓', name: 'Primer curso',       desc: 'Completa tu primer curso',      xp: 50 },
-    { id: 'five_courses',  icon: '📚', name: 'Biblioteca activa',  desc: 'Completa 5 cursos',             xp: 200 },
-    { id: 'ten_courses',   icon: '🏛️', name: 'Devorador de saber', desc: 'Completa 10 cursos',            xp: 400 },
-    { id: 'first_session', icon: '🎥', name: 'En vivo y directo',  desc: 'Asiste a tu primera sesión',    xp: 75 },
-    { id: 'three_sessions',icon: '📡', name: 'Fiel seguidor',      desc: 'Asiste a 3 sesiones en vivo',   xp: 200 },
-    { id: 'streak_3',      icon: '🔥', name: '3 días seguidos',    desc: 'Racha de 3 días activos',       xp: 30 },
-    { id: 'streak_7',      icon: '⚡', name: 'Semana completa',    desc: 'Racha de 7 días activos',       xp: 100 },
-    { id: 'streak_30',     icon: '💎', name: 'Mes perfecto',       desc: 'Racha de 30 días activos',      xp: 500 },
-    { id: 'first_pdf',     icon: '📄', name: 'Lector',             desc: 'Descarga tu primer PDF',        xp: 25 },
-    { id: 'vip_annual',    icon: '🏅', name: 'Compromiso anual',   desc: 'Adquiere plan anual',           xp: 300 },
-    { id: 'early_bird',    icon: '🌅', name: 'Madrugador',         desc: 'Entra antes de las 7am',        xp: 15 },
-    { id: 'night_owl',     icon: '🌙', name: 'Nocturno',           desc: 'Estudia después de las 11pm',   xp: 15 },
-    { id: 'first_post',    icon: '📝', name: 'Primera discusión',  desc: 'Inicia tu primera discusión',   xp: 60 },
-    { id: 'first_reply',   icon: '💬', name: 'Primera respuesta',  desc: 'Responde a un colega',          xp: 30 }
+    // ═══ INICIO & ACCESO ═══
+    { id: 'first_login',   icon: '🚪', name: 'Primer paso',        desc: 'Entrar al Club VIP',            xp: 20,  category: 'inicio' },
+    { id: 'profile_done',  icon: '✨', name: 'Perfil completo',    desc: 'Completa tu perfil al 100%',    xp: 40,  category: 'inicio' },
+    { id: 'vip_annual',    icon: '🏅', name: 'Compromiso anual',   desc: 'Adquiere plan anual',           xp: 300, category: 'inicio' },
+
+    // ═══ CURSOS ═══
+    { id: 'first_course',  icon: '🎓', name: 'Primer curso',       desc: 'Completa tu primer curso',      xp: 50,  category: 'cursos' },
+    { id: 'three_courses', icon: '📗', name: 'Estudiante activo',  desc: 'Completa 3 cursos',             xp: 120, category: 'cursos' },
+    { id: 'five_courses',  icon: '📚', name: 'Biblioteca activa',  desc: 'Completa 5 cursos',             xp: 200, category: 'cursos' },
+    { id: 'ten_courses',   icon: '🏛️', name: 'Devorador de saber', desc: 'Completa 10 cursos',            xp: 400, category: 'cursos' },
+    { id: 'all_areas',     icon: '🌎', name: 'Todoterreno',        desc: 'Completa cursos en 3 áreas distintas', xp: 250, category: 'cursos' },
+
+    // ═══ SESIONES EN VIVO ═══
+    { id: 'first_session', icon: '🎥', name: 'En vivo y directo',  desc: 'Asiste a tu primera sesión',    xp: 75,  category: 'sesiones' },
+    { id: 'three_sessions',icon: '📡', name: 'Fiel seguidor',      desc: 'Asiste a 3 sesiones en vivo',   xp: 200, category: 'sesiones' },
+    { id: 'ten_sessions',  icon: '🛰️', name: 'Espectador VIP',     desc: 'Asiste a 10 sesiones en vivo',  xp: 500, category: 'sesiones' },
+
+    // ═══ RACHAS ═══
+    { id: 'streak_3',      icon: '🔥', name: '3 días seguidos',    desc: 'Racha de 3 días activos',       xp: 30,  category: 'rachas' },
+    { id: 'streak_7',      icon: '⚡', name: 'Semana completa',    desc: 'Racha de 7 días activos',       xp: 100, category: 'rachas' },
+    { id: 'streak_14',     icon: '🌟', name: 'Dos semanas firme',  desc: 'Racha de 14 días activos',      xp: 250, category: 'rachas' },
+    { id: 'streak_30',     icon: '💎', name: 'Mes perfecto',       desc: 'Racha de 30 días activos',      xp: 500, category: 'rachas' },
+
+    // ═══ FORO & COMUNIDAD ═══
+    { id: 'first_post',    icon: '📝', name: 'Primera discusión',  desc: 'Inicia tu primera discusión',   xp: 60,  category: 'comunidad' },
+    { id: 'first_reply',   icon: '💬', name: 'Primera respuesta',  desc: 'Responde a un colega',          xp: 30,  category: 'comunidad' },
+    { id: 'five_replies',  icon: '🗣️', name: 'Voz activa',         desc: 'Responde 5 veces en el foro',   xp: 150, category: 'comunidad' },
+    { id: 'ten_posts',     icon: '🎤', name: 'Líder de opinión',   desc: 'Publica 10 discusiones',        xp: 350, category: 'comunidad' },
+
+    // ═══ CONTENIDO ═══
+    { id: 'first_pdf',     icon: '📄', name: 'Lector',             desc: 'Descarga tu primer PDF',        xp: 25,  category: 'contenido' },
+    { id: 'ten_pdfs',      icon: '📕', name: 'Bibliotecario',      desc: 'Descarga 10 PDFs',              xp: 150, category: 'contenido' },
+    { id: 'first_species', icon: '🦒', name: 'Explorador',         desc: 'Consulta tu primera ficha de especie', xp: 15, category: 'contenido' },
+    { id: 'ten_species',   icon: '🌿', name: 'Naturalista',        desc: 'Consulta 10 fichas de especies',xp: 120, category: 'contenido' },
+    { id: 'all_species',   icon: '🏆', name: 'Sabio de la fauna',  desc: 'Consulta las 19 fichas del directorio', xp: 400, category: 'contenido' },
+
+    // ═══ CERTIFICADOS ═══
+    { id: 'first_cert',    icon: '📜', name: 'Certificado oro',    desc: 'Obtén tu primer certificado',   xp: 100, category: 'certificados' },
+    { id: 'five_certs',    icon: '🏅', name: 'Coleccionista',      desc: 'Obtén 5 certificados',          xp: 350, category: 'certificados' },
+
+    // ═══ SECRETOS (bloqueados hasta desbloquearse) ═══
+    { id: 'early_bird',    icon: '🌅', name: 'Madrugador',         desc: 'Entra antes de las 7am',        xp: 15,  category: 'secretos', secret: true },
+    { id: 'night_owl',     icon: '🌙', name: 'Nocturno',           desc: 'Estudia después de las 11pm',   xp: 15,  category: 'secretos', secret: true },
+    { id: 'weekend_warrior',icon:'🏖️', name: 'Fin de semana',      desc: 'Estudia sábado y domingo',      xp: 50,  category: 'secretos', secret: true }
   ],
 
   // Recompensas reales desbloqueadas por nivel (códigos únicos)
@@ -1018,6 +1047,7 @@ const ZOORIGEN_CLUB = {
       { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' }
     ];
     const itemsCuenta = [
+      { id: 'logros', label: 'Mis logros', icon: '🏆', href: 'club-logros.html' },
       { id: 'certificados', label: 'Mis certificados', icon: '🎓', href: 'club-certificados.html' },
       { id: 'perfil', label: 'Mi perfil', icon: '👤', href: 'club-perfil.html' },
       { id: 'suscripcion', label: 'Suscripción', icon: '💳', href: 'club-suscripcion.html' }

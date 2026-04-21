@@ -41,7 +41,18 @@
       try {
         // Buscar todos los certificados del miembro
         const snap = await db.collection('certificados').where('memberUid', '==', session.uid).get();
-        const certs = snap.docs.map(d => d.data()).sort((a, b) => new Date(b.issuedAt) - new Date(a.issuedAt));
+        const allCerts = snap.docs.map(d => d.data()).sort((a, b) => new Date(b.issuedAt) - new Date(a.issuedAt));
+
+        // ═══ DEDUPLICAR por courseId (conservar el más reciente) ═══
+        const seen = new Set();
+        const certs = [];
+        for (const c of allCerts) {
+          const key = c.courseId || c.folio;
+          if (!seen.has(key)) {
+            seen.add(key);
+            certs.push(c);
+          }
+        }
 
         if (certs.length === 0) {
           content.innerHTML = `

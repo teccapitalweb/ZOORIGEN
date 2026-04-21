@@ -315,7 +315,11 @@
 
           return `
             <article class="course-card-club">
-              <div class="course-card-club__img" ${c.image ? `style="background-image:url('${c.image}');"` : 'style="background:var(--zoo-green-800);"'}>
+              <div class="course-card-club__img">
+                ${c.image ? `<img src="${c.image}" alt="${(c.title || '').replace(/"/g, '&quot;')}" loading="lazy" onerror="this.style.display='none';this.parentElement.classList.add('no-image');">` : ''}
+                <div class="course-card-club__img-placeholder">
+                  <span style="font-size:3.5rem;opacity:.3;">🦒</span>
+                </div>
                 ${c.tag ? `<span class="course-card-club__tag">${c.tag}</span>` : ''}
                 ${totalClases > 1 ? `<span class="course-card-club__classes">📹 ${totalClases} clases</span>` : ''}
                 ${isCertified ? `<span class="course-card-club__certified">🏆 Certificado</span>` : ''}
@@ -391,14 +395,14 @@
       document.getElementById('playerVideo').innerHTML = '';
       document.getElementById('playerDesc').textContent = '';
 
-      // Mostrar la lista como contenido principal
       const box = modal.querySelector('.player-box');
-      // Limpiar cualquier lista previa
       const oldList = box.querySelector('.classes-list-box');
       if (oldList) oldList.remove();
-      // Ocultar el video si está vacío
       box.querySelector('.player-box__video').style.display = 'none';
       box.querySelector('.player-box__info').style.display = 'none';
+
+      // Encontrar el índice de la siguiente clase disponible
+      const nextAvailable = lecciones.findIndex((_, i) => !progress.completedLessons.includes(i));
 
       const listEl = document.createElement('div');
       listEl.className = 'classes-list-box';
@@ -413,14 +417,29 @@
         </div>
         ${lecciones.map((l, i) => {
           const done = progress.completedLessons.includes(i);
+          // Desbloqueada si: es la primera, o la anterior está completada, o esta está completada
+          const unlocked = i === 0 || progress.completedLessons.includes(i - 1) || done;
+          const isNext = i === nextAvailable;
+
           return `
-            <div class="class-item ${done ? 'is-done' : ''}">
-              <div class="class-item__num">${done ? '✓' : i + 1}</div>
-              <div class="class-item__body" onclick='openPlayer("${l.driveId}", ${JSON.stringify(l.titulo || "Clase " + (i+1))}, ${JSON.stringify(l.duration || "")}, "${course.id}", ${i})'>
-                <div class="class-item__title">${l.titulo || 'Clase ' + (i + 1)}</div>
-                <div class="class-item__meta">${l.duration ? '⏱️ ' + l.duration : ''}${done ? (l.duration ? ' · ' : '') + '✓ Completada' : ''}</div>
+            <div class="class-item ${done ? 'is-done' : ''} ${!unlocked ? 'is-locked' : ''} ${isNext ? 'is-next' : ''}">
+              <div class="class-item__num">
+                ${done ? '✓' : (!unlocked ? '🔒' : i + 1)}
               </div>
-              <button onclick="toggleLessonComplete('${course.id}', ${i})" class="class-item__btn">${done ? 'Desmarcar' : '✓ Completada'}</button>
+              <div class="class-item__body" ${unlocked ? `onclick='openPlayer("${l.driveId}", ${JSON.stringify(l.titulo || "Clase " + (i+1))}, ${JSON.stringify(l.duration || "")}, "${course.id}", ${i})'` : ''}>
+                <div class="class-item__title">${l.titulo || 'Clase ' + (i + 1)}</div>
+                <div class="class-item__meta">
+                  ${l.duration ? '⏱️ ' + l.duration : ''}
+                  ${done ? (l.duration ? ' · ' : '') + '✓ Completada' : ''}
+                  ${!unlocked ? '🔒 Completa la clase anterior para desbloquear' : ''}
+                  ${isNext && !done && unlocked ? (l.duration ? ' · ' : '') + '▶ Siguiente clase' : ''}
+                </div>
+              </div>
+              ${unlocked ? `
+                <button onclick="toggleLessonComplete('${course.id}', ${i})" class="class-item__btn">
+                  ${done ? 'Desmarcar' : '✓ Completada'}
+                </button>
+              ` : ''}
             </div>
           `;
         }).join('')}
@@ -453,15 +472,41 @@
       if (!progress[courseId]) return;
 
       const btn = event?.target;
-      if (btn) { btn.disabled = true; btn.textContent = '⏳ Generando...'; }
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Verificando...'; }
 
-      // Generar folio único: ZOO-YYYY-XXXXX
-      const year = new Date().getFullYear();
-      const random = Math.floor(Math.random() * 90000) + 10000;
-      const folio = `ZOO-${year}-${random}`;
-
-      // GUARDAR EN FIRESTORE PRIMERO — si falla, NO marcar como completado
       try {
+        // ═══ ANTI-DUPLICADOS ═══
+        // Buscar si YA existe un certificado para este curso y usuario
+        const existing = await db.collection('certificados')
+          .where('memberUid', '==', window.__zooSession.uid)
+          .where('courseId', '==', String(courseId))
+          .limit(1)
+          .get();
+
+        if (!existing.empty) {
+          // Ya existe, abrir el que ya existe
+          const existingData = existing.docs[0].data();
+          console.log('ℹ️ Ya existe certificado para este curso:', existingData.folio);
+
+          progress[courseId].isCompleted = true;
+          progress[courseId].completedAt = existingData.issuedAt;
+          progress[courseId].certificateFolio = existingData.folio;
+          localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+
+          closePlayer();
+          setTimeout(() => {
+            window.open(`ver-certificado.html?folio=${existingData.folio}`, '_blank');
+            setTimeout(() => window.location.reload(), 800);
+          }, 300);
+          return;
+        }
+
+        // ═══ NO EXISTE, CREAR NUEVO ═══
+        if (btn) btn.textContent = '⏳ Generando...';
+        const year = new Date().getFullYear();
+        const random = Math.floor(Math.random() * 90000) + 10000;
+        const folio = `ZOO-${year}-${random}`;
+
         const certData = {
           folio,
           courseId: String(courseId),
@@ -479,18 +524,15 @@
         await db.collection('certificados').doc(folio).set(certData);
         console.log('✅ Certificado guardado en Firestore');
 
-        // Solo marcar como completado si SE GUARDÓ exitosamente
         progress[courseId].isCompleted = true;
         progress[courseId].completedAt = new Date().toISOString();
         progress[courseId].certificateFolio = folio;
         localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
 
-        // Otorgar XP y logro
         if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB.awardAchievement) {
           ZOORIGEN_CLUB.awardAchievement(window.__zooSession.uid, 'first_course');
         }
 
-        // Abrir el certificado en nueva pestaña
         closePlayer();
         setTimeout(() => {
           window.open(`ver-certificado.html?folio=${folio}`, '_blank');
@@ -498,9 +540,9 @@
         }, 300);
 
       } catch (err) {
-        console.error('❌ Error guardando certificado:', err);
+        console.error('❌ Error:', err);
         if (btn) { btn.disabled = false; btn.textContent = '🎓 Obtener certificado'; }
-        alert('❌ No se pudo generar el certificado.\n\nError: ' + (err.message || err.code || 'Desconocido') + '\n\nVerifica que:\n• Tu membresía esté activa\n• Las reglas de Firestore permitan crear certificados\n\nContacta soporte por WhatsApp si el problema persiste.');
+        alert('❌ No se pudo generar el certificado.\n\nError: ' + (err.message || err.code || 'Desconocido') + '\n\nVerifica que tu membresía esté activa y las reglas de Firestore permitan crear certificados.');
       }
     }
 
@@ -517,20 +559,41 @@
       const modal = document.getElementById('playerOverlay');
       const box = modal.querySelector('.player-box');
 
-      // Remover la lista de clases si estaba mostrada
       const oldList = box.querySelector('.classes-list-box');
       if (oldList) oldList.remove();
 
-      // Mostrar el video y su info
       box.querySelector('.player-box__video').style.display = '';
       box.querySelector('.player-box__info').style.display = '';
 
       document.getElementById('playerTitle').textContent = title;
-      document.getElementById('playerDesc').textContent = desc || '';
+
+      // Info del player con detalle + botón volver a lista
+      const descDiv = document.getElementById('playerDesc');
+      descDiv.innerHTML = '';
+
+      const infoContent = document.createElement('div');
+      infoContent.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;';
+      infoContent.innerHTML = `
+        <span style="color:var(--zoo-text-muted);font-size:.88rem;">
+          ${desc ? '⏱️ ' + desc : ''}
+          ${courseId !== undefined && lessonIdx !== undefined ? `${desc ? ' · ' : ''}Clase ${lessonIdx + 1} de ${window.__currentLecciones?.length || 1}` : ''}
+        </span>
+        ${courseId !== undefined && window.__currentLecciones?.length > 1 ? `
+          <div style="display:flex;gap:8px;">
+            <button onclick="renderCourseModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;font-size:.8rem;">
+              ← Lista de clases
+            </button>
+            <button onclick="marcarYSiguiente('${courseId}', ${lessonIdx})" style="background:linear-gradient(135deg,#6FBF73,#3d8b42);border:0;color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
+              ✓ Completada, siguiente →
+            </button>
+          </div>
+        ` : ''}
+      `;
+      descDiv.appendChild(infoContent);
+
       document.getElementById('playerVideo').innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
       modal.classList.add('is-open');
 
-      // Auto-marcar como completado después de 30 segundos de abrir (si es de un curso)
       if (courseId !== undefined && lessonIdx !== undefined) {
         clearTimeout(window.__autoCompleteTimer);
         window.__autoCompleteTimer = setTimeout(() => {
@@ -541,6 +604,28 @@
             localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
           }
         }, 30000);
+      }
+    }
+
+    function marcarYSiguiente(courseId, lessonIdx) {
+      const progress = window.__zooCourseProgress;
+      if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
+
+      if (!progress[courseId].completedLessons.includes(lessonIdx)) {
+        progress[courseId].completedLessons.push(lessonIdx);
+        localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+      }
+
+      const lecciones = window.__currentLecciones;
+      const nextIdx = lessonIdx + 1;
+
+      if (nextIdx < lecciones.length) {
+        // Abrir siguiente clase
+        const l = lecciones[nextIdx];
+        openPlayer(l.driveId, l.titulo || 'Clase ' + (nextIdx + 1), l.duration || '', courseId, nextIdx);
+      } else {
+        // Era la última — volver a lista para mostrar botón de certificado
+        renderCourseModal();
       }
     }
     function closePlayer() {
