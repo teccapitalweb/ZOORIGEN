@@ -1048,7 +1048,7 @@ const ZOORIGEN_CLUB = {
       { id: 'biblioteca', label: 'Biblioteca', icon: '📚', href: 'club-biblioteca.html' },
       { id: 'foro', label: 'Foro VIP', icon: '💬', href: 'club-foro.html' },
       { id: 'videos', label: 'Videos', icon: '🎥', href: 'club-videos.html' },
-      { id: 'sesiones', label: 'Sesiones en vivo', icon: '🔴', href: 'club-sesiones.html' },
+      { id: 'sesiones', label: 'Webinars en vivo', icon: '🎥', href: 'club-sesiones.html' },
       { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' }
     ];
     const itemsCuenta = [

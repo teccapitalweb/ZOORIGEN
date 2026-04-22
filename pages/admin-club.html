@@ -640,25 +640,25 @@
       } catch (err) { toast('Error: ' + err.message, true); }
     };
 
-    // ═══════════ SESIONES ═══════════
+    // ═══════════ WEBINARS ═══════════
     async function loadSesiones() {
       const v = document.getElementById('secView');
-      v.innerHTML = '<h1>🔴 Sesiones en vivo</h1><p class="sub">Masterclasses por Zoom</p>';
+      v.innerHTML = '<h1>🎥 Webinars en vivo</h1><p class="sub">Masterclasses por Google Meet</p>';
       try {
         const snap = await db.collection('sesiones').orderBy('date', 'asc').get();
         const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         v.innerHTML += `
           <div class="content-toolbar">
-            <strong style="color:#fff;">${items.length} sesi${items.length !== 1 ? 'ones' : 'ón'}</strong>
-            <button class="btn-add" onclick="formSesion()">+ Nueva sesión</button>
+            <strong style="color:#fff;">${items.length} webinar${items.length !== 1 ? 's' : ''}</strong>
+            <button class="btn-add" onclick="formSesion()">+ Nuevo webinar</button>
           </div>
           <div class="admin-content-list">
-            ${items.length === 0 ? '<div class="no-data">Aún no hay sesiones programadas.</div>' : items.map(x => `
+            ${items.length === 0 ? '<div class="no-data">Aún no hay webinars programados.</div>' : items.map(x => `
               <div class="admin-content-item">
-                <div class="admin-content-item__thumb" style="background:var(--zoo-orange);">🔴</div>
+                <div class="admin-content-item__thumb" style="background:var(--zoo-orange);">🎥</div>
                 <div class="admin-content-item__info">
                   <div class="admin-content-item__title">${x.title}</div>
-                  <div class="admin-content-item__meta">${x.speaker || '—'} · ${ZOORIGEN_CLUB.formatShort(x.date)} · ${x.time || '19:00'}</div>
+                  <div class="admin-content-item__meta">${x.speaker || '—'} · ${ZOORIGEN_CLUB.formatShort(x.date)} · ${x.time || '19:00'} · 💻 Google Meet</div>
                 </div>
                 <div class="admin-content-item__actions">
                   <button class="btn-small edit" onclick='formSesion(${JSON.stringify(x).replace(/'/g,"&#39;")})'>Editar</button>
@@ -671,20 +671,28 @@
 
     window.formSesion = (data = {}) => {
       openModal(`
-        <h3>${data.id ? '✏️ Editar' : '➕ Nueva'} sesión</h3>
-        <div class="field"><label>Título *</label><input type="text" id="f_title" value="${data.title || ''}"></div>
-        <div class="field"><label>Ponente</label><input type="text" id="f_speaker" value="${data.speaker || ''}" placeholder="Ej. Dr. Iván Coronel"></div>
+        <h3>${data.id ? '✏️ Editar' : '➕ Nuevo'} webinar</h3>
+        <div class="field"><label>Título del webinar *</label><input type="text" id="f_title" value="${data.title || ''}" placeholder="Ej. Manejo de fauna silvestre en UMAs"></div>
+        <div class="field"><label>Ponente / Especialista</label><input type="text" id="f_speaker" value="${data.speaker || ''}" placeholder="Ej. Dr. Iván Coronel"></div>
         <div class="field"><label>Fecha *</label><input type="date" id="f_date" value="${data.date || ''}"></div>
         <div class="field"><label>Hora</label><input type="time" id="f_time" value="${data.time || '19:00'}"></div>
-        <div class="field"><label>Link de Zoom *</label><input type="text" id="f_zoom" value="${data.zoomUrl || ''}" placeholder="https://zoom.us/j/..."><p class="hint">Solo miembros VIP activos verán este link</p></div>
+        <div class="field"><label>Duración estimada</label><input type="text" id="f_duration" value="${data.duration || '60 min'}" placeholder="Ej. 60 min"></div>
+        <div class="field"><label>Link de Google Meet *</label><input type="text" id="f_meet" value="${data.meetUrl || data.zoomUrl || ''}" placeholder="https://meet.google.com/xxx-xxxx-xxx"><p class="hint">Solo miembros VIP activos verán este link</p></div>
         <div class="modal-actions">
           <button class="btn-cancel" onclick="closeM()">Cancelar</button>
-          <button class="btn-save" onclick="saveSesion('${data.id || ''}')">${data.id ? 'Guardar' : 'Crear'}</button>
+          <button class="btn-save" onclick="saveSesion('${data.id || ''}')">${data.id ? 'Guardar' : 'Crear webinar'}</button>
         </div>`);
     };
 
     window.saveSesion = async (id) => {
-      const data = { title: document.getElementById('f_title').value.trim(), speaker: document.getElementById('f_speaker').value.trim(), date: document.getElementById('f_date').value, time: document.getElementById('f_time').value, zoomUrl: document.getElementById('f_zoom').value.trim() };
+      const data = {
+        title: document.getElementById('f_title').value.trim(),
+        speaker: document.getElementById('f_speaker').value.trim(),
+        date: document.getElementById('f_date').value,
+        time: document.getElementById('f_time').value,
+        duration: document.getElementById('f_duration').value.trim(),
+        meetUrl: document.getElementById('f_meet').value.trim()
+      };
       if (!data.title) { toast('Título requerido', true); return; }
       if (!data.date) { toast('Fecha requerida', true); return; }
       try {

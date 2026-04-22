@@ -182,10 +182,20 @@
       font-size: .92rem;
       line-height: 1.3;
     }
+    .class-item__desc {
+      color: var(--zoo-text-muted);
+      font-size: .82rem;
+      line-height: 1.45;
+      margin-top: 4px;
+      margin-bottom: 2px;
+    }
+    .class-item.is-locked .class-item__desc {
+      opacity: 0.5;
+    }
     .class-item__meta {
       color: var(--zoo-text-dim);
       font-size: .76rem;
-      margin-top: 2px;
+      margin-top: 4px;
     }
     .class-item.is-done .class-item__meta {
       color: #6FBF73;
@@ -497,6 +507,9 @@
           const unlocked = i === 0 || progress.completedLessons.includes(i - 1) || done;
           const isNext = i === nextAvailable;
 
+          // Generar descripción: usa l.descripcion si existe, si no genera una automática
+          const descripcion = l.descripcion || l.description || generarDescripcionClase(l.titulo || 'Clase ' + (i+1), i, totalClases);
+
           return `
             <div class="class-item ${done ? 'is-done' : ''} ${!unlocked ? 'is-locked' : ''} ${isNext ? 'is-next' : ''}">
               <div class="class-item__num">
@@ -504,6 +517,7 @@
               </div>
               <div class="class-item__body" ${unlocked ? `onclick='openPlayer("${l.driveId}", ${JSON.stringify(l.titulo || "Clase " + (i+1))}, ${JSON.stringify(l.duration || "")}, "${course.id}", ${i})'` : ''}>
                 <div class="class-item__title">${l.titulo || 'Clase ' + (i + 1)}</div>
+                <div class="class-item__desc">${descripcion}</div>
                 <div class="class-item__meta">
                   ${l.duration ? '⏱️ ' + l.duration : ''}
                   ${done ? (l.duration ? ' · ' : '') + '✓ Completada' : ''}
@@ -522,6 +536,30 @@
       `;
       box.appendChild(listEl);
       modal.classList.add('is-open');
+    }
+
+    // Genera una descripción breve y útil basada en el título de la clase
+    function generarDescripcionClase(titulo, index, total) {
+      const t = (titulo || '').toLowerCase();
+      if (index === 0) return 'Introducción, conceptos clave y lo que aprenderás en este curso.';
+      if (index === total - 1) return 'Cierre del curso, aplicaciones prácticas y siguientes pasos.';
+      // Detectar temas por palabras clave en el título
+      if (/introducci|bienvenid|presenta/.test(t)) return 'Conceptos fundamentales y bienvenida al tema.';
+      if (/fundamen|bas[ei]|princip/.test(t)) return 'Principios teóricos esenciales antes de ver los casos prácticos.';
+      if (/identifica|morfolog|anatom/.test(t)) return 'Cómo identificar características clave en campo.';
+      if (/manejo|captur|conteni|inmoviliz/.test(t)) return 'Técnicas y protocolos profesionales de manejo seguro.';
+      if (/rehabilita|rescate|atenci/.test(t)) return 'Procedimientos paso a paso desde la recepción hasta la liberación.';
+      if (/alimenta|nutric|diet/.test(t)) return 'Requerimientos nutricionales y planes de alimentación.';
+      if (/enfermedad|patolog|zoono|sanitar/.test(t)) return 'Principales patologías, diagnóstico y tratamiento.';
+      if (/legisla|norm|cites|uma|permiso/.test(t)) return 'Marco legal mexicano vigente y documentación requerida.';
+      if (/monitoreo|fototrampeo|telemetr|seguimien/.test(t)) return 'Métodos científicos de monitoreo y análisis de datos.';
+      if (/conserva|protecci|amenaz/.test(t)) return 'Estado actual, amenazas y estrategias de conservación.';
+      if (/reproducci|cría|crianza/.test(t)) return 'Técnicas de reproducción en cautiverio y manejo de crías.';
+      if (/habitat|ecosistem|distribuci/.test(t)) return 'Hábitat natural, distribución geográfica y requerimientos ecológicos.';
+      if (/caso|clínico|ejemplo/.test(t)) return 'Caso real paso a paso con diagnóstico y resolución.';
+      if (/práctic|ejercici|taller/.test(t)) return 'Práctica guiada para aplicar lo aprendido.';
+      if (/primer.*auxil|emergencia/.test(t)) return 'Atención inmediata ante casos de urgencia en campo.';
+      return `Contenido clave de la clase ${index + 1}: conceptos, ejemplos y aplicación práctica.`;
     }
 
     function toggleLessonComplete(courseId, lessonIdx) {
