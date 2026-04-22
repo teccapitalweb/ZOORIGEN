@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi perfil · Club VIP Zoorigen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+  <style>
+    .profile-edit-btn {
+      background: rgba(232,163,23,0.1);
+      border: 1px solid rgba(232,163,23,0.4);
+      color: var(--zoo-amber);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: .84rem;
+      cursor: pointer;
+      margin-left: 10px;
+      transition: all .2s;
+    }
+    .profile-edit-btn:hover { background: rgba(232,163,23,0.2); }
+    .profile-edit-form {
+      background: rgba(31,95,58,0.08);
+      border: 1px solid rgba(31,95,58,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .profile-edit-form label {
+      display: block;
+      color: var(--zoo-text-muted);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .profile-edit-form input {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+    .profile-edit-form input:focus { outline: 0; border-color: var(--zoo-green-500); }
+    .profile-edit-form .hint-cert {
+      color: var(--zoo-amber);
+      font-size: .8rem;
+      margin-top: 4px;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+    .profile-edit-form .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="page-header"><h1>👤 Mi perfil</h1><p>Información de tu cuenta como miembro VIP Zoorigen</p></div>
+      <div class="card">
+        <div class="profile-card">
+          <div class="profile-avatar" id="avatar">V</div>
+          <div class="profile-info" style="flex:1;">
+            <h2 id="profileName">—</h2>
+            <p id="profileEmail">—</p>
+            <span class="vip-tag" id="vipTag">Miembro pendiente</span>
+          </div>
+          <button class="profile-edit-btn" id="editNameBtn">✏️ Editar nombre</button>
+        </div>
+
+        <div id="editNameFormWrap" style="display:none;">
+          <div class="profile-edit-form">
+            <label for="editNameInput">Nombre completo (como aparecerá en certificados)</label>
+            <input type="text" id="editNameInput" placeholder="Ej. María González López" maxlength="80">
+            <div class="hint-cert">💡 Este nombre se usará para emitir tus certificados PDF. Asegúrate que esté completo y correcto.</div>
+            <div class="btn-row">
+              <button class="btn-club" id="saveNameBtn" style="width:auto;padding:10px 22px;margin:0;border:0;font-family:inherit;cursor:pointer;">Guardar nombre</button>
+              <button class="btn-club-outline" id="cancelEditBtn" style="width:auto;padding:10px 22px;margin:0;border:1px solid var(--zoo-border-strong);font-family:inherit;cursor:pointer;">Cancelar</button>
+            </div>
+            <div id="saveNameMsg" style="margin-top:10px;"></div>
+          </div>
+        </div>
+
+        <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value">Miembro VIP · $199 MXN/mes</div></div>
+        <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value" id="profileStatus">—</div></div>
+        <div class="info-row"><div class="info-row__label">WhatsApp</div><div class="info-row__value" id="profilePhone">—</div></div>
+        <div class="info-row"><div class="info-row__label">Miembro desde</div><div class="info-row__value" id="profileSince">—</div></div>
+        <div class="info-row"><div class="info-row__label">Próxima renovación</div><div class="info-row__value" id="profileRenew">—</div></div>
+        <div class="info-row"><div class="info-row__label">Último pago</div><div class="info-row__value" id="profileLast">—</div></div>
+        <div style="margin-top:24px;">
+          <a href="https://wa.me/5212361113237?text=Hola%2C%20necesito%20ayuda%20con%20mi%20cuenta%20VIP%20Zoorigen" target="_blank" class="btn-club-outline" style="display:inline-block;width:auto;padding:12px 24px;margin:0;">💬 Hablar con soporte</a>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('perfil', session);
+      document.getElementById('avatar').textContent = ZOORIGEN_CLUB.getInitials(session.name);
+      document.getElementById('profileName').textContent = session.name || 'Miembro VIP';
+      document.getElementById('profileEmail').textContent = session.email;
+      document.getElementById('profilePhone').textContent = session.phone || 'No registrado';
+      const statusMap = {
+        'active': '<span style="color:var(--zoo-green-500);">● Activa</span>',
+        'pending_payment': '<span style="color:var(--zoo-amber);">⏳ Pago pendiente</span>',
+        'cancelled': '<span style="color:var(--zoo-orange);">✕ Cancelada</span>'
+      };
+      document.getElementById('profileStatus').innerHTML = statusMap[session.planStatus] || '—';
+      document.getElementById('profileSince').textContent = session.createdAt ? ZOORIGEN_CLUB.formatShort(session.createdAt) : '—';
+      document.getElementById('profileRenew').textContent = session.planVence ? ZOORIGEN_CLUB.formatShort(session.planVence) : 'Pendiente';
+      document.getElementById('profileLast').textContent = session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : 'Sin pagos aún';
+      if (session.planStatus === 'active') document.getElementById('vipTag').textContent = 'Miembro VIP Activo';
+      else if (session.planStatus === 'cancelled') document.getElementById('vipTag').textContent = 'Membresía cancelada';
+
+      // ═══════════════ EDITAR NOMBRE ═══════════════
+      const editBtn = document.getElementById('editNameBtn');
+      const formWrap = document.getElementById('editNameFormWrap');
+      const inputName = document.getElementById('editNameInput');
+      const saveBtn = document.getElementById('saveNameBtn');
+      const cancelBtn = document.getElementById('cancelEditBtn');
+      const msgEl = document.getElementById('saveNameMsg');
+
+      editBtn.addEventListener('click', () => {
+        formWrap.style.display = 'block';
+        inputName.value = session.name || '';
+        inputName.focus();
+        editBtn.style.display = 'none';
+      });
+
+      cancelBtn.addEventListener('click', () => {
+        formWrap.style.display = 'none';
+        editBtn.style.display = 'inline-block';
+        msgEl.innerHTML = '';
+      });
+
+      saveBtn.addEventListener('click', async () => {
+        const newName = inputName.value.trim();
+        if (newName.length < 3) {
+          msgEl.innerHTML = `<div style="color:var(--zoo-orange);font-size:.88rem;">El nombre debe tener al menos 3 caracteres</div>`;
+          return;
+        }
+        if (newName.length > 80) {
+          msgEl.innerHTML = `<div style="color:var(--zoo-orange);font-size:.88rem;">Máximo 80 caracteres</div>`;
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Guardando...';
+
+        try {
+          await db.collection('miembros').doc(session.uid).update({
+            name: newName,
+            nombreCompleto: newName,
+            nameUpdatedAt: new Date().toISOString()
+          });
+
+          msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ Nombre actualizado. Tus nuevos certificados usarán este nombre.</div>`;
+          document.getElementById('profileName').textContent = newName;
+          document.getElementById('avatar').textContent = ZOORIGEN_CLUB.getInitials(newName);
+
+          setTimeout(() => window.location.reload(), 1800);
+        } catch (err) {
+          console.error(err);
+          msgEl.innerHTML = `<div style="color:var(--zoo-orange);font-size:.88rem;">⚠️ Error al guardar: ${err.message || 'Intenta de nuevo'}</div>`;
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Guardar nombre';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

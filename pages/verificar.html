@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificar certificado · Zoorigen</title>
+  <meta name="theme-color" content="#1F5F3A">
+  <meta name="description" content="Verifica la autenticidad de certificados profesionales emitidos por Zoorigen.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #0a0e0c 0%, #131816 50%, #1F5F3A 150%);
+      min-height: 100vh;
+      font-family: 'Open Sans', sans-serif;
+      color: #e5e9e7;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .verify-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .verify-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 16px;
+      box-shadow: 0 12px 40px rgba(232,163,23,0.3);
+    }
+    .verify-header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .verify-header p {
+      color: #a0a8a4;
+      font-size: 1rem;
+    }
+
+    .verify-card {
+      background: #131816;
+      border: 1px solid #2a3530;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 540px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .verify-search {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .verify-search input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid #2a3530;
+      color: #fff;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      letter-spacing: .02em;
+    }
+    .verify-search input:focus {
+      outline: 0;
+      border-color: #E8A317;
+      background: rgba(232,163,23,0.04);
+    }
+    .verify-search button {
+      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      color: #1f1d17;
+      border: 0;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: .96rem;
+    }
+    .verify-hint {
+      text-align: center;
+      color: #6b7370;
+      font-size: .84rem;
+      margin-bottom: 16px;
+    }
+
+    /* Resultado VÁLIDO */
+    .verify-result {
+      margin-top: 30px;
+      display: none;
+    }
+    .verify-result.is-valid {
+      display: block;
+      animation: fadeIn .4s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .verify-valid-badge {
+      text-align: center;
+      margin-bottom: 26px;
+    }
+    .verify-valid-icon {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6FBF73, #3d8b42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 12px;
+      box-shadow: 0 12px 40px rgba(111,191,115,0.3);
+    }
+    .verify-valid-badge h2 {
+      font-family: 'Poppins', sans-serif;
+      color: #6FBF73;
+      font-weight: 800;
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+    .verify-valid-badge p {
+      color: #a0a8a4;
+      font-size: .9rem;
+    }
+
+    .verify-field {
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .verify-field:last-child { border-bottom: 0; }
+    .verify-label {
+      color: #6b7370;
+      font-size: .74rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .verify-value {
+      color: #fff;
+      font-size: 1.02rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+    }
+    .verify-value--folio {
+      color: #E8A317;
+      font-family: 'Courier New', monospace;
+      letter-spacing: .04em;
+    }
+
+    .verify-error {
+      display: none;
+      margin-top: 30px;
+      text-align: center;
+      padding: 30px 20px;
+      background: rgba(213,90,40,0.08);
+      border: 1px solid rgba(213,90,40,0.25);
+      border-radius: 14px;
+    }
+    .verify-error.is-shown { display: block; }
+    .verify-error-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    .verify-error h3 {
+      color: #D55A28;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .verify-error p {
+      color: #a0a8a4;
+      font-size: .9rem;
+    }
+
+    .verify-footer {
+      margin-top: 40px;
+      text-align: center;
+      color: #6b7370;
+      font-size: .84rem;
+    }
+    .verify-footer a {
+      color: #E8A317;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .verify-footer a:hover { text-decoration: underline; }
+
+    .verify-loading {
+      display: none;
+      text-align: center;
+      padding: 30px;
+      color: #a0a8a4;
+    }
+    .verify-loading.is-shown { display: block; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(232,163,23,0.2);
+      border-top-color: #E8A317;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .verify-card { padding: 28px 22px; }
+      .verify-search { flex-direction: column; }
+      .verify-header h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="verify-header">
+    <div class="verify-logo">🦒</div>
+    <h1>Verificación de certificados</h1>
+    <p>Zoorigen · Tec Capital Group · Tehuacán, Puebla</p>
+  </div>
+
+  <div class="verify-card">
+    <p class="verify-hint">Ingresa el folio del certificado (ej. <strong style="color:#E8A317;">ZOO-2026-12345</strong>)</p>
+
+    <div class="verify-search">
+      <input type="text" id="folioInput" placeholder="ZOO-YYYY-XXXXX" autocomplete="off">
+      <button onclick="verificar()">Verificar</button>
+    </div>
+
+    <div class="verify-loading" id="loading">
+      <div class="spinner"></div>
+      <p>Verificando folio...</p>
+    </div>
+
+    <div class="verify-result" id="resultValid">
+      <div class="verify-valid-badge">
+        <div class="verify-valid-icon">✓</div>
+        <h2>Certificado auténtico</h2>
+        <p>Emitido oficialmente por Zoorigen</p>
+      </div>
+
+      <div class="verify-field">
+        <div class="verify-label">Otorgado a</div>
+        <div class="verify-value" id="r-name">—</div>
+      </div>
+
+      <div class="verify-field">
+        <div class="verify-label">Curso completado</div>
+        <div class="verify-value" id="r-course">—</div>
+      </div>
+
+      <div class="verify-field">
+        <div class="verify-label">Área de estudio</div>
+        <div class="verify-value" id="r-area">—</div>
+      </div>
+
+      <div class="verify-field">
+        <div class="verify-label">Duración</div>
+        <div class="verify-value" id="r-duration">—</div>
+      </div>
+
+      <div class="verify-field">
+        <div class="verify-label">Folio oficial</div>
+        <div class="verify-value verify-value--folio" id="r-folio">—</div>
+      </div>
+
+      <div class="verify-field">
+        <div class="verify-label">Fecha de emisión</div>
+        <div class="verify-value" id="r-date">—</div>
+      </div>
+    </div>
+
+    <div class="verify-error" id="resultError">
+      <div class="verify-error-icon">❌</div>
+      <h3>Folio no encontrado</h3>
+      <p>Este folio no corresponde a ningún certificado emitido por Zoorigen, o bien es inválido. Revisa que hayas escrito bien el número.</p>
+    </div>
+  </div>
+
+  <div class="verify-footer">
+    ¿Eres miembro del Club VIP? <a href="club-dashboard.html">Entrar a mi cuenta →</a><br>
+    <br>
+    © 2026 Zoorigen · Tec Capital Group
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script>
+    // Auto-verificar si viene con ?folio=XXX
+    const params = new URLSearchParams(window.location.search);
+    const urlFolio = params.get('folio');
+    if (urlFolio) {
+      document.getElementById('folioInput').value = urlFolio;
+      setTimeout(verificar, 300);
+    }
+
+    document.getElementById('folioInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verificar();
+    });
+
+    async function verificar() {
+      const folio = document.getElementById('folioInput').value.trim().toUpperCase();
+      if (!folio) return;
+
+      document.getElementById('resultValid').classList.remove('is-valid');
+      document.getElementById('resultError').classList.remove('is-shown');
+      document.getElementById('loading').classList.add('is-shown');
+
+      try {
+        const doc = await db.collection('certificados').doc(folio).get();
+        document.getElementById('loading').classList.remove('is-shown');
+
+        if (!doc.exists) {
+          document.getElementById('resultError').classList.add('is-shown');
+          return;
+        }
+
+        const c = doc.data();
+        document.getElementById('r-name').textContent = c.memberName || '—';
+        document.getElementById('r-course').textContent = c.courseTitle || '—';
+        document.getElementById('r-area').textContent = c.courseArea || '—';
+        document.getElementById('r-duration').textContent = `${c.courseDuration || '—'} · ${c.totalClases || 0} clases`;
+        document.getElementById('r-folio').textContent = c.folio;
+
+        const fecha = new Date(c.issuedAt);
+        const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+        document.getElementById('r-date').textContent = `${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+
+        document.getElementById('resultValid').classList.add('is-valid');
+      } catch (err) {
+        console.error(err);
+        document.getElementById('loading').classList.remove('is-shown');
+        document.getElementById('resultError').classList.add('is-shown');
+      }
+    }
+  </script>
+</body>
+</html>

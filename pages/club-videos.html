@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Videos · Club VIP Zoorigen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+  <style>
+    .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .player-overlay.is-open { display: flex; }
+    .player-box { width: 100%; max-width: 960px; background: var(--zoo-bg-card); border-radius: var(--zoo-radius); overflow: hidden; }
+    .player-box__header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--zoo-border); }
+    .player-box__header h3 { color: #fff; font-size: 1.04rem; margin: 0; }
+    .player-box__close { background: transparent; border: 0; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
+    .player-box__video { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
+    .player-box__video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  </style>
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="page-header"><h1>🎥 Videos prácticos</h1><p>Técnicas de campo explicadas paso a paso por profesionales</p></div>
+      <div id="lockedNotice"></div>
+      <div class="content-list" id="videosList">Cargando...</div>
+    </main>
+  </div>
+  <div class="player-overlay" id="playerOverlay">
+    <div class="player-box">
+      <div class="player-box__header">
+        <h3 id="playerTitle">—</h3>
+        <button class="player-box__close" onclick="closePlayer()">×</button>
+      </div>
+      <div class="player-box__video" id="playerVideo"></div>
+    </div>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('videos', session);
+      if (session.planStatus !== 'active') {
+        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para ver los videos. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
+      }
+      const videos = await ZOORIGEN_CLUB.getVideos();
+      const isActive = session.planStatus === 'active';
+      const list = document.getElementById('videosList');
+      if (videos.length === 0) {
+        list.innerHTML = `
+          <div class="coming-soon-card">
+            <div class="coming-soon-card__badge">
+              <span class="coming-soon-card__pulse"></span>
+              PRÓXIMAMENTE
+            </div>
+
+            <div class="coming-soon-card__icon">🎬</div>
+
+            <h2 class="coming-soon-card__title">Videos prácticos en preparación</h2>
+            <p class="coming-soon-card__sub">
+              Nuestro equipo está grabando contenido exclusivo con expertos en fauna mexicana.
+              <br>Prepárate para técnicas de campo explicadas paso a paso.
+            </p>
+
+            <div class="coming-soon-card__topics">
+              <div class="coming-soon-card__topic-title">Algunos temas que vienen:</div>
+              <div class="coming-soon-card__grid">
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🎥</span>
+                  <span>Fototrampeo profesional de campo</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🧤</span>
+                  <span>Captura y manejo de fauna silvestre</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🔬</span>
+                  <span>Necropsias veterinarias de fauna</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🦒</span>
+                  <span>Identificación morfológica de especies</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">💉</span>
+                  <span>Anestesia en fauna silvestre</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🚁</span>
+                  <span>Monitoreo con drones y telemetría</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="coming-soon-card__footer">
+              <div class="coming-soon-card__progress-wrap">
+                <div class="coming-soon-card__progress-label">Producción en curso</div>
+                <div class="coming-soon-card__progress-bar">
+                  <div class="coming-soon-card__progress-fill"></div>
+                </div>
+                <div class="coming-soon-card__progress-hint">Primeros videos disponibles muy pronto</div>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+      list.innerHTML = videos.map(v => `
+        <div class="content-item">
+          <div class="content-item__thumb">🎥</div>
+          <div class="content-item__info">
+            <div class="content-item__title">${v.title}</div>
+            <div class="content-item__meta">${v.area || ''} · ${v.duration || '—'}</div>
+          </div>
+          ${isActive && v.driveId
+            ? `<button class="content-item__tag" style="border:0;cursor:pointer;font-family:inherit;" onclick='openPlayer("${v.driveId}", ${JSON.stringify(v.title)})'>▶ Ver</button>`
+            : !isActive ? `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;">🔒 Activar</a>`
+            : `<span class="content-item__tag" style="opacity:0.6;">Sin link</span>`}
+        </div>
+      `).join('');
+    })();
+    function openPlayer(driveId, title) {
+      document.getElementById('playerTitle').textContent = title;
+      document.getElementById('playerVideo').innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
+      document.getElementById('playerOverlay').classList.add('is-open');
+    }
+    function closePlayer() {
+      document.getElementById('playerOverlay').classList.remove('is-open');
+      document.getElementById('playerVideo').innerHTML = '';
+    }
+    document.getElementById('playerOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'playerOverlay') closePlayer();
+    });
+  </script>
+</body>
+</html>
