@@ -23,18 +23,15 @@ const SHOPIFY_CHECKOUT_URL        = `https://pfueck-wm.myshopify.com/cart/${VARI
 const SHOPIFY_ANNUAL_CHECKOUT_URL = `https://pfueck-wm.myshopify.com/cart/${VARIANT_ANUAL}:1?selling_plan=${SELLING_PLAN_ANUAL}`;
 
 /**
- * Construye el URL de checkout de Shopify para un plan de suscripción.
- * Usa el endpoint /cart/VARIANT:1 con selling_plan y checkout=1 para
- * ir directo al formulario de pago sin pasar por carrito ni tienda.
+ * Cart permalink oficial de Shopify.
+ * Sin el parámetro "storefront" va DIRECTO al checkout.
+ * Ref: https://shopify.dev/docs/apps/build/checkout/create-cart-permalinks
  */
 function buildCheckoutURL(plan, email) {
   const variantId   = plan === 'anual' ? VARIANT_ANUAL       : VARIANT_MENSUAL;
   const sellingPlan = plan === 'anual' ? SELLING_PLAN_ANUAL  : SELLING_PLAN_MENSUAL;
   const emailParam  = email ? `&checkout[email]=${encodeURIComponent(email)}` : '';
-
-  // channel=buy_button indica a Shopify que es un botón externo → salta la tienda
-  // checkout=1 fuerza ir directo al formulario de pago (salta carrito)
-  return `https://pfueck-wm.myshopify.com/cart/${variantId}:1?selling_plan=${sellingPlan}&channel=buy_button&checkout=1${emailParam}`;
+  return `https://pfueck-wm.myshopify.com/cart/${variantId}:1?selling_plan=${sellingPlan}&channel=buy_button${emailParam}`;
 }
 
 if (typeof firebase !== 'undefined') {
