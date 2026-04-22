@@ -22,14 +22,19 @@ const SELLING_PLAN_ANUAL   = "2071724086";
 const SHOPIFY_CHECKOUT_URL        = `https://pfueck-wm.myshopify.com/cart/${VARIANT_MENSUAL}:1?selling_plan=${SELLING_PLAN_MENSUAL}`;
 const SHOPIFY_ANNUAL_CHECKOUT_URL = `https://pfueck-wm.myshopify.com/cart/${VARIANT_ANUAL}:1?selling_plan=${SELLING_PLAN_ANUAL}`;
 
+/**
+ * Construye el URL de checkout de Shopify para un plan de suscripción.
+ * Usa el endpoint /cart/VARIANT:1 con selling_plan y checkout=1 para
+ * ir directo al formulario de pago sin pasar por carrito ni tienda.
+ */
 function buildCheckoutURL(plan, email) {
   const variantId   = plan === 'anual' ? VARIANT_ANUAL       : VARIANT_MENSUAL;
   const sellingPlan = plan === 'anual' ? SELLING_PLAN_ANUAL  : SELLING_PLAN_MENSUAL;
   const emailParam  = email ? `&checkout[email]=${encodeURIComponent(email)}` : '';
 
-  // Checkout directo SIN return_to (el return_to causaba redirect a tienda de productos)
-  // El popup se queda en Shopify; el usuario vuelve a Zoorigen y da clic en "Ya pagué"
-  return `https://pfueck-wm.myshopify.com/checkout/?variant=${variantId}&quantity=1&selling_plan=${sellingPlan}${emailParam}`;
+  // channel=buy_button indica a Shopify que es un botón externo → salta la tienda
+  // checkout=1 fuerza ir directo al formulario de pago (salta carrito)
+  return `https://pfueck-wm.myshopify.com/cart/${variantId}:1?selling_plan=${sellingPlan}&channel=buy_button&checkout=1${emailParam}`;
 }
 
 if (typeof firebase !== 'undefined') {
