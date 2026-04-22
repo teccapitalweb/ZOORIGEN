@@ -258,9 +258,6 @@ const ZOORIGEN_CLUB = {
     // ═══ CONTENIDO ═══
     { id: 'first_pdf',     icon: '📄', name: 'Lector',             desc: 'Descarga tu primer PDF',        xp: 25,  category: 'contenido' },
     { id: 'ten_pdfs',      icon: '📕', name: 'Bibliotecario',      desc: 'Descarga 10 PDFs',              xp: 150, category: 'contenido' },
-    { id: 'first_species', icon: '🦒', name: 'Explorador',         desc: 'Consulta tu primera ficha de especie', xp: 15, category: 'contenido' },
-    { id: 'ten_species',   icon: '🌿', name: 'Naturalista',        desc: 'Consulta 10 fichas de especies',xp: 120, category: 'contenido' },
-    { id: 'all_species',   icon: '🏆', name: 'Sabio de la fauna',  desc: 'Consulta las 19 fichas del directorio', xp: 400, category: 'contenido' },
 
     // ═══ CERTIFICADOS ═══
     { id: 'first_cert',    icon: '📜', name: 'Certificado oro',    desc: 'Obtén tu primer certificado',   xp: 100, category: 'certificados' },
@@ -1040,7 +1037,6 @@ const ZOORIGEN_CLUB = {
     const items = [
       { id: 'inicio', label: 'Inicio', icon: '🏠', href: 'club-dashboard.html' },
       { id: 'biblioteca', label: 'Biblioteca', icon: '📚', href: 'club-biblioteca.html' },
-      { id: 'especies', label: 'Directorio de especies', icon: '🐆', href: 'club-especies.html' },
       { id: 'foro', label: 'Foro VIP', icon: '💬', href: 'club-foro.html' },
       { id: 'videos', label: 'Videos', icon: '🎥', href: 'club-videos.html' },
       { id: 'sesiones', label: 'Sesiones en vivo', icon: '🔴', href: 'club-sesiones.html' },
