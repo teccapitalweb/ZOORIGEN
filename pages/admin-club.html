@@ -374,8 +374,9 @@
                   <td style="font-size:.82rem;">${m.planTipo ? (m.planTipo === 'anual' ? 'Anual' : 'Mensual') : '—'}</td>
                   <td style="font-size:.82rem;">${m.planVence ? ZOORIGEN_CLUB.formatShort(m.planVence) : '—'}</td>
                   <td>
-                    ${status !== 'active' ? `<button class="btn-small activate" onclick="adminActivar('${m.id}','${name}')">Activar</button>` : ''}
-                    ${status === 'active' ? `<button class="btn-small cancel" onclick="adminCancelar('${m.id}','${name}')">Cancelar</button>` : ''}
+                    ${status !== 'active' ? `<button class="btn-small activate" onclick="adminActivar('${m.id}','${(name || '').replace(/'/g, "\\'")}','${m.email || ''}')">Activar</button>` : ''}
+                    ${status === 'active' ? `<button class="btn-small activate" onclick="adminActivar('${m.id}','${(name || '').replace(/'/g, "\\'")}','${m.email || ''}')" style="background:rgba(232,163,23,0.15);color:#E8A317;border-color:rgba(232,163,23,0.3);">Extender</button>` : ''}
+                    ${status === 'active' ? `<button class="btn-small cancel" onclick="adminCancelar('${m.id}','${(name || '').replace(/'/g, "\\'")}')">Cancelar</button>` : ''}
                   </td>
                 </tr>`;
               }).join('')}
@@ -385,20 +386,99 @@
       document.getElementById('searchMembers').addEventListener('input', (e) => renderMiembros(members, e.target.value));
     }
 
-    window.adminActivar = async (uid, name) => {
-      const tipo = prompt(`Activar plan para ${name}:\n\nEscribe "mensual" (30 días) o "anual" (365 días):`, 'mensual');
-      if (!tipo) return;
-      const dias = tipo.toLowerCase() === 'anual' ? 365 : 30;
+    window.adminActivar = (uid, name, email) => {
+      openModal(`
+        <h3>✅ Activar membresía manualmente</h3>
+        <p style="color:var(--zoo-text-muted);font-size:.9rem;margin-bottom:14px;">
+          Activarás la membresía VIP de <strong style="color:#fff;">${name || email || uid}</strong>.<br>
+          Útil cuando el pago se hizo fuera de Shopify (transferencia, efectivo, etc.).
+        </p>
+
+        <div class="field">
+          <label>Tipo de plan</label>
+          <select id="f_actTipo" style="width:100%;padding:10px 12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:8px;font-family:inherit;">
+            <option value="mensual">Mensual (30 días) · $199 MXN</option>
+            <option value="anual">Anual (365 días) · $1,899 MXN</option>
+            <option value="custom">Personalizado (elige días)</option>
+          </select>
+        </div>
+
+        <div class="field" id="f_actDiasWrap" style="display:none;">
+          <label>Días de acceso</label>
+          <input type="number" id="f_actDias" min="1" max="3650" value="30">
+        </div>
+
+        <div class="field">
+          <label>Método de pago (opcional, solo para tu registro)</label>
+          <input type="text" id="f_actMetodo" placeholder="Transferencia / Efectivo / Cortesía / etc.">
+        </div>
+
+        <div class="field">
+          <label>Monto cobrado (opcional)</label>
+          <input type="text" id="f_actMonto" placeholder="Ej. 199">
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeM()">Cancelar</button>
+          <button class="btn-save" onclick="adminActivarConfirm('${uid}')">✓ Activar ahora</button>
+        </div>
+      `);
+
+      // Toggle días custom
+      setTimeout(() => {
+        const tipoSel = document.getElementById('f_actTipo');
+        const diasWrap = document.getElementById('f_actDiasWrap');
+        const diasInput = document.getElementById('f_actDias');
+        if (tipoSel) {
+          tipoSel.addEventListener('change', () => {
+            if (tipoSel.value === 'custom') {
+              diasWrap.style.display = 'block';
+            } else {
+              diasWrap.style.display = 'none';
+              diasInput.value = tipoSel.value === 'anual' ? 365 : 30;
+            }
+          });
+        }
+      }, 50);
+    };
+
+    window.adminActivarConfirm = async (uid) => {
+      const tipoSel = document.getElementById('f_actTipo').value;
+      const diasCustom = parseInt(document.getElementById('f_actDias').value) || 30;
+      const metodo = document.getElementById('f_actMetodo').value.trim();
+      const monto = document.getElementById('f_actMonto').value.trim();
+
+      const dias = tipoSel === 'anual' ? 365 : tipoSel === 'mensual' ? 30 : diasCustom;
+      const tipoPlan = tipoSel === 'custom' ? 'mensual' : tipoSel;
+
       try {
         const now = new Date();
         const vence = new Date(now.getTime() + dias * 86400000);
-        await db.collection('miembros').doc(uid).update({
-          planActivo: true, planCancelado: false,
-          planTipo: tipo.toLowerCase() === 'anual' ? 'anual' : 'mensual',
-          planInicio: now.toISOString(), planVence: vence.toISOString(), ultimoPago: now.toISOString()
-        });
-        toast('✅ Plan activado'); loadMiembros();
-      } catch (err) { toast('Error: ' + err.message, true); }
+
+        // Usar SET con merge: true para crear los campos que falten
+        // Esto soluciona el problema de miembros sin todos los campos (ej. creados por webhook)
+        await db.collection('miembros').doc(uid).set({
+          planActivo: true,
+          planCancelado: false,
+          planTipo: tipoPlan,
+          planInicio: now.toISOString(),
+          planVence: vence.toISOString(),
+          ultimoPago: now.toISOString(),
+          planActivadoEn: now.toISOString(),
+          activadoManualmente: true,
+          activadoPor: 'admin',
+          metodoPago: metodo || 'Admin manual',
+          montoPagado: monto || null,
+          needsLinkToAuth: firebase.firestore.FieldValue.delete()
+        }, { merge: true });
+
+        toast(`✅ Plan ${tipoPlan} activado (${dias} días)`);
+        closeModal();
+        loadMiembros();
+      } catch (err) {
+        console.error('adminActivar error:', err);
+        toast('❌ Error: ' + err.message, true);
+      }
     };
     window.adminCancelar = async (uid, name) => {
       if (!confirm(`¿Cancelar membresía de ${name}?`)) return;

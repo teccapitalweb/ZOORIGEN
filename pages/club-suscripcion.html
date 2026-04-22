@@ -80,6 +80,11 @@
 
           <p style="text-align:center;color:var(--zoo-text-dim);font-size:.84rem;margin-top:18px;">🔒 Pago seguro procesado por Shopify · Tu membresía se activa automáticamente al completar el pago</p>`;
       } else {
+        // Calcular si todavía tiene tiempo disponible (para mostrar opción de reanudar sin pagar)
+        const fechaVence = session.planVence ? new Date(session.planVence) : null;
+        const tieneTiempo = fechaVence && fechaVence.getTime() > Date.now();
+        const diasRestantes = tieneTiempo ? Math.ceil((fechaVence - new Date()) / (1000*60*60*24)) : 0;
+
         html += `
           <div class="card">
             <h2 style="color:#fff;font-size:1.2rem;margin-bottom:14px;">Plan actual</h2>
@@ -88,15 +93,38 @@
             <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-green-500);">● Activa</span>' : '<span style="color:var(--zoo-orange);">✕ Cancelada</span>'}</div></div>
             <div class="info-row"><div class="info-row__label">${session.planStatus === 'active' ? 'Próxima renovación' : 'Acceso hasta'}</div><div class="info-row__value">${ZOORIGEN_CLUB.formatShort(session.planVence)}</div></div>
             <div class="info-row"><div class="info-row__label">Último pago</div><div class="info-row__value">${session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : '—'}</div></div>
-          </div>
+          </div>`;
+
+        // Si está CANCELADO pero todavía con tiempo → ofrecer reanudar sin pagar
+        if (session.planStatus === 'cancelled' && tieneTiempo) {
+          html += `
+            <div class="card" style="margin-top:20px;background:linear-gradient(135deg,rgba(111,191,115,0.12),rgba(31,95,58,0.15));border:1px solid rgba(111,191,115,0.4);">
+              <h2 style="color:var(--zoo-green-500);font-size:1.15rem;margin-bottom:10px;">💚 ¿Te arrepentiste? Reanuda tu membresía</h2>
+              <p style="margin-bottom:14px;color:var(--zoo-text-muted);font-size:.92rem;line-height:1.55;">
+                Tu membresía está cancelada pero aún tienes <strong style="color:var(--zoo-green-500);">${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} de acceso</strong>.
+                Puedes reactivarla ahora mismo <strong>sin costo adicional</strong> y seguir disfrutando de todos los beneficios VIP con renovación automática.
+              </p>
+              <button id="reanudarBtn" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">
+                ✓ Reanudar mi membresía
+              </button>
+              <div id="reanudarMsg" style="margin-top:12px;"></div>
+            </div>`;
+        }
+
+        // Zona de peligro / reactivar con pago (si ya se venció)
+        html += `
           <div class="card" style="margin-top:20px;border-color:rgba(213,90,40,0.3);">
-            <h2 style="color:var(--zoo-orange);font-size:1.1rem;margin-bottom:10px;">⚠️ Zona de peligro</h2>
+            <h2 style="color:var(--zoo-orange);font-size:1.1rem;margin-bottom:10px;">${session.planStatus === 'active' ? '⚠️ Zona de peligro' : '🔄 Reactivar con nuevo pago'}</h2>
             <p style="margin-bottom:16px;">${session.planStatus === 'active'
-              ? 'Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado. Después perderás acceso a biblioteca, sesiones y descuentos VIP.'
-              : 'Reactiva tu membresía para volver a tener acceso completo a todo el contenido VIP.'}</p>
+              ? 'Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado. Después perderás acceso a biblioteca, webinars y descuentos VIP.'
+              : tieneTiempo
+                ? 'Si prefieres que tu membresía se termine cuando venza, no hagas nada. O puedes reactivarla arriba sin costo extra.'
+                : 'Tu membresía venció. Reactívala para volver a tener acceso completo al contenido VIP.'}</p>
             ${session.planStatus === 'active'
               ? '<button class="btn-danger" id="cancelBtn">Cancelar membresía</button>'
-              : `<button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Reactivar por $199 MXN</button>`}
+              : !tieneTiempo
+                ? `<button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Reactivar por $199 MXN</button>`
+                : ''}
             <div id="cancelMsg" style="margin-top:14px;"></div>
           </div>`;
       }
@@ -182,6 +210,31 @@
             msg.innerHTML = `<div class="error-msg show">⚠️ ${result.msg}</div>`;
             cancelBtn.disabled = false;
             cancelBtn.textContent = 'Cancelar membresía';
+          }
+        });
+      }
+
+      // ═══════════════ REANUDAR MEMBRESÍA CANCELADA (sin costo) ═══════════════
+      const reanudarBtn = document.getElementById('reanudarBtn');
+      if (reanudarBtn) {
+        reanudarBtn.addEventListener('click', async () => {
+          if (!confirm('¿Reanudar tu membresía? Volverá a renovarse automáticamente al vencer.')) return;
+          reanudarBtn.disabled = true;
+          reanudarBtn.textContent = 'Reanudando...';
+          const msgEl = document.getElementById('reanudarMsg');
+          try {
+            await db.collection('miembros').doc(session.uid).update({
+              planCancelado: false,
+              canceladoEn: firebase.firestore.FieldValue.delete(),
+              reanudadoEn: new Date().toISOString()
+            });
+            msgEl.innerHTML = `<div class="success-msg show">✅ ¡Tu membresía fue reanudada! Seguirás teniendo acceso completo.</div>`;
+            setTimeout(() => location.reload(), 1800);
+          } catch (err) {
+            console.error(err);
+            msgEl.innerHTML = `<div class="error-msg show">⚠️ No se pudo reanudar. Escríbenos por WhatsApp.</div>`;
+            reanudarBtn.disabled = false;
+            reanudarBtn.textContent = '✓ Reanudar mi membresía';
           }
         });
       }
