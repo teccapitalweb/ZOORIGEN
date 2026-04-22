@@ -72,6 +72,27 @@
 
     const showError = (msg) => { errorMsg.textContent = '⚠️ ' + msg; errorMsg.classList.add('show'); successMsg.classList.remove('show'); };
 
+    // ═══════════════ DETECTAR CÓDIGO DE REFERIDO EN LA URL ═══════════════
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+      // Guardar en localStorage (para persistir si recarga)
+      localStorage.setItem('zoo_refCode', refCode);
+
+      // Mostrar banner de bienvenida con referido
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:linear-gradient(135deg,rgba(232,163,23,0.15),rgba(31,95,58,0.15));border:1px solid rgba(232,163,23,0.4);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;';
+      banner.innerHTML = `
+        <div style="font-size:1.8rem;line-height:1;">🎁</div>
+        <div style="flex:1;">
+          <div style="color:var(--zoo-amber);font-weight:700;font-size:.95rem;margin-bottom:3px;">¡Vienes recomendado por un amigo!</div>
+          <div style="color:var(--zoo-text-muted);font-size:.84rem;">Código: <strong style="color:var(--zoo-green-500);font-family:monospace;">${refCode}</strong></div>
+        </div>
+      `;
+      const formWrap = document.querySelector('.auth-wrapper__form');
+      if (formWrap) formWrap.insertBefore(banner, formWrap.firstChild);
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorMsg.classList.remove('show');
@@ -81,7 +102,8 @@
         name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
         phone: document.getElementById('phone').value.trim(),
-        password: document.getElementById('password').value
+        password: document.getElementById('password').value,
+        referredBy: localStorage.getItem('zoo_refCode') || null
       };
 
       // TRUCO: abrimos ventana ANTES de await para que el navegador no bloquee el popup.

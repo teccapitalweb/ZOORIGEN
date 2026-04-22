@@ -854,7 +854,8 @@ const ZOORIGEN_CLUB = {
     try {
       const cred = await auth.createUserWithEmailAndPassword(data.email.toLowerCase().trim(), data.password);
       await cred.user.updateProfile({ displayName: data.name });
-      await db.collection('miembros').doc(cred.user.uid).set({
+
+      const docData = {
         uid: cred.user.uid,
         email: data.email.toLowerCase().trim(),
         name: data.name,
@@ -868,7 +869,15 @@ const ZOORIGEN_CLUB = {
         ultimoPago: null,
         streak: 0,
         createdAt: new Date().toISOString()
-      });
+      };
+
+      // Sistema de referidos: guardar el código de quien lo invitó
+      if (data.referredBy) {
+        docData.referredBy = data.referredBy;
+        docData.referredAt = new Date().toISOString();
+      }
+
+      await db.collection('miembros').doc(cred.user.uid).set(docData);
       return { ok: true, uid: cred.user.uid };
     } catch (err) {
       console.error('Register error:', err);
@@ -1045,6 +1054,7 @@ const ZOORIGEN_CLUB = {
     const itemsCuenta = [
       { id: 'logros', label: 'Mis logros', icon: '🏆', href: 'club-logros.html' },
       { id: 'certificados', label: 'Mis certificados', icon: '🎓', href: 'club-certificados.html' },
+      { id: 'referidos', label: 'Invitar amigos', icon: '🎁', href: 'club-referidos.html' },
       { id: 'perfil', label: 'Mi perfil', icon: '👤', href: 'club-perfil.html' },
       { id: 'suscripcion', label: 'Suscripción', icon: '💳', href: 'club-suscripcion.html' }
     ];

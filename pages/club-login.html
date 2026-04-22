@@ -95,11 +95,66 @@
 
     forgotLink.addEventListener('click', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      if (!email) { showError('Escribe tu correo arriba para enviarte el link'); return; }
-      const result = await ZOORIGEN_CLUB.resetPassword(email);
-      if (result.ok) showSuccess('Te enviamos un correo para restablecer tu contraseña. Revisa tu bandeja.');
-      else showError(result.msg);
+
+      // Mostrar modal bonito
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+      modal.innerHTML = `
+        <div style="background:#131816;border:1px solid rgba(232,163,23,0.3);border-radius:16px;padding:32px 28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+          <div style="text-align:center;font-size:3rem;margin-bottom:8px;line-height:1;">🔐</div>
+          <h2 style="color:#E8A317;font-family:'Poppins',sans-serif;font-size:1.4rem;font-weight:800;margin:0 0 8px;text-align:center;">Recuperar contraseña</h2>
+          <p style="color:rgba(255,255,255,0.7);font-size:.92rem;line-height:1.5;margin:0 0 18px;text-align:center;">Escribe el correo con el que te registraste y te enviamos un link para crear una nueva contraseña.</p>
+          <label style="display:block;color:#a0a8a4;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Correo electrónico</label>
+          <input type="email" id="resetEmailInput" placeholder="tucorreo@ejemplo.com" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:12px 14px;border-radius:8px;font-family:inherit;font-size:1rem;margin-bottom:16px;box-sizing:border-box;">
+          <div id="resetMsg" style="margin-bottom:12px;"></div>
+          <div style="display:flex;gap:10px;">
+            <button id="resetCancelBtn" style="flex:1;background:transparent;color:#a0a8a4;border:1px solid rgba(255,255,255,0.15);padding:12px;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;">Cancelar</button>
+            <button id="resetSendBtn" style="flex:1;background:linear-gradient(135deg,#E8A317,#D68A0A);color:#1f1d17;border:0;padding:12px;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;">Enviar correo</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      const input = modal.querySelector('#resetEmailInput');
+      const msg = modal.querySelector('#resetMsg');
+      const cancelBtn = modal.querySelector('#resetCancelBtn');
+      const sendBtn = modal.querySelector('#resetSendBtn');
+
+      // Pre-llenar si ya escribió email
+      const emailPrev = document.getElementById('email').value.trim();
+      if (emailPrev) input.value = emailPrev;
+      input.focus();
+
+      cancelBtn.addEventListener('click', () => modal.remove());
+
+      sendBtn.addEventListener('click', async () => {
+        const email = input.value.trim();
+        if (!email || !email.includes('@')) {
+          msg.innerHTML = '<div style="color:#D55A28;font-size:.86rem;">⚠️ Escribe un correo válido</div>';
+          return;
+        }
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Enviando...';
+        const result = await ZOORIGEN_CLUB.resetPassword(email);
+        if (result.ok) {
+          msg.innerHTML = `
+            <div style="color:#6FBF73;background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.86rem;line-height:1.5;">
+              ✅ ¡Listo! Revisa tu bandeja de entrada (y también SPAM). El correo puede tardar 1-2 minutos.
+            </div>
+          `;
+          sendBtn.textContent = 'Enviado ✓';
+          setTimeout(() => modal.remove(), 4000);
+        } else {
+          msg.innerHTML = `<div style="color:#D55A28;font-size:.86rem;">⚠️ ${result.msg}</div>`;
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Enviar correo';
+        }
+      });
+
+      // Enter para enviar
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') sendBtn.click();
+      });
     });
   </script>
 </body>
