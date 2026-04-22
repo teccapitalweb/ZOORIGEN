@@ -16,14 +16,19 @@ const WEBHOOK_SERVER_URL = "https://zoorigen-webhook-production.up.railway.app";
 const VARIANT_MENSUAL = "45386138714166";
 const VARIANT_ANUAL   = "45386327916598";
 
-const SHOPIFY_CHECKOUT_URL        = `https://pfueck-wm.myshopify.com/cart/${VARIANT_MENSUAL}:1`;
-const SHOPIFY_ANNUAL_CHECKOUT_URL = `https://pfueck-wm.myshopify.com/cart/${VARIANT_ANUAL}:1`;
+// Selling plan IDs (requeridos porque los productos son suscripciones)
+const SELLING_PLAN_MENSUAL = "2071691318";
+const SELLING_PLAN_ANUAL   = "2071724086";
+
+const SHOPIFY_CHECKOUT_URL        = `https://pfueck-wm.myshopify.com/cart/${VARIANT_MENSUAL}:1?selling_plan=${SELLING_PLAN_MENSUAL}`;
+const SHOPIFY_ANNUAL_CHECKOUT_URL = `https://pfueck-wm.myshopify.com/cart/${VARIANT_ANUAL}:1?selling_plan=${SELLING_PLAN_ANUAL}`;
 
 function buildCheckoutURL(plan, email) {
-  const variantId = plan === 'anual' ? VARIANT_ANUAL : VARIANT_MENSUAL;
+  const variantId    = plan === 'anual' ? VARIANT_ANUAL       : VARIANT_MENSUAL;
+  const sellingPlan  = plan === 'anual' ? SELLING_PLAN_ANUAL  : SELLING_PLAN_MENSUAL;
   const emailParam = email ? `&checkout[email]=${encodeURIComponent(email)}` : '';
   const returnTo = encodeURIComponent('https://www.zoorigen.com/pages/club-suscripcion.html?paid=1');
-  return `https://pfueck-wm.myshopify.com/cart/${variantId}:1?channel=buy_button&skip_shop_pay=true&return_to=${returnTo}${emailParam}`;
+  return `https://pfueck-wm.myshopify.com/cart/${variantId}:1?selling_plan=${sellingPlan}&channel=buy_button&skip_shop_pay=true&return_to=${returnTo}${emailParam}`;
 }
 
 if (typeof firebase !== 'undefined') {
