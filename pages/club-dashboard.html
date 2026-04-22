@@ -122,16 +122,57 @@
       ]);
 
       // ═══════════════ POPUP DE PRÓXIMO WEBINAR ═══════════════
-      // Solo se muestra si hay webinar próximo (en los siguientes 14 días)
-      // y solo una vez por día por usuario (para no ser molesto)
+      // Dos triggers distintos:
+      //  1) "NUEVO" — el admin subió un webinar que el usuario aún no ha visto
+      //  2) "MAÑANA" — el webinar es mañana (≤ 24-36 hrs) y no se lo ha avisado
+      // Cada uno se muestra UNA SOLA VEZ por webinar (clave localStorage por webinarId + tipo)
       if (proximaSesion && session.planStatus === 'active') {
-        const diasHasta = Math.ceil((new Date(proximaSesion.date) - new Date()) / (1000*60*60*24));
-        const hoyKey = new Date().toISOString().substring(0, 10);
-        const popupShownKey = `zoo_webinar_popup_${session.uid}_${hoyKey}`;
-        const yaMostrado = localStorage.getItem(popupShownKey);
+        const webinarId = proximaSesion.id || proximaSesion.createdAt || proximaSesion.date;
+        const ahora = new Date();
+        const fechaWebinar = new Date(proximaSesion.date);
+        const diasHasta = Math.ceil((fechaWebinar - ahora) / (1000*60*60*24));
 
-        if (diasHasta >= 0 && diasHasta <= 14 && !yaMostrado) {
+        // Claves de control — por webinar y por tipo
+        const keyNuevo   = `zoo_webinar_nuevo_${session.uid}_${webinarId}`;
+        const keyManana  = `zoo_webinar_manana_${session.uid}_${webinarId}`;
+        const yaVioNuevo  = localStorage.getItem(keyNuevo);
+        const yaVioManana = localStorage.getItem(keyManana);
+
+        // Decidir qué tipo de aviso mostrar (prioridad: mañana > nuevo)
+        let tipoAviso = null;
+        let clavePopup = null;
+
+        // Trigger 1: Mañana es el webinar (entre 0 y 1.5 días) → aviso "mañana"
+        if (diasHasta >= 0 && diasHasta <= 1 && !yaVioManana) {
+          tipoAviso = 'manana';
+          clavePopup = keyManana;
+        }
+        // Trigger 2: Webinar nuevo que no ha visto (se muestra 1 vez)
+        else if (diasHasta > 1 && diasHasta <= 30 && !yaVioNuevo) {
+          tipoAviso = 'nuevo';
+          clavePopup = keyNuevo;
+        }
+
+        if (tipoAviso) {
           const meetUrl = proximaSesion.meetUrl || proximaSesion.zoomUrl || '';
+
+          // Textos según tipo de aviso
+          const textos = tipoAviso === 'manana'
+            ? {
+                icono: '🔔',
+                badge: diasHasta === 0 ? '¡HOY EN VIVO!' : '¡MAÑANA EN VIVO!',
+                titulo: diasHasta === 0 ? 'Hoy es tu webinar · No faltes' : 'Mañana es tu webinar · No te lo pierdas',
+                cta: '🎯 Ver detalles del webinar',
+                secondary: 'Cerrar aviso'
+              }
+            : {
+                icono: '🎉',
+                badge: '¡NUEVO WEBINAR!',
+                titulo: 'Nuevo webinar agendado · ¡Apártate la fecha!',
+                cta: '📅 Ver detalles del webinar',
+                secondary: 'Cerrar aviso'
+              };
+
           setTimeout(() => {
             const popup = document.createElement('div');
             popup.innerHTML = `
@@ -221,7 +262,7 @@
                   color: #E8A317;
                   font-family: 'Poppins', sans-serif;
                   font-size: 1.1rem; font-weight: 700;
-                  letter-spacing: .05em; text-transform: uppercase;
+                  letter-spacing: .05em;
                   margin-bottom: 6px;
                 }
                 .webinar-popup-name {
@@ -263,7 +304,7 @@
                   color: #fff; font-weight: 800; font-size: .7rem;
                 }
                 .webinar-popup-secondary {
-                  display: block; margin-top: 14px;
+                  display: block; margin: 14px auto 0;
                   color: rgba(255,255,255,0.7);
                   font-size: .84rem; text-decoration: underline;
                   cursor: pointer; background: none; border: 0;
@@ -274,12 +315,12 @@
               <div class="webinar-popup-box">
                 <button class="webinar-popup-close" id="webinarPopupClose" aria-label="Cerrar">✕</button>
                 <div class="webinar-popup-content">
-                  <div class="webinar-popup-icon">🎥</div>
+                  <div class="webinar-popup-icon">${textos.icono}</div>
                   <div class="webinar-popup-badge">
                     <span class="webinar-popup-badge__dot"></span>
-                    ${diasHasta === 0 ? '¡Hoy en vivo!' : diasHasta === 1 ? '¡Mañana en vivo!' : `En ${diasHasta} días`}
+                    ${textos.badge}
                   </div>
-                  <div class="webinar-popup-title">Próximo webinar · No te lo pierdas</div>
+                  <div class="webinar-popup-title">${textos.titulo}</div>
                   <div class="webinar-popup-name">${proximaSesion.title}</div>
                   <div class="webinar-popup-info-row">
                     <div class="webinar-popup-chip">👤 ${proximaSesion.speaker || 'Especialista'}</div>
@@ -289,9 +330,9 @@
                   </div>
                   <a href="club-sesiones.html" class="webinar-popup-cta">
                     <span class="webinar-popup-cta__meet-icon">M</span>
-                    Ver detalles del webinar
+                    ${textos.cta}
                   </a>
-                  <button class="webinar-popup-secondary" id="webinarPopupDismiss">Recordar después</button>
+                  <button class="webinar-popup-secondary" id="webinarPopupDismiss">${textos.secondary}</button>
                 </div>
               </div>
             `;
@@ -299,7 +340,7 @@
 
             const close = () => {
               popup.remove();
-              localStorage.setItem(popupShownKey, '1');
+              localStorage.setItem(clavePopup, '1');
             };
             document.getElementById('webinarPopupClose').addEventListener('click', close);
             document.getElementById('webinarPopupDismiss').addEventListener('click', close);
