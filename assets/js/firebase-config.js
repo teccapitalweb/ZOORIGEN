@@ -16,20 +16,17 @@ const WEBHOOK_SERVER_URL = "https://zoorigen-webhook-production.up.railway.app";
 const VARIANT_MENSUAL = "45386138714166";
 const VARIANT_ANUAL   = "45386327916598";
 
-const SELLING_PLAN_MENSUAL = "2071691318";
-const SELLING_PLAN_ANUAL   = "2071724086";
-
-const SHOPIFY_CHECKOUT_URL        = `https://pfueck-wm.myshopify.com/cart/${VARIANT_MENSUAL}:1?selling_plan=${SELLING_PLAN_MENSUAL}`;
-const SHOPIFY_ANNUAL_CHECKOUT_URL = `https://pfueck-wm.myshopify.com/cart/${VARIANT_ANUAL}:1?selling_plan=${SELLING_PLAN_ANUAL}`;
+const SHOPIFY_CHECKOUT_URL        = `https://pfueck-wm.myshopify.com/cart/${VARIANT_MENSUAL}:1?selling_plan=auto`;
+const SHOPIFY_ANNUAL_CHECKOUT_URL = `https://pfueck-wm.myshopify.com/cart/${VARIANT_ANUAL}:1?selling_plan=auto`;
 
 /**
- * URL de producto + selling_plan en query string.
- * Shopify la reconoce y al hacer clic en "Suscribirse" va directo al checkout.
+ * URL de checkout directo con suscripción auto-seleccionada.
+ * Usa el truco selling_plan=auto que hace que Shopify vaya directo al pago.
  */
 function buildCheckoutURL(plan, email) {
-  const slug = plan === 'anual' ? 'membresia-anual-club-vip-zoorigen' : 'membresia-mensual-club-vip-zoorigen';
-  const sellingPlan = plan === 'anual' ? SELLING_PLAN_ANUAL : SELLING_PLAN_MENSUAL;
-  return `https://pfueck-wm.myshopify.com/products/${slug}?selling_plan=${sellingPlan}`;
+  const variantId  = plan === 'anual' ? VARIANT_ANUAL : VARIANT_MENSUAL;
+  const emailParam = email ? `&checkout[email]=${encodeURIComponent(email)}` : '';
+  return `https://pfueck-wm.myshopify.com/cart/${variantId}:1?selling_plan=auto${emailParam}`;
 }
 
 if (typeof firebase !== 'undefined') {
