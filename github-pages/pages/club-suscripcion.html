@@ -80,6 +80,11 @@
 
           <p style="text-align:center;color:var(--zoo-text-dim);font-size:.84rem;margin-top:18px;">🔒 Pago seguro procesado por Shopify · Tu membresía se activa automáticamente al completar el pago</p>`;
       } else {
+        // Calcular si todavía tiene tiempo disponible (para mostrar opción de reanudar sin pagar)
+        const fechaVence = session.planVence ? new Date(session.planVence) : null;
+        const tieneTiempo = fechaVence && fechaVence.getTime() > Date.now();
+        const diasRestantes = tieneTiempo ? Math.ceil((fechaVence - new Date()) / (1000*60*60*24)) : 0;
+
         html += `
           <div class="card">
             <h2 style="color:#fff;font-size:1.2rem;margin-bottom:14px;">Plan actual</h2>
@@ -88,80 +93,62 @@
             <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-green-500);">● Activa</span>' : '<span style="color:var(--zoo-orange);">✕ Cancelada</span>'}</div></div>
             <div class="info-row"><div class="info-row__label">${session.planStatus === 'active' ? 'Próxima renovación' : 'Acceso hasta'}</div><div class="info-row__value">${ZOORIGEN_CLUB.formatShort(session.planVence)}</div></div>
             <div class="info-row"><div class="info-row__label">Último pago</div><div class="info-row__value">${session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : '—'}</div></div>
-          </div>
+          </div>`;
+
+        // Si está CANCELADO pero todavía con tiempo → ofrecer reanudar sin pagar
+        if (session.planStatus === 'cancelled' && tieneTiempo) {
+          html += `
+            <div class="card" style="margin-top:20px;background:linear-gradient(135deg,rgba(111,191,115,0.12),rgba(31,95,58,0.15));border:1px solid rgba(111,191,115,0.4);">
+              <h2 style="color:var(--zoo-green-500);font-size:1.15rem;margin-bottom:10px;">💚 ¿Te arrepentiste? Reanuda tu membresía</h2>
+              <p style="margin-bottom:14px;color:var(--zoo-text-muted);font-size:.92rem;line-height:1.55;">
+                Tu membresía está cancelada pero aún tienes <strong style="color:var(--zoo-green-500);">${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} de acceso</strong>.
+                Puedes reactivarla ahora mismo <strong>sin costo adicional</strong> y seguir disfrutando de todos los beneficios VIP con renovación automática.
+              </p>
+              <button id="reanudarBtn" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">
+                ✓ Reanudar mi membresía
+              </button>
+              <div id="reanudarMsg" style="margin-top:12px;"></div>
+            </div>`;
+        }
+
+        // Zona de peligro / reactivar con pago (si ya se venció)
+        html += `
           <div class="card" style="margin-top:20px;border-color:rgba(213,90,40,0.3);">
-            <h2 style="color:var(--zoo-orange);font-size:1.1rem;margin-bottom:10px;">⚠️ Zona de peligro</h2>
+            <h2 style="color:var(--zoo-orange);font-size:1.1rem;margin-bottom:10px;">${session.planStatus === 'active' ? '⚠️ Zona de peligro' : '🔄 Reactivar con nuevo pago'}</h2>
             <p style="margin-bottom:16px;">${session.planStatus === 'active'
-              ? 'Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado. Después perderás acceso a biblioteca, sesiones y descuentos VIP.'
-              : 'Reactiva tu membresía para volver a tener acceso completo a todo el contenido VIP.'}</p>
+              ? 'Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado. Después perderás acceso a biblioteca, webinars y descuentos VIP.'
+              : tieneTiempo
+                ? 'Si prefieres que tu membresía se termine cuando venza, no hagas nada. O puedes reactivarla arriba sin costo extra.'
+                : 'Tu membresía venció. Reactívala para volver a tener acceso completo al contenido VIP.'}</p>
             ${session.planStatus === 'active'
               ? '<button class="btn-danger" id="cancelBtn">Cancelar membresía</button>'
-              : `<button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Reactivar por $199 MXN</button>`}
+              : !tieneTiempo
+                ? `<button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Reactivar por $199 MXN</button>`
+                : ''}
             <div id="cancelMsg" style="margin-top:14px;"></div>
           </div>`;
       }
       content.innerHTML = html;
 
       // ═══════════════ AUTO-CHECK: Verifica si el pago ya se procesó ═══════════════
-      // Si viene con ?paid=1 en la URL (después de checkout), verificar cada 3s por hasta 60s
+      // Si viene con ?paid=1 en la URL (después de checkout de Shopify), verificar cada 3s por 30s
       const urlParams = new URLSearchParams(window.location.search);
       if (session.planStatus === 'pending_payment' && urlParams.has('paid')) {
-        const autoMsg = document.createElement('div');
-        autoMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#1F5F3A,#2d7a4a);color:#fff;padding:14px 20px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:9999;font-weight:600;';
-        autoMsg.innerHTML = '⏳ Verificando tu pago...';
-        document.body.appendChild(autoMsg);
-
         let attempts = 0;
-        const maxAttempts = 20; // 20 * 3s = 60s máximo
-        const RAILWAY_URL = 'https://zoorigen-webhook-production.up.railway.app/api/verificar-pago';
-
-        const checkPayment = async () => {
+        const maxAttempts = 10;
+        const autoCheck = setInterval(async () => {
           attempts++;
           try {
-            // 1. Intenta con el endpoint de Railway (consulta Firestore directo)
-            const resp = await fetch(RAILWAY_URL, {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({ email: session.email })
-            });
-            const data = await resp.json();
-            if (data.activo === true) {
-              autoMsg.innerHTML = '🎉 ¡Pago confirmado! Redirigiendo...';
-              autoMsg.style.background = 'linear-gradient(135deg,#E8A317,#D68A0A)';
-              setTimeout(() => window.location.href = 'club-dashboard.html?paid=success', 1500);
-              return true;
+            const doc = await db.collection('miembros').doc(session.uid).get();
+            const data = doc.data() || {};
+            if (data.planActivo === true || data.planStatus === 'active') {
+              clearInterval(autoCheck);
+              alert('🎉 ¡Tu membresía VIP está activa!');
+              window.location.href = 'club-dashboard.html';
             }
-          } catch (e) {
-            // 2. Fallback: check directo a Firestore
-            try {
-              const doc = await db.collection('miembros').doc(session.uid).get();
-              const data = doc.data() || {};
-              if (data.planActivo === true || data.planStatus === 'active') {
-                autoMsg.innerHTML = '🎉 ¡Pago confirmado! Redirigiendo...';
-                setTimeout(() => window.location.href = 'club-dashboard.html?paid=success', 1500);
-                return true;
-              }
-            } catch {}
-          }
-
-          // Actualizar mensaje
-          autoMsg.innerHTML = `⏳ Verificando pago... (${attempts}/${maxAttempts})`;
-
-          if (attempts >= maxAttempts) {
-            autoMsg.innerHTML = '⚠️ El pago aún no se refleja. Usa el botón "Verificar mi pago".';
-            autoMsg.style.background = 'linear-gradient(135deg,#D55A28,#b94820)';
-            setTimeout(() => autoMsg.remove(), 5000);
-            return true;
-          }
-          return false;
-        };
-
-        const autoCheck = setInterval(async () => {
-          const done = await checkPayment();
-          if (done) clearInterval(autoCheck);
+          } catch (e) {}
+          if (attempts >= maxAttempts) clearInterval(autoCheck);
         }, 3000);
-        // Primera verificación inmediata
-        checkPayment().then(done => { if (done) clearInterval(autoCheck); });
       }
 
       // ═══════════════ VERIFICAR PAGO MANUAL ═══════════════
@@ -174,40 +161,25 @@
           msgEl.innerHTML = '';
 
           try {
-            // 1. Primero: Railway endpoint (lee directo de Firestore el email)
-            const resp = await fetch('https://zoorigen-webhook-production.up.railway.app/api/verificar-pago', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({ email: session.email })
-            }).catch(() => null);
-
-            if (resp && resp.ok) {
-              const data = await resp.json();
-              if (data.activo === true) {
-                msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ ¡Pago encontrado! Redirigiendo al dashboard...</div>`;
-                setTimeout(() => window.location.href = 'club-dashboard.html?paid=success', 1500);
-                return;
-              }
-            }
-
-            // 2. Fallback: revisar Firestore con el UID actual
+            // Recargar el doc del miembro desde Firestore
             const doc = await db.collection('miembros').doc(session.uid).get();
             const data = doc.data() || {};
 
             if (data.planActivo === true || data.planStatus === 'active') {
-              msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ ¡Pago encontrado! Redirigiendo...</div>`;
-              setTimeout(() => window.location.href = 'club-dashboard.html?paid=success', 1500);
+              msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ ¡Pago encontrado! Tu membresía está activa. Recargando...</div>`;
+              setTimeout(() => window.location.href = 'club-dashboard.html', 1500);
               return;
             }
 
+            // Si el webhook no ha activado, mostrar info de contacto
             msgEl.innerHTML = `
               <div style="background:rgba(232,163,23,0.08);border:1px solid rgba(232,163,23,0.3);padding:14px;border-radius:8px;margin-top:6px;">
-                <div style="color:var(--zoo-amber);font-weight:700;margin-bottom:8px;font-size:.92rem;">⚠️ Aún no recibimos la confirmación</div>
+                <div style="color:var(--zoo-amber);font-weight:700;margin-bottom:8px;font-size:.92rem;">⚠️ Aún no recibimos la confirmación del pago</div>
                 <p style="color:var(--zoo-text-muted);font-size:.84rem;line-height:1.5;margin-bottom:10px;">
                   Si ya pagaste, espera 1-2 minutos y vuelve a presionar el botón.<br>
-                  Si pasaron más de 5 minutos, envía captura de tu pago a soporte:
+                  Si ya esperaste más de 5 minutos, envía captura de tu pago a soporte:
                 </p>
-                <a href="https://wa.me/5212361113237?text=Hola%2C%20ya%20pagu%C3%A9%20Club%20VIP%20Zoorigen%20pero%20no%20se%20activa.%20Mi%20email%3A%20${encodeURIComponent(session.email)}" target="_blank" style="display:inline-block;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.88rem;">
+                <a href="https://wa.me/5212361113237?text=Hola%2C%20ya%20pagu%C3%A9%20Club%20VIP%20Zoorigen%20pero%20no%20se%20activa%20mi%20membres%C3%ADa.%20Mi%20email%20es%3A%20${encodeURIComponent(session.email)}" target="_blank" style="display:inline-block;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.88rem;">
                   💬 Contactar soporte por WhatsApp
                 </a>
               </div>
@@ -238,6 +210,31 @@
             msg.innerHTML = `<div class="error-msg show">⚠️ ${result.msg}</div>`;
             cancelBtn.disabled = false;
             cancelBtn.textContent = 'Cancelar membresía';
+          }
+        });
+      }
+
+      // ═══════════════ REANUDAR MEMBRESÍA CANCELADA (sin costo) ═══════════════
+      const reanudarBtn = document.getElementById('reanudarBtn');
+      if (reanudarBtn) {
+        reanudarBtn.addEventListener('click', async () => {
+          if (!confirm('¿Reanudar tu membresía? Volverá a renovarse automáticamente al vencer.')) return;
+          reanudarBtn.disabled = true;
+          reanudarBtn.textContent = 'Reanudando...';
+          const msgEl = document.getElementById('reanudarMsg');
+          try {
+            await db.collection('miembros').doc(session.uid).update({
+              planCancelado: false,
+              canceladoEn: firebase.firestore.FieldValue.delete(),
+              reanudadoEn: new Date().toISOString()
+            });
+            msgEl.innerHTML = `<div class="success-msg show">✅ ¡Tu membresía fue reanudada! Seguirás teniendo acceso completo.</div>`;
+            setTimeout(() => location.reload(), 1800);
+          } catch (err) {
+            console.error(err);
+            msgEl.innerHTML = `<div class="error-msg show">⚠️ No se pudo reanudar. Escríbenos por WhatsApp.</div>`;
+            reanudarBtn.disabled = false;
+            reanudarBtn.textContent = '✓ Reanudar mi membresía';
           }
         });
       }
