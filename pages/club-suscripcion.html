@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi suscripción · Club VIP Zoorigen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="page-header"><h1>💳 Mi suscripción</h1><p>Gestiona tu membresía VIP Zoorigen</p></div>
+      <div id="subContent">Cargando...</div>
+    </main>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('suscripcion', session);
+      const content = document.getElementById('subContent');
+      let html = '';
+
+      if (session.planStatus === 'pending_payment') {
+        const checkoutMensual = buildCheckoutURL('mensual', session.email);
+        const checkoutAnual = buildCheckoutURL('anual', session.email);
+        html += `
+          <div class="card" style="background:linear-gradient(135deg,rgba(232,163,23,0.12),rgba(213,90,40,0.08));border-color:var(--zoo-amber);margin-bottom:20px;">
+            <h2 style="color:var(--zoo-amber);font-size:1.3rem;margin-bottom:10px;">⏳ Activa tu membresía VIP</h2>
+            <p style="margin-bottom:20px;">Tu cuenta está creada. Elige tu plan y activa todos los beneficios VIP ahora mismo.</p>
+
+            <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,163,23,0.3);border-radius:10px;padding:14px 18px;margin-top:16px;">
+              <div style="color:#fff;font-weight:600;font-size:.95rem;margin-bottom:6px;">💰 ¿Ya realizaste el pago?</div>
+              <p style="color:var(--zoo-text-muted);font-size:.84rem;margin-bottom:12px;line-height:1.5;">
+                Si ya pagaste pero tu membresía no se activó, presiona el botón para verificar tu pago manualmente.
+              </p>
+              <button id="verifyPaymentBtn" class="btn-club-outline" style="width:auto;padding:10px 22px;border:1px solid var(--zoo-amber);color:var(--zoo-amber);font-family:inherit;font-size:.92rem;cursor:pointer;">
+                🔍 Verificar mi pago
+              </button>
+              <div id="verifyMsg" style="margin-top:10px;"></div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;">
+
+            <div class="card" style="border-color:var(--zoo-border-strong);">
+              <div style="color:var(--zoo-green-500);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;">Plan Mensual</div>
+              <div style="color:#fff;font-size:2.2rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;margin-top:8px;">$199<span style="font-size:.9rem;color:var(--zoo-text-muted);font-weight:400;"> /mes</span></div>
+              <p style="color:var(--zoo-text-muted);font-size:.88rem;margin-top:10px;margin-bottom:18px;">Facturación mensual · Cancela cuando quieras</p>
+              <ul style="list-style:none;padding:0;margin:0 0 20px;font-size:.88rem;color:var(--zoo-text-muted);">
+                <li style="padding:6px 0;">✓ Acceso completo 30 días</li>
+                <li style="padding:6px 0;">✓ Renovación automática</li>
+                <li style="padding:6px 0;">✓ 20% OFF en cursos</li>
+              </ul>
+              <button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club-outline" style="display:block;width:100%;padding:12px;margin:0;border:1px solid var(--zoo-border-strong);font-family:inherit;font-size:1rem;cursor:pointer;">Pagar $199 mensual</button>
+            </div>
+
+            <div class="card" style="border:2px solid var(--zoo-amber);background:linear-gradient(135deg,rgba(232,163,23,0.1),rgba(31,95,58,0.2));position:relative;">
+              <span style="position:absolute;top:-10px;right:16px;background:var(--zoo-amber);color:#1f1d17;padding:4px 12px;border-radius:12px;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;">Ahorra 2 meses</span>
+              <div style="color:var(--zoo-amber);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;">Plan Anual · Recomendado</div>
+              <div style="color:#fff;font-size:2.2rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;margin-top:8px;">$1,899<span style="font-size:.9rem;color:var(--zoo-text-muted);font-weight:400;"> /año</span></div>
+              <p style="color:var(--zoo-text-muted);font-size:.88rem;margin-top:10px;margin-bottom:18px;">Equivale a <strong style="color:var(--zoo-green-500);">$158/mes</strong> · Ahorras $489 MXN</p>
+              <ul style="list-style:none;padding:0;margin:0 0 20px;font-size:.88rem;color:var(--zoo-text-muted);">
+                <li style="padding:6px 0;">✓ Acceso completo 365 días</li>
+                <li style="padding:6px 0;">✓ Sin sorpresas de cobros mensuales</li>
+                <li style="padding:6px 0;">✓ 20% OFF en cursos todo el año</li>
+                <li style="padding:6px 0;">✓ <strong style="color:var(--zoo-amber);">2 meses gratis</strong></li>
+              </ul>
+              <button onclick="ZOORIGEN_CLUB.openCheckoutModal('anual', '${session.email}')" class="btn-club" style="display:block;width:100%;padding:14px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Pagar $1,899 anual</button>
+            </div>
+
+          </div>
+
+          <p style="text-align:center;color:var(--zoo-text-dim);font-size:.84rem;margin-top:18px;">🔒 Pago seguro procesado por Shopify · Tu membresía se activa automáticamente al completar el pago</p>`;
+      } else {
+        // Calcular si todavía tiene tiempo disponible (para mostrar opción de reanudar sin pagar)
+        const fechaVence = session.planVence ? new Date(session.planVence) : null;
+        const tieneTiempo = fechaVence && fechaVence.getTime() > Date.now();
+        const diasRestantes = tieneTiempo ? Math.ceil((fechaVence - new Date()) / (1000*60*60*24)) : 0;
+
+        html += `
+          <div class="card">
+            <h2 style="color:#fff;font-size:1.2rem;margin-bottom:14px;">Plan actual</h2>
+            <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value">Miembro VIP Zoorigen</div></div>
+            <div class="info-row"><div class="info-row__label">Precio</div><div class="info-row__value">$199 MXN / mes</div></div>
+            <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-green-500);">● Activa</span>' : '<span style="color:var(--zoo-orange);">✕ Cancelada</span>'}</div></div>
+            <div class="info-row"><div class="info-row__label">${session.planStatus === 'active' ? 'Próxima renovación' : 'Acceso hasta'}</div><div class="info-row__value">${ZOORIGEN_CLUB.formatShort(session.planVence)}</div></div>
+            <div class="info-row"><div class="info-row__label">Último pago</div><div class="info-row__value">${session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : '—'}</div></div>
+          </div>`;
+
+        // Si está CANCELADO pero todavía con tiempo → ofrecer reanudar sin pagar
+        if (session.planStatus === 'cancelled' && tieneTiempo) {
+          html += `
+            <div class="card" style="margin-top:20px;background:linear-gradient(135deg,rgba(111,191,115,0.12),rgba(31,95,58,0.15));border:1px solid rgba(111,191,115,0.4);">
+              <h2 style="color:var(--zoo-green-500);font-size:1.15rem;margin-bottom:10px;">💚 ¿Te arrepentiste? Reanuda tu membresía</h2>
+              <p style="margin-bottom:14px;color:var(--zoo-text-muted);font-size:.92rem;line-height:1.55;">
+                Tu membresía está cancelada pero aún tienes <strong style="color:var(--zoo-green-500);">${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} de acceso</strong>.
+                Puedes reactivarla ahora mismo <strong>sin costo adicional</strong> y seguir disfrutando de todos los beneficios VIP con renovación automática.
+              </p>
+              <button id="reanudarBtn" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">
+                ✓ Reanudar mi membresía
+              </button>
+              <div id="reanudarMsg" style="margin-top:12px;"></div>
+            </div>`;
+        }
+
+        // Zona de peligro / reactivar con pago (si ya se venció)
+        html += `
+          <div class="card" style="margin-top:20px;border-color:rgba(213,90,40,0.3);">
+            <h2 style="color:var(--zoo-orange);font-size:1.1rem;margin-bottom:10px;">${session.planStatus === 'active' ? '⚠️ Zona de peligro' : '🔄 Reactivar con nuevo pago'}</h2>
+            <p style="margin-bottom:16px;">${session.planStatus === 'active'
+              ? 'Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado. Después perderás acceso a biblioteca, webinars y descuentos VIP.'
+              : tieneTiempo
+                ? 'Si prefieres que tu membresía se termine cuando venza, no hagas nada. O puedes reactivarla arriba sin costo extra.'
+                : 'Tu membresía venció. Reactívala para volver a tener acceso completo al contenido VIP.'}</p>
+            ${session.planStatus === 'active'
+              ? '<button class="btn-danger" id="cancelBtn">Cancelar membresía</button>'
+              : !tieneTiempo
+                ? `<button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Reactivar por $199 MXN</button>`
+                : ''}
+            <div id="cancelMsg" style="margin-top:14px;"></div>
+          </div>`;
+      }
+      content.innerHTML = html;
+
+      // ═══════════════ AUTO-CHECK: Verifica si el pago ya se procesó ═══════════════
+      // Si viene con ?paid=1 en la URL (después de checkout de Shopify), verificar cada 3s por 30s
+      const urlParams = new URLSearchParams(window.location.search);
+      if (session.planStatus === 'pending_payment' && urlParams.has('paid')) {
+        let attempts = 0;
+        const maxAttempts = 10;
+        const autoCheck = setInterval(async () => {
+          attempts++;
+          try {
+            const doc = await db.collection('miembros').doc(session.uid).get();
+            const data = doc.data() || {};
+            if (data.planActivo === true || data.planStatus === 'active') {
+              clearInterval(autoCheck);
+              alert('🎉 ¡Tu membresía VIP está activa!');
+              window.location.href = 'club-dashboard.html';
+            }
+          } catch (e) {}
+          if (attempts >= maxAttempts) clearInterval(autoCheck);
+        }, 3000);
+      }
+
+      // ═══════════════ VERIFICAR PAGO MANUAL ═══════════════
+      const verifyBtn = document.getElementById('verifyPaymentBtn');
+      if (verifyBtn) {
+        verifyBtn.addEventListener('click', async () => {
+          const msgEl = document.getElementById('verifyMsg');
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = '⏳ Verificando...';
+          msgEl.innerHTML = '';
+
+          try {
+            // Recargar el doc del miembro desde Firestore
+            const doc = await db.collection('miembros').doc(session.uid).get();
+            const data = doc.data() || {};
+
+            if (data.planActivo === true || data.planStatus === 'active') {
+              msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ ¡Pago encontrado! Tu membresía está activa. Recargando...</div>`;
+              setTimeout(() => window.location.href = 'club-dashboard.html', 1500);
+              return;
+            }
+
+            // Si el webhook no ha activado, mostrar info de contacto
+            msgEl.innerHTML = `
+              <div style="background:rgba(232,163,23,0.08);border:1px solid rgba(232,163,23,0.3);padding:14px;border-radius:8px;margin-top:6px;">
+                <div style="color:var(--zoo-amber);font-weight:700;margin-bottom:8px;font-size:.92rem;">⚠️ Aún no recibimos la confirmación del pago</div>
+                <p style="color:var(--zoo-text-muted);font-size:.84rem;line-height:1.5;margin-bottom:10px;">
+                  Si ya pagaste, espera 1-2 minutos y vuelve a presionar el botón.<br>
+                  Si ya esperaste más de 5 minutos, envía captura de tu pago a soporte:
+                </p>
+                <a href="https://wa.me/5212361113237?text=Hola%2C%20ya%20pagu%C3%A9%20Club%20VIP%20Zoorigen%20pero%20no%20se%20activa%20mi%20membres%C3%ADa.%20Mi%20email%20es%3A%20${encodeURIComponent(session.email)}" target="_blank" style="display:inline-block;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.88rem;">
+                  💬 Contactar soporte por WhatsApp
+                </a>
+              </div>
+            `;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = '🔍 Verificar mi pago';
+          } catch (err) {
+            console.error(err);
+            msgEl.innerHTML = `<div style="color:var(--zoo-orange);font-size:.88rem;">Error al verificar. Intenta de nuevo.</div>`;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = '🔍 Verificar mi pago';
+          }
+        });
+      }
+
+      const cancelBtn = document.getElementById('cancelBtn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', async () => {
+          if (!confirm('¿Seguro que quieres cancelar tu membresía VIP? Mantendrás acceso hasta ' + ZOORIGEN_CLUB.formatShort(session.planVence))) return;
+          cancelBtn.disabled = true;
+          cancelBtn.textContent = 'Cancelando...';
+          const result = await ZOORIGEN_CLUB.cancelSubscription();
+          const msg = document.getElementById('cancelMsg');
+          if (result.ok) {
+            msg.innerHTML = `<div class="success-msg show">✅ Cancelación procesada. Tienes acceso hasta ${ZOORIGEN_CLUB.formatShort(result.accesoHasta)}.</div>`;
+            setTimeout(() => location.reload(), 2500);
+          } else {
+            msg.innerHTML = `<div class="error-msg show">⚠️ ${result.msg}</div>`;
+            cancelBtn.disabled = false;
+            cancelBtn.textContent = 'Cancelar membresía';
+          }
+        });
+      }
+
+      // ═══════════════ REANUDAR MEMBRESÍA CANCELADA (sin costo) ═══════════════
+      const reanudarBtn = document.getElementById('reanudarBtn');
+      if (reanudarBtn) {
+        reanudarBtn.addEventListener('click', async () => {
+          if (!confirm('¿Reanudar tu membresía? Volverá a renovarse automáticamente al vencer.')) return;
+          reanudarBtn.disabled = true;
+          reanudarBtn.textContent = 'Reanudando...';
+          const msgEl = document.getElementById('reanudarMsg');
+          try {
+            await db.collection('miembros').doc(session.uid).update({
+              planCancelado: false,
+              canceladoEn: firebase.firestore.FieldValue.delete(),
+              reanudadoEn: new Date().toISOString()
+            });
+            msgEl.innerHTML = `<div class="success-msg show">✅ ¡Tu membresía fue reanudada! Seguirás teniendo acceso completo.</div>`;
+            setTimeout(() => location.reload(), 1800);
+          } catch (err) {
+            console.error(err);
+            msgEl.innerHTML = `<div class="error-msg show">⚠️ No se pudo reanudar. Escríbenos por WhatsApp.</div>`;
+            reanudarBtn.disabled = false;
+            reanudarBtn.textContent = '✓ Reanudar mi membresía';
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
