@@ -19,7 +19,7 @@ const VARIANT_ANUAL   = "45386327916598";
 const SELLING_PLAN_MENSUAL = "2071691318";
 const SELLING_PLAN_ANUAL   = "2071724086";
 
-// URL directa al checkout (salta la página de producto y el carrito)
+// URLs directas al checkout (salta la página de producto Y el carrito)
 const SHOPIFY_CHECKOUT_URL        = `https://pfueck-wm.myshopify.com/cart/${VARIANT_MENSUAL}:1?selling_plan=${SELLING_PLAN_MENSUAL}`;
 const SHOPIFY_ANNUAL_CHECKOUT_URL = `https://pfueck-wm.myshopify.com/cart/${VARIANT_ANUAL}:1?selling_plan=${SELLING_PLAN_ANUAL}`;
 
@@ -29,9 +29,8 @@ function buildCheckoutURL(plan, email) {
   const emailParam  = email ? `&checkout[email]=${encodeURIComponent(email)}` : '';
   const returnTo    = encodeURIComponent('https://www.zoorigen.com/pages/club-suscripcion.html?paid=1');
 
-  // Formato cart/add → checkout directo (salta la página del producto y el carrito)
-  // Shopify reconoce este formato y lleva al checkout inmediatamente
-  return `https://pfueck-wm.myshopify.com/cart/add?id=${variantId}&quantity=1&selling_plan=${sellingPlan}&checkout&return_to=${returnTo}${emailParam}`;
+  // Formato /checkout/ directo: salta carrito y lleva directo a formulario de pago
+  return `https://pfueck-wm.myshopify.com/checkout/?variant=${variantId}&quantity=1&selling_plan=${sellingPlan}&return_to=${returnTo}${emailParam}`;
 }
 
 if (typeof firebase !== 'undefined') {
