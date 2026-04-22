@@ -115,46 +115,63 @@
       }
 
       // Cargar datos desde Firestore
-      const [cursos, noticias, proximaSesion] = await Promise.all([
+      const [cursos, noticias, proximaSesion, todosLosWebinars] = await Promise.all([
         ZOORIGEN_CLUB.getCursos(),
         ZOORIGEN_CLUB.getNoticias(5),
-        ZOORIGEN_CLUB.getProximaSesion()
+        ZOORIGEN_CLUB.getProximaSesion(),
+        ZOORIGEN_CLUB.getSesiones()
       ]);
 
-      // ═══════════════ POPUP DE PRÓXIMO WEBINAR ═══════════════
-      // Dos triggers distintos:
-      //  1) "NUEVO" — el admin subió un webinar que el usuario aún no ha visto
-      //  2) "MAÑANA" — el webinar es mañana (≤ 24-36 hrs) y no se lo ha avisado
-      // Cada uno se muestra UNA SOLA VEZ por webinar (clave localStorage por webinarId + tipo)
-      if (proximaSesion && session.planStatus === 'active') {
-        const webinarId = proximaSesion.id || proximaSesion.createdAt || proximaSesion.date;
+      // ═══════════════ POPUP DE WEBINAR ═══════════════
+      // Revisa TODOS los webinars próximos y muestra popup del PRIMERO que el usuario no haya visto.
+      // Dos triggers:
+      //  1) "MAÑANA" — el webinar es mañana o hoy (prioridad más alta)
+      //  2) "NUEVO" — webinar nuevo que el usuario aún no ha visto el aviso
+      // Cada aviso se muestra UNA SOLA VEZ por webinar (clave localStorage).
+      if (session.planStatus === 'active' && todosLosWebinars && todosLosWebinars.length > 0) {
         const ahora = new Date();
-        const fechaWebinar = new Date(proximaSesion.date);
-        const diasHasta = Math.ceil((fechaWebinar - ahora) / (1000*60*60*24));
-
-        // Claves de control — por webinar y por tipo
-        const keyNuevo   = `zoo_webinar_nuevo_${session.uid}_${webinarId}`;
-        const keyManana  = `zoo_webinar_manana_${session.uid}_${webinarId}`;
-        const yaVioNuevo  = localStorage.getItem(keyNuevo);
-        const yaVioManana = localStorage.getItem(keyManana);
-
-        // Decidir qué tipo de aviso mostrar (prioridad: mañana > nuevo)
+        let webinarParaMostrar = null;
         let tipoAviso = null;
         let clavePopup = null;
+        let diasHasta = 0;
 
-        // Trigger 1: Mañana es el webinar (entre 0 y 1.5 días) → aviso "mañana"
-        if (diasHasta >= 0 && diasHasta <= 1 && !yaVioManana) {
-          tipoAviso = 'manana';
-          clavePopup = keyManana;
-        }
-        // Trigger 2: Webinar nuevo que no ha visto (se muestra 1 vez)
-        else if (diasHasta > 1 && diasHasta <= 30 && !yaVioNuevo) {
-          tipoAviso = 'nuevo';
-          clavePopup = keyNuevo;
+        // PRIMER PASO: buscar webinars que son "mañana" u "hoy" y no se haya avisado
+        for (const w of todosLosWebinars) {
+          const fecha = new Date(w.date);
+          const d = Math.ceil((fecha - ahora) / (1000*60*60*24));
+          if (d < 0) continue; // ya pasó
+          if (d > 1) continue; // no es mañana ni hoy
+          const wid = w.id || w.createdAt || w.date;
+          const keyManana = `zoo_webinar_manana_${session.uid}_${wid}`;
+          if (!localStorage.getItem(keyManana)) {
+            webinarParaMostrar = w;
+            tipoAviso = 'manana';
+            clavePopup = keyManana;
+            diasHasta = d;
+            break;
+          }
         }
 
-        if (tipoAviso) {
-          const meetUrl = proximaSesion.meetUrl || proximaSesion.zoomUrl || '';
+        // SEGUNDO PASO: si no había "mañana", buscar webinars NUEVOS no vistos
+        if (!webinarParaMostrar) {
+          for (const w of todosLosWebinars) {
+            const fecha = new Date(w.date);
+            const d = Math.ceil((fecha - ahora) / (1000*60*60*24));
+            if (d <= 1 || d > 60) continue; // solo futuros entre 2 y 60 días
+            const wid = w.id || w.createdAt || w.date;
+            const keyNuevo = `zoo_webinar_nuevo_${session.uid}_${wid}`;
+            if (!localStorage.getItem(keyNuevo)) {
+              webinarParaMostrar = w;
+              tipoAviso = 'nuevo';
+              clavePopup = keyNuevo;
+              diasHasta = d;
+              break;
+            }
+          }
+        }
+
+        if (webinarParaMostrar && tipoAviso) {
+          const meetUrl = webinarParaMostrar.meetUrl || webinarParaMostrar.zoomUrl || '';
 
           // Textos según tipo de aviso
           const textos = tipoAviso === 'manana'
@@ -172,6 +189,9 @@
                 cta: '📅 Ver detalles del webinar',
                 secondary: 'Cerrar aviso'
               };
+
+          // Variable para el renderizado del popup (reemplaza proximaSesion)
+          const webinarInfo = webinarParaMostrar;
 
           setTimeout(() => {
             const popup = document.createElement('div');
@@ -321,11 +341,11 @@
                     ${textos.badge}
                   </div>
                   <div class="webinar-popup-title">${textos.titulo}</div>
-                  <div class="webinar-popup-name">${proximaSesion.title}</div>
+                  <div class="webinar-popup-name">${webinarInfo.title}</div>
                   <div class="webinar-popup-info-row">
-                    <div class="webinar-popup-chip">👤 ${proximaSesion.speaker || 'Especialista'}</div>
-                    <div class="webinar-popup-chip">📅 ${ZOORIGEN_CLUB.formatShort(proximaSesion.date)}</div>
-                    <div class="webinar-popup-chip">🕐 ${proximaSesion.time || '19:00'} hrs</div>
+                    <div class="webinar-popup-chip">👤 ${webinarInfo.speaker || 'Especialista'}</div>
+                    <div class="webinar-popup-chip">📅 ${ZOORIGEN_CLUB.formatShort(webinarInfo.date)}</div>
+                    <div class="webinar-popup-chip">🕐 ${webinarInfo.time || '19:00'} hrs</div>
                     <div class="webinar-popup-chip">💻 Google Meet</div>
                   </div>
                   <a href="club-sesiones.html" class="webinar-popup-cta">
