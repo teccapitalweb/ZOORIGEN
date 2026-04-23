@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🧬 Herramientas Clínicas · Club VIP Zoorigen</title>
+<title>🧬 Herramientas Clínicas Pro · Club VIP Zoorigen</title>
 <meta name="theme-color" content="#1F5F3A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,11 +12,10 @@
 <link rel="stylesheet" href="../assets/css/club-mobile.css">
 <link rel="stylesheet" href="../assets/css/club-theme.css">
 <style>
-  /* Hero */
   .tools-hero {
     background: linear-gradient(135deg, #D55A28 0%, #1F5F3A 60%, #2AA4D5 110%);
     border-radius: 18px;
-    padding: 24px 28px;
+    padding: 26px 30px;
     margin-bottom: 20px;
     color: #fff;
     position: relative;
@@ -25,73 +24,66 @@
   .tools-hero::before {
     content: '';
     position: absolute;
-    top: -40%;
-    right: -10%;
-    width: 280px;
-    height: 280px;
+    top: -40%; right: -10%;
+    width: 280px; height: 280px;
     background: radial-gradient(circle, rgba(232,163,23,0.3) 0%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
   }
   .tools-hero__badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.2);
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
     color: #E8A317;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: .7rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    margin-bottom: 10px;
-    position: relative;
-    z-index: 2;
+    padding: 5px 12px; border-radius: 20px;
+    font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+    margin-bottom: 10px; position: relative; z-index: 2;
   }
   .tools-hero h1 {
     font-family: 'Poppins';
-    font-size: 1.7rem;
-    font-weight: 800;
+    font-size: 1.8rem; font-weight: 800;
     margin: 0 0 6px;
-    position: relative;
-    z-index: 2;
+    position: relative; z-index: 2;
   }
   .tools-hero p {
-    color: rgba(255,255,255,0.85);
-    font-size: .94rem;
-    margin: 0;
-    max-width: 580px;
-    position: relative;
-    z-index: 2;
+    color: rgba(255,255,255,0.88);
+    font-size: .96rem; margin: 0;
+    max-width: 620px; line-height: 1.55;
+    position: relative; z-index: 2;
+  }
+  .tools-hero__stats {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    margin-top: 14px;
+    position: relative; z-index: 2;
+  }
+  .tools-hero__stat {
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .tools-hero__stat-num {
+    font-family: 'Poppins'; font-weight: 800; font-size: 1.2rem;
+    color: #E8A317;
+  }
+  .tools-hero__stat-lbl {
+    font-size: .78rem; color: rgba(255,255,255,0.8);
   }
 
-  /* Tabs */
   .tools-tabs {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 6px;
+    display: flex; gap: 8px;
+    overflow-x: auto; padding-bottom: 6px;
     margin-bottom: 20px;
     -webkit-overflow-scrolling: touch;
   }
   .tools-tabs::-webkit-scrollbar { height: 4px; }
   .tools-tabs::-webkit-scrollbar-thumb { background: rgba(232,163,23,0.3); border-radius: 2px; }
-
   .tool-tab {
     flex-shrink: 0;
     background: var(--zoo-bg-card, #131816);
     border: 1px solid var(--zoo-border-strong, #2a3530);
     color: var(--zoo-text-muted, #a0a8a4);
-    padding: 10px 16px;
-    border-radius: 10px;
+    padding: 10px 14px; border-radius: 10px;
     cursor: pointer;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: .86rem;
-    white-space: nowrap;
-    transition: all .15s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    font-family: inherit; font-weight: 700; font-size: .84rem;
+    white-space: nowrap; transition: all .15s;
+    display: inline-flex; align-items: center; gap: 6px;
   }
   .tool-tab:hover {
     background: rgba(232,163,23,0.1);
@@ -105,7 +97,6 @@
     box-shadow: 0 4px 14px rgba(232,163,23,0.3);
   }
 
-  /* Panels */
   .tool-panel {
     display: none;
     background: var(--zoo-bg-card, #131816);
@@ -121,100 +112,78 @@
   }
 
   .tool-header {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    margin-bottom: 18px;
-    padding-bottom: 16px;
+    display: flex; gap: 14px; align-items: center;
+    margin-bottom: 18px; padding-bottom: 16px;
     border-bottom: 1px solid var(--zoo-border, #1e2522);
   }
   .tool-header__icon {
-    width: 52px;
-    height: 52px;
+    width: 54px; height: 54px;
     background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(213,90,40,0.18));
     border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
   }
   .tool-header__text h2 {
     font-family: 'Poppins';
-    font-size: 1.2rem;
-    color: var(--zoo-text, #fff);
+    font-size: 1.25rem; color: var(--zoo-text, #fff);
     margin: 0 0 3px;
   }
   .tool-header__text p {
     color: var(--zoo-text-muted, #a0a8a4);
-    font-size: .85rem;
-    margin: 0;
+    font-size: .85rem; margin: 0;
+  }
+  .tool-header__count {
+    margin-left: auto;
+    background: rgba(232,163,23,0.15);
+    color: #E8A317;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: .78rem;
+    font-weight: 700;
   }
 
-  /* Form */
   .tool-form {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 14px;
     margin-bottom: 18px;
   }
-  .tool-field {
-    display: flex;
-    flex-direction: column;
-  }
+  .tool-field { display: flex; flex-direction: column; }
   .tool-field label {
     color: var(--zoo-text-muted, #a0a8a4);
-    font-size: .78rem;
-    font-weight: 700;
+    font-size: .78rem; font-weight: 700;
     margin-bottom: 6px;
-    letter-spacing: .02em;
-    text-transform: uppercase;
+    letter-spacing: .02em; text-transform: uppercase;
   }
-  .tool-field input,
-  .tool-field select {
+  .tool-field input, .tool-field select, .tool-field textarea {
     background: rgba(255,255,255,0.04) !important;
     border: 1px solid var(--zoo-border-strong, #2a3530) !important;
     color: var(--zoo-text, #fff) !important;
-    padding: 11px 13px;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: .95rem;
+    padding: 11px 13px; border-radius: 10px;
+    font-family: inherit; font-size: .95rem;
   }
   [data-theme="light"] .tool-field input,
-  [data-theme="light"] .tool-field select {
+  [data-theme="light"] .tool-field select,
+  [data-theme="light"] .tool-field textarea {
     background: #ffffff !important;
     border: 1px solid #d0d4cb !important;
     color: #1a1d1b !important;
   }
-  .tool-field input:focus,
-  .tool-field select:focus {
-    outline: 0;
-    border-color: #E8A317 !important;
+  .tool-field input:focus, .tool-field select:focus, .tool-field textarea:focus {
+    outline: 0; border-color: #E8A317 !important;
   }
-  /* Options del select en modo oscuro */
-  .tool-field select option {
-    background: #131816;
-    color: #fff;
-  }
-  [data-theme="light"] .tool-field select option {
-    background: #fff;
-    color: #1a1d1b;
-  }
+  .tool-field select option { background: #131816; color: #fff; }
+  [data-theme="light"] .tool-field select option { background: #fff; color: #1a1d1b; }
 
   .tool-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    display: flex; gap: 10px; flex-wrap: wrap;
   }
   .tool-btn-calc {
     background: linear-gradient(135deg, #E8A317, #D68A0A);
-    color: #1f1d17;
-    border: 0;
-    padding: 12px 22px;
-    border-radius: 10px;
-    font-family: 'Poppins';
-    font-weight: 700;
-    cursor: pointer;
-    font-size: .95rem;
+    color: #1f1d17; border: 0;
+    padding: 12px 22px; border-radius: 10px;
+    font-family: 'Poppins'; font-weight: 700;
+    cursor: pointer; font-size: .95rem;
   }
   .tool-btn-calc:hover {
     box-shadow: 0 6px 18px rgba(232,163,23,0.35);
@@ -224,21 +193,15 @@
     background: transparent;
     border: 1px solid var(--zoo-border-strong, #2a3530);
     color: var(--zoo-text-muted, #a0a8a4);
-    padding: 12px 18px;
-    border-radius: 10px;
-    font-family: inherit;
-    font-weight: 600;
-    cursor: pointer;
+    padding: 12px 18px; border-radius: 10px;
+    font-family: inherit; font-weight: 600; cursor: pointer;
   }
 
-  /* Resultado */
   .tool-result {
-    margin-top: 18px;
-    padding: 18px;
+    margin-top: 18px; padding: 20px;
     background: rgba(111,191,115,0.08);
     border: 1px solid rgba(111,191,115,0.3);
-    border-radius: 12px;
-    display: none;
+    border-radius: 12px; display: none;
   }
   .tool-result.is-visible { display: block; }
   .tool-result.is-warning {
@@ -250,145 +213,237 @@
     border-color: rgba(213,90,40,0.4);
   }
   .tool-result__title {
-    font-family: 'Poppins';
-    font-weight: 800;
-    color: #fff;
-    margin-bottom: 10px;
-    font-size: 1rem;
-  }
-  .tool-result__rows {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .tool-result__row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: rgba(0,0,0,0.2);
-    border-radius: 8px;
-  }
-  .tool-result__row-label {
-    color: rgba(255,255,255,0.75);
-    font-size: .88rem;
-  }
-  .tool-result__row-value {
-    font-family: 'Poppins';
-    font-weight: 800;
-    color: #E8A317;
+    font-family: 'Poppins'; font-weight: 800;
+    color: #fff; margin-bottom: 12px;
     font-size: 1.05rem;
   }
+  .tool-result__rows { display: flex; flex-direction: column; gap: 8px; }
+  .tool-result__row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    gap: 10px;
+  }
+  .tool-result__row-label {
+    color: rgba(255,255,255,0.78); font-size: .88rem;
+  }
+  .tool-result__row-value {
+    font-family: 'Poppins'; font-weight: 800;
+    color: #E8A317; font-size: 1.05rem;
+    text-align: right;
+  }
   .tool-result__note {
-    margin-top: 10px;
-    color: rgba(255,255,255,0.7);
-    font-size: .82rem;
-    line-height: 1.5;
-    padding-top: 10px;
+    margin-top: 12px; padding-top: 12px;
     border-top: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.75);
+    font-size: .85rem; line-height: 1.6;
   }
   [data-theme="light"] .tool-result__title { color: #1a1d1b; }
-  [data-theme="light"] .tool-result__row { background: rgba(0,0,0,0.04); }
+  [data-theme="light"] .tool-result__row { background: rgba(0,0,0,0.05); }
   [data-theme="light"] .tool-result__row-label { color: #3a403d; }
   [data-theme="light"] .tool-result__note { color: #5a6360; border-top-color: rgba(0,0,0,0.08); }
 
-  /* Tabla constantes */
+  .tool-subsection {
+    margin-top: 16px;
+    padding: 14px;
+    background: rgba(255,255,255,0.02);
+    border-left: 3px solid #2AA4D5;
+    border-radius: 8px;
+  }
+  .tool-subsection__title {
+    color: #2AA4D5; font-weight: 700;
+    font-size: .82rem; text-transform: uppercase;
+    letter-spacing: .04em; margin-bottom: 8px;
+  }
+  .tool-subsection ul {
+    margin: 0; padding-left: 20px;
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .85rem; line-height: 1.65;
+  }
+  .tool-subsection ul li { margin-bottom: 4px; }
+
   .tool-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: separate; border-spacing: 0;
     font-size: .88rem;
   }
   .tool-table th {
-    background: rgba(232,163,23,0.12);
-    color: #E8A317;
-    padding: 10px 12px;
-    text-align: left;
-    font-weight: 700;
-    font-size: .78rem;
-    text-transform: uppercase;
-    letter-spacing: .04em;
+    background: rgba(232,163,23,0.12); color: #E8A317;
+    padding: 10px 12px; text-align: left;
+    font-weight: 700; font-size: .76rem;
+    text-transform: uppercase; letter-spacing: .04em;
     border-bottom: 1px solid var(--zoo-border-strong, #2a3530);
+    position: sticky; top: 0; z-index: 1;
   }
   .tool-table td {
     padding: 10px 12px;
     color: var(--zoo-text, #e5e9e7);
     border-bottom: 1px solid var(--zoo-border, #1e2522);
+    font-size: .85rem;
   }
-  .tool-table tr:hover td {
-    background: rgba(255,255,255,0.02);
+  .tool-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .tool-table tr.group-row td {
+    background: rgba(232,163,23,0.08) !important;
+    color: #E8A317 !important;
+    font-weight: 700; font-size: .76rem;
+    text-transform: uppercase; letter-spacing: .06em;
   }
   [data-theme="light"] .tool-table td { color: #1a1d1b; }
-  [data-theme="light"] .tool-table tr:hover td { background: rgba(0,0,0,0.02); }
+  [data-theme="light"] .tool-table tr:hover td { background: rgba(0,0,0,0.03); }
 
-  .tool-species-filter {
+  .tool-search-filter {
     margin-bottom: 14px;
+    display: flex; gap: 10px; flex-wrap: wrap;
+    align-items: center;
   }
-  .tool-species-filter input {
-    width: 100%;
+  .tool-search-filter input {
+    flex: 1; min-width: 200px;
     background: rgba(255,255,255,0.04);
     border: 1px solid var(--zoo-border-strong, #2a3530);
     color: var(--zoo-text, #fff);
-    padding: 11px 14px;
+    padding: 11px 14px; border-radius: 10px;
+    font-family: inherit; font-size: .95rem;
+  }
+  [data-theme="light"] .tool-search-filter input {
+    background: #fff; border: 1px solid #d0d4cb; color: #1a1d1b;
+  }
+
+  /* Tabla scrollable con altura */
+  .tool-table-wrap {
+    max-height: 520px;
+    overflow-y: auto;
+    border: 1px solid var(--zoo-border, #1e2522);
     border-radius: 10px;
-    font-family: inherit;
+  }
+
+  /* Drug cards (dosis) */
+  .drug-badges {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .drug-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: .72rem;
+    font-weight: 700;
+    background: rgba(232,163,23,0.15);
+    color: #E8A317;
+  }
+  .drug-badge.via { background: rgba(42,164,213,0.15); color: #2AA4D5; }
+  .drug-badge.danger { background: rgba(213,90,40,0.2); color: #D55A28; }
+
+  .tool-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .tool-info-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--zoo-border, #1e2522);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .tool-info-card__title {
+    color: #E8A317;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 6px;
+  }
+  .tool-info-card__value {
+    color: var(--zoo-text, #fff);
+    font-family: 'Poppins';
+    font-weight: 700;
     font-size: .95rem;
   }
-  [data-theme="light"] .tool-species-filter input {
-    background: #fff;
-    border: 1px solid #d0d4cb;
-    color: #1a1d1b;
+  .tool-info-card__note {
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .78rem;
+    margin-top: 4px;
+    line-height: 1.45;
   }
 
   /* BCS */
   .bcs-scale {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 10px;
-    margin-bottom: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px; margin-bottom: 16px;
   }
   .bcs-item {
-    padding: 12px 10px;
+    padding: 12px 8px;
     background: rgba(255,255,255,0.04);
     border: 1px solid var(--zoo-border-strong, #2a3530);
-    border-radius: 10px;
-    cursor: pointer;
-    text-align: center;
+    border-radius: 10px; cursor: pointer; text-align: center;
     transition: all .15s;
   }
-  .bcs-item:hover {
-    border-color: rgba(232,163,23,0.5);
-  }
+  .bcs-item:hover { border-color: rgba(232,163,23,0.5); }
   .bcs-item.is-selected {
     background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(213,90,40,0.15));
     border-color: #E8A317;
   }
   .bcs-item__num {
-    font-family: 'Poppins';
-    font-weight: 800;
-    font-size: 1.5rem;
-    color: #E8A317;
-    line-height: 1;
+    font-family: 'Poppins'; font-weight: 800;
+    font-size: 1.5rem; color: #E8A317; line-height: 1;
   }
   .bcs-item__label {
     color: var(--zoo-text, #fff);
-    font-size: .82rem;
-    font-weight: 700;
-    margin-top: 4px;
+    font-size: .78rem; font-weight: 700; margin-top: 4px;
   }
 
-  /* Disclaimer */
   .tool-disclaimer {
-    margin-top: 20px;
-    padding: 12px 16px;
+    margin-top: 20px; padding: 12px 16px;
     background: rgba(213,90,40,0.08);
     border-left: 3px solid #D55A28;
     border-radius: 8px;
     color: var(--zoo-text-muted, #a0a8a4);
-    font-size: .82rem;
-    line-height: 1.55;
+    font-size: .82rem; line-height: 1.55;
   }
   .tool-disclaimer strong { color: #D55A28; }
+
+  /* Urgencias */
+  .urg-protocol {
+    background: rgba(213,90,40,0.06);
+    border-left: 4px solid #D55A28;
+    padding: 16px 18px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .urg-protocol__title {
+    color: #D55A28;
+    font-family: 'Poppins';
+    font-weight: 800;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .urg-steps {
+    list-style: none; padding: 0; margin: 0;
+    counter-reset: urg;
+  }
+  .urg-steps li {
+    counter-increment: urg;
+    padding: 8px 10px 8px 38px;
+    color: var(--zoo-text, #fff);
+    position: relative;
+    font-size: .9rem;
+    line-height: 1.55;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .urg-steps li:last-child { border-bottom: 0; }
+  .urg-steps li::before {
+    content: counter(urg);
+    position: absolute; left: 8px; top: 8px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, #D55A28, #c14822);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Poppins'; font-weight: 800; font-size: .75rem;
+  }
+  .urg-steps li strong { color: #E8A317; }
 
   @media (max-width: 600px) {
     .tools-hero { padding: 20px; }
@@ -406,49 +461,58 @@
 
     <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
 
-    <!-- Hero -->
     <div class="tools-hero">
-      <span class="tools-hero__badge">🧬 EXCLUSIVO VIP</span>
-      <h1>Herramientas Clínicas</h1>
-      <p>Calculadoras profesionales para veterinarios y biólogos de fauna silvestre. Dosis, anestesia, fluidoterapia y más. Para uso clínico de profesionales capacitados.</p>
+      <span class="tools-hero__badge">🧬 HERRAMIENTA PROFESIONAL</span>
+      <h1>Clínica & Farmacología de Fauna Silvestre</h1>
+      <p>Referencia ultra profesional para médicos veterinarios zoológicos y biólogos de campo. Protocolos basados en literatura especializada (Fowler's Zoo Medicine, West et al., Carpenter's Exotic Formulary).</p>
+      <div class="tools-hero__stats">
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num">40+</span><span class="tools-hero__stat-lbl">fármacos</span></div>
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num">12</span><span class="tools-hero__stat-lbl">protocolos anestésicos</span></div>
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num">60+</span><span class="tools-hero__stat-lbl">especies</span></div>
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num">8</span><span class="tools-hero__stat-lbl">protocolos de urgencia</span></div>
+      </div>
     </div>
 
-    <!-- Tabs -->
     <div class="tools-tabs" id="toolsTabs">
-      <button class="tool-tab is-active" data-tab="dosis">💊 Dosis por peso</button>
+      <button class="tool-tab is-active" data-tab="dosis">💊 Dosis</button>
       <button class="tool-tab" data-tab="anestesia">💉 Anestesia</button>
       <button class="tool-tab" data-tab="fluidos">💧 Fluidoterapia</button>
       <button class="tool-tab" data-tab="constantes">🌡️ Constantes</button>
+      <button class="tool-tab" data-tab="hemograma">🧪 Hemograma</button>
       <button class="tool-tab" data-tab="bcs">📏 BCS</button>
+      <button class="tool-tab" data-tab="urgencias">🚨 Urgencias</button>
     </div>
 
-    <!-- ══════════════ 1. DOSIS POR PESO ══════════════ -->
+    <!-- 1. DOSIS -->
     <div class="tool-panel is-active" id="panel-dosis">
       <div class="tool-header">
         <div class="tool-header__icon">💊</div>
         <div class="tool-header__text">
-          <h2>Calculadora de dosis por peso</h2>
-          <p>Ajusta la dosis al peso corporal del paciente · Alertas de sobredosis</p>
+          <h2>Calculadora de dosis farmacológicas</h2>
+          <p>40+ fármacos · 8 categorías · Ajustes por especie · Contraindicaciones</p>
         </div>
+        <div class="tool-header__count" id="doseCount">—</div>
       </div>
 
       <div class="tool-form">
         <div class="tool-field">
-          <label>Medicamento</label>
-          <select id="doseDrug">
-            <option value="ketamina">Ketamina</option>
-            <option value="xilacina">Xilacina</option>
-            <option value="medetomidina">Medetomidina</option>
-            <option value="diazepam">Diazepam</option>
-            <option value="meloxicam">Meloxicam</option>
-            <option value="ivermectina">Ivermectina</option>
-            <option value="atropina">Atropina</option>
-            <option value="enrofloxacina">Enrofloxacina</option>
-            <option value="tramadol">Tramadol</option>
-            <option value="dexametasona">Dexametasona</option>
-            <option value="furosemida">Furosemida</option>
-            <option value="custom">Personalizado (mg/kg manual)</option>
+          <label>Categoría</label>
+          <select id="doseCategory" onchange="actualizarDrogas()">
+            <option value="all">Todas las categorías</option>
+            <option value="anestesico">💉 Anestésicos disociativos</option>
+            <option value="sedante">😴 Sedantes/tranquilizantes</option>
+            <option value="analgesico">🩹 Analgésicos opioides</option>
+            <option value="aine">💢 AINEs (anti-inflamatorios)</option>
+            <option value="antibiotico">🦠 Antibióticos</option>
+            <option value="antiparasitario">🪱 Antiparasitarios</option>
+            <option value="corticoide">🧬 Corticoides</option>
+            <option value="emergencia">🚨 Drogas de emergencia</option>
+            <option value="reversor">🔄 Antagonistas/reversores</option>
           </select>
+        </div>
+        <div class="tool-field">
+          <label>Medicamento</label>
+          <select id="doseDrug"></select>
         </div>
         <div class="tool-field">
           <label>Peso del paciente (kg)</label>
@@ -458,9 +522,14 @@
           <label>Concentración (mg/ml)</label>
           <input type="number" id="doseConc" step="0.1" placeholder="100">
         </div>
-        <div class="tool-field" id="doseCustomWrap" style="display:none;">
-          <label>Dosis mg/kg (manual)</label>
-          <input type="number" id="doseCustom" step="0.01" placeholder="2.0">
+        <div class="tool-field">
+          <label>Grupo de especie</label>
+          <select id="doseEspecie">
+            <option value="mamifero">Mamífero (adulto sano)</option>
+            <option value="ave">Ave</option>
+            <option value="reptil">Reptil</option>
+            <option value="pediatrico">Pediátrico / geriátrico</option>
+          </select>
         </div>
       </div>
 
@@ -472,30 +541,25 @@
       <div class="tool-result" id="doseResult"></div>
 
       <div class="tool-disclaimer">
-        <strong>⚠️ Aviso:</strong> Valores de referencia basados en literatura veterinaria. La dosificación real debe ajustarse según criterio clínico, estado del paciente y respuesta. No sustituye el juicio profesional.
+        <strong>⚠️ Uso profesional:</strong> Rangos basados en literatura veterinaria especializada. La dosificación real debe ajustarse al estado del paciente, comorbilidades, función renal/hepática y respuesta clínica. NO sustituye juicio profesional ni farmacovigilancia. Los rangos en aves y reptiles son aproximaciones por grupos taxonómicos; especies específicas pueden requerir ajustes mayores.
       </div>
     </div>
 
-    <!-- ══════════════ 2. ANESTESIA ══════════════ -->
+    <!-- 2. ANESTESIA -->
     <div class="tool-panel" id="panel-anestesia">
       <div class="tool-header">
         <div class="tool-header__icon">💉</div>
         <div class="tool-header__text">
-          <h2>Calculadora anestésica por especie</h2>
-          <p>Protocolos TKX, BAM, Ketamina+Medetomidina · Tiempos aproximados</p>
+          <h2>Protocolos anestésicos</h2>
+          <p>12 protocolos · Pre-anestesia · Inducción · Mantenimiento · Reversión</p>
         </div>
+        <div class="tool-header__count">12 protocolos</div>
       </div>
 
       <div class="tool-form">
         <div class="tool-field">
           <label>Protocolo</label>
-          <select id="anesProto">
-            <option value="ktm">Ketamina + Medetomidina (fauna carnívora)</option>
-            <option value="bam">BAM (Butorfanol + Azaperona + Medetomidina) — rumiantes</option>
-            <option value="tkx">TKX (Tiletamina-Zolazepam + Ketamina + Xilacina) — felinos grandes</option>
-            <option value="kd">Ketamina + Diazepam (primates, pequeños carnívoros)</option>
-            <option value="isoM">Isoflurano mantenimiento (aves/reptiles)</option>
-          </select>
+          <select id="anesProto"></select>
         </div>
         <div class="tool-field">
           <label>Peso (kg)</label>
@@ -504,24 +568,24 @@
       </div>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularAnestesia()">💉 Calcular protocolo</button>
+        <button class="tool-btn-calc" onclick="calcularAnestesia()">💉 Calcular protocolo completo</button>
         <button class="tool-btn-reset" onclick="resetearForm('anestesia')">Limpiar</button>
       </div>
 
       <div class="tool-result" id="anesResult"></div>
 
       <div class="tool-disclaimer">
-        <strong>⚠️ Crítico:</strong> La anestesia de fauna silvestre requiere monitoreo continuo, oxígeno suplementario y antagonistas listos. Verificar siempre disponibilidad de Atipamezol, Naloxona y fluidos IV antes de inducir.
+        <strong>⚠️ Seguridad anestésica:</strong> Siempre verificar previamente: oxígeno disponible, antagonistas calculados, vía IV permeable, monitor multiparamétrico (SpO₂, ECG, capnografía, Temp), fluidoterapia de base, tubos endotraqueales varios calibres. Monitorear cada 5 min. Vigilar hipotermia (especialmente en aves/reptiles).
       </div>
     </div>
 
-    <!-- ══════════════ 3. FLUIDOTERAPIA ══════════════ -->
+    <!-- 3. FLUIDOTERAPIA -->
     <div class="tool-panel" id="panel-fluidos">
       <div class="tool-header">
         <div class="tool-header__icon">💧</div>
         <div class="tool-header__text">
-          <h2>Fluidoterapia para fauna</h2>
-          <p>Déficit + mantenimiento + pérdidas · Goteo por especie</p>
+          <h2>Fluidoterapia avanzada</h2>
+          <p>Cálculo por tipo de paciente · Cristaloides · Coloides · Electrolitos</p>
         </div>
       </div>
 
@@ -539,14 +603,28 @@
           <input type="number" id="fluidsPeso" step="0.01" min="0.01" placeholder="5">
         </div>
         <div class="tool-field">
+          <label>Tipo de paciente</label>
+          <select id="fluidsTipo">
+            <option value="normal">Mantenimiento normal</option>
+            <option value="desh">Deshidratación</option>
+            <option value="shock">Shock hipovolémico</option>
+            <option value="cirugia">Cirugía / intraoperatorio</option>
+            <option value="quemado">Quemaduras (fórmula Parkland)</option>
+            <option value="gastro">Vómito / diarrea activa</option>
+          </select>
+        </div>
+        <div class="tool-field" id="fluidsDeshWrap">
           <label>% Deshidratación</label>
           <select id="fluidsDesh">
-            <option value="0">0% — normal</option>
-            <option value="5">5% — leve</option>
-            <option value="7">7% — moderada</option>
-            <option value="10" selected>10% — severa</option>
-            <option value="12">12% — crítica</option>
+            <option value="5">5% — leve (mucosas secas)</option>
+            <option value="7">7% — moderada (turgor ↓)</option>
+            <option value="10" selected>10% — severa (ojos hundidos)</option>
+            <option value="12">12% — crítica (shock inminente)</option>
           </select>
+        </div>
+        <div class="tool-field" id="fluidsQuemWrap" style="display:none;">
+          <label>% Superficie quemada</label>
+          <input type="number" id="fluidsQuem" step="1" placeholder="20">
         </div>
         <div class="tool-field">
           <label>Pérdidas extra ml/día</label>
@@ -555,39 +633,41 @@
         <div class="tool-field">
           <label>Equipo de goteo</label>
           <select id="fluidsEquipo">
-            <option value="20">Normal (20 gotas/ml)</option>
-            <option value="60">Microgotero (60 gotas/ml)</option>
+            <option value="20">Normal (20 gtt/ml)</option>
+            <option value="60">Microgotero (60 gtt/ml)</option>
+            <option value="15">Macrogotero (15 gtt/ml)</option>
           </select>
         </div>
       </div>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularFluidos()">💧 Calcular goteo</button>
+        <button class="tool-btn-calc" onclick="calcularFluidos()">💧 Calcular plan fluidos</button>
         <button class="tool-btn-reset" onclick="resetearForm('fluidos')">Limpiar</button>
       </div>
 
       <div class="tool-result" id="fluidsResult"></div>
 
       <div class="tool-disclaimer">
-        <strong>ℹ️ Nota:</strong> Déficit a reponer en 12-24h. Mantenimiento: mamíferos 40-60 ml/kg/día, aves 50 ml/kg/día, reptiles 10-25 ml/kg/día. En shock usar bolo 10-20 ml/kg en 15-20 min.
+        <strong>ℹ️ Selección de fluido:</strong> Ringer Lactato (1ª elección en shock y mantenimiento), Sol. Salina 0.9% (alcalosis metabólica, hipercalemia), Dextrosa 5% (hipoglucemia, NO resuscitación), Coloides/Hetastarch 10-20 ml/kg (shock refractario). En reptiles usar fluidos tibios a 25-28°C para evitar hipotermia.
       </div>
     </div>
 
-    <!-- ══════════════ 4. CONSTANTES FISIOLÓGICAS ══════════════ -->
+    <!-- 4. CONSTANTES -->
     <div class="tool-panel" id="panel-constantes">
       <div class="tool-header">
         <div class="tool-header__icon">🌡️</div>
         <div class="tool-header__text">
           <h2>Constantes fisiológicas por especie</h2>
-          <p>FC · FR · Temperatura · Valores de referencia</p>
+          <p>FC · FR · Temp · PA · Gestación · Esperanza de vida</p>
         </div>
+        <div class="tool-header__count">60+ especies</div>
       </div>
 
-      <div class="tool-species-filter">
-        <input type="text" id="speciesFilter" placeholder="🔍 Buscar especie o grupo..." oninput="filtrarEspecies()">
+      <div class="tool-search-filter">
+        <input type="text" id="speciesFilter" placeholder="🔍 Buscar por nombre común, científico o grupo..." oninput="filtrarEspecies()">
       </div>
 
-      <div style="overflow-x:auto;">
+      <div class="tool-table-wrap">
         <table class="tool-table" id="constTable">
           <thead>
             <tr>
@@ -595,6 +675,8 @@
               <th>FC (lpm)</th>
               <th>FR (rpm)</th>
               <th>Temp (°C)</th>
+              <th>Gestación</th>
+              <th>Longevidad</th>
             </tr>
           </thead>
           <tbody id="constTbody"></tbody>
@@ -602,30 +684,67 @@
       </div>
 
       <div class="tool-disclaimer">
-        <strong>ℹ️ Referencias:</strong> Valores en reposo y animales sanos. En manejo/contención los valores se elevan significativamente (estrés). Anestesia: FC puede bajar 20-40%.
+        <strong>ℹ️ Interpretación clínica:</strong> Valores en reposo y animales sanos. En manejo/contención los valores se elevan 20-40% (estrés). Anestesia baja FC 20-40%. Reptiles son ectotermos: su FC depende del ambiente (ºC/min). Valores ±10-15% aceptables por diferencias individuales.
       </div>
     </div>
 
-    <!-- ══════════════ 5. BCS ══════════════ -->
+    <!-- 5. HEMOGRAMA -->
+    <div class="tool-panel" id="panel-hemograma">
+      <div class="tool-header">
+        <div class="tool-header__icon">🧪</div>
+        <div class="tool-header__text">
+          <h2>Valores hematológicos y bioquímicos</h2>
+          <p>Hematocrito · Leucocitos · Proteínas · Glucosa · Creatinina · Química</p>
+        </div>
+        <div class="tool-header__count">30+ especies</div>
+      </div>
+
+      <div class="tool-search-filter">
+        <input type="text" id="hemoFilter" placeholder="🔍 Buscar especie..." oninput="filtrarHemograma()">
+      </div>
+
+      <div class="tool-table-wrap">
+        <table class="tool-table" id="hemoTable">
+          <thead>
+            <tr>
+              <th>Especie</th>
+              <th>HTO (%)</th>
+              <th>Hb (g/dl)</th>
+              <th>Leucocitos (×10³/μl)</th>
+              <th>PT (g/dl)</th>
+              <th>Glucosa (mg/dl)</th>
+              <th>Creatinina (mg/dl)</th>
+            </tr>
+          </thead>
+          <tbody id="hemoTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="tool-disclaimer">
+        <strong>ℹ️ Interpretación:</strong> Valores de referencia de animales en cautiverio con manejo. El estrés del manejo eleva leucocitos (hasta 2-3x), glucosa (estrés) y disminuye linfocitos. En aves los heterófilos reemplazan neutrófilos. En reptiles HTO varía con hibernación/temperatura.
+      </div>
+    </div>
+
+    <!-- 6. BCS -->
     <div class="tool-panel" id="panel-bcs">
       <div class="tool-header">
         <div class="tool-header__icon">📏</div>
         <div class="tool-header__text">
           <h2>BCS · Body Condition Score</h2>
-          <p>Índice de condición corporal 1-9 · Ajustes de peso ideal</p>
+          <p>Escala 1-9 · Evaluación anatómica · Peso ideal estimado</p>
         </div>
       </div>
 
       <div class="tool-form">
         <div class="tool-field">
-          <label>Especie / Grupo</label>
+          <label>Grupo taxonómico</label>
           <select id="bcsGroup">
-            <option value="felino">Felinos (ej. puma, jaguar, ocelote)</option>
-            <option value="canido">Cánidos (coyote, lobo, zorro)</option>
-            <option value="primate">Primates (ej. monos araña, aullador)</option>
-            <option value="ungulado">Ungulados (venado, pecarí, tapir)</option>
+            <option value="felino">Felinos</option>
+            <option value="canido">Cánidos</option>
+            <option value="primate">Primates</option>
+            <option value="ungulado">Ungulados</option>
             <option value="ave">Aves (rapaces, psitácidos, gallináceas)</option>
-            <option value="reptil">Reptiles (iguanas, tortugas, serpientes)</option>
+            <option value="reptil">Reptiles</option>
           </select>
         </div>
         <div class="tool-field">
@@ -634,7 +753,7 @@
         </div>
       </div>
 
-      <div style="margin:16px 0 10px;color:var(--zoo-text-muted);font-size:.85rem;font-weight:600;">Selecciona el BCS (1-9):</div>
+      <div style="margin:16px 0 10px;color:var(--zoo-text-muted);font-size:.85rem;font-weight:600;">Selecciona el BCS observado (1-9):</div>
       <div class="bcs-scale">
         <div class="bcs-item" data-bcs="1"><div class="bcs-item__num">1</div><div class="bcs-item__label">Caquéctico</div></div>
         <div class="bcs-item" data-bcs="2"><div class="bcs-item__num">2</div><div class="bcs-item__label">Muy delgado</div></div>
@@ -653,9 +772,47 @@
       </div>
 
       <div class="tool-result" id="bcsResult"></div>
+    </div>
+
+    <!-- 7. URGENCIAS -->
+    <div class="tool-panel" id="panel-urgencias">
+      <div class="tool-header">
+        <div class="tool-header__icon">🚨</div>
+        <div class="tool-header__text">
+          <h2>Protocolos de urgencia</h2>
+          <p>RCP · Shock · Convulsiones · Envenenamiento · Hipotermia · Anafilaxia</p>
+        </div>
+        <div class="tool-header__count">8 protocolos</div>
+      </div>
+
+      <div class="tool-form">
+        <div class="tool-field" style="grid-column: 1/-1;">
+          <label>Seleccionar emergencia</label>
+          <select id="urgSelect">
+            <option value="rcp">🫀 Paro cardiorrespiratorio (RCP)</option>
+            <option value="shock">💔 Shock (hipovolémico/séptico)</option>
+            <option value="convulsion">⚡ Convulsiones / Status epilepticus</option>
+            <option value="hipotermia">❄️ Hipotermia severa</option>
+            <option value="hipertermia">🔥 Hipertermia / Golpe de calor</option>
+            <option value="anafilaxia">🦟 Anafilaxia</option>
+            <option value="envenenamiento">☠️ Envenenamiento (general)</option>
+            <option value="hemorragia">🩸 Hemorragia masiva</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label>Peso (kg) — para dosis</label>
+          <input type="number" id="urgPeso" step="0.01" placeholder="10">
+        </div>
+      </div>
+
+      <div class="tool-actions">
+        <button class="tool-btn-calc" onclick="mostrarUrgencia()">🚨 Mostrar protocolo</button>
+      </div>
+
+      <div class="tool-result" id="urgResult"></div>
 
       <div class="tool-disclaimer">
-        <strong>ℹ️ Escala 1-9:</strong> 1-3 = bajo peso (riesgo); 4-6 = ideal; 7-9 = sobrepeso. Evalúa palpación de costillas, columna, depósitos grasos y masa muscular. Cada BCS = ±10-15% del peso ideal.
+        <strong>⚠️ CRÍTICO:</strong> En emergencia real, actuar con base en ABC (Vía aérea · Respiración · Circulación). Las dosis son referenciales — ajustar a protocolos institucionales. Preparar kit de emergencia con antagonistas, epinefrina, atropina, diazepam y fluidos antes de cualquier procedimiento anestésico.
       </div>
     </div>
 
@@ -675,7 +832,6 @@
   document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
   if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
-  // Tabs
   document.querySelectorAll('.tool-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('is-active'));
@@ -685,13 +841,13 @@
     });
   });
 
-  // Dosis custom toggle
-  const doseDrug = document.getElementById('doseDrug');
-  doseDrug.addEventListener('change', () => {
-    document.getElementById('doseCustomWrap').style.display = doseDrug.value === 'custom' ? 'flex' : 'none';
+  // Toggle % deshidratación vs % quemadura en fluidos
+  document.getElementById('fluidsTipo').addEventListener('change', (e) => {
+    const v = e.target.value;
+    document.getElementById('fluidsDeshWrap').style.display = (v === 'desh' || v === 'gastro') ? 'flex' : 'none';
+    document.getElementById('fluidsQuemWrap').style.display = v === 'quemado' ? 'flex' : 'none';
   });
 
-  // BCS click
   document.querySelectorAll('.bcs-item').forEach(item => {
     item.addEventListener('click', () => {
       document.querySelectorAll('.bcs-item').forEach(i => i.classList.remove('is-selected'));
@@ -699,309 +855,599 @@
     });
   });
 
-  // Render constantes
+  actualizarDrogas();
+  renderProtocolos();
   renderConstantes();
+  renderHemograma();
 })();
 
-// ═══════════════ 1. DOSIS ═══════════════
+// ═══════════════ BASE DE DATOS DE FÁRMACOS (40+) ═══════════════
 const DROGAS = {
-  ketamina: { nombre: 'Ketamina', dosisRef: [5, 15], unidad: 'mg/kg', maxSeguro: 20, nota: 'IM/IV. Combinar con xilacina o medetomidina para mejor relajación.' },
-  xilacina: { nombre: 'Xilacina', dosisRef: [1, 3], unidad: 'mg/kg', maxSeguro: 4, nota: 'IM/IV. Reversión con yohimbina 0.1 mg/kg IV.' },
-  medetomidina: { nombre: 'Medetomidina', dosisRef: [0.02, 0.08], unidad: 'mg/kg', maxSeguro: 0.1, nota: 'IM. Reversión con atipamezol 5x la dosis de medetomidina.' },
-  diazepam: { nombre: 'Diazepam', dosisRef: [0.2, 0.5], unidad: 'mg/kg', maxSeguro: 1.0, nota: 'IV lento. Relajante muscular y anticonvulsivo.' },
-  meloxicam: { nombre: 'Meloxicam', dosisRef: [0.1, 0.2], unidad: 'mg/kg', maxSeguro: 0.5, nota: 'SC/IV. AINE. Evitar en pacientes deshidratados o renales.' },
-  ivermectina: { nombre: 'Ivermectina', dosisRef: [0.2, 0.4], unidad: 'mg/kg', maxSeguro: 0.6, nota: 'SC. CONTRAINDICADO en quelonios y tortugas.' },
-  atropina: { nombre: 'Atropina', dosisRef: [0.02, 0.05], unidad: 'mg/kg', maxSeguro: 0.1, nota: 'IM/IV/SC. Pre-anestésica en mamíferos. Evitar en conejos (atropinesterasa).' },
-  enrofloxacina: { nombre: 'Enrofloxacina', dosisRef: [5, 15], unidad: 'mg/kg', maxSeguro: 20, nota: 'IM/SC. Antibiótico de amplio espectro. No en cachorros en crecimiento.' },
-  tramadol: { nombre: 'Tramadol', dosisRef: [2, 5], unidad: 'mg/kg', maxSeguro: 8, nota: 'IV/IM/PO. Analgésico opioide débil.' },
-  dexametasona: { nombre: 'Dexametasona', dosisRef: [0.1, 0.5], unidad: 'mg/kg', maxSeguro: 1.0, nota: 'IM/IV. Corticoide. Uso cuidadoso por inmunosupresión.' },
-  furosemida: { nombre: 'Furosemida', dosisRef: [1, 4], unidad: 'mg/kg', maxSeguro: 6, nota: 'IV/IM. Diurético. Monitorear hidratación y K+.' }
+  // ANESTÉSICOS DISOCIATIVOS
+  ketamina: { cat: 'anestesico', nombre: 'Ketamina', dosisRef: { mamifero: [5, 15], ave: [10, 30], reptil: [20, 60], pediatrico: [3, 10] }, max: 25, vias: ['IM', 'IV'], nota: 'Anestésico disociativo. Combinar con α2-agonista (medetomidina/xilacina) o benzodiacepina para relajación muscular. No causa hipotensión significativa. Evitar monoterapia (rigidez).', contraind: 'HTA sistémica, glaucoma, traumatismo craneoencefálico grave.' },
+  tiletamina: { cat: 'anestesico', nombre: 'Tiletamina-Zolazepam (Telazol/Zoletil)', dosisRef: { mamifero: [3, 6], ave: [5, 15], reptil: [5, 20], pediatrico: [2, 4] }, max: 10, vias: ['IM'], nota: 'Combinación fija disociativo+benzodiacepina. Inducción 3-6 min. Evita rigidez muscular. Ideal para fauna silvestre por volumen bajo.', contraind: 'Enfermedad renal, hepática, pancreatitis.' },
+
+  // SEDANTES / TRANQUILIZANTES
+  xilacina: { cat: 'sedante', nombre: 'Xilacina', dosisRef: { mamifero: [0.5, 3], ave: [0.5, 2], reptil: [0.3, 2], pediatrico: [0.2, 1] }, max: 4, vias: ['IM', 'IV'], nota: 'α2-agonista. Sedación + analgesia + relajación. Causa bradicardia y bloqueo AV. Reversión: yohimbina 0.1 mg/kg IV.', contraind: 'Bloqueo AV, ICC, diabetes descompensada, último tercio gestación.' },
+  medetomidina: { cat: 'sedante', nombre: 'Medetomidina', dosisRef: { mamifero: [0.02, 0.08], ave: [0.05, 0.1], reptil: [0.05, 0.15], pediatrico: [0.01, 0.04] }, max: 0.1, vias: ['IM', 'IV'], nota: 'α2-agonista más potente y selectivo que xilacina. Reversión: atipamezol 5x la dosis administrada.', contraind: 'Igual que xilacina.' },
+  dexmedetomidina: { cat: 'sedante', nombre: 'Dexmedetomidina', dosisRef: { mamifero: [0.005, 0.02], ave: [0.01, 0.05], reptil: [0.01, 0.05], pediatrico: [0.003, 0.01] }, max: 0.04, vias: ['IM', 'IV'], nota: 'α2-agonista ultra potente (2x medetomidina). Reversión con atipamezol 10x.', contraind: 'Cardiopatías severas.' },
+  acepromacina: { cat: 'sedante', nombre: 'Acepromacina', dosisRef: { mamifero: [0.02, 0.2], ave: [0.1, 0.5], reptil: [0.1, 0.5], pediatrico: [0.01, 0.1] }, max: 0.5, vias: ['IM', 'IV', 'SC'], nota: 'Fenotiazina. Tranquilizante sin analgesia. Vasodilatación periférica, puede causar hipotensión.', contraind: 'Shock, hipovolemia, epilepsia, Bóxer (sensibilidad racial).' },
+  diazepam: { cat: 'sedante', nombre: 'Diazepam', dosisRef: { mamifero: [0.2, 1], ave: [0.5, 2], reptil: [0.2, 2], pediatrico: [0.2, 0.5] }, max: 2, vias: ['IV', 'IM', 'PO'], nota: 'Benzodiacepina. Relajación muscular + anticonvulsivante. NO administrar IM puro (doloroso, errático). Reversión: flumazenil.', contraind: 'Glaucoma, miastenia.' },
+  midazolam: { cat: 'sedante', nombre: 'Midazolam', dosisRef: { mamifero: [0.1, 0.5], ave: [0.5, 2], reptil: [0.5, 2], pediatrico: [0.1, 0.3] }, max: 1, vias: ['IM', 'IV', 'Intranasal'], nota: 'Benzodiacepina hidrosoluble. Mejor absorción IM que diazepam. Útil en aves y reptiles por vía intranasal.', contraind: 'Igual diazepam.' },
+
+  // ANALGÉSICOS OPIOIDES
+  butorfanol: { cat: 'analgesico', nombre: 'Butorfanol', dosisRef: { mamifero: [0.1, 0.4], ave: [1, 4], reptil: [0.5, 2], pediatrico: [0.1, 0.2] }, max: 0.5, vias: ['IM', 'IV', 'SC'], nota: 'Agonista-antagonista opioide. Analgesia moderada + sedación leve. Ceiling effect. Ideal en aves. Reversión: naloxona.', contraind: 'Trauma craneal, depresión respiratoria severa.' },
+  tramadol: { cat: 'analgesico', nombre: 'Tramadol', dosisRef: { mamifero: [2, 5], ave: [5, 30], reptil: [5, 25], pediatrico: [1, 3] }, max: 10, vias: ['PO', 'IV', 'IM', 'SC'], nota: 'Analgésico central + inhibidor recaptación serotonina/NA. Efecto multimodal. No controlado en MX.', contraind: 'Convulsiones, ISRS concomitantes, hepatopatía severa.' },
+  morfina: { cat: 'analgesico', nombre: 'Morfina', dosisRef: { mamifero: [0.1, 1], ave: [0.1, 3], reptil: [1, 10], pediatrico: [0.05, 0.2] }, max: 2, vias: ['IM', 'IV', 'Epidural'], nota: 'Agonista opioide puro. Potente analgesia visceral. Reversión: naloxona 0.04 mg/kg. Requiere receta controlada en MX.', contraind: 'Trauma craneal, depresión respiratoria.' },
+  buprenorfina: { cat: 'analgesico', nombre: 'Buprenorfina', dosisRef: { mamifero: [0.005, 0.04], ave: [0.01, 0.25], reptil: [0.05, 0.2], pediatrico: [0.005, 0.02] }, max: 0.04, vias: ['IM', 'IV', 'Sublingual'], nota: 'Agonista parcial μ. Analgesia prolongada 6-12h. Ceiling effect. Difícil de revertir con naloxona (baja afinidad).', contraind: 'Hipersensibilidad a opioides.' },
+  fentanilo: { cat: 'analgesico', nombre: 'Fentanilo', dosisRef: { mamifero: [0.002, 0.01], ave: [0.01, 0.03], reptil: [0.01, 0.03], pediatrico: [0.001, 0.005] }, max: 0.02, vias: ['IV', 'Parche transdérmico'], nota: '100x más potente que morfina. Acción corta (20-30 min IV). Depresión respiratoria severa. Parche en gatos 2 mg/kg.', contraind: 'Shock, depresión respiratoria.' },
+
+  // AINEs
+  meloxicam: { cat: 'aine', nombre: 'Meloxicam', dosisRef: { mamifero: [0.1, 0.2], ave: [0.5, 2], reptil: [0.2, 0.5], pediatrico: [0.05, 0.1] }, max: 0.5, vias: ['SC', 'IV', 'PO'], nota: 'COX-2 preferencial. Buena seguridad gástrica. En aves rapaces dosis alta (2 mg/kg). Monitorear riñón en uso prolongado.', contraind: 'Deshidratación, ERC, úlceras GI, gestación.' },
+  carprofeno: { cat: 'aine', nombre: 'Carprofeno', dosisRef: { mamifero: [2, 4], ave: [1, 5], reptil: [1, 4], pediatrico: [1, 2] }, max: 4, vias: ['SC', 'IV', 'PO'], nota: 'AINE con perfil cox-2 en perro. Hepatotoxicidad idiosincrásica (Labrador). Monitorear ALT cada 2-4 semanas uso crónico.', contraind: 'Hepatopatía, ERC, gestación.' },
+  ketoprofeno: { cat: 'aine', nombre: 'Ketoprofeno', dosisRef: { mamifero: [1, 2], ave: [2, 5], reptil: [2, 4], pediatrico: [0.5, 1] }, max: 2, vias: ['IM', 'IV', 'SC', 'PO'], nota: 'AINE potente. Uso máximo 3-5 días. Riesgo GI alto.', contraind: 'Ulcus gastroduodenal, deshidratación.' },
+  flunixin: { cat: 'aine', nombre: 'Flunixin meglumine', dosisRef: { mamifero: [1, 2.2], ave: [1, 2], reptil: [0.5, 1], pediatrico: [0.5, 1] }, max: 2.2, vias: ['IV', 'IM'], nota: 'Potente analgesia visceral en ungulados. Uso restringido 3-5 días. Monitorear función renal.', contraind: 'Deshidratación, perros (nefrotóxico), ERC.' },
+
+  // ANTIBIÓTICOS
+  enrofloxacina: { cat: 'antibiotico', nombre: 'Enrofloxacina', dosisRef: { mamifero: [5, 15], ave: [10, 20], reptil: [5, 10], pediatrico: [2.5, 5] }, max: 20, vias: ['SC', 'IM', 'PO', 'IV'], nota: 'Fluoroquinolona de amplio espectro. En aves puede precipitar IM — usar SC o PO. Evitar en crecimiento (artropatía).', contraind: 'Cachorros en crecimiento, convulsiones, gatos (retinopatía >5 mg/kg).' },
+  amoxicilina: { cat: 'antibiotico', nombre: 'Amoxicilina', dosisRef: { mamifero: [10, 22], ave: [100, 200], reptil: [22, 50], pediatrico: [10, 15] }, max: 22, vias: ['SC', 'IM', 'PO'], nota: 'β-lactámico amplio espectro. En aves dosis altísima (100-200 mg/kg BID-TID). Combinar con clavulánico para β-lactamasas.', contraind: 'Alergia a penicilinas.' },
+  ceftriaxona: { cat: 'antibiotico', nombre: 'Ceftriaxona', dosisRef: { mamifero: [20, 50], ave: [50, 100], reptil: [20, 40], pediatrico: [10, 25] }, max: 50, vias: ['IV', 'IM', 'SC'], nota: 'Cefalosporina 3ª gen. Excelente para infecciones respiratorias, urinarias, sepsis. Dosis única/día.', contraind: 'Alergia β-lactámicos.' },
+  gentamicina: { cat: 'antibiotico', nombre: 'Gentamicina', dosisRef: { mamifero: [2, 6], ave: [5, 10], reptil: [2.5, 5], pediatrico: [1, 3] }, max: 10, vias: ['IM', 'IV', 'SC'], nota: 'Aminoglucósido. Nefrotóxico y ototóxico. Monitorear función renal. Hidratación indispensable. En reptiles intervalo 72h.', contraind: 'ERC, deshidratación, anestesia general.' },
+  metronidazol: { cat: 'antibiotico', nombre: 'Metronidazol', dosisRef: { mamifero: [10, 25], ave: [20, 50], reptil: [20, 100], pediatrico: [5, 15] }, max: 25, vias: ['PO', 'IV'], nota: 'Anti-anaerobios y antiprotozoario (Giardia, Trichomonas). En reptiles dosis alta para amibiasis.', contraind: 'Gestación 1er tercio, hepatopatía severa.' },
+  doxiciclina: { cat: 'antibiotico', nombre: 'Doxiciclina', dosisRef: { mamifero: [5, 10], ave: [25, 50], reptil: [5, 10], pediatrico: [2.5, 5] }, max: 10, vias: ['PO', 'IV'], nota: 'Tetraciclina de amplio espectro. Elección en clamidiosis aviar (25-50 mg/kg SID 45 días).', contraind: 'Gestación, crecimiento, hipocalcemia.' },
+
+  // ANTIPARASITARIOS
+  ivermectina: { cat: 'antiparasitario', nombre: 'Ivermectina', dosisRef: { mamifero: [0.2, 0.4], ave: [0.2, 0.4], reptil: [0, 0], pediatrico: [0.05, 0.2] }, max: 0.6, vias: ['SC', 'PO'], nota: '⚠️ CONTRAINDICADO en quelonios, tortugas y algunas serpientes (letal). En perros collies sensibilidad MDR1.', contraind: 'Quelonios, tortugas, colies MDR1, cachorros <6 sem.' },
+  fenbendazol: { cat: 'antiparasitario', nombre: 'Fenbendazol', dosisRef: { mamifero: [10, 50], ave: [20, 100], reptil: [50, 100], pediatrico: [10, 25] }, max: 50, vias: ['PO'], nota: 'Benzimidazol. Amplio espectro. En reptiles 50-100 mg/kg cada 15 días x 3 dosis. Seguro en gestación.' },
+  praziquantel: { cat: 'antiparasitario', nombre: 'Praziquantel', dosisRef: { mamifero: [5, 10], ave: [5, 10], reptil: [5, 8], pediatrico: [2.5, 5] }, max: 10, vias: ['PO', 'SC', 'IM'], nota: 'Antihelmíntico para cestodos y trematodos. Seguro. Dosis única o repetir a 2-3 semanas.' },
+  selamectina: { cat: 'antiparasitario', nombre: 'Selamectina (spot-on)', dosisRef: { mamifero: [6, 12], ave: [0, 0], reptil: [0, 0], pediatrico: [6, 12] }, max: 12, vias: ['Tópico'], nota: 'Endectocida spot-on. Pulgas, garrapatas, ácaros, dirofilaria. Seguro en Collies.' },
+
+  // CORTICOIDES
+  dexametasona: { cat: 'corticoide', nombre: 'Dexametasona', dosisRef: { mamifero: [0.1, 0.5], ave: [0.5, 2], reptil: [0.5, 2], pediatrico: [0.05, 0.2] }, max: 2, vias: ['IV', 'IM', 'SC'], nota: 'Glucocorticoide potente. Uso agudo en shock, edema cerebral, reacciones alérgicas. 30x cortisol. Uso prolongado: Cushing iatrogénico.', contraind: 'Infección sistémica, gestación, úlcera GI, diabetes.' },
+  prednisolona: { cat: 'corticoide', nombre: 'Prednisolona', dosisRef: { mamifero: [0.5, 2], ave: [0.5, 2], reptil: [0.5, 1], pediatrico: [0.25, 1] }, max: 4, vias: ['PO', 'IV', 'IM'], nota: 'Glucocorticoide de acción intermedia. Dosis antiinflamatoria 0.5-1 mg/kg, inmunosupresora 2-4 mg/kg. Reducir gradualmente.', contraind: 'Infección, gestación, DM.' },
+  hidrocortisona: { cat: 'corticoide', nombre: 'Hidrocortisona', dosisRef: { mamifero: [2, 5], ave: [2, 5], reptil: [2, 5], pediatrico: [1, 2] }, max: 5, vias: ['IV', 'IM'], nota: 'Corticoide natural. Shock adrenal, crisis addisoniana. Acción corta.', contraind: 'Infección sistémica sin antibiótico.' },
+
+  // EMERGENCIA
+  atropina: { cat: 'emergencia', nombre: 'Atropina', dosisRef: { mamifero: [0.02, 0.04], ave: [0.5, 1], reptil: [0.01, 0.04], pediatrico: [0.02, 0.04] }, max: 0.1, vias: ['IM', 'IV', 'SC'], nota: 'Anticolinérgico. Pre-anestésica (reduce salivación), bradicardia, bloqueo AV, intoxicación por organofosforados (dosis alta 0.2-0.5 mg/kg). NO usar en conejos (atropinesterasa).', contraind: 'Conejos, glaucoma, taquiarritmias.' },
+  epinefrina: { cat: 'emergencia', nombre: 'Epinefrina (Adrenalina)', dosisRef: { mamifero: [0.01, 0.02], ave: [0.01, 0.1], reptil: [0.05, 0.1], pediatrico: [0.01, 0.02] }, max: 0.1, vias: ['IV', 'IM', 'Intratraqueal'], nota: 'Simpático-mimético. RCP, anafilaxia, shock. IV lento diluido 1:10,000. Intratraqueal dosis 2-3x si no hay acceso IV.', contraind: 'HTA, taquiarritmias severas (relativa en emergencia).' },
+  lidocaina: { cat: 'emergencia', nombre: 'Lidocaína', dosisRef: { mamifero: [1, 4], ave: [0, 0], reptil: [1, 5], pediatrico: [0.5, 2] }, max: 4, vias: ['IV', 'Local'], nota: 'Antiarrítmico (perro 2-4 mg/kg bolo + CRI 25-80 μg/kg/min). Anestésico local. ⚠️ En gatos usar máx 0.5 mg/kg (toxicidad cardíaca).', contraind: 'Bloqueo AV, bradicardia severa.' },
+  furosemida: { cat: 'emergencia', nombre: 'Furosemida', dosisRef: { mamifero: [1, 4], ave: [1, 5], reptil: [2, 5], pediatrico: [0.5, 2] }, max: 8, vias: ['IV', 'IM', 'PO'], nota: 'Diurético de asa. ICC con edema pulmonar, hipercalcemia, oliguria. Monitorear K+ (hipocalemia), deshidratación.', contraind: 'Deshidratación, anuria, alergia a sulfas.' },
+  naloxona: { cat: 'reversor', nombre: 'Naloxona', dosisRef: { mamifero: [0.04, 0.1], ave: [0.04, 0.1], reptil: [0.04, 0.1], pediatrico: [0.02, 0.04] }, max: 0.1, vias: ['IV', 'IM'], nota: 'Antagonista opioide puro. Revierte morfina, fentanilo, butorfanol. Vida media corta (30-60 min), puede requerir dosis repetidas.', contraind: 'Dolor severo no controlado.' },
+  atipamezol: { cat: 'reversor', nombre: 'Atipamezol', dosisRef: { mamifero: [0.2, 0.4], ave: [0.25, 0.5], reptil: [0.25, 0.5], pediatrico: [0.1, 0.2] }, max: 0.5, vias: ['IM'], nota: 'Antagonista α2 específico. Revierte medetomidina (5x dosis administrada) y dexmedetomidina (10x). IM preferido, IV causa taquicardia e hipertensión.', contraind: 'Uso reciente de α1-agonistas.' },
+  yohimbina: { cat: 'reversor', nombre: 'Yohimbina', dosisRef: { mamifero: [0.1, 0.15], ave: [0.1, 0.2], reptil: [0.1, 0.2], pediatrico: [0.05, 0.1] }, max: 0.2, vias: ['IV', 'IM'], nota: 'Antagonista α2. Revierte xilacina. IV lenta preferida. Puede causar excitación, taquicardia.', contraind: 'Epilepsia, ERC severa.' },
+  flumazenil: { cat: 'reversor', nombre: 'Flumazenil', dosisRef: { mamifero: [0.01, 0.02], ave: [0.02, 0.1], reptil: [0.02, 0.1], pediatrico: [0.005, 0.02] }, max: 0.04, vias: ['IV'], nota: 'Antagonista benzodiacepinas. Revierte diazepam/midazolam. Vida media corta (1h) — monitorear re-sedación.', contraind: 'Epilepsia controlada con BZD, intoxicación ATC.' }
 };
+
+function actualizarDrogas() {
+  const cat = document.getElementById('doseCategory').value;
+  const sel = document.getElementById('doseDrug');
+  const entries = Object.entries(DROGAS).filter(([k, v]) => cat === 'all' || v.cat === cat);
+  sel.innerHTML = entries.map(([k, v]) => `<option value="${k}">${v.nombre}</option>`).join('');
+  document.getElementById('doseCount').textContent = entries.length + ' fármacos';
+}
 
 function calcularDosis() {
   const drug = document.getElementById('doseDrug').value;
   const peso = parseFloat(document.getElementById('dosePeso').value);
   const conc = parseFloat(document.getElementById('doseConc').value);
-  const customDose = parseFloat(document.getElementById('doseCustom').value);
+  const especie = document.getElementById('doseEspecie').value;
   const rEl = document.getElementById('doseResult');
 
-  if (!peso || peso <= 0) {
-    showErr(rEl, 'Ingresa un peso válido mayor a 0 kg.');
+  if (!peso || peso <= 0) { showErr(rEl, 'Ingresa un peso válido mayor a 0 kg.'); return; }
+  if (!conc || conc <= 0) { showErr(rEl, 'Ingresa la concentración del frasco (mg/ml).'); return; }
+
+  const info = DROGAS[drug];
+  if (!info) { showErr(rEl, 'Selecciona un medicamento.'); return; }
+  const rango = info.dosisRef[especie];
+  if (!rango || (rango[0] === 0 && rango[1] === 0)) {
+    showErr(rEl, `⚠️ ${info.nombre} NO está recomendado o contraindicado para ${especie}. Revisa notas: ${info.nota}`);
     return;
   }
-  if (!conc || conc <= 0) {
-    showErr(rEl, 'Ingresa la concentración del medicamento (mg/ml) del frasco.');
-    return;
-  }
+  const [dMin, dMax] = rango;
+  const mgMin = peso * dMin;
+  const mgMax = peso * dMax;
+  const mlMin = mgMin / conc;
+  const mlMax = mgMax / conc;
+  const sobredosis = dMax > info.max;
 
-  let info, dosisBaja, dosisAlta, isCustom = false;
-  if (drug === 'custom') {
-    if (!customDose || customDose <= 0) {
-      showErr(rEl, 'Ingresa la dosis mg/kg manual.');
-      return;
-    }
-    info = { nombre: 'Medicamento personalizado', unidad: 'mg/kg', maxSeguro: customDose * 2, nota: 'Dosis personalizada. Verifica literatura.' };
-    dosisBaja = customDose;
-    dosisAlta = customDose;
-    isCustom = true;
-  } else {
-    info = DROGAS[drug];
-    dosisBaja = info.dosisRef[0];
-    dosisAlta = info.dosisRef[1];
-  }
-
-  const mgBajo = peso * dosisBaja;
-  const mgAlto = peso * dosisAlta;
-  const mlBajo = mgBajo / conc;
-  const mlAlto = mgAlto / conc;
-  const sobredosis = (mgAlto / peso) > info.maxSeguro;
-
-  let html = `
-    <div class="tool-result__title">💊 ${info.nombre} · ${peso} kg</div>
+  rEl.innerHTML = `
+    <div class="tool-result__title">💊 ${info.nombre} · ${peso} kg · ${especie}</div>
     <div class="tool-result__rows">
-      ${isCustom ? `
-        <div class="tool-result__row">
-          <span class="tool-result__row-label">Dosis total</span>
-          <span class="tool-result__row-value">${mgBajo.toFixed(2)} mg</span>
-        </div>
-        <div class="tool-result__row">
-          <span class="tool-result__row-label">Volumen a administrar</span>
-          <span class="tool-result__row-value">${mlBajo.toFixed(2)} ml</span>
-        </div>
-      ` : `
-        <div class="tool-result__row">
-          <span class="tool-result__row-label">Rango dosis (${dosisBaja}-${dosisAlta} mg/kg)</span>
-          <span class="tool-result__row-value">${mgBajo.toFixed(2)} – ${mgAlto.toFixed(2)} mg</span>
-        </div>
-        <div class="tool-result__row">
-          <span class="tool-result__row-label">Volumen ajustado (${conc} mg/ml)</span>
-          <span class="tool-result__row-value">${mlBajo.toFixed(2)} – ${mlAlto.toFixed(2)} ml</span>
-        </div>
-        <div class="tool-result__row">
-          <span class="tool-result__row-label">Dosis máxima segura (${info.maxSeguro} mg/kg)</span>
-          <span class="tool-result__row-value">${(peso * info.maxSeguro).toFixed(2)} mg</span>
-        </div>
-      `}
+      <div class="tool-result__row">
+        <span class="tool-result__row-label">Rango de dosis (${dMin}-${dMax} mg/kg)</span>
+        <span class="tool-result__row-value">${mgMin.toFixed(2)} – ${mgMax.toFixed(2)} mg</span>
+      </div>
+      <div class="tool-result__row">
+        <span class="tool-result__row-label">Volumen a administrar (${conc} mg/ml)</span>
+        <span class="tool-result__row-value">${mlMin.toFixed(2)} – ${mlMax.toFixed(2)} ml</span>
+      </div>
+      <div class="tool-result__row">
+        <span class="tool-result__row-label">Dosis máxima segura global</span>
+        <span class="tool-result__row-value">${(peso * info.max).toFixed(2)} mg (${info.max} mg/kg)</span>
+      </div>
+      <div class="tool-result__row">
+        <span class="tool-result__row-label">Vías de administración</span>
+        <span class="tool-result__row-value">${info.vias.join(' / ')}</span>
+      </div>
     </div>
-    <div class="tool-result__note">${info.nota}</div>
+    <div class="tool-subsection">
+      <div class="tool-subsection__title">📋 Notas clínicas</div>
+      <p style="margin:0;color:var(--zoo-text);">${info.nota}</p>
+    </div>
+    ${info.contraind ? `
+    <div class="tool-subsection" style="border-left-color:#D55A28;">
+      <div class="tool-subsection__title" style="color:#D55A28;">⚠️ Contraindicaciones</div>
+      <p style="margin:0;color:var(--zoo-text);">${info.contraind}</p>
+    </div>` : ''}
   `;
-  rEl.innerHTML = html;
   rEl.className = 'tool-result is-visible' + (sobredosis ? ' is-danger' : '');
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ═══════════════ 2. ANESTESIA ═══════════════
+// ═══════════════ PROTOCOLOS ANESTÉSICOS (12) ═══════════════
 const PROTOCOLOS = {
   ktm: {
-    nombre: 'Ketamina + Medetomidina',
+    nombre: 'Ketamina + Medetomidina (carnívoros)',
+    uso: 'Felinos pequeños-medianos, cánidos silvestres, mustélidos',
     componentes: [
-      { nombre: 'Ketamina', dosis: 5, conc: 100, unidad: 'mg/kg' },
-      { nombre: 'Medetomidina', dosis: 0.05, conc: 1, unidad: 'mg/kg' }
+      { nombre: 'Atropina (pre-anestesia)', dosis: 0.02, conc: 1, via: 'IM', paso: 1 },
+      { nombre: 'Ketamina', dosis: 5, conc: 100, via: 'IM', paso: 2 },
+      { nombre: 'Medetomidina', dosis: 0.05, conc: 1, via: 'IM', paso: 2 }
     ],
     induccion: '8-15 min',
     duracion: '30-60 min',
-    reversion: 'Atipamezol 0.25 mg/kg IM (5x la dosis de medetomidina)',
-    nota: 'Protocolo clásico para fauna carnívora. Administrar IM profundo.'
+    reversion: 'Atipamezol 0.25 mg/kg IM (5x dosis medetomidina)',
+    monitoreo: 'SpO₂ cada 5 min, Temp cada 10 min, FC continua',
+    complic: 'Bradicardia (responde a atropina), hipotermia en hembras lactantes',
+    nota: 'Protocolo clásico probado en felinos silvestres. Iniciar pre-anestesia atropina 10 min antes.'
   },
   bam: {
     nombre: 'BAM (Butorfanol + Azaperona + Medetomidina)',
+    uso: 'Ungulados silvestres (venados, berrendos, bisonte, antilope)',
     componentes: [
-      { nombre: 'Butorfanol', dosis: 0.27, conc: 10, unidad: 'mg/kg' },
-      { nombre: 'Azaperona', dosis: 0.27, conc: 40, unidad: 'mg/kg' },
-      { nombre: 'Medetomidina', dosis: 0.11, conc: 10, unidad: 'mg/kg' }
+      { nombre: 'Butorfanol', dosis: 0.27, conc: 10, via: 'IM dardo', paso: 1 },
+      { nombre: 'Azaperona', dosis: 0.27, conc: 40, via: 'IM dardo', paso: 1 },
+      { nombre: 'Medetomidina', dosis: 0.11, conc: 10, via: 'IM dardo', paso: 1 }
     ],
     induccion: '5-10 min',
     duracion: '45-90 min',
     reversion: 'Atipamezol 0.55 mg/kg + Naltrexona 0.27 mg/kg IM',
-    nota: 'Ideal para rumiantes silvestres (venados, berrendos, bisontes).'
+    monitoreo: 'SpO₂, capnografía, ECG. Riesgo de timpanismo en rumiantes.',
+    complic: 'Regurgitación, timpanismo ruminal, hipoxemia. Mantener decúbito esternal.',
+    nota: 'Patentado para rumiantes silvestres. Volumen reducido, ideal para dardos.'
   },
   tkx: {
-    nombre: 'TKX (Tiletamina-Zolazepam + Ketamina + Xilacina)',
+    nombre: 'TKX (Telazol + Ketamina + Xilacina)',
+    uso: 'Felinos grandes (puma, jaguar), cánidos grandes, úrsidos pequeños',
     componentes: [
-      { nombre: 'Telazol (T+Z)', dosis: 3, conc: 100, unidad: 'mg/kg' },
-      { nombre: 'Ketamina', dosis: 2, conc: 100, unidad: 'mg/kg' },
-      { nombre: 'Xilacina', dosis: 1, conc: 100, unidad: 'mg/kg' }
+      { nombre: 'Telazol (Tiletamina+Zolazepam)', dosis: 3, conc: 100, via: 'IM', paso: 1 },
+      { nombre: 'Ketamina', dosis: 2, conc: 100, via: 'IM', paso: 1 },
+      { nombre: 'Xilacina', dosis: 1, conc: 100, via: 'IM', paso: 1 }
     ],
     induccion: '5-12 min',
     duracion: '60-90 min',
-    reversion: 'Yohimbina 0.1 mg/kg IV para xilacina',
-    nota: 'Felinos grandes (puma, jaguar). Monitorear depresión respiratoria.'
+    reversion: 'Yohimbina 0.1 mg/kg IV para xilacina · Telazol NO tiene antagonista',
+    monitoreo: 'Continuo. Riesgo alto de depresión respiratoria.',
+    complic: 'Depresión respiratoria severa, hipotensión, recuperación prolongada',
+    nota: 'Volumen muy bajo ideal para fauna grande con dardo. Tener O₂ + IPPV disponibles.'
   },
   kd: {
     nombre: 'Ketamina + Diazepam',
+    uso: 'Primates, mustélidos pequeños, carnívoros en santuario',
     componentes: [
-      { nombre: 'Ketamina', dosis: 10, conc: 100, unidad: 'mg/kg' },
-      { nombre: 'Diazepam', dosis: 0.25, conc: 5, unidad: 'mg/kg' }
+      { nombre: 'Ketamina', dosis: 10, conc: 100, via: 'IV', paso: 1 },
+      { nombre: 'Diazepam', dosis: 0.25, conc: 5, via: 'IV', paso: 1 }
     ],
     induccion: '3-8 min IV',
     duracion: '20-40 min',
-    reversion: 'Flumazenil 0.02 mg/kg para diazepam (poco usado)',
-    nota: 'Primates, pequeños carnívoros, animales de santuario. IV preferido.'
+    reversion: 'Flumazenil 0.02 mg/kg IV (si necesario)',
+    monitoreo: 'SpO₂, Temp, FC cada 5 min',
+    complic: 'Mínima. Apnea transitoria al inducir IV rápida.',
+    nota: 'Ideal para procedimientos cortos. Primates no humanos: excelente estabilidad cardiovascular.'
   },
-  isoM: {
-    nombre: 'Isoflurano (mantenimiento)',
-    componentes: [],
-    induccion: 'Cámara 5% / máscara 3-4%',
-    duracion: 'Mantenimiento 1.5-2.5%',
-    reversion: 'Suspender vaporizador · oxígeno 100% 5-10 min',
-    nota: 'Aves y reptiles. Requiere O₂ y vaporizador calibrado. Monitoreo con capnógrafo.'
+  kdm: {
+    nombre: 'Ketamina + Dexmedetomidina (pequeños)',
+    uso: 'Felinos domésticos/silvestres pequeños, mustélidos',
+    componentes: [
+      { nombre: 'Ketamina', dosis: 3, conc: 100, via: 'IM', paso: 1 },
+      { nombre: 'Dexmedetomidina', dosis: 0.015, conc: 0.5, via: 'IM', paso: 1 }
+    ],
+    induccion: '5-10 min',
+    duracion: '30-45 min',
+    reversion: 'Atipamezol 0.15 mg/kg IM (10x dexmedetomidina)',
+    monitoreo: 'SpO₂, FC (bradicardia esperada), Temp',
+    complic: 'Bradicardia, hipotermia',
+    nota: 'Protocolo moderno, menor volumen, mejor recuperación que KTM clásico.'
+  },
+  iso: {
+    nombre: 'Isoflurano (máscara + tubo)',
+    uso: 'Aves, reptiles pequeños, procedimientos largos',
+    componentes: [
+      { nombre: 'Inducción en cámara/máscara', dosis: 5, conc: 0, via: '% vaporizador', paso: 1 },
+      { nombre: 'Mantenimiento', dosis: 2, conc: 0, via: '% vaporizador', paso: 2 }
+    ],
+    induccion: '3-8 min',
+    duracion: 'Controlable',
+    reversion: 'Suspender vaporizador + O₂ 100% 5-10 min',
+    monitoreo: 'Capnografía (ideal), SpO₂, Temp, ECG',
+    complic: 'Hipotermia (especialmente aves y reptiles), hipotensión dosis-dependiente',
+    nota: 'Gold standard en aves y reptiles. Requiere vaporizador calibrado, O₂ y sistema de rebreathing apropiado (aves: sin válvulas unidireccionales).'
+  },
+  sevo: {
+    nombre: 'Sevoflurano (alternativa isoflurano)',
+    uso: 'Cardiópatas, geriátricos, pediátricos',
+    componentes: [
+      { nombre: 'Inducción', dosis: 6, conc: 0, via: '% vaporizador', paso: 1 },
+      { nombre: 'Mantenimiento', dosis: 2.5, conc: 0, via: '% vaporizador', paso: 2 }
+    ],
+    induccion: '2-5 min (más rápida que iso)',
+    duracion: 'Controlable',
+    reversion: 'Suspender vaporizador + O₂',
+    monitoreo: 'Capnografía, SpO₂',
+    complic: 'Menos depresión cardiovascular que iso. Más caro.',
+    nota: 'Preferible en pacientes comprometidos. Menor irritación vías aéreas.'
+  },
+  propofol: {
+    nombre: 'Propofol (inducción IV)',
+    uso: 'Inducción IV + mantenimiento con inhalatorio, procedimientos cortos',
+    componentes: [
+      { nombre: 'Propofol', dosis: 4, conc: 10, via: 'IV lenta', paso: 1 }
+    ],
+    induccion: '30-60 seg IV',
+    duracion: '5-10 min por bolo · CRI 0.2-0.4 mg/kg/min',
+    reversion: 'No necesita (metabolismo rápido)',
+    monitoreo: 'Apnea post-inducción (esperable), SpO₂, presión arterial',
+    complic: 'Apnea, hipotensión. NO repetir bolos en gatos (Heinz bodies)',
+    nota: 'Ideal para inducción seguida de intubación. CRI estable cardiovascularmente.'
+  },
+  alfaxalona: {
+    nombre: 'Alfaxalona (inducción IV)',
+    uso: 'Alternativa al propofol. Felinos (sin bodies Heinz), aves, reptiles',
+    componentes: [
+      { nombre: 'Alfaxalona', dosis: 2, conc: 10, via: 'IV lenta', paso: 1 }
+    ],
+    induccion: '30-90 seg IV',
+    duracion: '10-15 min',
+    reversion: 'No antagonista',
+    monitoreo: 'SpO₂, Temp',
+    complic: 'Apnea leve, tremores al despertar',
+    nota: 'Excelente seguridad cardiovascular. Segura en múltiples dosis y felinos.'
+  },
+  aves_mmk: {
+    nombre: 'Aves: Midazolam + Medetomidina + Ketamina',
+    uso: 'Psitácidos, rapaces, aves acuáticas',
+    componentes: [
+      { nombre: 'Midazolam', dosis: 1, conc: 5, via: 'IM pectoral', paso: 1 },
+      { nombre: 'Medetomidina', dosis: 0.1, conc: 1, via: 'IM pectoral', paso: 1 },
+      { nombre: 'Ketamina', dosis: 5, conc: 100, via: 'IM pectoral', paso: 1 }
+    ],
+    induccion: '5-10 min',
+    duracion: '30-45 min',
+    reversion: 'Atipamezol 0.5 mg/kg IM + Flumazenil 0.1 mg/kg IM si necesario',
+    monitoreo: 'Capnografía esencial, Temp (calentar activamente), SpO₂',
+    complic: 'Hipotermia severa, regurgitación (ayuno 4-6h previo)',
+    nota: 'Combinación balanceada para intervenciones en aves. Volumen total calculado.'
+  },
+  reptiles_mk: {
+    nombre: 'Reptiles: Medetomidina + Ketamina',
+    uso: 'Iguanas, tortugas, serpientes grandes',
+    componentes: [
+      { nombre: 'Medetomidina', dosis: 0.1, conc: 1, via: 'IM muslo/cola', paso: 1 },
+      { nombre: 'Ketamina', dosis: 10, conc: 100, via: 'IM muslo/cola', paso: 1 }
+    ],
+    induccion: '15-30 min (dependiente de Tº)',
+    duracion: '60-120 min',
+    reversion: 'Atipamezol 0.5 mg/kg IM',
+    monitoreo: 'Reflejo corneal, Doppler, Temp ambiente (28-30°C)',
+    complic: 'Recuperación muy prolongada si Tº baja. IPPV durante procedimiento.',
+    nota: 'Mantener temperatura óptima (POTZ) durante todo el procedimiento y recuperación. IPPV 4-6 resp/min.'
+  },
+  rapaces: {
+    nombre: 'Rapaces: Isoflurano con máscara',
+    uso: 'Halcones, águilas, búhos — exámenes rutinarios',
+    componentes: [
+      { nombre: 'Pre-medicación: Butorfanol', dosis: 2, conc: 10, via: 'IM pectoral', paso: 1 },
+      { nombre: 'Inducción isoflurano máscara', dosis: 4, conc: 0, via: '% vapor', paso: 2 },
+      { nombre: 'Mantenimiento', dosis: 1.8, conc: 0, via: '% vapor', paso: 3 }
+    ],
+    induccion: '2-4 min',
+    duracion: 'Controlable',
+    reversion: 'Suspender vaporizador',
+    monitoreo: 'SpO₂ en lengua o pliegue alar. Temp rectal.',
+    complic: 'Hipotermia rápida, apnea',
+    nota: 'Premedicar con butorfanol reduce requerimiento anestésico y da analgesia multimodal.'
   }
 };
+
+function renderProtocolos() {
+  const sel = document.getElementById('anesProto');
+  sel.innerHTML = Object.entries(PROTOCOLOS).map(([k, v]) => `<option value="${k}">${v.nombre}</option>`).join('');
+}
 
 function calcularAnestesia() {
   const proto = document.getElementById('anesProto').value;
   const peso = parseFloat(document.getElementById('anesPeso').value);
   const rEl = document.getElementById('anesResult');
-
-  if (!peso || peso <= 0) {
-    showErr(rEl, 'Ingresa un peso válido.');
-    return;
-  }
+  if (!peso || peso <= 0) { showErr(rEl, 'Ingresa un peso válido.'); return; }
 
   const p = PROTOCOLOS[proto];
-  let componentes = '';
-  if (p.componentes.length === 0) {
-    componentes = `<div class="tool-result__row"><span class="tool-result__row-label">Método</span><span class="tool-result__row-value">Inhalatorio</span></div>`;
-  } else {
-    p.componentes.forEach(c => {
+  let componentesHtml = '';
+  p.componentes.forEach(c => {
+    if (c.conc > 0) {
       const mg = (peso * c.dosis).toFixed(2);
       const ml = ((peso * c.dosis) / c.conc).toFixed(2);
-      componentes += `
+      componentesHtml += `
         <div class="tool-result__row">
-          <span class="tool-result__row-label">${c.nombre} (${c.dosis} ${c.unidad}, ${c.conc} mg/ml)</span>
+          <span class="tool-result__row-label">${c.nombre} (${c.dosis} mg/kg, ${c.conc} mg/ml, ${c.via})</span>
           <span class="tool-result__row-value">${mg} mg · ${ml} ml</span>
         </div>`;
-    });
-  }
+    } else {
+      componentesHtml += `
+        <div class="tool-result__row">
+          <span class="tool-result__row-label">${c.nombre} (${c.via})</span>
+          <span class="tool-result__row-value">${c.dosis}${typeof c.dosis === 'number' ? '%' : ''}</span>
+        </div>`;
+    }
+  });
 
   rEl.innerHTML = `
     <div class="tool-result__title">💉 ${p.nombre} · ${peso} kg</div>
+    <div style="margin-bottom:10px;color:var(--zoo-text-muted);font-size:.85rem;"><strong style="color:#E8A317;">Uso:</strong> ${p.uso}</div>
     <div class="tool-result__rows">
-      ${componentes}
+      ${componentesHtml}
       <div class="tool-result__row"><span class="tool-result__row-label">Tiempo de inducción</span><span class="tool-result__row-value">${p.induccion}</span></div>
       <div class="tool-result__row"><span class="tool-result__row-label">Duración estimada</span><span class="tool-result__row-value">${p.duracion}</span></div>
     </div>
-    <div class="tool-result__note"><strong style="color:#6FBF73;">Reversión:</strong> ${p.reversion}<br><br>${p.nota}</div>
+    <div class="tool-subsection">
+      <div class="tool-subsection__title" style="color:#6FBF73;">🔄 Reversión</div>
+      <p style="margin:0;color:var(--zoo-text);">${p.reversion}</p>
+    </div>
+    <div class="tool-subsection">
+      <div class="tool-subsection__title" style="color:#2AA4D5;">📊 Monitoreo</div>
+      <p style="margin:0;color:var(--zoo-text);">${p.monitoreo}</p>
+    </div>
+    <div class="tool-subsection" style="border-left-color:#D55A28;">
+      <div class="tool-subsection__title" style="color:#D55A28;">⚠️ Complicaciones comunes</div>
+      <p style="margin:0;color:var(--zoo-text);">${p.complic}</p>
+    </div>
+    <div class="tool-result__note">${p.nota}</div>
   `;
   rEl.className = 'tool-result is-visible';
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ═══════════════ 3. FLUIDOS ═══════════════
+// ═══════════════ FLUIDOTERAPIA AVANZADA ═══════════════
 function calcularFluidos() {
   const group = document.getElementById('fluidsGroup').value;
   const peso = parseFloat(document.getElementById('fluidsPeso').value);
-  const desh = parseFloat(document.getElementById('fluidsDesh').value);
-  const perdidas = parseFloat(document.getElementById('fluidsPerd').value) || 0;
+  const tipo = document.getElementById('fluidsTipo').value;
   const equipo = parseFloat(document.getElementById('fluidsEquipo').value);
+  const perdidas = parseFloat(document.getElementById('fluidsPerd').value) || 0;
   const rEl = document.getElementById('fluidsResult');
 
-  if (!peso || peso <= 0) {
-    showErr(rEl, 'Ingresa un peso válido.');
-    return;
-  }
+  if (!peso || peso <= 0) { showErr(rEl, 'Ingresa un peso válido.'); return; }
 
-  // Mantenimiento por grupo (ml/kg/día)
   const MANT = { mamiferos: 50, aves: 50, reptiles: 20 };
   const mantFactor = MANT[group];
-
-  const deficit = peso * 1000 * (desh / 100); // en ml
   const mantenimiento = peso * mantFactor;
-  const total24h = deficit + mantenimiento + perdidas;
-  const mlHora = total24h / 24;
+
+  let total = 0, bolo = 0, deficit = 0, quemado = 0;
+  let titulo = '', nota = '', modo = 'mant';
+
+  if (tipo === 'normal') {
+    total = mantenimiento + perdidas;
+    titulo = 'Mantenimiento normal';
+    nota = 'Ringer Lactato o Sol. Salina 0.9% a velocidad constante.';
+  } else if (tipo === 'desh' || tipo === 'gastro') {
+    const desh = parseFloat(document.getElementById('fluidsDesh').value);
+    deficit = peso * 1000 * (desh / 100);
+    total = deficit + mantenimiento + perdidas;
+    titulo = `Deshidratación ${desh}% (${tipo === 'gastro' ? 'vómito/diarrea' : 'pérdidas'})`;
+    nota = `Reponer 50% del déficit en primeras 6-8h, el resto en siguientes 16-18h. Reevaluar hidratación cada 4-6h (turgor, mucosas, peso). Si es diarrea/vómito considerar coloides y K+ suplementación (20-40 mEq/L).`;
+  } else if (tipo === 'shock') {
+    bolo = peso * 20; // 20 ml/kg mamíferos
+    if (group === 'aves') bolo = peso * 10;
+    if (group === 'reptiles') bolo = peso * 5;
+    total = bolo + mantenimiento;
+    titulo = 'Shock hipovolémico';
+    nota = `BOLO INICIAL de ${bolo.toFixed(0)} ml en 15-20 min, reevaluar, repetir hasta 3 bolos si persiste shock. Luego mantenimiento con cristaloides. Si no responde: coloides (hetastarch 10-20 ml/kg) + vasopresores (dobutamina 2.5-10 μg/kg/min).`;
+    modo = 'shock';
+  } else if (tipo === 'cirugia') {
+    total = peso * 5 * 3; // 5 ml/kg/h x 3h aprox
+    titulo = 'Intraoperatorio';
+    nota = `Velocidad 5-10 ml/kg/h durante cirugía. Ringer Lactato de elección. Reducir a 2-3 ml/kg/h si cirugía >3h. Monitorear PAM >60 mmHg, Temp, diuresis >1-2 ml/kg/h.`;
+    modo = 'cirugia';
+  } else if (tipo === 'quemado') {
+    const pQuem = parseFloat(document.getElementById('fluidsQuem').value) || 0;
+    if (pQuem <= 0) { showErr(rEl, 'Ingresa % de superficie corporal quemada.'); return; }
+    quemado = 4 * peso * pQuem; // Fórmula Parkland: 4 ml x peso kg x %SCQ
+    total = quemado + mantenimiento;
+    titulo = `Quemado ${pQuem}% SCQ (fórmula Parkland)`;
+    nota = `Administrar 50% (${(quemado/2).toFixed(0)} ml) en primeras 8h desde la quemadura, el otro 50% en las siguientes 16h. Usar Ringer Lactato. Monitorear diuresis >1 ml/kg/h como indicador de reposición adecuada.`;
+    modo = 'quemado';
+  }
+
+  const mlHora = total / 24;
   const gotasMin = (mlHora * equipo) / 60;
   const segGota = gotasMin > 0 ? (60 / gotasMin) : 0;
-  const bolo = peso * 15; // 10-20 ml/kg shock
 
-  const severo = desh >= 10;
+  let html = `<div class="tool-result__title">💧 ${titulo} · ${peso} kg (${group})</div><div class="tool-result__rows">`;
 
-  rEl.innerHTML = `
-    <div class="tool-result__title">💧 Fluidoterapia · ${peso} kg · ${desh}% deshidratación</div>
-    <div class="tool-result__rows">
-      <div class="tool-result__row"><span class="tool-result__row-label">Déficit a reponer</span><span class="tool-result__row-value">${deficit.toFixed(0)} ml</span></div>
-      <div class="tool-result__row"><span class="tool-result__row-label">Mantenimiento/día (${mantFactor} ml/kg)</span><span class="tool-result__row-value">${mantenimiento.toFixed(0)} ml</span></div>
-      ${perdidas > 0 ? `<div class="tool-result__row"><span class="tool-result__row-label">Pérdidas extra</span><span class="tool-result__row-value">${perdidas} ml</span></div>` : ''}
-      <div class="tool-result__row"><span class="tool-result__row-label">Total 24h</span><span class="tool-result__row-value">${total24h.toFixed(0)} ml</span></div>
-      <div class="tool-result__row"><span class="tool-result__row-label">Velocidad</span><span class="tool-result__row-value">${mlHora.toFixed(1)} ml/h</span></div>
-      <div class="tool-result__row"><span class="tool-result__row-label">Goteo (${equipo} gtt/ml)</span><span class="tool-result__row-value">${gotasMin.toFixed(1)} gtt/min (${segGota.toFixed(1)} seg/gota)</span></div>
-      ${severo ? `<div class="tool-result__row" style="background:rgba(213,90,40,0.2);"><span class="tool-result__row-label">Bolo inicial shock (15 ml/kg en 15-20 min)</span><span class="tool-result__row-value">${bolo.toFixed(0)} ml</span></div>` : ''}
-    </div>
-    <div class="tool-result__note">Recomendado: Ringer Lactato o Sol. Salina 0.9%. En reptiles usar fluidos tibios (25-28°C). Reponer déficit en 12-24h, NO en bolo (excepto shock).</div>
-  `;
-  rEl.className = 'tool-result is-visible' + (severo ? ' is-warning' : '');
+  if (bolo > 0) html += `<div class="tool-result__row" style="background:rgba(213,90,40,0.25);"><span class="tool-result__row-label">🚨 BOLO inmediato (15-20 min)</span><span class="tool-result__row-value">${bolo.toFixed(0)} ml</span></div>`;
+  if (deficit > 0) html += `<div class="tool-result__row"><span class="tool-result__row-label">Déficit a reponer</span><span class="tool-result__row-value">${deficit.toFixed(0)} ml</span></div>`;
+  if (quemado > 0) html += `<div class="tool-result__row"><span class="tool-result__row-label">Parkland (4 × kg × %SCQ)</span><span class="tool-result__row-value">${quemado.toFixed(0)} ml / 24h</span></div>`;
+  html += `<div class="tool-result__row"><span class="tool-result__row-label">Mantenimiento (${mantFactor} ml/kg/día)</span><span class="tool-result__row-value">${mantenimiento.toFixed(0)} ml</span></div>`;
+  if (perdidas > 0) html += `<div class="tool-result__row"><span class="tool-result__row-label">Pérdidas extras</span><span class="tool-result__row-value">${perdidas} ml</span></div>`;
+  html += `<div class="tool-result__row"><span class="tool-result__row-label">TOTAL 24h</span><span class="tool-result__row-value">${total.toFixed(0)} ml</span></div>`;
+  html += `<div class="tool-result__row"><span class="tool-result__row-label">Velocidad</span><span class="tool-result__row-value">${mlHora.toFixed(1)} ml/h</span></div>`;
+  html += `<div class="tool-result__row"><span class="tool-result__row-label">Goteo (${equipo} gtt/ml)</span><span class="tool-result__row-value">${gotasMin.toFixed(1)} gtt/min</span></div>`;
+  html += `<div class="tool-result__row"><span class="tool-result__row-label">1 gota cada</span><span class="tool-result__row-value">${segGota.toFixed(1)} seg</span></div>`;
+  html += `</div>`;
+
+  html += `<div class="tool-subsection"><div class="tool-subsection__title">📋 Plan terapéutico</div><p style="margin:0;">${nota}</p></div>`;
+
+  if (group === 'reptiles') {
+    html += `<div class="tool-subsection" style="border-left-color:#D55A28;"><div class="tool-subsection__title" style="color:#D55A28;">🦎 Reptiles</div><p style="margin:0;">Fluidos TIBIOS a 25-28°C. Mantenimiento mucho menor (20 ml/kg/día). Vía intracelómica o intraósea si no hay acceso IV.</p></div>`;
+  }
+
+  rEl.innerHTML = html;
+  rEl.className = 'tool-result is-visible' + (modo === 'shock' || modo === 'quemado' ? ' is-danger' : modo === 'cirugia' ? ' is-warning' : '');
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ═══════════════ 4. CONSTANTES ═══════════════
+// ═══════════════ CONSTANTES FISIOLÓGICAS (60+ especies) ═══════════════
 const CONSTANTES = [
-  // Felinos
-  { grupo: 'Felinos', esp: 'Jaguar (Panthera onca)', fc: '60-90', fr: '20-30', temp: '38.0-39.0' },
-  { grupo: 'Felinos', esp: 'Puma (Puma concolor)', fc: '70-110', fr: '20-30', temp: '38.0-39.0' },
-  { grupo: 'Felinos', esp: 'Ocelote (Leopardus pardalis)', fc: '100-140', fr: '22-35', temp: '38.3-39.2' },
-  { grupo: 'Felinos', esp: 'Jaguarundi (Herpailurus yagouaroundi)', fc: '120-160', fr: '24-36', temp: '38.2-39.1' },
-  // Cánidos
-  { grupo: 'Cánidos', esp: 'Coyote (Canis latrans)', fc: '70-120', fr: '15-30', temp: '38.0-39.3' },
-  { grupo: 'Cánidos', esp: 'Lobo mexicano (Canis lupus baileyi)', fc: '60-100', fr: '10-25', temp: '38.0-39.2' },
-  { grupo: 'Cánidos', esp: 'Zorra gris (Urocyon cinereoargenteus)', fc: '100-130', fr: '16-28', temp: '38.4-39.2' },
-  // Primates
-  { grupo: 'Primates', esp: 'Mono araña (Ateles geoffroyi)', fc: '90-130', fr: '20-30', temp: '37.5-38.6' },
-  { grupo: 'Primates', esp: 'Mono aullador (Alouatta palliata)', fc: '80-120', fr: '18-28', temp: '37.3-38.4' },
-  { grupo: 'Primates', esp: 'Mono capuchino (Cebus capucinus)', fc: '100-140', fr: '22-34', temp: '37.8-38.8' },
-  // Ungulados
-  { grupo: 'Ungulados', esp: 'Venado cola blanca (Odocoileus virginianus)', fc: '70-110', fr: '20-35', temp: '38.3-39.2' },
-  { grupo: 'Ungulados', esp: 'Pecarí de collar (Dicotyles tajacu)', fc: '80-110', fr: '16-28', temp: '38.5-39.2' },
-  { grupo: 'Ungulados', esp: 'Tapir (Tapirus bairdii)', fc: '40-70', fr: '10-20', temp: '36.4-38.0' },
-  // Aves
-  { grupo: 'Aves', esp: 'Águila arpía (Harpia harpyja)', fc: '150-220', fr: '15-40', temp: '40.0-41.5' },
-  { grupo: 'Aves', esp: 'Halcón peregrino (Falco peregrinus)', fc: '180-300', fr: '25-50', temp: '40.8-42.2' },
-  { grupo: 'Aves', esp: 'Guacamaya roja (Ara macao)', fc: '150-220', fr: '20-35', temp: '40.5-42.0' },
-  { grupo: 'Aves', esp: 'Loro cabeza amarilla (Amazona oratrix)', fc: '160-240', fr: '22-40', temp: '40.5-42.0' },
-  { grupo: 'Aves', esp: 'Tecolote bajeño (Athene cunicularia)', fc: '200-300', fr: '25-45', temp: '40.2-41.8' },
-  // Reptiles
-  { grupo: 'Reptiles', esp: 'Iguana verde (Iguana iguana)', fc: '30-50*', fr: '8-20', temp: '24-32 ambiente' },
-  { grupo: 'Reptiles', esp: 'Tortuga casquito (Kinosternon)', fc: '25-45*', fr: '6-14', temp: '22-28 agua' },
-  { grupo: 'Reptiles', esp: 'Boa constrictor', fc: '20-45*', fr: '6-15', temp: '26-30 ambiente' },
-  { grupo: 'Reptiles', esp: 'Cocodrilo de pantano (C. moreletii)', fc: '15-35*', fr: '2-8', temp: '28-32 agua' }
+  // FELINOS
+  { grupo: 'Felinos', esp: 'Jaguar (Panthera onca)', fc: '60-90', fr: '20-30', temp: '38.0-39.0', gest: '93-105 días', long: '12-15 años' },
+  { grupo: 'Felinos', esp: 'Puma (Puma concolor)', fc: '70-110', fr: '20-30', temp: '38.0-39.0', gest: '91-97 días', long: '8-13 años' },
+  { grupo: 'Felinos', esp: 'Ocelote (Leopardus pardalis)', fc: '100-140', fr: '22-35', temp: '38.3-39.2', gest: '79-85 días', long: '10-13 años' },
+  { grupo: 'Felinos', esp: 'Jaguarundi (Herpailurus yagouaroundi)', fc: '120-160', fr: '24-36', temp: '38.2-39.1', gest: '70-75 días', long: '8-10 años' },
+  { grupo: 'Felinos', esp: 'Margay (Leopardus wiedii)', fc: '110-150', fr: '24-36', temp: '38.3-39.2', gest: '76-85 días', long: '10-15 años' },
+  { grupo: 'Felinos', esp: 'Lince (Lynx rufus)', fc: '80-120', fr: '20-30', temp: '38.2-39.0', gest: '60-70 días', long: '7-10 años' },
+  { grupo: 'Felinos', esp: 'Gato doméstico', fc: '140-220', fr: '20-30', temp: '38.0-39.2', gest: '63-65 días', long: '12-18 años' },
+  // CÁNIDOS
+  { grupo: 'Cánidos', esp: 'Coyote (Canis latrans)', fc: '70-120', fr: '15-30', temp: '38.0-39.3', gest: '60-63 días', long: '10-14 años' },
+  { grupo: 'Cánidos', esp: 'Lobo mexicano (Canis lupus baileyi)', fc: '60-100', fr: '10-25', temp: '38.0-39.2', gest: '60-63 días', long: '6-13 años' },
+  { grupo: 'Cánidos', esp: 'Zorra gris (Urocyon cinereoargenteus)', fc: '100-130', fr: '16-28', temp: '38.4-39.2', gest: '53-63 días', long: '6-8 años' },
+  { grupo: 'Cánidos', esp: 'Zorro kit (Vulpes macrotis)', fc: '100-140', fr: '18-30', temp: '38.5-39.5', gest: '49-55 días', long: '5-7 años' },
+  { grupo: 'Cánidos', esp: 'Perro doméstico', fc: '60-140', fr: '10-30', temp: '38.0-39.2', gest: '58-68 días', long: '10-15 años' },
+  // PRIMATES
+  { grupo: 'Primates', esp: 'Mono araña (Ateles geoffroyi)', fc: '90-130', fr: '20-30', temp: '37.5-38.6', gest: '225-232 días', long: '22-27 años' },
+  { grupo: 'Primates', esp: 'Mono aullador (Alouatta palliata)', fc: '80-120', fr: '18-28', temp: '37.3-38.4', gest: '180-194 días', long: '15-20 años' },
+  { grupo: 'Primates', esp: 'Mono aullador negro (Alouatta pigra)', fc: '80-120', fr: '18-28', temp: '37.3-38.4', gest: '180-194 días', long: '15-20 años' },
+  { grupo: 'Primates', esp: 'Mono capuchino (Cebus capucinus)', fc: '100-140', fr: '22-34', temp: '37.8-38.8', gest: '155-167 días', long: '15-25 años' },
+  // MUSTÉLIDOS
+  { grupo: 'Mustélidos', esp: 'Nutria de río (Lontra longicaudis)', fc: '110-150', fr: '20-35', temp: '38.0-39.0', gest: '61-63 días', long: '8-15 años' },
+  { grupo: 'Mustélidos', esp: 'Tejón (Taxidea taxus)', fc: '90-130', fr: '18-28', temp: '38.0-39.0', gest: '210-225 días (diapausa)', long: '9-14 años' },
+  // PROCYÓNIDOS
+  { grupo: 'Procyónidos', esp: 'Mapache (Procyon lotor)', fc: '140-180', fr: '16-30', temp: '37.8-39.3', gest: '63-65 días', long: '12-16 años' },
+  { grupo: 'Procyónidos', esp: 'Coatí (Nasua narica)', fc: '120-160', fr: '18-32', temp: '38.0-39.0', gest: '70-77 días', long: '14-17 años' },
+  { grupo: 'Procyónidos', esp: 'Cacomixtle (Bassariscus astutus)', fc: '130-170', fr: '20-34', temp: '37.5-38.8', gest: '51-54 días', long: '7-9 años' },
+  // UNGULADOS
+  { grupo: 'Ungulados', esp: 'Venado cola blanca (Odocoileus virginianus)', fc: '70-110', fr: '20-35', temp: '38.3-39.2', gest: '200-210 días', long: '6-14 años' },
+  { grupo: 'Ungulados', esp: 'Venado bura (Odocoileus hemionus)', fc: '70-110', fr: '20-35', temp: '38.3-39.2', gest: '200-210 días', long: '9-11 años' },
+  { grupo: 'Ungulados', esp: 'Pecarí de collar (Dicotyles tajacu)', fc: '80-110', fr: '16-28', temp: '38.5-39.2', gest: '141-151 días', long: '16-24 años' },
+  { grupo: 'Ungulados', esp: 'Tapir centroamericano (Tapirus bairdii)', fc: '40-70', fr: '10-20', temp: '36.4-38.0', gest: '395-400 días', long: '25-30 años' },
+  { grupo: 'Ungulados', esp: 'Berrendo (Antilocapra americana)', fc: '60-90', fr: '12-25', temp: '38.0-39.5', gest: '245-255 días', long: '7-10 años' },
+  { grupo: 'Ungulados', esp: 'Borrego cimarrón (Ovis canadensis)', fc: '60-90', fr: '12-25', temp: '38.3-39.7', gest: '170-180 días', long: '10-15 años' },
+  // ROEDORES
+  { grupo: 'Roedores', esp: 'Perrito de la pradera (Cynomys mexicanus)', fc: '180-260', fr: '40-60', temp: '36.5-38.6', gest: '33-38 días', long: '3-5 años' },
+  { grupo: 'Roedores', esp: 'Teporingo (Romerolagus diazi)', fc: '150-250', fr: '30-60', temp: '38.5-40.0', gest: '38-42 días', long: '5-7 años' },
+  // AVES
+  { grupo: 'Aves · Rapaces', esp: 'Águila real (Aquila chrysaetos)', fc: '150-220', fr: '15-40', temp: '40.5-42.0', gest: '42-45 días (incub)', long: '15-25 años' },
+  { grupo: 'Aves · Rapaces', esp: 'Águila arpía (Harpia harpyja)', fc: '150-220', fr: '15-40', temp: '40.0-41.5', gest: '55-58 días (incub)', long: '25-35 años' },
+  { grupo: 'Aves · Rapaces', esp: 'Halcón peregrino (Falco peregrinus)', fc: '180-300', fr: '25-50', temp: '40.8-42.2', gest: '29-33 días', long: '10-17 años' },
+  { grupo: 'Aves · Rapaces', esp: 'Búho cornudo (Bubo virginianus)', fc: '170-280', fr: '20-45', temp: '40.2-41.8', gest: '30-37 días', long: '13-28 años' },
+  { grupo: 'Aves · Rapaces', esp: 'Tecolote llanero (Athene cunicularia)', fc: '200-300', fr: '25-45', temp: '40.2-41.8', gest: '28-30 días', long: '6-10 años' },
+  { grupo: 'Aves · Psitácidos', esp: 'Guacamaya roja (Ara macao)', fc: '150-220', fr: '20-35', temp: '40.5-42.0', gest: '26-28 días', long: '40-50 años' },
+  { grupo: 'Aves · Psitácidos', esp: 'Guacamaya verde (Ara militaris)', fc: '150-220', fr: '20-35', temp: '40.5-42.0', gest: '26-28 días', long: '40-60 años' },
+  { grupo: 'Aves · Psitácidos', esp: 'Loro cabeza amarilla (Amazona oratrix)', fc: '160-240', fr: '22-40', temp: '40.5-42.0', gest: '26-28 días', long: '40-70 años' },
+  { grupo: 'Aves · Psitácidos', esp: 'Loro tamaulipeco (Amazona viridigenalis)', fc: '160-240', fr: '22-40', temp: '40.5-42.0', gest: '26-28 días', long: '40-60 años' },
+  { grupo: 'Aves · Galliformes', esp: 'Pavón cornudo (Oreophasis derbianus)', fc: '140-220', fr: '18-35', temp: '40.5-41.8', gest: '34-36 días', long: '15-20 años' },
+  { grupo: 'Aves · Galliformes', esp: 'Gallina de monte (Crax rubra)', fc: '150-220', fr: '20-35', temp: '40.3-41.5', gest: '30-32 días', long: '20-24 años' },
+  // REPTILES
+  { grupo: 'Reptiles · Escamosos', esp: 'Iguana verde (Iguana iguana)', fc: '30-80*', fr: '8-20', temp: '28-32 amb.', gest: '65-80 días (incub)', long: '10-20 años' },
+  { grupo: 'Reptiles · Escamosos', esp: 'Iguana espinosa (Ctenosaura)', fc: '30-70*', fr: '8-18', temp: '28-32 amb.', gest: '75-90 días (incub)', long: '15-25 años' },
+  { grupo: 'Reptiles · Escamosos', esp: 'Boa (Boa constrictor)', fc: '20-45*', fr: '6-15', temp: '26-30 amb.', gest: '100-180 días', long: '20-30 años' },
+  { grupo: 'Reptiles · Escamosos', esp: 'Pitón real (Python regius)', fc: '20-40*', fr: '6-15', temp: '28-32 amb.', gest: '55-60 días (incub)', long: '20-30 años' },
+  { grupo: 'Reptiles · Escamosos', esp: 'Serpiente cascabel (Crotalus)', fc: '20-45*', fr: '6-15', temp: '25-30 amb.', gest: '140-180 días', long: '15-20 años' },
+  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga casquito (Kinosternon)', fc: '25-45*', fr: '6-14', temp: '22-28 agua', gest: '90-120 días (incub)', long: '30-50 años' },
+  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga verde (Chelonia mydas)', fc: '20-40*', fr: '4-10', temp: '25-29 agua', gest: '45-70 días (incub)', long: '80+ años' },
+  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga carey (Eretmochelys)', fc: '20-40*', fr: '4-10', temp: '26-30 agua', gest: '55-75 días (incub)', long: '30-50 años' },
+  { grupo: 'Reptiles · Crocodílidos', esp: 'Cocodrilo de pantano (C. moreletii)', fc: '15-35*', fr: '2-8', temp: '28-32 agua', gest: '75-85 días (incub)', long: '65-80 años' },
+  { grupo: 'Reptiles · Crocodílidos', esp: 'Cocodrilo de río (C. acutus)', fc: '15-35*', fr: '2-8', temp: '28-32 agua', gest: '75-90 días (incub)', long: '60-75 años' }
 ];
 
 function renderConstantes(filter = '') {
   const tb = document.getElementById('constTbody');
   const f = filter.toLowerCase();
   const rows = CONSTANTES.filter(c => !f || c.esp.toLowerCase().includes(f) || c.grupo.toLowerCase().includes(f));
-
   if (rows.length === 0) {
-    tb.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--zoo-text-muted);">Sin resultados para "${filter}"</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--zoo-text-muted);">Sin resultados para "${filter}"</td></tr>`;
     return;
   }
-
   let lastGroup = '';
   let html = '';
   rows.forEach(c => {
     if (c.grupo !== lastGroup) {
-      html += `<tr><td colspan="4" style="background:rgba(232,163,23,0.08);color:#E8A317;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;">${c.grupo}</td></tr>`;
+      html += `<tr class="group-row"><td colspan="6">${c.grupo}</td></tr>`;
       lastGroup = c.grupo;
     }
-    html += `<tr><td>${c.esp}</td><td><strong>${c.fc}</strong></td><td><strong>${c.fr}</strong></td><td><strong>${c.temp}</strong></td></tr>`;
+    html += `<tr><td>${c.esp}</td><td><strong>${c.fc}</strong></td><td><strong>${c.fr}</strong></td><td><strong>${c.temp}</strong></td><td>${c.gest}</td><td>${c.long}</td></tr>`;
   });
-  tb.innerHTML = html + '<tr><td colspan="4" style="padding-top:10px;font-size:.76rem;color:var(--zoo-text-dim);">* FC en reptiles depende de temperatura ambiente (ectotermos).</td></tr>';
+  html += '<tr><td colspan="6" style="padding:10px 12px;font-size:.75rem;color:var(--zoo-text-dim);">* FC reptiles varía con Tº ambiente (ectotermos). gest = gestación/incubación. long = longevidad en cautiverio.</td></tr>';
+  tb.innerHTML = html;
 }
+function filtrarEspecies() { renderConstantes(document.getElementById('speciesFilter').value); }
 
-function filtrarEspecies() {
-  const v = document.getElementById('speciesFilter').value;
-  renderConstantes(v);
+// ═══════════════ HEMOGRAMA ═══════════════
+const HEMOGRAMA = [
+  // MAMÍFEROS
+  { grupo: 'Mamíferos · Felinos', esp: 'Jaguar (Panthera onca)', hto: '35-45', hb: '12-16', leu: '6-12', pt: '6.5-8.0', glu: '80-130', cre: '1.0-2.5' },
+  { grupo: 'Mamíferos · Felinos', esp: 'Puma (Puma concolor)', hto: '33-45', hb: '11-15', leu: '5-14', pt: '6.0-8.0', glu: '80-140', cre: '1.0-2.5' },
+  { grupo: 'Mamíferos · Felinos', esp: 'Ocelote (Leopardus pardalis)', hto: '35-47', hb: '11-16', leu: '5-12', pt: '6.0-8.5', glu: '90-150', cre: '0.9-2.2' },
+  { grupo: 'Mamíferos · Felinos', esp: 'Gato doméstico (referencia)', hto: '30-45', hb: '8-15', leu: '5.5-19.5', pt: '5.8-8.0', glu: '70-150', cre: '0.8-1.8' },
+  { grupo: 'Mamíferos · Cánidos', esp: 'Coyote', hto: '40-55', hb: '14-19', leu: '6-14', pt: '5.8-7.5', glu: '80-120', cre: '0.6-1.5' },
+  { grupo: 'Mamíferos · Cánidos', esp: 'Lobo mexicano', hto: '40-55', hb: '14-19', leu: '5-13', pt: '5.5-7.5', glu: '80-120', cre: '0.5-1.5' },
+  { grupo: 'Mamíferos · Cánidos', esp: 'Perro doméstico (referencia)', hto: '37-55', hb: '12-18', leu: '6-17', pt: '5.4-7.5', glu: '70-150', cre: '0.5-1.8' },
+  { grupo: 'Mamíferos · Primates', esp: 'Mono araña (Ateles)', hto: '35-48', hb: '12-16', leu: '5-16', pt: '6.0-8.5', glu: '70-110', cre: '0.8-1.6' },
+  { grupo: 'Mamíferos · Primates', esp: 'Mono aullador (Alouatta)', hto: '38-50', hb: '12-17', leu: '5-14', pt: '6.5-8.5', glu: '80-120', cre: '0.8-1.5' },
+  { grupo: 'Mamíferos · Primates', esp: 'Mono capuchino (Cebus)', hto: '35-48', hb: '11-16', leu: '6-18', pt: '6.0-8.0', glu: '70-115', cre: '0.7-1.5' },
+  { grupo: 'Mamíferos · Ungulados', esp: 'Venado cola blanca', hto: '32-46', hb: '10-16', leu: '3-12', pt: '5.8-8.0', glu: '65-115', cre: '1.1-2.5' },
+  { grupo: 'Mamíferos · Ungulados', esp: 'Pecarí de collar', hto: '35-45', hb: '11-15', leu: '8-16', pt: '6.5-8.5', glu: '70-110', cre: '0.8-1.8' },
+  { grupo: 'Mamíferos · Ungulados', esp: 'Tapir centroamericano', hto: '32-42', hb: '10-14', leu: '4-11', pt: '5.5-7.8', glu: '60-100', cre: '1.0-2.0' },
+  { grupo: 'Mamíferos · Procyónidos', esp: 'Mapache (Procyon)', hto: '35-50', hb: '11-16', leu: '5-13', pt: '5.8-7.5', glu: '80-120', cre: '0.5-1.5' },
+  { grupo: 'Mamíferos · Procyónidos', esp: 'Coatí (Nasua)', hto: '35-48', hb: '11-15', leu: '5-14', pt: '5.8-7.5', glu: '80-125', cre: '0.5-1.5' },
+  // AVES
+  { grupo: 'Aves · Rapaces', esp: 'Águila real (Aquila)', hto: '42-52', hb: '13-17', leu: '9-18', pt: '3.5-5.5', glu: '250-350', cre: '—' },
+  { grupo: 'Aves · Rapaces', esp: 'Águila arpía (Harpia)', hto: '42-55', hb: '13-18', leu: '8-18', pt: '3.5-5.5', glu: '240-340', cre: '—' },
+  { grupo: 'Aves · Rapaces', esp: 'Halcón peregrino', hto: '45-58', hb: '14-18', leu: '10-22', pt: '3.0-5.0', glu: '300-400', cre: '—' },
+  { grupo: 'Aves · Rapaces', esp: 'Búho cornudo', hto: '40-52', hb: '12-17', leu: '9-20', pt: '3.2-5.2', glu: '280-380', cre: '—' },
+  { grupo: 'Aves · Psitácidos', esp: 'Guacamaya roja (Ara macao)', hto: '40-55', hb: '12-17', leu: '5-15', pt: '2.5-4.5', glu: '220-350', cre: '—' },
+  { grupo: 'Aves · Psitácidos', esp: 'Loro cabeza amarilla', hto: '40-55', hb: '12-17', leu: '5-15', pt: '2.5-4.5', glu: '220-350', cre: '—' },
+  { grupo: 'Aves · Psitácidos', esp: 'Guacamaya verde', hto: '40-55', hb: '12-17', leu: '5-15', pt: '2.5-4.5', glu: '220-350', cre: '—' },
+  // REPTILES
+  { grupo: 'Reptiles · Escamosos', esp: 'Iguana verde (Iguana)', hto: '25-40', hb: '7-11', leu: '5-15', pt: '4.0-7.0', glu: '120-220', cre: '0.1-0.6' },
+  { grupo: 'Reptiles · Escamosos', esp: 'Boa (Boa constrictor)', hto: '25-38', hb: '6-10', leu: '4-12', pt: '4.5-7.5', glu: '30-80', cre: '0.1-0.5' },
+  { grupo: 'Reptiles · Escamosos', esp: 'Pitón real', hto: '25-40', hb: '7-11', leu: '4-12', pt: '5.0-8.0', glu: '40-90', cre: '0.1-0.5' },
+  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga casquito', hto: '25-40', hb: '6-10', leu: '3-10', pt: '3.5-6.5', glu: '30-90', cre: '0.1-0.6' },
+  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga verde (marina)', hto: '25-40', hb: '7-11', leu: '2-8', pt: '3.0-6.0', glu: '50-100', cre: '0.2-0.8' },
+  { grupo: 'Reptiles · Crocodílidos', esp: 'Cocodrilo de pantano', hto: '22-35', hb: '6-10', leu: '5-15', pt: '4.5-7.0', glu: '80-150', cre: '0.2-0.6' }
+];
+
+function renderHemograma(filter = '') {
+  const tb = document.getElementById('hemoTbody');
+  const f = filter.toLowerCase();
+  const rows = HEMOGRAMA.filter(c => !f || c.esp.toLowerCase().includes(f) || c.grupo.toLowerCase().includes(f));
+  if (rows.length === 0) {
+    tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--zoo-text-muted);">Sin resultados</td></tr>`;
+    return;
+  }
+  let lastGroup = '';
+  let html = '';
+  rows.forEach(c => {
+    if (c.grupo !== lastGroup) {
+      html += `<tr class="group-row"><td colspan="7">${c.grupo}</td></tr>`;
+      lastGroup = c.grupo;
+    }
+    html += `<tr><td>${c.esp}</td><td><strong>${c.hto}</strong></td><td><strong>${c.hb}</strong></td><td><strong>${c.leu}</strong></td><td><strong>${c.pt}</strong></td><td><strong>${c.glu}</strong></td><td><strong>${c.cre}</strong></td></tr>`;
+  });
+  html += '<tr><td colspan="7" style="padding:10px 12px;font-size:.75rem;color:var(--zoo-text-dim);">HTO=hematocrito · Hb=hemoglobina · PT=proteínas totales · Aves: ácido úrico en lugar de creatinina (3-15 mg/dl).</td></tr>';
+  tb.innerHTML = html;
 }
+function filtrarHemograma() { renderHemograma(document.getElementById('hemoFilter').value); }
 
-// ═══════════════ 5. BCS ═══════════════
+// ═══════════════ BCS ═══════════════
 const BCS_DESC = {
-  1: { title: 'Caquéctico', color: '#D55A28', desc: 'Costillas, columna y pelvis muy prominentes. Pérdida de masa muscular severa. Sin grasa palpable. ATENCIÓN MÉDICA URGENTE.', ajuste: 40 },
-  2: { title: 'Muy delgado', color: '#D55A28', desc: 'Costillas fácilmente visibles. Pérdida muscular evidente. Mínima grasa. Intervención requerida.', ajuste: 30 },
-  3: { title: 'Delgado', color: '#E8A317', desc: 'Costillas palpables con ligera cobertura. Cintura marcada. Bajo peso.', ajuste: 20 },
-  4: { title: 'Bajo del ideal', color: '#F5C62E', desc: 'Costillas palpables con cobertura mínima. Cintura visible desde arriba. Casi ideal.', ajuste: 10 },
-  5: { title: 'Ideal', color: '#6FBF73', desc: 'Costillas palpables sin esfuerzo. Cintura bien definida vista desde arriba. Abdomen retraído. Peso saludable.', ajuste: 0 },
-  6: { title: 'Sobre ideal', color: '#F5C62E', desc: 'Costillas palpables pero con cobertura grasa. Cintura apenas visible. Ligera cobertura abdominal.', ajuste: -10 },
-  7: { title: 'Sobrepeso', color: '#E8A317', desc: 'Costillas difíciles de palpar. Sin cintura visible. Depósitos de grasa en columna y cola.', ajuste: -20 },
-  8: { title: 'Obeso', color: '#D55A28', desc: 'Costillas no palpables bajo grasa espesa. Marcados depósitos grasos. Abdomen distendido.', ajuste: -30 },
-  9: { title: 'Obeso severo', color: '#D55A28', desc: 'Grandes acúmulos de grasa. Distensión abdominal severa. Riesgo cardiovascular y metabólico grave.', ajuste: -40 }
+  1: { title: 'Caquéctico', color: '#D55A28', desc: 'Costillas, columna y pelvis muy prominentes y visibles a distancia. Ausencia total de masa muscular palpable. Sin depósito graso. EMERGENCIA nutricional.', ajuste: 40 },
+  2: { title: 'Muy delgado', color: '#D55A28', desc: 'Costillas fácilmente visibles sin palpar. Columna y apófisis transversas prominentes. Pérdida muscular evidente en masas epaxiales. Intervención inmediata.', ajuste: 30 },
+  3: { title: 'Delgado', color: '#E8A317', desc: 'Costillas palpables con ligera cobertura grasa. Cintura muy marcada vista desde arriba. Apófisis espinosas palpables con leve cobertura.', ajuste: 20 },
+  4: { title: 'Bajo del ideal', color: '#F5C62E', desc: 'Costillas palpables con mínima cobertura. Cintura visible desde arriba. Ligero abdomen retraído visto desde lateral.', ajuste: 10 },
+  5: { title: 'Ideal', color: '#6FBF73', desc: 'Costillas palpables sin esfuerzo, con cobertura grasa adecuada. Cintura bien definida vista desde arriba. Abdomen retraído vista lateral. Masa muscular apropiada.', ajuste: 0 },
+  6: { title: 'Sobre ideal', color: '#F5C62E', desc: 'Costillas palpables con leve exceso de cobertura grasa. Cintura apenas visible desde arriba. Ligera cobertura abdominal.', ajuste: -10 },
+  7: { title: 'Sobrepeso', color: '#E8A317', desc: 'Costillas difíciles de palpar bajo cobertura grasa moderada. Cintura ausente. Depósitos grasos en base de cola, columna lumbar.', ajuste: -20 },
+  8: { title: 'Obeso', color: '#D55A28', desc: 'Costillas NO palpables bajo grasa espesa. Depósitos grasos marcados en pecho, columna, base de cola. Abdomen péndulo con grasa abdominal.', ajuste: -30 },
+  9: { title: 'Obeso severo', color: '#D55A28', desc: 'Grandes acúmulos de grasa en todos los depósitos. Distensión abdominal severa con grasa visceral. Riesgo cardiovascular y metabólico grave. Patologías ortopédicas.', ajuste: -40 }
 };
 
 function calcularBCS() {
@@ -1009,32 +1455,23 @@ function calcularBCS() {
   const pesoActual = parseFloat(document.getElementById('bcsPesoActual').value);
   const grupo = document.getElementById('bcsGroup').value;
   const rEl = document.getElementById('bcsResult');
-
-  if (!pesoActual || pesoActual <= 0) {
-    showErr(rEl, 'Ingresa el peso actual del animal.');
-    return;
-  }
-  if (!selected) {
-    showErr(rEl, 'Selecciona un BCS del 1 al 9.');
-    return;
-  }
-
+  if (!pesoActual || pesoActual <= 0) { showErr(rEl, 'Ingresa el peso actual del animal.'); return; }
+  if (!selected) { showErr(rEl, 'Selecciona un BCS del 1 al 9.'); return; }
   const bcs = parseInt(selected.dataset.bcs);
   const info = BCS_DESC[bcs];
   const ajustePct = info.ajuste;
   const pesoIdeal = pesoActual + (pesoActual * (ajustePct / 100));
   const diferencia = pesoIdeal - pesoActual;
-
-  let recomendacion = '';
-  if (bcs <= 3) recomendacion = '📈 <strong>Necesita ganar peso.</strong> Evaluar dieta, parasitosis, patología subyacente. Aumentar calidad y cantidad de alimento según especie.';
-  else if (bcs === 4) recomendacion = 'ℹ️ Ligero déficit. Ajustar dieta gradualmente. Monitoreo mensual.';
-  else if (bcs === 5) recomendacion = '✅ <strong>Condición ideal.</strong> Mantener dieta y rutina actual.';
-  else if (bcs === 6) recomendacion = 'ℹ️ Ligero exceso. Reducir 10% ración o aumentar actividad.';
-  else recomendacion = '📉 <strong>Necesita bajar peso.</strong> Reducir 20-30% calorías, aumentar actividad. Descartar patologías endócrinas. Reducción gradual (1-2% peso/semana).';
-
+  let reco = '';
+  if (bcs <= 2) reco = '🚨 <strong>EMERGENCIA.</strong> Realimentación cuidadosa (síndrome de realimentación), evaluar hipoproteinemia, electrolitos. Parasitosis, neoplasia, ERC, hepatopatía. Plan nutricional supervisado.';
+  else if (bcs === 3) reco = '📈 <strong>Necesita ganar peso.</strong> Aumentar 15-20% ración. Evaluar parasitología, coproparasitoscópico, perfil tiroideo, calidad del alimento.';
+  else if (bcs === 4) reco = 'ℹ️ Ligero déficit. Incrementar 10% ración gradualmente. Monitoreo mensual.';
+  else if (bcs === 5) reco = '✅ <strong>Condición ideal.</strong> Mantener protocolo actual. Evaluación semestral.';
+  else if (bcs === 6) reco = 'ℹ️ Ligero exceso. Reducir 10% ración o aumentar actividad física/enriquecimiento ambiental.';
+  else if (bcs === 7) reco = '📉 Plan de pérdida 1-2% peso/semana. Reducir 20% calorías. Enriquecimiento + actividad.';
+  else reco = '📉🚨 <strong>Obesidad.</strong> Reducir 30% calorías, ejercicio terapéutico. Descartar hipotiroidismo, Cushing, insulinoma. Monitoreo glucosa, perfil hepático. Riesgo cardiovascular.';
   const isDanger = bcs <= 2 || bcs >= 8;
   const isWarning = bcs === 3 || bcs === 4 || bcs === 6 || bcs === 7;
-
   rEl.innerHTML = `
     <div class="tool-result__title" style="color:${info.color};">📏 BCS ${bcs}/9 · ${info.title}</div>
     <div class="tool-result__rows">
@@ -1042,9 +1479,163 @@ function calcularBCS() {
       <div class="tool-result__row"><span class="tool-result__row-label">Peso ideal estimado</span><span class="tool-result__row-value">${pesoIdeal.toFixed(2)} kg</span></div>
       <div class="tool-result__row"><span class="tool-result__row-label">Ajuste necesario</span><span class="tool-result__row-value">${diferencia >= 0 ? '+' : ''}${diferencia.toFixed(2)} kg (${ajustePct >= 0 ? '+' : ''}${ajustePct}%)</span></div>
     </div>
-    <div class="tool-result__note"><strong>Descripción:</strong> ${info.desc}<br><br>${recomendacion}</div>
+    <div class="tool-subsection"><div class="tool-subsection__title">🔍 Evaluación anatómica</div><p style="margin:0;">${info.desc}</p></div>
+    <div class="tool-subsection" style="border-left-color:#6FBF73;"><div class="tool-subsection__title" style="color:#6FBF73;">💊 Plan terapéutico</div><p style="margin:0;">${reco}</p></div>
   `;
   rEl.className = 'tool-result is-visible' + (isDanger ? ' is-danger' : isWarning ? ' is-warning' : '');
+  rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ═══════════════ URGENCIAS ═══════════════
+function mostrarUrgencia() {
+  const tipo = document.getElementById('urgSelect').value;
+  const peso = parseFloat(document.getElementById('urgPeso').value) || 0;
+  const rEl = document.getElementById('urgResult');
+
+  const protocolos = {
+    rcp: {
+      title: '🫀 RCP · Paro cardiorrespiratorio',
+      priority: 'CRÍTICO · Iniciar < 60 seg desde detección',
+      steps: [
+        '<strong>Verificar inconsciencia y ausencia de pulso</strong> (femoral/auricular). Tiempo máximo 10 segundos.',
+        '<strong>Asegurar vía aérea</strong>: extender cuello, retirar cuerpos extraños, intubar endotraqueal si es posible.',
+        '<strong>Compresiones torácicas</strong>: 100-120/min, 1/3 del diámetro torácico. Animal <10 kg: punta de dedos sobre corazón. >10 kg: 2 manos sobre costillas.',
+        `<strong>Ventilación</strong>: 10 resp/min con Ambú o IPPV. Relación C:V = 30:2 si 1 reanimador, 15:2 si 2 reanimadores.${peso > 0 ? ` Volumen tidal ${(peso * 10).toFixed(0)} ml (10 ml/kg).` : ''}`,
+        `<strong>Acceso IV/IO</strong> inmediato. Tamaño 18-22G. IO en fémur proximal si no hay acceso.`,
+        `<strong>Epinefrina</strong> IV/IO cada 3-5 min: ${peso > 0 ? `<strong style="color:#E8A317;">${(peso * 0.01).toFixed(3)} mg (${(peso * 0.01).toFixed(3)} ml de 1:1000)</strong>` : '0.01 mg/kg'}. Intratraqueal 2-3x dosis.`,
+        `<strong>Atropina</strong> si bradicardia/asistolia: ${peso > 0 ? `<strong style="color:#E8A317;">${(peso * 0.04).toFixed(2)} mg</strong>` : '0.04 mg/kg'} IV/IO.`,
+        `<strong>Desfibrilación</strong> si FV: 4-6 J/kg monofásico o 2-4 J/kg bifásico.`,
+        '<strong>Reevaluar ritmo cada 2 min</strong> (un ciclo RCP = 5 ciclos 30:2). Máximo 20-30 min antes de declarar.',
+        '<strong>Post-RCP</strong>: oxígeno 100%, soporte cardiovascular (fluidos + vasopresores), monitoreo ICU 24-72h.'
+      ]
+    },
+    shock: {
+      title: '💔 Shock hipovolémico / séptico',
+      priority: 'URGENTE · Actuar en minutos',
+      steps: [
+        '<strong>ABC + signos vitales</strong>: FC, PA, tiempo de llenado capilar, color mucosas, estado mental.',
+        '<strong>Triage</strong>: palidez, taquicardia, pulsos débiles, TLC >2 seg → shock descompensado.',
+        `<strong>Acceso IV/IO × 2</strong> con catéter mayor calibre (14-18G).`,
+        `<strong>BOLO cristaloides</strong> (Ringer Lactato): ${peso > 0 ? `<strong style="color:#E8A317;">${(peso * 20).toFixed(0)} ml</strong>` : '20 ml/kg'} en mamíferos (en 15-20 min). Aves 10 ml/kg, reptiles 5 ml/kg. Reevaluar, repetir hasta 3 bolos.`,
+        `<strong>Si no responde a 3 bolos</strong>: Coloides (Hetastarch ${peso > 0 ? (peso * 10).toFixed(0) : '10 ml/kg'} ml) + vasopresores.`,
+        `<strong>Vasopresores</strong>: Dobutamina 2.5-10 μg/kg/min CRI o Norepinefrina 0.05-1 μg/kg/min.`,
+        `<strong>Oxígeno 100%</strong> por cánula/máscara.`,
+        `<strong>Glucosa si hipoglicemia</strong>: ${peso > 0 ? (peso * 0.5).toFixed(1) : '0.5'} ml/kg Dextrosa 50% diluida 1:2 IV lenta.`,
+        '<strong>Si sepsis</strong>: antibiótico amplio espectro IV inmediato (ceftriaxona 25 mg/kg + metronidazol 15 mg/kg).',
+        '<strong>Monitoreo</strong>: PA cada 15 min, diuresis >1 ml/kg/h, lactato (objetivo <2 mmol/L).'
+      ]
+    },
+    convulsion: {
+      title: '⚡ Convulsiones / Status epilepticus',
+      priority: 'URGENTE · Daño cerebral en >5 min de actividad',
+      steps: [
+        '<strong>Proteger vía aérea</strong>. No meter dedos en boca. Acolchonar ambiente, evitar caídas.',
+        '<strong>Canalizar IV</strong> rápidamente. Oxígeno.',
+        `<strong>Primera línea</strong>: Diazepam ${peso > 0 ? `<strong style="color:#E8A317;">${(peso * 0.5).toFixed(1)} mg (${(peso * 0.5 / 5).toFixed(2)} ml de 5 mg/ml)</strong>` : '0.5 mg/kg'} IV lento. Repetir a los 5 min si persiste (máx 3 dosis).`,
+        `<strong>Alternativa</strong>: Midazolam ${peso > 0 ? (peso * 0.2).toFixed(2) : '0.2'} mg/kg IV/IM/intranasal.`,
+        `<strong>Si no cede en 15 min</strong>: Propofol bolo ${peso > 0 ? (peso * 2).toFixed(1) : '2'} mg/kg IV + CRI 0.1-0.6 mg/kg/min.`,
+        `<strong>Carga de Fenobarbital</strong> en status: 16 mg/kg IV dividido en 4 dosis de 4 mg/kg cada 20 min.`,
+        `<strong>Levetiracetam</strong>: 60 mg/kg IV alternativa segura.`,
+        '<strong>Corregir causas</strong>: hipoglicemia (glucosa 50%), hipocalcemia (gluconato Ca 10% 0.5-1.5 ml/kg lento), toxinas.',
+        '<strong>Post-ictal</strong>: mantener temperatura, oxígeno, monitoreo neurológico, fluidoterapia de mantenimiento.',
+        '<strong>Estudio causal</strong>: química sanguínea, perfil hepático, pruebas toxicológicas, imagen cerebral si recurrente.'
+      ]
+    },
+    hipotermia: {
+      title: '❄️ Hipotermia severa',
+      priority: 'URGENTE · <32°C = riesgo cardíaco grave',
+      steps: [
+        '<strong>Medir temperatura central rectal</strong>. Hipotermia leve 32-37°C, moderada 28-32°C, severa <28°C.',
+        '<strong>Recalentamiento PASIVO</strong> primero (32-37°C): ambiente cálido (25°C), cobertor térmico, evitar manipulación brusca.',
+        '<strong>Recalentamiento ACTIVO EXTERNO</strong> (<32°C): mantas eléctricas, almohadillas calientes con protección (evitar quemaduras), calentadores de aire forzado (Bair Hugger).',
+        '<strong>Recalentamiento ACTIVO INTERNO</strong> (<28°C): fluidos IV tibios (39-40°C), lavados cavidades (peritoneal, gástrico) con SS tibia.',
+        `<strong>Fluidos IV TIBIOS</strong>: ${peso > 0 ? (peso * 10).toFixed(0) : '10 ml/kg'} bolo Ringer Lactato 38-40°C.`,
+        '<strong>Oxígeno tibio y húmedo</strong> vía tubo endotraqueal.',
+        '<strong>Monitoreo cardíaco</strong> continuo: riesgo FV especialmente durante recalentamiento.',
+        '<strong>Velocidad recalentamiento</strong>: 1-2°C/h. Más rápido = arritmias.',
+        '<strong>Evitar</strong>: movilización innecesaria, fricción, café/alcohol.',
+        '<strong>Vigilar hipoglicemia y acidosis</strong>: glucosa + gasometría.'
+      ]
+    },
+    hipertermia: {
+      title: '🔥 Golpe de calor / Hipertermia',
+      priority: 'URGENTE · >41°C = daño multiorgánico',
+      steps: [
+        '<strong>Medir temperatura rectal</strong>. Golpe de calor >40.5°C con signos neurológicos.',
+        '<strong>Enfriamiento ACTIVO inmediato</strong>: agua tibia (NO fría ni hielo) sobre cuerpo + ventilador potente.',
+        '<strong>Enfriar áreas vascularizadas</strong>: cuello, axilas, ingle con paños húmedos.',
+        '<strong>Alcohol isopropílico en almohadillas plantares</strong> (evaporación).',
+        '<strong>STOP enfriamiento a 39.5°C</strong> para evitar hipotermia rebote.',
+        `<strong>Fluidos IV frescos</strong>: ${peso > 0 ? (peso * 20).toFixed(0) : '20 ml/kg'} Ringer Lactato bolo + mantenimiento agresivo.`,
+        '<strong>Oxígeno 100%</strong>.',
+        `<strong>Corticoide si shock</strong>: Dexametasona ${peso > 0 ? (peso * 0.25).toFixed(2) : '0.25'} mg/kg IV.`,
+        '<strong>Monitoreo</strong>: coagulación (CID frecuente), función renal, hepática, SNC, arritmias cada 2-4h.',
+        '<strong>Complicaciones frecuentes</strong>: CID, IRA, rabdomiólisis, ARDS. Pronóstico reservado si >42°C >30 min.'
+      ]
+    },
+    anafilaxia: {
+      title: '🦟 Anafilaxia',
+      priority: 'EXTREMA URGENCIA · Minutos cuentan',
+      steps: [
+        '<strong>Identificar signos</strong>: urticaria, angioedema, broncoconstricción, colapso cardiovascular, vómito, diarrea.',
+        `<strong>EPINEFRINA inmediata</strong>: ${peso > 0 ? `<strong style="color:#E8A317;">${(peso * 0.01).toFixed(3)} mg (${(peso * 0.01).toFixed(3)} ml de 1:1000)</strong>` : '0.01 mg/kg'} IM (muslo) o IV 1:10,000 diluido.`,
+        '<strong>Repetir epinefrina cada 5-15 min</strong> si persiste hipotensión o broncoespasmo.',
+        '<strong>Oxígeno 100%</strong>. Intubar si compromiso vía aérea.',
+        `<strong>Fluidos IV agresivos</strong>: ${peso > 0 ? (peso * 20).toFixed(0) : '20 ml/kg'} bolo cristaloides.`,
+        `<strong>Dexametasona</strong>: ${peso > 0 ? (peso * 0.25).toFixed(2) : '0.25'} mg/kg IV (no reemplaza epinefrina).`,
+        `<strong>Difenhidramina</strong>: ${peso > 0 ? (peso * 2).toFixed(1) : '2'} mg/kg IM profundo o lento IV.`,
+        '<strong>Broncodilatador</strong>: Salbutamol aerosol o terbutalina 0.01 mg/kg SC.',
+        '<strong>Monitoreo ≥24h</strong>: reacción bifásica posible (recurrencia 4-12h después).',
+        '<strong>Identificar alérgeno</strong> (medicamento, veneno, alimento) para evitar re-exposición.'
+      ]
+    },
+    envenenamiento: {
+      title: '☠️ Envenenamiento (protocolo general)',
+      priority: 'URGENTE · Tiempo desde exposición crítico',
+      steps: [
+        '<strong>Estabilizar ABC</strong> primero. Signos vitales, estado neurológico.',
+        '<strong>Identificar tóxico</strong>: historia, envase, testigos, síntomas. Llamar a centro toxicología si disponible.',
+        '<strong>Descontaminación cutánea</strong> si tópico: agua tibia + jabón suave 15-30 min. Proteger personal.',
+        `<strong>Si ingesta <2h y consciente</strong>: Inducir vómito con apomorfina 0.03 mg/kg IV o agua oxigenada 3% 1-2 ml/kg VO (solo perros).`,
+        '<strong>Contraindicaciones emesis</strong>: corrosivos, hidrocarburos, inconsciente, convulsiones, gatos.',
+        `<strong>Carbón activado</strong>: ${peso > 0 ? (peso * 2).toFixed(0) : '1-3'} g/kg VO después de vomitar. Repetir 50% dosis c/4-6h si tóxico de circulación enterohepática.`,
+        '<strong>Lavado gástrico</strong>: solo si intubado bajo anestesia y tóxico potencialmente mortal.',
+        '<strong>Antídotos específicos</strong>: N-acetilcisteína (acetaminofén), Vitamina K1 (anticoagulantes), atropina+pralidoxima (organofosforados), naloxona (opioides).',
+        '<strong>Soporte sintomático</strong>: fluidos, antieméticos (maropitant 1 mg/kg), protectores gástricos (omeprazol), anticonvulsivantes si convulsiona.',
+        '<strong>Monitoreo 24-48h</strong>: función hepática, renal, gasometría según tóxico.'
+      ]
+    },
+    hemorragia: {
+      title: '🩸 Hemorragia masiva',
+      priority: 'URGENTE · >20% volemia = shock',
+      steps: [
+        '<strong>Compresión directa</strong> inmediata con gasa estéril. Elevación de miembro si aplica.',
+        '<strong>Torniquete SOLO como último recurso</strong>: anotar hora, máximo 2h.',
+        `<strong>Acceso IV × 2</strong> calibre grande (14-18G).`,
+        `<strong>Bolo cristaloides</strong>: ${peso > 0 ? (peso * 20).toFixed(0) : '20 ml/kg'} Ringer Lactato rápido.`,
+        `<strong>Si sangrado persiste y shock</strong>: Transfusión sangre total ${peso > 0 ? (peso * 20).toFixed(0) : '20 ml/kg'} o paquete globular ${peso > 0 ? (peso * 10).toFixed(0) : '10 ml/kg'}.`,
+        '<strong>Ácido tranexámico</strong>: 10-20 mg/kg IV lento (carga) + CRI si hemorragia continua.',
+        '<strong>Identificar fuente</strong>: visible (externa) vs oculta (abdominal/torácica). Ultrasonido abdominal (FAST), Rx tórax.',
+        '<strong>Cirugía urgente</strong> si sangrado activo no controlado (hemoperitoneo, esplenectomía).',
+        '<strong>Vitamina K1</strong> 1-5 mg/kg SC si sospecha intoxicación por rodenticidas.',
+        '<strong>Monitoreo</strong>: HTO cada 2-4h (esperar caída 4-6h post-hemorragia), coagulación (TP, TTP, plaquetas), lactato.'
+      ]
+    }
+  };
+
+  const p = protocolos[tipo];
+  if (!p) return;
+
+  rEl.innerHTML = `
+    <div class="urg-protocol">
+      <div class="urg-protocol__title">${p.title}</div>
+      <div style="color:#D55A28;font-weight:700;margin-bottom:14px;font-size:.88rem;">⏱️ ${p.priority}</div>
+      <ol class="urg-steps">
+        ${p.steps.map(s => `<li>${s}</li>`).join('')}
+      </ol>
+    </div>
+  `;
+  rEl.className = 'tool-result is-visible is-danger';
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -1053,29 +1644,11 @@ function showErr(el, msg) {
   el.innerHTML = `<div class="tool-result__title" style="color:#D55A28;">⚠️ ${msg}</div>`;
   el.className = 'tool-result is-visible is-danger';
 }
-
 function resetearForm(which) {
-  if (which === 'dosis') {
-    document.getElementById('dosePeso').value = '';
-    document.getElementById('doseConc').value = '';
-    document.getElementById('doseCustom').value = '';
-    document.getElementById('doseResult').className = 'tool-result';
-  }
-  if (which === 'anestesia') {
-    document.getElementById('anesPeso').value = '';
-    document.getElementById('anesResult').className = 'tool-result';
-  }
-  if (which === 'fluidos') {
-    document.getElementById('fluidsPeso').value = '';
-    document.getElementById('fluidsPerd').value = '0';
-    document.getElementById('fluidsResult').className = 'tool-result';
-  }
-  if (which === 'bcs') {
-    document.getElementById('bcsPesoActual').value = '';
-    document.querySelectorAll('.bcs-item').forEach(i => i.classList.remove('is-selected'));
-    document.querySelector('[data-bcs="5"]').classList.add('is-selected');
-    document.getElementById('bcsResult').className = 'tool-result';
-  }
+  if (which === 'dosis') { document.getElementById('dosePeso').value = ''; document.getElementById('doseConc').value = ''; document.getElementById('doseResult').className = 'tool-result'; }
+  if (which === 'anestesia') { document.getElementById('anesPeso').value = ''; document.getElementById('anesResult').className = 'tool-result'; }
+  if (which === 'fluidos') { document.getElementById('fluidsPeso').value = ''; document.getElementById('fluidsPerd').value = '0'; document.getElementById('fluidsResult').className = 'tool-result'; }
+  if (which === 'bcs') { document.getElementById('bcsPesoActual').value = ''; document.querySelectorAll('.bcs-item').forEach(i => i.classList.remove('is-selected')); document.querySelector('[data-bcs="5"]').classList.add('is-selected'); document.getElementById('bcsResult').className = 'tool-result'; }
 }
 </script>
 </body>
