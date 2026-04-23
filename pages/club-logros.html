@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/club.css">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css">
   <style>
     /* Hero con XP y nivel */
     .ach-hero {
@@ -300,6 +301,8 @@
       const session = await ZOORIGEN_CLUB.requireAuth();
       if (!session) return;
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('logros', session);
+      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
 
       const progress = ZOORIGEN_CLUB.getProgress(session);
       const achievements = ZOORIGEN_CLUB.ACHIEVEMENTS;

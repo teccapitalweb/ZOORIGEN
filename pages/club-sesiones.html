@@ -6,6 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/club.css">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css">
   <style>
     .webinar-hero {
       position: relative;
@@ -241,6 +242,7 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
       <div class="page-header">
         <h1>🎥 Webinars en vivo</h1>
         <p>Masterclasses exclusivas con especialistas invitados · Transmitidas por Google Meet</p>
@@ -260,6 +262,8 @@
       const session = await ZOORIGEN_CLUB.requireAuth();
       if (!session) return;
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('sesiones', session);
+      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
 
       if (session.planStatus !== 'active') {
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para recibir el link de Google Meet. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;

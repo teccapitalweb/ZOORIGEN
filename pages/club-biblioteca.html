@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/club.css">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
     .player-overlay {
@@ -254,6 +255,7 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
       <div class="page-header">
         <h1>📚 Biblioteca exclusiva</h1>
         <p>Cursos completos seleccionados para miembros VIP · Acceso ilimitado</p>
@@ -286,6 +288,8 @@
       const session = await ZOORIGEN_CLUB.requireAuth();
       if (!session) return;
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('biblioteca', session);
+      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
 
       if (session.planStatus !== 'active') {
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Necesitas membresía activa para ver los cursos completos. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar $199/mes →</a></div>`;
@@ -306,8 +310,9 @@
 
       const isActive = session.planStatus === 'active';
 
-      // Cargar progreso de cursos del usuario
-      const progress = JSON.parse(localStorage.getItem('zoo_course_progress_' + session.uid) || '{}');
+      // Cargar progreso de cursos: PRIMERO de Firestore (persistente entre dispositivos),
+      // fallback a localStorage si Firestore falla o está vacío
+      const progress = await ZOORIGEN_CLUB.getCourseProgress(session.uid);
       window.__zooCourseProgress = progress;
       window.__zooSession = session;
 
@@ -562,14 +567,13 @@
       return `Contenido clave de la clase ${index + 1}: conceptos, ejemplos y aplicación práctica.`;
     }
 
-    function toggleLessonComplete(courseId, lessonIdx) {
+    async function toggleLessonComplete(courseId, lessonIdx) {
       const progress = window.__zooCourseProgress;
       if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
 
       const idx = progress[courseId].completedLessons.indexOf(lessonIdx);
       if (idx > -1) {
         progress[courseId].completedLessons.splice(idx, 1);
-        // Si estaba certificado y quitas una lección, desmarcar certificación (pero conservar folio)
         if (progress[courseId].isCompleted) {
           progress[courseId].isCompleted = false;
         }
@@ -577,9 +581,11 @@
         progress[courseId].completedLessons.push(lessonIdx);
       }
 
-      localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+      // Guardar en Firestore (persistente, sincronizado entre dispositivos)
+      await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
       renderCourseModal();
     }
+    window.toggleLessonComplete = toggleLessonComplete;
 
     async function generarCertificado(courseId) {
       const progress = window.__zooCourseProgress;
@@ -605,7 +611,7 @@
           progress[courseId].isCompleted = true;
           progress[courseId].completedAt = existingData.issuedAt;
           progress[courseId].certificateFolio = existingData.folio;
-          localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+          await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
 
           closePlayer();
           setTimeout(() => {
@@ -641,7 +647,7 @@
         progress[courseId].isCompleted = true;
         progress[courseId].completedAt = new Date().toISOString();
         progress[courseId].certificateFolio = folio;
-        localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+        await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
 
         if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB.awardAchievement) {
           ZOORIGEN_CLUB.awardAchievement(window.__zooSession.uid, 'first_course');
@@ -654,9 +660,23 @@
         }, 300);
 
       } catch (err) {
-        console.error('❌ Error:', err);
+        console.error('❌ Error generando certificado:', err);
         if (btn) { btn.disabled = false; btn.textContent = '🎓 Obtener certificado'; }
-        alert('❌ No se pudo generar el certificado.\n\nError: ' + (err.message || err.code || 'Desconocido') + '\n\nVerifica que tu membresía esté activa y las reglas de Firestore permitan crear certificados.');
+
+        // Mensaje útil según el error real (NO decir "membresía no activa" si no es el caso)
+        let mensaje = '❌ No se pudo generar el certificado.\n\n';
+        if (err.code === 'permission-denied' || (err.message || '').toLowerCase().includes('permission')) {
+          mensaje += '⚠️ Error de permisos en Firestore.\n\nSoluciones:\n';
+          mensaje += '1. Actualiza las reglas de Firestore en Firebase Console\n';
+          mensaje += '2. Usa la herramienta de diagnóstico en /pages/diagnostico.html\n';
+          mensaje += '3. Contacta a soporte por WhatsApp';
+        } else if (err.code === 'unavailable' || (err.message || '').includes('network')) {
+          mensaje += 'Sin conexión a internet. Revisa tu conexión e inténtalo de nuevo.';
+        } else {
+          mensaje += 'Detalles técnicos:\n' + (err.message || err.code || 'Error desconocido');
+          mensaje += '\n\nSi el problema persiste, contacta a soporte.';
+        }
+        alert(mensaje);
       }
     }
 
@@ -710,24 +730,24 @@
 
       if (courseId !== undefined && lessonIdx !== undefined) {
         clearTimeout(window.__autoCompleteTimer);
-        window.__autoCompleteTimer = setTimeout(() => {
+        window.__autoCompleteTimer = setTimeout(async () => {
           const progress = window.__zooCourseProgress;
           if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
           if (!progress[courseId].completedLessons.includes(lessonIdx)) {
             progress[courseId].completedLessons.push(lessonIdx);
-            localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+            await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
           }
         }, 30000);
       }
     }
 
-    function marcarYSiguiente(courseId, lessonIdx) {
+    async function marcarYSiguiente(courseId, lessonIdx) {
       const progress = window.__zooCourseProgress;
       if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
 
       if (!progress[courseId].completedLessons.includes(lessonIdx)) {
         progress[courseId].completedLessons.push(lessonIdx);
-        localStorage.setItem('zoo_course_progress_' + window.__zooSession.uid, JSON.stringify(progress));
+        await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
       }
 
       const lecciones = window.__currentLecciones;

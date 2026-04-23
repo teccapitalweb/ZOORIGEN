@@ -6,9 +6,6 @@
 const ZOORIGEN_CLUB = {
 
   // ============== LECTURA DE CONTENIDO DESDE FIRESTORE ==============
-  // Estos métodos reemplazan los arrays estáticos anteriores
-  // El admin sube contenido y automáticamente aparece en el club
-
   async getCursos() {
     try {
       const snap = await db.collection('cursos').orderBy('createdAt', 'desc').get();
@@ -45,52 +42,150 @@ const ZOORIGEN_CLUB = {
 
   async getNoticias(limit = 10) {
     try {
-      // Traer más noticias de las que pedimos para poder filtrar por fuente
       const snap = await db.collection('noticias').orderBy('createdAt', 'desc').limit(Math.max(limit * 4, 20)).get();
       const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-      // Algoritmo para mezclar fuentes: round-robin por fuente distinta
-      // Garantiza que no se repita la misma fuente consecutivamente cuando hay variedad
       const bySource = {};
       all.forEach(n => {
         const src = (n.source || 'Zoorigen').trim();
         if (!bySource[src]) bySource[src] = [];
         bySource[src].push(n);
       });
-
       const sources = Object.keys(bySource);
       const mixed = [];
       let i = 0;
       while (mixed.length < limit && sources.some(s => bySource[s].length > 0)) {
         const src = sources[i % sources.length];
-        if (bySource[src].length > 0) {
-          mixed.push(bySource[src].shift());
-        }
+        if (bySource[src].length > 0) mixed.push(bySource[src].shift());
         i++;
-        // Evitar loop infinito
         if (i > limit * sources.length * 2) break;
       }
-
       return mixed.slice(0, limit);
     } catch (err) { console.error('Error cargando noticias:', err); return []; }
   },
 
-  // Devuelve clase CSS para colorear la fuente según el medio
   sourceColorClass(source) {
     const s = (source || '').toLowerCase();
     if (s.includes('mongabay'))      return 'amber';
     if (s.includes('dw'))            return 'blue';
     if (s.includes('bbc'))           return 'orange';
     if (s.includes('scidev'))        return 'blue';
-    if (s.includes('semarnat'))      return '';
-    if (s.includes('conanp'))        return '';
-    return ''; // default verde
+    return '';
   },
 
-  // ============== CHECKOUT VENTANA EMERGENTE (estilo OdonTeck) ==============
-  // Abre el checkout de Shopify en una VENTANA POP-UP del navegador.
-  // El usuario original queda en Zoorigen con una pantalla de espera.
-  // Puede volver a abrir la ventana si la cerró, o confirmar que pagó.
+  // ============== NOTIFICACIONES ==============
+  // Sistema real de notificaciones: revisa webinars nuevos, logros, etc.
+  async getNotificaciones(session) {
+    if (!session || !session.uid) return [];
+    const notificaciones = [];
+    const ahora = new Date();
+
+    try {
+      // 1. Webinars próximos (próximos 14 días) - si no ha pasado aún
+      const hoy = ahora.toISOString().slice(0, 10);
+      const webSnap = await db.collection('sesiones')
+        .where('date', '>=', hoy)
+        .orderBy('date', 'asc')
+        .limit(5)
+        .get();
+      webSnap.docs.forEach(doc => {
+        const w = { id: doc.id, ...doc.data() };
+        const fecha = new Date(w.date);
+        const diasHasta = Math.ceil((fecha - ahora) / (1000*60*60*24));
+        if (diasHasta >= 0 && diasHasta <= 14) {
+          const leido = localStorage.getItem(`zoo_notif_webinar_${session.uid}_${w.id}`);
+          notificaciones.push({
+            id: 'webinar_' + w.id,
+            type: 'webinar',
+            icon: diasHasta <= 1 ? '🔔' : '🎥',
+            title: diasHasta === 0 ? '¡Hoy en vivo!' :
+                   diasHasta === 1 ? '¡Mañana en vivo!' :
+                   `Nuevo webinar en ${diasHasta} días`,
+            message: w.title,
+            time: fecha,
+            href: 'club-sesiones.html',
+            read: !!leido,
+            priority: diasHasta <= 1 ? 1 : 2
+          });
+        }
+      });
+
+      // 2. Cursos nuevos (últimos 30 días)
+      try {
+        const cursosSnap = await db.collection('cursos')
+          .orderBy('createdAt', 'desc')
+          .limit(5)
+          .get();
+        cursosSnap.docs.forEach(doc => {
+          const c = { id: doc.id, ...doc.data() };
+          if (!c.createdAt) return;
+          const creado = new Date(c.createdAt);
+          const diasDesde = Math.floor((ahora - creado) / (1000*60*60*24));
+          if (diasDesde <= 30 && diasDesde >= 0) {
+            const leido = localStorage.getItem(`zoo_notif_curso_${session.uid}_${c.id}`);
+            notificaciones.push({
+              id: 'curso_' + c.id,
+              type: 'curso',
+              icon: '📚',
+              title: 'Nuevo curso disponible',
+              message: c.title,
+              time: creado,
+              href: 'club-biblioteca.html',
+              read: !!leido,
+              priority: 3
+            });
+          }
+        });
+      } catch (err) {}
+
+      // 3. Notificación de bienvenida si es nuevo
+      if (session.planStatus === 'active' && session.planInicio) {
+        const inicio = new Date(session.planInicio);
+        const diasComoMiembro = Math.floor((ahora - inicio) / (1000*60*60*24));
+        if (diasComoMiembro <= 7) {
+          const leido = localStorage.getItem(`zoo_notif_bienvenida_${session.uid}`);
+          notificaciones.push({
+            id: 'bienvenida_' + session.uid,
+            type: 'welcome',
+            icon: '🎉',
+            title: '¡Bienvenido al Club VIP!',
+            message: `Acceso hasta ${this.formatShort(session.planVence)}`,
+            time: inicio,
+            href: 'club-dashboard.html',
+            read: !!leido,
+            priority: 4
+          });
+        }
+      }
+
+    } catch (err) {
+      console.error('Error cargando notificaciones:', err);
+    }
+
+    // Ordenar: no leídas primero, después por prioridad, después por tiempo
+    notificaciones.sort((a, b) => {
+      if (a.read !== b.read) return a.read ? 1 : -1;
+      if (a.priority !== b.priority) return a.priority - b.priority;
+      return b.time - a.time;
+    });
+
+    return notificaciones;
+  },
+
+  markNotificationRead(session, notifId) {
+    if (!session) return;
+    // notifId viene como "webinar_XXX" o "curso_XXX"
+    const [tipo, ...rest] = notifId.split('_');
+    const id = rest.join('_');
+    const key = `zoo_notif_${tipo}_${session.uid}_${id}`;
+    localStorage.setItem(key, '1');
+  },
+
+  markAllNotificationsRead(session, notificaciones) {
+    if (!session) return;
+    notificaciones.forEach(n => this.markNotificationRead(session, n.id));
+  },
+
+  // ============== CHECKOUT VENTANA EMERGENTE ==============
   openCheckoutModal(plan, email) {
     const checkoutURL = (typeof buildCheckoutURL === 'function')
       ? buildCheckoutURL(plan, email)
@@ -101,12 +196,10 @@ const ZOORIGEN_CLUB = {
     const price = isAnual ? '$1,899 MXN' : '$199 MXN';
     const planLabel = isAnual ? 'Plan Anual' : 'Plan Mensual';
 
-    // Guardar URL y plan para poder reabrir la ventana
     window.__zooCheckoutURL = checkoutURL;
     window.__zooPlanLabel = planLabel;
     window.__zooPrice = price;
 
-    // Abrir ventana emergente (centrada, 500x720)
     const w = 500, h = 720;
     const left = (screen.width / 2) - (w / 2);
     const top = (screen.height / 2) - (h / 2);
@@ -117,23 +210,18 @@ const ZOORIGEN_CLUB = {
     );
 
     if (!popup || popup.closed) {
-      // El navegador bloqueó el pop-up
       alert('⚠️ Tu navegador bloqueó la ventana de pago. Por favor permite pop-ups para zoorigen.com y vuelve a intentarlo.');
       return;
     }
 
     window.__zooPopup = popup;
-
-    // Mostrar pantalla de espera en Zoorigen
     this._showPaymentWaitingScreen(plan);
   },
 
-  // Pantalla de espera mientras el usuario paga en la ventana pop-up
   _showPaymentWaitingScreen(plan) {
     const price = window.__zooPrice || '$199 MXN';
     const planLabel = window.__zooPlanLabel || 'Plan Mensual';
 
-    // Remover pantalla previa si existe
     const existing = document.getElementById('zoo-pay-waiting');
     if (existing) existing.remove();
 
@@ -190,13 +278,10 @@ const ZOORIGEN_CLUB = {
   },
 
   _confirmPayment() {
-    // Cerrar la ventana pop-up si sigue abierta
     try { if (window.__zooPopup && !window.__zooPopup.closed) window.__zooPopup.close(); } catch {}
-    // Limpiar flag de bienvenida para que aparezca el modal celebratorio
     if (auth.currentUser) {
       localStorage.removeItem('zoo_welcome_shown_' + auth.currentUser.uid);
     }
-    // Ir al dashboard — el webhook de Railway ya habrá activado el plan vía Shopify
     window.location.href = 'club-dashboard.html';
   },
 
@@ -208,10 +293,43 @@ const ZOORIGEN_CLUB = {
     document.body.style.overflow = '';
   },
 
-  // ============== SISTEMA DE GAMIFICACIÓN ==============
-  // Niveles, XP, logros y metas semanales basados en actividad del miembro
+  // ============== PROGRESO DE CURSOS (Firestore + localStorage) ==============
+  // Guarda progreso en Firestore para que NO se pierda entre dispositivos/navegadores
+  async getCourseProgress(uid) {
+    if (!uid) return {};
+    try {
+      const doc = await db.collection('miembros').doc(uid).get();
+      const data = doc.data() || {};
+      if (data.courseProgress && typeof data.courseProgress === 'object') {
+        // Sincronizar a localStorage para lectura rápida
+        localStorage.setItem('zoo_course_progress_' + uid, JSON.stringify(data.courseProgress));
+        return data.courseProgress;
+      }
+      // Fallback: localStorage (y migrar a Firestore)
+      const local = JSON.parse(localStorage.getItem('zoo_course_progress_' + uid) || '{}');
+      if (Object.keys(local).length > 0) {
+        await db.collection('miembros').doc(uid).set({ courseProgress: local }, { merge: true }).catch(() => {});
+      }
+      return local;
+    } catch (err) {
+      console.warn('Error cargando progreso de Firestore:', err);
+      return JSON.parse(localStorage.getItem('zoo_course_progress_' + uid) || '{}');
+    }
+  },
 
-  // Definición de niveles con XP requerido
+  async saveCourseProgress(uid, progress) {
+    if (!uid || !progress) return;
+    // Guardar local primero (rápido)
+    localStorage.setItem('zoo_course_progress_' + uid, JSON.stringify(progress));
+    // Guardar en Firestore (persistente, sincronizado)
+    try {
+      await db.collection('miembros').doc(uid).set({ courseProgress: progress }, { merge: true });
+    } catch (err) {
+      console.warn('Error guardando progreso en Firestore:', err);
+    }
+  },
+
+  // ============== SISTEMA DE GAMIFICACIÓN ==============
   LEVELS: [
     { level: 1, name: 'Aprendiz',        icon: '🌱', minXP: 0,    color: '#6FBF73' },
     { level: 2, name: 'Observador',      icon: '🔍', minXP: 100,  color: '#6FBF73' },
@@ -224,52 +342,35 @@ const ZOORIGEN_CLUB = {
     { level: 9, name: 'Sabio Zoorigen',  icon: '🌟', minXP: 5000, color: '#2AA4D5' }
   ],
 
-  // Definición de todos los logros posibles
   ACHIEVEMENTS: [
-    // ═══ INICIO & ACCESO ═══
     { id: 'first_login',   icon: '🚪', name: 'Primer paso',        desc: 'Entrar al Club VIP',            xp: 20,  category: 'inicio' },
     { id: 'profile_done',  icon: '✨', name: 'Perfil completo',    desc: 'Completa tu perfil al 100%',    xp: 40,  category: 'inicio' },
     { id: 'vip_annual',    icon: '🏅', name: 'Compromiso anual',   desc: 'Adquiere plan anual',           xp: 300, category: 'inicio' },
-
-    // ═══ CURSOS ═══
     { id: 'first_course',  icon: '🎓', name: 'Primer curso',       desc: 'Completa tu primer curso',      xp: 50,  category: 'cursos' },
     { id: 'three_courses', icon: '📗', name: 'Estudiante activo',  desc: 'Completa 3 cursos',             xp: 120, category: 'cursos' },
     { id: 'five_courses',  icon: '📚', name: 'Biblioteca activa',  desc: 'Completa 5 cursos',             xp: 200, category: 'cursos' },
     { id: 'ten_courses',   icon: '🏛️', name: 'Devorador de saber', desc: 'Completa 10 cursos',            xp: 400, category: 'cursos' },
     { id: 'all_areas',     icon: '🌎', name: 'Todoterreno',        desc: 'Completa cursos en 3 áreas distintas', xp: 250, category: 'cursos' },
-
-    // ═══ SESIONES EN VIVO ═══
     { id: 'first_session', icon: '🎥', name: 'En vivo y directo',  desc: 'Asiste a tu primera sesión',    xp: 75,  category: 'sesiones' },
     { id: 'three_sessions',icon: '📡', name: 'Fiel seguidor',      desc: 'Asiste a 3 sesiones en vivo',   xp: 200, category: 'sesiones' },
     { id: 'ten_sessions',  icon: '🛰️', name: 'Espectador VIP',     desc: 'Asiste a 10 sesiones en vivo',  xp: 500, category: 'sesiones' },
-
-    // ═══ RACHAS ═══
     { id: 'streak_3',      icon: '🔥', name: '3 días seguidos',    desc: 'Racha de 3 días activos',       xp: 30,  category: 'rachas' },
     { id: 'streak_7',      icon: '⚡', name: 'Semana completa',    desc: 'Racha de 7 días activos',       xp: 100, category: 'rachas' },
     { id: 'streak_14',     icon: '🌟', name: 'Dos semanas firme',  desc: 'Racha de 14 días activos',      xp: 250, category: 'rachas' },
     { id: 'streak_30',     icon: '💎', name: 'Mes perfecto',       desc: 'Racha de 30 días activos',      xp: 500, category: 'rachas' },
-
-    // ═══ FORO & COMUNIDAD ═══
     { id: 'first_post',    icon: '📝', name: 'Primera discusión',  desc: 'Inicia tu primera discusión',   xp: 60,  category: 'comunidad' },
     { id: 'first_reply',   icon: '💬', name: 'Primera respuesta',  desc: 'Responde a un colega',          xp: 30,  category: 'comunidad' },
     { id: 'five_replies',  icon: '🗣️', name: 'Voz activa',         desc: 'Responde 5 veces en el foro',   xp: 150, category: 'comunidad' },
     { id: 'ten_posts',     icon: '🎤', name: 'Líder de opinión',   desc: 'Publica 10 discusiones',        xp: 350, category: 'comunidad' },
-
-    // ═══ CONTENIDO ═══
     { id: 'first_pdf',     icon: '📄', name: 'Lector',             desc: 'Descarga tu primer PDF',        xp: 25,  category: 'contenido' },
     { id: 'ten_pdfs',      icon: '📕', name: 'Bibliotecario',      desc: 'Descarga 10 PDFs',              xp: 150, category: 'contenido' },
-
-    // ═══ CERTIFICADOS ═══
     { id: 'first_cert',    icon: '📜', name: 'Certificado oro',    desc: 'Obtén tu primer certificado',   xp: 100, category: 'certificados' },
     { id: 'five_certs',    icon: '🏅', name: 'Coleccionista',      desc: 'Obtén 5 certificados',          xp: 350, category: 'certificados' },
-
-    // ═══ SECRETOS (bloqueados hasta desbloquearse) ═══
     { id: 'early_bird',    icon: '🌅', name: 'Madrugador',         desc: 'Entra antes de las 7am',        xp: 15,  category: 'secretos', secret: true },
     { id: 'night_owl',     icon: '🌙', name: 'Nocturno',           desc: 'Estudia después de las 11pm',   xp: 15,  category: 'secretos', secret: true },
     { id: 'weekend_warrior',icon:'🏖️', name: 'Fin de semana',      desc: 'Estudia sábado y domingo',      xp: 50,  category: 'secretos', secret: true }
   ],
 
-  // Recompensas reales desbloqueadas por nivel (códigos únicos)
   REWARDS: [
     { level: 2, icon: '🎁', title: 'Descuento 10%',    code: 'BIOLOGO10',   desc: 'En cualquier curso Zoorigen' },
     { level: 3, icon: '📘', title: 'PDF Premium',       code: 'PDF-FAUNA',   desc: 'Guía exclusiva de 80 páginas' },
@@ -281,14 +382,11 @@ const ZOORIGEN_CLUB = {
     { level: 9, icon: '🌟', title: 'Mes gratis',        code: 'SABIO-FREE',  desc: '1 mes extra de VIP sin costo' }
   ],
 
-  // Calcula el progreso del usuario (XP, nivel, logros, etc)
   getProgress(session) {
-    // Lee el progreso guardado en localStorage (o crea uno nuevo)
     const key = 'zoo_progress_' + session.uid;
     let data = {};
     try { data = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
 
-    // Inicializar datos si es nuevo
     if (!data.xp) data.xp = 0;
     if (!data.coursesCompleted) data.coursesCompleted = 0;
     if (!data.sessionsAttended) data.sessionsAttended = 0;
@@ -299,19 +397,16 @@ const ZOORIGEN_CLUB = {
     if (!data.weeklyMinutes) data.weeklyMinutes = 0;
     if (!data.joinedAt) data.joinedAt = session.createdAt || new Date().toISOString();
 
-    // Auto-otorgar "Primer paso" si es su primer login
     if (!data.unlockedAchievements.includes('first_login')) {
       data.unlockedAchievements.push('first_login');
       data.xp += 20;
     }
 
-    // Auto-otorgar logro de plan anual
     if (session.planTipo === 'anual' && !data.unlockedAchievements.includes('vip_annual')) {
       data.unlockedAchievements.push('vip_annual');
       data.xp += 300;
     }
 
-    // Calcular nivel actual
     let currentLevel = this.LEVELS[0];
     let nextLevel = this.LEVELS[1];
     for (let i = 0; i < this.LEVELS.length; i++) {
@@ -321,13 +416,11 @@ const ZOORIGEN_CLUB = {
       }
     }
 
-    // Progreso hasta siguiente nivel (0-100)
     const xpInLevel = data.xp - currentLevel.minXP;
     const xpNeeded = nextLevel.minXP - currentLevel.minXP;
     const progressPercent = xpNeeded > 0 ? Math.min(100, Math.round((xpInLevel / xpNeeded) * 100)) : 100;
     const xpToNext = Math.max(0, nextLevel.minXP - data.xp);
 
-    // Guardar
     localStorage.setItem(key, JSON.stringify(data));
 
     return {
@@ -340,7 +433,6 @@ const ZOORIGEN_CLUB = {
     };
   },
 
-  // Renderiza la tarjeta grande de nivel arriba del dashboard
   renderLevelCard(progress, session) {
     const isMax = progress.isMaxLevel;
     const unlockedRewards = this.REWARDS.filter(r => progress.level.level >= r.level).length;
@@ -374,7 +466,6 @@ const ZOORIGEN_CLUB = {
       </div>`;
   },
 
-  // Renderiza las metas semanales
   renderWeeklyGoals(progress) {
     const goals = [
       { icon: '📚', label: 'Ver 3 cursos esta semana', current: Math.min(3, progress.coursesCompleted % 10), target: 3 },
@@ -410,7 +501,6 @@ const ZOORIGEN_CLUB = {
       </div>`;
   },
 
-  // Renderiza galería de logros (desbloqueados y bloqueados)
   renderAchievements(progress) {
     const unlockedCount = progress.unlockedAchievements.length;
     const totalCount = this.ACHIEVEMENTS.length;
@@ -441,7 +531,6 @@ const ZOORIGEN_CLUB = {
       </div>`;
   },
 
-  // Renderiza stats pequeñas en el sidebar derecho
   renderMyStats(progress, session) {
     const daysAsMember = Math.floor((Date.now() - new Date(progress.joinedAt).getTime()) / 86400000);
     return `
@@ -472,7 +561,6 @@ const ZOORIGEN_CLUB = {
       </div>`;
   },
 
-  // Otorga XP y desbloquea logro si aplica + muestra toast celebratorio
   awardAchievement(userUid, achievementId) {
     const key = 'zoo_progress_' + userUid;
     let data = {};
@@ -482,7 +570,6 @@ const ZOORIGEN_CLUB = {
     const ach = this.ACHIEVEMENTS.find(a => a.id === achievementId);
     if (!ach) return false;
 
-    // Verificar si sube de nivel
     const prevLevel = this._calculateLevel(data.xp || 0);
     data.unlockedAchievements.push(achievementId);
     data.xp = (data.xp || 0) + ach.xp;
@@ -490,10 +577,8 @@ const ZOORIGEN_CLUB = {
 
     localStorage.setItem(key, JSON.stringify(data));
 
-    // Mostrar toast de logro
     this.showAchievementToast(ach);
 
-    // Si subió de nivel, mostrar modal de level up
     if (newLevel.level > prevLevel.level) {
       setTimeout(() => this.showLevelUpModal(newLevel), 3200);
     }
@@ -508,9 +593,7 @@ const ZOORIGEN_CLUB = {
     return current;
   },
 
-  // Toast celebratorio con confetti y sonido cuando desbloqueas logro
   showAchievementToast(achievement) {
-    // Remover toast previo si existe
     const existing = document.getElementById('zoo-ach-toast');
     if (existing) existing.remove();
 
@@ -535,15 +618,12 @@ const ZOORIGEN_CLUB = {
     `;
     document.body.appendChild(toast);
 
-    // Sonido opcional (beep suave con Web Audio API)
     this._playAchievementSound();
 
-    // Auto-desaparece después de 4.5s
     setTimeout(() => toast.classList.add('leaving'), 4200);
     setTimeout(() => toast.remove(), 4700);
   },
 
-  // Modal grande cuando el usuario sube de nivel
   showLevelUpModal(newLevel) {
     const reward = this.REWARDS.find(r => r.level === newLevel.level);
 
@@ -599,7 +679,6 @@ const ZOORIGEN_CLUB = {
     this._playLevelUpSound();
   },
 
-  // Modal grande con todas las recompensas (canjeadas y pendientes)
   showRewardsModal(progress) {
     const modal = document.createElement('div');
     modal.id = 'zoo-rewards-modal';
@@ -652,14 +731,12 @@ const ZOORIGEN_CLUB = {
     });
   },
 
-  // Sonidos simples con Web Audio (sin archivos externos)
   _playAchievementSound() {
     if (localStorage.getItem('zoo_mute') === 'yes') return;
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
-      // Secuencia de 3 notas ascendentes tipo "achievement unlocked"
       [523.25, 659.25, 783.99].forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -681,7 +758,6 @@ const ZOORIGEN_CLUB = {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
-      // Fanfarria de 4 notas
       [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -697,7 +773,6 @@ const ZOORIGEN_CLUB = {
     } catch {}
   },
 
-  // ============== MODAL DE BIENVENIDA VIP ==============
   showWelcomeModal(session) {
     const firstName = (session.name || 'Miembro').split(' ')[0];
     const planLabel = session.planTipo === 'anual' ? 'Plan Anual' : 'Plan Mensual';
@@ -719,24 +794,15 @@ const ZOORIGEN_CLUB = {
       </div>
       <div class="zoo-welcome-box">
         <button class="zoo-welcome-close" aria-label="Cerrar">×</button>
-
         <div class="zoo-welcome-emoji-wrap">
           <div class="zoo-welcome-emoji">🦒</div>
           <div class="zoo-welcome-sparkle zoo-welcome-sparkle-1">✨</div>
           <div class="zoo-welcome-sparkle zoo-welcome-sparkle-2">⭐</div>
           <div class="zoo-welcome-sparkle zoo-welcome-sparkle-3">✨</div>
         </div>
-
         <div class="zoo-welcome-badge">🎉 ¡BIENVENIDO AL CLUB VIP!</div>
-
-        <h1 class="zoo-welcome-title">
-          ¡Felicidades <span>${firstName}</span>!
-        </h1>
-
-        <p class="zoo-welcome-desc">
-          Eres parte oficial de <strong>Zoorigen</strong>, la comunidad científica de fauna más completa de México.
-        </p>
-
+        <h1 class="zoo-welcome-title">¡Felicidades <span>${firstName}</span>!</h1>
+        <p class="zoo-welcome-desc">Eres parte oficial de <strong>Zoorigen</strong>, la comunidad científica de fauna más completa de México.</p>
         <div class="zoo-welcome-plan">
           <div class="zoo-welcome-plan-icon">🏆</div>
           <div>
@@ -744,38 +810,13 @@ const ZOORIGEN_CLUB = {
             <div class="zoo-welcome-plan-sub">Acceso hasta ${venceLabel}</div>
           </div>
         </div>
-
         <div class="zoo-welcome-benefits">
-          <div class="zoo-welcome-benefit">
-            <span>📚</span>
-            <div>
-              <strong>Biblioteca completa</strong>
-              <small>Todos los cursos desbloqueados</small>
-            </div>
-          </div>
-          <div class="zoo-welcome-benefit">
-            <span>🔴</span>
-            <div>
-              <strong>Sesiones en vivo</strong>
-              <small>Masterclasses mensuales con especialistas</small>
-            </div>
-          </div>
-          <div class="zoo-welcome-benefit">
-            <span>💰</span>
-            <div>
-              <strong>20% OFF permanente</strong>
-              <small>En todas las capacitaciones Zoorigen</small>
-            </div>
-          </div>
+          <div class="zoo-welcome-benefit"><span>📚</span><div><strong>Biblioteca completa</strong><small>Todos los cursos desbloqueados</small></div></div>
+          <div class="zoo-welcome-benefit"><span>🔴</span><div><strong>Sesiones en vivo</strong><small>Masterclasses mensuales con especialistas</small></div></div>
+          <div class="zoo-welcome-benefit"><span>💰</span><div><strong>20% OFF permanente</strong><small>En todas las capacitaciones Zoorigen</small></div></div>
         </div>
-
-        <button class="zoo-welcome-cta" id="zoo-welcome-cta-btn">
-          🚀 Empezar a explorar
-        </button>
-
-        <div class="zoo-welcome-footer">
-          ¿Necesitas ayuda? Contáctanos por <a href="https://wa.me/5212361113237" target="_blank">WhatsApp</a>
-        </div>
+        <button class="zoo-welcome-cta" id="zoo-welcome-cta-btn">🚀 Empezar a explorar</button>
+        <div class="zoo-welcome-footer">¿Necesitas ayuda? Contáctanos por <a href="https://wa.me/5212361113237" target="_blank">WhatsApp</a></div>
       </div>
     `;
     document.body.appendChild(modal);
@@ -789,7 +830,6 @@ const ZOORIGEN_CLUB = {
     modal.querySelector('#zoo-welcome-cta-btn').addEventListener('click', close);
     modal.querySelector('.zoo-welcome-backdrop').addEventListener('click', close);
   },
-
 
   timeAgo(isoDate) {
     if (!isoDate) return '';
@@ -810,7 +850,6 @@ const ZOORIGEN_CLUB = {
     } catch { return ''; }
   },
 
-  // Renderiza una tarjeta de noticia bonita con imagen, fuente, resumen y fecha
   renderNewsCard(n) {
     const hasImage = n.image && n.image.startsWith('http');
     const sourceColor = this.sourceColorClass(n.source);
@@ -836,7 +875,6 @@ const ZOORIGEN_CLUB = {
       </${tag}>`;
   },
 
-  // Helper: genera URL embebida de Google Drive para videos
   buildDriveEmbed(driveId) {
     if (!driveId) return null;
     return `https://drive.google.com/file/d/${driveId}/preview`;
@@ -871,7 +909,6 @@ const ZOORIGEN_CLUB = {
         createdAt: new Date().toISOString()
       };
 
-      // Sistema de referidos: guardar el código de quien lo invitó
       if (data.referredBy) {
         docData.referredBy = data.referredBy;
         docData.referredAt = new Date().toISOString();
@@ -935,7 +972,11 @@ const ZOORIGEN_CLUB = {
       return { ok: true };
     } catch (err) {
       console.error('Google login error:', err);
-      return { ok: false, msg: 'No se pudo iniciar sesión con Google' };
+      let msg = 'No se pudo iniciar sesión con Google';
+      if (err.code === 'auth/popup-blocked') msg = 'Tu navegador bloqueó el popup de Google. Permite popups para zoorigen.com.';
+      if (err.code === 'auth/popup-closed-by-user') msg = 'Cerraste la ventana de Google antes de iniciar sesión.';
+      if (err.code === 'auth/cancelled-popup-request') msg = 'Solo puede haber un popup de Google a la vez.';
+      return { ok: false, msg };
     }
   },
 
@@ -1058,8 +1099,8 @@ const ZOORIGEN_CLUB = {
       { id: 'perfil', label: 'Mi perfil', icon: '👤', href: 'club-perfil.html' },
       { id: 'suscripcion', label: 'Suscripción', icon: '💳', href: 'club-suscripcion.html' }
     ];
-    // Nota: el panel admin es URL oculta /pages/admin-club.html (con contraseña)
     return `
+      <button class="club-sidebar__close" id="sidebarCloseBtn" aria-label="Cerrar menú">✕</button>
       <div class="club-sidebar__brand">
         <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
         <div class="club-sidebar__brand-text">
@@ -1087,6 +1128,48 @@ const ZOORIGEN_CLUB = {
         <a href="#" class="plan-logout" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a>
       </div>
     `;
+  },
+
+  // ============== MOBILE MENU TOGGLE ==============
+  // Cierra sidebar en móvil cuando se hace click en un link
+  initMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    // Cerrar sidebar
+    const closeSidebar = () => {
+      sidebar.classList.remove('is-open');
+      document.body.classList.remove('sidebar-open');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (overlay) overlay.classList.remove('is-visible');
+    };
+
+    // Abrir sidebar (para botón hamburguesa en header)
+    const openSidebar = () => {
+      sidebar.classList.add('is-open');
+      document.body.classList.add('sidebar-open');
+      let overlay = document.getElementById('sidebarOverlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'sidebarOverlay';
+        overlay.className = 'club-sidebar-overlay';
+        overlay.addEventListener('click', closeSidebar);
+        document.body.appendChild(overlay);
+      }
+      setTimeout(() => overlay.classList.add('is-visible'), 10);
+    };
+
+    // Botón de cerrar dentro del sidebar
+    const closeBtn = document.getElementById('sidebarCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+
+    // Botón hamburguesa (si existe)
+    const hamburger = document.getElementById('mobileMenuBtn');
+    if (hamburger) hamburger.addEventListener('click', openSidebar);
+
+    // Exponer globalmente
+    window.__zooCloseSidebar = closeSidebar;
+    window.__zooOpenSidebar = openSidebar;
   },
 
   startCountdown(elId, targetIso) {

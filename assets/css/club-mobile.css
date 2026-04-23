@@ -1,0 +1,284 @@
+/* ============================================================ */
+/* CLUB VIP ZOORIGEN - CSS MOBILE RESPONSIVE                     */
+/* Cargar después de club.css para adaptar todo a celular        */
+/* ============================================================ */
+
+/* ═══════════════ BOTÓN HAMBURGUESA (mobile) ═══════════════ */
+.mobile-menu-btn {
+  display: none;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mobile-menu-btn:hover { background: rgba(232,163,23,0.15); }
+
+/* Botón cerrar dentro del sidebar (solo visible en mobile) */
+.club-sidebar__close {
+  display: none;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(255,255,255,0.1);
+  border: 0;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+/* Overlay oscuro cuando sidebar está abierto en mobile */
+.club-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(3px);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity .25s;
+}
+.club-sidebar-overlay.is-visible { opacity: 1; }
+
+/* ═══════════════ NOTIFICACIONES ═══════════════ */
+.notif-icon {
+  position: relative;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.notif-icon:hover {
+  background: rgba(232,163,23,0.15);
+  border-color: rgba(232,163,23,0.4);
+  transform: scale(1.05);
+}
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #D55A28;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(213,90,40,0.5);
+  animation: notifPulse 2s ease-in-out infinite;
+}
+@keyframes notifPulse {
+  0%, 100% { box-shadow: 0 2px 6px rgba(213,90,40,0.5); }
+  50% { box-shadow: 0 2px 14px rgba(213,90,40,0.9); }
+}
+.notif-panel {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  width: 380px;
+  max-width: calc(100vw - 40px);
+  max-height: 70vh;
+  background: #131816;
+  border: 1px solid rgba(232,163,23,0.25);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  z-index: 9999;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all .2s;
+}
+.notif-panel.is-open { opacity: 1; transform: translateY(0); }
+.notif-panel__header {
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.notif-panel__header h3 { color: #fff; font-size: 1rem; font-weight: 700; margin: 0; }
+.notif-panel__close {
+  background: transparent; border: 0; color: #a0a8a4;
+  cursor: pointer; font-size: 1.2rem;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.notif-panel__close:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.notif-panel__actions { padding: 10px 18px; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; }
+.notif-mark-all {
+  background: transparent; border: 0; color: #E8A317;
+  font-size: .82rem; font-weight: 600; cursor: pointer; padding: 0;
+}
+.notif-mark-all:hover { text-decoration: underline; }
+.notif-panel__list { overflow-y: auto; flex: 1; }
+.notif-item {
+  display: flex; gap: 12px; padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  text-decoration: none; color: inherit;
+  position: relative; transition: background .15s;
+}
+.notif-item:hover { background: rgba(255,255,255,0.03); }
+.notif-item.is-unread { background: rgba(232,163,23,0.06); }
+.notif-item.is-unread:hover { background: rgba(232,163,23,0.1); }
+.notif-item__icon {
+  flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(232,163,23,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+}
+.notif-item.is-unread .notif-item__icon {
+  background: linear-gradient(135deg, rgba(232,163,23,0.25), rgba(213,90,40,0.25));
+}
+.notif-item__body { flex: 1; min-width: 0; }
+.notif-item__title { color: #fff; font-size: .92rem; font-weight: 700; margin-bottom: 2px; }
+.notif-item__msg {
+  color: #a0a8a4; font-size: .84rem;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.notif-item__time { color: #6b7370; font-size: .74rem; margin-top: 4px; }
+.notif-item__dot {
+  position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%);
+  width: 8px; height: 8px;
+  background: #E8A317; border-radius: 50%;
+  box-shadow: 0 0 8px rgba(232,163,23,0.6);
+}
+.notif-empty { padding: 40px 24px; text-align: center; }
+.notif-empty__icon { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; }
+.notif-empty__title { color: #fff; font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+.notif-empty__text { color: #a0a8a4; font-size: .84rem; line-height: 1.4; }
+
+/* ═══════════════ MOBILE BREAKPOINTS ═══════════════ */
+@media (max-width: 900px) {
+  .mobile-menu-btn { display: flex; }
+  .club-sidebar__close { display: flex; }
+  .club-sidebar-overlay { display: block; }
+
+  .club-layout {
+    display: block !important;
+  }
+
+  .club-sidebar {
+    position: fixed !important;
+    left: -100% !important;
+    top: 0 !important;
+    height: 100vh !important;
+    width: 85% !important;
+    max-width: 320px !important;
+    z-index: 999 !important;
+    overflow-y: auto !important;
+    transition: left .28s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    padding-top: 60px !important;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+  }
+  .club-sidebar.is-open { left: 0 !important; }
+  body.sidebar-open { overflow: hidden; }
+
+  .club-main {
+    margin-left: 0 !important;
+    padding: 16px !important;
+    width: 100% !important;
+  }
+
+  .club-main__header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+  }
+  .club-main__greeting { flex: 1; min-width: 0; }
+  .club-main__greeting h1 { font-size: 1.25rem !important; }
+  .club-main__greeting .date, .club-main__greeting p { font-size: .82rem !important; }
+
+  .page-header h1 { font-size: 1.35rem !important; }
+  .page-header p { font-size: .88rem !important; }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .notif-panel {
+    right: 10px !important;
+    left: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    top: 62px !important;
+  }
+
+  /* Auth pages (login/registro) en columna en mobile */
+  .auth-wrapper {
+    grid-template-columns: 1fr !important;
+  }
+  .auth-wrapper__brand {
+    padding: 24px !important;
+    text-align: center;
+  }
+  .auth-wrapper__brand h1 { font-size: 1.4rem !important; }
+  .auth-wrapper__brand ul { display: inline-block; text-align: left; }
+
+  /* Pricing cards en columna */
+  .pricing-card { max-width: 100% !important; }
+
+  /* Course detail modal full screen */
+  .course-detail-modal { padding: 10px !important; }
+  .course-detail-box { max-height: 95vh !important; }
+}
+
+@media (max-width: 500px) {
+  .club-main__greeting h1 { font-size: 1.05rem !important; }
+  .notif-icon { width: 38px; height: 38px; font-size: 1.1rem; }
+  .mobile-menu-btn { width: 38px; height: 38px; font-size: 1.2rem; }
+  .page-header h1 { font-size: 1.2rem !important; }
+
+  /* Pricing card compacto */
+  .pricing-card { padding: 22px 18px !important; }
+  .price { font-size: 2.5rem !important; }
+
+  /* Foro */
+  .foro-post-card { padding: 14px !important; }
+  .foro-post-card h3 { font-size: .98rem !important; }
+
+  /* Grid de referidos */
+  .ref-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Certificados grid */
+  .cert-card { padding: 16px !important; }
+
+  /* Botones más grandes (tap targets) */
+  .btn-club, .btn-club-outline {
+    padding: 14px 20px !important;
+    font-size: .95rem !important;
+  }
+}
