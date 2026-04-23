@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/club.css">
   <link rel="stylesheet" href="../assets/css/club-mobile.css">
+  <link rel="stylesheet" href="../assets/css/club-theme.css">
 </head>
 <body>
   <div class="club-layout">
@@ -36,6 +37,7 @@
       const session = await ZOORIGEN_CLUB.requireAuth();
       if (!session) return;
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('certificados', session);
+      if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
 

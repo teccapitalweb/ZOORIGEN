@@ -1125,13 +1125,196 @@ const ZOORIGEN_CLUB = {
         <div class="plan-label">${planLabel}</div>
         <div class="plan-name">Miembro ${session?.planActivo ? 'VIP' : 'pendiente'}</div>
         <div class="plan-meta">${renewText}</div>
-        <a href="#" class="plan-logout" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a>
+        <div style="display:flex;gap:14px;align-items:center;margin-top:10px;flex-wrap:wrap;">
+          <a href="#" class="plan-logout" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a>
+          <a href="#" style="color:var(--zoo-text-muted);font-size:.82rem;text-decoration:none;font-weight:600;" onclick="ZOORIGEN_CLUB._showGuideFromSidebar(); return false;">📖 Ver guía</a>
+        </div>
       </div>
     `;
   },
 
+  // Helper interno para mostrar guía desde el sidebar
+  async _showGuideFromSidebar() {
+    const session = await this.requireAuth();
+    if (session) this.showOnboardingForced(session);
+  },
+
+  // ============== TEMA CLARO/OSCURO ==============
+  // Aplica el tema guardado al cargar la página
+  initTheme() {
+    const saved = localStorage.getItem('zoo_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    this._updateThemeIcons(saved);
+  },
+
+  toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('zoo_theme', next);
+    this._updateThemeIcons(next);
+  },
+
+  _updateThemeIcons(theme) {
+    const btns = document.querySelectorAll('.theme-toggle');
+    btns.forEach(btn => {
+      btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+      btn.title = theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+    });
+  },
+
+  // ============== GUÍA DE BIENVENIDA (onboarding de texto) ==============
+  // Se muestra al miembro la primera vez que entra al dashboard.
+  // Se marca como vista en localStorage para no mostrarla más.
+  showOnboarding(session) {
+    if (!session) return;
+    const key = 'zoo_onboard_done_' + session.uid;
+    if (localStorage.getItem(key)) return; // Ya la vio
+
+    const steps = [
+      {
+        icon: '🦒',
+        title: '¡Bienvenido al Club VIP Zoorigen!',
+        desc: 'Aquí tienes acceso ilimitado a la comunidad científica de fauna más completa de México. Te mostramos en 5 pasos cómo aprovechar al máximo tu membresía.',
+        tipsTitle: 'Qué encontrarás aquí',
+        tips: [
+          'Biblioteca de cursos en fauna silvestre',
+          'Webinars en vivo con especialistas',
+          'Biblioteca de PDFs y material científico',
+          'Foro privado de la comunidad',
+          '20% OFF permanente en cursos Zoorigen'
+        ]
+      },
+      {
+        icon: '📚',
+        title: 'Biblioteca de cursos',
+        desc: 'Explora cursos completos sobre fauna mexicana, manejo, rehabilitación y más. Tu progreso se guarda automáticamente entre dispositivos.',
+        tipsTitle: 'Cómo usar la biblioteca',
+        tips: [
+          'Entra a "Biblioteca" desde el menú',
+          'Filtra por área de interés',
+          'Cada curso tiene varias clases · debes completar una para desbloquear la siguiente',
+          'Al terminar un curso obtienes tu certificado con folio'
+        ]
+      },
+      {
+        icon: '🎥',
+        title: 'Webinars en vivo',
+        desc: 'Masterclasses mensuales con especialistas invitados, transmitidas por Google Meet. Si no puedes asistir, la grabación queda disponible.',
+        tipsTitle: 'Tips para los webinars',
+        tips: [
+          'Revisa "Webinars en vivo" para ver fechas',
+          'Recibirás notificación cuando se publique un nuevo webinar',
+          'El link de Meet aparece 15 min antes del evento',
+          'Prepara tus preguntas para la sesión de Q&A'
+        ]
+      },
+      {
+        icon: '🏆',
+        title: 'Gana XP y sube de nivel',
+        desc: 'Cada actividad en el club te da puntos XP. Subes de nivel (hay 9) y desbloqueas recompensas reales como descuentos y sesiones privadas.',
+        tipsTitle: 'Cómo ganar XP',
+        tips: [
+          'Completa cursos (+50 a +100 XP)',
+          'Asiste a webinars (+75 XP cada uno)',
+          'Descarga PDFs (+25 XP cada uno)',
+          'Participa en el foro (+30 a +60 XP por publicación)',
+          'Mantén tu racha diaria para bonos extra'
+        ]
+      },
+      {
+        icon: '🎁',
+        title: 'Invita amigos y gana meses gratis',
+        desc: 'Por cada 3 amigos que se suscriban con tu código único, te regalamos 1 mes VIP gratis. Es tu manera de ampliar la comunidad y ahorrar.',
+        tipsTitle: 'Siguientes pasos',
+        tips: [
+          'Entra a "Invitar amigos" en el menú',
+          'Copia tu link único o comparte por WhatsApp',
+          'Cada 3 pagos confirmados = 1 mes gratis para ti',
+          '¿Dudas? Escríbenos por WhatsApp desde el footer'
+        ]
+      }
+    ];
+
+    let current = 0;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'zoo-onboard-overlay';
+    overlay.innerHTML = `
+      <div class="zoo-onboard-box">
+        <div class="zoo-onboard-header">
+          <div class="zoo-onboard-step-count" id="zooStepCount">Paso 1 de ${steps.length}</div>
+          <button class="zoo-onboard-close" id="zooOnboardClose" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="zoo-onboard-progress" id="zooOnboardProgress">
+          ${steps.map(() => '<div class="zoo-onboard-dot"></div>').join('')}
+        </div>
+        <div class="zoo-onboard-content" id="zooOnboardContent"></div>
+        <div class="zoo-onboard-footer">
+          <button class="zoo-onboard-btn-prev" id="zooOnboardPrev" disabled>← Anterior</button>
+          <button class="zoo-onboard-btn-next" id="zooOnboardNext">Siguiente →</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    const render = () => {
+      const step = steps[current];
+      const content = document.getElementById('zooOnboardContent');
+      content.innerHTML = `
+        <div class="zoo-onboard-icon">${step.icon}</div>
+        <h2 class="zoo-onboard-title">${step.title}</h2>
+        <p class="zoo-onboard-desc">${step.desc}</p>
+        <div class="zoo-onboard-tips">
+          <div class="zoo-onboard-tips-title">💡 ${step.tipsTitle}</div>
+          <ul>
+            ${step.tips.map(t => `<li>${t}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+      document.getElementById('zooStepCount').textContent = `Paso ${current + 1} de ${steps.length}`;
+      document.getElementById('zooOnboardPrev').disabled = current === 0;
+      document.getElementById('zooOnboardNext').textContent = current === steps.length - 1 ? '✓ Entendido' : 'Siguiente →';
+
+      // Actualizar dots de progreso
+      const dots = document.querySelectorAll('.zoo-onboard-dot');
+      dots.forEach((d, i) => {
+        d.classList.remove('is-active', 'is-done');
+        if (i < current) d.classList.add('is-done');
+        if (i === current) d.classList.add('is-active');
+      });
+    };
+
+    const close = () => {
+      overlay.remove();
+      document.body.style.overflow = '';
+      localStorage.setItem(key, new Date().toISOString());
+    };
+
+    document.getElementById('zooOnboardClose').addEventListener('click', close);
+    document.getElementById('zooOnboardPrev').addEventListener('click', () => {
+      if (current > 0) { current--; render(); }
+    });
+    document.getElementById('zooOnboardNext').addEventListener('click', () => {
+      if (current < steps.length - 1) {
+        current++;
+        render();
+      } else {
+        close();
+      }
+    });
+
+    render();
+  },
+
+  // Forzar mostrar la guía (para ponerla en un botón "Ver guía" después)
+  showOnboardingForced(session) {
+    localStorage.removeItem('zoo_onboard_done_' + session.uid);
+    this.showOnboarding(session);
+  },
+
   // ============== MOBILE MENU TOGGLE ==============
-  // Cierra sidebar en móvil cuando se hace click en un link
   initMobileMenu() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
@@ -1194,3 +1377,12 @@ const ZOORIGEN_CLUB = {
     setInterval(render, 1000);
   }
 };
+
+// ═══ AUTO-APLICAR TEMA AL CARGAR ═══
+// Se ejecuta inmediatamente para evitar "flash" de tema incorrecto
+(function() {
+  try {
+    const saved = localStorage.getItem('zoo_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+  } catch {}
+})();

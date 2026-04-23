@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/club.css">
   <link rel="stylesheet" href="../assets/css/club-mobile.css">
+  <link rel="stylesheet" href="../assets/css/club-theme.css">
   <style>
     .webinar-hero {
       position: relative;
@@ -242,7 +243,7 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;"><button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button><button class="theme-toggle" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema" onclick="ZOORIGEN_CLUB.toggleTheme()">☀️</button></div>
       <div class="page-header">
         <h1>🎥 Webinars en vivo</h1>
         <p>Masterclasses exclusivas con especialistas invitados · Transmitidas por Google Meet</p>
@@ -262,6 +263,7 @@
       const session = await ZOORIGEN_CLUB.requireAuth();
       if (!session) return;
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('sesiones', session);
+      if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
 
