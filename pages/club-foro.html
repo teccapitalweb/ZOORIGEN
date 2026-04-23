@@ -474,20 +474,136 @@
     .foro-form-group select,
     .foro-form-group textarea {
       width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--zoo-border-strong, #2a3530);
-      color: var(--zoo-text, #fff);
+      background: #0f1311 !important;
+      border: 1px solid #2a3530;
+      color: #ffffff !important;
       padding: 12px 14px;
       border-radius: 10px;
       font-family: inherit;
       font-size: .95rem;
+    }
+    .foro-form-group select {
+      /* Para que en modo oscuro las options se vean bien */
+      background-color: #0f1311 !important;
+      color: #ffffff !important;
+    }
+    .foro-form-group select option {
+      background: #131816 !important;
+      color: #ffffff !important;
+      padding: 8px;
+    }
+    /* Modo claro */
+    [data-theme="light"] .foro-form-group input,
+    [data-theme="light"] .foro-form-group select,
+    [data-theme="light"] .foro-form-group textarea {
+      background: #ffffff !important;
+      border: 1px solid #d0d4cb !important;
+      color: #1a1d1b !important;
+    }
+    [data-theme="light"] .foro-form-group select option {
+      background: #ffffff !important;
+      color: #1a1d1b !important;
     }
     .foro-form-group textarea { resize: vertical; min-height: 120px; }
     .foro-form-group input:focus,
     .foro-form-group select:focus,
     .foro-form-group textarea:focus {
       outline: 0;
+      border-color: #E8A317 !important;
+    }
+
+    /* ═══ DROPDOWN CUSTOM (para Categoría) - reemplaza <select> nativo ═══ */
+    /* Los <select> nativos pintan sus <option> con los colores del SISTEMA,
+       por eso en modo oscuro las letras se pierden. Este dropdown custom
+       usa nuestros colores al 100%. */
+    .foro-custom-select {
+      position: relative;
+      width: 100%;
+    }
+    .foro-custom-select__btn {
+      width: 100%;
+      background: #0f1311 !important;
+      border: 1px solid #2a3530;
+      color: #ffffff !important;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: .95rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+    }
+    [data-theme="light"] .foro-custom-select__btn {
+      background: #ffffff !important;
+      border: 1px solid #d0d4cb !important;
+      color: #1a1d1b !important;
+    }
+    .foro-custom-select__btn:hover {
       border-color: #E8A317;
+    }
+    .foro-custom-select.is-open .foro-custom-select__btn {
+      border-color: #E8A317;
+    }
+    .foro-custom-select__arrow {
+      color: #E8A317;
+      font-size: 1.1rem;
+      transition: transform .2s;
+    }
+    .foro-custom-select.is-open .foro-custom-select__arrow {
+      transform: rotate(180deg);
+    }
+    .foro-custom-select__options {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #131816 !important;
+      border: 1px solid #2a3530;
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 100;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    [data-theme="light"] .foro-custom-select__options {
+      background: #ffffff !important;
+      border: 1px solid #d0d4cb !important;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+    .foro-custom-opt {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid #1e2522;
+      color: #e5e9e7 !important;
+      padding: 12px 16px;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: .92rem;
+      transition: background .12s;
+    }
+    [data-theme="light"] .foro-custom-opt {
+      color: #1a1d1b !important;
+      border-bottom: 1px solid #e2e5df;
+    }
+    .foro-custom-opt:last-child { border-bottom: 0; }
+    .foro-custom-opt:hover {
+      background: rgba(232,163,23,0.15) !important;
+      color: #ffffff !important;
+    }
+    [data-theme="light"] .foro-custom-opt:hover {
+      background: rgba(232,163,23,0.12) !important;
+      color: #1a1d1b !important;
+    }
+    .foro-custom-opt.is-active {
+      background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(214,138,10,0.15)) !important;
+      color: #E8A317 !important;
+      font-weight: 700;
     }
 
     .foro-modal__footer {
@@ -687,24 +803,10 @@
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;">
-        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button>
-        <div style="display:flex;gap:10px;align-items:center;margin-left:auto;">
-          <button class="notif-icon" id="notifBtn" title="Notificaciones" aria-label="Notificaciones">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
-          <button class="theme-toggle" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema" onclick="ZOORIGEN_CLUB.toggleTheme()">☀️</button>
-        </div>
-      </div>
-      <!-- Panel de notificaciones -->
-      <div class="notif-panel" id="notifPanel" style="display:none;">
-        <div class="notif-panel__header">
-          <h3>🔔 Notificaciones</h3>
-          <button class="notif-panel__close" id="notifPanelClose" aria-label="Cerrar">✕</button>
-        </div>
-        <div class="notif-panel__actions" id="notifPanelActions" style="display:none;">
-          <button class="notif-mark-all" id="notifMarkAll">Marcar todas como leídas</button>
-        </div>
-        <div class="notif-panel__list" id="notifList">Cargando...</div>
-      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
+
+      <!-- MARCA VERSION v2 FIX - si ves este comentario en la consola es el archivo nuevo -->
+      <script>console.log('%c🦒 FORO v2 FIX cargado ' + new Date().toLocaleTimeString(), 'background:#E8A317;color:#1f1d17;padding:4px 8px;font-weight:700;border-radius:4px;');</script>
 
       <div class="foro-hero">
         <div class="foro-hero__badge">
@@ -788,7 +890,6 @@
       if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('foro', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
-      if (ZOORIGEN_CLUB.initNotifications) ZOORIGEN_CLUB.initNotifications(session);
 
       document.querySelectorAll('.foro-cat').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1019,14 +1120,22 @@
           <div class="foro-modal__body">
             <div class="foro-form-group">
               <label>Categoría</label>
-              <select id="postCategory">
-                <option value="consulta">❓ Consulta general</option>
-                <option value="casos">⚕️ Casos clínicos</option>
-                <option value="manejo">🧤 Manejo & captura</option>
-                <option value="identificacion">🔍 Identificación</option>
-                <option value="legal">⚖️ Legal & UMAs</option>
-                <option value="empleo">💼 Empleo</option>
-              </select>
+              <!-- Dropdown custom (no usamos <select> porque el navegador pinta las options con colores del sistema y se pierden en modo oscuro) -->
+              <div class="foro-custom-select" id="foroCustomSelect">
+                <button type="button" class="foro-custom-select__btn" id="foroCustomSelectBtn">
+                  <span class="foro-custom-select__label">❓ Consulta general</span>
+                  <span class="foro-custom-select__arrow">▾</span>
+                </button>
+                <input type="hidden" id="postCategory" value="consulta">
+                <div class="foro-custom-select__options" id="foroCustomSelectOpts" style="display:none;">
+                  <button type="button" class="foro-custom-opt is-active" data-val="consulta">❓ Consulta general</button>
+                  <button type="button" class="foro-custom-opt" data-val="casos">⚕️ Casos clínicos</button>
+                  <button type="button" class="foro-custom-opt" data-val="manejo">🧤 Manejo & captura</button>
+                  <button type="button" class="foro-custom-opt" data-val="identificacion">🔍 Identificación</button>
+                  <button type="button" class="foro-custom-opt" data-val="legal">⚖️ Legal & UMAs</button>
+                  <button type="button" class="foro-custom-opt" data-val="empleo">💼 Empleo</button>
+                </div>
+              </div>
             </div>
             <div class="foro-form-group">
               <label>Título de tu discusión</label>
@@ -1053,6 +1162,46 @@
       document.getElementById('foroModalSubmit').addEventListener('click', async () => {
         await submitNewPost(close);
       });
+
+      // Lógica del dropdown custom de Categoría
+      const customSelect = document.getElementById('foroCustomSelect');
+      const customBtn = document.getElementById('foroCustomSelectBtn');
+      const customOpts = document.getElementById('foroCustomSelectOpts');
+      const customLabel = customSelect.querySelector('.foro-custom-select__label');
+      const hiddenInput = document.getElementById('postCategory');
+
+      customBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = customSelect.classList.contains('is-open');
+        if (isOpen) {
+          customOpts.style.display = 'none';
+          customSelect.classList.remove('is-open');
+        } else {
+          customOpts.style.display = 'block';
+          customSelect.classList.add('is-open');
+        }
+      });
+
+      customOpts.querySelectorAll('.foro-custom-opt').forEach(opt => {
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          customOpts.querySelectorAll('.foro-custom-opt').forEach(o => o.classList.remove('is-active'));
+          opt.classList.add('is-active');
+          customLabel.textContent = opt.textContent.trim();
+          hiddenInput.value = opt.dataset.val;
+          customOpts.style.display = 'none';
+          customSelect.classList.remove('is-open');
+        });
+      });
+
+      // Cerrar al hacer clic afuera
+      document.addEventListener('click', (e) => {
+        if (!customSelect.contains(e.target)) {
+          customOpts.style.display = 'none';
+          customSelect.classList.remove('is-open');
+        }
+      });
+
       setTimeout(() => document.getElementById('postTitle').focus(), 100);
     }
 
