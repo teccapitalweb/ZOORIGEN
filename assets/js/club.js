@@ -320,30 +320,28 @@ const ZOORIGEN_CLUB = {
       : (plan === 'anual' ? SHOPIFY_ANNUAL_CHECKOUT_URL : SHOPIFY_CHECKOUT_URL) +
         (email ? `?checkout[email]=${encodeURIComponent(email)}` : '');
 
+    // Overlay breve antes de redirigir — da sensación de "algo está pasando"
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.95);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     const isAnual = plan === 'anual';
     const price = isAnual ? '$1,899 MXN' : '$199 MXN';
     const planLabel = isAnual ? 'Plan Anual' : 'Plan Mensual';
+    overlay.innerHTML = `
+      <div style="max-width:440px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 100%);border:2px solid rgba(232,163,23,0.4);border-radius:18px;padding:36px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+        <div style="font-size:3.5rem;margin-bottom:12px;animation:zooPulse 1.2s ease-in-out infinite;">💳</div>
+        <h2 style="font-family:Poppins;color:#fff;font-size:1.4rem;margin:0 0 6px;">Llevándote al pago seguro</h2>
+        <div style="color:#E8A317;font-weight:700;font-size:1rem;margin-bottom:14px;">${planLabel} · ${price}</div>
+        <p style="color:rgba(255,255,255,0.85);font-size:.9rem;margin:0 0 10px;line-height:1.5;">Completa tu pago con <strong style="color:#fff;">Shopify (seguro)</strong> y te regresamos automáticamente al club.</p>
+        <div style="color:rgba(255,255,255,0.6);font-size:.78rem;">Redirigiendo...</div>
+      </div>
+      <style>@keyframes zooPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }</style>
+    `;
+    document.body.appendChild(overlay);
 
-    window.__zooCheckoutURL = checkoutURL;
-    window.__zooPlanLabel = planLabel;
-    window.__zooPrice = price;
-
-    const w = 500, h = 720;
-    const left = (screen.width / 2) - (w / 2);
-    const top = (screen.height / 2) - (h / 2);
-    const popup = window.open(
-      checkoutURL,
-      'zooCheckout',
-      `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no,resizable=yes,scrollbars=yes`
-    );
-
-    if (!popup || popup.closed) {
-      alert('⚠️ Tu navegador bloqueó la ventana de pago. Por favor permite pop-ups para zoorigen.com y vuelve a intentarlo.');
-      return;
-    }
-
-    window.__zooPopup = popup;
-    this._showPaymentWaitingScreen(plan);
+    // Redirigir en la misma pestaña — Shopify luego usa return_to para regresar al dashboard
+    setTimeout(() => {
+      window.location.href = checkoutURL;
+    }, 1200);
   },
 
   _showPaymentWaitingScreen(plan) {

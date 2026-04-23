@@ -52,7 +52,7 @@
         <div class="field"><label for="phone">WhatsApp</label><input type="tel" id="phone" placeholder="10 dígitos" required autocomplete="tel"></div>
         <div class="field"><label for="password">Crea una contraseña</label><input type="password" id="password" placeholder="Mínimo 6 caracteres" required autocomplete="new-password" minlength="6"></div>
 
-        <button type="submit" class="btn-club" id="submitBtn">Crear cuenta y continuar al pago →</button>
+        <button type="submit" class="btn-club" id="submitBtn">Crear cuenta y entrar al club →</button>
         <a href="club-login.html" class="btn-club-outline">Ya tengo cuenta · Iniciar sesión</a>
         <p class="auth-footer">Al registrarte aceptas los términos del Club VIP. El cobro de $199 MXN es mensual. Cancela cuando quieras.</p>
       </form>
@@ -107,52 +107,17 @@
         referredBy: localStorage.getItem('zoo_refCode') || null
       };
 
-      // TRUCO: abrimos ventana ANTES de await para que el navegador no bloquee el popup.
-      // Le pasamos una URL temporal, y después la redirigimos al checkout real.
-      const w = 500, h = 720;
-      const left = (screen.width / 2) - (w / 2);
-      const top = (screen.height / 2) - (h / 2);
-      const popup = window.open(
-        'about:blank',
-        'zooCheckout',
-        `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no,resizable=yes,scrollbars=yes`
-      );
-
-      if (!popup || popup.closed) {
-        showError('⚠️ Tu navegador bloqueó la ventana de pago. Por favor permite pop-ups para zoorigen.com y vuelve a intentarlo.');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Crear cuenta y continuar al pago →';
-        return;
-      }
-
-      // Mostrar pantalla de "creando cuenta" en el popup
-      popup.document.write('<!DOCTYPE html><html><head><title>Creando cuenta...</title><style>body{font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#131816;color:#e5e9e7;text-align:center}.sp{width:48px;height:48px;border:4px solid rgba(232,163,23,0.2);border-top-color:#E8A317;border-radius:50%;animation:s 0.8s linear infinite;margin:0 auto 20px}@keyframes s{to{transform:rotate(360deg)}}h2{margin:0;font-weight:600}</style></head><body><div><div class="sp"></div><h2>🦒 Creando tu cuenta...</h2></div></body></html>');
-
       const result = await ZOORIGEN_CLUB.register(data);
       if (result.ok) {
-        successMsg.textContent = '✅ Cuenta creada. Completa el pago en la ventana emergente.';
+        successMsg.textContent = '✅ ¡Cuenta creada! Entrando al club...';
         successMsg.classList.add('show');
-
-        // Redirigir el popup al checkout real
-        const checkoutURL = buildCheckoutURL('mensual', data.email);
-        popup.location.href = checkoutURL;
-
-        // Guardar referencia para los botones de la pantalla de espera
-        window.__zooCheckoutURL = checkoutURL;
-        window.__zooPlanLabel = 'Plan Mensual';
-        window.__zooPrice = '$199 MXN';
-        window.__zooPopup = popup;
-
-        // Mostrar pantalla de espera en Zoorigen
-        ZOORIGEN_CLUB._showPaymentWaitingScreen('mensual');
-
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Crear cuenta y continuar al pago →';
+        setTimeout(() => {
+          window.location.href = 'club-dashboard.html?welcome=1';
+        }, 1200);
       } else {
-        popup.close();
         showError(result.msg);
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Crear cuenta y continuar al pago →';
+        submitBtn.textContent = 'Crear cuenta y entrar al club →';
       }
     });
 
@@ -160,8 +125,6 @@
       googleBtn.disabled = true;
       googleBtn.textContent = '⏳ Conectando con Google...';
 
-      // PASO 1: Login con Google PRIMERO (Google abre su propio popup nativo).
-      // NO abrimos ningún popup antes porque el navegador bloquearía el de Google.
       const result = await ZOORIGEN_CLUB.loginWithGoogle();
       if (!result.ok) {
         showError(result.msg);
@@ -170,7 +133,7 @@
         return;
       }
 
-      // PASO 2: Guardar código de referido si venía en la URL
+      // Guardar código de referido si venía en la URL
       const refCodeG = localStorage.getItem('zoo_refCode');
       if (refCodeG && auth.currentUser) {
         try {
@@ -181,38 +144,12 @@
         } catch (e) { console.warn(e); }
       }
 
-      // PASO 3: Ahora sí abrir popup del checkout (viene de un clic, no está bloqueado)
-      googleBtn.textContent = '⏳ Abriendo pago...';
-      const user = auth.currentUser;
-      const checkoutURL = buildCheckoutURL('mensual', user.email);
-
-      const w = 500, h = 720;
-      const left = (screen.width / 2) - (w / 2);
-      const top = (screen.height / 2) - (h / 2);
-      const popup = window.open(
-        'about:blank', 'zooCheckout',
-        `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,resizable=yes,scrollbars=yes`
-      );
-
-      if (!popup || popup.closed) {
-        // Popup bloqueado → fallback: redirigir misma pestaña al checkout
-        successMsg.textContent = '✅ Cuenta creada con Google. Redirigiendo al pago...';
-        successMsg.classList.add('show');
-        setTimeout(() => { window.location.href = checkoutURL; }, 1200);
-        googleBtn.textContent = 'Registrarme con Google';
-        return;
-      }
-
-      popup.document.write('<!DOCTYPE html><html><head><title>Abriendo pago...</title></head><body style="font-family:system-ui;background:#131816;color:#fff;text-align:center;padding:40px;"><p>🦒 Preparando tu pago...</p></body></html>');
-      popup.location.href = checkoutURL;
-
-      window.__zooCheckoutURL = checkoutURL;
-      window.__zooPlanLabel = 'Plan Mensual';
-      window.__zooPrice = '$199 MXN';
-      window.__zooPopup = popup;
-      ZOORIGEN_CLUB._showPaymentWaitingScreen('mensual');
-      googleBtn.disabled = false;
-      googleBtn.textContent = 'Registrarme con Google';
+      // Entrar directo al dashboard
+      successMsg.textContent = '✅ ¡Cuenta creada con Google! Entrando al club...';
+      successMsg.classList.add('show');
+      setTimeout(() => {
+        window.location.href = 'club-dashboard.html?welcome=1';
+      }, 1200);
     });
   </script>
 </body>

@@ -655,11 +655,10 @@
 
       // Solo mostrar banner si hay problema con el plan
       const pb = document.getElementById('pendingBanner');
-      if (session.planStatus === 'pending_payment') {
-        pb.innerHTML = `<div class="status-banner"><span>⚠️</span>Tu cuenta está creada. Completa el pago para activar los beneficios VIP. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar ahora →</a></div>`;
-      } else if (session.planStatus === 'cancelled') {
+      if (session.planStatus === 'cancelled') {
         pb.innerHTML = `<div class="status-banner cancelled"><span>✕</span>Membresía cancelada. Acceso hasta ${ZOORIGEN_CLUB.formatShort(session.planVence)}. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Reactivar →</a></div>`;
       }
+      // Para pending_payment, el banner dorado del paywall se muestra automáticamente
 
       // Modal de bienvenida solo primera vez
       if (session.planStatus === 'active') {
@@ -670,6 +669,50 @@
             localStorage.setItem(welcomeKey, 'yes');
           }, 600);
         }
+      }
+
+      // ═══════════════ BIENVENIDA USUARIO NUEVO SIN PAGAR ═══════════════
+      // Viene con ?welcome=1 tras registrarse — mostrar mensaje motivador de exploración
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('welcome') && session.planStatus !== 'active') {
+        setTimeout(() => {
+          const welcomeOverlay = document.createElement('div');
+          welcomeOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .3s ease-out;';
+          welcomeOverlay.innerHTML = `
+            <div style="max-width:520px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 60%,#2AA4D5 120%);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);">
+              <div style="font-size:4rem;margin-bottom:14px;">🦒</div>
+              <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">¡BIENVENIDO, ${(session.name || 'nuevo miembro').split(' ')[0].toUpperCase()}!</div>
+              <h2 style="font-family:Poppins;color:#fff;font-size:1.7rem;margin:0 0 12px;line-height:1.2;">Ya eres parte de Zoorigen 🎉</h2>
+              <p style="color:rgba(255,255,255,0.9);font-size:.98rem;margin:0 0 22px;line-height:1.6;">Explora toda la plataforma — biblioteca, cursos, webinars, foro y herramientas profesionales. Cuando estés listo para <strong style="color:#E8A317;">desbloquear todo</strong>, conviértete en VIP desde aquí mismo.</p>
+
+              <div style="background:rgba(0,0,0,0.25);border-radius:14px;padding:16px;margin-bottom:20px;text-align:left;">
+                <div style="color:#E8A317;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">🎯 ¿Qué puedes hacer ahora?</div>
+                <div style="color:#fff;font-size:.88rem;line-height:1.85;">
+                  👀 Navegar TODA la plataforma libremente<br>
+                  📰 Leer noticias de fauna y conservación<br>
+                  📖 Ver la guía de uso de la plataforma<br>
+                  💳 Suscribirte cuando quieras desbloquear todo
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;flex-direction:column;">
+                <button id="zooWelcomeExplore" style="background:linear-gradient(135deg,#E8A317,#D68A0A);border:0;color:#1f1d17;padding:14px 22px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:800;font-size:.98rem;box-shadow:0 6px 18px rgba(232,163,23,0.3);">🌿 Explorar Zoorigen</button>
+                <button id="zooWelcomeSubscribe" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:12px 22px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:700;font-size:.9rem;">💳 Suscribirme ahora (desde $199/mes)</button>
+              </div>
+            </div>
+            <style>@keyframes zooFadeIn { from{opacity:0} to{opacity:1} }</style>
+          `;
+          document.body.appendChild(welcomeOverlay);
+          document.getElementById('zooWelcomeExplore').addEventListener('click', () => {
+            welcomeOverlay.remove();
+            // Limpiar el query param de la URL
+            window.history.replaceState({}, '', 'club-dashboard.html');
+          });
+          document.getElementById('zooWelcomeSubscribe').addEventListener('click', () => {
+            welcomeOverlay.remove();
+            window.location.href = 'club-suscripcion.html';
+          });
+        }, 800);
       }
 
       // Cargar datos desde Firestore (robusto: si uno falla, los demás siguen)
