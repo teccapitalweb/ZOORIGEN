@@ -828,6 +828,20 @@
 (async () => {
   const session = await ZOORIGEN_CLUB.requireAuth();
   if (!session) return;
+
+  // ═══ SOLO VIP ═══ Si no es VIP activo, mostrar paywall bloqueante
+  const isVIP = session.planActivo === true || session.planStatus === 'active';
+  if (!isVIP) {
+    // Renderizar sidebar para que vea el menú pero bloquear el contenido
+    if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+    document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
+    if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+    // Ocultar contenido principal
+    document.querySelectorAll('.tool-panel, .tools-tabs, .tools-hero').forEach(el => el.style.display = 'none');
+    // Mostrar paywall grande
+    ZOORIGEN_CLUB.showPaywall(session, 'acceder a las Herramientas Clínicas');
+    return;
+  }
   if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
   document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
   if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();

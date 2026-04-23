@@ -937,6 +937,17 @@
 (async () => {
   const session = await ZOORIGEN_CLUB.requireAuth();
   if (!session) return;
+
+  // ═══ SOLO VIP ═══ Si no es VIP activo, mostrar paywall bloqueante
+  const isVIP = session.planActivo === true || session.planStatus === 'active';
+  if (!isVIP) {
+    if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+    document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('legal', session);
+    if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+    document.querySelectorAll('.legal-panel, .legal-tabs, .legal-hero').forEach(el => el.style.display = 'none');
+    ZOORIGEN_CLUB.showPaywall(session, 'acceder a las Herramientas Legales');
+    return;
+  }
   if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
   document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('legal', session);
   if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();

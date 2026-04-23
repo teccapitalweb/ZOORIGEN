@@ -25,12 +25,26 @@
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
       if (!session) return;
-      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('pdfs', session);
-      if (session.planStatus !== 'active') {
-        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para descargar los PDFs. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
+
+      // ═══ SOLO VIP ═══
+      const isVIP = session.planActivo === true || session.planStatus === 'active';
+      if (!isVIP) {
+        if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+        document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('pdfs', session);
+        if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+        // Ocultar contenido
+        const main = document.querySelector('.club-main');
+        if (main) {
+          Array.from(main.children).forEach(el => {
+            if (el.id !== 'sidebar' && !el.classList.contains('mobile-menu-btn')) el.style.display = 'none';
+          });
+        }
+        ZOORIGEN_CLUB.showPaywall(session, 'descargar los PDFs y material científico');
+        return;
       }
+
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('pdfs', session);
       const pdfs = await ZOORIGEN_CLUB.getPdfs();
-      const isActive = session.planStatus === 'active';
       const list = document.getElementById('pdfsList');
       if (pdfs.length === 0) {
         list.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);">📄 Aún no hay PDFs disponibles. Pronto tendrás guías y manuales científicos.</div>`;
@@ -43,9 +57,8 @@
             <div class="content-item__title">${p.title}</div>
             <div class="content-item__meta">${p.area || ''}${p.pages ? ' · ' + p.pages + ' páginas' : ''}</div>
           </div>
-          ${isActive && p.driveId
+          ${p.driveId
             ? `<a href="https://drive.google.com/file/d/${p.driveId}/view" target="_blank" class="content-item__tag">⬇ Abrir</a>`
-            : !isActive ? `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;">🔒 Activar</a>`
             : `<span class="content-item__tag" style="opacity:0.6;">Sin link</span>`}
         </div>
       `).join('');

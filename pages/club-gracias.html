@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¡Gracias por tu pago! · Club VIP Zoorigen</title>
+<meta name="theme-color" content="#1F5F3A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif;
+    background: linear-gradient(135deg, #0a0e0c 0%, #131816 100%);
+    min-height: 100vh;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .thanks-box {
+    max-width: 560px;
+    width: 100%;
+    background: linear-gradient(135deg, #1F5F3A 0%, #0F3B22 60%, #2AA4D5 120%);
+    border: 2px solid rgba(232,163,23,0.5);
+    border-radius: 24px;
+    padding: 48px 36px;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn .5s ease-out;
+  }
+  .thanks-box::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(232,163,23,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .thanks-emoji {
+    font-size: 5rem;
+    margin-bottom: 14px;
+    animation: bounce 1.2s ease-out;
+    position: relative;
+    z-index: 2;
+  }
+  @keyframes bounce {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  .thanks-box h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
+  }
+  .thanks-box h1 .accent { color: #E8A317; }
+  .thanks-subtitle {
+    color: rgba(255,255,255,0.9);
+    font-size: 1.05rem;
+    margin-bottom: 24px;
+    line-height: 1.6;
+    position: relative;
+    z-index: 2;
+  }
+  .benefits {
+    background: rgba(0,0,0,0.3);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 28px;
+    text-align: left;
+    position: relative;
+    z-index: 2;
+  }
+  .benefits__title {
+    color: #E8A317;
+    font-weight: 700;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 10px;
+  }
+  .benefits__list {
+    color: #fff;
+    font-size: .93rem;
+    line-height: 1.9;
+  }
+  .cta-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #E8A317, #D68A0A);
+    color: #1f1d17 !important;
+    border: 0;
+    padding: 18px 36px;
+    border-radius: 14px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(232,163,23,0.4);
+    transition: all .2s;
+    position: relative;
+    z-index: 2;
+  }
+  .cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(232,163,23,0.5);
+  }
+  .countdown {
+    margin-top: 16px;
+    color: rgba(255,255,255,0.7);
+    font-size: .88rem;
+    position: relative;
+    z-index: 2;
+  }
+  .countdown strong { color: #E8A317; font-family: 'Poppins'; font-size: 1rem; }
+  .whatsapp-note {
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: rgba(37,211,102,0.1);
+    border: 1px solid rgba(37,211,102,0.3);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.85);
+    font-size: .85rem;
+    position: relative;
+    z-index: 2;
+  }
+  .whatsapp-note a {
+    color: #25D366;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  @media (max-width: 500px) {
+    .thanks-box { padding: 36px 24px; }
+    .thanks-box h1 { font-size: 1.55rem; }
+    .thanks-emoji { font-size: 4rem; }
+    .cta-btn { padding: 16px 28px; font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="thanks-box">
+    <div class="thanks-emoji">🎉</div>
+    <h1>¡Pago <span class="accent">recibido</span>!</h1>
+    <p class="thanks-subtitle">Bienvenido al Club VIP de Zoorigen 🦒<br>Estamos activando tu membresía — tarda <strong style="color:#E8A317;">menos de 1 minuto</strong>.</p>
+
+    <div class="benefits">
+      <div class="benefits__title">✨ Ya tienes acceso a</div>
+      <div class="benefits__list">
+        ✅ Biblioteca completa de cursos<br>
+        ✅ Webinars en vivo cada mes<br>
+        ✅ Foro VIP con expertos<br>
+        ✅ Certificados con validez<br>
+        ✅ Herramientas clínicas y legales<br>
+        ✅ 20% descuento en cursos Zoorigen
+      </div>
+    </div>
+
+    <a href="https://www.zoorigen.com/pages/club-suscripcion.html?paid=1" class="cta-btn">🦒 Ir a mi Club VIP</a>
+
+    <div class="countdown">Te redirigimos automático en <strong id="count">5</strong> segundos...</div>
+
+    <div class="whatsapp-note">
+      💬 ¿Necesitas ayuda? Escríbenos al
+      <a href="https://wa.me/5212361113237?text=Acabo%20de%20pagar%20mi%20membresia%20VIP%20Zoorigen" target="_blank">📱 WhatsApp</a>
+    </div>
+  </div>
+
+  <script>
+    // Countdown + redirect automático
+    let secs = 5;
+    const el = document.getElementById('count');
+    const iv = setInterval(() => {
+      secs--;
+      if (el) el.textContent = secs;
+      if (secs <= 0) {
+        clearInterval(iv);
+        window.location.href = 'https://www.zoorigen.com/pages/club-suscripcion.html?paid=1';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

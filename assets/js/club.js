@@ -14,8 +14,8 @@ if (typeof window.buildCheckoutURL !== 'function') {
       anual:   { id: '45386327916598', sellingPlan: '2071724086' }
     };
     const v = VARIANTS[plan] || VARIANTS.mensual;
-    // URL de regreso al dashboard con flag ?paid=1 para que detecte el pago
-    const returnTo = encodeURIComponent('https://www.zoorigen.com/pages/club-suscripcion.html?paid=1');
+    // URL de regreso a página de gracias personalizada (que luego va al dashboard)
+    const returnTo = encodeURIComponent('https://www.zoorigen.com/pages/club-gracias.html');
     const emailParam = email ? `&checkout[email]=${encodeURIComponent(email)}` : '';
     return `https://${SHOP}/cart/${v.id}:1?selling_plan=${v.sellingPlan}${emailParam}&return_to=${returnTo}`;
   };
@@ -1581,7 +1581,7 @@ const ZOORIGEN_CLUB = {
     const goCheckout = (plan) => {
       const url = (typeof window.buildCheckoutURL === 'function')
         ? window.buildCheckoutURL(plan, email)
-        : `https://pfueck-wm.myshopify.com/cart/${plan === 'anual' ? '45386327916598' : '45386138714166'}:1?selling_plan=auto&checkout[email]=${encodeURIComponent(email)}&return_to=${encodeURIComponent('https://www.zoorigen.com/pages/club-suscripcion.html?paid=1')}`;
+        : `https://pfueck-wm.myshopify.com/cart/${plan === 'anual' ? '45386327916598' : '45386138714166'}:1?selling_plan=auto&checkout[email]=${encodeURIComponent(email)}&return_to=${encodeURIComponent('https://www.zoorigen.com/pages/club-gracias.html')}`;
       window.location.href = url;
     };
     document.getElementById('zooPaywallMens').addEventListener('click', () => goCheckout('mensual'));
