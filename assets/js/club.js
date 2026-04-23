@@ -1197,15 +1197,11 @@ const ZOORIGEN_CLUB = {
     const items = [
       { id: 'inicio', label: 'Inicio', icon: '🏠', href: 'club-dashboard.html' },
       { id: 'biblioteca', label: 'Biblioteca', icon: '📚', href: 'club-biblioteca.html' },
-      { id: 'foro', label: 'Foro VIP', icon: '💬', href: 'club-foro.html' },
-      { id: 'videos', label: 'Videos', icon: '🎥', href: 'club-videos.html' },
-      { id: 'sesiones', label: 'Webinars en vivo', icon: '🎥', href: 'club-sesiones.html' },
-      { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' }
+      { id: 'foro', label: 'Foro VIP', icon: '💬', href: 'club-foro.html' }
     ];
     const itemsCuenta = [
       { id: 'logros', label: 'Mis logros', icon: '🏆', href: 'club-logros.html' },
       { id: 'certificados', label: 'Mis certificados', icon: '🎓', href: 'club-certificados.html' },
-      { id: 'referidos', label: 'Invitar amigos', icon: '🎁', href: 'club-referidos.html' },
       { id: 'perfil', label: 'Mi perfil', icon: '👤', href: 'club-perfil.html' },
       { id: 'suscripcion', label: 'Suscripción', icon: '💳', href: 'club-suscripcion.html' }
     ];
