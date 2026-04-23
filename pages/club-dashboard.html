@@ -558,11 +558,6 @@
             <div id="newsList">Cargando noticias...</div>
           </div>
 
-          <div>
-            <div class="section-title">📚 Contenido reciente</div>
-            <div class="content-list" id="recentContent">Cargando...</div>
-          </div>
-
           <!-- ════ SECCIÓN VIDEOS PRÁCTICOS ════ -->
           <div>
             <div class="section-title">🎥 Videos prácticos</div>
@@ -1003,23 +998,6 @@
         </div>`;
       } else {
         nl.innerHTML = `<div class="news-grid">${noticias.map(n => ZOORIGEN_CLUB.renderNewsCard(n)).join('')}</div>`;
-      }
-
-      // Contenido reciente
-      const rc = document.getElementById('recentContent');
-      if (cursos.length === 0) {
-        rc.innerHTML = `<div class="no-data" style="text-align:center;padding:30px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);">Aún no hay cursos en la biblioteca.</div>`;
-      } else {
-        rc.innerHTML = cursos.slice(0,4).map(c => `
-          <a href="club-biblioteca.html" class="content-item">
-            <div class="content-item__thumb" ${c.image ? `style="background-image:url('${c.image}');background-size:cover;"` : ''}>${c.image ? '' : '🎓'}</div>
-            <div class="content-item__info">
-              <div class="content-item__title">${c.title}</div>
-              <div class="content-item__meta">${c.area} · ${c.duration || ''}${c.level ? ' · ' + c.level : ''}</div>
-            </div>
-            ${c.tag ? `<span class="content-item__tag">${c.tag}</span>` : ''}
-          </a>
-        `).join('');
       }
 
       // ═══════════════ VIDEOS PRÁCTICOS ═══════════════
