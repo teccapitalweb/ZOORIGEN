@@ -13,21 +13,9 @@ const FIREBASE_CONFIG = {
 
 const WEBHOOK_SERVER_URL = "https://zoorigen-webhook-production.up.railway.app";
 
-const VARIANT_MENSUAL = "45386138714166";
-const VARIANT_ANUAL   = "45386327916598";
-
-const SHOPIFY_CHECKOUT_URL        = `https://pfueck-wm.myshopify.com/cart/${VARIANT_MENSUAL}:1?selling_plan=auto`;
-const SHOPIFY_ANNUAL_CHECKOUT_URL = `https://pfueck-wm.myshopify.com/cart/${VARIANT_ANUAL}:1?selling_plan=auto`;
-
-/**
- * URL de checkout directo con suscripción auto-seleccionada.
- * Usa el truco selling_plan=auto que hace que Shopify vaya directo al pago.
- */
-function buildCheckoutURL(plan, email) {
-  const variantId  = plan === 'anual' ? VARIANT_ANUAL : VARIANT_MENSUAL;
-  const emailParam = email ? `&checkout[email]=${encodeURIComponent(email)}` : '';
-  return `https://pfueck-wm.myshopify.com/cart/${variantId}:1?selling_plan=auto${emailParam}`;
-}
+// ═══════════════ STRIPE CONFIG ═══════════════
+// Migrado de Shopify a Stripe Checkout Sessions (Abril 2026)
+// Los Price IDs y la lógica de checkout están en club.js → iniciarPagoStripe()
 
 if (typeof firebase !== 'undefined') {
   if (!firebase.apps.length) {

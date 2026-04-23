@@ -35,8 +35,7 @@
       let html = '';
 
       if (session.planStatus === 'pending_payment') {
-        const checkoutMensual = buildCheckoutURL('mensual', session.email);
-        const checkoutAnual = buildCheckoutURL('anual', session.email);
+        // Stripe Checkout Sessions — los botones llaman a openCheckoutModal que usa iniciarPagoStripe
         html += `
           <div class="card" style="background:linear-gradient(135deg,rgba(232,163,23,0.12),rgba(213,90,40,0.08));border-color:var(--zoo-amber);margin-bottom:20px;">
             <h2 style="color:var(--zoo-amber);font-size:1.3rem;margin-bottom:10px;">⏳ Activa tu membresía VIP</h2>
@@ -84,7 +83,7 @@
 
           </div>
 
-          <p style="text-align:center;color:var(--zoo-text-dim);font-size:.84rem;margin-top:18px;">🔒 Pago seguro procesado por Shopify · Tu membresía se activa automáticamente al completar el pago</p>`;
+          <p style="text-align:center;color:var(--zoo-text-dim);font-size:.84rem;margin-top:18px;">🔒 Pago seguro procesado por Stripe · Tu membresía se activa automáticamente al completar el pago</p>`;
       } else {
         // Calcular si todavía tiene tiempo disponible (para mostrar opción de reanudar sin pagar)
         const fechaVence = session.planVence ? new Date(session.planVence) : null;
@@ -137,7 +136,7 @@
       content.innerHTML = html;
 
       // ═══════════════ AUTO-CHECK: Verifica si el pago ya se procesó ═══════════════
-      // Si viene con ?paid=1 en la URL (después de checkout de Shopify), verificar cada 3s por 90s
+      // Si viene con ?paid=1 en la URL (después de checkout de Stripe), verificar cada 3s por 90s
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('paid')) {
         // Overlay bonito de "procesando pago"

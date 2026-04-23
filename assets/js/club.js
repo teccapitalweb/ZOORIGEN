@@ -3,22 +3,65 @@
 /* Requiere: firebase-config.js cargado ANTES de este archivo   */
 /* ============================================================ */
 
-// ═══════════════ CONFIGURACIÓN CHECKOUT SHOPIFY ═══════════════
-// Si ya existe buildCheckoutURL definida en firebase-config.js se respeta,
-// de lo contrario se define aquí con redirección automática al dashboard.
-if (typeof window.buildCheckoutURL !== 'function') {
-  window.buildCheckoutURL = function(plan, email) {
-    const SHOP = 'pfueck-wm.myshopify.com';
-    const VARIANTS = {
-      mensual: { id: '45386138714166', sellingPlan: '2071691318' },
-      anual:   { id: '45386327916598', sellingPlan: '2071724086' }
-    };
-    const v = VARIANTS[plan] || VARIANTS.mensual;
-    // URL de regreso a página de gracias personalizada (que luego va al dashboard)
-    const returnTo = encodeURIComponent('https://www.zoorigen.com/pages/club-gracias.html');
-    const emailParam = email ? `&checkout[email]=${encodeURIComponent(email)}` : '';
-    return `https://${SHOP}/cart/${v.id}:1?selling_plan=${v.sellingPlan}${emailParam}&return_to=${returnTo}`;
-  };
+// ═══════════════ CONFIGURACIÓN CHECKOUT STRIPE ═══════════════
+// Migrado de Shopify a Stripe Checkout Sessions
+const STRIPE_CONFIG = {
+  API_URL: 'https://zoorigen-webhook-production.up.railway.app/create-checkout-session',
+  PRICE_MENSUAL: 'price_1TPVMWPBgqsOPfUYytgZtVTv',
+  PRICE_ANUAL: 'price_1TPVNoPBgqsOPfUYV9awQMXq',
+};
+
+// Función global para iniciar pago con Stripe
+async function iniciarPagoStripe(planType, email) {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert('Debes iniciar sesión primero');
+    window.location.href = 'club-registro.html';
+    return;
+  }
+  const userEmail = email || user.email;
+  const priceId = planType === 'anual' ? STRIPE_CONFIG.PRICE_ANUAL : STRIPE_CONFIG.PRICE_MENSUAL;
+
+  // Mostrar overlay de carga
+  const overlay = document.createElement('div');
+  const isAnual = planType === 'anual';
+  const price = isAnual ? '$1,899 MXN' : '$199 MXN';
+  const planLabel = isAnual ? 'Plan Anual' : 'Plan Mensual';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.95);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.innerHTML = `
+    <div style="max-width:440px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 100%);border:2px solid rgba(232,163,23,0.4);border-radius:18px;padding:36px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+      <div style="font-size:3.5rem;margin-bottom:12px;animation:zooPulse 1.2s ease-in-out infinite;">💳</div>
+      <h2 style="font-family:Poppins;color:#fff;font-size:1.4rem;margin:0 0 6px;">Llevándote al pago seguro</h2>
+      <div style="color:#E8A317;font-weight:700;font-size:1rem;margin-bottom:14px;">${planLabel} · ${price}</div>
+      <p style="color:rgba(255,255,255,0.85);font-size:.9rem;margin:0 0 10px;line-height:1.5;">Completa tu pago con <strong style="color:#fff;">Stripe (seguro)</strong> y te regresamos automáticamente al club.</p>
+      <div style="color:rgba(255,255,255,0.6);font-size:.78rem;">Redirigiendo...</div>
+    </div>
+    <style>@keyframes zooPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }</style>
+  `;
+  document.body.appendChild(overlay);
+
+  try {
+    const response = await fetch(STRIPE_CONFIG.API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        priceId: priceId,
+        firebaseUID: user.uid,
+        email: userEmail,
+        planType: planType,
+      }),
+    });
+    const data = await response.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'Error al crear sesión de pago');
+    }
+  } catch (error) {
+    console.error('Error Stripe:', error);
+    overlay.remove();
+    alert('Error al procesar el pago. Intenta de nuevo.');
+  }
 }
 
 const ZOORIGEN_CLUB = {
@@ -313,35 +356,9 @@ const ZOORIGEN_CLUB = {
     }, 60000);
   },
 
-  // ============== CHECKOUT VENTANA EMERGENTE ==============
+  // ============== CHECKOUT STRIPE ==============
   openCheckoutModal(plan, email) {
-    const checkoutURL = (typeof buildCheckoutURL === 'function')
-      ? buildCheckoutURL(plan, email)
-      : (plan === 'anual' ? SHOPIFY_ANNUAL_CHECKOUT_URL : SHOPIFY_CHECKOUT_URL) +
-        (email ? `?checkout[email]=${encodeURIComponent(email)}` : '');
-
-    // Overlay breve antes de redirigir — da sensación de "algo está pasando"
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.95);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-    const isAnual = plan === 'anual';
-    const price = isAnual ? '$1,899 MXN' : '$199 MXN';
-    const planLabel = isAnual ? 'Plan Anual' : 'Plan Mensual';
-    overlay.innerHTML = `
-      <div style="max-width:440px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 100%);border:2px solid rgba(232,163,23,0.4);border-radius:18px;padding:36px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-        <div style="font-size:3.5rem;margin-bottom:12px;animation:zooPulse 1.2s ease-in-out infinite;">💳</div>
-        <h2 style="font-family:Poppins;color:#fff;font-size:1.4rem;margin:0 0 6px;">Llevándote al pago seguro</h2>
-        <div style="color:#E8A317;font-weight:700;font-size:1rem;margin-bottom:14px;">${planLabel} · ${price}</div>
-        <p style="color:rgba(255,255,255,0.85);font-size:.9rem;margin:0 0 10px;line-height:1.5;">Completa tu pago con <strong style="color:#fff;">Shopify (seguro)</strong> y te regresamos automáticamente al club.</p>
-        <div style="color:rgba(255,255,255,0.6);font-size:.78rem;">Redirigiendo...</div>
-      </div>
-      <style>@keyframes zooPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }</style>
-    `;
-    document.body.appendChild(overlay);
-
-    // Redirigir en la misma pestaña — Shopify luego usa return_to para regresar al dashboard
-    setTimeout(() => {
-      window.location.href = checkoutURL;
-    }, 1200);
+    iniciarPagoStripe(plan, email);
   },
 
   _showPaymentWaitingScreen(plan) {
@@ -363,7 +380,7 @@ const ZOORIGEN_CLUB = {
         <div class="zoo-pay-eyebrow">${planLabel} · Club VIP Zoorigen</div>
         <h2 class="zoo-pay-title">Completa tu pago de ${price}</h2>
         <p class="zoo-pay-desc">
-          Se abrió una ventana nueva con el pago seguro de Shopify.
+          Se abrió una ventana nueva con el pago seguro de Stripe.
           Sigue los pasos ahí y regresa cuando termines.
         </p>
         <ul class="zoo-pay-steps">
@@ -1579,10 +1596,7 @@ const ZOORIGEN_CLUB = {
 
     const email = session.email || '';
     const goCheckout = (plan) => {
-      const url = (typeof window.buildCheckoutURL === 'function')
-        ? window.buildCheckoutURL(plan, email)
-        : `https://pfueck-wm.myshopify.com/cart/${plan === 'anual' ? '45386327916598' : '45386138714166'}:1?selling_plan=auto&checkout[email]=${encodeURIComponent(email)}&return_to=${encodeURIComponent('https://www.zoorigen.com/pages/club-gracias.html')}`;
-      window.location.href = url;
+      iniciarPagoStripe(plan, email);
     };
     document.getElementById('zooPaywallMens').addEventListener('click', () => goCheckout('mensual'));
     document.getElementById('zooPaywallAnual').addEventListener('click', () => goCheckout('anual'));
