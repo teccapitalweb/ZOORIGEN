@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧬 Herramientas Clínicas · Club VIP Zoorigen</title>
+<meta name="theme-color" content="#1F5F3A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/club.css">
+<link rel="stylesheet" href="../assets/css/club-mobile.css">
+<link rel="stylesheet" href="../assets/css/club-theme.css">
+<style>
+  /* Hero */
+  .tools-hero {
+    background: linear-gradient(135deg, #D55A28 0%, #1F5F3A 60%, #2AA4D5 110%);
+    border-radius: 18px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .tools-hero::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -10%;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(232,163,23,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .tools-hero__badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #E8A317;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 2;
+  }
+  .tools-hero h1 {
+    font-family: 'Poppins';
+    font-size: 1.7rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    position: relative;
+    z-index: 2;
+  }
+  .tools-hero p {
+    color: rgba(255,255,255,0.85);
+    font-size: .94rem;
+    margin: 0;
+    max-width: 580px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Tabs */
+  .tools-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tools-tabs::-webkit-scrollbar { height: 4px; }
+  .tools-tabs::-webkit-scrollbar-thumb { background: rgba(232,163,23,0.3); border-radius: 2px; }
+
+  .tool-tab {
+    flex-shrink: 0;
+    background: var(--zoo-bg-card, #131816);
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4);
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: .86rem;
+    white-space: nowrap;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tool-tab:hover {
+    background: rgba(232,163,23,0.1);
+    border-color: rgba(232,163,23,0.4);
+    color: var(--zoo-text, #fff);
+  }
+  .tool-tab.is-active {
+    background: linear-gradient(135deg, #E8A317, #D68A0A);
+    color: #1f1d17;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(232,163,23,0.3);
+  }
+
+  /* Panels */
+  .tool-panel {
+    display: none;
+    background: var(--zoo-bg-card, #131816);
+    border: 1px solid var(--zoo-border, #1e2522);
+    border-radius: 14px;
+    padding: 24px;
+    animation: toolFadeIn .25s ease-out;
+  }
+  .tool-panel.is-active { display: block; }
+  @keyframes toolFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tool-header {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--zoo-border, #1e2522);
+  }
+  .tool-header__icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(213,90,40,0.18));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+  .tool-header__text h2 {
+    font-family: 'Poppins';
+    font-size: 1.2rem;
+    color: var(--zoo-text, #fff);
+    margin: 0 0 3px;
+  }
+  .tool-header__text p {
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .85rem;
+    margin: 0;
+  }
+
+  /* Form */
+  .tool-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .tool-field {
+    display: flex;
+    flex-direction: column;
+  }
+  .tool-field label {
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .78rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .tool-field input,
+  .tool-field select {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid var(--zoo-border-strong, #2a3530) !important;
+    color: var(--zoo-text, #fff) !important;
+    padding: 11px 13px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: .95rem;
+  }
+  [data-theme="light"] .tool-field input,
+  [data-theme="light"] .tool-field select {
+    background: #ffffff !important;
+    border: 1px solid #d0d4cb !important;
+    color: #1a1d1b !important;
+  }
+  .tool-field input:focus,
+  .tool-field select:focus {
+    outline: 0;
+    border-color: #E8A317 !important;
+  }
+  /* Options del select en modo oscuro */
+  .tool-field select option {
+    background: #131816;
+    color: #fff;
+  }
+  [data-theme="light"] .tool-field select option {
+    background: #fff;
+    color: #1a1d1b;
+  }
+
+  .tool-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .tool-btn-calc {
+    background: linear-gradient(135deg, #E8A317, #D68A0A);
+    color: #1f1d17;
+    border: 0;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-family: 'Poppins';
+    font-weight: 700;
+    cursor: pointer;
+    font-size: .95rem;
+  }
+  .tool-btn-calc:hover {
+    box-shadow: 0 6px 18px rgba(232,163,23,0.35);
+    transform: translateY(-1px);
+  }
+  .tool-btn-reset {
+    background: transparent;
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4);
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Resultado */
+  .tool-result {
+    margin-top: 18px;
+    padding: 18px;
+    background: rgba(111,191,115,0.08);
+    border: 1px solid rgba(111,191,115,0.3);
+    border-radius: 12px;
+    display: none;
+  }
+  .tool-result.is-visible { display: block; }
+  .tool-result.is-warning {
+    background: rgba(232,163,23,0.08);
+    border-color: rgba(232,163,23,0.4);
+  }
+  .tool-result.is-danger {
+    background: rgba(213,90,40,0.1);
+    border-color: rgba(213,90,40,0.4);
+  }
+  .tool-result__title {
+    font-family: 'Poppins';
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+    font-size: 1rem;
+  }
+  .tool-result__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .tool-result__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+  }
+  .tool-result__row-label {
+    color: rgba(255,255,255,0.75);
+    font-size: .88rem;
+  }
+  .tool-result__row-value {
+    font-family: 'Poppins';
+    font-weight: 800;
+    color: #E8A317;
+    font-size: 1.05rem;
+  }
+  .tool-result__note {
+    margin-top: 10px;
+    color: rgba(255,255,255,0.7);
+    font-size: .82rem;
+    line-height: 1.5;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  [data-theme="light"] .tool-result__title { color: #1a1d1b; }
+  [data-theme="light"] .tool-result__row { background: rgba(0,0,0,0.04); }
+  [data-theme="light"] .tool-result__row-label { color: #3a403d; }
+  [data-theme="light"] .tool-result__note { color: #5a6360; border-top-color: rgba(0,0,0,0.08); }
+
+  /* Tabla constantes */
+  .tool-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: .88rem;
+  }
+  .tool-table th {
+    background: rgba(232,163,23,0.12);
+    color: #E8A317;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 1px solid var(--zoo-border-strong, #2a3530);
+  }
+  .tool-table td {
+    padding: 10px 12px;
+    color: var(--zoo-text, #e5e9e7);
+    border-bottom: 1px solid var(--zoo-border, #1e2522);
+  }
+  .tool-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+  }
+  [data-theme="light"] .tool-table td { color: #1a1d1b; }
+  [data-theme="light"] .tool-table tr:hover td { background: rgba(0,0,0,0.02); }
+
+  .tool-species-filter {
+    margin-bottom: 14px;
+  }
+  .tool-species-filter input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text, #fff);
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: .95rem;
+  }
+  [data-theme="light"] .tool-species-filter input {
+    background: #fff;
+    border: 1px solid #d0d4cb;
+    color: #1a1d1b;
+  }
+
+  /* BCS */
+  .bcs-scale {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .bcs-item {
+    padding: 12px 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+  }
+  .bcs-item:hover {
+    border-color: rgba(232,163,23,0.5);
+  }
+  .bcs-item.is-selected {
+    background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(213,90,40,0.15));
+    border-color: #E8A317;
+  }
+  .bcs-item__num {
+    font-family: 'Poppins';
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: #E8A317;
+    line-height: 1;
+  }
+  .bcs-item__label {
+    color: var(--zoo-text, #fff);
+    font-size: .82rem;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  /* Disclaimer */
+  .tool-disclaimer {
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: rgba(213,90,40,0.08);
+    border-left: 3px solid #D55A28;
+    border-radius: 8px;
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .82rem;
+    line-height: 1.55;
+  }
+  .tool-disclaimer strong { color: #D55A28; }
+
+  @media (max-width: 600px) {
+    .tools-hero { padding: 20px; }
+    .tools-hero h1 { font-size: 1.35rem; }
+    .tool-panel { padding: 18px; }
+    .tool-header__text h2 { font-size: 1.05rem; }
+    .tool-form { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="club-layout">
+  <aside class="club-sidebar" id="sidebar"></aside>
+  <main class="club-main">
+
+    <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
+
+    <!-- Hero -->
+    <div class="tools-hero">
+      <span class="tools-hero__badge">🧬 EXCLUSIVO VIP</span>
+      <h1>Herramientas Clínicas</h1>
+      <p>Calculadoras profesionales para veterinarios y biólogos de fauna silvestre. Dosis, anestesia, fluidoterapia y más. Para uso clínico de profesionales capacitados.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tools-tabs" id="toolsTabs">
+      <button class="tool-tab is-active" data-tab="dosis">💊 Dosis por peso</button>
+      <button class="tool-tab" data-tab="anestesia">💉 Anestesia</button>
+      <button class="tool-tab" data-tab="fluidos">💧 Fluidoterapia</button>
+      <button class="tool-tab" data-tab="constantes">🌡️ Constantes</button>
+      <button class="tool-tab" data-tab="bcs">📏 BCS</button>
+    </div>
+
+    <!-- ══════════════ 1. DOSIS POR PESO ══════════════ -->
+    <div class="tool-panel is-active" id="panel-dosis">
+      <div class="tool-header">
+        <div class="tool-header__icon">💊</div>
+        <div class="tool-header__text">
+          <h2>Calculadora de dosis por peso</h2>
+          <p>Ajusta la dosis al peso corporal del paciente · Alertas de sobredosis</p>
+        </div>
+      </div>
+
+      <div class="tool-form">
+        <div class="tool-field">
+          <label>Medicamento</label>
+          <select id="doseDrug">
+            <option value="ketamina">Ketamina</option>
+            <option value="xilacina">Xilacina</option>
+            <option value="medetomidina">Medetomidina</option>
+            <option value="diazepam">Diazepam</option>
+            <option value="meloxicam">Meloxicam</option>
+            <option value="ivermectina">Ivermectina</option>
+            <option value="atropina">Atropina</option>
+            <option value="enrofloxacina">Enrofloxacina</option>
+            <option value="tramadol">Tramadol</option>
+            <option value="dexametasona">Dexametasona</option>
+            <option value="furosemida">Furosemida</option>
+            <option value="custom">Personalizado (mg/kg manual)</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label>Peso del paciente (kg)</label>
+          <input type="number" id="dosePeso" step="0.01" min="0.01" placeholder="12.5">
+        </div>
+        <div class="tool-field">
+          <label>Concentración (mg/ml)</label>
+          <input type="number" id="doseConc" step="0.1" placeholder="100">
+        </div>
+        <div class="tool-field" id="doseCustomWrap" style="display:none;">
+          <label>Dosis mg/kg (manual)</label>
+          <input type="number" id="doseCustom" step="0.01" placeholder="2.0">
+        </div>
+      </div>
+
+      <div class="tool-actions">
+        <button class="tool-btn-calc" onclick="calcularDosis()">💊 Calcular dosis</button>
+        <button class="tool-btn-reset" onclick="resetearForm('dosis')">Limpiar</button>
+      </div>
+
+      <div class="tool-result" id="doseResult"></div>
+
+      <div class="tool-disclaimer">
+        <strong>⚠️ Aviso:</strong> Valores de referencia basados en literatura veterinaria. La dosificación real debe ajustarse según criterio clínico, estado del paciente y respuesta. No sustituye el juicio profesional.
+      </div>
+    </div>
+
+    <!-- ══════════════ 2. ANESTESIA ══════════════ -->
+    <div class="tool-panel" id="panel-anestesia">
+      <div class="tool-header">
+        <div class="tool-header__icon">💉</div>
+        <div class="tool-header__text">
+          <h2>Calculadora anestésica por especie</h2>
+          <p>Protocolos TKX, BAM, Ketamina+Medetomidina · Tiempos aproximados</p>
+        </div>
+      </div>
+
+      <div class="tool-form">
+        <div class="tool-field">
+          <label>Protocolo</label>
+          <select id="anesProto">
+            <option value="ktm">Ketamina + Medetomidina (fauna carnívora)</option>
+            <option value="bam">BAM (Butorfanol + Azaperona + Medetomidina) — rumiantes</option>
+            <option value="tkx">TKX (Tiletamina-Zolazepam + Ketamina + Xilacina) — felinos grandes</option>
+            <option value="kd">Ketamina + Diazepam (primates, pequeños carnívoros)</option>
+            <option value="isoM">Isoflurano mantenimiento (aves/reptiles)</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label>Peso (kg)</label>
+          <input type="number" id="anesPeso" step="0.01" min="0.01" placeholder="25">
+        </div>
+      </div>
+
+      <div class="tool-actions">
+        <button class="tool-btn-calc" onclick="calcularAnestesia()">💉 Calcular protocolo</button>
+        <button class="tool-btn-reset" onclick="resetearForm('anestesia')">Limpiar</button>
+      </div>
+
+      <div class="tool-result" id="anesResult"></div>
+
+      <div class="tool-disclaimer">
+        <strong>⚠️ Crítico:</strong> La anestesia de fauna silvestre requiere monitoreo continuo, oxígeno suplementario y antagonistas listos. Verificar siempre disponibilidad de Atipamezol, Naloxona y fluidos IV antes de inducir.
+      </div>
+    </div>
+
+    <!-- ══════════════ 3. FLUIDOTERAPIA ══════════════ -->
+    <div class="tool-panel" id="panel-fluidos">
+      <div class="tool-header">
+        <div class="tool-header__icon">💧</div>
+        <div class="tool-header__text">
+          <h2>Fluidoterapia para fauna</h2>
+          <p>Déficit + mantenimiento + pérdidas · Goteo por especie</p>
+        </div>
+      </div>
+
+      <div class="tool-form">
+        <div class="tool-field">
+          <label>Grupo zoológico</label>
+          <select id="fluidsGroup">
+            <option value="mamiferos">Mamíferos</option>
+            <option value="aves">Aves</option>
+            <option value="reptiles">Reptiles</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label>Peso (kg)</label>
+          <input type="number" id="fluidsPeso" step="0.01" min="0.01" placeholder="5">
+        </div>
+        <div class="tool-field">
+          <label>% Deshidratación</label>
+          <select id="fluidsDesh">
+            <option value="0">0% — normal</option>
+            <option value="5">5% — leve</option>
+            <option value="7">7% — moderada</option>
+            <option value="10" selected>10% — severa</option>
+            <option value="12">12% — crítica</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label>Pérdidas extra ml/día</label>
+          <input type="number" id="fluidsPerd" step="10" value="0" placeholder="0">
+        </div>
+        <div class="tool-field">
+          <label>Equipo de goteo</label>
+          <select id="fluidsEquipo">
+            <option value="20">Normal (20 gotas/ml)</option>
+            <option value="60">Microgotero (60 gotas/ml)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="tool-actions">
+        <button class="tool-btn-calc" onclick="calcularFluidos()">💧 Calcular goteo</button>
+        <button class="tool-btn-reset" onclick="resetearForm('fluidos')">Limpiar</button>
+      </div>
+
+      <div class="tool-result" id="fluidsResult"></div>
+
+      <div class="tool-disclaimer">
+        <strong>ℹ️ Nota:</strong> Déficit a reponer en 12-24h. Mantenimiento: mamíferos 40-60 ml/kg/día, aves 50 ml/kg/día, reptiles 10-25 ml/kg/día. En shock usar bolo 10-20 ml/kg en 15-20 min.
+      </div>
+    </div>
+
+    <!-- ══════════════ 4. CONSTANTES FISIOLÓGICAS ══════════════ -->
+    <div class="tool-panel" id="panel-constantes">
+      <div class="tool-header">
+        <div class="tool-header__icon">🌡️</div>
+        <div class="tool-header__text">
+          <h2>Constantes fisiológicas por especie</h2>
+          <p>FC · FR · Temperatura · Valores de referencia</p>
+        </div>
+      </div>
+
+      <div class="tool-species-filter">
+        <input type="text" id="speciesFilter" placeholder="🔍 Buscar especie o grupo..." oninput="filtrarEspecies()">
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="tool-table" id="constTable">
+          <thead>
+            <tr>
+              <th>Especie</th>
+              <th>FC (lpm)</th>
+              <th>FR (rpm)</th>
+              <th>Temp (°C)</th>
+            </tr>
+          </thead>
+          <tbody id="constTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="tool-disclaimer">
+        <strong>ℹ️ Referencias:</strong> Valores en reposo y animales sanos. En manejo/contención los valores se elevan significativamente (estrés). Anestesia: FC puede bajar 20-40%.
+      </div>
+    </div>
+
+    <!-- ══════════════ 5. BCS ══════════════ -->
+    <div class="tool-panel" id="panel-bcs">
+      <div class="tool-header">
+        <div class="tool-header__icon">📏</div>
+        <div class="tool-header__text">
+          <h2>BCS · Body Condition Score</h2>
+          <p>Índice de condición corporal 1-9 · Ajustes de peso ideal</p>
+        </div>
+      </div>
+
+      <div class="tool-form">
+        <div class="tool-field">
+          <label>Especie / Grupo</label>
+          <select id="bcsGroup">
+            <option value="felino">Felinos (ej. puma, jaguar, ocelote)</option>
+            <option value="canido">Cánidos (coyote, lobo, zorro)</option>
+            <option value="primate">Primates (ej. monos araña, aullador)</option>
+            <option value="ungulado">Ungulados (venado, pecarí, tapir)</option>
+            <option value="ave">Aves (rapaces, psitácidos, gallináceas)</option>
+            <option value="reptil">Reptiles (iguanas, tortugas, serpientes)</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label>Peso actual (kg)</label>
+          <input type="number" id="bcsPesoActual" step="0.1" placeholder="15">
+        </div>
+      </div>
+
+      <div style="margin:16px 0 10px;color:var(--zoo-text-muted);font-size:.85rem;font-weight:600;">Selecciona el BCS (1-9):</div>
+      <div class="bcs-scale">
+        <div class="bcs-item" data-bcs="1"><div class="bcs-item__num">1</div><div class="bcs-item__label">Caquéctico</div></div>
+        <div class="bcs-item" data-bcs="2"><div class="bcs-item__num">2</div><div class="bcs-item__label">Muy delgado</div></div>
+        <div class="bcs-item" data-bcs="3"><div class="bcs-item__num">3</div><div class="bcs-item__label">Delgado</div></div>
+        <div class="bcs-item" data-bcs="4"><div class="bcs-item__num">4</div><div class="bcs-item__label">Bajo ideal</div></div>
+        <div class="bcs-item is-selected" data-bcs="5"><div class="bcs-item__num">5</div><div class="bcs-item__label">Ideal</div></div>
+        <div class="bcs-item" data-bcs="6"><div class="bcs-item__num">6</div><div class="bcs-item__label">Sobre ideal</div></div>
+        <div class="bcs-item" data-bcs="7"><div class="bcs-item__num">7</div><div class="bcs-item__label">Sobrepeso</div></div>
+        <div class="bcs-item" data-bcs="8"><div class="bcs-item__num">8</div><div class="bcs-item__label">Obeso</div></div>
+        <div class="bcs-item" data-bcs="9"><div class="bcs-item__num">9</div><div class="bcs-item__label">Obeso severo</div></div>
+      </div>
+
+      <div class="tool-actions">
+        <button class="tool-btn-calc" onclick="calcularBCS()">📏 Evaluar condición</button>
+        <button class="tool-btn-reset" onclick="resetearForm('bcs')">Limpiar</button>
+      </div>
+
+      <div class="tool-result" id="bcsResult"></div>
+
+      <div class="tool-disclaimer">
+        <strong>ℹ️ Escala 1-9:</strong> 1-3 = bajo peso (riesgo); 4-6 = ideal; 7-9 = sobrepeso. Evalúa palpación de costillas, columna, depósitos grasos y masa muscular. Cada BCS = ±10-15% del peso ideal.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script src="../assets/js/club.js"></script>
+<script>
+(async () => {
+  const session = await ZOORIGEN_CLUB.requireAuth();
+  if (!session) return;
+  if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+  document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
+  if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
+  // Tabs
+  document.querySelectorAll('.tool-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('is-active'));
+      document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('is-active');
+    });
+  });
+
+  // Dosis custom toggle
+  const doseDrug = document.getElementById('doseDrug');
+  doseDrug.addEventListener('change', () => {
+    document.getElementById('doseCustomWrap').style.display = doseDrug.value === 'custom' ? 'flex' : 'none';
+  });
+
+  // BCS click
+  document.querySelectorAll('.bcs-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.bcs-item').forEach(i => i.classList.remove('is-selected'));
+      item.classList.add('is-selected');
+    });
+  });
+
+  // Render constantes
+  renderConstantes();
+})();
+
+// ═══════════════ 1. DOSIS ═══════════════
+const DROGAS = {
+  ketamina: { nombre: 'Ketamina', dosisRef: [5, 15], unidad: 'mg/kg', maxSeguro: 20, nota: 'IM/IV. Combinar con xilacina o medetomidina para mejor relajación.' },
+  xilacina: { nombre: 'Xilacina', dosisRef: [1, 3], unidad: 'mg/kg', maxSeguro: 4, nota: 'IM/IV. Reversión con yohimbina 0.1 mg/kg IV.' },
+  medetomidina: { nombre: 'Medetomidina', dosisRef: [0.02, 0.08], unidad: 'mg/kg', maxSeguro: 0.1, nota: 'IM. Reversión con atipamezol 5x la dosis de medetomidina.' },
+  diazepam: { nombre: 'Diazepam', dosisRef: [0.2, 0.5], unidad: 'mg/kg', maxSeguro: 1.0, nota: 'IV lento. Relajante muscular y anticonvulsivo.' },
+  meloxicam: { nombre: 'Meloxicam', dosisRef: [0.1, 0.2], unidad: 'mg/kg', maxSeguro: 0.5, nota: 'SC/IV. AINE. Evitar en pacientes deshidratados o renales.' },
+  ivermectina: { nombre: 'Ivermectina', dosisRef: [0.2, 0.4], unidad: 'mg/kg', maxSeguro: 0.6, nota: 'SC. CONTRAINDICADO en quelonios y tortugas.' },
+  atropina: { nombre: 'Atropina', dosisRef: [0.02, 0.05], unidad: 'mg/kg', maxSeguro: 0.1, nota: 'IM/IV/SC. Pre-anestésica en mamíferos. Evitar en conejos (atropinesterasa).' },
+  enrofloxacina: { nombre: 'Enrofloxacina', dosisRef: [5, 15], unidad: 'mg/kg', maxSeguro: 20, nota: 'IM/SC. Antibiótico de amplio espectro. No en cachorros en crecimiento.' },
+  tramadol: { nombre: 'Tramadol', dosisRef: [2, 5], unidad: 'mg/kg', maxSeguro: 8, nota: 'IV/IM/PO. Analgésico opioide débil.' },
+  dexametasona: { nombre: 'Dexametasona', dosisRef: [0.1, 0.5], unidad: 'mg/kg', maxSeguro: 1.0, nota: 'IM/IV. Corticoide. Uso cuidadoso por inmunosupresión.' },
+  furosemida: { nombre: 'Furosemida', dosisRef: [1, 4], unidad: 'mg/kg', maxSeguro: 6, nota: 'IV/IM. Diurético. Monitorear hidratación y K+.' }
+};
+
+function calcularDosis() {
+  const drug = document.getElementById('doseDrug').value;
+  const peso = parseFloat(document.getElementById('dosePeso').value);
+  const conc = parseFloat(document.getElementById('doseConc').value);
+  const customDose = parseFloat(document.getElementById('doseCustom').value);
+  const rEl = document.getElementById('doseResult');
+
+  if (!peso || peso <= 0) {
+    showErr(rEl, 'Ingresa un peso válido mayor a 0 kg.');
+    return;
+  }
+  if (!conc || conc <= 0) {
+    showErr(rEl, 'Ingresa la concentración del medicamento (mg/ml) del frasco.');
+    return;
+  }
+
+  let info, dosisBaja, dosisAlta, isCustom = false;
+  if (drug === 'custom') {
+    if (!customDose || customDose <= 0) {
+      showErr(rEl, 'Ingresa la dosis mg/kg manual.');
+      return;
+    }
+    info = { nombre: 'Medicamento personalizado', unidad: 'mg/kg', maxSeguro: customDose * 2, nota: 'Dosis personalizada. Verifica literatura.' };
+    dosisBaja = customDose;
+    dosisAlta = customDose;
+    isCustom = true;
+  } else {
+    info = DROGAS[drug];
+    dosisBaja = info.dosisRef[0];
+    dosisAlta = info.dosisRef[1];
+  }
+
+  const mgBajo = peso * dosisBaja;
+  const mgAlto = peso * dosisAlta;
+  const mlBajo = mgBajo / conc;
+  const mlAlto = mgAlto / conc;
+  const sobredosis = (mgAlto / peso) > info.maxSeguro;
+
+  let html = `
+    <div class="tool-result__title">💊 ${info.nombre} · ${peso} kg</div>
+    <div class="tool-result__rows">
+      ${isCustom ? `
+        <div class="tool-result__row">
+          <span class="tool-result__row-label">Dosis total</span>
+          <span class="tool-result__row-value">${mgBajo.toFixed(2)} mg</span>
+        </div>
+        <div class="tool-result__row">
+          <span class="tool-result__row-label">Volumen a administrar</span>
+          <span class="tool-result__row-value">${mlBajo.toFixed(2)} ml</span>
+        </div>
+      ` : `
+        <div class="tool-result__row">
+          <span class="tool-result__row-label">Rango dosis (${dosisBaja}-${dosisAlta} mg/kg)</span>
+          <span class="tool-result__row-value">${mgBajo.toFixed(2)} – ${mgAlto.toFixed(2)} mg</span>
+        </div>
+        <div class="tool-result__row">
+          <span class="tool-result__row-label">Volumen ajustado (${conc} mg/ml)</span>
+          <span class="tool-result__row-value">${mlBajo.toFixed(2)} – ${mlAlto.toFixed(2)} ml</span>
+        </div>
+        <div class="tool-result__row">
+          <span class="tool-result__row-label">Dosis máxima segura (${info.maxSeguro} mg/kg)</span>
+          <span class="tool-result__row-value">${(peso * info.maxSeguro).toFixed(2)} mg</span>
+        </div>
+      `}
+    </div>
+    <div class="tool-result__note">${info.nota}</div>
+  `;
+  rEl.innerHTML = html;
+  rEl.className = 'tool-result is-visible' + (sobredosis ? ' is-danger' : '');
+  rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ═══════════════ 2. ANESTESIA ═══════════════
+const PROTOCOLOS = {
+  ktm: {
+    nombre: 'Ketamina + Medetomidina',
+    componentes: [
+      { nombre: 'Ketamina', dosis: 5, conc: 100, unidad: 'mg/kg' },
+      { nombre: 'Medetomidina', dosis: 0.05, conc: 1, unidad: 'mg/kg' }
+    ],
+    induccion: '8-15 min',
+    duracion: '30-60 min',
+    reversion: 'Atipamezol 0.25 mg/kg IM (5x la dosis de medetomidina)',
+    nota: 'Protocolo clásico para fauna carnívora. Administrar IM profundo.'
+  },
+  bam: {
+    nombre: 'BAM (Butorfanol + Azaperona + Medetomidina)',
+    componentes: [
+      { nombre: 'Butorfanol', dosis: 0.27, conc: 10, unidad: 'mg/kg' },
+      { nombre: 'Azaperona', dosis: 0.27, conc: 40, unidad: 'mg/kg' },
+      { nombre: 'Medetomidina', dosis: 0.11, conc: 10, unidad: 'mg/kg' }
+    ],
+    induccion: '5-10 min',
+    duracion: '45-90 min',
+    reversion: 'Atipamezol 0.55 mg/kg + Naltrexona 0.27 mg/kg IM',
+    nota: 'Ideal para rumiantes silvestres (venados, berrendos, bisontes).'
+  },
+  tkx: {
+    nombre: 'TKX (Tiletamina-Zolazepam + Ketamina + Xilacina)',
+    componentes: [
+      { nombre: 'Telazol (T+Z)', dosis: 3, conc: 100, unidad: 'mg/kg' },
+      { nombre: 'Ketamina', dosis: 2, conc: 100, unidad: 'mg/kg' },
+      { nombre: 'Xilacina', dosis: 1, conc: 100, unidad: 'mg/kg' }
+    ],
+    induccion: '5-12 min',
+    duracion: '60-90 min',
+    reversion: 'Yohimbina 0.1 mg/kg IV para xilacina',
+    nota: 'Felinos grandes (puma, jaguar). Monitorear depresión respiratoria.'
+  },
+  kd: {
+    nombre: 'Ketamina + Diazepam',
+    componentes: [
+      { nombre: 'Ketamina', dosis: 10, conc: 100, unidad: 'mg/kg' },
+      { nombre: 'Diazepam', dosis: 0.25, conc: 5, unidad: 'mg/kg' }
+    ],
+    induccion: '3-8 min IV',
+    duracion: '20-40 min',
+    reversion: 'Flumazenil 0.02 mg/kg para diazepam (poco usado)',
+    nota: 'Primates, pequeños carnívoros, animales de santuario. IV preferido.'
+  },
+  isoM: {
+    nombre: 'Isoflurano (mantenimiento)',
+    componentes: [],
+    induccion: 'Cámara 5% / máscara 3-4%',
+    duracion: 'Mantenimiento 1.5-2.5%',
+    reversion: 'Suspender vaporizador · oxígeno 100% 5-10 min',
+    nota: 'Aves y reptiles. Requiere O₂ y vaporizador calibrado. Monitoreo con capnógrafo.'
+  }
+};
+
+function calcularAnestesia() {
+  const proto = document.getElementById('anesProto').value;
+  const peso = parseFloat(document.getElementById('anesPeso').value);
+  const rEl = document.getElementById('anesResult');
+
+  if (!peso || peso <= 0) {
+    showErr(rEl, 'Ingresa un peso válido.');
+    return;
+  }
+
+  const p = PROTOCOLOS[proto];
+  let componentes = '';
+  if (p.componentes.length === 0) {
+    componentes = `<div class="tool-result__row"><span class="tool-result__row-label">Método</span><span class="tool-result__row-value">Inhalatorio</span></div>`;
+  } else {
+    p.componentes.forEach(c => {
+      const mg = (peso * c.dosis).toFixed(2);
+      const ml = ((peso * c.dosis) / c.conc).toFixed(2);
+      componentes += `
+        <div class="tool-result__row">
+          <span class="tool-result__row-label">${c.nombre} (${c.dosis} ${c.unidad}, ${c.conc} mg/ml)</span>
+          <span class="tool-result__row-value">${mg} mg · ${ml} ml</span>
+        </div>`;
+    });
+  }
+
+  rEl.innerHTML = `
+    <div class="tool-result__title">💉 ${p.nombre} · ${peso} kg</div>
+    <div class="tool-result__rows">
+      ${componentes}
+      <div class="tool-result__row"><span class="tool-result__row-label">Tiempo de inducción</span><span class="tool-result__row-value">${p.induccion}</span></div>
+      <div class="tool-result__row"><span class="tool-result__row-label">Duración estimada</span><span class="tool-result__row-value">${p.duracion}</span></div>
+    </div>
+    <div class="tool-result__note"><strong style="color:#6FBF73;">Reversión:</strong> ${p.reversion}<br><br>${p.nota}</div>
+  `;
+  rEl.className = 'tool-result is-visible';
+  rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ═══════════════ 3. FLUIDOS ═══════════════
+function calcularFluidos() {
+  const group = document.getElementById('fluidsGroup').value;
+  const peso = parseFloat(document.getElementById('fluidsPeso').value);
+  const desh = parseFloat(document.getElementById('fluidsDesh').value);
+  const perdidas = parseFloat(document.getElementById('fluidsPerd').value) || 0;
+  const equipo = parseFloat(document.getElementById('fluidsEquipo').value);
+  const rEl = document.getElementById('fluidsResult');
+
+  if (!peso || peso <= 0) {
+    showErr(rEl, 'Ingresa un peso válido.');
+    return;
+  }
+
+  // Mantenimiento por grupo (ml/kg/día)
+  const MANT = { mamiferos: 50, aves: 50, reptiles: 20 };
+  const mantFactor = MANT[group];
+
+  const deficit = peso * 1000 * (desh / 100); // en ml
+  const mantenimiento = peso * mantFactor;
+  const total24h = deficit + mantenimiento + perdidas;
+  const mlHora = total24h / 24;
+  const gotasMin = (mlHora * equipo) / 60;
+  const segGota = gotasMin > 0 ? (60 / gotasMin) : 0;
+  const bolo = peso * 15; // 10-20 ml/kg shock
+
+  const severo = desh >= 10;
+
+  rEl.innerHTML = `
+    <div class="tool-result__title">💧 Fluidoterapia · ${peso} kg · ${desh}% deshidratación</div>
+    <div class="tool-result__rows">
+      <div class="tool-result__row"><span class="tool-result__row-label">Déficit a reponer</span><span class="tool-result__row-value">${deficit.toFixed(0)} ml</span></div>
+      <div class="tool-result__row"><span class="tool-result__row-label">Mantenimiento/día (${mantFactor} ml/kg)</span><span class="tool-result__row-value">${mantenimiento.toFixed(0)} ml</span></div>
+      ${perdidas > 0 ? `<div class="tool-result__row"><span class="tool-result__row-label">Pérdidas extra</span><span class="tool-result__row-value">${perdidas} ml</span></div>` : ''}
+      <div class="tool-result__row"><span class="tool-result__row-label">Total 24h</span><span class="tool-result__row-value">${total24h.toFixed(0)} ml</span></div>
+      <div class="tool-result__row"><span class="tool-result__row-label">Velocidad</span><span class="tool-result__row-value">${mlHora.toFixed(1)} ml/h</span></div>
+      <div class="tool-result__row"><span class="tool-result__row-label">Goteo (${equipo} gtt/ml)</span><span class="tool-result__row-value">${gotasMin.toFixed(1)} gtt/min (${segGota.toFixed(1)} seg/gota)</span></div>
+      ${severo ? `<div class="tool-result__row" style="background:rgba(213,90,40,0.2);"><span class="tool-result__row-label">Bolo inicial shock (15 ml/kg en 15-20 min)</span><span class="tool-result__row-value">${bolo.toFixed(0)} ml</span></div>` : ''}
+    </div>
+    <div class="tool-result__note">Recomendado: Ringer Lactato o Sol. Salina 0.9%. En reptiles usar fluidos tibios (25-28°C). Reponer déficit en 12-24h, NO en bolo (excepto shock).</div>
+  `;
+  rEl.className = 'tool-result is-visible' + (severo ? ' is-warning' : '');
+  rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ═══════════════ 4. CONSTANTES ═══════════════
+const CONSTANTES = [
+  // Felinos
+  { grupo: 'Felinos', esp: 'Jaguar (Panthera onca)', fc: '60-90', fr: '20-30', temp: '38.0-39.0' },
+  { grupo: 'Felinos', esp: 'Puma (Puma concolor)', fc: '70-110', fr: '20-30', temp: '38.0-39.0' },
+  { grupo: 'Felinos', esp: 'Ocelote (Leopardus pardalis)', fc: '100-140', fr: '22-35', temp: '38.3-39.2' },
+  { grupo: 'Felinos', esp: 'Jaguarundi (Herpailurus yagouaroundi)', fc: '120-160', fr: '24-36', temp: '38.2-39.1' },
+  // Cánidos
+  { grupo: 'Cánidos', esp: 'Coyote (Canis latrans)', fc: '70-120', fr: '15-30', temp: '38.0-39.3' },
+  { grupo: 'Cánidos', esp: 'Lobo mexicano (Canis lupus baileyi)', fc: '60-100', fr: '10-25', temp: '38.0-39.2' },
+  { grupo: 'Cánidos', esp: 'Zorra gris (Urocyon cinereoargenteus)', fc: '100-130', fr: '16-28', temp: '38.4-39.2' },
+  // Primates
+  { grupo: 'Primates', esp: 'Mono araña (Ateles geoffroyi)', fc: '90-130', fr: '20-30', temp: '37.5-38.6' },
+  { grupo: 'Primates', esp: 'Mono aullador (Alouatta palliata)', fc: '80-120', fr: '18-28', temp: '37.3-38.4' },
+  { grupo: 'Primates', esp: 'Mono capuchino (Cebus capucinus)', fc: '100-140', fr: '22-34', temp: '37.8-38.8' },
+  // Ungulados
+  { grupo: 'Ungulados', esp: 'Venado cola blanca (Odocoileus virginianus)', fc: '70-110', fr: '20-35', temp: '38.3-39.2' },
+  { grupo: 'Ungulados', esp: 'Pecarí de collar (Dicotyles tajacu)', fc: '80-110', fr: '16-28', temp: '38.5-39.2' },
+  { grupo: 'Ungulados', esp: 'Tapir (Tapirus bairdii)', fc: '40-70', fr: '10-20', temp: '36.4-38.0' },
+  // Aves
+  { grupo: 'Aves', esp: 'Águila arpía (Harpia harpyja)', fc: '150-220', fr: '15-40', temp: '40.0-41.5' },
+  { grupo: 'Aves', esp: 'Halcón peregrino (Falco peregrinus)', fc: '180-300', fr: '25-50', temp: '40.8-42.2' },
+  { grupo: 'Aves', esp: 'Guacamaya roja (Ara macao)', fc: '150-220', fr: '20-35', temp: '40.5-42.0' },
+  { grupo: 'Aves', esp: 'Loro cabeza amarilla (Amazona oratrix)', fc: '160-240', fr: '22-40', temp: '40.5-42.0' },
+  { grupo: 'Aves', esp: 'Tecolote bajeño (Athene cunicularia)', fc: '200-300', fr: '25-45', temp: '40.2-41.8' },
+  // Reptiles
+  { grupo: 'Reptiles', esp: 'Iguana verde (Iguana iguana)', fc: '30-50*', fr: '8-20', temp: '24-32 ambiente' },
+  { grupo: 'Reptiles', esp: 'Tortuga casquito (Kinosternon)', fc: '25-45*', fr: '6-14', temp: '22-28 agua' },
+  { grupo: 'Reptiles', esp: 'Boa constrictor', fc: '20-45*', fr: '6-15', temp: '26-30 ambiente' },
+  { grupo: 'Reptiles', esp: 'Cocodrilo de pantano (C. moreletii)', fc: '15-35*', fr: '2-8', temp: '28-32 agua' }
+];
+
+function renderConstantes(filter = '') {
+  const tb = document.getElementById('constTbody');
+  const f = filter.toLowerCase();
+  const rows = CONSTANTES.filter(c => !f || c.esp.toLowerCase().includes(f) || c.grupo.toLowerCase().includes(f));
+
+  if (rows.length === 0) {
+    tb.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--zoo-text-muted);">Sin resultados para "${filter}"</td></tr>`;
+    return;
+  }
+
+  let lastGroup = '';
+  let html = '';
+  rows.forEach(c => {
+    if (c.grupo !== lastGroup) {
+      html += `<tr><td colspan="4" style="background:rgba(232,163,23,0.08);color:#E8A317;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;">${c.grupo}</td></tr>`;
+      lastGroup = c.grupo;
+    }
+    html += `<tr><td>${c.esp}</td><td><strong>${c.fc}</strong></td><td><strong>${c.fr}</strong></td><td><strong>${c.temp}</strong></td></tr>`;
+  });
+  tb.innerHTML = html + '<tr><td colspan="4" style="padding-top:10px;font-size:.76rem;color:var(--zoo-text-dim);">* FC en reptiles depende de temperatura ambiente (ectotermos).</td></tr>';
+}
+
+function filtrarEspecies() {
+  const v = document.getElementById('speciesFilter').value;
+  renderConstantes(v);
+}
+
+// ═══════════════ 5. BCS ═══════════════
+const BCS_DESC = {
+  1: { title: 'Caquéctico', color: '#D55A28', desc: 'Costillas, columna y pelvis muy prominentes. Pérdida de masa muscular severa. Sin grasa palpable. ATENCIÓN MÉDICA URGENTE.', ajuste: 40 },
+  2: { title: 'Muy delgado', color: '#D55A28', desc: 'Costillas fácilmente visibles. Pérdida muscular evidente. Mínima grasa. Intervención requerida.', ajuste: 30 },
+  3: { title: 'Delgado', color: '#E8A317', desc: 'Costillas palpables con ligera cobertura. Cintura marcada. Bajo peso.', ajuste: 20 },
+  4: { title: 'Bajo del ideal', color: '#F5C62E', desc: 'Costillas palpables con cobertura mínima. Cintura visible desde arriba. Casi ideal.', ajuste: 10 },
+  5: { title: 'Ideal', color: '#6FBF73', desc: 'Costillas palpables sin esfuerzo. Cintura bien definida vista desde arriba. Abdomen retraído. Peso saludable.', ajuste: 0 },
+  6: { title: 'Sobre ideal', color: '#F5C62E', desc: 'Costillas palpables pero con cobertura grasa. Cintura apenas visible. Ligera cobertura abdominal.', ajuste: -10 },
+  7: { title: 'Sobrepeso', color: '#E8A317', desc: 'Costillas difíciles de palpar. Sin cintura visible. Depósitos de grasa en columna y cola.', ajuste: -20 },
+  8: { title: 'Obeso', color: '#D55A28', desc: 'Costillas no palpables bajo grasa espesa. Marcados depósitos grasos. Abdomen distendido.', ajuste: -30 },
+  9: { title: 'Obeso severo', color: '#D55A28', desc: 'Grandes acúmulos de grasa. Distensión abdominal severa. Riesgo cardiovascular y metabólico grave.', ajuste: -40 }
+};
+
+function calcularBCS() {
+  const selected = document.querySelector('.bcs-item.is-selected');
+  const pesoActual = parseFloat(document.getElementById('bcsPesoActual').value);
+  const grupo = document.getElementById('bcsGroup').value;
+  const rEl = document.getElementById('bcsResult');
+
+  if (!pesoActual || pesoActual <= 0) {
+    showErr(rEl, 'Ingresa el peso actual del animal.');
+    return;
+  }
+  if (!selected) {
+    showErr(rEl, 'Selecciona un BCS del 1 al 9.');
+    return;
+  }
+
+  const bcs = parseInt(selected.dataset.bcs);
+  const info = BCS_DESC[bcs];
+  const ajustePct = info.ajuste;
+  const pesoIdeal = pesoActual + (pesoActual * (ajustePct / 100));
+  const diferencia = pesoIdeal - pesoActual;
+
+  let recomendacion = '';
+  if (bcs <= 3) recomendacion = '📈 <strong>Necesita ganar peso.</strong> Evaluar dieta, parasitosis, patología subyacente. Aumentar calidad y cantidad de alimento según especie.';
+  else if (bcs === 4) recomendacion = 'ℹ️ Ligero déficit. Ajustar dieta gradualmente. Monitoreo mensual.';
+  else if (bcs === 5) recomendacion = '✅ <strong>Condición ideal.</strong> Mantener dieta y rutina actual.';
+  else if (bcs === 6) recomendacion = 'ℹ️ Ligero exceso. Reducir 10% ración o aumentar actividad.';
+  else recomendacion = '📉 <strong>Necesita bajar peso.</strong> Reducir 20-30% calorías, aumentar actividad. Descartar patologías endócrinas. Reducción gradual (1-2% peso/semana).';
+
+  const isDanger = bcs <= 2 || bcs >= 8;
+  const isWarning = bcs === 3 || bcs === 4 || bcs === 6 || bcs === 7;
+
+  rEl.innerHTML = `
+    <div class="tool-result__title" style="color:${info.color};">📏 BCS ${bcs}/9 · ${info.title}</div>
+    <div class="tool-result__rows">
+      <div class="tool-result__row"><span class="tool-result__row-label">Peso actual</span><span class="tool-result__row-value">${pesoActual} kg</span></div>
+      <div class="tool-result__row"><span class="tool-result__row-label">Peso ideal estimado</span><span class="tool-result__row-value">${pesoIdeal.toFixed(2)} kg</span></div>
+      <div class="tool-result__row"><span class="tool-result__row-label">Ajuste necesario</span><span class="tool-result__row-value">${diferencia >= 0 ? '+' : ''}${diferencia.toFixed(2)} kg (${ajustePct >= 0 ? '+' : ''}${ajustePct}%)</span></div>
+    </div>
+    <div class="tool-result__note"><strong>Descripción:</strong> ${info.desc}<br><br>${recomendacion}</div>
+  `;
+  rEl.className = 'tool-result is-visible' + (isDanger ? ' is-danger' : isWarning ? ' is-warning' : '');
+  rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ═══════════════ Helpers ═══════════════
+function showErr(el, msg) {
+  el.innerHTML = `<div class="tool-result__title" style="color:#D55A28;">⚠️ ${msg}</div>`;
+  el.className = 'tool-result is-visible is-danger';
+}
+
+function resetearForm(which) {
+  if (which === 'dosis') {
+    document.getElementById('dosePeso').value = '';
+    document.getElementById('doseConc').value = '';
+    document.getElementById('doseCustom').value = '';
+    document.getElementById('doseResult').className = 'tool-result';
+  }
+  if (which === 'anestesia') {
+    document.getElementById('anesPeso').value = '';
+    document.getElementById('anesResult').className = 'tool-result';
+  }
+  if (which === 'fluidos') {
+    document.getElementById('fluidsPeso').value = '';
+    document.getElementById('fluidsPerd').value = '0';
+    document.getElementById('fluidsResult').className = 'tool-result';
+  }
+  if (which === 'bcs') {
+    document.getElementById('bcsPesoActual').value = '';
+    document.querySelectorAll('.bcs-item').forEach(i => i.classList.remove('is-selected'));
+    document.querySelector('[data-bcs="5"]').classList.add('is-selected');
+    document.getElementById('bcsResult').className = 'tool-result';
+  }
+}
+</script>
+</body>
+</html>

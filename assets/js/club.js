@@ -1200,7 +1200,8 @@ const ZOORIGEN_CLUB = {
       { id: 'foro', label: 'Foro VIP', icon: '💬', href: 'club-foro.html' },
       { id: 'videos', label: 'Videos', icon: '🎥', href: 'club-videos.html' },
       { id: 'sesiones', label: 'Webinars en vivo', icon: '🎥', href: 'club-sesiones.html' },
-      { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' }
+      { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' },
+      { id: 'herramientas', label: 'Herramientas clínicas', icon: '🧬', href: 'club-herramientas.html' }
     ];
     const itemsCuenta = [
       { id: 'logros', label: 'Mis logros', icon: '🏆', href: 'club-logros.html' },
@@ -1231,14 +1232,13 @@ const ZOORIGEN_CLUB = {
           <span class="icon">${i.icon}</span>${i.label}
         </a>
       `).join('')}
-      <div class="club-sidebar__plan">
-        <div class="plan-label">${planLabel}</div>
-        <div class="plan-name">Miembro ${session?.planActivo ? 'VIP' : 'pendiente'}</div>
-        <div class="plan-meta">${renewText}</div>
-        <div style="display:flex;gap:14px;align-items:center;margin-top:10px;flex-wrap:wrap;">
-          <a href="#" class="plan-logout" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a>
-          <a href="#" style="color:var(--zoo-text-muted);font-size:.82rem;text-decoration:none;font-weight:600;" onclick="ZOORIGEN_CLUB._showGuideFromSidebar(); return false;">📖 Ver guía</a>
+      <div class="club-sidebar__plan" style="padding:10px 12px;text-align:center;">
+        <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:4px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:${session?.planStatus === 'active' ? '#6FBF73' : session?.planStatus === 'cancelled' ? '#E8A317' : '#a0a8a4'};"></span>
+          <span class="plan-label" style="margin:0;font-size:.72rem;letter-spacing:.06em;">${planLabel.toUpperCase()}</span>
         </div>
+        <div class="plan-meta" style="font-size:.75rem;margin-bottom:8px;opacity:.75;">${renewText}</div>
+        <a href="#" class="plan-logout" style="display:inline-block;font-size:.8rem;" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a>
       </div>
     `;
   },
