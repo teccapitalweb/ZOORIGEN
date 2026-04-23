@@ -3,6 +3,24 @@
 /* Requiere: firebase-config.js cargado ANTES de este archivo   */
 /* ============================================================ */
 
+// ═══════════════ CONFIGURACIÓN CHECKOUT SHOPIFY ═══════════════
+// Si ya existe buildCheckoutURL definida en firebase-config.js se respeta,
+// de lo contrario se define aquí con redirección automática al dashboard.
+if (typeof window.buildCheckoutURL !== 'function') {
+  window.buildCheckoutURL = function(plan, email) {
+    const SHOP = 'pfueck-wm.myshopify.com';
+    const VARIANTS = {
+      mensual: { id: '45386138714166', sellingPlan: '2071691318' },
+      anual:   { id: '45386327916598', sellingPlan: '2071724086' }
+    };
+    const v = VARIANTS[plan] || VARIANTS.mensual;
+    // URL de regreso al dashboard con flag ?paid=1 para que detecte el pago
+    const returnTo = encodeURIComponent('https://www.zoorigen.com/pages/club-suscripcion.html?paid=1');
+    const emailParam = email ? `&checkout[email]=${encodeURIComponent(email)}` : '';
+    return `https://${SHOP}/cart/${v.id}:1?selling_plan=${v.sellingPlan}${emailParam}&return_to=${returnTo}`;
+  };
+}
+
 const ZOORIGEN_CLUB = {
 
   // ============== LECTURA DE CONTENIDO DESDE FIRESTORE ==============
@@ -1211,6 +1229,15 @@ const ZOORIGEN_CLUB = {
       { id: 'perfil', label: 'Mi perfil', icon: '👤', href: 'club-perfil.html' },
       { id: 'suscripcion', label: 'Suscripción', icon: '💳', href: 'club-suscripcion.html' }
     ];
+
+    // Auto-activar paywall en TODAS las páginas (se ejecuta después de renderizar)
+    // Excepto en suscripción y perfil (ahí es donde el usuario va a pagar / editar datos)
+    setTimeout(() => {
+      if (activeId !== 'suscripcion' && activeId !== 'perfil') {
+        this.enablePaywallOnPage(session);
+      }
+    }, 150);
+
     return `
       <button class="club-sidebar__close" id="sidebarCloseBtn" aria-label="Cerrar menú">✕</button>
       <div class="club-sidebar__brand">
@@ -1486,6 +1513,128 @@ const ZOORIGEN_CLUB = {
     };
     render();
     setInterval(render, 1000);
+  },
+
+  // ═══════════════ SISTEMA DE PAYWALL (Usuario sin pagar) ═══════════════
+  // Verifica si el usuario es VIP activo; si NO lo es, muestra modal de paywall.
+  // Retorna true si tiene acceso, false si se mostró el paywall.
+  requireVIP(session, accionLabel) {
+    if (!session) return false;
+    const isActive = session.planActivo === true || session.planStatus === 'active';
+    if (isActive) return true;
+    this.showPaywall(session, accionLabel);
+    return false;
+  },
+
+  showPaywall(session, accionLabel) {
+    // Si ya hay un paywall abierto, no duplicar
+    if (document.getElementById('zooPaywall')) return;
+
+    const label = accionLabel || 'acceder a esta función';
+    const overlay = document.createElement('div');
+    overlay.id = 'zooPaywall';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooPaywallFade .25s ease-out;';
+    overlay.innerHTML = `
+      <div style="max-width:500px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 60%,#2AA4D5 120%);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;overflow:hidden;">
+        <button id="zooPaywallClose" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.3);border:0;color:#fff;font-size:1rem;cursor:pointer;">✕</button>
+        <div style="font-size:3.8rem;margin-bottom:14px;">🔒</div>
+        <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">ACCESO EXCLUSIVO VIP</div>
+        <h2 style="font-family:Poppins;color:#fff;font-size:1.6rem;margin:0 0 10px;line-height:1.2;">Necesitas ser Miembro VIP para ${label}</h2>
+        <p style="color:rgba(255,255,255,0.88);font-size:.95rem;margin:0 0 22px;line-height:1.55;">Suscríbete y desbloquea toda la plataforma: cursos, webinars, biblioteca, foro, herramientas profesionales y certificados con validez.</p>
+
+        <div style="background:rgba(0,0,0,0.25);border-radius:14px;padding:18px;margin-bottom:20px;text-align:left;">
+          <div style="color:#E8A317;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">✨ Beneficios VIP</div>
+          <div style="color:#fff;font-size:.9rem;line-height:1.85;">
+            ✅ <strong>Biblioteca</strong> completa de cursos<br>
+            ✅ <strong>Webinars</strong> en vivo cada mes<br>
+            ✅ <strong>Foro VIP</strong> con expertos<br>
+            ✅ <strong>Certificados</strong> con validez<br>
+            ✅ <strong>Herramientas</strong> clínicas y legales<br>
+            ✅ <strong>20% descuento</strong> en cursos Zoorigen<br>
+            ✅ Videos y PDFs descargables
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <button id="zooPaywallMens" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:Poppins;transition:all .15s;">
+            <div style="font-weight:700;font-size:.78rem;opacity:.8;">MENSUAL</div>
+            <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$199<span style="font-size:.7rem;opacity:.7;">/mes</span></div>
+            <div style="font-size:.72rem;opacity:.7;">Cancela cuando quieras</div>
+          </button>
+          <button id="zooPaywallAnual" style="background:linear-gradient(135deg,#E8A317,#D68A0A);border:0;color:#1f1d17;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:800;position:relative;box-shadow:0 6px 18px rgba(232,163,23,0.4);">
+            <div style="position:absolute;top:-8px;right:6px;background:#D55A28;color:#fff;font-size:.62rem;padding:2px 8px;border-radius:10px;font-weight:800;">-20% OFF</div>
+            <div style="font-weight:700;font-size:.78rem;">ANUAL</div>
+            <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$1,899<span style="font-size:.7rem;">/año</span></div>
+            <div style="font-size:.72rem;">Ahorra $489</div>
+          </button>
+        </div>
+
+        <button id="zooPaywallLater" style="background:transparent;border:0;color:rgba(255,255,255,0.6);font-size:.82rem;cursor:pointer;padding:8px;">Seguir explorando</button>
+      </div>
+      <style>
+        @keyframes zooPaywallFade { from{opacity:0} to{opacity:1} }
+        #zooPaywallMens:hover { background:rgba(255,255,255,0.15) !important; }
+        #zooPaywallAnual:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(232,163,23,0.5) !important; }
+      </style>
+    `;
+    document.body.appendChild(overlay);
+
+    const email = session.email || '';
+    const goCheckout = (plan) => {
+      const url = (typeof window.buildCheckoutURL === 'function')
+        ? window.buildCheckoutURL(plan, email)
+        : `https://pfueck-wm.myshopify.com/cart/${plan === 'anual' ? '45386327916598' : '45386138714166'}:1?selling_plan=auto&checkout[email]=${encodeURIComponent(email)}&return_to=${encodeURIComponent('https://www.zoorigen.com/pages/club-suscripcion.html?paid=1')}`;
+      window.location.href = url;
+    };
+    document.getElementById('zooPaywallMens').addEventListener('click', () => goCheckout('mensual'));
+    document.getElementById('zooPaywallAnual').addEventListener('click', () => goCheckout('anual'));
+    const close = () => overlay.remove();
+    document.getElementById('zooPaywallClose').addEventListener('click', close);
+    document.getElementById('zooPaywallLater').addEventListener('click', close);
+  },
+
+  // Intercepta clicks en elementos con data-vip-required para mostrar paywall
+  enablePaywallOnPage(session) {
+    const isActive = session && (session.planActivo === true || session.planStatus === 'active');
+    if (isActive) return; // Miembro activo, no hace falta bloquear
+
+    // Buscar todos los elementos con data-vip-required y bloquearlos
+    document.querySelectorAll('[data-vip-required]').forEach(el => {
+      el.style.position = 'relative';
+      // Cuando hace click, mostrar paywall
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const label = el.dataset.vipLabel || 'acceder a esta función';
+        this.showPaywall(session, label);
+      }, true);
+      // Overlay visual "candado" suave
+      if (!el.querySelector('.zoo-vip-lock')) {
+        const lock = document.createElement('div');
+        lock.className = 'zoo-vip-lock';
+        lock.style.cssText = 'position:absolute;top:8px;right:8px;background:rgba(232,163,23,0.9);color:#1f1d17;padding:4px 10px;border-radius:14px;font-size:.7rem;font-weight:800;letter-spacing:.06em;pointer-events:none;z-index:5;';
+        lock.textContent = '🔒 VIP';
+        el.appendChild(lock);
+      }
+    });
+
+    // Banner global arriba del main
+    const main = document.querySelector('.club-main');
+    if (main && !document.getElementById('zooPayBanner')) {
+      const banner = document.createElement('div');
+      banner.id = 'zooPayBanner';
+      banner.style.cssText = 'background:linear-gradient(135deg,#E8A317,#D55A28);color:#1f1d17;padding:12px 18px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;box-shadow:0 6px 18px rgba(232,163,23,0.25);';
+      banner.innerHTML = `
+        <div style="font-size:1.8rem;line-height:1;">🔒</div>
+        <div style="flex:1;min-width:200px;">
+          <div style="font-family:Poppins;font-weight:800;font-size:.98rem;margin-bottom:2px;">Modo exploración · Suscríbete para desbloquear todo</div>
+          <div style="font-size:.82rem;opacity:.88;">Puedes navegar pero no acceder a cursos, webinars, foro y herramientas sin membresía.</div>
+        </div>
+        <div style="background:#1f1d17;color:#E8A317;padding:8px 18px;border-radius:10px;font-family:Poppins;font-weight:800;font-size:.88rem;">Suscribirme</div>
+      `;
+      banner.addEventListener('click', () => this.showPaywall(session, 'desbloquear todo el contenido'));
+      main.insertBefore(banner, main.firstChild);
+    }
   }
 };
 
