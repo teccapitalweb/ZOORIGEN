@@ -506,11 +506,6 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <!-- BANNER DE VERSIÓN v4 - se esconde solo cuando el dashboard carga bien -->
-      <div id="versionBanner" style="background:linear-gradient(135deg,#E8A317,#D55A28);color:#1f1d17;padding:10px 16px;border-radius:10px;margin-bottom:12px;font-weight:800;font-family:'Poppins',sans-serif;text-align:center;font-size:.88rem;box-shadow:0 4px 14px rgba(232,163,23,0.3);">
-        🦒 DASHBOARD v4.0 CARGANDO... <span id="versionDebug" style="font-size:.75rem;opacity:.8;"></span>
-      </div>
-      <script>console.log('%c🦒 DASHBOARD v4.0 CARGADO ' + new Date().toLocaleTimeString(), 'background:#E8A317;color:#1f1d17;padding:6px 14px;font-weight:800;font-size:14px;border-radius:6px;');</script>
       <div id="pendingBanner"></div>
 
       <div class="club-main__header">
@@ -687,15 +682,6 @@
       ]);
 
       console.log('[Dashboard] Datos cargados:', { cursos: cursos.length, noticias: noticias.length, webinars: todosLosWebinars.length, videos: videos.length, pdfs: pdfs.length });
-
-      // Actualizar banner con resumen de lo cargado + botón cerrar
-      try {
-        const vb = document.getElementById('versionBanner');
-        if (vb) {
-          vb.innerHTML = `🦒 DASHBOARD v4.0 ✓ | Cursos:${cursos.length} Noticias:${noticias.length} Webinars:${todosLosWebinars.length} Videos:${videos.length} PDFs:${pdfs.length}
-          <button onclick="document.getElementById('versionBanner').style.display='none'" style="background:rgba(0,0,0,0.15);border:0;color:#1f1d17;padding:2px 10px;border-radius:6px;margin-left:12px;cursor:pointer;font-weight:700;">✕ OK</button>`;
-        }
-      } catch (e) {}
 
       // ═══════════════ POPUP DE WEBINAR ═══════════════
       // Revisa TODOS los webinars próximos y muestra popup del PRIMERO que el usuario no haya visto.
