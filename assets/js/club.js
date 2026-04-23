@@ -185,6 +185,116 @@ const ZOORIGEN_CLUB = {
     notificaciones.forEach(n => this.markNotificationRead(session, n.id));
   },
 
+  // ============== INICIALIZAR PANEL DE NOTIFICACIONES (reutilizable) ==============
+  // Se usa en todas las páginas: dashboard, biblioteca, foro, etc.
+  async initNotifications(session) {
+    if (!session) return;
+    const notifBtn = document.getElementById('notifBtn');
+    const notifPanel = document.getElementById('notifPanel');
+    if (!notifBtn || !notifPanel) return; // página no tiene campana
+
+    const notifPanelClose = document.getElementById('notifPanelClose');
+    const notifMarkAll = document.getElementById('notifMarkAll');
+    const self = this;
+
+    async function cargarNotificaciones() {
+      const notificaciones = await self.getNotificaciones(session);
+      const noLeidas = notificaciones.filter(n => !n.read).length;
+      const badge = document.getElementById('notifBadge');
+      if (badge) {
+        if (noLeidas > 0) {
+          badge.textContent = noLeidas > 9 ? '9+' : noLeidas;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+      return notificaciones;
+    }
+
+    function renderNotifPanel(notificaciones) {
+      const list = document.getElementById('notifList');
+      const actions = document.getElementById('notifPanelActions');
+      if (!list) return;
+
+      if (notificaciones.length === 0) {
+        list.innerHTML = `
+          <div class="notif-empty">
+            <div class="notif-empty__icon">🔔</div>
+            <div class="notif-empty__title">Sin notificaciones</div>
+            <div class="notif-empty__text">Te avisaremos de webinars, cursos nuevos y logros.</div>
+          </div>`;
+        if (actions) actions.style.display = 'none';
+        return;
+      }
+
+      const noLeidas = notificaciones.filter(n => !n.read).length;
+      if (actions) actions.style.display = noLeidas > 0 ? 'flex' : 'none';
+
+      list.innerHTML = notificaciones.map(n => `
+        <a href="${n.href}" class="notif-item ${n.read ? 'is-read' : 'is-unread'}" data-id="${n.id}">
+          <div class="notif-item__icon">${n.icon}</div>
+          <div class="notif-item__body">
+            <div class="notif-item__title">${n.title}</div>
+            <div class="notif-item__msg">${n.message}</div>
+            <div class="notif-item__time">${self.timeAgo(n.time)}</div>
+          </div>
+          ${!n.read ? '<span class="notif-item__dot"></span>' : ''}
+        </a>
+      `).join('');
+
+      list.querySelectorAll('.notif-item').forEach(el => {
+        el.addEventListener('click', () => {
+          self.markNotificationRead(session, el.dataset.id);
+        });
+      });
+    }
+
+    let notificacionesActuales = await cargarNotificaciones();
+    renderNotifPanel(notificacionesActuales);
+
+    const abrirPanel = async () => {
+      notificacionesActuales = await cargarNotificaciones();
+      renderNotifPanel(notificacionesActuales);
+      notifPanel.style.display = 'block';
+      setTimeout(() => notifPanel.classList.add('is-open'), 10);
+    };
+    const cerrarPanel = () => {
+      notifPanel.classList.remove('is-open');
+      setTimeout(() => { notifPanel.style.display = 'none'; }, 200);
+    };
+
+    notifBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (notifPanel.classList.contains('is-open')) cerrarPanel();
+      else abrirPanel();
+    });
+    if (notifPanelClose) notifPanelClose.addEventListener('click', cerrarPanel);
+
+    document.addEventListener('click', (e) => {
+      if (notifPanel.classList.contains('is-open') &&
+          !notifPanel.contains(e.target) &&
+          !notifBtn.contains(e.target)) {
+        cerrarPanel();
+      }
+    });
+
+    if (notifMarkAll) {
+      notifMarkAll.addEventListener('click', async () => {
+        self.markAllNotificationsRead(session, notificacionesActuales);
+        notificacionesActuales = await cargarNotificaciones();
+        renderNotifPanel(notificacionesActuales);
+      });
+    }
+
+    // Recargar cada 60s si el panel está cerrado
+    setInterval(async () => {
+      if (!notifPanel.classList.contains('is-open')) {
+        await cargarNotificaciones();
+      }
+    }, 60000);
+  },
+
   // ============== CHECKOUT VENTANA EMERGENTE ==============
   openCheckoutModal(plan, email) {
     const checkoutURL = (typeof buildCheckoutURL === 'function')

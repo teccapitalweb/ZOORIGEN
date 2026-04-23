@@ -129,45 +129,73 @@
     }
 
     .foro-cats-wrap {
-      background: var(--zoo-bg-card, #131816);
-      border: 1px solid var(--zoo-border, #1e2522);
+      background: #131816;
+      border: 1px solid #1e2522;
       border-radius: 14px;
       padding: 14px;
       margin-bottom: 20px;
     }
+    [data-theme="light"] .foro-cats-wrap {
+      background: #ffffff;
+      border: 1px solid #e2e5df;
+    }
     .foro-cats-title {
       font-size: .82rem;
-      color: var(--zoo-text-muted, #a0a8a4);
+      color: #a0a8a4;
       font-weight: 600;
       margin-bottom: 10px;
     }
+    [data-theme="light"] .foro-cats-title { color: #5a6360; }
+
+    /* Scroll horizontal en móvil para que todas las categorías se vean */
     .foro-cats {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
+    @media (max-width: 600px) {
+      .foro-cats {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
+      .foro-cats::-webkit-scrollbar { height: 4px; }
+      .foro-cats::-webkit-scrollbar-thumb { background: rgba(232,163,23,0.3); border-radius: 2px; }
+    }
+
     .foro-cat {
       background: transparent;
-      border: 1px solid var(--zoo-border-strong, #2a3530);
-      color: var(--zoo-text-muted, #a0a8a4);
-      padding: 8px 14px;
+      border: 1px solid #2a3530;
+      color: #c8cec9 !important;
+      padding: 9px 16px;
       border-radius: 20px;
       cursor: pointer;
-      font-size: .84rem;
-      font-weight: 600;
+      font-size: .85rem;
+      font-weight: 700;
       transition: all .15s;
       white-space: nowrap;
+      flex-shrink: 0;
+    }
+    [data-theme="light"] .foro-cat {
+      border: 1px solid #d0d4cb;
+      color: #3a403d !important;
     }
     .foro-cat:hover {
+      background: rgba(232,163,23,0.12);
+      border-color: rgba(232,163,23,0.5);
+      color: #ffffff !important;
+    }
+    [data-theme="light"] .foro-cat:hover {
       background: rgba(232,163,23,0.08);
-      border-color: rgba(232,163,23,0.4);
-      color: var(--zoo-text, #e5e9e7);
+      color: #1a1d1b !important;
     }
     .foro-cat.is-active {
-      background: linear-gradient(135deg, #E8A317, #D68A0A);
-      color: #1f1d17;
-      border-color: transparent;
-      box-shadow: 0 3px 10px rgba(232,163,23,0.3);
+      background: linear-gradient(135deg, #E8A317, #D68A0A) !important;
+      color: #1f1d17 !important;
+      border-color: transparent !important;
+      box-shadow: 0 3px 10px rgba(232,163,23,0.4);
     }
 
     .foro-list {
@@ -661,9 +689,21 @@
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;">
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button>
-        <div style="display:flex;gap:10px;margin-left:auto;">
+        <div style="display:flex;gap:10px;align-items:center;margin-left:auto;">
+          <button class="notif-icon" id="notifBtn" title="Notificaciones" aria-label="Notificaciones">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
           <button class="theme-toggle" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema" onclick="ZOORIGEN_CLUB.toggleTheme()">☀️</button>
         </div>
+      </div>
+      <!-- Panel de notificaciones -->
+      <div class="notif-panel" id="notifPanel" style="display:none;">
+        <div class="notif-panel__header">
+          <h3>🔔 Notificaciones</h3>
+          <button class="notif-panel__close" id="notifPanelClose" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="notif-panel__actions" id="notifPanelActions" style="display:none;">
+          <button class="notif-mark-all" id="notifMarkAll">Marcar todas como leídas</button>
+        </div>
+        <div class="notif-panel__list" id="notifList">Cargando...</div>
       </div>
 
       <div class="foro-hero">
@@ -748,6 +788,7 @@
       if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('foro', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+      if (ZOORIGEN_CLUB.initNotifications) ZOORIGEN_CLUB.initNotifications(session);
 
       document.querySelectorAll('.foro-cat').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -957,8 +998,13 @@
     }
 
     function openNewPostModal() {
-      if (currentSession.planStatus !== 'active') {
-        alert('⚠️ Necesitas membresía VIP activa para publicar en el foro.');
+      // Permitir publicar si tiene plan activo O cancelado pero aún con acceso vigente
+      const tieneAcceso = currentSession.planActivo === true ||
+                          currentSession.planStatus === 'active' ||
+                          (currentSession.planStatus === 'cancelled' && currentSession.planVence && new Date(currentSession.planVence) > new Date());
+
+      if (!tieneAcceso) {
+        alert('⚠️ Necesitas membresía VIP activa para publicar en el foro. Ve a "Suscripción" para activar la tuya.');
         return;
       }
 

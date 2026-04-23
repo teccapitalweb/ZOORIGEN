@@ -39,6 +39,7 @@
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('certificados', session);
       if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+      if (ZOORIGEN_CLUB.initNotifications) ZOORIGEN_CLUB.initNotifications(session);
 
 
       const content = document.getElementById('certsContent');

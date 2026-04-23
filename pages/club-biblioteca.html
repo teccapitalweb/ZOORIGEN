@@ -256,7 +256,24 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;"><button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button><button class="theme-toggle" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema" onclick="ZOORIGEN_CLUB.toggleTheme()">☀️</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button>
+        <div style="display:flex;gap:10px;align-items:center;margin-left:auto;">
+          <button class="notif-icon" id="notifBtn" title="Notificaciones" aria-label="Notificaciones">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
+          <button class="theme-toggle" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema" onclick="ZOORIGEN_CLUB.toggleTheme()">☀️</button>
+        </div>
+      </div>
+      <!-- Panel de notificaciones -->
+      <div class="notif-panel" id="notifPanel" style="display:none;">
+        <div class="notif-panel__header">
+          <h3>🔔 Notificaciones</h3>
+          <button class="notif-panel__close" id="notifPanelClose" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="notif-panel__actions" id="notifPanelActions" style="display:none;">
+          <button class="notif-mark-all" id="notifMarkAll">Marcar todas como leídas</button>
+        </div>
+        <div class="notif-panel__list" id="notifList">Cargando...</div>
+      </div>
       <div class="page-header">
         <h1>📚 Biblioteca exclusiva</h1>
         <p>Cursos completos seleccionados para miembros VIP · Acceso ilimitado</p>
@@ -291,6 +308,7 @@
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('biblioteca', session);
       if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+      if (ZOORIGEN_CLUB.initNotifications) ZOORIGEN_CLUB.initNotifications(session);
 
 
       if (session.planStatus !== 'active') {
