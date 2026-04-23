@@ -506,12 +506,11 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <!-- BANNER DE VERSIÓN - SI VES ESTO, EL ARCHIVO ES EL CORRECTO -->
-      <div id="versionBanner" style="background:linear-gradient(135deg,#E8A317,#D55A28);color:#1f1d17;padding:10px 16px;border-radius:10px;margin-bottom:12px;font-weight:800;font-family:'Poppins',sans-serif;text-align:center;font-size:.9rem;box-shadow:0 4px 14px rgba(232,163,23,0.3);">
-        🦒 DASHBOARD v3.0 — Videos · Webinars · PDFs · Invitar amigos INTEGRADOS
-        <button onclick="document.getElementById('versionBanner').style.display='none'" style="background:rgba(0,0,0,0.15);border:0;color:#1f1d17;padding:2px 10px;border-radius:6px;margin-left:12px;cursor:pointer;font-weight:700;">✕ Cerrar</button>
+      <!-- BANNER DE VERSIÓN v4 - se esconde solo cuando el dashboard carga bien -->
+      <div id="versionBanner" style="background:linear-gradient(135deg,#E8A317,#D55A28);color:#1f1d17;padding:10px 16px;border-radius:10px;margin-bottom:12px;font-weight:800;font-family:'Poppins',sans-serif;text-align:center;font-size:.88rem;box-shadow:0 4px 14px rgba(232,163,23,0.3);">
+        🦒 DASHBOARD v4.0 CARGANDO... <span id="versionDebug" style="font-size:.75rem;opacity:.8;"></span>
       </div>
-      <script>console.log('%c🦒 DASHBOARD v3.0 CARGADO ' + new Date().toLocaleTimeString(), 'background:#E8A317;color:#1f1d17;padding:6px 14px;font-weight:800;font-size:14px;border-radius:6px;');</script>
+      <script>console.log('%c🦒 DASHBOARD v4.0 CARGADO ' + new Date().toLocaleTimeString(), 'background:#E8A317;color:#1f1d17;padding:6px 14px;font-weight:800;font-size:14px;border-radius:6px;');</script>
       <div id="pendingBanner"></div>
 
       <div class="club-main__header">
@@ -677,15 +676,26 @@
         }
       }
 
-      // Cargar datos desde Firestore
+      // Cargar datos desde Firestore (robusto: si uno falla, los demás siguen)
       const [cursos, noticias, proximaSesion, todosLosWebinars, videos, pdfs] = await Promise.all([
-        ZOORIGEN_CLUB.getCursos(),
-        ZOORIGEN_CLUB.getNoticias(5),
-        ZOORIGEN_CLUB.getProximaSesion(),
-        ZOORIGEN_CLUB.getSesiones(),
-        ZOORIGEN_CLUB.getVideos(),
-        ZOORIGEN_CLUB.getPdfs()
+        ZOORIGEN_CLUB.getCursos().catch(e => { console.warn('getCursos falló:', e); return []; }),
+        ZOORIGEN_CLUB.getNoticias(5).catch(e => { console.warn('getNoticias falló:', e); return []; }),
+        ZOORIGEN_CLUB.getProximaSesion().catch(e => { console.warn('getProximaSesion falló:', e); return null; }),
+        ZOORIGEN_CLUB.getSesiones().catch(e => { console.warn('getSesiones falló:', e); return []; }),
+        ZOORIGEN_CLUB.getVideos().catch(e => { console.warn('getVideos falló:', e); return []; }),
+        ZOORIGEN_CLUB.getPdfs().catch(e => { console.warn('getPdfs falló:', e); return []; })
       ]);
+
+      console.log('[Dashboard] Datos cargados:', { cursos: cursos.length, noticias: noticias.length, webinars: todosLosWebinars.length, videos: videos.length, pdfs: pdfs.length });
+
+      // Actualizar banner con resumen de lo cargado + botón cerrar
+      try {
+        const vb = document.getElementById('versionBanner');
+        if (vb) {
+          vb.innerHTML = `🦒 DASHBOARD v4.0 ✓ | Cursos:${cursos.length} Noticias:${noticias.length} Webinars:${todosLosWebinars.length} Videos:${videos.length} PDFs:${pdfs.length}
+          <button onclick="document.getElementById('versionBanner').style.display='none'" style="background:rgba(0,0,0,0.15);border:0;color:#1f1d17;padding:2px 10px;border-radius:6px;margin-left:12px;cursor:pointer;font-weight:700;">✕ OK</button>`;
+        }
+      } catch (e) {}
 
       // ═══════════════ POPUP DE WEBINAR ═══════════════
       // Revisa TODOS los webinars próximos y muestra popup del PRIMERO que el usuario no haya visto.
@@ -1005,71 +1015,83 @@
       }
 
       // ═══════════════ VIDEOS PRÁCTICOS ═══════════════
-      const dvl = document.getElementById('dashVideosList');
-      if (!videos || videos.length === 0) {
-        dvl.innerHTML = `<div class="dash-empty-mini">🎬 Próximamente: videos prácticos con técnicas de campo paso a paso.</div>`;
-      } else {
-        dvl.innerHTML = videos.slice(0, 4).map(v => {
-          const driveEmbed = v.driveId ? ZOORIGEN_CLUB.buildDriveEmbed(v.driveId) : null;
-          const linkHref = driveEmbed ? `javascript:window.open('${driveEmbed}','_blank','width=900,height=600');` : (v.url || '#');
-          return `
-            <a href="${linkHref}" ${!driveEmbed && v.url ? 'target="_blank"' : ''} class="dash-mini-item">
-              <div class="dash-mini-item__thumb">🎥</div>
-              <div class="dash-mini-item__body">
-                <div class="dash-mini-item__title">${v.title || 'Video sin título'}</div>
-                <div class="dash-mini-item__meta">${v.category || 'Práctica'} · ${v.duration || ''}</div>
-              </div>
-            </a>`;
-        }).join('');
-      }
+      try {
+        const dvl = document.getElementById('dashVideosList');
+        if (!dvl) { console.warn('[Dashboard] dashVideosList no encontrado'); }
+        else if (!videos || videos.length === 0) {
+          dvl.innerHTML = `<div class="dash-empty-mini">🎬 Próximamente: videos prácticos con técnicas de campo paso a paso.</div>`;
+        } else {
+          dvl.innerHTML = videos.slice(0, 4).map(v => {
+            const driveEmbed = v.driveId ? ZOORIGEN_CLUB.buildDriveEmbed(v.driveId) : null;
+            const linkHref = driveEmbed ? `javascript:window.open('${driveEmbed}','_blank','width=900,height=600');` : (v.url || '#');
+            return `
+              <a href="${linkHref}" ${!driveEmbed && v.url ? 'target="_blank"' : ''} class="dash-mini-item">
+                <div class="dash-mini-item__thumb">🎥</div>
+                <div class="dash-mini-item__body">
+                  <div class="dash-mini-item__title">${v.title || 'Video sin título'}</div>
+                  <div class="dash-mini-item__meta">${v.category || 'Práctica'} · ${v.duration || ''}</div>
+                </div>
+              </a>`;
+          }).join('');
+        }
+      } catch (e) { console.error('[Dashboard] Error render videos:', e); }
 
       // ═══════════════ WEBINARS EN VIVO ═══════════════
-      const dwl = document.getElementById('dashWebinarsList');
-      if (!todosLosWebinars || todosLosWebinars.length === 0) {
-        dwl.innerHTML = `<div class="dash-empty-mini">📅 No hay webinars programados. Pronto anunciaremos el próximo.</div>`;
-      } else {
-        const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
-        dwl.innerHTML = todosLosWebinars.slice(0, 3).map(w => {
-          const d = new Date(w.date);
-          const day = !isNaN(d) ? d.getDate() : '?';
-          const month = !isNaN(d) ? meses[d.getMonth()] : '';
-          const meetBtn = w.meetUrl ? `<a href="${w.meetUrl}" target="_blank" style="display:inline-block;margin-top:6px;background:#2AA4D5;color:#fff;padding:4px 10px;border-radius:6px;font-size:.76rem;font-weight:700;text-decoration:none;">📹 Entrar a Meet</a>` : '';
-          return `
-            <div class="dash-mini-item">
-              <div class="dash-webinar-date">
-                <span class="day">${day}</span>
-                <span class="month">${month}</span>
-              </div>
-              <div class="dash-mini-item__body">
-                <div class="dash-mini-item__title">${w.title || 'Webinar'}</div>
-                <div class="dash-mini-item__meta">${w.speaker || ''} · ${w.time || '19:00'} ${w.duration ? '· ' + w.duration : ''}</div>
-                ${meetBtn}
-              </div>
-            </div>`;
-        }).join('');
-      }
+      try {
+        const dwl = document.getElementById('dashWebinarsList');
+        if (!dwl) { console.warn('[Dashboard] dashWebinarsList no encontrado'); }
+        else if (!todosLosWebinars || todosLosWebinars.length === 0) {
+          dwl.innerHTML = `<div class="dash-empty-mini">📅 No hay webinars programados. Pronto anunciaremos el próximo.</div>`;
+        } else {
+          const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+          dwl.innerHTML = todosLosWebinars.slice(0, 3).map(w => {
+            const d = new Date(w.date);
+            const day = !isNaN(d) ? d.getDate() : '?';
+            const month = !isNaN(d) ? meses[d.getMonth()] : '';
+            const meetBtn = w.meetUrl ? `<a href="${w.meetUrl}" target="_blank" style="display:inline-block;margin-top:6px;background:#2AA4D5;color:#fff;padding:4px 10px;border-radius:6px;font-size:.76rem;font-weight:700;text-decoration:none;">📹 Entrar a Meet</a>` : '';
+            return `
+              <div class="dash-mini-item">
+                <div class="dash-webinar-date">
+                  <span class="day">${day}</span>
+                  <span class="month">${month}</span>
+                </div>
+                <div class="dash-mini-item__body">
+                  <div class="dash-mini-item__title">${w.title || 'Webinar'}</div>
+                  <div class="dash-mini-item__meta">${w.speaker || ''} · ${w.time || '19:00'} ${w.duration ? '· ' + w.duration : ''}</div>
+                  ${meetBtn}
+                </div>
+              </div>`;
+          }).join('');
+        }
+      } catch (e) { console.error('[Dashboard] Error render webinars:', e); }
 
       // ═══════════════ PDFs & MATERIAL ═══════════════
-      const dpl = document.getElementById('dashPdfsList');
-      if (!pdfs || pdfs.length === 0) {
-        dpl.innerHTML = `<div class="dash-empty-mini">📄 Pronto agregaremos PDFs y material científico descargable.</div>`;
-      } else {
-        dpl.innerHTML = pdfs.slice(0, 4).map(p => {
-          const driveView = p.driveId ? ZOORIGEN_CLUB.buildDrivePdfView(p.driveId) : null;
-          const linkHref = driveView || p.url || '#';
-          return `
-            <a href="${linkHref}" target="_blank" class="dash-mini-item">
-              <div class="dash-mini-item__thumb" style="background:linear-gradient(135deg,rgba(213,90,40,0.25),rgba(232,163,23,0.2));">📄</div>
-              <div class="dash-mini-item__body">
-                <div class="dash-mini-item__title">${p.title || 'PDF sin título'}</div>
-                <div class="dash-mini-item__meta">${p.category || 'Material'} ${p.pages ? '· ' + p.pages + ' páginas' : ''}</div>
-              </div>
-            </a>`;
-        }).join('');
-      }
+      // ═══════════════ PDFs & MATERIAL ═══════════════
+      try {
+        const dpl = document.getElementById('dashPdfsList');
+        if (!dpl) { console.warn('[Dashboard] dashPdfsList no encontrado'); }
+        else if (!pdfs || pdfs.length === 0) {
+          dpl.innerHTML = `<div class="dash-empty-mini">📄 Pronto agregaremos PDFs y material científico descargable.</div>`;
+        } else {
+          dpl.innerHTML = pdfs.slice(0, 4).map(p => {
+            const driveView = p.driveId ? ZOORIGEN_CLUB.buildDrivePdfView(p.driveId) : null;
+            const linkHref = driveView || p.url || '#';
+            return `
+              <a href="${linkHref}" target="_blank" class="dash-mini-item">
+                <div class="dash-mini-item__thumb" style="background:linear-gradient(135deg,rgba(213,90,40,0.25),rgba(232,163,23,0.2));">📄</div>
+                <div class="dash-mini-item__body">
+                  <div class="dash-mini-item__title">${p.title || 'PDF sin título'}</div>
+                  <div class="dash-mini-item__meta">${p.category || 'Material'} ${p.pages ? '· ' + p.pages + ' páginas' : ''}</div>
+                </div>
+              </a>`;
+          }).join('');
+        }
+      } catch (e) { console.error('[Dashboard] Error render PDFs:', e); }
 
       // ═══════════════ SISTEMA DE REFERIDOS ═══════════════
-      await cargarReferidos(session);
+      try {
+        await cargarReferidos(session);
+      } catch (e) { console.error('[Dashboard] Error cargarReferidos:', e); }
     })();
 
     // ═══════════════ FUNCIONES DE REFERIDOS ═══════════════
