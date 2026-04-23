@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚖️ Herramientas Legales · Club VIP Zoorigen</title>
+<meta name="theme-color" content="#1F5F3A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/club.css">
+<link rel="stylesheet" href="../assets/css/club-mobile.css">
+<link rel="stylesheet" href="../assets/css/club-theme.css">
+<style>
+  /* Hero */
+  .legal-hero {
+    background: linear-gradient(135deg, #1F5F3A 0%, #0F3B22 60%, #6FBF73 120%);
+    border-radius: 18px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .legal-hero::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -10%;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(232,163,23,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .legal-hero__badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #E8A317;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 2;
+  }
+  .legal-hero h1 {
+    font-family: 'Poppins';
+    font-size: 1.7rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    position: relative;
+    z-index: 2;
+  }
+  .legal-hero p {
+    color: rgba(255,255,255,0.85);
+    font-size: .94rem;
+    margin: 0;
+    max-width: 580px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Tabs */
+  .legal-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .legal-tabs::-webkit-scrollbar { height: 4px; }
+  .legal-tabs::-webkit-scrollbar-thumb { background: rgba(232,163,23,0.3); border-radius: 2px; }
+  .legal-tab {
+    flex-shrink: 0;
+    background: var(--zoo-bg-card, #131816);
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4);
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: .86rem;
+    white-space: nowrap;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .legal-tab:hover {
+    background: rgba(232,163,23,0.1);
+    border-color: rgba(232,163,23,0.4);
+    color: var(--zoo-text, #fff);
+  }
+  .legal-tab.is-active {
+    background: linear-gradient(135deg, #E8A317, #D68A0A);
+    color: #1f1d17;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(232,163,23,0.3);
+  }
+
+  /* Panels */
+  .legal-panel {
+    display: none;
+    background: var(--zoo-bg-card, #131816);
+    border: 1px solid var(--zoo-border, #1e2522);
+    border-radius: 14px;
+    padding: 24px;
+    animation: legalFadeIn .25s ease-out;
+  }
+  .legal-panel.is-active { display: block; }
+  @keyframes legalFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .legal-header {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--zoo-border, #1e2522);
+  }
+  .legal-header__icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, rgba(111,191,115,0.25), rgba(42,164,213,0.2));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+  .legal-header__text h2 {
+    font-family: 'Poppins';
+    font-size: 1.2rem;
+    color: var(--zoo-text, #fff);
+    margin: 0 0 3px;
+  }
+  .legal-header__text p {
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .85rem;
+    margin: 0;
+  }
+
+  /* Forms compartidos */
+  .legal-field { display: flex; flex-direction: column; margin-bottom: 14px; }
+  .legal-field label {
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .78rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .legal-field input, .legal-field select, .legal-field textarea {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid var(--zoo-border-strong, #2a3530) !important;
+    color: var(--zoo-text, #fff) !important;
+    padding: 11px 13px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: .95rem;
+  }
+  [data-theme="light"] .legal-field input,
+  [data-theme="light"] .legal-field select,
+  [data-theme="light"] .legal-field textarea {
+    background: #fff !important;
+    border: 1px solid #d0d4cb !important;
+    color: #1a1d1b !important;
+  }
+  .legal-field input:focus, .legal-field select:focus, .legal-field textarea:focus {
+    outline: 0;
+    border-color: #E8A317 !important;
+  }
+  .legal-field select option { background: #131816; color: #fff; }
+  [data-theme="light"] .legal-field select option { background: #fff; color: #1a1d1b; }
+
+  .legal-grid2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  /* Botones */
+  .legal-btn-primary {
+    background: linear-gradient(135deg, #E8A317, #D68A0A);
+    color: #1f1d17;
+    border: 0;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-family: 'Poppins';
+    font-weight: 700;
+    cursor: pointer;
+    font-size: .95rem;
+  }
+  .legal-btn-primary:hover {
+    box-shadow: 0 6px 18px rgba(232,163,23,0.35);
+    transform: translateY(-1px);
+  }
+  .legal-btn-secondary {
+    background: transparent;
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4);
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ══════════════ TAB 1: NOM-059 ══════════════ */
+  .nom-search-wrap {
+    margin-bottom: 16px;
+  }
+  .nom-search-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text, #fff);
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+  }
+  [data-theme="light"] .nom-search-wrap input {
+    background: #fff;
+    border: 2px solid #d0d4cb;
+    color: #1a1d1b;
+  }
+  .nom-search-wrap input:focus {
+    outline: 0;
+    border-color: #E8A317;
+  }
+  .nom-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .nom-filter-chip {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    background: transparent;
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .78rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .nom-filter-chip:hover { border-color: rgba(232,163,23,0.4); color: #fff; }
+  .nom-filter-chip.is-active {
+    background: rgba(232,163,23,0.15);
+    border-color: #E8A317;
+    color: #E8A317;
+  }
+  .nom-results {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .nom-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--zoo-border, #1e2522);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all .2s;
+  }
+  .nom-card:hover {
+    border-color: rgba(232,163,23,0.3);
+    background: rgba(255,255,255,0.05);
+  }
+  .nom-card__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .nom-card__sp {
+    font-family: 'Poppins';
+    color: var(--zoo-text, #fff);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .nom-card__sci {
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-style: italic;
+    font-size: .92rem;
+  }
+  .nom-card__group {
+    color: var(--zoo-text-dim, #6b7370);
+    font-size: .8rem;
+  }
+  .nom-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .nom-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+  }
+  .nom-badge.p { background: rgba(213,90,40,0.2); color: #D55A28; border: 1px solid rgba(213,90,40,0.4); }
+  .nom-badge.e { background: rgba(213,90,40,0.15); color: #E07856; border: 1px solid rgba(213,90,40,0.3); }
+  .nom-badge.a { background: rgba(232,163,23,0.2); color: #E8A317; border: 1px solid rgba(232,163,23,0.4); }
+  .nom-badge.pr { background: rgba(42,164,213,0.2); color: #2AA4D5; border: 1px solid rgba(42,164,213,0.4); }
+  .nom-badge.cites { background: rgba(111,191,115,0.15); color: #6FBF73; border: 1px solid rgba(111,191,115,0.3); }
+  .nom-badge.iucn { background: rgba(255,255,255,0.08); color: var(--zoo-text, #e5e9e7); border: 1px solid var(--zoo-border-strong, #2a3530); }
+  .nom-card__actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--zoo-border, #1e2522);
+    flex-wrap: wrap;
+  }
+  .nom-copy-btn {
+    background: transparent;
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4);
+    padding: 5px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: .78rem;
+    font-weight: 600;
+  }
+  .nom-copy-btn:hover {
+    background: rgba(232,163,23,0.1);
+    border-color: #E8A317;
+    color: #E8A317;
+  }
+  .nom-legend {
+    background: rgba(42,164,213,0.06);
+    border: 1px solid rgba(42,164,213,0.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: .82rem;
+    color: var(--zoo-text-muted, #a0a8a4);
+    line-height: 1.55;
+  }
+  .nom-legend strong { color: var(--zoo-text, #fff); }
+  .nom-empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--zoo-text-muted, #a0a8a4);
+  }
+  .nom-stat-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    font-size: .82rem;
+  }
+  .nom-stat {
+    background: rgba(255,255,255,0.04);
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: var(--zoo-text-muted, #a0a8a4);
+  }
+  .nom-stat strong { color: #E8A317; }
+
+  /* ══════════════ TAB 2: UMA ══════════════ */
+  .uma-form-section {
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--zoo-border, #1e2522);
+  }
+  .uma-form-section:last-of-type { border-bottom: 0; }
+  .uma-section-title {
+    color: #E8A317;
+    font-family: 'Poppins';
+    font-weight: 700;
+    font-size: .92rem;
+    margin-bottom: 12px;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .uma-event-type {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .uma-event {
+    padding: 14px 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+  }
+  .uma-event:hover { border-color: rgba(232,163,23,0.5); }
+  .uma-event.is-selected {
+    background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(213,90,40,0.15));
+    border-color: #E8A317;
+  }
+  .uma-event__icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .uma-event__label {
+    color: var(--zoo-text, #fff);
+    font-weight: 700;
+    font-size: .82rem;
+  }
+  .uma-preview-box {
+    margin-top: 18px;
+    padding: 20px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--zoo-border, #1e2522);
+    border-radius: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: .86rem;
+    line-height: 1.6;
+    color: var(--zoo-text, #e5e9e7);
+    white-space: pre-wrap;
+    max-height: 500px;
+    overflow-y: auto;
+    display: none;
+  }
+  [data-theme="light"] .uma-preview-box {
+    background: #f5f6f4;
+  }
+  .uma-preview-box.is-visible { display: block; }
+
+  /* ══════════════ TAB 3: CUOTAS ══════════════ */
+  .cuota-categories {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .cuota-cat {
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: .82rem;
+    font-weight: 700;
+  }
+  .cuota-cat:hover { border-color: rgba(232,163,23,0.4); color: #fff; }
+  .cuota-cat.is-active {
+    background: linear-gradient(135deg, #6FBF73, #3d8b42);
+    color: #fff;
+    border-color: transparent;
+  }
+  .cuota-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--zoo-border, #1e2522);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .cuota-item__info { flex: 1; min-width: 180px; }
+  .cuota-item__title {
+    font-family: 'Poppins';
+    color: var(--zoo-text, #fff);
+    font-weight: 700;
+    font-size: .95rem;
+    margin-bottom: 3px;
+  }
+  .cuota-item__code {
+    color: var(--zoo-text-dim, #6b7370);
+    font-size: .74rem;
+    font-family: 'Courier New', monospace;
+  }
+  .cuota-item__price {
+    font-family: 'Poppins';
+    font-weight: 800;
+    color: #6FBF73;
+    font-size: 1.15rem;
+    white-space: nowrap;
+  }
+  .cuota-total {
+    background: linear-gradient(135deg, rgba(111,191,115,0.15), rgba(42,164,213,0.1));
+    border: 1px solid rgba(111,191,115,0.3);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .cuota-total__label {
+    color: var(--zoo-text, #fff);
+    font-weight: 700;
+  }
+  .cuota-total__amount {
+    font-family: 'Poppins';
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: #6FBF73;
+  }
+  .cuota-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cuota-selector button {
+    width: 28px;
+    height: 28px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text, #fff);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .cuota-selector span {
+    min-width: 28px;
+    text-align: center;
+    color: var(--zoo-text, #fff);
+    font-weight: 700;
+  }
+
+  .legal-disclaimer {
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: rgba(213,90,40,0.08);
+    border-left: 3px solid #D55A28;
+    border-radius: 8px;
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .82rem;
+    line-height: 1.55;
+  }
+  .legal-disclaimer strong { color: #D55A28; }
+
+  @media (max-width: 600px) {
+    .legal-hero { padding: 20px; }
+    .legal-hero h1 { font-size: 1.35rem; }
+    .legal-panel { padding: 18px; }
+    .legal-header__text h2 { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+<div class="club-layout">
+  <aside class="club-sidebar" id="sidebar"></aside>
+  <main class="club-main">
+
+    <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
+
+    <!-- Hero -->
+    <div class="legal-hero">
+      <span class="legal-hero__badge">⚖️ EXCLUSIVO VIP</span>
+      <h1>Herramientas Legales</h1>
+      <p>NOM-059, generador de informes UMA/PIMVS y calculadora de cuotas SEMARNAT. Todo lo que un biólogo/veterinario mexicano necesita para cumplir la normativa.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="legal-tabs">
+      <button class="legal-tab is-active" data-tab="nom">📜 NOM-059 · Especies</button>
+      <button class="legal-tab" data-tab="uma">📋 Informes UMA</button>
+      <button class="legal-tab" data-tab="cuotas">💰 Cuotas SEMARNAT</button>
+    </div>
+
+    <!-- ══════════════ 1. NOM-059 ══════════════ -->
+    <div class="legal-panel is-active" id="panel-nom">
+      <div class="legal-header">
+        <div class="legal-header__icon">📜</div>
+        <div class="legal-header__text">
+          <h2>Consulta NOM-059-SEMARNAT-2010</h2>
+          <p>Especies en riesgo de México · IUCN · CITES · Categorías de riesgo</p>
+        </div>
+      </div>
+
+      <div class="nom-legend">
+        <strong>Categorías NOM-059:</strong>
+        <span class="nom-badge p" style="margin-left:6px;">P · Peligro extinción</span>
+        <span class="nom-badge e">E · Extinta en libertad</span>
+        <span class="nom-badge a">A · Amenazada</span>
+        <span class="nom-badge pr">Pr · Sujeta protección especial</span>
+      </div>
+
+      <div class="nom-search-wrap">
+        <input type="text" id="nomSearch" placeholder="🔍 Buscar por nombre común o científico (ej. jaguar, Panthera, guacamaya...)" oninput="buscarNOM()">
+      </div>
+
+      <div class="nom-filters" id="nomFilters">
+        <button class="nom-filter-chip is-active" data-filter="all">Todas</button>
+        <button class="nom-filter-chip" data-filter="P">🔴 Peligro (P)</button>
+        <button class="nom-filter-chip" data-filter="A">🟡 Amenazada (A)</button>
+        <button class="nom-filter-chip" data-filter="Pr">🔵 Protección especial (Pr)</button>
+        <button class="nom-filter-chip" data-filter="E">⚫ Extinta (E)</button>
+      </div>
+
+      <div class="nom-stat-bar" id="nomStats"></div>
+
+      <div class="nom-results" id="nomResults"></div>
+
+      <div class="legal-disclaimer">
+        <strong>ℹ️ Referencia:</strong> Base de datos con 40+ especies mexicanas prioritarias. Consulta el DOF completo de la NOM-059-SEMARNAT-2010 y sus modificaciones (2019) para lista oficial completa. Para autorización de colecta/aprovechamiento siempre verifica el registro SEMARNAT actualizado.
+      </div>
+    </div>
+
+    <!-- ══════════════ 2. UMA ══════════════ -->
+    <div class="legal-panel" id="panel-uma">
+      <div class="legal-header">
+        <div class="legal-header__icon">📋</div>
+        <div class="legal-header__text">
+          <h2>Generador de informes UMA/PIMVS</h2>
+          <p>Plantillas oficiales SEMARNAT · Altas · Bajas · Nacimientos · Muertes</p>
+        </div>
+      </div>
+
+      <div class="uma-form-section">
+        <div class="uma-section-title">1. Tipo de evento</div>
+        <div class="uma-event-type">
+          <div class="uma-event is-selected" data-event="alta">
+            <div class="uma-event__icon">➕</div>
+            <div class="uma-event__label">Alta / Ingreso</div>
+          </div>
+          <div class="uma-event" data-event="baja">
+            <div class="uma-event__icon">➖</div>
+            <div class="uma-event__label">Baja / Salida</div>
+          </div>
+          <div class="uma-event" data-event="nacimiento">
+            <div class="uma-event__icon">🐣</div>
+            <div class="uma-event__label">Nacimiento</div>
+          </div>
+          <div class="uma-event" data-event="muerte">
+            <div class="uma-event__icon">💀</div>
+            <div class="uma-event__label">Muerte</div>
+          </div>
+          <div class="uma-event" data-event="traslado">
+            <div class="uma-event__icon">🔄</div>
+            <div class="uma-event__label">Traslado</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="uma-form-section">
+        <div class="uma-section-title">2. Datos de la UMA</div>
+        <div class="legal-grid2">
+          <div class="legal-field">
+            <label>Nombre o razón social UMA</label>
+            <input type="text" id="umaNombre" placeholder="Ej. Rancho Los Venados S.A. de C.V.">
+          </div>
+          <div class="legal-field">
+            <label>Registro SEMARNAT (SEMARNAT-UMA-...)</label>
+            <input type="text" id="umaRegistro" placeholder="Ej. SEMARNAT-UMA-EX-0145-PUE">
+          </div>
+          <div class="legal-field">
+            <label>Responsable técnico</label>
+            <input type="text" id="umaResponsable" placeholder="Ej. Biól. Juan Pérez González">
+          </div>
+          <div class="legal-field">
+            <label>Cédula profesional</label>
+            <input type="text" id="umaCedula" placeholder="Ej. 12345678">
+          </div>
+        </div>
+      </div>
+
+      <div class="uma-form-section">
+        <div class="uma-section-title">3. Datos del espécimen</div>
+        <div class="legal-grid2">
+          <div class="legal-field">
+            <label>Nombre común</label>
+            <input type="text" id="umaSpComun" placeholder="Ej. Venado cola blanca">
+          </div>
+          <div class="legal-field">
+            <label>Nombre científico</label>
+            <input type="text" id="umaSpCientifico" placeholder="Ej. Odocoileus virginianus">
+          </div>
+          <div class="legal-field">
+            <label>Sexo</label>
+            <select id="umaSexo">
+              <option value="M">Macho (M)</option>
+              <option value="H">Hembra (H)</option>
+              <option value="I">Indeterminado (I)</option>
+            </select>
+          </div>
+          <div class="legal-field">
+            <label>Edad estimada</label>
+            <input type="text" id="umaEdad" placeholder="Ej. 3 años / Adulto / Cría">
+          </div>
+          <div class="legal-field">
+            <label>Marca / Arete / Chip</label>
+            <input type="text" id="umaMarca" placeholder="Ej. Chip 900182000123456">
+          </div>
+          <div class="legal-field">
+            <label>Fecha del evento</label>
+            <input type="date" id="umaFecha">
+          </div>
+        </div>
+      </div>
+
+      <div class="uma-form-section" id="umaOrigenSection">
+        <div class="uma-section-title">4. Origen / Destino</div>
+        <div class="legal-grid2">
+          <div class="legal-field">
+            <label>Origen (procedencia)</label>
+            <input type="text" id="umaOrigen" placeholder="Ej. Nacido en UMA · UMA Los Pinos SEMARNAT-UMA-...">
+          </div>
+          <div class="legal-field">
+            <label>Destino (si aplica)</label>
+            <input type="text" id="umaDestino" placeholder="Ej. UMA receptora · PIMVS Chapultepec">
+          </div>
+        </div>
+        <div class="legal-field">
+          <label>Causa / Motivo (si es muerte/baja)</label>
+          <textarea id="umaCausa" rows="2" placeholder="Ej. Muerte natural por vejez confirmada con necropsia / Venta / Liberación autorizada..."></textarea>
+        </div>
+        <div class="legal-field">
+          <label>Observaciones adicionales</label>
+          <textarea id="umaObs" rows="2" placeholder="Datos clínicos, hallazgos de necropsia, procedencia, etc."></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="legal-btn-primary" onclick="generarInformeUMA()">📄 Generar informe</button>
+        <button class="legal-btn-secondary" onclick="copiarInformeUMA()">📋 Copiar al portapapeles</button>
+        <button class="legal-btn-secondary" onclick="descargarInformeUMA()">💾 Descargar .txt</button>
+      </div>
+
+      <div class="uma-preview-box" id="umaPreview"></div>
+
+      <div class="legal-disclaimer">
+        <strong>⚠️ Aviso:</strong> Este generador produce un informe base que debes complementar con formato oficial SEMARNAT. Presenta el informe anual UMA entre los meses de marzo-abril de cada año vía SIMEC o directamente en Delegación SEMARNAT. Conserva respaldo físico y digital por 5 años mínimo.
+      </div>
+    </div>
+
+    <!-- ══════════════ 3. CUOTAS SEMARNAT ══════════════ -->
+    <div class="legal-panel" id="panel-cuotas">
+      <div class="legal-header">
+        <div class="legal-header__icon">💰</div>
+        <div class="legal-header__text">
+          <h2>Cuotas SEMARNAT 2026</h2>
+          <p>Trámites · Refrendos · Permisos · Cálculo de costos acumulados</p>
+        </div>
+      </div>
+
+      <div class="cuota-categories" id="cuotaCategorias">
+        <button class="cuota-cat is-active" data-cat="all">Todos los trámites</button>
+        <button class="cuota-cat" data-cat="uma">🦌 UMA</button>
+        <button class="cuota-cat" data-cat="pimvs">🏭 PIMVS</button>
+        <button class="cuota-cat" data-cat="colecta">🧪 Colecta científica</button>
+        <button class="cuota-cat" data-cat="mia">📝 MIA</button>
+        <button class="cuota-cat" data-cat="cites">🌐 CITES</button>
+        <button class="cuota-cat" data-cat="liberacion">🦅 Liberación</button>
+      </div>
+
+      <div class="cuota-list" id="cuotaList"></div>
+
+      <div class="cuota-total" id="cuotaTotal" style="display:none;">
+        <div>
+          <div class="cuota-total__label">Total seleccionado (<span id="cuotaCount">0</span> trámite<span id="cuotaS">s</span>)</div>
+          <div style="color:var(--zoo-text-muted);font-size:.82rem;margin-top:3px;">Incluye DPA federal · No incluye IVA ni gastos locales</div>
+        </div>
+        <div class="cuota-total__amount" id="cuotaMonto">$0.00 MXN</div>
+      </div>
+
+      <div class="legal-disclaimer">
+        <strong>ℹ️ Fuente:</strong> Ley Federal de Derechos 2026, Secc. II (SEMARNAT) · Valores base actualizados anualmente por INPC. Verifica tarifas vigentes en <a href="https://www.gob.mx/semarnat" target="_blank" style="color:#6FBF73;">gob.mx/semarnat</a> antes de pagar. Los pagos se realizan vía e5cinco con formato HGI7.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script src="../assets/js/club.js"></script>
+<script>
+(async () => {
+  const session = await ZOORIGEN_CLUB.requireAuth();
+  if (!session) return;
+  if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+  document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('legal', session);
+  if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
+  // Tabs
+  document.querySelectorAll('.legal-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.legal-tab').forEach(t => t.classList.remove('is-active'));
+      document.querySelectorAll('.legal-panel').forEach(p => p.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('is-active');
+    });
+  });
+
+  // Filtros NOM
+  document.querySelectorAll('.nom-filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.nom-filter-chip').forEach(c => c.classList.remove('is-active'));
+      chip.classList.add('is-active');
+      buscarNOM();
+    });
+  });
+
+  // UMA events
+  document.querySelectorAll('.uma-event').forEach(e => {
+    e.addEventListener('click', () => {
+      document.querySelectorAll('.uma-event').forEach(x => x.classList.remove('is-selected'));
+      e.classList.add('is-selected');
+    });
+  });
+
+  // UMA: fecha default = hoy
+  document.getElementById('umaFecha').valueAsDate = new Date();
+
+  // Cuotas categorías
+  document.querySelectorAll('.cuota-cat').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.cuota-cat').forEach(x => x.classList.remove('is-active'));
+      c.classList.add('is-active');
+      renderCuotas(c.dataset.cat);
+    });
+  });
+
+  // Inicializar
+  renderNOM();
+  renderCuotas('all');
+})();
+
+// ═══════════════ BASE DE DATOS NOM-059 ═══════════════
+// P = Peligro de extinción · A = Amenazada · Pr = Protección especial · E = Probablemente extinta en libertad
+const NOM059 = [
+  // MAMÍFEROS
+  { comun: 'Jaguar', cientifico: 'Panthera onca', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'NT', dist: 'Selvas y bosques tropicales del sur de México' },
+  { comun: 'Ocelote', cientifico: 'Leopardus pardalis', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'LC', dist: 'Bosques tropicales y subtropicales' },
+  { comun: 'Tigrillo / Margay', cientifico: 'Leopardus wiedii', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'NT', dist: 'Bosques tropicales' },
+  { comun: 'Jaguarundi', cientifico: 'Herpailurus yagouaroundi', grupo: 'Mamíferos', cat: 'A', cites: 'I', iucn: 'LC', dist: 'Ecosistemas tropicales y subtropicales' },
+  { comun: 'Puma', cientifico: 'Puma concolor', grupo: 'Mamíferos', cat: 'Pr', cites: 'II', iucn: 'LC', dist: 'Amplia distribución' },
+  { comun: 'Oso negro', cientifico: 'Ursus americanus', grupo: 'Mamíferos', cat: 'P', cites: 'II', iucn: 'LC', dist: 'Sierras del norte' },
+  { comun: 'Lobo mexicano', cientifico: 'Canis lupus baileyi', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'CR', dist: 'Reintroducido en Chihuahua y Sonora' },
+  { comun: 'Mono araña', cientifico: 'Ateles geoffroyi', grupo: 'Mamíferos', cat: 'P', cites: 'II', iucn: 'EN', dist: 'Selvas de Veracruz, Chiapas, Yucatán' },
+  { comun: 'Mono aullador', cientifico: 'Alouatta palliata', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'VU', dist: 'Selvas del sureste' },
+  { comun: 'Mono aullador negro', cientifico: 'Alouatta pigra', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'EN', dist: 'Chiapas, Tabasco, Campeche' },
+  { comun: 'Tapir centroamericano', cientifico: 'Tapirus bairdii', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'EN', dist: 'Selvas del sureste' },
+  { comun: 'Berrendo', cientifico: 'Antilocapra americana', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'LC', dist: 'Desiertos del norte' },
+  { comun: 'Borrego cimarrón', cientifico: 'Ovis canadensis', grupo: 'Mamíferos', cat: 'Pr', cites: 'II', iucn: 'LC', dist: 'Sierras del noroeste' },
+  { comun: 'Armadillo de Davis', cientifico: 'Dasypus mexicanus', grupo: 'Mamíferos', cat: 'A', cites: '—', iucn: 'DD', dist: 'Endémico de Chihuahua' },
+  { comun: 'Perrito de la pradera', cientifico: 'Cynomys mexicanus', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'EN', dist: 'Endémico de Coahuila/NL/SLP' },
+  { comun: 'Teporingo (zacatuche)', cientifico: 'Romerolagus diazi', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'EN', dist: 'Endémico eje volcánico transversal' },
+  { comun: 'Manatí antillano', cientifico: 'Trichechus manatus', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'VU', dist: 'Ríos y costas del Golfo' },
+  { comun: 'Vaquita marina', cientifico: 'Phocoena sinus', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'CR', dist: 'Endémico Alto Golfo de California' },
+
+  // AVES
+  { comun: 'Águila real', cientifico: 'Aquila chrysaetos', grupo: 'Aves', cat: 'A', cites: 'II', iucn: 'LC', dist: 'Sierras del norte y centro' },
+  { comun: 'Águila arpía', cientifico: 'Harpia harpyja', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'VU', dist: 'Selvas de Chiapas' },
+  { comun: 'Halcón peregrino', cientifico: 'Falco peregrinus', grupo: 'Aves', cat: 'Pr', cites: 'I', iucn: 'LC', dist: 'Migratoria, todo México' },
+  { comun: 'Guacamaya roja', cientifico: 'Ara macao', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'LC', dist: 'Selvas de Chiapas' },
+  { comun: 'Guacamaya verde', cientifico: 'Ara militaris', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'VU', dist: 'Sierras del occidente' },
+  { comun: 'Loro cabeza amarilla', cientifico: 'Amazona oratrix', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'EN', dist: 'Costa del Pacífico y Golfo' },
+  { comun: 'Loro tamaulipeco', cientifico: 'Amazona viridigenalis', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'EN', dist: 'Noreste de México' },
+  { comun: 'Pavón cornudo', cientifico: 'Oreophasis derbianus', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'EN', dist: 'Bosques nublados de Chiapas' },
+  { comun: 'Quetzal', cientifico: 'Pharomachrus mocinno', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'NT', dist: 'Bosques nublados de Chiapas' },
+  { comun: 'Flamenco americano', cientifico: 'Phoenicopterus ruber', grupo: 'Aves', cat: 'A', cites: 'II', iucn: 'LC', dist: 'Costa del Golfo y Caribe' },
+  { comun: 'Pelícano café', cientifico: 'Pelecanus occidentalis', grupo: 'Aves', cat: 'A', cites: '—', iucn: 'LC', dist: 'Costas del Pacífico y Caribe' },
+  { comun: 'Tecolote llanero', cientifico: 'Athene cunicularia', grupo: 'Aves', cat: 'A', cites: 'II', iucn: 'LC', dist: 'Llanuras y matorrales' },
+  { comun: 'Cóndor de California', cientifico: 'Gymnogyps californianus', grupo: 'Aves', cat: 'E', cites: 'I', iucn: 'CR', dist: 'Extinto en libertad en México' },
+
+  // REPTILES
+  { comun: 'Cocodrilo de río', cientifico: 'Crocodylus acutus', grupo: 'Reptiles', cat: 'Pr', cites: 'II', iucn: 'VU', dist: 'Costas y estuarios' },
+  { comun: 'Cocodrilo de pantano', cientifico: 'Crocodylus moreletii', grupo: 'Reptiles', cat: 'Pr', cites: 'II', iucn: 'LC', dist: 'Humedales del sureste' },
+  { comun: 'Iguana verde', cientifico: 'Iguana iguana', grupo: 'Reptiles', cat: 'Pr', cites: 'II', iucn: 'LC', dist: 'Costas del sur' },
+  { comun: 'Iguana espinosa negra', cientifico: 'Ctenosaura pectinata', grupo: 'Reptiles', cat: 'A', cites: '—', iucn: 'LC', dist: 'Pacífico mexicano' },
+  { comun: 'Tortuga carey', cientifico: 'Eretmochelys imbricata', grupo: 'Reptiles', cat: 'P', cites: 'I', iucn: 'CR', dist: 'Costas del Caribe y Golfo' },
+  { comun: 'Tortuga lora', cientifico: 'Lepidochelys kempii', grupo: 'Reptiles', cat: 'P', cites: 'I', iucn: 'CR', dist: 'Golfo de México' },
+  { comun: 'Tortuga laúd', cientifico: 'Dermochelys coriacea', grupo: 'Reptiles', cat: 'P', cites: 'I', iucn: 'VU', dist: 'Costas del Pacífico' },
+  { comun: 'Tortuga blanca', cientifico: 'Chelonia mydas', grupo: 'Reptiles', cat: 'P', cites: 'I', iucn: 'EN', dist: 'Costas del Pacífico y Caribe' },
+  { comun: 'Monstruo de Gila', cientifico: 'Heloderma suspectum', grupo: 'Reptiles', cat: 'A', cites: 'II', iucn: 'LC', dist: 'Desiertos del noroeste' },
+  { comun: 'Escorpión yucateco', cientifico: 'Heloderma horridum exasperatum', grupo: 'Reptiles', cat: 'A', cites: 'II', iucn: 'LC', dist: 'Occidente de México' },
+  { comun: 'Víbora de cascabel', cientifico: 'Crotalus durissus', grupo: 'Reptiles', cat: 'Pr', cites: '—', iucn: 'LC', dist: 'Zonas áridas y bosques secos' },
+
+  // ANFIBIOS
+  { comun: 'Ajolote mexicano', cientifico: 'Ambystoma mexicanum', grupo: 'Anfibios', cat: 'P', cites: 'II', iucn: 'CR', dist: 'Endémico de Xochimilco' },
+  { comun: 'Rana de Moctezuma', cientifico: 'Lithobates montezumae', grupo: 'Anfibios', cat: 'A', cites: '—', iucn: 'LC', dist: 'Centro de México' },
+
+  // PECES
+  { comun: 'Totoaba', cientifico: 'Totoaba macdonaldi', grupo: 'Peces', cat: 'P', cites: 'I', iucn: 'VU', dist: 'Endémico Golfo de California' },
+  { comun: 'Tiburón ballena', cientifico: 'Rhincodon typus', grupo: 'Peces', cat: 'A', cites: 'II', iucn: 'EN', dist: 'Caribe y Pacífico' }
+];
+
+const CAT_LABELS = {
+  'P': 'En Peligro de Extinción',
+  'A': 'Amenazada',
+  'Pr': 'Sujeta a Protección Especial',
+  'E': 'Probablemente Extinta en Libertad'
+};
+
+let nomFilterCat = 'all';
+
+function renderNOM(items = NOM059) {
+  const container = document.getElementById('nomResults');
+  const stats = document.getElementById('nomStats');
+
+  // Stats
+  const total = items.length;
+  const countP = items.filter(x => x.cat === 'P').length;
+  const countA = items.filter(x => x.cat === 'A').length;
+  const countPr = items.filter(x => x.cat === 'Pr').length;
+  stats.innerHTML = `
+    <div class="nom-stat"><strong>${total}</strong> especies</div>
+    <div class="nom-stat">🔴 <strong>${countP}</strong> peligro</div>
+    <div class="nom-stat">🟡 <strong>${countA}</strong> amenazada</div>
+    <div class="nom-stat">🔵 <strong>${countPr}</strong> protección</div>
+  `;
+
+  if (items.length === 0) {
+    container.innerHTML = `<div class="nom-empty">
+      <div style="font-size:2.5rem;margin-bottom:10px;">🔍</div>
+      <div>Sin resultados. Intenta con otro nombre.</div>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = items.map(sp => {
+    const catClass = sp.cat.toLowerCase().replace(/\s+/g, '');
+    return `
+    <div class="nom-card">
+      <div class="nom-card__top">
+        <div>
+          <div class="nom-card__sp">${sp.comun}</div>
+          <div class="nom-card__sci">${sp.cientifico}</div>
+          <div class="nom-card__group">📍 ${sp.grupo} · ${sp.dist}</div>
+        </div>
+      </div>
+      <div class="nom-badges">
+        <span class="nom-badge ${catClass}">NOM-059: ${sp.cat} · ${CAT_LABELS[sp.cat]}</span>
+        ${sp.cites !== '—' ? `<span class="nom-badge cites">CITES ${sp.cites}</span>` : ''}
+        <span class="nom-badge iucn">IUCN: ${sp.iucn}</span>
+      </div>
+      <div class="nom-card__actions">
+        <button class="nom-copy-btn" onclick="copiarNOM('${sp.comun.replace(/'/g, "\\'")}', '${sp.cientifico.replace(/'/g, "\\'")}', '${sp.cat}', '${sp.cites}', '${sp.iucn}')">📋 Copiar cita legal</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buscarNOM() {
+  const q = document.getElementById('nomSearch').value.toLowerCase().trim();
+  const activeChip = document.querySelector('.nom-filter-chip.is-active');
+  nomFilterCat = activeChip ? activeChip.dataset.filter : 'all';
+
+  let results = NOM059;
+  if (nomFilterCat !== 'all') {
+    results = results.filter(x => x.cat === nomFilterCat);
+  }
+  if (q) {
+    results = results.filter(x =>
+      x.comun.toLowerCase().includes(q) ||
+      x.cientifico.toLowerCase().includes(q) ||
+      x.grupo.toLowerCase().includes(q)
+    );
+  }
+  renderNOM(results);
+}
+
+function copiarNOM(comun, cientifico, cat, cites, iucn) {
+  const texto = `${comun} (${cientifico}) está catalogada como "${CAT_LABELS[cat]}" (categoría ${cat}) en la NOM-059-SEMARNAT-2010. Apéndice CITES: ${cites}. Estado IUCN: ${iucn}.`;
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('✓ Cita copiada al portapapeles');
+  });
+}
+
+// ═══════════════ UMA ═══════════════
+function generarInformeUMA() {
+  const tipo = document.querySelector('.uma-event.is-selected')?.dataset.event || 'alta';
+  const nombre = document.getElementById('umaNombre').value || '[NOMBRE UMA]';
+  const registro = document.getElementById('umaRegistro').value || '[REGISTRO SEMARNAT]';
+  const resp = document.getElementById('umaResponsable').value || '[RESPONSABLE TÉCNICO]';
+  const cedula = document.getElementById('umaCedula').value || '[CÉDULA]';
+  const spC = document.getElementById('umaSpComun').value || '[NOMBRE COMÚN]';
+  const spS = document.getElementById('umaSpCientifico').value || '[NOMBRE CIENTÍFICO]';
+  const sexo = document.getElementById('umaSexo').value;
+  const edad = document.getElementById('umaEdad').value || '[EDAD]';
+  const marca = document.getElementById('umaMarca').value || 'Sin marca';
+  const fecha = document.getElementById('umaFecha').value || new Date().toISOString().slice(0, 10);
+  const origen = document.getElementById('umaOrigen').value || '[ORIGEN]';
+  const destino = document.getElementById('umaDestino').value || 'N/A';
+  const causa = document.getElementById('umaCausa').value || 'N/A';
+  const obs = document.getElementById('umaObs').value || 'Sin observaciones adicionales';
+
+  const tiposLabel = {
+    alta: 'ALTA / INGRESO A LA UMA',
+    baja: 'BAJA / EGRESO DE LA UMA',
+    nacimiento: 'REGISTRO DE NACIMIENTO',
+    muerte: 'REGISTRO DE MUERTE',
+    traslado: 'TRASLADO DE EJEMPLAR'
+  };
+
+  const sexoLabel = { M: 'Macho', H: 'Hembra', I: 'Indeterminado' };
+
+  const fechaFmt = new Date(fecha).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  const informe = `
+════════════════════════════════════════════════════════
+INFORME DE ${tiposLabel[tipo]}
+UNIDAD DE MANEJO PARA LA CONSERVACIÓN DE LA VIDA SILVESTRE
+════════════════════════════════════════════════════════
+
+FECHA DEL EVENTO: ${fechaFmt}
+FECHA DE ELABORACIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+
+─── DATOS DE LA UMA ───
+Nombre o razón social: ${nombre}
+Registro SEMARNAT:     ${registro}
+Responsable técnico:   ${resp}
+Cédula profesional:    ${cedula}
+
+─── DATOS DEL EJEMPLAR ───
+Nombre común:        ${spC}
+Nombre científico:   ${spS}
+Sexo:                ${sexoLabel[sexo]} (${sexo})
+Edad:                ${edad}
+Marca/Arete/Chip:    ${marca}
+
+─── ORIGEN Y DESTINO ───
+Origen / Procedencia: ${origen}
+Destino:              ${destino}
+
+${tipo === 'muerte' || tipo === 'baja' ? `─── CAUSA / MOTIVO ───
+${causa}
+
+` : ''}─── OBSERVACIONES ───
+${obs}
+
+════════════════════════════════════════════════════════
+Bajo protesta de decir verdad, manifiesto que los datos
+contenidos en este informe son verdaderos y se rinden
+conforme al Art. 40 de la LGVS y el Art. 30 del RLGVS.
+
+__________________________________________
+${resp}
+Responsable Técnico · Céd. ${cedula}
+
+FUNDAMENTO LEGAL:
+• Ley General de Vida Silvestre (LGVS), Arts. 39-49
+• Reglamento de la LGVS, Arts. 26-32
+• NOM-059-SEMARNAT-2010
+════════════════════════════════════════════════════════`;
+
+  const preview = document.getElementById('umaPreview');
+  preview.textContent = informe.trim();
+  preview.classList.add('is-visible');
+  preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  window.__umaTextoActual = informe.trim();
+}
+
+function copiarInformeUMA() {
+  if (!window.__umaTextoActual) {
+    alert('⚠️ Primero genera el informe con el botón "Generar informe".');
+    return;
+  }
+  navigator.clipboard.writeText(window.__umaTextoActual).then(() => {
+    alert('✓ Informe copiado al portapapeles');
+  });
+}
+
+function descargarInformeUMA() {
+  if (!window.__umaTextoActual) {
+    alert('⚠️ Primero genera el informe.');
+    return;
+  }
+  const blob = new Blob([window.__umaTextoActual], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `informe-UMA-${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════ CUOTAS SEMARNAT 2026 ═══════════════
+// Tarifas aproximadas Ley Federal de Derechos 2026
+const CUOTAS = [
+  // UMA
+  { cat: 'uma', code: 'DOF-194-A', title: 'Registro inicial de UMA Extensiva', desc: 'Primer registro', price: 2450 },
+  { cat: 'uma', code: 'DOF-194-B', title: 'Registro inicial de UMA Intensiva', desc: 'Primer registro', price: 3200 },
+  { cat: 'uma', code: 'DOF-194-C', title: 'Refrendo anual UMA', desc: 'Cada año fiscal', price: 1890 },
+  { cat: 'uma', code: 'DOF-194-D', title: 'Modificación del registro UMA', desc: 'Ampliación/cambio de responsable', price: 1650 },
+  { cat: 'uma', code: 'DOF-194-E', title: 'Aviso de cambio en plan de manejo', desc: 'Por trámite', price: 780 },
+
+  // PIMVS
+  { cat: 'pimvs', code: 'DOF-194-F', title: 'Registro inicial PIMVS', desc: 'Predio/Instalación que maneja vida silvestre', price: 4580 },
+  { cat: 'pimvs', code: 'DOF-194-G', title: 'Refrendo anual PIMVS', desc: 'Cada año fiscal', price: 2340 },
+  { cat: 'pimvs', code: 'DOF-194-H', title: 'Modificación PIMVS', desc: 'Cambios al registro', price: 1890 },
+
+  // Colecta científica
+  { cat: 'colecta', code: 'DOF-195-A', title: 'Permiso de colecta científica', desc: 'Flora y/o fauna (1 año)', price: 2150 },
+  { cat: 'colecta', code: 'DOF-195-B', title: 'Refrendo colecta científica', desc: 'Renovación anual', price: 1650 },
+  { cat: 'colecta', code: 'DOF-195-C', title: 'Colecta con fines de enseñanza', desc: 'Universidades, escuelas', price: 1250 },
+
+  // MIA (Manifestación de Impacto Ambiental)
+  { cat: 'mia', code: 'DOF-194-X', title: 'MIA Particular', desc: 'Proyecto < 100 ha', price: 22500 },
+  { cat: 'mia', code: 'DOF-194-Y', title: 'MIA Regional', desc: 'Proyecto > 100 ha o múltiples sitios', price: 58000 },
+  { cat: 'mia', code: 'DOF-194-Z', title: 'Informe Preventivo', desc: 'Actividades de bajo impacto', price: 11800 },
+  { cat: 'mia', code: 'DOF-194-W', title: 'Modificación de MIA aprobada', desc: 'Cambios sustanciales', price: 8900 },
+
+  // CITES
+  { cat: 'cites', code: 'DOF-194-CI', title: 'Certificado CITES de exportación', desc: 'Por certificado', price: 3400 },
+  { cat: 'cites', code: 'DOF-194-CR', title: 'Certificado CITES de reexportación', desc: 'Por certificado', price: 3400 },
+  { cat: 'cites', code: 'DOF-194-CI-I', title: 'Certificado CITES de importación', desc: 'Por certificado', price: 3400 },
+
+  // Liberación
+  { cat: 'liberacion', code: 'DOF-195-L1', title: 'Autorización liberación ordinaria', desc: 'Proyecto único', price: 1450 },
+  { cat: 'liberacion', code: 'DOF-195-L2', title: 'Autorización liberación de ejemplares confiscados', desc: 'Rehabilitación/rescate', price: 980 },
+  { cat: 'liberacion', code: 'DOF-195-L3', title: 'Programa de reintroducción', desc: 'Proyecto multi-anual', price: 5200 }
+];
+
+let cuotasSeleccionadas = {};
+
+function renderCuotas(filtro) {
+  const list = document.getElementById('cuotaList');
+  const items = filtro === 'all' ? CUOTAS : CUOTAS.filter(c => c.cat === filtro);
+
+  list.innerHTML = items.map(c => {
+    const cantidad = cuotasSeleccionadas[c.code] || 0;
+    return `
+    <div class="cuota-item">
+      <div class="cuota-item__info">
+        <div class="cuota-item__title">${c.title}</div>
+        <div class="cuota-item__code">${c.code} · ${c.desc}</div>
+      </div>
+      <div class="cuota-item__price">$${c.price.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN</div>
+      <div class="cuota-selector">
+        <button onclick="cambiarCuota('${c.code}', -1)">−</button>
+        <span>${cantidad}</span>
+        <button onclick="cambiarCuota('${c.code}', 1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  actualizarTotal();
+}
+
+function cambiarCuota(code, delta) {
+  const actual = cuotasSeleccionadas[code] || 0;
+  const nuevo = Math.max(0, actual + delta);
+  if (nuevo === 0) delete cuotasSeleccionadas[code];
+  else cuotasSeleccionadas[code] = nuevo;
+
+  const activeChip = document.querySelector('.cuota-cat.is-active');
+  renderCuotas(activeChip ? activeChip.dataset.cat : 'all');
+}
+
+function actualizarTotal() {
+  const totalBox = document.getElementById('cuotaTotal');
+  let total = 0;
+  let count = 0;
+  for (const code in cuotasSeleccionadas) {
+    const cuota = CUOTAS.find(c => c.code === code);
+    if (cuota) {
+      total += cuota.price * cuotasSeleccionadas[code];
+      count += cuotasSeleccionadas[code];
+    }
+  }
+  if (count === 0) {
+    totalBox.style.display = 'none';
+  } else {
+    totalBox.style.display = 'flex';
+    document.getElementById('cuotaCount').textContent = count;
+    document.getElementById('cuotaS').textContent = count === 1 ? '' : 's';
+    document.getElementById('cuotaMonto').textContent = `$${total.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN`;
+  }
+}
+</script>
+</body>
+</html>

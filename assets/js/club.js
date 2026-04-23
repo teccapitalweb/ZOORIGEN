@@ -1201,7 +1201,8 @@ const ZOORIGEN_CLUB = {
       { id: 'videos', label: 'Videos', icon: '🎥', href: 'club-videos.html' },
       { id: 'sesiones', label: 'Webinars en vivo', icon: '🎥', href: 'club-sesiones.html' },
       { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' },
-      { id: 'herramientas', label: 'Herramientas clínicas', icon: '🧬', href: 'club-herramientas.html' }
+      { id: 'herramientas', label: 'Herramientas clínicas', icon: '🧬', href: 'club-herramientas.html' },
+      { id: 'legal', label: 'Herramientas legales', icon: '⚖️', href: 'club-legal.html' }
     ];
     const itemsCuenta = [
       { id: 'logros', label: 'Mis logros', icon: '🏆', href: 'club-logros.html' },
