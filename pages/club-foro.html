@@ -11,89 +11,707 @@
   <link rel="stylesheet" href="../assets/css/club.css">
   <link rel="stylesheet" href="../assets/css/club-mobile.css">
   <link rel="stylesheet" href="../assets/css/club-theme.css">
+  <style>
+    .foro-hero {
+      background: linear-gradient(135deg, #1F5F3A 0%, #0F3B22 60%, #2AA4D5 110%);
+      border-radius: 18px;
+      padding: 28px 32px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      color: #fff;
+    }
+    .foro-hero::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(232,163,23,0.25) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .foro-hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #E8A317;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+    }
+    .foro-hero__live-dot {
+      width: 7px;
+      height: 7px;
+      background: #6FBF73;
+      border-radius: 50%;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.6; }
+    }
+    .foro-hero h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin: 0 0 8px;
+      position: relative;
+      z-index: 2;
+    }
+    .foro-hero p {
+      font-size: .96rem;
+      color: rgba(255,255,255,0.85);
+      margin: 0 0 18px;
+      position: relative;
+      z-index: 2;
+      max-width: 500px;
+    }
+    .foro-hero__stats {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+    .foro-hero__stat {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .foro-hero__stat-num {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #E8A317;
+    }
+    .foro-hero__stat-lbl {
+      font-size: .82rem;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .foro-main-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .foro-new-btn {
+      flex: 1;
+      min-width: 200px;
+      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      color: #1f1d17;
+      border: 0;
+      padding: 16px 24px;
+      border-radius: 14px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 6px 20px rgba(232,163,23,0.3);
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .foro-new-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(232,163,23,0.5);
+    }
+
+    .foro-cats-wrap {
+      background: var(--zoo-bg-card, #131816);
+      border: 1px solid var(--zoo-border, #1e2522);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+    .foro-cats-title {
+      font-size: .82rem;
+      color: var(--zoo-text-muted, #a0a8a4);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .foro-cats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .foro-cat {
+      background: transparent;
+      border: 1px solid var(--zoo-border-strong, #2a3530);
+      color: var(--zoo-text-muted, #a0a8a4);
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: .84rem;
+      font-weight: 600;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .foro-cat:hover {
+      background: rgba(232,163,23,0.08);
+      border-color: rgba(232,163,23,0.4);
+      color: var(--zoo-text, #e5e9e7);
+    }
+    .foro-cat.is-active {
+      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      color: #1f1d17;
+      border-color: transparent;
+      box-shadow: 0 3px 10px rgba(232,163,23,0.3);
+    }
+
+    .foro-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .foro-post {
+      background: var(--zoo-bg-card, #131816);
+      border: 1px solid var(--zoo-border, #1e2522);
+      border-radius: 14px;
+      padding: 18px 20px;
+      transition: all .2s;
+      position: relative;
+    }
+    .foro-post:hover {
+      border-color: rgba(232,163,23,0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .foro-post__top {
+      display: flex;
+      gap: 14px;
+      cursor: pointer;
+    }
+    .foro-post__avatar {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #E8A317, #D55A28);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .foro-post__body { flex: 1; min-width: 0; }
+    .foro-post__meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .foro-post__cat {
+      background: rgba(111,191,115,0.12);
+      color: #6FBF73;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+    .foro-post__author {
+      font-size: .85rem;
+      color: var(--zoo-text, #e5e9e7);
+      font-weight: 700;
+    }
+    .foro-post__time {
+      font-size: .78rem;
+      color: var(--zoo-text-dim, #6b7370);
+    }
+    .foro-post__title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--zoo-text, #fff);
+      margin: 0 0 6px;
+      line-height: 1.35;
+    }
+    .foro-post__preview {
+      color: var(--zoo-text-muted, #a0a8a4);
+      font-size: .9rem;
+      line-height: 1.5;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      margin: 0;
+    }
+
+    .foro-post__actions {
+      display: flex;
+      gap: 18px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--zoo-border, #1e2522);
+      align-items: center;
+    }
+    .foro-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 0;
+      color: var(--zoo-text-muted, #a0a8a4);
+      cursor: pointer;
+      font-size: .86rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: all .15s;
+    }
+    .foro-action:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--zoo-text, #fff);
+    }
+    .foro-action.is-liked { color: #D55A28; }
+    .foro-action.is-liked:hover { background: rgba(213,90,40,0.1); }
+    .foro-action__icon {
+      font-size: 1rem;
+      transition: transform .2s;
+    }
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+    }
+    .foro-action.just-liked .foro-action__icon {
+      animation: heartBeat .4s ease;
+    }
+
+    .foro-post__replies {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 10px;
+      border-left: 3px solid rgba(232,163,23,0.3);
+    }
+    .foro-reply-preview {
+      display: flex;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: .85rem;
+    }
+    .foro-reply-preview__avatar {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(42,164,213,0.25);
+      color: #2AA4D5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .75rem;
+    }
+    .foro-reply-preview__body { flex: 1; min-width: 0; }
+    .foro-reply-preview__author {
+      color: var(--zoo-text, #fff);
+      font-weight: 700;
+      font-size: .8rem;
+    }
+    .foro-reply-preview__text {
+      color: var(--zoo-text-muted, #a0a8a4);
+      font-size: .82rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .foro-post__view-more {
+      display: inline-block;
+      margin-top: 6px;
+      color: #E8A317;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .foro-post__view-more:hover { text-decoration: underline; }
+
+    .foro-empty {
+      text-align: center;
+      padding: 60px 24px;
+      background: var(--zoo-bg-card, #131816);
+      border: 1px solid var(--zoo-border, #1e2522);
+      border-radius: 14px;
+    }
+    .foro-empty__icon { font-size: 3.5rem; margin-bottom: 16px; }
+    .foro-empty h3 {
+      color: var(--zoo-text, #fff);
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+    }
+    .foro-empty p {
+      color: var(--zoo-text-muted, #a0a8a4);
+      margin: 0;
+      font-size: .95rem;
+    }
+
+    .foro-loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--zoo-text-muted, #a0a8a4);
+    }
+
+    /* Modal */
+    .foro-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: fadeIn .25s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .foro-modal__box {
+      background: var(--zoo-bg-card, #131816);
+      border: 1px solid var(--zoo-border-strong, #2a3530);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: popIn .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .foro-modal__header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--zoo-border, #1e2522);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .foro-modal__header h3 {
+      color: var(--zoo-text, #fff);
+      margin: 0;
+      font-size: 1.15rem;
+    }
+    .foro-modal__close {
+      background: transparent;
+      border: 0;
+      color: var(--zoo-text-muted, #a0a8a4);
+      cursor: pointer;
+      font-size: 1.4rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+    }
+    .foro-modal__close:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+    .foro-modal__body {
+      padding: 22px 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .foro-form-group { margin-bottom: 16px; }
+    .foro-form-group label {
+      display: block;
+      color: var(--zoo-text-muted, #a0a8a4);
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .foro-form-group input,
+    .foro-form-group select,
+    .foro-form-group textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--zoo-border-strong, #2a3530);
+      color: var(--zoo-text, #fff);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: .95rem;
+    }
+    .foro-form-group textarea { resize: vertical; min-height: 120px; }
+    .foro-form-group input:focus,
+    .foro-form-group select:focus,
+    .foro-form-group textarea:focus {
+      outline: 0;
+      border-color: #E8A317;
+    }
+
+    .foro-modal__footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--zoo-border, #1e2522);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .foro-btn-cancel {
+      background: transparent;
+      border: 1px solid var(--zoo-border-strong, #2a3530);
+      color: var(--zoo-text-muted, #a0a8a4);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .foro-btn-submit {
+      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      color: #1f1d17;
+      border: 0;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: .95rem;
+    }
+    .foro-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .foro-error-msg {
+      color: #D55A28;
+      font-size: .85rem;
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: rgba(213,90,40,0.1);
+      border-radius: 8px;
+      display: none;
+    }
+    .foro-error-msg.show { display: block; }
+
+    /* Vista de post */
+    .foro-view-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .foro-view-box {
+      background: var(--zoo-bg-card, #131816);
+      border: 1px solid var(--zoo-border-strong, #2a3530);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .foro-view-content {
+      overflow-y: auto;
+      padding: 24px 28px;
+      flex: 1;
+    }
+    .foro-view-content h2 {
+      color: var(--zoo-text, #fff);
+      font-size: 1.4rem;
+      margin: 8px 0 14px;
+      line-height: 1.3;
+    }
+    .foro-view-author {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .foro-view-author__name {
+      color: var(--zoo-text, #fff);
+      font-weight: 700;
+      font-size: .92rem;
+    }
+    .foro-view-author__time {
+      color: var(--zoo-text-dim, #6b7370);
+      font-size: .78rem;
+    }
+    .foro-view-body {
+      color: var(--zoo-text, #e5e9e7);
+      line-height: 1.6;
+      font-size: .96rem;
+      white-space: pre-wrap;
+      padding: 16px 0;
+      border-top: 1px solid var(--zoo-border, #1e2522);
+      border-bottom: 1px solid var(--zoo-border, #1e2522);
+      margin-bottom: 20px;
+    }
+    .foro-replies-title {
+      color: var(--zoo-text, #fff);
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 14px;
+    }
+    .foro-reply {
+      display: flex;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--zoo-border, #1e2522);
+    }
+    .foro-reply:last-child { border-bottom: 0; }
+    .foro-reply__avatar {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2AA4D5, #1F5F8A);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+    .foro-reply__body { flex: 1; min-width: 0; }
+    .foro-reply__header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .foro-reply__author {
+      color: var(--zoo-text, #fff);
+      font-weight: 700;
+      font-size: .88rem;
+    }
+    .foro-reply__time {
+      color: var(--zoo-text-dim, #6b7370);
+      font-size: .76rem;
+    }
+    .foro-reply__text {
+      color: var(--zoo-text, #e5e9e7);
+      line-height: 1.5;
+      font-size: .9rem;
+      white-space: pre-wrap;
+      margin: 0;
+    }
+    .foro-view-reply-form {
+      background: var(--zoo-bg-card-2, #1a201d);
+      border-top: 1px solid var(--zoo-border, #1e2522);
+      padding: 16px 20px;
+    }
+    .foro-view-reply-form textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--zoo-border-strong, #2a3530);
+      color: var(--zoo-text, #fff);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: .92rem;
+      min-height: 70px;
+      resize: vertical;
+    }
+    .foro-view-reply-form__actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+    .foro-view-reply-form__submit {
+      background: linear-gradient(135deg, #2AA4D5, #1F5F8A);
+      color: #fff;
+      border: 0;
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: .88rem;
+    }
+
+    @media (max-width: 600px) {
+      .foro-hero { padding: 22px 20px; }
+      .foro-hero h1 { font-size: 1.45rem; }
+      .foro-post { padding: 14px; }
+      .foro-post__actions { gap: 10px; }
+      .foro-action { font-size: .78rem; padding: 4px 6px; }
+      .foro-view-content { padding: 18px 20px; }
+      .foro-view-content h2 { font-size: 1.15rem; }
+    }
+  </style>
 </head>
 <body>
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <div class="club-main__header">
-        <div class="club-main__greeting">
-          <h1>💬 Foro VIP</h1>
-          <p class="date">Comunidad privada de profesionales en fauna</p>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button>
+        <div style="display:flex;gap:10px;margin-left:auto;">
+          <button class="theme-toggle" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema" onclick="ZOORIGEN_CLUB.toggleTheme()">☀️</button>
         </div>
-        <button class="btn-club" id="newPostBtn" style="width:auto;padding:10px 22px;margin-top:0;">+ Nueva discusión</button>
       </div>
 
-      <!-- Filtros de categoría -->
-      <div class="foro-categories">
-        <button class="foro-cat is-active" data-cat="all">📋 Todas</button>
-        <button class="foro-cat" data-cat="casos">⚕️ Casos clínicos</button>
-        <button class="foro-cat" data-cat="manejo">🧤 Manejo & captura</button>
-        <button class="foro-cat" data-cat="identificacion">🔍 Identificación</button>
-        <button class="foro-cat" data-cat="legal">⚖️ Legal & UMAs</button>
-        <button class="foro-cat" data-cat="empleo">💼 Empleo & oportunidades</button>
-        <button class="foro-cat" data-cat="consulta">❓ Consulta general</button>
+      <div class="foro-hero">
+        <div class="foro-hero__badge">
+          <span class="foro-hero__live-dot"></span>
+          COMUNIDAD PRIVADA
+        </div>
+        <h1>💬 Foro VIP</h1>
+        <p>Conecta, pregunta y comparte con profesionales en fauna silvestre de toda Latinoamérica.</p>
+        <div class="foro-hero__stats">
+          <div class="foro-hero__stat">
+            <span class="foro-hero__stat-num" id="totalPosts">0</span>
+            <span class="foro-hero__stat-lbl">discusiones</span>
+          </div>
+          <div class="foro-hero__stat">
+            <span class="foro-hero__stat-num" id="totalMembers">0</span>
+            <span class="foro-hero__stat-lbl">miembros activos</span>
+          </div>
+          <div class="foro-hero__stat">
+            <span class="foro-hero__stat-num" id="totalReplies">0</span>
+            <span class="foro-hero__stat-lbl">respuestas</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Stats del foro -->
-      <div class="foro-stats-bar">
-        <div><strong id="totalPosts">0</strong> discusiones</div>
-        <div><strong id="totalMembers">0</strong> miembros activos</div>
-        <div>🔴 <strong>En vivo</strong></div>
+      <div class="foro-main-actions">
+        <button class="foro-new-btn" id="newPostBtn">
+          ✍️ Iniciar nueva discusión
+        </button>
       </div>
 
-      <!-- Lista de posts -->
+      <div class="foro-cats-wrap">
+        <div class="foro-cats-title">Filtrar por categoría</div>
+        <div class="foro-cats">
+          <button class="foro-cat is-active" data-cat="all">📋 Todas</button>
+          <button class="foro-cat" data-cat="casos">⚕️ Casos clínicos</button>
+          <button class="foro-cat" data-cat="manejo">🧤 Manejo</button>
+          <button class="foro-cat" data-cat="identificacion">🔍 Identificación</button>
+          <button class="foro-cat" data-cat="legal">⚖️ Legal & UMAs</button>
+          <button class="foro-cat" data-cat="empleo">💼 Empleo</button>
+          <button class="foro-cat" data-cat="consulta">❓ Consulta</button>
+        </div>
+      </div>
+
       <div class="foro-list" id="foroList">
-        <div class="foro-loading">Cargando discusiones...</div>
+        <div class="foro-loading">⏳ Cargando discusiones...</div>
       </div>
     </main>
-  </div>
-
-  <!-- Modal para crear nueva discusión -->
-  <div id="newPostModal" class="foro-modal">
-    <div class="foro-modal-backdrop" onclick="closeNewPost()"></div>
-    <div class="foro-modal-box">
-      <div class="foro-modal-header">
-        <h2>📝 Nueva discusión</h2>
-        <button class="foro-modal-close" onclick="closeNewPost()">×</button>
-      </div>
-      <div class="foro-modal-body">
-        <div class="field">
-          <label for="postTitle">Título de la discusión</label>
-          <input type="text" id="postTitle" placeholder="Ej. Necropsia en tapir juvenil con signos de deshidratación" maxlength="150">
-          <small style="color:var(--zoo-text-dim);">Sé específico — ayuda a otros colegas a encontrarla</small>
-        </div>
-        <div class="field">
-          <label for="postCategory">Categoría</label>
-          <select id="postCategory">
-            <option value="casos">⚕️ Casos clínicos</option>
-            <option value="manejo">🧤 Manejo & captura</option>
-            <option value="identificacion">🔍 Identificación</option>
-            <option value="legal">⚖️ Legal & UMAs</option>
-            <option value="empleo">💼 Empleo & oportunidades</option>
-            <option value="consulta">❓ Consulta general</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="postContent">Contenido</label>
-          <textarea id="postContent" placeholder="Describe tu caso, pregunta u observación. Incluye detalles relevantes: especie, edad, síntomas, ubicación, etc." rows="8" maxlength="2000"></textarea>
-          <small style="color:var(--zoo-text-dim);" id="charCount">0 / 2000 caracteres</small>
-        </div>
-        <div class="error-msg" id="postError"></div>
-      </div>
-      <div class="foro-modal-footer">
-        <button class="btn-club-outline" onclick="closeNewPost()">Cancelar</button>
-        <button class="btn-club" id="submitPost" style="width:auto;padding:12px 24px;margin:0;">Publicar discusión</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal para ver discusión completa -->
-  <div id="viewPostModal" class="foro-modal">
-    <div class="foro-modal-backdrop" onclick="closeViewPost()"></div>
-    <div class="foro-modal-box foro-modal-box--large">
-      <div id="viewPostContent"></div>
-    </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -102,411 +720,464 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js"></script>
   <script>
-    let currentSession = null;
-    let currentCategory = 'all';
-
     const CAT_LABELS = {
-      casos: '⚕️ Casos clínicos',
-      manejo: '🧤 Manejo & captura',
-      identificacion: '🔍 Identificación',
-      legal: '⚖️ Legal & UMAs',
-      empleo: '💼 Empleo & oportunidades',
-      consulta: '❓ Consulta general'
+      'casos': '⚕️ Casos clínicos',
+      'manejo': '🧤 Manejo',
+      'identificacion': '🔍 Identificación',
+      'legal': '⚖️ Legal & UMAs',
+      'empleo': '💼 Empleo',
+      'consulta': '❓ Consulta'
     };
 
+    let currentCategory = 'all';
+    let currentSession = null;
+    let allPosts = [];
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
     (async () => {
-      currentSession = await ZOORIGEN_CLUB.requireAuth();
-      if (!currentSession) return;
-      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('foro', currentSession);
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      currentSession = session;
+
       if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('foro', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
-
-      // Solo VIP activos pueden participar
-      if (currentSession.planStatus !== 'active') {
-        document.getElementById('foroList').innerHTML = `
-          <div class="foro-empty">
-            <div style="font-size:3rem;">🔒</div>
-            <h3 style="color:#fff;margin-top:14px;">El Foro VIP es exclusivo para miembros activos</h3>
-            <p style="color:var(--zoo-text-muted);margin:10px 0 22px;">Conecta con colegas, comparte casos y resuelve dudas con profesionales de toda la república.</p>
-            <a href="club-suscripcion.html" class="btn-club" style="display:inline-block;width:auto;padding:14px 32px;text-decoration:none;">Activar membresía</a>
-          </div>`;
-        document.getElementById('newPostBtn').style.display = 'none';
-        return;
-      }
-
-      // Listeners
       document.querySelectorAll('.foro-cat').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.foro-cat').forEach(b => b.classList.remove('is-active'));
           btn.classList.add('is-active');
           currentCategory = btn.dataset.cat;
-          loadPosts();
+          renderPosts();
         });
       });
 
-      document.getElementById('newPostBtn').addEventListener('click', () => {
-        document.getElementById('newPostModal').classList.add('is-open');
-        document.body.style.overflow = 'hidden';
-      });
-
-      document.getElementById('postContent').addEventListener('input', (e) => {
-        document.getElementById('charCount').textContent = `${e.target.value.length} / 2000 caracteres`;
-      });
-
-      document.getElementById('submitPost').addEventListener('click', submitNewPost);
+      document.getElementById('newPostBtn').addEventListener('click', openNewPostModal);
 
       await loadPosts();
     })();
 
     async function loadPosts() {
       const list = document.getElementById('foroList');
-      list.innerHTML = '<div class="foro-loading">Cargando discusiones...</div>';
+      list.innerHTML = '<div class="foro-loading">⏳ Cargando discusiones...</div>';
 
       try {
-        let q = db.collection('foroPosts').orderBy('createdAt', 'desc').limit(50);
-        const snap = await q.get();
-        const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        const filtered = currentCategory === 'all' ? posts : posts.filter(p => p.category === currentCategory);
-
-        document.getElementById('totalPosts').textContent = posts.length;
-
-        // Contar miembros únicos
-        const uniqueAuthors = new Set(posts.map(p => p.authorUid));
-        document.getElementById('totalMembers').textContent = uniqueAuthors.size;
-
-        if (filtered.length === 0) {
-          list.innerHTML = `
-            <div class="foro-empty">
-              <div style="font-size:3rem;">💭</div>
-              <h3 style="color:#fff;margin-top:14px;">Sé el primero en iniciar una conversación</h3>
-              <p style="color:var(--zoo-text-muted);margin:10px 0 0;">${currentCategory === 'all' ? 'Comparte un caso, pregunta o experiencia con la comunidad' : 'No hay discusiones en esta categoría aún'}</p>
-            </div>`;
-          return;
+        // Intentar con orderBy; si falla por índice/colección vacía, caer a simple .get()
+        let snap;
+        try {
+          snap = await db.collection('foroPosts').orderBy('createdAt', 'desc').limit(50).get();
+        } catch (idxErr) {
+          console.warn('orderBy falló, probando sin ordenar:', idxErr.message);
+          snap = await db.collection('foroPosts').limit(50).get();
         }
 
-        // Pre-cargar primeras 2 respuestas de cada post para preview
-        const postsWithPreviews = await Promise.all(filtered.map(async (p) => {
+        let posts = snap.docs.map(d => {
+          const data = d.data() || {};
+          return {
+            id: d.id,
+            title: data.title || '(sin título)',
+            content: data.content || '',
+            category: data.category || 'consulta',
+            authorName: data.authorName || 'Miembro',
+            authorUid: data.authorUid || '',
+            createdAt: data.createdAt || new Date().toISOString(),
+            likes: Array.isArray(data.likes) ? data.likes : [],
+            views: data.views || 0,
+            repliesCount: data.repliesCount || 0
+          };
+        });
+
+        posts.sort((a, b) => {
+          const da = new Date(a.createdAt).getTime() || 0;
+          const db2 = new Date(b.createdAt).getTime() || 0;
+          return db2 - da;
+        });
+
+        allPosts = posts;
+
+        // Pre-cargar primeras 2 respuestas (en paralelo con Promise.all seguro)
+        const previewPromises = posts.map(async (p) => {
           try {
             const rs = await db.collection('foroPosts').doc(p.id).collection('replies')
               .orderBy('createdAt', 'asc').limit(2).get();
-            p._previewReplies = rs.docs.map(d => ({ id: d.id, ...d.data() }));
-          } catch(e) { p._previewReplies = []; }
-          return p;
-        }));
+            p._previewReplies = rs.docs.map(d => {
+              const dd = d.data() || {};
+              return { authorName: dd.authorName || 'Miembro', text: dd.text || '' };
+            });
+          } catch (e) {
+            p._previewReplies = [];
+          }
+        });
+        await Promise.all(previewPromises);
 
-        list.innerHTML = postsWithPreviews.map(p => {
-          const likes = p.likes || [];
-          const userLiked = likes.includes(currentSession.uid);
-          return `
-          <div class="foro-post">
-            <div class="foro-post__main" onclick="viewPost('${p.id}')">
-              <div class="foro-post__avatar">${(p.authorName || 'U').charAt(0).toUpperCase()}</div>
-              <div class="foro-post__body">
-                <div class="foro-post__meta">
-                  <span class="foro-post__cat">${CAT_LABELS[p.category] || p.category}</span>
-                  <span class="foro-post__time">${ZOORIGEN_CLUB.timeAgo(p.createdAt)}</span>
-                </div>
-                <h3 class="foro-post__title">${escapeHtml(p.title)}</h3>
-                <p class="foro-post__excerpt">${escapeHtml((p.content || '').substring(0, 180))}${(p.content || '').length > 180 ? '...' : ''}</p>
-                <div class="foro-post__footer">
-                  <span class="foro-post__author">👤 ${escapeHtml(p.authorName || 'Colega')}</span>
-                  <span class="foro-post__replies">💬 ${p.repliesCount || 0} respuesta${p.repliesCount !== 1 ? 's' : ''}</span>
-                  <span class="foro-post__views">👁️ ${p.views || 0}</span>
-                </div>
-              </div>
-            </div>
+        document.getElementById('totalPosts').textContent = posts.length;
+        const uniqueAuthors = new Set(posts.map(p => p.authorUid).filter(Boolean));
+        document.getElementById('totalMembers').textContent = uniqueAuthors.size;
+        const totalRe = posts.reduce((acc, p) => acc + (p.repliesCount || 0), 0);
+        document.getElementById('totalReplies').textContent = totalRe;
 
-            <!-- Barra de reacciones -->
-            <div class="foro-post__reactions">
-              <button class="foro-like-btn ${userLiked ? 'is-liked' : ''}" onclick="event.stopPropagation();toggleLike('${p.id}')" data-post="${p.id}">
-                <span class="foro-like-icon">${userLiked ? '❤️' : '🤍'}</span>
-                <span class="foro-like-count">${likes.length}</span>
-                <span class="foro-like-label">${userLiked ? 'Te gusta' : 'Me gusta'}</span>
-              </button>
-              <button class="foro-reply-btn" onclick="viewPost('${p.id}')">
-                <span>💬</span>
-                <span>Responder</span>
-              </button>
-              <button class="foro-share-btn" onclick="event.stopPropagation();compartirPost('${p.id}', ${JSON.stringify(p.title).replace(/"/g, '&quot;')})">
-                <span>↗️</span>
-                <span>Compartir</span>
-              </button>
-            </div>
-
-            <!-- Preview de respuestas -->
-            ${p._previewReplies && p._previewReplies.length > 0 ? `
-              <div class="foro-preview-replies">
-                <div class="foro-preview-replies__header">💬 Últimas respuestas</div>
-                ${p._previewReplies.map(r => `
-                  <div class="foro-preview-reply">
-                    <div class="foro-preview-reply__avatar">${(r.authorName || 'U').charAt(0).toUpperCase()}</div>
-                    <div class="foro-preview-reply__body">
-                      <div class="foro-preview-reply__meta">
-                        <strong>${escapeHtml(r.authorName || 'Colega')}</strong>
-                        <span>· ${ZOORIGEN_CLUB.timeAgo(r.createdAt)}</span>
-                      </div>
-                      <div class="foro-preview-reply__content">${escapeHtml((r.content || '').substring(0, 140))}${(r.content || '').length > 140 ? '...' : ''}</div>
-                    </div>
-                  </div>
-                `).join('')}
-                ${(p.repliesCount || 0) > 2 ? `<button class="foro-see-all" onclick="viewPost('${p.id}')">Ver las ${p.repliesCount} respuestas →</button>` : ''}
-              </div>
-            ` : ''}
-          </div>
-        `}).join('');
+        renderPosts();
       } catch (err) {
-        console.error(err);
-        list.innerHTML = `<div class="foro-empty"><p>Error cargando el foro. Intenta recargar la página.</p></div>`;
+        console.error('Error cargando foro:', err);
+        let detalle = '';
+        if (err.code === 'permission-denied') {
+          detalle = '<p style="margin-top:10px;font-size:.85rem;">Error de permisos en Firestore. Revisa las reglas para <code>foroPosts</code>.</p>';
+        } else if (err.code === 'unavailable') {
+          detalle = '<p style="margin-top:10px;font-size:.85rem;">Sin conexión. Revisa tu internet.</p>';
+        } else {
+          detalle = `<p style="margin-top:10px;font-size:.82rem;color:#8a938f;">Detalles: ${escapeHtml(err.message || err.code || 'Desconocido')}</p>`;
+        }
+        list.innerHTML = `
+          <div class="foro-empty">
+            <div class="foro-empty__icon">⚠️</div>
+            <h3>No se pudieron cargar las discusiones</h3>
+            <p>Intenta recargar la página. Si persiste, contáctanos por WhatsApp.</p>
+            ${detalle}
+            <button class="foro-btn-submit" style="margin-top:18px;" onclick="loadPosts()">🔄 Reintentar</button>
+          </div>`;
       }
     }
 
-    async function submitNewPost() {
+    function renderPosts() {
+      const list = document.getElementById('foroList');
+      const filtered = currentCategory === 'all'
+        ? allPosts
+        : allPosts.filter(p => p.category === currentCategory);
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="foro-empty">
+            <div class="foro-empty__icon">💭</div>
+            <h3>${currentCategory === 'all' ? '¡Sé el primero en iniciar una discusión!' : 'Sin discusiones en esta categoría'}</h3>
+            <p>${currentCategory === 'all' ? 'Comparte un caso, pregunta o experiencia con la comunidad.' : 'Cambia de categoría o inicia la primera aquí.'}</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(p => {
+        const likes = p.likes || [];
+        const userLiked = likes.includes(currentSession.uid);
+        const previews = p._previewReplies || [];
+
+        return `
+        <div class="foro-post" id="post-${p.id}">
+          <div class="foro-post__top" onclick="viewPost('${p.id}')">
+            <div class="foro-post__avatar">${(p.authorName || 'U').charAt(0).toUpperCase()}</div>
+            <div class="foro-post__body">
+              <div class="foro-post__meta">
+                <span class="foro-post__cat">${CAT_LABELS[p.category] || '❓ ' + p.category}</span>
+                <span class="foro-post__author">${escapeHtml(p.authorName)}</span>
+                <span class="foro-post__time">· ${ZOORIGEN_CLUB.timeAgo(p.createdAt)}</span>
+              </div>
+              <h3 class="foro-post__title">${escapeHtml(p.title)}</h3>
+              <p class="foro-post__preview">${escapeHtml(p.content)}</p>
+            </div>
+          </div>
+
+          ${previews.length > 0 ? `
+            <div class="foro-post__replies">
+              ${previews.map(r => `
+                <div class="foro-reply-preview">
+                  <div class="foro-reply-preview__avatar">${(r.authorName || 'U').charAt(0).toUpperCase()}</div>
+                  <div class="foro-reply-preview__body">
+                    <div class="foro-reply-preview__author">${escapeHtml(r.authorName)}</div>
+                    <div class="foro-reply-preview__text">${escapeHtml(r.text)}</div>
+                  </div>
+                </div>
+              `).join('')}
+              ${p.repliesCount > previews.length ? `<a class="foro-post__view-more" onclick="viewPost('${p.id}')">Ver ${p.repliesCount - previews.length} respuesta(s) más →</a>` : ''}
+            </div>
+          ` : ''}
+
+          <div class="foro-post__actions">
+            <button class="foro-action ${userLiked ? 'is-liked' : ''}" onclick="toggleLike('${p.id}', this, event)">
+              <span class="foro-action__icon">${userLiked ? '❤️' : '🤍'}</span>
+              <span>${likes.length}</span>
+            </button>
+            <button class="foro-action" onclick="viewPost('${p.id}')">
+              <span class="foro-action__icon">💬</span>
+              <span>${p.repliesCount || 0} respuestas</span>
+            </button>
+            <button class="foro-action" onclick="sharePost('${p.id}', '${escapeHtml(p.title).replace(/'/g, '&apos;')}', event)">
+              <span class="foro-action__icon">🔗</span>
+              <span>Compartir</span>
+            </button>
+          </div>
+        </div>
+        `;
+      }).join('');
+    }
+
+    async function toggleLike(postId, btn, ev) {
+      if (ev) ev.stopPropagation();
+      const post = allPosts.find(p => p.id === postId);
+      if (!post) return;
+      const uid = currentSession.uid;
+      const currentlyLiked = post.likes.includes(uid);
+      try {
+        if (currentlyLiked) {
+          await db.collection('foroPosts').doc(postId).update({
+            likes: firebase.firestore.FieldValue.arrayRemove(uid)
+          });
+          post.likes = post.likes.filter(u => u !== uid);
+        } else {
+          await db.collection('foroPosts').doc(postId).update({
+            likes: firebase.firestore.FieldValue.arrayUnion(uid)
+          });
+          post.likes.push(uid);
+          btn.classList.add('just-liked');
+          setTimeout(() => btn.classList.remove('just-liked'), 400);
+        }
+        btn.classList.toggle('is-liked');
+        btn.querySelector('.foro-action__icon').textContent = post.likes.includes(uid) ? '❤️' : '🤍';
+        btn.querySelectorAll('span')[1].textContent = post.likes.length;
+      } catch (err) {
+        console.error('Error like:', err);
+        alert('No se pudo registrar tu like. Intenta de nuevo.');
+      }
+    }
+
+    function sharePost(postId, title, ev) {
+      if (ev) ev.stopPropagation();
+      const url = `${window.location.origin}${window.location.pathname}#${postId}`;
+      const text = `Mira esta discusión en el Foro VIP Zoorigen: "${title.replace(/&apos;/g, "'")}"`;
+      if (navigator.share) {
+        navigator.share({ title: 'Zoorigen Foro VIP', text, url }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
+          alert('✓ Link copiado al portapapeles');
+        });
+      }
+    }
+
+    function openNewPostModal() {
+      if (currentSession.planStatus !== 'active') {
+        alert('⚠️ Necesitas membresía VIP activa para publicar en el foro.');
+        return;
+      }
+
+      const modal = document.createElement('div');
+      modal.className = 'foro-modal';
+      modal.innerHTML = `
+        <div class="foro-modal__box">
+          <div class="foro-modal__header">
+            <h3>✍️ Iniciar nueva discusión</h3>
+            <button class="foro-modal__close" id="foroModalClose">✕</button>
+          </div>
+          <div class="foro-modal__body">
+            <div class="foro-form-group">
+              <label>Categoría</label>
+              <select id="postCategory">
+                <option value="consulta">❓ Consulta general</option>
+                <option value="casos">⚕️ Casos clínicos</option>
+                <option value="manejo">🧤 Manejo & captura</option>
+                <option value="identificacion">🔍 Identificación</option>
+                <option value="legal">⚖️ Legal & UMAs</option>
+                <option value="empleo">💼 Empleo</option>
+              </select>
+            </div>
+            <div class="foro-form-group">
+              <label>Título de tu discusión</label>
+              <input type="text" id="postTitle" placeholder="Ej. ¿Cómo identificar una herida en ala de Rapaz?" maxlength="120">
+            </div>
+            <div class="foro-form-group">
+              <label>Describe tu pregunta o caso</label>
+              <textarea id="postContent" placeholder="Comparte los detalles que consideres relevantes. Puedes agregar contexto clínico, ubicación, hallazgos..." maxlength="2000"></textarea>
+            </div>
+            <div class="foro-error-msg" id="postError"></div>
+          </div>
+          <div class="foro-modal__footer">
+            <button class="foro-btn-cancel" id="foroModalCancel">Cancelar</button>
+            <button class="foro-btn-submit" id="foroModalSubmit">📤 Publicar</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      document.body.style.overflow = 'hidden';
+
+      const close = () => { modal.remove(); document.body.style.overflow = ''; };
+      document.getElementById('foroModalClose').addEventListener('click', close);
+      document.getElementById('foroModalCancel').addEventListener('click', close);
+      document.getElementById('foroModalSubmit').addEventListener('click', async () => {
+        await submitNewPost(close);
+      });
+      setTimeout(() => document.getElementById('postTitle').focus(), 100);
+    }
+
+    async function submitNewPost(closeFn) {
       const titleEl = document.getElementById('postTitle');
       const categoryEl = document.getElementById('postCategory');
       const contentEl = document.getElementById('postContent');
       const errEl = document.getElementById('postError');
-      const submitBtn = document.getElementById('submitPost');
+      const submitBtn = document.getElementById('foroModalSubmit');
+
       errEl.classList.remove('show');
 
-      const title = titleEl.value.trim();
-      const content = contentEl.value.trim();
+      const title = (titleEl.value || '').trim();
+      const content = (contentEl.value || '').trim();
+      const category = categoryEl.value;
 
-      if (title.length < 10) { errEl.textContent = 'El título debe tener al menos 10 caracteres'; errEl.classList.add('show'); return; }
-      if (content.length < 30) { errEl.textContent = 'El contenido debe tener al menos 30 caracteres'; errEl.classList.add('show'); return; }
+      if (!title) { errEl.textContent = '⚠️ Escribe un título.'; errEl.classList.add('show'); return; }
+      if (title.length < 8) { errEl.textContent = '⚠️ El título es muy corto (mín. 8 caracteres).'; errEl.classList.add('show'); return; }
+      if (!content) { errEl.textContent = '⚠️ Escribe el contenido de tu discusión.'; errEl.classList.add('show'); return; }
+      if (content.length < 15) { errEl.textContent = '⚠️ El contenido es muy corto (mín. 15 caracteres).'; errEl.classList.add('show'); return; }
 
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Publicando...';
+      submitBtn.textContent = '⏳ Publicando...';
 
       try {
-        await db.collection('foroPosts').add({
+        const data = {
           title,
           content,
-          category: categoryEl.value,
+          category,
           authorUid: currentSession.uid,
-          authorName: currentSession.name || 'Colega',
+          authorName: currentSession.name || currentSession.email.split('@')[0],
           authorEmail: currentSession.email,
           createdAt: new Date().toISOString(),
-          repliesCount: 0,
+          likes: [],
           views: 0,
-          lastReplyAt: new Date().toISOString()
-        });
+          repliesCount: 0
+        };
+        await db.collection('foroPosts').add(data);
 
-        // Otorgar logro si es primera discusión
-        ZOORIGEN_CLUB.awardAchievement(currentSession.uid, 'first_post');
+        if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB.awardAchievement) {
+          ZOORIGEN_CLUB.awardAchievement(currentSession.uid, 'first_post');
+        }
 
-        closeNewPost();
+        closeFn();
         await loadPosts();
       } catch (err) {
-        console.error(err);
-        errEl.textContent = 'Error al publicar. Intenta de nuevo.';
+        console.error('Error publicando:', err);
+        let msg = '❌ No se pudo publicar: ';
+        if (err.code === 'permission-denied') {
+          msg += 'Sin permisos. Verifica que tu membresía esté activa y que las reglas de Firestore permitan escribir en foroPosts.';
+        } else {
+          msg += (err.message || err.code || 'Error desconocido');
+        }
+        errEl.textContent = msg;
         errEl.classList.add('show');
-      } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Publicar discusión';
+        submitBtn.textContent = '📤 Publicar';
       }
-    }
-
-    function closeNewPost() {
-      document.getElementById('newPostModal').classList.remove('is-open');
-      document.body.style.overflow = '';
-      document.getElementById('postTitle').value = '';
-      document.getElementById('postContent').value = '';
-      document.getElementById('charCount').textContent = '0 / 2000 caracteres';
-      document.getElementById('postError').classList.remove('show');
     }
 
     async function viewPost(postId) {
-      const modal = document.getElementById('viewPostModal');
-      const content = document.getElementById('viewPostContent');
-      content.innerHTML = '<div class="foro-loading" style="padding:40px;text-align:center;">Cargando...</div>';
-      modal.classList.add('is-open');
+      const post = allPosts.find(p => p.id === postId);
+      if (!post) return;
+
+      db.collection('foroPosts').doc(postId).update({
+        views: (post.views || 0) + 1
+      }).catch(() => {});
+
+      const modal = document.createElement('div');
+      modal.className = 'foro-view-modal';
+      modal.innerHTML = `
+        <div class="foro-view-box">
+          <div class="foro-modal__header">
+            <h3>${CAT_LABELS[post.category] || post.category}</h3>
+            <button class="foro-modal__close" id="viewClose">✕</button>
+          </div>
+          <div class="foro-view-content">
+            <h2>${escapeHtml(post.title)}</h2>
+            <div class="foro-view-author">
+              <div class="foro-post__avatar">${(post.authorName || 'U').charAt(0).toUpperCase()}</div>
+              <div>
+                <div class="foro-view-author__name">${escapeHtml(post.authorName)}</div>
+                <div class="foro-view-author__time">${ZOORIGEN_CLUB.timeAgo(post.createdAt)} · ${post.views || 0} vistas</div>
+              </div>
+            </div>
+            <div class="foro-view-body">${escapeHtml(post.content)}</div>
+
+            <h4 class="foro-replies-title" id="repliesTitle">💬 Respuestas (cargando...)</h4>
+            <div id="repliesList"><div class="foro-loading">⏳ Cargando respuestas...</div></div>
+          </div>
+          <div class="foro-view-reply-form">
+            <textarea id="newReplyText" placeholder="Escribe tu respuesta..."></textarea>
+            <div class="foro-view-reply-form__actions">
+              <button class="foro-view-reply-form__submit" id="submitReply">📤 Responder</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
       document.body.style.overflow = 'hidden';
 
+      const close = () => { modal.remove(); document.body.style.overflow = ''; };
+      document.getElementById('viewClose').addEventListener('click', close);
+
       try {
-        const doc = await db.collection('foroPosts').doc(postId).get();
-        if (!doc.exists) { content.innerHTML = '<p style="padding:40px;text-align:center;color:var(--zoo-text-muted);">Discusión no encontrada</p>'; return; }
+        let rsSnap;
+        try {
+          rsSnap = await db.collection('foroPosts').doc(postId).collection('replies')
+            .orderBy('createdAt', 'asc').get();
+        } catch (e) {
+          rsSnap = await db.collection('foroPosts').doc(postId).collection('replies').get();
+        }
+        const replies = rsSnap.docs.map(d => ({ id: d.id, ...(d.data() || {}) }));
 
-        const post = { id: doc.id, ...doc.data() };
+        document.getElementById('repliesTitle').textContent = `💬 Respuestas (${replies.length})`;
 
-        // Incrementar vistas (best effort)
-        db.collection('foroPosts').doc(postId).update({ views: (post.views || 0) + 1 }).catch(() => {});
-
-        // Cargar respuestas
-        const repliesSnap = await db.collection('foroPosts').doc(postId).collection('replies').orderBy('createdAt', 'asc').get();
-        const replies = repliesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-        content.innerHTML = `
-          <div class="foro-modal-header">
-            <div>
-              <span class="foro-post__cat" style="margin-bottom:6px;display:inline-block;">${CAT_LABELS[post.category]}</span>
-              <h2 style="color:#fff;font-size:1.3rem;margin:0;">${escapeHtml(post.title)}</h2>
-            </div>
-            <button class="foro-modal-close" onclick="closeViewPost()">×</button>
-          </div>
-          <div class="foro-modal-body">
-            <div class="foro-post-full">
-              <div class="foro-post-full__author">
-                <div class="foro-post__avatar" style="width:44px;height:44px;font-size:1rem;">${(post.authorName || 'U').charAt(0).toUpperCase()}</div>
-                <div>
-                  <div style="color:#fff;font-weight:600;">${escapeHtml(post.authorName)}</div>
-                  <div style="color:var(--zoo-text-dim);font-size:.8rem;">${ZOORIGEN_CLUB.timeAgo(post.createdAt)} · 👁️ ${post.views || 0} vistas</div>
-                </div>
-              </div>
-              <div class="foro-post-full__content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
-            </div>
-
-            <div class="foro-replies-section">
-              <h3 style="color:var(--zoo-amber);font-size:.9rem;letter-spacing:.08em;text-transform:uppercase;margin:20px 0 14px;">💬 ${replies.length} Respuesta${replies.length !== 1 ? 's' : ''}</h3>
-
-              ${replies.length === 0 ? '<p style="color:var(--zoo-text-dim);text-align:center;padding:20px;">Sé el primero en responder</p>' : ''}
-
-              ${replies.map(r => {
-                const rLikes = r.likes || [];
-                const rLiked = rLikes.includes(currentSession.uid);
-                return `
-                <div class="foro-reply">
-                  <div class="foro-post__avatar" style="width:36px;height:36px;font-size:.9rem;flex-shrink:0;">${(r.authorName || 'U').charAt(0).toUpperCase()}</div>
-                  <div class="foro-reply__body">
-                    <div class="foro-reply__meta">
-                      <strong>${escapeHtml(r.authorName || 'Colega')}</strong>
-                      <span>${ZOORIGEN_CLUB.timeAgo(r.createdAt)}</span>
-                    </div>
-                    <div class="foro-reply__content">${escapeHtml(r.content).replace(/\n/g, '<br>')}</div>
-                    <button class="reply-like-btn ${rLiked ? 'is-liked' : ''}" onclick="toggleReplyLike('${postId}', '${r.id}')" data-reply="${r.id}">
-                      <span class="reply-like-icon">${rLiked ? '❤️' : '🤍'}</span>
-                      <span class="reply-like-count">${rLikes.length}</span>
-                    </button>
-                  </div>
-                </div>
-              `}).join('')}
-            </div>
-
-            <div class="foro-reply-form">
-              <textarea id="replyContent" placeholder="Comparte tu experiencia o respuesta..." rows="4" maxlength="1500"></textarea>
-              <button class="btn-club" onclick="submitReply('${postId}')" style="width:auto;padding:11px 22px;margin-top:10px;">Publicar respuesta</button>
-            </div>
-          </div>
-        `;
-      } catch (err) {
-        console.error(err);
-        content.innerHTML = '<p style="padding:40px;text-align:center;color:var(--zoo-orange);">Error al cargar la discusión</p>';
-      }
-    }
-
-    window.toggleLike = async (postId) => {
-      try {
-        const btn = document.querySelector(`.foro-like-btn[data-post="${postId}"]`);
-        const ref = db.collection('foroPosts').doc(postId);
-        const doc = await ref.get();
-        const likes = doc.data().likes || [];
-        const uid = currentSession.uid;
-
-        let newLikes;
-        if (likes.includes(uid)) {
-          newLikes = likes.filter(u => u !== uid);
+        if (replies.length === 0) {
+          document.getElementById('repliesList').innerHTML = '<p style="color:#a0a8a4;text-align:center;padding:20px;">Aún no hay respuestas. ¡Sé el primero!</p>';
         } else {
-          newLikes = [...likes, uid];
-          // Animación de corazón
-          if (btn) {
-            btn.classList.add('is-bumping');
-            setTimeout(() => btn.classList.remove('is-bumping'), 600);
+          document.getElementById('repliesList').innerHTML = replies.map(r => `
+            <div class="foro-reply">
+              <div class="foro-reply__avatar">${(r.authorName || 'U').charAt(0).toUpperCase()}</div>
+              <div class="foro-reply__body">
+                <div class="foro-reply__header">
+                  <span class="foro-reply__author">${escapeHtml(r.authorName || 'Miembro')}</span>
+                  <span class="foro-reply__time">${ZOORIGEN_CLUB.timeAgo(r.createdAt)}</span>
+                </div>
+                <p class="foro-reply__text">${escapeHtml(r.text || '')}</p>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Error respuestas:', err);
+        document.getElementById('repliesList').innerHTML = '<p style="color:#D55A28;">Error cargando respuestas: ' + escapeHtml(err.message || err.code || '') + '</p>';
+      }
+
+      document.getElementById('submitReply').addEventListener('click', async () => {
+        const txtEl = document.getElementById('newReplyText');
+        const text = (txtEl.value || '').trim();
+        if (text.length < 5) {
+          alert('⚠️ Escribe al menos 5 caracteres.');
+          return;
+        }
+        const btn = document.getElementById('submitReply');
+        btn.disabled = true;
+        btn.textContent = '⏳ Enviando...';
+        try {
+          await db.collection('foroPosts').doc(postId).collection('replies').add({
+            authorUid: currentSession.uid,
+            authorName: currentSession.name || currentSession.email.split('@')[0],
+            text,
+            createdAt: new Date().toISOString()
+          });
+          await db.collection('foroPosts').doc(postId).update({
+            repliesCount: firebase.firestore.FieldValue.increment(1)
+          });
+
+          if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB.awardAchievement) {
+            ZOORIGEN_CLUB.awardAchievement(currentSession.uid, 'first_reply');
           }
+
+          close();
+          await loadPosts();
+        } catch (err) {
+          console.error('Error respondiendo:', err);
+          alert('❌ No se pudo enviar tu respuesta: ' + (err.message || err.code));
+          btn.disabled = false;
+          btn.textContent = '📤 Responder';
         }
-
-        await ref.update({ likes: newLikes });
-
-        // Actualizar UI sin recargar todo
-        if (btn) {
-          const isLiked = newLikes.includes(uid);
-          btn.classList.toggle('is-liked', isLiked);
-          btn.querySelector('.foro-like-icon').textContent = isLiked ? '❤️' : '🤍';
-          btn.querySelector('.foro-like-count').textContent = newLikes.length;
-          btn.querySelector('.foro-like-label').textContent = isLiked ? 'Te gusta' : 'Me gusta';
-        }
-      } catch (err) {
-        console.error('Error toggle like:', err);
-      }
-    };
-
-    window.compartirPost = (postId, title) => {
-      const url = `${location.origin}/pages/club-foro.html?post=${postId}`;
-      const text = `Mira esta discusión en el Foro VIP Zoorigen: "${title}"\n\n${url}`;
-
-      if (navigator.share) {
-        navigator.share({ title: 'Zoorigen Foro VIP', text, url }).catch(() => {
-          navigator.clipboard.writeText(url).then(() => alert('✅ Link copiado al portapapeles'));
-        });
-      } else {
-        navigator.clipboard.writeText(url).then(() => alert('✅ Link copiado al portapapeles'));
-      }
-    };
-
-    window.toggleReplyLike = async (postId, replyId) => {
-      try {
-        const btn = document.querySelector(`.reply-like-btn[data-reply="${replyId}"]`);
-        const ref = db.collection('foroPosts').doc(postId).collection('replies').doc(replyId);
-        const doc = await ref.get();
-        const likes = doc.data().likes || [];
-        const uid = currentSession.uid;
-
-        let newLikes;
-        if (likes.includes(uid)) newLikes = likes.filter(u => u !== uid);
-        else {
-          newLikes = [...likes, uid];
-          if (btn) { btn.classList.add('is-bumping'); setTimeout(() => btn.classList.remove('is-bumping'), 600); }
-        }
-
-        await ref.update({ likes: newLikes });
-
-        if (btn) {
-          const isLiked = newLikes.includes(uid);
-          btn.classList.toggle('is-liked', isLiked);
-          btn.querySelector('.reply-like-icon').textContent = isLiked ? '❤️' : '🤍';
-          btn.querySelector('.reply-like-count').textContent = newLikes.length;
-        }
-      } catch (err) { console.error(err); }
-    };
-
-    window.closeViewPost = () => {
-      document.getElementById('viewPostModal').classList.remove('is-open');
-      document.body.style.overflow = '';
-    };
-
-    window.submitReply = async (postId) => {
-      const content = document.getElementById('replyContent').value.trim();
-      if (content.length < 5) { alert('La respuesta debe tener al menos 5 caracteres'); return; }
-
-      try {
-        await db.collection('foroPosts').doc(postId).collection('replies').add({
-          content,
-          authorUid: currentSession.uid,
-          authorName: currentSession.name || 'Colega',
-          createdAt: new Date().toISOString()
-        });
-
-        // Actualizar contador de respuestas
-        const postRef = db.collection('foroPosts').doc(postId);
-        const postDoc = await postRef.get();
-        await postRef.update({
-          repliesCount: (postDoc.data().repliesCount || 0) + 1,
-          lastReplyAt: new Date().toISOString()
-        });
-
-        ZOORIGEN_CLUB.awardAchievement(currentSession.uid, 'first_reply');
-        await viewPost(postId);
-      } catch (err) {
-        console.error(err);
-        alert('Error al publicar respuesta');
-      }
-    };
-
-    window.viewPost = viewPost;
-    window.closeNewPost = closeNewPost;
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/[<>&"']/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c]));
+      });
     }
   </script>
 </body>
