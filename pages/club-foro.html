@@ -1061,6 +1061,12 @@
 
     async function toggleLike(postId, btn, ev) {
       if (ev) ev.stopPropagation();
+      // Solo VIP puede dar like
+      const esVIP = currentSession.planActivo === true || currentSession.planStatus === 'active' || currentSession.planStatus === 'cancelled_active';
+      if (!esVIP) {
+        alert('🔒 Solo los miembros VIP pueden dar like. Suscríbete para interactuar en el foro.');
+        return;
+      }
       const post = allPosts.find(p => p.id === postId);
       if (!post) return;
       const uid = currentSession.uid;
@@ -1343,6 +1349,12 @@
       }
 
       document.getElementById('submitReply').addEventListener('click', async () => {
+        // Solo VIP puede responder
+        const esVIP = currentSession.planActivo === true || currentSession.planStatus === 'active' || currentSession.planStatus === 'cancelled_active';
+        if (!esVIP) {
+          alert('🔒 Solo los miembros VIP pueden responder. Suscríbete para interactuar en el foro.');
+          return;
+        }
         const txtEl = document.getElementById('newReplyText');
         const text = (txtEl.value || '').trim();
         if (text.length < 5) {

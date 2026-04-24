@@ -1375,7 +1375,10 @@ const ZOORIGEN_CLUB = {
       <style>
         @keyframes zooFadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
         @keyframes zooFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        .zoo-welcome-box { max-width:520px;width:100%;background:linear-gradient(160deg,#0F3B22 0%,#1a4a2e 40%,#0d2f1a 100%);border:2px solid rgba(232,163,23,0.3);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6); }
+        @keyframes confettiFall { 0%{transform:translateY(-100vh) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+        .zoo-confetti { position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100000;overflow:hidden; }
+        .zoo-confetti-piece { position:absolute;width:10px;height:10px;top:-20px;animation:confettiFall linear forwards; }
+        .zoo-welcome-box { max-width:520px;width:100%;background:linear-gradient(160deg,#0F3B22 0%,#1a4a2e 40%,#0d2f1a 100%);border:2px solid rgba(232,163,23,0.3);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;z-index:100001; }
         .zoo-welcome-top { background:linear-gradient(135deg,rgba(232,163,23,0.15),rgba(111,191,115,0.1));padding:40px 30px 20px;text-align:center;position:relative; }
         .zoo-welcome-logo { width:80px;height:80px;border-radius:50%;border:3px solid rgba(232,163,23,0.4);margin:0 auto 16px;animation:zooFloat 3s ease-in-out infinite;object-fit:cover; }
         .zoo-welcome-confetti { font-size:2rem;margin-bottom:8px; }
@@ -1416,6 +1419,23 @@ const ZOORIGEN_CLUB = {
     `;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
+
+    // Generar confetti
+    const confettiContainer = document.createElement('div');
+    confettiContainer.className = 'zoo-confetti';
+    const colors = ['#E8A317','#6FBF73','#D55A28','#2AA4D5','#fff','#F5C62E','#ff6b9d'];
+    const shapes = ['circle','square'];
+    for (let i = 0; i < 60; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'zoo-confetti-piece';
+      const color = colors[Math.floor(Math.random()*colors.length)];
+      const shape = shapes[Math.floor(Math.random()*shapes.length)];
+      const size = 6 + Math.random()*8;
+      piece.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${size}px;background:${color};border-radius:${shape==='circle'?'50%':'2px'};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.5}s;`;
+      confettiContainer.appendChild(piece);
+    }
+    document.body.appendChild(confettiContainer);
+    setTimeout(() => confettiContainer.remove(), 5000);
 
     const close = () => {
       overlay.style.opacity = '0';
