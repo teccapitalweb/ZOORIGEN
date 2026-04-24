@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/css/club.css">
   <link rel="stylesheet" href="../assets/css/club-mobile.css">
   <link rel="stylesheet" href="../assets/css/club-theme.css">
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
   <div class="club-layout">
@@ -58,7 +59,7 @@
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;">
 
-            <div class="card" style="border-color:var(--zoo-border-strong);">
+            <div class="card" style="border-color:var(--zoo-border-strong);cursor:pointer;" onclick="document.querySelectorAll('.plan-card').forEach(c=>c.style.borderColor='var(--zoo-border-strong)');this.style.borderColor='var(--zoo-green-500)';iniciarPagoEmbedded('mensual','${session.email}','stripe-checkout-container')">
               <div style="color:var(--zoo-green-500);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;">Plan Mensual</div>
               <div style="color:#fff;font-size:2.2rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;margin-top:8px;">$199<span style="font-size:.9rem;color:var(--zoo-text-muted);font-weight:400;"> /mes</span></div>
               <p style="color:var(--zoo-text-muted);font-size:.88rem;margin-top:10px;margin-bottom:18px;">Facturación mensual · Cancela cuando quieras</p>
@@ -67,10 +68,10 @@
                 <li style="padding:6px 0;">✓ Renovación automática</li>
                 <li style="padding:6px 0;">✓ 20% OFF en cursos</li>
               </ul>
-              <button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club-outline" style="display:block;width:100%;padding:12px;margin:0;border:1px solid var(--zoo-border-strong);font-family:inherit;font-size:1rem;cursor:pointer;">Pagar $199 mensual</button>
+              <button class="btn-club-outline" style="display:block;width:100%;padding:12px;margin:0;border:1px solid var(--zoo-border-strong);font-family:inherit;font-size:1rem;cursor:pointer;">Seleccionar mensual</button>
             </div>
 
-            <div class="card" style="border:2px solid var(--zoo-amber);background:linear-gradient(135deg,rgba(232,163,23,0.1),rgba(31,95,58,0.2));position:relative;">
+            <div class="card" style="border:2px solid var(--zoo-amber);background:linear-gradient(135deg,rgba(232,163,23,0.1),rgba(31,95,58,0.2));position:relative;cursor:pointer;" onclick="document.querySelectorAll('.plan-card').forEach(c=>c.style.borderColor='var(--zoo-border-strong)');this.style.borderColor='var(--zoo-amber)';iniciarPagoEmbedded('anual','${session.email}','stripe-checkout-container')">
               <span style="position:absolute;top:-10px;right:16px;background:var(--zoo-amber);color:#1f1d17;padding:4px 12px;border-radius:12px;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;">Ahorra 2 meses</span>
               <div style="color:var(--zoo-amber);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;">Plan Anual · Recomendado</div>
               <div style="color:#fff;font-size:2.2rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;margin-top:8px;">$1,899<span style="font-size:.9rem;color:var(--zoo-text-muted);font-weight:400;"> /año</span></div>
@@ -81,10 +82,12 @@
                 <li style="padding:6px 0;">✓ 20% OFF en cursos todo el año</li>
                 <li style="padding:6px 0;">✓ <strong style="color:var(--zoo-amber);">2 meses gratis</strong></li>
               </ul>
-              <button onclick="ZOORIGEN_CLUB.openCheckoutModal('anual', '${session.email}')" class="btn-club" style="display:block;width:100%;padding:14px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Pagar $1,899 anual</button>
+              <button class="btn-club" style="display:block;width:100%;padding:14px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Seleccionar anual</button>
             </div>
 
           </div>
+
+          <div id="stripe-checkout-container" style="margin-top:24px;min-height:0;border-radius:12px;overflow:hidden;"></div>
 
           <p style="text-align:center;color:var(--zoo-text-dim);font-size:.84rem;margin-top:18px;">🔒 Pago seguro procesado por Stripe · Tu membresía se activa automáticamente al completar el pago</p>`;
       } else {

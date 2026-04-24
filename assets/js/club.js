@@ -7,11 +7,12 @@
 // Migrado de Shopify a Stripe Checkout Sessions
 const STRIPE_CONFIG = {
   API_URL: 'https://zoorigen-webhook-production.up.railway.app/create-checkout-session',
+  PUBLIC_KEY: 'pk_test_51TMAchPBgqsOPfUYtBbalhoOLnnGz6LymFleli7OxTDbiK4FNYX0K82ispYDb39zKJQXevyMtIPetxVAvq9hhb5P0B5VGgxu99',
   PRICE_MENSUAL: 'price_1TPVMWPBgqsOPfUYytgZtVTv',
   PRICE_ANUAL: 'price_1TPVNoPBgqsOPfUYV9awQMXq',
 };
 
-// Función global para iniciar pago con Stripe
+// Función global para iniciar pago con Stripe (redirect)
 async function iniciarPagoStripe(planType, email) {
   const user = firebase.auth().currentUser;
   if (!user) {
@@ -61,6 +62,38 @@ async function iniciarPagoStripe(planType, email) {
     console.error('Error Stripe:', error);
     overlay.remove();
     alert('Error al procesar el pago. Intenta de nuevo.');
+  }
+}
+
+// Función para Stripe Embedded Checkout (pago dentro de la página)
+async function iniciarPagoEmbedded(planType, email, containerId) {
+  const user = firebase.auth().currentUser;
+  if (!user) { alert('Debes iniciar sesión primero'); return; }
+  const userEmail = email || user.email;
+  const priceId = planType === 'anual' ? STRIPE_CONFIG.PRICE_ANUAL : STRIPE_CONFIG.PRICE_MENSUAL;
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--zoo-text-muted);">Cargando formulario de pago...</div>';
+
+  try {
+    const response = await fetch(STRIPE_CONFIG.API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        priceId, firebaseUID: user.uid, email: userEmail, planType, embedded: true,
+      }),
+    });
+    const data = await response.json();
+    if (!data.clientSecret) throw new Error(data.error || 'Error al crear sesión');
+
+    const stripe = Stripe(STRIPE_CONFIG.PUBLIC_KEY);
+    const checkout = await stripe.initEmbeddedCheckout({ clientSecret: data.clientSecret });
+    container.innerHTML = '';
+    checkout.mount('#' + containerId);
+  } catch (error) {
+    console.error('Error Embedded Checkout:', error);
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:#ff6b6b;">Error al cargar el pago. <button onclick="location.reload()" style="color:var(--zoo-amber);background:none;border:1px solid var(--zoo-amber);padding:8px 16px;border-radius:8px;cursor:pointer;margin-top:10px;">Reintentar</button></div>';
   }
 }
 
