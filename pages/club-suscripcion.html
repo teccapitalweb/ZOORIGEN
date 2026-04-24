@@ -1,633 +1,303 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mi suscripción · Club GlobalVet México</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club-extra.css">
-<script src="https://js.stripe.com/v3/"></script>
-<script src="../assets/js/stripe-config.js"></script>
-<style>
-  .sub-card {
-    background: var(--gv-bg-surface);
-    border: 1px solid var(--gv-border);
-    border-radius: var(--gv-radius-lg);
-    padding: 1.6rem 1.8rem;
-    margin-bottom: 1.2rem;
-  }
-  .sub-card h2 {
-    font-family: var(--gv-ff);
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 0.8rem;
-    color: var(--gv-text);
-  }
-  .sub-card.warning {
-    background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.06));
-    border-color: var(--gv-border-gold);
-  }
-  .sub-card.success {
-    background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05));
-    border-color: rgba(16,185,129,0.3);
-  }
-  .sub-card.danger {
-    background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(244,63,94,0.05));
-    border-color: rgba(244,63,94,0.3);
-  }
-
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.8rem 0;
-    border-bottom: 1px solid var(--gv-border);
-    gap: 1rem;
-  }
-  .info-row:last-child { border-bottom: none; }
-  .info-label {
-    color: var(--gv-text-muted);
-    font-size: 0.88rem;
-    font-weight: 500;
-  }
-  .info-value {
-    color: var(--gv-text);
-    font-family: var(--gv-ff);
-    font-weight: 700;
-    text-align: right;
-  }
-
-  .plans-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.2rem;
-    margin-top: 1.2rem;
-  }
-
-  .plan-card {
-    background: var(--gv-bg-surface);
-    border: 1.5px solid var(--gv-border);
-    border-radius: var(--gv-radius-lg);
-    padding: 1.8rem 1.6rem;
-    position: relative;
-    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-  }
-  .plan-card.featured {
-    border-color: var(--gv-gold);
-    background:
-      radial-gradient(ellipse 300px 200px at 50% 0%, rgba(245,158,11,0.12), transparent 60%),
-      var(--gv-bg-surface-2);
-    box-shadow: 0 8px 30px rgba(245,158,11,0.15);
-  }
-  .plan-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(139,92,246,0.2);
-  }
-  .plan-card.featured:hover {
-    box-shadow: 0 16px 40px rgba(245,158,11,0.25);
-  }
-
-  .plan-badge {
-    position: absolute;
-    top: -12px;
-    right: 16px;
-    background: linear-gradient(135deg, var(--gv-gold), var(--gv-gold-deep));
-    color: #1a0f04;
-    padding: 0.35rem 0.9rem;
-    border-radius: 50px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    box-shadow: 0 4px 12px rgba(245,158,11,0.4);
-  }
-
-  .plan-tag {
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: var(--gv-purple-hover);
-    margin-bottom: 0.3rem;
-  }
-  .plan-card.featured .plan-tag {
-    color: var(--gv-gold-hover);
-  }
-
-  .plan-price {
-    font-family: var(--gv-ff);
-    font-size: 2.4rem;
-    font-weight: 800;
-    color: var(--gv-text);
-    line-height: 1;
-    margin-bottom: 0.3rem;
-    letter-spacing: -0.02em;
-  }
-  .plan-price-unit {
-    font-size: 0.95rem;
-    color: var(--gv-text-muted);
-    font-weight: 400;
-  }
-  .plan-note {
-    color: var(--gv-text-muted);
-    font-size: 0.88rem;
-    margin-bottom: 1.3rem;
-  }
-  .plan-note strong {
-    color: var(--gv-emerald-hover);
-  }
-  .plan-card.featured .plan-note strong {
-    color: var(--gv-gold-hover);
-  }
-
-  .plan-features {
-    list-style: none;
-    margin-bottom: 1.5rem;
-  }
-  .plan-features li {
-    padding: 0.4rem 0;
-    color: var(--gv-text-muted);
-    font-size: 0.9rem;
-    display: flex;
-    gap: 0.5rem;
-    align-items: flex-start;
-  }
-  .plan-features li::before {
-    content: '✓';
-    color: var(--gv-emerald);
-    font-weight: 800;
-    flex-shrink: 0;
-  }
-  .plan-card.featured .plan-features li::before {
-    color: var(--gv-gold);
-  }
-
-  .loading-box {
-    text-align: center;
-    padding: 4rem 1rem;
-    color: var(--gv-text-muted);
-  }
-
-  .config-warning {
-    background: rgba(244,63,94,0.1);
-    border: 1px solid rgba(244,63,94,0.3);
-    color: #fda4af;
-    padding: 1rem 1.3rem;
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
-    font-size: 0.88rem;
-    line-height: 1.6;
-  }
-  .config-warning code {
-    background: rgba(0,0,0,0.3);
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: var(--gv-gold-hover);
-    font-size: 0.82rem;
-  }
-
-  /* Overlay de "procesando pago" (tras volver de Stripe) */
-  .pay-wait-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(10,6,20,0.95);
-    backdrop-filter: blur(8px);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-  }
-  .pay-wait-modal {
-    max-width: 480px;
-    width: 100%;
-    background: linear-gradient(135deg, var(--gv-bg-surface-2), var(--gv-bg-surface));
-    border: 2px solid var(--gv-border-gold);
-    border-radius: 20px;
-    padding: 2.5rem 2rem;
-    text-align: center;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-  }
-  .pay-wait-icon {
-    font-size: 4rem;
-    margin-bottom: 0.8rem;
-    animation: pulsePay 1.5s ease-in-out infinite;
-  }
-  @keyframes pulsePay { 0%,100% {transform:scale(1)} 50% {transform:scale(1.1)} }
-  .pay-wait-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.4rem;
-    margin: 1.2rem 0;
-  }
-  .pay-wait-dot {
-    width: 10px; height: 10px;
-    background: var(--gv-gold);
-    border-radius: 50%;
-    animation: bouncePay 1.4s ease-in-out infinite;
-  }
-  .pay-wait-dot:nth-child(2) { animation-delay: 0.2s; }
-  .pay-wait-dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bouncePay { 0%,80%,100% {transform:translateY(0);opacity:0.5} 40% {transform:translateY(-8px);opacity:1} }
-</style>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi suscripción · Club VIP Zoorigen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css">
+  <link rel="stylesheet" href="../assets/css/club-theme.css">
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
-<nav class="tnav" id="topnav"></nav>
-<div class="dlayout">
-  <aside class="sidebar" id="sidebar"></aside>
-  <main class="dmain">
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
+      <div class="page-header"><h1>💳 Mi suscripción</h1><p>Gestiona tu membresía VIP Zoorigen</p></div>
+      <div id="subContent">Cargando...</div>
+    </main>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('suscripcion', session);
+      if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
-    <div class="ph">
-      <h1>💳 Mi suscripción</h1>
-      <p>Gestiona tu membresía VIP del Club GlobalVet México</p>
-    </div>
+      const content = document.getElementById('subContent');
+      let html = '';
 
-    <div id="content" class="loading-box">Cargando información de tu cuenta…</div>
-  </main>
-</div>
+      if (session.planStatus === 'pending_payment') {
+        // Stripe Checkout Sessions — los botones llaman a openCheckoutModal que usa iniciarPagoStripe
+        html += `
+          <div class="card" style="background:linear-gradient(135deg,rgba(232,163,23,0.12),rgba(213,90,40,0.08));border-color:var(--zoo-amber);margin-bottom:20px;">
+            <h2 style="color:var(--zoo-amber);font-size:1.3rem;margin-bottom:10px;">⏳ Activa tu membresía VIP</h2>
+            <p style="margin-bottom:20px;">Tu cuenta está creada. Elige tu plan y activa todos los beneficios VIP ahora mismo.</p>
 
-<script type="module">
-import { requireAuth, renderSidebar, renderTopNav, doLogout, toast, db, collection, doc, getDoc, updateDoc, serverTimestamp, auth } from '../assets/js/club-extra.js';
-
-let _session;
-
-function fmtMoney(n) {
-  return '$' + n.toLocaleString('es-MX');
-}
-
-function fmtFecha(d) {
-  if (!d) return '—';
-  const date = d.toDate ? d.toDate() : new Date(d);
-  if (isNaN(date)) return '—';
-  return date.toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' });
-}
-
-function renderSinPago() {
-  const S = window.STRIPE_CONFIG;
-  const content = document.getElementById('content');
-  const configOk = S.isConfigured();
-
-  content.innerHTML = `
-    ${!configOk ? `
-      <div class="config-warning">
-        <strong>⚙️ Stripe aún no está configurado.</strong><br>
-        Para activar los pagos, edita <code>assets/js/stripe-config.js</code> y llena los Price IDs, Public Key y API URL del servidor. Los botones de abajo están visibles solo como preview.
-      </div>
-    ` : ''}
-
-    <div class="sub-card warning">
-      <h2 style="color:var(--gv-gold-hover);">⏳ Activa tu membresía VIP</h2>
-      <p style="color:var(--gv-text-muted);margin-bottom:1rem;">
-        Tu cuenta está creada. Elige tu plan y activa todos los beneficios VIP ahora mismo:
-        biblioteca completa de cursos, herramientas clínicas, sesiones en vivo, constancias oficiales y 20% OFF en cursos premium.
-      </p>
-
-      <div style="background:rgba(0,0,0,0.25);border:1px solid var(--gv-border-gold);border-radius:10px;padding:1rem 1.2rem;margin-top:1rem;">
-        <div style="color:var(--gv-text);font-weight:700;font-size:0.95rem;margin-bottom:0.4rem;">💰 ¿Ya realizaste el pago?</div>
-        <p style="color:var(--gv-text-muted);font-size:0.84rem;margin-bottom:0.8rem;line-height:1.5;">
-          Si ya pagaste pero tu membresía no se activó, presiona el botón para verificar tu pago manualmente.
-        </p>
-        <button class="btn btn-outline" id="verifyPaymentBtn" style="padding:0.6rem 1.2rem;font-size:0.88rem;">🔍 Verificar mi pago</button>
-        <div id="verifyMsg" style="margin-top:0.6rem;"></div>
-      </div>
-    </div>
-
-    <div class="plans-grid">
-      <!-- PLAN MENSUAL -->
-      <div class="plan-card">
-        <div class="plan-tag">Plan Mensual</div>
-        <div class="plan-price">${fmtMoney(S.PRECIO_MENSUAL_MXN)}<span class="plan-price-unit"> MXN /mes</span></div>
-        <p class="plan-note">Facturación mensual · Cancela cuando quieras</p>
-        <ul class="plan-features">
-          <li>Acceso completo 30 días</li>
-          <li>Renovación automática</li>
-          <li>20% OFF en cursos premium</li>
-          <li>Herramientas clínicas Pro</li>
-          <li>Constancias oficiales verificables</li>
-        </ul>
-        <button class="btn btn-outline btn-block" onclick="window._pagar('mensual')" ${!configOk ? 'disabled' : ''}>
-          Suscribirme mensual
-        </button>
-      </div>
-
-      <!-- PLAN ANUAL -->
-      <div class="plan-card featured">
-        <span class="plan-badge">Ahorra ${fmtMoney(S.AHORRO_ANUAL_MXN)}</span>
-        <div class="plan-tag">Plan Anual · Recomendado</div>
-        <div class="plan-price">${fmtMoney(S.PRECIO_ANUAL_MXN)}<span class="plan-price-unit"> MXN /año</span></div>
-        <p class="plan-note">Equivale a <strong>$${Math.round(S.PRECIO_ANUAL_MXN/12).toLocaleString('es-MX')}/mes</strong> · Ahorras ${fmtMoney(S.AHORRO_ANUAL_MXN)}</p>
-        <ul class="plan-features">
-          <li>Acceso completo 365 días</li>
-          <li>Sin sorpresas de cobros mensuales</li>
-          <li>20% OFF en cursos todo el año</li>
-          <li>Herramientas clínicas Pro</li>
-          <li>Constancias oficiales verificables</li>
-          <li><strong style="color:var(--gv-gold-hover);">2 meses gratis</strong></li>
-        </ul>
-        <button class="btn btn-gold btn-block" onclick="window._pagar('anual')" ${!configOk ? 'disabled' : ''}>
-          Suscribirme anual
-        </button>
-      </div>
-    </div>
-
-    <p style="text-align:center;color:var(--gv-text-dim);font-size:0.82rem;margin-top:1.5rem;">
-      🔒 Pago seguro procesado por Stripe · Tu membresía se activa automáticamente al completar el pago
-    </p>
-  `;
-
-  document.getElementById('verifyPaymentBtn')?.addEventListener('click', verifyPayment);
-}
-
-function renderActiva(miembro) {
-  const S = window.STRIPE_CONFIG;
-  const content = document.getElementById('content');
-  const fechaVence = miembro.planVence ? (miembro.planVence.toDate ? miembro.planVence.toDate() : new Date(miembro.planVence)) : null;
-  const tieneTiempo = fechaVence && fechaVence.getTime() > Date.now();
-  const diasRestantes = tieneTiempo ? Math.ceil((fechaVence - new Date()) / 86400000) : 0;
-  const activa = miembro.planStatus === 'active';
-  const cancelada = miembro.planStatus === 'cancelled';
-  const tipoPlan = miembro.planTipo === 'anual' ? 'Anual' : 'Mensual';
-  const precio = miembro.planTipo === 'anual' ? S.PRECIO_ANUAL_MXN : S.PRECIO_MENSUAL_MXN;
-  const unidad = miembro.planTipo === 'anual' ? '/año' : '/mes';
-
-  let html = `
-    <div class="sub-card ${activa ? 'success' : ''}">
-      <h2>Plan actual</h2>
-      <div class="info-row">
-        <span class="info-label">Plan</span>
-        <span class="info-value">Miembro VIP GlobalVet — ${tipoPlan}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Precio</span>
-        <span class="info-value">${fmtMoney(precio)} MXN ${unidad}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Estado</span>
-        <span class="info-value" style="color:${activa ? 'var(--gv-emerald-hover)' : 'var(--gv-rose)'};">
-          ${activa ? '● Activa' : '✕ Cancelada'}
-        </span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">${activa ? 'Próxima renovación' : 'Acceso hasta'}</span>
-        <span class="info-value">${fmtFecha(miembro.planVence)}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Último pago</span>
-        <span class="info-value">${fmtFecha(miembro.ultimoPago)}</span>
-      </div>
-    </div>
-  `;
-
-  // Si está cancelada pero todavía con tiempo → ofrecer reanudar sin pagar
-  if (cancelada && tieneTiempo) {
-    html += `
-      <div class="sub-card success">
-        <h2 style="color:var(--gv-emerald-hover);">💚 ¿Te arrepentiste? Reanuda tu membresía</h2>
-        <p style="color:var(--gv-text-muted);margin-bottom:1rem;line-height:1.55;">
-          Tu membresía está cancelada pero aún tienes <strong style="color:var(--gv-emerald-hover);">${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} de acceso</strong>.
-          Puedes reactivarla ahora <strong>sin costo adicional</strong> y seguir disfrutando de todos los beneficios con renovación automática.
-        </p>
-        <button class="btn btn-emerald" id="reanudarBtn">✓ Reanudar mi membresía</button>
-        <div id="reanudarMsg" style="margin-top:0.8rem;"></div>
-      </div>
-    `;
-  }
-
-  // Zona de peligro (cancelar) o reactivar (si ya expiró)
-  if (activa) {
-    html += `
-      <div class="sub-card danger">
-        <h2 style="color:#fda4af;">⚠️ Zona de peligro</h2>
-        <p style="color:var(--gv-text-muted);margin-bottom:1rem;">
-          Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado.
-          Después perderás acceso a la biblioteca, herramientas clínicas y descuentos VIP.
-        </p>
-        <button class="btn" id="cancelBtn" style="background:rgba(244,63,94,0.15);color:#fda4af;border:1px solid rgba(244,63,94,0.3);">
-          Cancelar membresía
-        </button>
-        <div id="cancelMsg" style="margin-top:0.8rem;"></div>
-      </div>
-    `;
-  } else if (!tieneTiempo) {
-    html += `
-      <div class="sub-card warning">
-        <h2 style="color:var(--gv-gold-hover);">🔄 Reactivar con nuevo pago</h2>
-        <p style="color:var(--gv-text-muted);margin-bottom:1rem;">
-          Tu membresía venció. Reactívala para volver a tener acceso completo al contenido VIP.
-        </p>
-        <button class="btn btn-gold" onclick="window._pagar('mensual')">
-          Reactivar por ${fmtMoney(S.PRECIO_MENSUAL_MXN)} MXN
-        </button>
-      </div>
-    `;
-  }
-
-  // Historial de pagos (si hay)
-  if (miembro.historialPagos && miembro.historialPagos.length) {
-    html += `
-      <div class="sub-card">
-        <h2>Historial de pagos</h2>
-        ${miembro.historialPagos.slice(-10).reverse().map(p => `
-          <div class="info-row">
-            <span class="info-label">${fmtFecha(p.fecha)}</span>
-            <span class="info-value">${fmtMoney(p.monto)} · ${p.status === 'paid' ? '✓ Pagado' : p.status}</span>
+            <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,163,23,0.3);border-radius:10px;padding:14px 18px;margin-top:16px;">
+              <div style="color:#fff;font-weight:600;font-size:.95rem;margin-bottom:6px;">💰 ¿Ya realizaste el pago?</div>
+              <p style="color:var(--zoo-text-muted);font-size:.84rem;margin-bottom:12px;line-height:1.5;">
+                Si ya pagaste pero tu membresía no se activó, presiona el botón para verificar tu pago manualmente.
+              </p>
+              <button id="verifyPaymentBtn" class="btn-club-outline" style="width:auto;padding:10px 22px;border:1px solid var(--zoo-amber);color:var(--zoo-amber);font-family:inherit;font-size:.92rem;cursor:pointer;">
+                🔍 Verificar mi pago
+              </button>
+              <div id="verifyMsg" style="margin-top:10px;"></div>
+            </div>
           </div>
-        `).join('')}
-      </div>
-    `;
-  }
 
-  content.innerHTML = html;
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;">
 
-  document.getElementById('reanudarBtn')?.addEventListener('click', reanudar);
-  document.getElementById('cancelBtn')?.addEventListener('click', cancelar);
-}
+            <div class="card" style="border-color:var(--zoo-border-strong);">
+              <div style="color:var(--zoo-green-500);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;">Plan Mensual</div>
+              <div style="color:#fff;font-size:2.2rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;margin-top:8px;">$199<span style="font-size:.9rem;color:var(--zoo-text-muted);font-weight:400;"> /mes</span></div>
+              <p style="color:var(--zoo-text-muted);font-size:.88rem;margin-top:10px;margin-bottom:18px;">Facturación mensual · Cancela cuando quieras</p>
+              <ul style="list-style:none;padding:0;margin:0 0 20px;font-size:.88rem;color:var(--zoo-text-muted);">
+                <li style="padding:6px 0;">✓ Acceso completo 30 días</li>
+                <li style="padding:6px 0;">✓ Renovación automática</li>
+                <li style="padding:6px 0;">✓ 20% OFF en cursos</li>
+              </ul>
+              <button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club-outline" style="display:block;width:100%;padding:12px;margin:0;border:1px solid var(--zoo-border-strong);font-family:inherit;font-size:1rem;cursor:pointer;">Suscribirme mensual</button>
+            </div>
 
-// ═══ Pagar con Stripe ═══
-window._pagar = async function(planType) {
-  const S = window.STRIPE_CONFIG;
-  if (!S.isConfigured()) {
-    toast('⚙️ Stripe aún no está configurado. Edita assets/js/stripe-config.js', true);
-    return;
-  }
-  const user = auth.currentUser;
-  if (!user) { toast('Debes iniciar sesión', true); return; }
+            <div class="card" style="border:2px solid var(--zoo-amber);background:linear-gradient(135deg,rgba(232,163,23,0.1),rgba(31,95,58,0.2));position:relative;">
+              <span style="position:absolute;top:-10px;right:16px;background:var(--zoo-amber);color:#1f1d17;padding:4px 12px;border-radius:12px;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;">Ahorra 2 meses</span>
+              <div style="color:var(--zoo-amber);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;">Plan Anual · Recomendado</div>
+              <div style="color:#fff;font-size:2.2rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;margin-top:8px;">$1,899<span style="font-size:.9rem;color:var(--zoo-text-muted);font-weight:400;"> /año</span></div>
+              <p style="color:var(--zoo-text-muted);font-size:.88rem;margin-top:10px;margin-bottom:18px;">Equivale a <strong style="color:var(--zoo-green-500);">$158/mes</strong> · Ahorras $489 MXN</p>
+              <ul style="list-style:none;padding:0;margin:0 0 20px;font-size:.88rem;color:var(--zoo-text-muted);">
+                <li style="padding:6px 0;">✓ Acceso completo 365 días</li>
+                <li style="padding:6px 0;">✓ Sin sorpresas de cobros mensuales</li>
+                <li style="padding:6px 0;">✓ 20% OFF en cursos todo el año</li>
+                <li style="padding:6px 0;">✓ <strong style="color:var(--zoo-amber);">2 meses gratis</strong></li>
+              </ul>
+              <button onclick="ZOORIGEN_CLUB.openCheckoutModal('anual', '${session.email}')" class="btn-club" style="display:block;width:100%;padding:14px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Suscribirme anual</button>
+            </div>
 
-  const priceId = planType === 'anual' ? S.PRICE_ANUAL : S.PRICE_MENSUAL;
-  const precio = planType === 'anual' ? S.PRECIO_ANUAL_MXN : S.PRECIO_MENSUAL_MXN;
-  const planLabel = planType === 'anual' ? 'Plan Anual' : 'Plan Mensual';
+          </div>
 
-  // Overlay de carga
-  const overlay = document.createElement('div');
-  overlay.className = 'pay-wait-overlay';
-  overlay.innerHTML = `
-    <div class="pay-wait-modal">
-      <div class="pay-wait-icon">💳</div>
-      <h2 style="font-family:var(--gv-ff);color:var(--gv-text);font-size:1.4rem;margin-bottom:0.4rem;">Llevándote al pago seguro</h2>
-      <div style="color:var(--gv-gold-hover);font-weight:700;font-size:1rem;margin-bottom:0.8rem;">${planLabel} · ${fmtMoney(precio)} MXN</div>
-      <p style="color:var(--gv-text-muted);font-size:0.9rem;margin-bottom:0.6rem;line-height:1.5;">
-        Completa tu pago con <strong style="color:var(--gv-text);">Stripe (seguro)</strong> y te regresamos automáticamente al club.
-      </p>
-      <div style="color:var(--gv-text-dim);font-size:0.78rem;">Redirigiendo...</div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+          <p style="text-align:center;color:var(--zoo-text-dim);font-size:.84rem;margin-top:18px;">🔒 Pago seguro procesado por Stripe · Tu membresía se activa automáticamente al completar el pago</p>`;
+      } else {
+        // Calcular si todavía tiene tiempo disponible (para mostrar opción de reanudar sin pagar)
+        const fechaVence = session.planVence ? new Date(session.planVence) : null;
+        const tieneTiempo = fechaVence && fechaVence.getTime() > Date.now();
+        const diasRestantes = tieneTiempo ? Math.ceil((fechaVence - new Date()) / (1000*60*60*24)) : 0;
 
-  try {
-    const response = await fetch(S.API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        priceId,
-        firebaseUID: user.uid,
-        email: user.email,
-        planType,
-        successUrl: window.location.origin + '/pages/club-suscripcion.html?paid=1',
-        cancelUrl: window.location.origin + '/pages/club-suscripcion.html?canceled=1'
-      })
-    });
-    const data = await response.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      throw new Error(data.error || 'Error al crear sesión de pago');
-    }
-  } catch (err) {
-    console.error('Error Stripe:', err);
-    overlay.remove();
-    toast('Error al procesar el pago. Intenta de nuevo.', true);
-  }
-};
+        html += `
+          <div class="card">
+            <h2 style="color:#fff;font-size:1.2rem;margin-bottom:14px;">Plan actual</h2>
+            <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value">Miembro VIP Zoorigen</div></div>
+            <div class="info-row"><div class="info-row__label">Precio</div><div class="info-row__value">$199 MXN / mes</div></div>
+            <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-green-500);">● Activa</span>' : '<span style="color:var(--zoo-orange);">✕ Cancelada</span>'}</div></div>
+            <div class="info-row"><div class="info-row__label">${session.planStatus === 'active' ? 'Próxima renovación' : 'Acceso hasta'}</div><div class="info-row__value">${ZOORIGEN_CLUB.formatShort(session.planVence)}</div></div>
+            <div class="info-row"><div class="info-row__label">Último pago</div><div class="info-row__value">${session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : '—'}</div></div>
+          </div>`;
 
-// ═══ Verificar pago manualmente ═══
-async function verifyPayment() {
-  const msg = document.getElementById('verifyMsg');
-  msg.innerHTML = '<span style="color:var(--gv-text-muted);font-size:0.85rem;">🔄 Consultando estado del pago…</span>';
+        // Si está CANCELADO pero todavía con tiempo → ofrecer reanudar sin pagar
+        if (session.planStatus === 'cancelled' && tieneTiempo) {
+          html += `
+            <div class="card" style="margin-top:20px;background:linear-gradient(135deg,rgba(111,191,115,0.12),rgba(31,95,58,0.15));border:1px solid rgba(111,191,115,0.4);">
+              <h2 style="color:var(--zoo-green-500);font-size:1.15rem;margin-bottom:10px;">💚 ¿Te arrepentiste? Reanuda tu membresía</h2>
+              <p style="margin-bottom:14px;color:var(--zoo-text-muted);font-size:.92rem;line-height:1.55;">
+                Tu membresía está cancelada pero aún tienes <strong style="color:var(--zoo-green-500);">${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} de acceso</strong>.
+                Puedes reactivarla ahora mismo <strong>sin costo adicional</strong> y seguir disfrutando de todos los beneficios VIP con renovación automática.
+              </p>
+              <button id="reanudarBtn" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">
+                ✓ Reanudar mi membresía
+              </button>
+              <div id="reanudarMsg" style="margin-top:12px;"></div>
+            </div>`;
+        }
 
-  try {
-    // Re-leer el documento de miembro desde Firestore
-    const snap = await getDoc(doc(db, 'miembros', _session.uid));
-    if (snap.exists() && snap.data().planStatus === 'active') {
-      msg.innerHTML = '<span style="color:var(--gv-emerald-hover);font-size:0.85rem;">✅ ¡Pago verificado! Recargando…</span>';
-      setTimeout(() => window.location.reload(), 1500);
-    } else {
-      msg.innerHTML = '<span style="color:#fda4af;font-size:0.85rem;">⚠️ Aún no se ha registrado el pago. Si pagaste hace más de 2 minutos, contacta soporte.</span>';
-    }
-  } catch (err) {
-    msg.innerHTML = '<span style="color:#fda4af;font-size:0.85rem;">⚠️ Error al verificar: ' + err.message + '</span>';
-  }
-}
-
-// ═══ Cancelar ═══
-async function cancelar() {
-  if (!confirm('¿Seguro que quieres cancelar tu membresía? Mantendrás acceso hasta el final del período pagado.')) return;
-  const msg = document.getElementById('cancelMsg');
-  msg.innerHTML = '<span style="color:var(--gv-text-muted);font-size:0.85rem;">Procesando…</span>';
-  try {
-    await updateDoc(doc(db, 'miembros', _session.uid), {
-      planStatus: 'cancelled',
-      canceladoEn: serverTimestamp()
-    });
-    msg.innerHTML = '<span style="color:var(--gv-emerald-hover);font-size:0.85rem;">✓ Membresía cancelada. Recargando…</span>';
-    setTimeout(() => window.location.reload(), 1500);
-  } catch (err) {
-    msg.innerHTML = '<span style="color:#fda4af;font-size:0.85rem;">Error: ' + err.message + '</span>';
-  }
-}
-
-// ═══ Reanudar ═══
-async function reanudar() {
-  const msg = document.getElementById('reanudarMsg');
-  msg.innerHTML = '<span style="color:var(--gv-text-muted);font-size:0.85rem;">Reactivando…</span>';
-  try {
-    await updateDoc(doc(db, 'miembros', _session.uid), {
-      planStatus: 'active',
-      reanudadoEn: serverTimestamp()
-    });
-    msg.innerHTML = '<span style="color:var(--gv-emerald-hover);font-size:0.85rem;">✓ Membresía reactivada. Recargando…</span>';
-    setTimeout(() => window.location.reload(), 1500);
-  } catch (err) {
-    msg.innerHTML = '<span style="color:#fda4af;font-size:0.85rem;">Error: ' + err.message + '</span>';
-  }
-}
-
-// ═══ Detectar retorno de Stripe ?paid=1 ═══
-function esperarActivacion() {
-  const overlay = document.createElement('div');
-  overlay.className = 'pay-wait-overlay';
-  overlay.innerHTML = `
-    <div class="pay-wait-modal">
-      <div class="pay-wait-icon">🎓</div>
-      <h2 style="font-family:var(--gv-ff);color:var(--gv-text);font-size:1.5rem;margin-bottom:0.5rem;">Procesando tu pago…</h2>
-      <p style="color:var(--gv-text-muted);font-size:0.92rem;margin-bottom:1rem;line-height:1.5;">
-        Estamos activando tu membresía VIP. Esto puede tomar <strong style="color:var(--gv-gold-hover);">hasta 1 minuto</strong>. No cierres esta ventana.
-      </p>
-      <div class="pay-wait-dots">
-        <span class="pay-wait-dot"></span>
-        <span class="pay-wait-dot"></span>
-        <span class="pay-wait-dot"></span>
-      </div>
-      <div id="payWaitStatus" style="color:var(--gv-text-muted);font-size:0.82rem;">Verificando con el servidor…</div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  // Reintentar cada 3s por hasta 90s
-  let intentos = 0;
-  const interval = setInterval(async () => {
-    intentos++;
-    try {
-      const snap = await getDoc(doc(db, 'miembros', _session.uid));
-      if (snap.exists() && snap.data().planStatus === 'active') {
-        clearInterval(interval);
-        document.getElementById('payWaitStatus').textContent = '✅ ¡Membresía activada! Recargando…';
-        setTimeout(() => { window.location.href = 'club-suscripcion.html'; }, 1500);
-        return;
+        // Zona de peligro / reactivar con pago (si ya se venció)
+        html += `
+          <div class="card" style="margin-top:20px;border-color:rgba(213,90,40,0.3);">
+            <h2 style="color:var(--zoo-orange);font-size:1.1rem;margin-bottom:10px;">${session.planStatus === 'active' ? '⚠️ Zona de peligro' : '🔄 Reactivar con nuevo pago'}</h2>
+            <p style="margin-bottom:16px;">${session.planStatus === 'active'
+              ? 'Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado. Después perderás acceso a biblioteca, webinars y descuentos VIP.'
+              : tieneTiempo
+                ? 'Si prefieres que tu membresía se termine cuando venza, no hagas nada. O puedes reactivarla arriba sin costo extra.'
+                : 'Tu membresía venció. Reactívala para volver a tener acceso completo al contenido VIP.'}</p>
+            ${session.planStatus === 'active'
+              ? '<button class="btn-danger" id="cancelBtn">Cancelar membresía</button>'
+              : !tieneTiempo
+                ? `<button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Reactivar por $199 MXN</button>`
+                : ''}
+            <div id="cancelMsg" style="margin-top:14px;"></div>
+          </div>`;
       }
-    } catch(e) {}
-    if (intentos >= 30) {
-      clearInterval(interval);
-      document.getElementById('payWaitStatus').innerHTML = '⚠️ El pago está tardando más de lo normal. Usa el botón "Verificar mi pago" más abajo. <button onclick="this.closest(\'.pay-wait-overlay\').remove();window.location.href=\'club-suscripcion.html\';" style="background:none;border:1px solid var(--gv-gold);color:var(--gv-gold);padding:6px 16px;border-radius:6px;margin-top:8px;cursor:pointer;">Cerrar</button>';
-    } else {
-      document.getElementById('payWaitStatus').textContent = `Verificando… (intento ${intentos}/30)`;
-    }
-  }, 3000);
-}
+      content.innerHTML = html;
 
-// ═══ MAIN ═══
-(async () => {
-  _session = await requireAuth();
-  if (!_session) return;
-  document.getElementById('topnav').innerHTML = renderTopNav(_session);
-  document.getElementById('sidebar').innerHTML = renderSidebar('suscripcion');
-  document.getElementById('btnLogout')?.addEventListener('click', doLogout);
+      // ═══════════════ AUTO-CHECK: Verifica si el pago ya se procesó ═══════════════
+      // Si viene con ?paid=1 en la URL (después de checkout de Stripe), verificar cada 3s por 90s
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('paid')) {
+        // Overlay bonito de "procesando pago"
+        const overlay = document.createElement('div');
+        overlay.id = 'payWaitOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.95);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML = `
+          <div style="max-width:480px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 100%);border:2px solid rgba(232,163,23,0.4);border-radius:20px;padding:40px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+            <div style="font-size:4rem;margin-bottom:14px;animation:pulseZ 1.5s ease-in-out infinite;">🦒</div>
+            <h2 style="font-family:Poppins;color:#fff;font-size:1.5rem;margin:0 0 10px;">Procesando tu pago...</h2>
+            <p style="color:rgba(255,255,255,0.85);font-size:.95rem;margin:0 0 20px;line-height:1.5;">Estamos activando tu membresía VIP. Esto puede tomar <strong style="color:#E8A317;">hasta 1 minuto</strong>. No cierres esta ventana.</p>
+            <div style="display:flex;justify-content:center;gap:6px;margin-bottom:20px;">
+              <span class="zoo-dot" style="width:10px;height:10px;background:#E8A317;border-radius:50%;animation:bounceZ 1.4s ease-in-out infinite;"></span>
+              <span class="zoo-dot" style="width:10px;height:10px;background:#E8A317;border-radius:50%;animation:bounceZ 1.4s ease-in-out 0.2s infinite;"></span>
+              <span class="zoo-dot" style="width:10px;height:10px;background:#E8A317;border-radius:50%;animation:bounceZ 1.4s ease-in-out 0.4s infinite;"></span>
+            </div>
+            <div id="payWaitStatus" style="color:rgba(255,255,255,0.7);font-size:.82rem;">Verificando con el servidor...</div>
+          </div>
+          <style>
+            @keyframes pulseZ { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+            @keyframes bounceZ { 0%,80%,100%{transform:translateY(0);opacity:0.3} 40%{transform:translateY(-8px);opacity:1} }
+          </style>
+        `;
+        document.body.appendChild(overlay);
 
-  // ¿Viene de Stripe con ?paid=1?
-  const params = new URLSearchParams(location.search);
-  if (params.has('paid')) {
-    esperarActivacion();
-    return;
-  }
-  if (params.has('canceled')) {
-    toast('Cancelaste el pago. Puedes intentar de nuevo cuando quieras.', true);
-  }
+        let attempts = 0;
+        const maxAttempts = 30; // 90 segundos
+        const statusEl = () => document.getElementById('payWaitStatus');
 
-  // Leer el documento del miembro
-  let miembro = {};
-  try {
-    const snap = await getDoc(doc(db, 'miembros', _session.uid));
-    if (snap.exists()) miembro = snap.data();
-  } catch(e) { console.warn('No se pudo leer miembro:', e); }
+        const autoCheck = setInterval(async () => {
+          attempts++;
+          if (statusEl()) statusEl().textContent = `Verificando... (${attempts}/${maxAttempts})`;
 
-  // Decidir vista según estado
-  if (!miembro.planStatus || miembro.planStatus === 'pending_payment') {
-    renderSinPago();
-  } else {
-    renderActiva(miembro);
-  }
-})();
-</script>
+          try {
+            const doc = await db.collection('miembros').doc(session.uid).get();
+            const data = doc.data() || {};
+            if (data.planActivo === true || data.planStatus === 'active') {
+              clearInterval(autoCheck);
+              // Éxito: cambiar overlay a mensaje de bienvenida + redirect
+              overlay.innerHTML = `
+                <div style="max-width:480px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 100%);border:2px solid #6FBF73;border-radius:20px;padding:40px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                  <div style="font-size:4rem;margin-bottom:14px;">🎉</div>
+                  <h2 style="font-family:Poppins;color:#fff;font-size:1.6rem;margin:0 0 10px;">¡Bienvenido al Club VIP!</h2>
+                  <p style="color:rgba(255,255,255,0.9);font-size:1rem;margin:0 0 20px;line-height:1.5;">Tu membresía está <strong style="color:#6FBF73;">ACTIVA</strong>. Ya tienes acceso a todo el contenido exclusivo.</p>
+                  <div style="color:#E8A317;font-size:.85rem;">Redirigiendo al dashboard en 2 segundos...</div>
+                </div>
+              `;
+              setTimeout(() => { window.location.href = 'club-dashboard.html'; }, 2000);
+              return;
+            }
+          } catch (e) { console.warn('Auto-check error', e); }
+
+          if (attempts >= maxAttempts) {
+            clearInterval(autoCheck);
+            overlay.innerHTML = `
+              <div style="max-width:480px;width:100%;background:var(--zoo-bg-card,#131816);border:2px solid rgba(232,163,23,0.4);border-radius:20px;padding:40px 30px;text-align:center;">
+                <div style="font-size:3.5rem;margin-bottom:14px;">⏱️</div>
+                <h2 style="font-family:Poppins;color:#fff;font-size:1.4rem;margin:0 0 10px;">El pago aún no se confirma</h2>
+                <p style="color:rgba(255,255,255,0.85);font-size:.92rem;margin:0 0 18px;line-height:1.5;">A veces tarda unos minutos. Si ya pagaste, espera un momento y presiona verificar. Si NO pagaste, puedes hacerlo ahora.</p>
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                  <button onclick="location.reload()" style="background:linear-gradient(135deg,#E8A317,#D68A0A);color:#1f1d17;border:0;padding:12px 22px;border-radius:10px;font-family:Poppins;font-weight:700;cursor:pointer;">🔄 Verificar ahora</button>
+                  <button onclick="document.getElementById('payWaitOverlay').remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:12px 22px;border-radius:10px;cursor:pointer;">Cerrar</button>
+                </div>
+              </div>
+            `;
+          }
+        }, 3000);
+      }
+
+      // ═══════════════ VERIFICAR PAGO MANUAL ═══════════════
+      const verifyBtn = document.getElementById('verifyPaymentBtn');
+      if (verifyBtn) {
+        verifyBtn.addEventListener('click', async () => {
+          const msgEl = document.getElementById('verifyMsg');
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = '⏳ Verificando...';
+          msgEl.innerHTML = '';
+
+          try {
+            // Recargar el doc del miembro desde Firestore
+            const doc = await db.collection('miembros').doc(session.uid).get();
+            const data = doc.data() || {};
+
+            if (data.planActivo === true || data.planStatus === 'active') {
+              msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ ¡Pago encontrado! Tu membresía está activa. Recargando...</div>`;
+              setTimeout(() => window.location.href = 'club-dashboard.html', 1500);
+              return;
+            }
+
+            // Si el webhook no ha activado, mostrar info de contacto
+            msgEl.innerHTML = `
+              <div style="background:rgba(232,163,23,0.08);border:1px solid rgba(232,163,23,0.3);padding:14px;border-radius:8px;margin-top:6px;">
+                <div style="color:var(--zoo-amber);font-weight:700;margin-bottom:8px;font-size:.92rem;">⚠️ Aún no recibimos la confirmación del pago</div>
+                <p style="color:var(--zoo-text-muted);font-size:.84rem;line-height:1.5;margin-bottom:10px;">
+                  Si ya pagaste, espera 1-2 minutos y vuelve a presionar el botón.<br>
+                  Si ya esperaste más de 5 minutos, envía captura de tu pago a soporte:
+                </p>
+                <a href="https://wa.me/5212361113237?text=Hola%2C%20ya%20pagu%C3%A9%20Club%20VIP%20Zoorigen%20pero%20no%20se%20activa%20mi%20membres%C3%ADa.%20Mi%20email%20es%3A%20${encodeURIComponent(session.email)}" target="_blank" style="display:inline-block;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.88rem;">
+                  💬 Contactar soporte por WhatsApp
+                </a>
+              </div>
+            `;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = '🔍 Verificar mi pago';
+          } catch (err) {
+            console.error(err);
+            msgEl.innerHTML = `<div style="color:var(--zoo-orange);font-size:.88rem;">Error al verificar. Intenta de nuevo.</div>`;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = '🔍 Verificar mi pago';
+          }
+        });
+      }
+
+      const cancelBtn = document.getElementById('cancelBtn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', async () => {
+          if (!confirm('¿Seguro que quieres cancelar tu membresía VIP? Mantendrás acceso hasta ' + ZOORIGEN_CLUB.formatShort(session.planVence))) return;
+          cancelBtn.disabled = true;
+          cancelBtn.textContent = 'Cancelando...';
+          const result = await ZOORIGEN_CLUB.cancelSubscription();
+          const msg = document.getElementById('cancelMsg');
+          if (result.ok) {
+            msg.innerHTML = `<div class="success-msg show">✅ Cancelación procesada. Tienes acceso hasta ${ZOORIGEN_CLUB.formatShort(result.accesoHasta)}.</div>`;
+            setTimeout(() => location.reload(), 2500);
+          } else {
+            msg.innerHTML = `<div class="error-msg show">⚠️ ${result.msg}</div>`;
+            cancelBtn.disabled = false;
+            cancelBtn.textContent = 'Cancelar membresía';
+          }
+        });
+      }
+
+      // ═══════════════ REANUDAR MEMBRESÍA CANCELADA (sin costo) ═══════════════
+      const reanudarBtn = document.getElementById('reanudarBtn');
+      if (reanudarBtn) {
+        reanudarBtn.addEventListener('click', async () => {
+          if (!confirm('¿Reanudar tu membresía? Volverá a renovarse automáticamente al vencer.')) return;
+          reanudarBtn.disabled = true;
+          reanudarBtn.textContent = 'Reanudando...';
+          const msgEl = document.getElementById('reanudarMsg');
+          try {
+            await db.collection('miembros').doc(session.uid).update({
+              planCancelado: false,
+              canceladoEn: firebase.firestore.FieldValue.delete(),
+              reanudadoEn: new Date().toISOString()
+            });
+            msgEl.innerHTML = `<div class="success-msg show">✅ ¡Tu membresía fue reanudada! Seguirás teniendo acceso completo.</div>`;
+            setTimeout(() => location.reload(), 1800);
+          } catch (err) {
+            console.error(err);
+            msgEl.innerHTML = `<div class="error-msg show">⚠️ No se pudo reanudar. Escríbenos por WhatsApp.</div>`;
+            reanudarBtn.disabled = false;
+            reanudarBtn.textContent = '✓ Reanudar mi membresía';
+          }
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

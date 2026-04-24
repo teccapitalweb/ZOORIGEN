@@ -1,175 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mis constancias · Club GlobalVet México</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club-extra.css">
-<style>
-  .cert-item {
-    background: var(--gv-bg-surface);
-    border: 1px solid var(--gv-border);
-    border-radius: var(--gv-radius-lg);
-    overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
-  }
-  .cert-item:hover {
-    transform: translateY(-3px);
-    border-color: var(--gv-border-gold);
-    box-shadow: 0 12px 30px rgba(245, 158, 11, 0.15);
-  }
-  .cert-item-top {
-    background:
-      radial-gradient(ellipse 200px 150px at 85% 30%, rgba(245, 158, 11, 0.2), transparent 60%),
-      linear-gradient(135deg, #2d1a68 0%, #1a1040 100%);
-    border-bottom: 2px solid var(--gv-gold);
-    padding: 1.4rem 1.6rem;
-    position: relative;
-  }
-  .cert-item-top::before {
-    content: "🏆";
-    position: absolute;
-    top: 1rem; right: 1.2rem;
-    font-size: 2rem;
-    opacity: 0.4;
-  }
-  .cert-item-folio {
-    display: inline-block;
-    background: rgba(245, 158, 11, 0.15);
-    border: 1px solid var(--gv-border-gold);
-    color: var(--gv-gold-hover);
-    font-family: var(--gv-ff);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    padding: 0.3rem 0.7rem;
-    border-radius: 6px;
-    margin-bottom: 0.7rem;
-  }
-  .cert-item-titulo {
-    font-family: 'Cinzel', serif;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--gv-text);
-    margin-bottom: 0.3rem;
-    line-height: 1.3;
-    padding-right: 2rem;
-  }
-  .cert-item-area {
-    font-size: 0.78rem;
-    color: var(--gv-gold-hover);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .cert-item-body { padding: 1.2rem 1.5rem; }
-  .cert-item-meta {
-    display: flex; gap: 1.2rem;
-    font-size: 0.85rem;
-    color: var(--gv-text-muted);
-    margin-bottom: 1.1rem;
-    flex-wrap: wrap;
-  }
-  .cert-item-meta strong { color: var(--gv-text); font-family: var(--gv-ff); }
-  .cert-item-actions {
-    display: flex; gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-  .cert-item-actions .btn {
-    flex: 1; min-width: 120px;
-  }
-</style>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis certificados · Club VIP Zoorigen</title>
+  <meta name="theme-color" content="#1F5F3A">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css">
+  <link rel="stylesheet" href="../assets/css/club-theme.css">
 </head>
 <body>
-<nav class="tnav" id="topnav"></nav>
-<div class="dlayout">
-  <aside class="sidebar" id="sidebar"></aside>
-  <main class="dmain">
-
-    <div class="hero-banner">
-      <div class="hero-badge">🏆 Constancias oficiales</div>
-      <h2>Mis constancias profesionales</h2>
-      <p>Cada constancia tiene folio único, QR verificable, firma digital y es descargable en PDF. Compártelas en LinkedIn o imprímelas para tu portafolio.</p>
-      <div class="hero-stats">
-        <div class="hero-stat"><div class="hero-stat-n" id="statTotal">0</div><div class="hero-stat-l">Constancias obtenidas</div></div>
-        <div class="hero-stat"><div class="hero-stat-n" id="statHoras">0</div><div class="hero-stat-l">Horas de capacitación</div></div>
-        <div class="hero-stat"><div class="hero-stat-n" id="statAreas">—</div><div class="hero-stat-l">Áreas cubiertas</div></div>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="club-main__header">
+        <div class="club-main__greeting">
+          <h1>🎓 Mis certificados</h1>
+          <p class="date">Completa cursos para ganar certificados descargables</p>
+        </div>
       </div>
-    </div>
 
-    <div id="content" class="loading">Cargando constancias…</div>
-  </main>
-</div>
+      <div id="certsContent">Cargando...</div>
+    </main>
+  </div>
 
-<script type="module">
-import { requireAuth, renderSidebar, renderTopNav, doLogout, db, collection, query, where, getDocs } from '../assets/js/club-extra.js';
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('certificados', session);
+      if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+      if (ZOORIGEN_CLUB.initNotifications) ZOORIGEN_CLUB.initNotifications(session);
 
-(async () => {
-  const session = await requireAuth();
-  if (!session) return;
-  document.getElementById('topnav').innerHTML = renderTopNav(session);
-  document.getElementById('sidebar').innerHTML = renderSidebar('certificados');
-  document.getElementById('btnLogout')?.addEventListener('click', doLogout);
 
-  let certs = [];
-  try {
-    const snap = await getDocs(query(collection(db, 'certificados'), where('uid', '==', session.uid)));
-    certs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    certs.sort((a,b) => {
-      const fa = a.completadoEn?.toDate?.() || new Date(0);
-      const fb = b.completadoEn?.toDate?.() || new Date(0);
-      return fb - fa;
-    });
-  } catch(e) { console.log('Sin constancias aún'); }
+      const content = document.getElementById('certsContent');
 
-  const areas = new Set(certs.map(c => c.cursoArea).filter(Boolean));
-  const horas = certs.reduce((s, c) => s + ((c.totalClases || 1) * 0.5), 0);
-  document.getElementById('statTotal').textContent = certs.length;
-  document.getElementById('statHoras').textContent = horas.toFixed(1);
-  document.getElementById('statAreas').textContent = areas.size || '—';
+      try {
+        // Buscar todos los certificados del miembro
+        const snap = await db.collection('certificados').where('memberUid', '==', session.uid).get();
+        const allCerts = snap.docs.map(d => d.data()).sort((a, b) => new Date(b.issuedAt) - new Date(a.issuedAt));
 
-  const content = document.getElementById('content');
-  content.classList.remove('loading');
+        // ═══ DEDUPLICAR por courseId (conservar el más reciente) ═══
+        const seen = new Set();
+        const certs = [];
+        for (const c of allCerts) {
+          const key = c.courseId || c.folio;
+          if (!seen.has(key)) {
+            seen.add(key);
+            certs.push(c);
+          }
+        }
 
-  if (certs.length === 0) {
-    content.innerHTML = `
-      <div class="empty">
-        <div class="empty-icon">🎓</div>
-        <h3>Aún no tienes constancias</h3>
-        <p>Al completar todos los módulos de un curso de la Biblioteca, generamos automáticamente una constancia oficial con folio único irrepetible.</p>
-        <a href="club-dashboard.html#biblioteca" class="btn btn-gold">Ir a mis cursos →</a>
-      </div>`;
-    return;
-  }
+        if (certs.length === 0) {
+          content.innerHTML = `
+            <div class="certs-empty">
+              <div style="font-size:4rem;margin-bottom:16px;">🎓</div>
+              <h2>Aún no tienes certificados</h2>
+              <p style="color:var(--zoo-text-muted);margin:10px 0 24px;max-width:460px;margin-left:auto;margin-right:auto;">
+                Completa cursos en la biblioteca y obtén certificados descargables con folio único y verificación QR.
+                Perfectos para tu CV o LinkedIn.
+              </p>
+              <a href="club-biblioteca.html" class="btn-club" style="display:inline-block;width:auto;padding:14px 32px;text-decoration:none;">Ir a la biblioteca</a>
+            </div>`;
+          return;
+        }
 
-  content.innerHTML = `<div class="card-grid">${certs.map(c => {
-    const fecha = c.completadoEn?.toDate
-      ? c.completadoEn.toDate().toLocaleDateString('es-MX', {year:'numeric',month:'long',day:'numeric'})
-      : '—';
-    const folio = c.folio || c.id;
-    return `
-      <article class="cert-item">
-        <div class="cert-item-top">
-          <div class="cert-item-folio">FOLIO · ${folio}</div>
-          <h3 class="cert-item-titulo">${c.cursoTitulo || 'Curso veterinario'}</h3>
-          <div class="cert-item-area">${c.cursoArea || 'Medicina veterinaria'}</div>
-        </div>
-        <div class="cert-item-body">
-          <div class="cert-item-meta">
-            <div>📅 <strong>${fecha}</strong></div>
-            ${c.totalClases ? `<div>📚 <strong>${c.totalClases}</strong> clases</div>` : ''}
+        content.innerHTML = `
+          <div class="certs-stats">
+            <div class="certs-stat">
+              <div class="certs-stat__val">${certs.length}</div>
+              <div class="certs-stat__lbl">Certificados obtenidos</div>
+            </div>
           </div>
-          <div class="cert-item-actions">
-            <a href="ver-certificado.html?folio=${encodeURIComponent(folio)}" class="btn btn-gold">Ver constancia</a>
-            <a href="verificar.html?folio=${encodeURIComponent(folio)}" class="btn btn-outline" target="_blank">🔍 Verificar</a>
-          </div>
-        </div>
-      </article>`;
-  }).join('')}</div>`;
-})();
-</script>
+          <div class="certs-grid">
+            ${certs.map(c => {
+              const fecha = new Date(c.issuedAt);
+              const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+              const fechaStr = `${fecha.getDate()} ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
+              return `
+                <div class="cert-item-card">
+                  <div class="cert-item-card__icon">🏆</div>
+                  <div class="cert-item-card__body">
+                    <div class="cert-item-card__label">CERTIFICADO OFICIAL</div>
+                    <h3>${c.courseTitle}</h3>
+                    <div class="cert-item-card__meta">
+                      <span>📁 ${c.courseArea || 'General'}</span>
+                      <span>📅 ${fechaStr}</span>
+                      <span>🔢 ${c.folio}</span>
+                    </div>
+                    <div class="cert-item-card__actions">
+                      <a href="ver-certificado.html?folio=${c.folio}" target="_blank" class="btn-club" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;">📥 Ver / Descargar</a>
+                      <a href="verificar.html?folio=${c.folio}" target="_blank" class="btn-club-outline" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;">🔗 Link público</a>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>`;
+      } catch (err) {
+        console.error(err);
+        content.innerHTML = '<div class="certs-empty"><h2>Error cargando certificados</h2><p>Intenta recargar la página.</p></div>';
+      }
+    })();
+  </script>
 </body>
 </html>

@@ -1,241 +1,165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iniciar sesión · Club GlobalVet México</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club-extra.css">
-<style>
-  body {
-    min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    padding: 1.5rem;
-  }
-  .login-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    max-width: 1000px; width: 100%;
-    background: var(--gv-bg-surface);
-    border: 1px solid var(--gv-border-strong);
-    border-radius: var(--gv-radius-lg);
-    overflow: hidden;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-  }
-  .login-hero {
-    background:
-      radial-gradient(ellipse 400px 300px at 30% 20%, rgba(245, 158, 11, 0.3), transparent 60%),
-      linear-gradient(135deg, #2d1a68 0%, #1a1040 100%);
-    padding: 3rem;
-    display: flex; flex-direction: column; justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .login-hero::before {
-    content: '';
-    position: absolute;
-    bottom: -50%; right: -20%;
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent 60%);
-    pointer-events: none;
-  }
-  .login-hero-logo {
-    width: 60px; height: 60px; border-radius: 16px; object-fit: cover;
-    margin-bottom: 1.5rem;
-    border: 2px solid var(--gv-border-gold);
-    box-shadow: var(--gv-shadow-gold);
-  }
-  .login-hero h1 {
-    font-family: var(--gv-ff);
-    font-size: 1.9rem; font-weight: 800;
-    color: var(--gv-text);
-    margin-bottom: 0.8rem;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    position: relative;
-  }
-  .login-hero .accent { color: var(--gv-gold); }
-  .login-hero p {
-    color: rgba(240, 235, 255, 0.75);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-    position: relative;
-  }
-  .login-perks { list-style: none; position: relative; }
-  .login-perks li {
-    display: flex; align-items: center; gap: 0.7rem;
-    padding: 0.5rem 0;
-    color: var(--gv-text); font-size: 0.9rem; font-weight: 500;
-  }
-  .login-perks li::before {
-    content: '✓';
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px;
-    background: linear-gradient(135deg, var(--gv-gold), var(--gv-gold-deep));
-    color: #1a0f04;
-    border-radius: 50%;
-    font-weight: 800; font-size: 0.78rem;
-    flex-shrink: 0;
-  }
-
-  .login-form {
-    padding: 3rem;
-    display: flex; flex-direction: column; justify-content: center;
-  }
-  .login-form h2 {
-    font-family: var(--gv-ff);
-    font-size: 1.5rem; font-weight: 700;
-    margin-bottom: 0.3rem;
-  }
-  .login-form .sub {
-    color: var(--gv-text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 1.8rem;
-  }
-  .divider-or {
-    display: flex; align-items: center; gap: 0.8rem;
-    margin: 1.2rem 0;
-    color: var(--gv-text-dim);
-    font-size: 0.78rem;
-    text-transform: uppercase; letter-spacing: 0.1em;
-  }
-  .divider-or::before, .divider-or::after {
-    content: ''; flex: 1; height: 1px; background: var(--gv-border);
-  }
-  .login-footer {
-    text-align: center;
-    margin-top: 1.5rem;
-    font-size: 0.86rem;
-    color: var(--gv-text-muted);
-  }
-  .login-footer a { color: var(--gv-purple-hover); font-weight: 700; }
-  .login-footer a:hover { color: var(--gv-gold); }
-  .err-box {
-    background: rgba(244, 63, 94, 0.1);
-    border: 1px solid rgba(244, 63, 94, 0.3);
-    color: #fda4af;
-    padding: 0.8rem 1rem;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
-    display: none;
-  }
-  .err-box.show { display: block; }
-  .err-box.ok { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: var(--gv-emerald-hover); }
-
-  @media (max-width: 780px) {
-    .login-split { grid-template-columns: 1fr; max-width: 440px; }
-    .login-hero { display: none; }
-    .login-form { padding: 2rem; }
-  }
-</style>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión | Club VIP Zoorigen</title>
+  <meta name="theme-color" content="#1F5F3A">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+  <link rel="stylesheet" href="../assets/css/club-theme.css">
 </head>
 <body>
+  <div class="auth-wrapper">
+    <div class="auth-wrapper__brand">
+      <div class="logo-wrap">
+        <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
+        <div><h3>Zoorigen</h3><small>Club VIP</small></div>
+      </div>
+      <h1>Bienvenido de nuevo a la comunidad científica</h1>
+      <p>Continúa donde te quedaste. Nuevos cursos, sesiones en vivo y material exclusivo te esperan.</p>
+      <ul>
+        <li>Acceso ilimitado a la biblioteca</li>
+        <li>Sesiones en vivo mensuales</li>
+        <li>20% OFF en todos los cursos</li>
+        <li>Canal exclusivo WhatsApp</li>
+      </ul>
+    </div>
 
-<div class="login-split">
-  <div class="login-hero">
-    <img src="../assets/logo/globalvet-logo.jpg" alt="" class="login-hero-logo">
-    <h1>Bienvenido de nuevo al <span class="accent">Club VIP</span></h1>
-    <p>Continúa donde lo dejaste. Nuevos cursos, herramientas clínicas y sesiones en vivo te esperan.</p>
-    <ul class="login-perks">
-      <li>Biblioteca exclusiva de cursos</li>
-      <li>Herramientas clínicas profesionales</li>
-      <li>Sesiones en vivo con especialistas</li>
-      <li>20% OFF en todos los cursos</li>
-      <li>Canal exclusivo WhatsApp</li>
-    </ul>
+    <div class="auth-wrapper__form">
+      <form class="auth-form" id="loginForm" autocomplete="on">
+        <h2>Iniciar sesión</h2>
+        <p class="lead">Ingresa con tu correo y contraseña para entrar al área VIP.</p>
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="success-msg" id="successMsg"></div>
+
+        <button type="button" id="googleBtn" class="btn-club-outline" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 0;">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC04" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continuar con Google
+        </button>
+
+        <div style="text-align:center; color: var(--zoo-text-dim); font-size: .84rem; margin: 16px 0; position: relative;">
+          <span style="background: var(--zoo-bg-dark); padding: 0 12px; position: relative; z-index: 1;">o con correo</span>
+          <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--zoo-border);"></div>
+        </div>
+
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+          <a href="#" id="forgotLink" style="color: var(--zoo-green-500); font-size: .84rem; font-weight: 600; display: inline-block; margin-top: 8px;">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit" class="btn-club" id="submitBtn">Entrar</button>
+        <p class="auth-footer">¿No eres miembro aún? <a href="club-registro.html">Únete al Club VIP →</a></p>
+      </form>
+    </div>
   </div>
 
-  <div class="login-form">
-    <h2>Iniciar sesión</h2>
-    <p class="sub">Ingresa con tu correo para entrar al área VIP</p>
-    <div id="errBox" class="err-box"></div>
-    <div class="field">
-      <label>Correo electrónico</label>
-      <input type="email" id="email" placeholder="tunombre@correo.com" autocomplete="email">
-    </div>
-    <div class="field">
-      <label>Contraseña</label>
-      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <button class="btn btn-gold btn-block" id="btnLogin">Entrar →</button>
-    <div class="divider-or">o continúa con</div>
-    <button class="btn btn-outline btn-block" id="btnGoogle">
-      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Google
-    </button>
-    <div class="login-footer">
-      ¿Aún no eres miembro? <a href="club-registro.html">Únete al Club VIP →</a><br>
-      <a href="#" id="btnReset" style="font-size:0.8rem;color:var(--gv-text-muted);">¿Olvidaste tu contraseña?</a>
-    </div>
-  </div>
-</div>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    auth.onAuthStateChanged((user) => { if (user) window.location.href = 'club-dashboard.html'; });
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const submitBtn = document.getElementById('submitBtn');
+    const googleBtn = document.getElementById('googleBtn');
+    const forgotLink = document.getElementById('forgotLink');
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    const showError = (msg) => { errorMsg.textContent = '⚠️ ' + msg; errorMsg.classList.add('show'); successMsg.classList.remove('show'); };
+    const showSuccess = (msg) => { successMsg.textContent = '✅ ' + msg; successMsg.classList.add('show'); errorMsg.classList.remove('show'); };
 
-const cfg = {
-  apiKey:"AIzaSyB_OgAmyW7XNiLUyKp6Ih92A5qxm3LNCqg",
-  authDomain:"globalvet-club.firebaseapp.com",
-  projectId:"globalvet-club",
-  storageBucket:"globalvet-club.firebasestorage.app",
-  messagingSenderId:"880780506385",
-  appId:"1:880780506385:web:be49dbc8886147a79048b0"
-};
-const app = initializeApp(cfg);
-const auth = getAuth(app);
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.classList.remove('show');
+      submitBtn.disabled = true; submitBtn.textContent = 'Entrando...';
+      const result = await ZOORIGEN_CLUB.login(document.getElementById('email').value.trim(), document.getElementById('password').value);
+      if (result.ok) window.location.href = 'club-dashboard.html';
+      else { showError(result.msg); submitBtn.disabled = false; submitBtn.textContent = 'Entrar'; }
+    });
 
-const errBox = document.getElementById('errBox');
-function showErr(msg, isOk = false) {
-  errBox.textContent = msg;
-  errBox.className = 'err-box show' + (isOk ? ' ok' : '');
-}
+    googleBtn.addEventListener('click', async () => {
+      googleBtn.disabled = true;
+      const result = await ZOORIGEN_CLUB.loginWithGoogle();
+      if (result.ok) window.location.href = 'club-dashboard.html';
+      else { showError(result.msg); googleBtn.disabled = false; }
+    });
 
-document.getElementById('btnLogin').addEventListener('click', async () => {
-  const email = document.getElementById('email').value.trim();
-  const pass  = document.getElementById('password').value;
-  if (!email || !pass) return showErr('Completa correo y contraseña');
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
-    window.location.href = 'club-dashboard.html';
-  } catch (err) {
-    const map = {
-      'auth/invalid-credential':'Correo o contraseña incorrectos',
-      'auth/user-not-found':'No existe una cuenta con ese correo',
-      'auth/wrong-password':'Contraseña incorrecta',
-      'auth/too-many-requests':'Demasiados intentos. Intenta más tarde.',
-      'auth/invalid-email':'Formato de correo inválido'
-    };
-    showErr(map[err.code] || 'No se pudo iniciar sesión');
-  }
-});
+    forgotLink.addEventListener('click', async (e) => {
+      e.preventDefault();
 
-document.getElementById('btnGoogle').addEventListener('click', async () => {
-  try {
-    await signInWithPopup(auth, new GoogleAuthProvider());
-    window.location.href = 'club-dashboard.html';
-  } catch (err) {
-    if (err.code !== 'auth/popup-closed-by-user') showErr('No se pudo iniciar con Google');
-  }
-});
+      // Mostrar modal bonito
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+      modal.innerHTML = `
+        <div style="background:#131816;border:1px solid rgba(232,163,23,0.3);border-radius:16px;padding:32px 28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+          <div style="text-align:center;font-size:3rem;margin-bottom:8px;line-height:1;">🔐</div>
+          <h2 style="color:#E8A317;font-family:'Poppins',sans-serif;font-size:1.4rem;font-weight:800;margin:0 0 8px;text-align:center;">Recuperar contraseña</h2>
+          <p style="color:rgba(255,255,255,0.7);font-size:.92rem;line-height:1.5;margin:0 0 18px;text-align:center;">Escribe el correo con el que te registraste y te enviamos un link para crear una nueva contraseña.</p>
+          <label style="display:block;color:#a0a8a4;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Correo electrónico</label>
+          <input type="email" id="resetEmailInput" placeholder="tucorreo@ejemplo.com" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:12px 14px;border-radius:8px;font-family:inherit;font-size:1rem;margin-bottom:16px;box-sizing:border-box;">
+          <div id="resetMsg" style="margin-bottom:12px;"></div>
+          <div style="display:flex;gap:10px;">
+            <button id="resetCancelBtn" style="flex:1;background:transparent;color:#a0a8a4;border:1px solid rgba(255,255,255,0.15);padding:12px;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;">Cancelar</button>
+            <button id="resetSendBtn" style="flex:1;background:linear-gradient(135deg,#E8A317,#D68A0A);color:#1f1d17;border:0;padding:12px;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;">Enviar correo</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
 
-document.getElementById('btnReset').addEventListener('click', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('email').value.trim();
-  if (!email) return showErr('Escribe tu correo y vuelve a hacer clic');
-  try {
-    await sendPasswordResetEmail(auth, email);
-    showErr('Te enviamos un correo para restablecer tu contraseña', true);
-  } catch (err) { showErr('No pudimos enviar el correo'); }
-});
+      const input = modal.querySelector('#resetEmailInput');
+      const msg = modal.querySelector('#resetMsg');
+      const cancelBtn = modal.querySelector('#resetCancelBtn');
+      const sendBtn = modal.querySelector('#resetSendBtn');
 
-document.getElementById('password').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('btnLogin').click();
-});
-</script>
+      // Pre-llenar si ya escribió email
+      const emailPrev = document.getElementById('email').value.trim();
+      if (emailPrev) input.value = emailPrev;
+      input.focus();
+
+      cancelBtn.addEventListener('click', () => modal.remove());
+
+      sendBtn.addEventListener('click', async () => {
+        const email = input.value.trim();
+        if (!email || !email.includes('@')) {
+          msg.innerHTML = '<div style="color:#D55A28;font-size:.86rem;">⚠️ Escribe un correo válido</div>';
+          return;
+        }
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Enviando...';
+        const result = await ZOORIGEN_CLUB.resetPassword(email);
+        if (result.ok) {
+          msg.innerHTML = `
+            <div style="color:#6FBF73;background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.86rem;line-height:1.5;">
+              ✅ ¡Listo! Revisa tu bandeja de entrada (y también SPAM). El correo puede tardar 1-2 minutos.
+            </div>
+          `;
+          sendBtn.textContent = 'Enviado ✓';
+          setTimeout(() => modal.remove(), 4000);
+        } else {
+          msg.innerHTML = `<div style="color:#D55A28;font-size:.86rem;">⚠️ ${result.msg}</div>`;
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Enviar correo';
+        }
+      });
+
+      // Enter para enviar
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') sendBtn.click();
+      });
+    });
+  </script>
 </body>
 </html>

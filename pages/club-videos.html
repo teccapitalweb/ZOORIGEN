@@ -1,250 +1,143 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Videos prácticos · Club GlobalVet México</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club-extra.css">
-<style>
-  .vid-card {
-    background: var(--gv-bg-surface);
-    border: 1px solid var(--gv-border);
-    border-radius: var(--gv-radius);
-    overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
-    cursor: pointer;
-  }
-  .vid-card:not(.lock-card):hover {
-    transform: translateY(-3px);
-    border-color: var(--gv-purple);
-    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15);
-  }
-  .vid-thumb {
-    aspect-ratio: 16/9;
-    background: linear-gradient(135deg, var(--gv-purple-deep), var(--gv-bg-surface-3));
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .vid-thumb-icon {
-    font-size: 3rem;
-    opacity: 0.35;
-    transition: opacity 0.2s, transform 0.2s;
-  }
-  .vid-card:hover .vid-thumb-icon { opacity: 0.6; transform: scale(1.1); }
-  .vid-thumb-play {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.2);
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .vid-card:not(.lock-card):hover .vid-thumb-play { opacity: 1; }
-  .vid-thumb-play-circle {
-    width: 60px; height: 60px; border-radius: 50%;
-    background: var(--gv-gold);
-    display: flex; align-items: center; justify-content: center;
-    color: #1a0f04;
-    font-size: 1.5rem;
-    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
-  }
-  .vid-duration {
-    position: absolute; bottom: 10px; right: 10px;
-    background: rgba(0,0,0,0.7);
-    color: #fff;
-    padding: 3px 9px;
-    border-radius: 6px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    font-family: var(--gv-ff);
-  }
-  .vid-body { padding: 1.1rem 1.3rem; }
-  .vid-area {
-    color: var(--gv-gold);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 0.4rem;
-  }
-  .vid-title {
-    font-family: var(--gv-ff);
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0.3rem;
-    line-height: 1.3;
-    color: var(--gv-text);
-  }
-  .vid-author {
-    font-size: 0.82rem;
-    color: var(--gv-text-muted);
-  }
-
-  /* Player modal */
-  .player-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.95);
-    display: none;
-    align-items: center; justify-content: center;
-    z-index: 1000;
-    padding: 1rem;
-  }
-  .player-overlay.open { display: flex; }
-  .player-box {
-    width: 100%; max-width: 960px;
-    background: #000;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--gv-border-strong);
-  }
-  .player-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 1rem 1.3rem;
-    background: var(--gv-bg-surface-2);
-    color: var(--gv-text);
-  }
-  .player-header h3 { font-family: var(--gv-ff); font-size: 1rem; font-weight: 700; }
-  .player-close {
-    color: var(--gv-text-muted); font-size: 1.6rem;
-    transition: color 0.15s;
-  }
-  .player-close:hover { color: var(--gv-text); }
-  .player-iframe {
-    position: relative; padding-bottom: 56.25%; height: 0;
-  }
-  .player-iframe iframe {
-    position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
-  }
-</style>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Videos · Club VIP Zoorigen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css">
+  <style>
+    .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .player-overlay.is-open { display: flex; }
+    .player-box { width: 100%; max-width: 960px; background: var(--zoo-bg-card); border-radius: var(--zoo-radius); overflow: hidden; }
+    .player-box__header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--zoo-border); }
+    .player-box__header h3 { color: #fff; font-size: 1.04rem; margin: 0; }
+    .player-box__close { background: transparent; border: 0; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
+    .player-box__video { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
+    .player-box__video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  </style>
 </head>
 <body>
-<nav class="tnav" id="topnav"></nav>
-<div class="dlayout">
-  <aside class="sidebar" id="sidebar"></aside>
-  <main class="dmain">
-
-    <div class="hero-banner">
-      <div class="hero-badge">🎥 Videos prácticos</div>
-      <h2>Técnicas clínicas en video</h2>
-      <p>Videos cortos de técnicas clínicas explicadas paso a paso por veterinarios especialistas. Nuevo video cada 8 días desde tu fecha de compra.</p>
-      <div class="hero-stats">
-        <div class="hero-stat"><div class="hero-stat-n" id="statTotal">—</div><div class="hero-stat-l">Videos disponibles</div></div>
-        <div class="hero-stat"><div class="hero-stat-n" id="statUnlocked">—</div><div class="hero-stat-l">Desbloqueados</div></div>
-        <div class="hero-stat"><div class="hero-stat-n">HD</div><div class="hero-stat-l">Calidad 1080p</div></div>
-      </div>
-    </div>
-
-    <div id="dripBanner"></div>
-    <div id="content" class="loading">Cargando videos…</div>
-  </main>
-</div>
-
-<div class="player-overlay" id="player">
-  <div class="player-box">
-    <div class="player-header">
-      <h3 id="playerTitle">—</h3>
-      <button class="player-close" onclick="closePlayer()">×</button>
-    </div>
-    <div class="player-iframe" id="playerFrame"></div>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="page-header"><h1>🎥 Videos prácticos</h1><p>Técnicas de campo explicadas paso a paso por profesionales</p></div>
+      <div id="lockedNotice"></div>
+      <div class="content-list" id="videosList">Cargando...</div>
+    </main>
   </div>
-</div>
+  <div class="player-overlay" id="playerOverlay">
+    <div class="player-box">
+      <div class="player-box__header">
+        <h3 id="playerTitle">—</h3>
+        <button class="player-box__close" onclick="closePlayer()">×</button>
+      </div>
+      <div class="player-box__video" id="playerVideo"></div>
+    </div>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('videos', session);
+      if (session.planStatus !== 'active') {
+        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para ver los videos. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
+      }
+      const videos = await ZOORIGEN_CLUB.getVideos();
+      const isActive = session.planStatus === 'active';
+      const list = document.getElementById('videosList');
+      if (videos.length === 0) {
+        list.innerHTML = `
+          <div class="coming-soon-card">
+            <div class="coming-soon-card__badge">
+              <span class="coming-soon-card__pulse"></span>
+              PRÓXIMAMENTE
+            </div>
 
-<script type="module">
-import { requireAuth, renderSidebar, renderTopNav, doLogout, getUnlockStatus, formatUnlockDate, getDiasDesdeRegistro, DRIP_DIAS_POR_CURSO, db, collection, query, orderBy, getDocs } from '../assets/js/club-extra.js';
+            <div class="coming-soon-card__icon">🎬</div>
 
-// Videos de ejemplo (se muestran si Firestore no tiene ninguno todavía)
-const VIDEOS_DEMO = [
-  { id:'demo1', title:'Cómo realizar una exploración cardíaca sistemática', area:'Cardiología', duration:'12:34', author:'Dr. Manuel Ortiz, MVZ', driveId:'', createdAt:new Date(Date.now() - 60*86400000).toISOString() },
-  { id:'demo2', title:'Intubación endotraqueal en gatos – paso a paso', area:'Anestesia', duration:'08:15', author:'MVZ. Carolina Ruiz', driveId:'', createdAt:new Date(Date.now() - 55*86400000).toISOString() },
-  { id:'demo3', title:'Toma de muestra sanguínea en cachorros difíciles', area:'Laboratorio', duration:'06:42', author:'Dr. Raúl Méndez, MVZ', driveId:'', createdAt:new Date(Date.now() - 50*86400000).toISOString() },
-  { id:'demo4', title:'Abordaje del paciente en shock hipovolémico', area:'Urgencias', duration:'18:20', author:'MVZ Esp. Lucía Ferrer', driveId:'', createdAt:new Date(Date.now() - 45*86400000).toISOString() },
-  { id:'demo5', title:'Técnica correcta de sutura en piel – puntos simples', area:'Cirugía', duration:'14:08', author:'Dr. Eduardo Cruz, MVZ', driveId:'', createdAt:new Date(Date.now() - 40*86400000).toISOString() },
-  { id:'demo6', title:'Interpretación básica de radiografía torácica', area:'Imagenología', duration:'22:50', author:'MVZ. Patricia Luna', driveId:'', createdAt:new Date(Date.now() - 35*86400000).toISOString() },
-  { id:'demo7', title:'Ecografía abdominal: identificación de órganos', area:'Imagenología', duration:'25:12', author:'Dr. Fernando Galván, MVZ', driveId:'', createdAt:new Date(Date.now() - 30*86400000).toISOString() },
-  { id:'demo8', title:'Protocolo de vacunación canina actualizado 2026', area:'Medicina preventiva', duration:'10:05', author:'MVZ. Claudia Mendoza', driveId:'', createdAt:new Date(Date.now() - 25*86400000).toISOString() },
-  { id:'demo9', title:'Manejo del paciente geriátrico con DCM', area:'Cardiología', duration:'16:30', author:'Dr. Manuel Ortiz, MVZ', driveId:'', createdAt:new Date(Date.now() - 20*86400000).toISOString() },
-  { id:'demo10', title:'Cateterización IV en pacientes difíciles', area:'Urgencias', duration:'07:45', author:'MVZ. Carolina Ruiz', driveId:'', createdAt:new Date(Date.now() - 15*86400000).toISOString() }
-];
+            <h2 class="coming-soon-card__title">Videos prácticos en preparación</h2>
+            <p class="coming-soon-card__sub">
+              Nuestro equipo está grabando contenido exclusivo con expertos en fauna mexicana.
+              <br>Prepárate para técnicas de campo explicadas paso a paso.
+            </p>
 
-(async () => {
-  const session = await requireAuth();
-  if (!session) return;
-  document.getElementById('topnav').innerHTML = renderTopNav(session);
-  document.getElementById('sidebar').innerHTML = renderSidebar('videos');
-  document.getElementById('btnLogout')?.addEventListener('click', doLogout);
+            <div class="coming-soon-card__topics">
+              <div class="coming-soon-card__topic-title">Algunos temas que vienen:</div>
+              <div class="coming-soon-card__grid">
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🎥</span>
+                  <span>Fototrampeo profesional de campo</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🧤</span>
+                  <span>Captura y manejo de fauna silvestre</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🔬</span>
+                  <span>Necropsias veterinarias de fauna</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🦒</span>
+                  <span>Identificación morfológica de especies</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">💉</span>
+                  <span>Anestesia en fauna silvestre</span>
+                </div>
+                <div class="coming-soon-topic">
+                  <span class="coming-soon-topic__icon">🚁</span>
+                  <span>Monitoreo con drones y telemetría</span>
+                </div>
+              </div>
+            </div>
 
-  let videos = [];
-  try {
-    const snap = await getDocs(query(collection(db, 'videos'), orderBy('createdAt', 'asc')));
-    videos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (err) { console.log('Sin videos en Firestore:', err.message); }
-
-  // Si no hay videos en Firestore, usar los demo
-  if (videos.length === 0) videos = VIDEOS_DEMO;
-
-  const dias = getDiasDesdeRegistro(session);
-  let unlockedCount = 0;
-  videos.forEach((_, i) => { if (getUnlockStatus(i, session).unlocked) unlockedCount++; });
-
-  document.getElementById('statTotal').textContent = videos.length;
-  document.getElementById('statUnlocked').textContent = unlockedCount;
-
-  const lockedCount = videos.length - unlockedCount;
-  if (lockedCount > 0) {
-    document.getElementById('dripBanner').innerHTML = `
-      <div style="background:rgba(245,158,11,0.08);border:1px solid var(--gv-border-gold);border-radius:12px;padding:1rem 1.3rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.8rem;">
-        <span style="font-size:1.5rem;">🔓</span>
-        <div style="font-size:0.9rem;color:var(--gv-text);">
-          <strong style="color:var(--gv-gold-hover);">1 video nuevo cada ${DRIP_DIAS_POR_CURSO} días</strong> desde tu compra ·
-          Llevas <strong>${dias}</strong> día${dias !== 1 ? 's' : ''} como miembro ·
-          <strong>${unlockedCount}</strong> de ${videos.length} desbloqueados
+            <div class="coming-soon-card__footer">
+              <div class="coming-soon-card__progress-wrap">
+                <div class="coming-soon-card__progress-label">Producción en curso</div>
+                <div class="coming-soon-card__progress-bar">
+                  <div class="coming-soon-card__progress-fill"></div>
+                </div>
+                <div class="coming-soon-card__progress-hint">Primeros videos disponibles muy pronto</div>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+      list.innerHTML = videos.map(v => `
+        <div class="content-item">
+          <div class="content-item__thumb">🎥</div>
+          <div class="content-item__info">
+            <div class="content-item__title">${v.title}</div>
+            <div class="content-item__meta">${v.area || ''} · ${v.duration || '—'}</div>
+          </div>
+          ${isActive && v.driveId
+            ? `<button class="content-item__tag" style="border:0;cursor:pointer;font-family:inherit;" onclick='openPlayer("${v.driveId}", ${JSON.stringify(v.title)})'>▶ Ver</button>`
+            : !isActive ? `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;">🔒 Activar</a>`
+            : `<span class="content-item__tag" style="opacity:0.6;">Sin link</span>`}
         </div>
-      </div>`;
-  }
-
-  const content = document.getElementById('content');
-  content.classList.remove('loading');
-
-  content.innerHTML = `<div class="card-grid">
-    ${videos.map((v, i) => {
-      const { unlocked, unlockDate, daysLeft } = getUnlockStatus(i, session);
-      const dateLabel = unlockDate ? formatUnlockDate(unlockDate) : '';
-      return `
-        <div class="vid-card ${!unlocked ? 'lock-card' : ''}" ${unlocked ? `onclick="window._play('${v.driveId || ''}', ${JSON.stringify(v.title || '')})"` : ''}>
-          <div class="vid-thumb">
-            <span class="vid-thumb-icon">${unlocked ? '▶' : '🔒'}</span>
-            ${unlocked ? `<div class="vid-thumb-play"><div class="vid-thumb-play-circle">▶</div></div>` : ''}
-            ${v.duration ? `<span class="vid-duration">${v.duration}</span>` : ''}
-          </div>
-          <div class="vid-body">
-            <div class="vid-area">${v.area || 'Medicina veterinaria'}</div>
-            <div class="vid-title">${v.title}</div>
-            <div class="vid-author">${v.author || 'GlobalVet México'}</div>
-            ${!unlocked ? `<div class="lock-info">🔒 Disponible el ${dateLabel} (${daysLeft} día${daysLeft !== 1 ? 's' : ''})</div>` : ''}
-          </div>
-        </div>`;
-    }).join('')}
-  </div>`;
-})();
-
-window._play = (driveId, title) => {
-  if (!driveId) {
-    alert('Este es un video de demostración. El contenido real estará disponible próximamente.');
-    return;
-  }
-  document.getElementById('playerTitle').textContent = title;
-  document.getElementById('playerFrame').innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
-  document.getElementById('player').classList.add('open');
-};
-window.closePlayer = () => {
-  document.getElementById('player').classList.remove('open');
-  document.getElementById('playerFrame').innerHTML = '';
-};
-document.getElementById('player').addEventListener('click', e => {
-  if (e.target.id === 'player') closePlayer();
-});
-</script>
+      `).join('');
+    })();
+    function openPlayer(driveId, title) {
+      document.getElementById('playerTitle').textContent = title;
+      document.getElementById('playerVideo').innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
+      document.getElementById('playerOverlay').classList.add('is-open');
+    }
+    function closePlayer() {
+      document.getElementById('playerOverlay').classList.remove('is-open');
+      document.getElementById('playerVideo').innerHTML = '';
+    }
+    document.getElementById('playerOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'playerOverlay') closePlayer();
+    });
+  </script>
 </body>
 </html>
