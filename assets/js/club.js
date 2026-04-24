@@ -1447,13 +1447,6 @@ const ZOORIGEN_CLUB = {
     document.getElementById('zooWelcomeStart').addEventListener('click', close);
     document.getElementById('zooWelcomeSkip').addEventListener('click', close);
   },
-      } else {
-        close();
-      }
-    });
-
-    render();
-  },
 
   // Forzar mostrar la guía (para ponerla en un botón "Ver guía" después)
   showOnboardingForced(session) {
