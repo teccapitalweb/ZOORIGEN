@@ -183,6 +183,12 @@
   </div>
 
   <script>
+    // Resetear onboarding para que muestre bienvenida de regreso
+    try {
+      const keys = Object.keys(localStorage).filter(k => k.startsWith('zoo_onboard_done_'));
+      keys.forEach(k => localStorage.removeItem(k));
+    } catch(e) {}
+
     // Countdown + redirect automático
     let secs = 5;
     const el = document.getElementById('count');
