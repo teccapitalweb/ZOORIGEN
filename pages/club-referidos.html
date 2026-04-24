@@ -1,449 +1,260 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invitar amigos · Club VIP Zoorigen</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css">
-  <style>
-    .ref-hero {
-      background: linear-gradient(135deg, rgba(232,163,23,0.15), rgba(31,95,58,0.15));
-      border: 1px solid rgba(232,163,23,0.3);
-      border-radius: 16px;
-      padding: 32px 28px;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-    .ref-hero__icon { font-size: 3.5rem; line-height: 1; margin-bottom: 10px; }
-    .ref-hero h2 {
-      color: var(--zoo-amber);
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 800;
-      margin: 0 0 8px;
-    }
-    .ref-hero p {
-      color: var(--zoo-text-muted);
-      font-size: 1rem;
-      line-height: 1.5;
-      margin: 0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referidos · Club GlobalVet México</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/club-extra.css">
+<style>
+  .ref-hero {
+    background:
+      radial-gradient(ellipse 400px 300px at 90% 50%, rgba(245, 158, 11, 0.2), transparent 60%),
+      linear-gradient(135deg, #2d1a68 0%, #1a1040 100%);
+    border-radius: var(--gv-radius-lg);
+    padding: 2.5rem 2.2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--gv-border-gold);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .ref-hero::before {
+    content: "🎁";
+    position: absolute;
+    top: -30px; right: -20px;
+    font-size: 14rem;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+  .ref-hero h2 {
+    font-family: var(--gv-ff);
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.02em;
+    position: relative;
+  }
+  .ref-hero p {
+    color: rgba(255,255,255,0.8);
+    max-width: 540px;
+    margin: 0 auto;
+    position: relative;
+  }
 
-    .ref-link-card {
-      background: var(--zoo-bg-card);
-      border: 1px solid var(--zoo-border);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-    .ref-link-card h3 {
-      color: #fff;
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin: 0 0 14px;
-    }
-    .ref-link-box {
-      display: flex;
-      gap: 8px;
-      align-items: stretch;
-      margin-bottom: 14px;
-    }
-    .ref-link-input {
-      flex: 1;
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: var(--zoo-green-500);
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-family: 'Courier New', monospace;
-      font-size: .92rem;
-      font-weight: 600;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .ref-copy-btn {
-      background: linear-gradient(135deg, #E8A317, #D68A0A);
-      color: #1f1d17;
-      border: 0;
-      padding: 0 20px;
-      border-radius: 10px;
-      font-family: inherit;
-      font-weight: 700;
-      font-size: .92rem;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: transform .15s;
-    }
-    .ref-copy-btn:hover { transform: translateY(-1px); }
-    .ref-copy-btn.copied { background: #6FBF73; color: #0f3b22; }
+  .ref-link-box {
+    background: var(--gv-bg-surface);
+    border: 1.5px solid var(--gv-border-gold);
+    border-radius: var(--gv-radius);
+    padding: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  .ref-link-label {
+    font-family: var(--gv-ff);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--gv-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+  }
+  .ref-link-input {
+    display: flex; gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .ref-link-input input {
+    flex: 1;
+    padding: 0.9rem 1.1rem;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid var(--gv-border-strong);
+    border-radius: 10px;
+    color: var(--gv-gold-hover);
+    font-family: var(--gv-ff);
+    font-size: 1rem;
+    font-weight: 600;
+  }
 
-    .ref-share-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .ref-share-btn {
-      flex: 1;
-      min-width: 120px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--zoo-border);
-      color: #fff;
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: .88rem;
-      text-align: center;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .ref-share-btn:hover {
-      border-color: var(--zoo-amber);
-      transform: translateY(-1px);
-    }
-    .ref-share-btn.wa { background: #25D366; border-color: #1ea952; color: #fff; }
-    .ref-share-btn.fb { background: #1877f2; border-color: #1361ce; color: #fff; }
-    .ref-share-btn.tw { background: #0f1419; border-color: #2c343d; color: #fff; }
+  .ref-share-buttons {
+    display: flex; gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .share-btn {
+    flex: 1; min-width: 150px;
+    padding: 0.9rem 1.2rem;
+    border-radius: 10px;
+    font-family: var(--gv-ff);
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.15s;
+    cursor: pointer;
+    border: none;
+  }
+  .share-btn:hover { transform: translateY(-2px); }
+  .share-btn.wa { background: linear-gradient(135deg, #25d366, #128c7e); }
+  .share-btn.fb { background: linear-gradient(135deg, #4267B2, #1877F2); }
+  .share-btn.tw { background: linear-gradient(135deg, #000000, #14171A); }
+  .share-btn.mail { background: linear-gradient(135deg, var(--gv-purple), var(--gv-purple-deep)); }
 
-    .ref-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-    .ref-stat {
-      background: var(--zoo-bg-card);
-      border: 1px solid var(--zoo-border);
-      border-radius: 12px;
-      padding: 18px;
-      text-align: center;
-    }
-    .ref-stat__val {
-      font-family: 'Poppins', sans-serif;
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--zoo-amber);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-    .ref-stat__lbl {
-      color: var(--zoo-text-muted);
-      font-size: .84rem;
-      font-weight: 600;
-    }
-
-    .ref-reward-card {
-      background: linear-gradient(135deg, rgba(111,191,115,0.1), rgba(31,95,58,0.15));
-      border: 1px solid rgba(111,191,115,0.3);
-      border-radius: 12px;
-      padding: 22px;
-      margin-bottom: 24px;
-    }
-    .ref-reward-card h3 {
-      color: var(--zoo-green-500);
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin: 0 0 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .ref-reward-card .progress-bar {
-      background: rgba(0,0,0,0.3);
-      height: 12px;
-      border-radius: 6px;
-      overflow: hidden;
-      margin: 12px 0 6px;
-    }
-    .ref-reward-card .progress-fill {
-      background: linear-gradient(90deg, var(--zoo-green-500), var(--zoo-amber));
-      height: 100%;
-      transition: width .6s;
-      border-radius: 6px;
-    }
-    .ref-reward-card .progress-info {
-      display: flex;
-      justify-content: space-between;
-      color: var(--zoo-text-muted);
-      font-size: .84rem;
-      margin-top: 4px;
-    }
-
-    .ref-how-steps {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      counter-reset: step;
-    }
-    .ref-how-steps li {
-      counter-increment: step;
-      padding: 14px 16px 14px 52px;
-      position: relative;
-      color: var(--zoo-text-muted);
-      border-bottom: 1px solid var(--zoo-border);
-      font-size: .94rem;
-      line-height: 1.5;
-    }
-    .ref-how-steps li:last-child { border-bottom: 0; }
-    .ref-how-steps li::before {
-      content: counter(step);
-      position: absolute;
-      left: 16px;
-      top: 14px;
-      width: 26px;
-      height: 26px;
-      background: var(--zoo-amber);
-      color: #1f1d17;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: .84rem;
-    }
-
-    .ref-earnings-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .ref-earnings-list li {
-      padding: 12px 0;
-      border-bottom: 1px solid var(--zoo-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .ref-earnings-list li:last-child { border-bottom: 0; }
-    .ref-earnings-list .ref-name {
-      color: #fff;
-      font-weight: 600;
-      font-size: .92rem;
-    }
-    .ref-earnings-list .ref-date {
-      color: var(--zoo-text-dim);
-      font-size: .8rem;
-      margin-top: 2px;
-    }
-    .ref-earnings-list .ref-status {
-      font-size: .8rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 12px;
-    }
-    .ref-status--paid { background: rgba(111,191,115,0.15); color: var(--zoo-green-500); }
-    .ref-status--pending { background: rgba(232,163,23,0.12); color: var(--zoo-amber); }
-    .ref-empty {
-      text-align: center;
-      padding: 32px 16px;
-      color: var(--zoo-text-dim);
-    }
-  </style>
+  .perks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .perk {
+    background: var(--gv-bg-surface);
+    border: 1px solid var(--gv-border);
+    border-radius: var(--gv-radius);
+    padding: 1.4rem;
+    text-align: center;
+  }
+  .perk-emoji { font-size: 2.5rem; margin-bottom: 0.6rem; display: block; }
+  .perk-title {
+    font-family: var(--gv-ff);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .perk-desc {
+    font-size: 0.86rem;
+    color: var(--gv-text-muted);
+    line-height: 1.55;
+  }
+</style>
 </head>
 <body>
-  <div class="club-layout">
-    <aside class="club-sidebar" id="sidebar"></aside>
-    <main class="club-main">
-      <div class="page-header">
-        <h1>🎁 Invita amigos y gana meses gratis</h1>
-        <p>Por cada 3 amigos que se suscriban con tu código, te regalamos 1 mes gratis</p>
+<nav class="tnav" id="topnav"></nav>
+<div class="dlayout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="dmain">
+
+    <div class="ref-hero">
+      <h2>🎁 Invita colegas, gana recompensas</h2>
+      <p>Comparte tu código de referido. Cuando un colega veterinario se inscribe con tu enlace, <strong>tú obtienes un mes VIP gratis</strong> y tu colega <strong>20% de descuento</strong> en su primera mensualidad.</p>
+    </div>
+
+    <div class="ref-link-box">
+      <div class="ref-link-label">✨ Tu enlace de referido único</div>
+      <div class="ref-link-input">
+        <input type="text" id="refLink" readonly>
+        <button class="btn btn-gold" onclick="copyLink()" id="btnCopy">📋 Copiar</button>
       </div>
 
-      <!-- Hero con código -->
-      <div class="ref-hero">
-        <div class="ref-hero__icon">🎁</div>
-        <h2>¡Comparte Zoorigen y gana!</h2>
-        <p>Cada amigo que se una paga $199 · Tú ganas 1 mes VIP cada 3 amigos</p>
+      <div class="ref-link-label" style="margin-top:1.4rem;">Compartir en…</div>
+      <div class="ref-share-buttons">
+        <button class="share-btn wa" onclick="shareWa()">💬 WhatsApp</button>
+        <button class="share-btn fb" onclick="shareFb()">f Facebook</button>
+        <button class="share-btn tw" onclick="shareTw()">X Twitter</button>
+        <button class="share-btn mail" onclick="shareMail()">✉️ Correo</button>
       </div>
+    </div>
 
-      <!-- Progreso a próxima recompensa -->
-      <div class="ref-reward-card">
-        <h3><span>🏆</span> Tu progreso a mes gratis</h3>
-        <p style="color:var(--zoo-text-muted);margin:0 0 10px;font-size:.92rem;" id="progressText">Cargando...</p>
-        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-        <div class="progress-info">
-          <span id="progressCurrent">0 / 3 amigos</span>
-          <span id="progressReward">Próximo regalo</span>
-        </div>
+    <div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
+      <div class="stat-box" style="background:var(--gv-bg-surface);border:1px solid var(--gv-border);border-radius:var(--gv-radius);padding:1.3rem;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.4rem;">👥</div>
+        <div style="font-family:var(--gv-ff);font-size:1.8rem;font-weight:800;color:var(--gv-gold);line-height:1;">0</div>
+        <div style="font-size:0.76rem;color:var(--gv-text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-top:0.3rem;">Referidos</div>
       </div>
-
-      <!-- Link de referido -->
-      <div class="ref-link-card">
-        <h3>🔗 Tu link único de invitación</h3>
-        <div class="ref-link-box">
-          <div class="ref-link-input" id="refLink">https://www.zoorigen.com/pages/club-registro.html?ref=...</div>
-          <button class="ref-copy-btn" id="copyBtn">Copiar</button>
-        </div>
-        <div class="ref-share-row">
-          <a class="ref-share-btn wa" id="shareWA" target="_blank">📱 WhatsApp</a>
-          <a class="ref-share-btn fb" id="shareFB" target="_blank">Facebook</a>
-          <a class="ref-share-btn tw" id="shareTW" target="_blank">X / Twitter</a>
-          <button class="ref-share-btn" id="shareEmail">📧 Email</button>
-        </div>
+      <div class="stat-box" style="background:var(--gv-bg-surface);border:1px solid var(--gv-border);border-radius:var(--gv-radius);padding:1.3rem;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.4rem;">💰</div>
+        <div style="font-family:var(--gv-ff);font-size:1.8rem;font-weight:800;color:var(--gv-gold);line-height:1;">$0</div>
+        <div style="font-size:0.76rem;color:var(--gv-text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-top:0.3rem;">Ahorrado</div>
       </div>
-
-      <!-- Stats -->
-      <div class="ref-stats-grid">
-        <div class="ref-stat">
-          <div class="ref-stat__val" id="statInvitados">0</div>
-          <div class="ref-stat__lbl">Invitados</div>
-        </div>
-        <div class="ref-stat">
-          <div class="ref-stat__val" id="statPagados">0</div>
-          <div class="ref-stat__lbl">Se suscribieron</div>
-        </div>
-        <div class="ref-stat">
-          <div class="ref-stat__val" id="statMeses">0</div>
-          <div class="ref-stat__lbl">Meses ganados</div>
-        </div>
+      <div class="stat-box" style="background:var(--gv-bg-surface);border:1px solid var(--gv-border);border-radius:var(--gv-radius);padding:1.3rem;text-align:center;">
+        <div style="font-size:1.8rem;margin-bottom:0.4rem;">🗓️</div>
+        <div style="font-family:var(--gv-ff);font-size:1.8rem;font-weight:800;color:var(--gv-gold);line-height:1;">0</div>
+        <div style="font-size:0.76rem;color:var(--gv-text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-top:0.3rem;">Meses gratis</div>
       </div>
+    </div>
 
-      <!-- Cómo funciona -->
-      <div class="card" style="margin-bottom:20px;">
-        <h2 style="color:#fff;font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:700;margin:0 0 14px;">📋 Cómo funciona</h2>
-        <ol class="ref-how-steps">
-          <li>Comparte tu link único con amigos, colegas o en redes sociales</li>
-          <li>Ellos se registran y pagan $199 su primer mes del Club VIP</li>
-          <li>Cada 3 amigos que se suscriban = 1 MES VIP GRATIS agregado a tu membresía</li>
-          <li>Recibes notificación cuando alguien se une con tu código</li>
-        </ol>
+    <div class="perks-grid">
+      <div class="perk">
+        <span class="perk-emoji">🎁</span>
+        <div class="perk-title">1 mes VIP gratis por referido</div>
+        <div class="perk-desc">Cada colega que se inscriba con tu enlace te da 1 mes gratis en tu próxima renovación.</div>
       </div>
-
-      <!-- Lista de referidos -->
-      <div class="card">
-        <h2 style="color:#fff;font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:700;margin:0 0 14px;">👥 Tus amigos invitados</h2>
-        <ul class="ref-earnings-list" id="refList">
-          <li class="ref-empty">Aún no has invitado a nadie. ¡Comparte tu link!</li>
-        </ul>
+      <div class="perk">
+        <span class="perk-emoji">💸</span>
+        <div class="perk-title">20% OFF para tu invitado</div>
+        <div class="perk-desc">Tu colega obtiene 20% de descuento en su primera mensualidad del Club.</div>
       </div>
-    </main>
-  </div>
+      <div class="perk">
+        <span class="perk-emoji">🏅</span>
+        <div class="perk-title">Logros y reconocimientos</div>
+        <div class="perk-desc">Desbloquea insignias y accede a beneficios especiales con 3, 5 y 10 referidos.</div>
+      </div>
+      <div class="perk">
+        <span class="perk-emoji">🔄</span>
+        <div class="perk-title">Sin límite</div>
+        <div class="perk-desc">Refiere a todos los colegas que quieras. No hay tope de recompensas.</div>
+      </div>
+    </div>
+  </main>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js"></script>
-  <script>
-    (async () => {
-      const session = await ZOORIGEN_CLUB.requireAuth();
-      if (!session) return;
-      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('referidos', session);
+<script type="module">
+import { requireAuth, renderSidebar, renderTopNav, doLogout, toast } from '../assets/js/club-extra.js';
 
-      // Generar código único basado en UID (corto, fácil de compartir)
-      // Ej: "ZOO-MXY2" — primeras 4 letras del UID en mayúsculas
-      const refCode = 'ZOO-' + session.uid.substring(0, 6).toUpperCase();
-      const refLink = `https://www.zoorigen.com/pages/club-registro.html?ref=${refCode}`;
-      document.getElementById('refLink').textContent = refLink;
+(async () => {
+  const session = await requireAuth();
+  if (!session) return;
+  document.getElementById('topnav').innerHTML = renderTopNav(session);
+  document.getElementById('sidebar').innerHTML = renderSidebar('referidos');
+  document.getElementById('btnLogout')?.addEventListener('click', doLogout);
 
-      // Guardar el código en el doc del usuario si no existe
-      try {
-        await db.collection('miembros').doc(session.uid).set({
-          refCode: refCode
-        }, { merge: true });
-      } catch (e) { console.warn(e); }
+  // Generar código único basado en el UID
+  const codigo = 'GV-' + session.uid.slice(0, 6).toUpperCase();
+  const link = `${location.origin}/pages/club-registro.html?ref=${codigo}`;
+  document.getElementById('refLink').value = link;
+  window.__refLink = link;
+  window.__refCode = codigo;
+})();
 
-      // Botones de compartir
-      const mensaje = `¡Únete al Club VIP Zoorigen! Acceso a cursos de fauna silvestre, sesiones en vivo y certificados profesionales. Con mi código tienes acceso inmediato: ${refLink}`;
+window.copyLink = async () => {
+  try {
+    await navigator.clipboard.writeText(window.__refLink);
+    const btn = document.getElementById('btnCopy');
+    const original = btn.innerHTML;
+    btn.innerHTML = '✓ Copiado';
+    setTimeout(() => { btn.innerHTML = original; }, 2000);
+    if (window.toast) toast('Enlace copiado');
+  } catch(e) {
+    toast('No se pudo copiar', true);
+  }
+};
 
-      document.getElementById('shareWA').href = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-      document.getElementById('shareFB').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(refLink)}`;
-      document.getElementById('shareTW').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(mensaje)}`;
-      document.getElementById('shareEmail').addEventListener('click', () => {
-        const asunto = 'Te invito al Club VIP Zoorigen 🦒';
-        const cuerpo = mensaje;
-        window.location.href = `mailto:?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
-      });
+const MSG = `🐾 Mira este Club VIP para veterinarios que descubrí: GlobalVet México.
 
-      // Botón copiar
-      const copyBtn = document.getElementById('copyBtn');
-      copyBtn.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(refLink);
-          copyBtn.textContent = '✓ Copiado';
-          copyBtn.classList.add('copied');
-          setTimeout(() => {
-            copyBtn.textContent = 'Copiar';
-            copyBtn.classList.remove('copied');
-          }, 2000);
-        } catch {
-          // Fallback
-          const textarea = document.createElement('textarea');
-          textarea.value = refLink;
-          document.body.appendChild(textarea);
-          textarea.select();
-          document.execCommand('copy');
-          textarea.remove();
-          copyBtn.textContent = '✓ Copiado';
-          setTimeout(() => copyBtn.textContent = 'Copiar', 2000);
-        }
-      });
+• Biblioteca de cursos clínicos
+• Herramientas clínicas profesionales (dosis, anestesia, urgencias)
+• Sesiones en vivo con especialistas
+• Constancias oficiales verificables
 
-      // Cargar referidos desde Firestore
-      const refList = document.getElementById('refList');
-      try {
-        const snap = await db.collection('miembros').where('referredBy', '==', refCode).get();
-        const invitados = [];
-        snap.forEach(doc => {
-          const d = doc.data();
-          invitados.push({
-            nombre: d.name || d.nombreCompleto || d.email?.split('@')[0] || 'Sin nombre',
-            email: d.email,
-            fechaRegistro: d.createdAt,
-            pagado: d.planActivo === true || d.planStatus === 'active'
-          });
-        });
+Si te unes con mi enlace, obtienes 20% OFF en tu primer mes:`;
 
-        const totalInvitados = invitados.length;
-        const totalPagados = invitados.filter(i => i.pagado).length;
-        const mesesGanados = Math.floor(totalPagados / 3);
-        const faltan = 3 - (totalPagados % 3);
-
-        document.getElementById('statInvitados').textContent = totalInvitados;
-        document.getElementById('statPagados').textContent = totalPagados;
-        document.getElementById('statMeses').textContent = mesesGanados;
-
-        // Progress bar
-        const progressPct = ((totalPagados % 3) / 3) * 100;
-        document.getElementById('progressFill').style.width = progressPct + '%';
-        document.getElementById('progressCurrent').textContent = `${totalPagados % 3} / 3 amigos suscritos`;
-        document.getElementById('progressReward').textContent = faltan === 3 ? '+1 mes al completar 3' : `Faltan ${faltan} para +1 mes gratis`;
-        document.getElementById('progressText').textContent = mesesGanados > 0
-          ? `¡Ya ganaste ${mesesGanados} ${mesesGanados === 1 ? 'mes' : 'meses'} gratis! Invita ${faltan} más para sumar otro.`
-          : `Cuando 3 amigos se suscriban con tu código, ganas 1 mes VIP gratis automáticamente.`;
-
-        // Lista
-        if (invitados.length === 0) {
-          refList.innerHTML = '<li class="ref-empty">Aún no has invitado a nadie. ¡Comparte tu link arriba!</li>';
-        } else {
-          refList.innerHTML = invitados.map(inv => {
-            const fecha = inv.fechaRegistro ? new Date(inv.fechaRegistro).toLocaleDateString('es-MX', {day: '2-digit', month: 'short', year: 'numeric'}) : '';
-            return `
-              <li>
-                <div>
-                  <div class="ref-name">${inv.nombre}</div>
-                  <div class="ref-date">Se registró el ${fecha}</div>
-                </div>
-                <span class="ref-status ${inv.pagado ? 'ref-status--paid' : 'ref-status--pending'}">
-                  ${inv.pagado ? '✓ Pagó' : '⏳ Pendiente'}
-                </span>
-              </li>
-            `;
-          }).join('');
-        }
-      } catch (err) {
-        console.error('Error cargando referidos:', err);
-        refList.innerHTML = '<li class="ref-empty">No se pudieron cargar los datos. Intenta de nuevo.</li>';
-      }
-    })();
-  </script>
+window.shareWa = () => {
+  const text = encodeURIComponent(MSG + '\n\n' + window.__refLink);
+  window.open(`https://wa.me/?text=${text}`, '_blank');
+};
+window.shareFb = () => {
+  const url = encodeURIComponent(window.__refLink);
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+};
+window.shareTw = () => {
+  const text = encodeURIComponent('Descubrí el Club VIP GlobalVet México — herramientas clínicas, cursos y constancias para veterinarios. 20% OFF con mi enlace:');
+  const url = encodeURIComponent(window.__refLink);
+  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+};
+window.shareMail = () => {
+  const subject = encodeURIComponent('Te invito al Club VIP GlobalVet México');
+  const body = encodeURIComponent(MSG + '\n\n' + window.__refLink);
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+};
+</script>
 </body>
 </html>

@@ -1,738 +1,347 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Certificado · Zoorigen México</title>
-  <meta name="theme-color" content="#1F5F3A">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&family=Pinyon+Script&family=Poppins:wght@400;500;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(135deg, #050706 0%, #0f1411 100%);
-      min-height: 100vh;
-      font-family: 'Open Sans', sans-serif;
-      padding: 24px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constancia oficial · GlobalVet México</title>
+<meta name="theme-color" content="#1a1040">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Great+Vibes&family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background: #0a0614;
+    background-image:
+      radial-gradient(ellipse 800px 600px at 10% 0%, rgba(139, 92, 246, 0.15), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 100%, rgba(245, 158, 11, 0.1), transparent 60%);
+    min-height:100vh;
+    font-family:'DM Sans',sans-serif;
+    padding:24px 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    color:#fff;
+  }
 
-    .cert-actions {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .cert-btn {
-      background: linear-gradient(135deg, #E8A317 0%, #D68A0A 100%);
-      color: #1f1d17;
-      border: 0;
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: .96rem;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all .2s;
-      box-shadow: 0 8px 24px rgba(232,163,23,0.3);
-    }
-    .cert-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(232,163,23,0.4); }
-    .cert-btn--ghost {
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: none;
-    }
-    .cert-btn--ghost:hover { background: rgba(255,255,255,0.1); }
+  .cert-actions{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;max-width:1000px}
+  .cert-btn{
+    background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+    color:#1a0f04;
+    border:0;padding:12px 22px;border-radius:10px;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.92rem;
+    cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:8px;
+    transition:all .2s;
+    box-shadow:0 8px 22px rgba(245,158,11,.3)
+  }
+  .cert-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(245,158,11,.4)}
+  .cert-btn--ghost{
+    background:rgba(255,255,255,.08);color:#fff;
+    border:1px solid rgba(255,255,255,.18);box-shadow:none
+  }
+  .cert-btn--ghost:hover{background:rgba(255,255,255,.14)}
+  .cert-btn--wa{background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);color:#fff}
+  .cert-btn--li{background:linear-gradient(135deg,#0a66c2 0%,#004182 100%);color:#fff}
 
-    /* ═══════════════ CERTIFICADO — TODO DENTRO DEL MARCO ═══════════════ */
-    #certificado {
-      width: 1000px;
-      max-width: 100%;
-      aspect-ratio: 1.414 / 1;
-      background:
-        radial-gradient(ellipse 600px 400px at 20% 10%, rgba(232,163,23,0.08) 0%, transparent 70%),
-        radial-gradient(ellipse 600px 400px at 80% 90%, rgba(31,95,58,0.08) 0%, transparent 70%),
-        linear-gradient(180deg, #fefcf5 0%, #fdfaf0 50%, #faf6e8 100%);
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.1);
-      color: #1a2620;
-      border-radius: 2px;
-    }
+  .loading-st{text-align:center;padding:4rem 2rem;color:#fff;max-width:500px}
+  .loading-st .spin{width:48px;height:48px;border:3px solid rgba(255,255,255,.15);border-top-color:#f59e0b;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .err-st{background:rgba(244,63,94,.15);border:1px solid rgba(244,63,94,.4);border-radius:16px;padding:2rem;color:#fff;text-align:center;max-width:500px}
+  .err-st h2{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;margin-bottom:.5rem}
+  .err-st code{background:rgba(0,0,0,.3);padding:2px 8px;border-radius:4px;font-size:.85rem;color:#f59e0b}
 
-    .cert-frame-outer {
-      position: absolute;
-      inset: 22px;
-      border: 4px solid #1F5F3A;
-      border-radius: 2px;
-      pointer-events: none;
-    }
-    .cert-frame-mid {
-      position: absolute;
-      inset: 32px;
-      border: 1px solid #E8A317;
-      pointer-events: none;
-    }
-    .cert-frame-inner {
-      position: absolute;
-      inset: 38px;
-      border: 1px solid rgba(31,95,58,0.3);
-      pointer-events: none;
-    }
+  /* ═══════════════ CERTIFICADO ═══════════════ */
+  #cert{
+    width:1000px;max-width:100%;aspect-ratio:1.414/1;
+    background:
+      radial-gradient(ellipse 600px 400px at 20% 10%,rgba(79,53,179,.08) 0%,transparent 70%),
+      radial-gradient(ellipse 600px 400px at 80% 90%,rgba(245,158,11,.08) 0%,transparent 70%),
+      linear-gradient(180deg,#fefcf5 0%,#fdfaf0 50%,#faf6e8 100%);
+    position:relative;overflow:hidden;
+    box-shadow:0 40px 100px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.1);
+    color:#1a1040;border-radius:2px
+  }
+  .frame-outer{position:absolute;inset:22px;border:4px solid #1a1040;border-radius:2px;pointer-events:none}
+  .frame-mid{position:absolute;inset:32px;border:1px solid #f59e0b;pointer-events:none}
+  .frame-inner{position:absolute;inset:38px;border:1px solid rgba(139,92,246,.3);pointer-events:none}
 
-    .cert-ornament {
-      position: absolute;
-      width: 80px;
-      height: 80px;
-      pointer-events: none;
-      opacity: 0.85;
-    }
-    .cert-ornament-tl { top: 46px; left: 46px; }
-    .cert-ornament-tr { top: 46px; right: 46px; transform: scaleX(-1); }
-    .cert-ornament-bl { bottom: 46px; left: 46px; transform: scaleY(-1); }
-    .cert-ornament-br { bottom: 46px; right: 46px; transform: scale(-1,-1); }
+  .orn{position:absolute;width:80px;height:80px;pointer-events:none;opacity:.85;color:#1a1040}
+  .orn-tl{top:46px;left:46px}
+  .orn-tr{top:46px;right:46px;transform:scaleX(-1)}
+  .orn-bl{bottom:46px;left:46px;transform:scaleY(-1)}
+  .orn-br{bottom:46px;right:46px;transform:scale(-1,-1)}
 
-    .cert-watermark {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 360px;
-      opacity: 0.025;
-      pointer-events: none;
-      z-index: 1;
-      filter: blur(1px);
-    }
+  .watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:360px;opacity:.025;pointer-events:none;z-index:1;filter:blur(1px);font-family:'Cinzel',serif;font-weight:900;color:#1a1040}
 
-    /* ═══════════════ INNER CONTAINER — Layout compacto para que todo quepa ═══════════════ */
-    .cert-inner {
-      position: relative;
-      padding: 48px 70px 40px;
-      height: 100%;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 10px;
-      text-align: center;
-      z-index: 2;
-    }
+  .inner{position:relative;padding:42px 70px 36px;height:100%;z-index:2;display:flex;flex-direction:column}
 
-    /* Header */
-    .cert-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(31,95,58,0.15);
-    }
+  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+  .logo-wrap{display:flex;align-items:center;gap:12px}
+  .logo-img{width:56px;height:56px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(26,16,64,.2)}
+  .logo-text strong{display:block;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;color:#1a1040;letter-spacing:.05em}
+  .logo-text span{display:block;font-size:.72rem;color:#6d28d9;margin-top:2px;letter-spacing:.03em;font-weight:600;text-transform:uppercase}
+  .folio-box{background:linear-gradient(135deg,#1a1040 0%,#6d28d9 100%);color:#fff;border-radius:10px;padding:8px 14px;text-align:right}
+  .folio-label{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;opacity:.7;margin-bottom:2px}
+  .folio-num{font-family:'Space Grotesk',monospace;font-size:.92rem;font-weight:700;letter-spacing:.03em}
 
-    .cert-logo-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      text-align: left;
-    }
-    .cert-logo {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #2a7a4d 0%, #1F5F3A 60%, #0f3b22 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      color: #fff;
-      box-shadow: 0 6px 16px rgba(31,95,58,0.35), inset 0 2px 4px rgba(255,255,255,0.15);
-      border: 2px solid #E8A317;
-      position: relative;
-    }
-    .cert-logo::after {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border: 1px solid rgba(232,163,23,0.4);
-      border-radius: 50%;
-    }
-    .cert-logo-text strong {
-      display: block;
-      font-family: 'Cinzel', serif;
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: #1F5F3A;
-      letter-spacing: .12em;
-      line-height: 1;
-    }
-    .cert-logo-text span {
-      display: block;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .72rem;
-      color: #5a6a62;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      font-weight: 600;
-      margin-top: 3px;
-    }
+  .body{flex:1;text-align:center;display:flex;flex-direction:column;justify-content:center;padding:0 20px}
+  .laurel{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px}
+  .laurel-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,#f59e0b,transparent)}
+  .laurel-icon{color:#f59e0b;font-size:1.2rem}
+  .title{font-family:'Cinzel',serif;font-size:3rem;font-weight:800;color:#1a1040;letter-spacing:.15em;margin-bottom:4px;line-height:1}
+  .subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.05rem;color:#6d28d9;letter-spacing:.1em;margin-bottom:18px}
+  .small-txt{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#2a1d5a;margin-bottom:8px;font-style:italic}
+  .name{font-family:'Great Vibes',cursive;font-size:3.2rem;color:#1a1040;margin:4px 0 6px;line-height:1.1;text-shadow:0 2px 4px rgba(0,0,0,.05)}
+  .name-under{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+  .name-line{width:120px;height:1px;background:linear-gradient(90deg,transparent,#1a1040,transparent)}
+  .name-dot{width:6px;height:6px;border-radius:50%;background:#f59e0b}
+  .text{font-family:'Cormorant Garamond',serif;font-size:1.02rem;color:#2a1d5a;margin-bottom:4px;font-style:italic}
+  .course{font-family:'Cinzel',serif;font-size:1.4rem;font-weight:600;color:#6d28d9;margin:6px 0 4px;line-height:1.3}
+  .meta{font-size:.82rem;color:#555;margin-bottom:12px;font-family:'DM Sans',sans-serif}
+  .meta-sep{color:#f59e0b;margin:0 6px}
+  .gratitude{font-family:'Cormorant Garamond',serif;font-size:.88rem;color:#444;line-height:1.6;max-width:640px;margin:0 auto;font-style:italic}
 
-    .cert-folio-box { text-align: right; }
-    .cert-folio-label {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .68rem;
-      color: #5a6a62;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      font-weight: 600;
-      font-style: italic;
-    }
-    .cert-folio-num {
-      display: inline-block;
-      font-family: 'Courier New', monospace;
-      font-weight: 700;
-      font-size: .86rem;
-      color: #1F5F3A;
-      margin-top: 4px;
-      letter-spacing: .1em;
-      padding: 3px 10px;
-      background: rgba(31,95,58,0.08);
-      border: 1px solid rgba(31,95,58,0.25);
-      border-radius: 3px;
-    }
+  .footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;gap:20px}
+  .sig{text-align:center;flex:1;max-width:200px}
+  .sig-svg{width:180px;height:54px;margin:0 auto 6px;display:block}
+  .sig-line{font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;color:#1a1040;border-top:1.5px solid #1a1040;padding-top:3px;letter-spacing:.02em}
+  .sig-title{font-size:.7rem;color:#777;margin-top:2px;letter-spacing:.04em}
+  .date-display{font-family:'Cinzel',serif;font-size:.95rem;font-weight:600;color:#1a1040;padding:6px 12px;background:rgba(245,158,11,.08);border-radius:6px;margin-bottom:4px;letter-spacing:.05em;display:inline-block}
 
-    /* Body central compacto */
-    .cert-body {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 0;
-      position: relative;
-      text-align: center;
-      padding: 4px 0;
-    }
+  .qr-wrap{text-align:center;flex-shrink:0}
+  .qr{width:90px;height:90px;padding:5px;background:#fff;border:2px solid #1a1040;border-radius:8px;box-shadow:0 3px 8px rgba(0,0,0,.12)}
+  .qr img{width:100%;height:100%;display:block}
+  .qr-text{font-size:.62rem;color:#6d28d9;margin-top:4px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
 
-    .cert-laurel {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 2px;
-    }
-    .cert-laurel-line {
-      height: 1px;
-      width: 60px;
-      background: linear-gradient(90deg, transparent, #E8A317);
-    }
-    .cert-laurel-line-r { background: linear-gradient(90deg, #E8A317, transparent); }
-    .cert-laurel-icon { font-size: 1.1rem; color: #E8A317; }
+  .seal{position:absolute;top:52%;right:70px;transform:translateY(-50%) rotate(-12deg);width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.15) 0%,transparent 70%);display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:3}
+  .seal-inner{width:110px;height:110px;border:3px double #f59e0b;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#d97706;opacity:.75}
+  .seal-top{font-family:'Cinzel',serif;font-size:.52rem;font-weight:700;letter-spacing:.15em;margin-top:8px}
+  .seal-star{font-size:1.1rem;margin:3px 0}
+  .seal-mx{font-family:'Cinzel',serif;font-size:.88rem;font-weight:800;letter-spacing:.1em}
+  .seal-bot{font-family:'Cinzel',serif;font-size:.52rem;font-weight:700;letter-spacing:.15em;margin-bottom:8px}
 
-    .cert-title {
-      font-family: 'Cinzel', serif;
-      font-weight: 900;
-      font-size: 2.6rem;
-      color: #1F5F3A;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      line-height: 1;
-      margin: 2px 0 0;
-      text-shadow: 0 2px 0 rgba(232,163,23,0.12);
-    }
-
-    .cert-subtitle {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic;
-      font-size: 1rem;
-      color: #8a6b20;
-      letter-spacing: .2em;
-      font-weight: 500;
-      margin-bottom: 14px;
-      text-transform: lowercase;
-    }
-
-    .cert-small {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic;
-      color: #4a5a52;
-      font-size: 1.05rem;
-      margin-bottom: 0;
-      letter-spacing: .03em;
-      font-weight: 500;
-    }
-
-    .cert-name {
-      font-family: 'Pinyon Script', 'Great Vibes', cursive;
-      font-weight: 400;
-      font-size: 3.6rem;
-      color: #1F5F3A;
-      line-height: 1.1;
-      margin: 2px auto 2px;
-      padding: 0 30px 2px;
-      position: relative;
-      display: inline-block;
-      text-shadow: 1px 1px 2px rgba(31,95,58,0.1);
-    }
-    .cert-name-underline {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin: 0 auto 8px;
-      max-width: 480px;
-    }
-    .cert-name-line {
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #E8A317, transparent);
-    }
-    .cert-name-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #E8A317;
-      box-shadow: 0 0 0 2px rgba(232,163,23,0.2);
-    }
-
-    .cert-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.05rem;
-      color: #2a3a32;
-      line-height: 1.4;
-      max-width: 700px;
-      margin: 6px auto 2px;
-      font-weight: 500;
-    }
-
-    .cert-course {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 700;
-      font-style: italic;
-      font-size: 1.4rem;
-      color: #1F5F3A;
-      margin: 2px auto;
-      max-width: 800px;
-      padding: 0 30px;
-      line-height: 1.2;
-    }
-
-    .cert-meta {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .92rem;
-      color: #5a6a62;
-      margin: 4px auto 0;
-      letter-spacing: .03em;
-      font-style: italic;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .cert-meta-sep { color: #E8A317; font-size: .55rem; line-height: 1; }
-
-    .cert-gratitude {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .88rem;
-      color: #4a5a52;
-      line-height: 1.45;
-      max-width: 640px;
-      margin: 8px auto 0;
-      font-style: italic;
-      letter-spacing: .01em;
-      padding: 0 20px;
-    }
-
-    /* ═══════════════ FOOTER - COMPACTO Y DENTRO DEL MARCO ═══════════════ */
-    .cert-footer {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 30px;
-      align-items: end;
-      padding-top: 4px;
-      padding-bottom: 2px;
-    }
-
-    .cert-sig { text-align: center; position: relative; }
-
-    /* FIRMA PROFESIONAL SVG — diseño artístico real, no garabato */
-    .cert-signature-svg {
-      width: 210px;
-      height: 54px;
-      margin: 0 auto 2px;
-      display: block;
-    }
-
-    .cert-sig-line {
-      border-top: 1.5px solid #1a2620;
-      padding-top: 6px;
-      font-size: .78rem;
-      color: #1a2620;
-      font-weight: 700;
-      font-family: 'Cinzel', serif;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-    .cert-sig-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .76rem;
-      color: #5a6a62;
-      margin-top: 2px;
-      letter-spacing: .03em;
-      font-style: italic;
-    }
-
-    .cert-date-display {
-      font-family: 'Great Vibes', cursive;
-      font-size: 1.7rem;
-      color: #1F5F3A;
-      line-height: 1;
-      height: 54px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-bottom: 6px;
-    }
-
-    /* ═══════════════ SELLO CIRCULAR (más chico para no interferir) ═══════════════ */
-    .cert-seal {
-      position: absolute;
-      right: 95px;
-      top: 50%;
-      transform: translateY(-50%) rotate(-12deg);
-      width: 95px;
-      height: 95px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(213,90,40,0.1) 0%, rgba(213,90,40,0.03) 80%);
-      border: 2px solid rgba(213,90,40,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 3;
-      box-shadow: 0 2px 8px rgba(213,90,40,0.1);
-    }
-    .cert-seal-inner {
-      width: 82%;
-      height: 82%;
-      border-radius: 50%;
-      border: 1.5px dashed rgba(213,90,40,0.45);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: #B0411D;
-      font-family: 'Cinzel', serif;
-      font-weight: 700;
-      letter-spacing: .12em;
-      padding: 4px;
-      gap: 1px;
-    }
-    .cert-seal-top-text { font-size: .46rem; text-transform: uppercase; }
-    .cert-seal-star { font-size: .95rem; line-height: 1; color: #D55A28; }
-    .cert-seal-mx { font-size: .62rem; letter-spacing: .2em; color: #1F5F3A; font-weight: 900; }
-    .cert-seal-bottom-text { font-size: .44rem; text-transform: uppercase; opacity: 0.8; }
-
-    /* QR más compacto */
-    .cert-qr-wrap { text-align: center; }
-    .cert-qr {
-      width: 82px;
-      height: 82px;
-      background: #fff;
-      padding: 5px;
-      border: 2px solid #1F5F3A;
-      margin: 0 auto 4px;
-      border-radius: 2px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-    .cert-qr img { width: 100%; height: 100%; display: block; }
-    .cert-qr-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .64rem;
-      color: #5a6a62;
-      letter-spacing: .06em;
-      max-width: 100px;
-      line-height: 1.3;
-      font-style: italic;
-    }
-
-    @media (max-width: 1060px) { #certificado { transform: scale(0.85); transform-origin: top center; } }
-    @media (max-width: 880px) { #certificado { transform: scale(0.6); } }
-    @media (max-width: 640px) { #certificado { transform: scale(0.4); margin-top: -20%; } }
-
-    .cert-state {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 40px;
-      text-align: center;
-      color: #a0a8a4;
-      max-width: 500px;
-    }
-    .cert-state h2 { color: #fff; margin-bottom: 10px; font-family: 'Poppins', sans-serif; }
-
-    @media print {
-      body { background: #fff; padding: 0; }
-      .cert-actions, .no-print { display: none !important; }
-      #certificado { box-shadow: none; transform: none !important; margin: 0; }
-      @page { size: A4 landscape; margin: 0; }
-    }
-  </style>
+  @media print{
+    body{background:#fff;padding:0}
+    body::before{display:none}
+    .cert-actions{display:none}
+    #cert{box-shadow:none}
+  }
+  @media(max-width:720px){
+    .inner{padding:30px 25px 20px}
+    .title{font-size:2rem}
+    .name{font-size:2.2rem}
+    .course{font-size:1rem}
+    .seal{width:80px;height:80px;right:30px}
+    .seal-inner{width:70px;height:70px}
+  }
+</style>
 </head>
 <body>
 
-  <div id="loading" class="cert-state">
-    <h2>⏳ Cargando certificado...</h2>
+<div id="loading" class="loading-st"><div class="spin"></div><p>Cargando constancia oficial…</p></div>
+
+<div id="errState" class="err-st" style="display:none;">
+  <h2>⚠️ Error</h2>
+  <p></p>
+  <a href="club-certificados.html" class="cert-btn cert-btn--ghost" style="margin-top:1rem;">← Volver</a>
+</div>
+
+<div id="certWrap" style="display:none;">
+  <div class="cert-actions">
+    <a href="club-certificados.html" class="cert-btn cert-btn--ghost">← Mis constancias</a>
+    <button class="cert-btn" onclick="descargarPDF()">📥 Descargar PDF</button>
+    <button class="cert-btn cert-btn--ghost" onclick="window.print()">🖨️ Imprimir</button>
+    <button class="cert-btn cert-btn--wa" onclick="compartirWa()">💬 WhatsApp</button>
+    <button class="cert-btn cert-btn--li" onclick="compartirLi()">in LinkedIn</button>
   </div>
 
-  <div id="errorState" class="cert-state" style="display:none;max-width:640px;">
-    <h2>⚠️ Certificado no encontrado</h2>
-    <p style="margin-bottom:20px;line-height:1.6;text-align:left;">El folio no existe o es inválido.</p>
-    <a href="club-biblioteca.html" class="cert-btn cert-btn--ghost">← Volver a biblioteca</a>
-  </div>
+  <div id="cert">
+    <div class="frame-outer"></div>
+    <div class="frame-mid"></div>
+    <div class="frame-inner"></div>
+    <div class="watermark">GV</div>
 
-  <div id="certWrap" style="display:none;">
-    <div class="cert-actions no-print">
-      <button class="cert-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-      <button class="cert-btn" onclick="compartirWhatsApp()">💬 Compartir en WhatsApp</button>
-      <button class="cert-btn" onclick="compartirLinkedIn()">💼 Compartir en LinkedIn</button>
-      <a class="cert-btn cert-btn--ghost" href="club-biblioteca.html">← Biblioteca</a>
-    </div>
+    <svg class="orn orn-tl" viewBox="0 0 80 80"><g fill="none" stroke="currentColor" stroke-width="1.2"><path d="M 10 30 Q 20 10, 40 10 L 40 12 Q 22 12, 14 28 Z" fill="currentColor" opacity=".9"/><circle cx="14" cy="14" r="2" fill="currentColor"/><path d="M 14 14 Q 25 16, 30 22 Q 22 28, 16 22" fill="currentColor" opacity=".6"/><path d="M 30 14 L 50 14 M 14 30 L 14 50" stroke-width=".6"/></g></svg>
+    <svg class="orn orn-tr" viewBox="0 0 80 80"><g fill="none" stroke="currentColor" stroke-width="1.2"><path d="M 10 30 Q 20 10, 40 10 L 40 12 Q 22 12, 14 28 Z" fill="currentColor" opacity=".9"/><circle cx="14" cy="14" r="2" fill="currentColor"/><path d="M 14 14 Q 25 16, 30 22 Q 22 28, 16 22" fill="currentColor" opacity=".6"/><path d="M 30 14 L 50 14 M 14 30 L 14 50" stroke-width=".6"/></g></svg>
+    <svg class="orn orn-bl" viewBox="0 0 80 80"><g fill="none" stroke="currentColor" stroke-width="1.2"><path d="M 10 30 Q 20 10, 40 10 L 40 12 Q 22 12, 14 28 Z" fill="currentColor" opacity=".9"/><circle cx="14" cy="14" r="2" fill="currentColor"/><path d="M 14 14 Q 25 16, 30 22 Q 22 28, 16 22" fill="currentColor" opacity=".6"/><path d="M 30 14 L 50 14 M 14 30 L 14 50" stroke-width=".6"/></g></svg>
+    <svg class="orn orn-br" viewBox="0 0 80 80"><g fill="none" stroke="currentColor" stroke-width="1.2"><path d="M 10 30 Q 20 10, 40 10 L 40 12 Q 22 12, 14 28 Z" fill="currentColor" opacity=".9"/><circle cx="14" cy="14" r="2" fill="currentColor"/><path d="M 14 14 Q 25 16, 30 22 Q 22 28, 16 22" fill="currentColor" opacity=".6"/><path d="M 30 14 L 50 14 M 14 30 L 14 50" stroke-width=".6"/></g></svg>
 
-    <div id="certificado">
-      <div class="cert-frame-outer"></div>
-      <div class="cert-frame-mid"></div>
-      <div class="cert-frame-inner"></div>
-
-      <svg class="cert-ornament cert-ornament-tl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <g fill="none" stroke="#E8A317" stroke-width="1.2" stroke-linecap="round">
-          <path d="M 0 30 Q 20 5 45 0" opacity="0.7"/>
-          <path d="M 10 40 Q 25 20 40 10" opacity="0.5"/>
-          <circle cx="5" cy="28" r="3" fill="#E8A317" stroke="none" opacity="0.8"/>
-          <circle cx="28" cy="5" r="3" fill="#E8A317" stroke="none" opacity="0.8"/>
-          <path d="M 15 15 Q 25 10 32 18 Q 25 25 15 15 Z" fill="#1F5F3A" stroke="#1F5F3A" opacity="0.6"/>
-        </g>
-      </svg>
-      <svg class="cert-ornament cert-ornament-tr" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <g fill="none" stroke="#E8A317" stroke-width="1.2" stroke-linecap="round">
-          <path d="M 0 30 Q 20 5 45 0" opacity="0.7"/>
-          <path d="M 10 40 Q 25 20 40 10" opacity="0.5"/>
-          <circle cx="5" cy="28" r="3" fill="#E8A317" stroke="none" opacity="0.8"/>
-          <circle cx="28" cy="5" r="3" fill="#E8A317" stroke="none" opacity="0.8"/>
-          <path d="M 15 15 Q 25 10 32 18 Q 25 25 15 15 Z" fill="#1F5F3A" stroke="#1F5F3A" opacity="0.6"/>
-        </g>
-      </svg>
-      <svg class="cert-ornament cert-ornament-bl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <g fill="none" stroke="#E8A317" stroke-width="1.2" stroke-linecap="round">
-          <path d="M 0 30 Q 20 5 45 0" opacity="0.7"/>
-          <path d="M 10 40 Q 25 20 40 10" opacity="0.5"/>
-          <circle cx="5" cy="28" r="3" fill="#E8A317" stroke="none" opacity="0.8"/>
-          <circle cx="28" cy="5" r="3" fill="#E8A317" stroke="none" opacity="0.8"/>
-          <path d="M 15 15 Q 25 10 32 18 Q 25 25 15 15 Z" fill="#1F5F3A" stroke="#1F5F3A" opacity="0.6"/>
-        </g>
-      </svg>
-      <svg class="cert-ornament cert-ornament-br" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <g fill="none" stroke="#E8A317" stroke-width="1.2" stroke-linecap="round">
-          <path d="M 0 30 Q 20 5 45 0" opacity="0.7"/>
-          <path d="M 10 40 Q 25 20 40 10" opacity="0.5"/>
-          <circle cx="5" cy="28" r="3" fill="#E8A317" stroke="none" opacity="0.8"/>
-          <circle cx="28" cy="5" r="3" fill="#E8A317" stroke="none" opacity="0.8"/>
-          <path d="M 15 15 Q 25 10 32 18 Q 25 25 15 15 Z" fill="#1F5F3A" stroke="#1F5F3A" opacity="0.6"/>
-        </g>
-      </svg>
-
-      <div class="cert-watermark">🦒</div>
-
-      <div class="cert-inner">
-        <!-- HEADER -->
-        <div class="cert-header">
-          <div class="cert-logo-wrap">
-            <div class="cert-logo">🦒</div>
-            <div class="cert-logo-text">
-              <strong>ZOORIGEN</strong>
-              <span>México · Capacitación Profesional</span>
-            </div>
-          </div>
-          <div class="cert-folio-box">
-            <div class="cert-folio-label">Folio oficial</div>
-            <div class="cert-folio-num" id="folioDisplay">—</div>
+    <div class="inner">
+      <div class="header">
+        <div class="logo-wrap">
+          <img src="../assets/logo/globalvet-logo.jpg" alt="GlobalVet" class="logo-img">
+          <div class="logo-text">
+            <strong>GLOBALVET MÉXICO</strong>
+            <span>Capacitación Veterinaria Profesional</span>
           </div>
         </div>
-
-        <!-- BODY -->
-        <div class="cert-body">
-          <div class="cert-laurel">
-            <div class="cert-laurel-line"></div>
-            <div class="cert-laurel-icon">❦</div>
-            <div class="cert-laurel-line cert-laurel-line-r"></div>
-          </div>
-
-          <h1 class="cert-title">Certificado</h1>
-          <p class="cert-subtitle">de aprovechamiento</p>
-
-          <p class="cert-small">Se otorga el presente reconocimiento a</p>
-
-          <h2 class="cert-name" id="certName">—</h2>
-          <div class="cert-name-underline">
-            <div class="cert-name-line"></div>
-            <div class="cert-name-dot"></div>
-            <div class="cert-name-line"></div>
-          </div>
-
-          <p class="cert-text">Por haber concluido satisfactoriamente el curso de capacitación profesional</p>
-          <p class="cert-course" id="certCourse">—</p>
-          <p class="cert-meta" id="certMeta">—</p>
-
-          <p class="cert-gratitude">
-            Reconociendo su dedicación, compromiso y empeño por continuar su formación profesional
-            en beneficio de la fauna y la biodiversidad mexicana.
-          </p>
-        </div>
-
-        <!-- FOOTER: TODO DENTRO DEL MARCO -->
-        <div class="cert-footer">
-          <!-- Firma del director -->
-          <div class="cert-sig">
-            <!-- FIRMA SVG PROFESIONAL DE ERICK SALAS - Trazos continuos tipo caligrafía real -->
-            <svg class="cert-signature-svg" viewBox="0 0 210 54" xmlns="http://www.w3.org/2000/svg">
-              <!-- Firma "Erick Salas R." con trazos continuos y naturales -->
-              <g fill="none" stroke="#1a3d24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <!-- E mayúscula con floritura -->
-                <path d="M 15 18 C 10 12, 8 20, 10 28 C 12 36, 18 38, 22 32 M 10 24 L 17 23"/>
-                <!-- rick -->
-                <path d="M 24 26 C 23 23, 25 20, 28 22 C 29 23, 29 26, 28 28 C 27 30, 25 30, 24 28"/>
-                <path d="M 31 28 C 31 24, 32 22, 33 22 C 34 22, 34 24, 33 28 M 33 18 L 33 19"/>
-                <path d="M 36 18 C 36 24, 36 28, 37 30 C 38 30, 40 28, 42 26 M 37 26 C 39 27, 41 29, 42 32"/>
-                <!-- k -->
-                <path d="M 45 16 C 45 22, 45 28, 46 30 M 45 25 C 47 23, 49 22, 50 24 M 47 25 C 48 27, 50 30, 51 32"/>
-                <!-- Rúbrica del nombre continuando -->
-                <path d="M 54 30 C 60 25, 68 26, 72 30"/>
-
-                <!-- S mayúscula -->
-                <path d="M 85 18 C 82 16, 78 18, 78 22 C 78 25, 84 24, 85 27 C 86 30, 82 32, 78 30"/>
-                <!-- alas -->
-                <path d="M 88 28 C 87 25, 89 22, 92 23 C 93 24, 93 27, 92 29 C 90 30, 88 29, 88 28 M 93 22 L 93 30"/>
-                <path d="M 96 20 C 96 25, 96 29, 97 30 C 98 29, 99 27, 99 24"/>
-                <path d="M 101 28 C 101 25, 103 22, 106 24 C 107 25, 107 28, 106 30 C 104 31, 102 30, 101 28 M 107 23 L 107 30"/>
-                <path d="M 110 28 C 113 25, 116 24, 118 26 C 119 28, 116 30, 114 30 C 115 32, 117 32, 119 30"/>
-
-                <!-- Punto -->
-                <circle cx="123" cy="30" r="0.8" fill="#1a3d24" stroke="none"/>
-
-                <!-- R mayúscula -->
-                <path d="M 130 18 C 130 24, 130 30, 131 32 M 130 20 C 134 19, 138 21, 138 25 C 138 28, 134 29, 130 28 M 136 28 C 138 30, 140 32, 142 33"/>
-
-                <!-- Punto final -->
-                <circle cx="146" cy="32" r="0.8" fill="#1a3d24" stroke="none"/>
-
-                <!-- Rúbrica profesional - línea larga curveada bajo la firma -->
-                <path d="M 8 42 C 30 38, 60 44, 90 40 C 120 36, 150 44, 185 38 C 195 37, 200 40, 198 44" opacity="0.85" stroke-width="1.2"/>
-                <!-- Curva decorativa final -->
-                <path d="M 170 44 C 175 48, 182 48, 188 46 C 192 44, 195 45, 198 47" opacity="0.7" stroke-width="1"/>
-              </g>
-            </svg>
-            <div class="cert-sig-line">Erick de Jesús Salas Rojas</div>
-            <div class="cert-sig-title">Director General · Zoorigen México</div>
-          </div>
-
-          <!-- QR central -->
-          <div class="cert-qr-wrap">
-            <div class="cert-qr">
-              <img id="qrCode" src="" alt="QR verificación">
-            </div>
-            <div class="cert-qr-text">Escanea para verificar</div>
-          </div>
-
-          <!-- Fecha -->
-          <div class="cert-sig">
-            <div class="cert-date-display" id="certDate">—</div>
-            <div class="cert-sig-line">Fecha de expedición</div>
-            <div class="cert-sig-title">Tehuacán, Puebla · México</div>
-          </div>
+        <div class="folio-box">
+          <div class="folio-label">Folio oficial</div>
+          <div class="folio-num" id="folioDisplay">—</div>
         </div>
       </div>
 
-      <!-- Sello (posicionado absoluto a la derecha del centro) -->
-      <div class="cert-seal">
-        <div class="cert-seal-inner">
-          <div class="cert-seal-top-text">★ Certificado ★</div>
-          <div class="cert-seal-star">✦</div>
-          <div class="cert-seal-mx">MÉXICO</div>
-          <div class="cert-seal-star">✦</div>
-          <div class="cert-seal-bottom-text">★ Oficial ★</div>
+      <div class="body">
+        <div class="laurel"><div class="laurel-line"></div><div class="laurel-icon">❦</div><div class="laurel-line"></div></div>
+        <h1 class="title">Constancia</h1>
+        <p class="subtitle">de aprovechamiento profesional</p>
+        <p class="small-txt">Se otorga la presente al Médico Veterinario</p>
+        <h2 class="name" id="certName">—</h2>
+        <div class="name-under"><div class="name-line"></div><div class="name-dot"></div><div class="name-line"></div></div>
+        <p class="text">Por haber concluido satisfactoriamente el curso de capacitación clínica</p>
+        <p class="course" id="certCourse">—</p>
+        <p class="meta" id="certMeta">—</p>
+        <p class="gratitude">
+          Reconociendo su dedicación, compromiso y empeño por continuar su formación profesional
+          en beneficio de la medicina veterinaria y el bienestar animal.
+        </p>
+      </div>
+
+      <div class="footer">
+        <div class="sig">
+          <svg class="sig-svg" viewBox="0 0 210 54">
+            <g fill="none" stroke="#1a1040" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M 15 18 C 10 12, 8 20, 10 28 C 12 36, 18 38, 22 32 M 10 24 L 17 23"/>
+              <path d="M 24 26 C 23 23, 25 20, 28 22 C 29 23, 29 26, 28 28 C 27 30, 25 30, 24 28"/>
+              <path d="M 31 28 C 31 24, 32 22, 33 22 C 34 22, 34 24, 33 28 M 33 18 L 33 19"/>
+              <path d="M 36 18 C 36 24, 36 28, 37 30 C 38 30, 40 28, 42 26 M 37 26 C 39 27, 41 29, 42 32"/>
+              <path d="M 45 16 C 45 22, 45 28, 46 30 M 45 25 C 47 23, 49 22, 50 24 M 47 25 C 48 27, 50 30, 51 32"/>
+              <path d="M 54 30 C 60 25, 68 26, 72 30"/>
+              <path d="M 85 18 C 82 16, 78 18, 78 22 C 78 25, 84 24, 85 27 C 86 30, 82 32, 78 30"/>
+              <path d="M 88 28 C 87 25, 89 22, 92 23 C 93 24, 93 27, 92 29 C 90 30, 88 29, 88 28 M 93 22 L 93 30"/>
+              <path d="M 96 20 C 96 25, 96 29, 97 30 C 98 29, 99 27, 99 24"/>
+              <path d="M 101 28 C 101 25, 103 22, 106 24 C 107 25, 107 28, 106 30 C 104 31, 102 30, 101 28 M 107 23 L 107 30"/>
+              <path d="M 110 28 C 113 25, 116 24, 118 26 C 119 28, 116 30, 114 30 C 115 32, 117 32, 119 30"/>
+              <circle cx="123" cy="30" r="0.8" fill="#1a1040" stroke="none"/>
+              <path d="M 130 18 C 130 24, 130 30, 131 32 M 130 20 C 134 19, 138 21, 138 25 C 138 28, 134 29, 130 28 M 136 28 C 138 30, 140 32, 142 33"/>
+              <circle cx="146" cy="32" r="0.8" fill="#1a1040" stroke="none"/>
+              <path d="M 8 42 C 30 38, 60 44, 90 40 C 120 36, 150 44, 185 38 C 195 37, 200 40, 198 44" opacity=".85" stroke-width="1.2"/>
+              <path d="M 170 44 C 175 48, 182 48, 188 46 C 192 44, 195 45, 198 47" opacity=".7" stroke-width="1"/>
+            </g>
+          </svg>
+          <div class="sig-line">Dirección Académica</div>
+          <div class="sig-title">GlobalVet México</div>
+        </div>
+
+        <div class="qr-wrap">
+          <div class="qr"><img id="qrCode" src="" alt="QR verificación"></div>
+          <div class="qr-text">Escanea para verificar</div>
+        </div>
+
+        <div class="sig">
+          <div class="date-display" id="certDate">—</div>
+          <div class="sig-line">Fecha de expedición</div>
+          <div class="sig-title">Tehuacán, Puebla · México</div>
         </div>
       </div>
     </div>
+
+    <div class="seal">
+      <div class="seal-inner">
+        <div class="seal-top">★ CONSTANCIA ★</div>
+        <div class="seal-star">✦</div>
+        <div class="seal-mx">MÉXICO</div>
+        <div class="seal-star">✦</div>
+        <div class="seal-bot">★ OFICIAL ★</div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="../assets/js/firebase-config.js"></script>
-  <script>
-    (async () => {
-      const params = new URLSearchParams(window.location.search);
-      const folio = params.get('folio');
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-      function showError(title, detail) {
-        document.getElementById('loading').style.display = 'none';
-        const errorEl = document.getElementById('errorState');
-        errorEl.style.display = 'block';
-        errorEl.querySelector('h2').textContent = title;
-        const p = errorEl.querySelector('p');
-        if (p && detail) p.innerHTML = detail;
-      }
+const cfg = {
+  apiKey:"AIzaSyB_OgAmyW7XNiLUyKp6Ih92A5qxm3LNCqg",
+  authDomain:"globalvet-club.firebaseapp.com",
+  projectId:"globalvet-club",
+  storageBucket:"globalvet-club.firebasestorage.app",
+  messagingSenderId:"880780506385",
+  appId:"1:880780506385:web:be49dbc8886147a79048b0"
+};
+const app = initializeApp(cfg);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-      try {
-        if (!folio) { showError('⚠️ Falta el folio', 'La URL no tiene <code>?folio=XXX</code>'); return; }
-        if (typeof firebase === 'undefined' || !window.db) { showError('⚠️ Firebase no cargó', ''); return; }
+function showErr(title, detail) {
+  document.getElementById('loading').style.display = 'none';
+  const el = document.getElementById('errState');
+  el.style.display = 'block';
+  el.querySelector('h2').textContent = title;
+  el.querySelector('p').innerHTML = detail || '';
+}
 
-        const doc = await db.collection('certificados').doc(folio).get();
-        if (!doc.exists) { showError('❌ Folio no existe', `El folio <code style="color:#E8A317;">${folio}</code> no está en la base de datos.`); return; }
+const folio = new URLSearchParams(location.search).get('folio');
 
-        const c = doc.data();
-        document.getElementById('folioDisplay').textContent = c.folio || folio;
-        document.getElementById('certName').textContent = c.memberName || 'Miembro VIP';
-        document.getElementById('certCourse').textContent = '"' + (c.courseTitle || '—') + '"';
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'club-login.html'; return; }
+  if (!folio) { showErr('⚠️ Falta el folio', 'La URL no tiene <code>?folio=XXX</code>'); return; }
 
-        const metaParts = [];
-        if (c.courseArea) metaParts.push(c.courseArea);
-        if (c.totalClases) metaParts.push(c.totalClases + ' clases');
-        metaParts.push('Modalidad en línea');
-        document.getElementById('certMeta').innerHTML = metaParts.join(' <span class="cert-meta-sep">❋</span> ');
-
-        const fecha = new Date(c.issuedAt || Date.now());
-        const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-        document.getElementById('certDate').textContent = `${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
-
-        const verifyUrl = `https://www.zoorigen.com/pages/verificar.html?folio=${c.folio || folio}`;
-        document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyUrl)}&color=1F5F3A&bgcolor=ffffff&margin=2`;
-
-        window.__cert = c;
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('certWrap').style.display = 'block';
-      } catch (err) {
-        console.error('[CERT]', err);
-        showError('❌ Error al leer Firebase', `<code>${err.message || err.code}</code>`);
-      }
-    })();
-
-    function compartirWhatsApp() {
-      const c = window.__cert;
-      const text = `🎓 ¡Completé el curso "${c.courseTitle}" certificado por Zoorigen México!\n\nFolio oficial: ${c.folio}\nVerifica en: https://www.zoorigen.com/pages/verificar.html?folio=${c.folio}`;
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  try {
+    let c = null;
+    const qs = await getDocs(query(collection(db, 'certificados'), where('folio', '==', folio)));
+    if (!qs.empty) { c = { id: qs.docs[0].id, ...qs.docs[0].data() }; }
+    else {
+      const snap = await getDoc(doc(db, 'certificados', folio));
+      if (snap.exists()) c = { id: snap.id, ...snap.data() };
     }
+    if (!c) { showErr('❌ Constancia no encontrada', `El folio <code>${folio}</code> no existe en la base de datos.`); return; }
+    if (c.uid !== user.uid) { showErr('🔒 Acceso denegado', 'Esta constancia pertenece a otro miembro.'); return; }
 
-    function compartirLinkedIn() {
-      const c = window.__cert;
-      const url = `https://www.zoorigen.com/pages/verificar.html?folio=${c.folio}`;
-      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
-    }
-  </script>
+    document.getElementById('folioDisplay').textContent = c.folio || folio;
+    document.getElementById('certName').textContent = c.nombre || 'Médico Veterinario';
+    document.getElementById('certCourse').textContent = '"' + (c.cursoTitulo || '—') + '"';
+
+    const metaParts = [];
+    if (c.cursoArea) metaParts.push(c.cursoArea);
+    if (c.totalClases) metaParts.push(c.totalClases + ' clases');
+    metaParts.push('Modalidad en línea');
+    document.getElementById('certMeta').innerHTML = metaParts.join(' <span class="meta-sep">❋</span> ');
+
+    const fecha = c.completadoEn?.toDate ? c.completadoEn.toDate() : new Date();
+    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    document.getElementById('certDate').textContent = `${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+
+    const verifyUrl = `${location.origin}/pages/verificar.html?folio=${c.folio || folio}`;
+    document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyUrl)}&color=1a1040&bgcolor=ffffff&margin=2`;
+
+    window.__cert = c;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('certWrap').style.display = 'block';
+  } catch (err) {
+    console.error('[CERT]', err);
+    showErr('❌ Error al leer base de datos', `<code>${err.message}</code>`);
+  }
+});
+</script>
+
+<script>
+  function descargarPDF() {
+    const el = document.getElementById('cert');
+    const folio = (window.__cert && window.__cert.folio) || 'globalvet';
+    html2pdf().set({
+      margin: 0,
+      filename: `constancia-GlobalVet-${folio}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2.5, useCORS: true, logging: false, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true }
+    }).from(el).save();
+  }
+  function compartirWa() {
+    const c = window.__cert;
+    const url = `${location.origin}/pages/verificar.html?folio=${c.folio}`;
+    const text = `🎓 Completé el curso "${c.cursoTitulo}" certificado por GlobalVet México.\n\nFolio oficial: ${c.folio}\nVerifica en: ${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  }
+  function compartirLi() {
+    const c = window.__cert;
+    const url = `${location.origin}/pages/verificar.html?folio=${c.folio}`;
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+  }
+</script>
 </body>
 </html>

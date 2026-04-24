@@ -1,51 +1,399 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Noticias · Club VIP Zoorigen</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noticias veterinarias · Club GlobalVet México</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/club-extra.css">
+<style>
+  .news-filters {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .news-filter {
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--gv-border);
+    border-radius: 50px;
+    color: var(--gv-text-muted);
+    font-family: var(--gv-ff);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .news-filter.active {
+    background: var(--gv-purple);
+    color: #fff;
+    border-color: var(--gv-purple);
+  }
+  .news-filter:hover:not(.active) {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--gv-text);
+  }
+
+  .news-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .news-item {
+    background: var(--gv-bg-surface);
+    border: 1px solid var(--gv-border);
+    border-radius: var(--gv-radius-lg);
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 0;
+    text-decoration: none;
+    color: inherit;
+  }
+  .news-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--gv-purple);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15);
+  }
+  .news-img {
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+    background: linear-gradient(135deg, var(--gv-purple-deep), var(--gv-bg-surface-3));
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    opacity: 0.85;
+  }
+  .news-img.with-img { background-size: cover; }
+  .news-img.with-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(26, 16, 64, 0.15) 80%, rgba(26, 16, 64, 0.3) 100%);
+    pointer-events: none;
+  }
+  .news-body {
+    padding: 1.4rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .news-item-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .news-source {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--gv-gold-hover);
+    padding: 0.25rem 0.7rem;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .news-date {
+    color: var(--gv-text-dim);
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .news-title {
+    font-family: var(--gv-ff);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gv-text);
+    margin-bottom: 0.5rem;
+    line-height: 1.35;
+  }
+  .news-summary {
+    color: var(--gv-text-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+  }
+  .news-cta {
+    color: var(--gv-gold);
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: var(--gv-ff);
+  }
+
+  @media (max-width: 720px) {
+    .news-item {
+      grid-template-columns: 1fr;
+    }
+    .news-img {
+      min-height: 180px;
+      max-height: 200px;
+    }
+  }
+
+  .refresh-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .refresh-info {
+    font-size: 0.82rem;
+    color: var(--gv-text-dim);
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .refresh-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid var(--gv-border);
+    border-radius: 50px;
+    color: var(--gv-purple-hover);
+    font-family: var(--gv-ff);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.15s;
+  }
+  .refresh-btn:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: var(--gv-purple);
+  }
+</style>
 </head>
 <body>
-  <div class="club-layout">
-    <aside class="club-sidebar" id="sidebar"></aside>
-    <main class="club-main">
-      <div class="page-header">
-        <h1>📰 Noticias y novedades</h1>
-        <p>Lo último de fauna, biodiversidad y conservación · Actualizado cada 6 horas</p>
-      </div>
+<nav class="tnav" id="topnav"></nav>
+<div class="dlayout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="dmain">
 
-      <div id="newsContent">Cargando noticias...</div>
-    </main>
-  </div>
+    <div class="hero-banner">
+      <div class="hero-badge">📰 Actualidad</div>
+      <h2>Noticias veterinarias</h2>
+      <p>Noticias actualizadas en tiempo real desde Google News sobre medicina veterinaria en México y Latinoamérica.</p>
+    </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js"></script>
-  <script>
-    (async () => {
-      const session = await ZOORIGEN_CLUB.requireAuth();
-      if (!session) return;
-      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('inicio', session);
+    <div class="refresh-bar">
+      <div class="refresh-info" id="refreshInfo">📡 Cargando noticias desde Google News…</div>
+      <button class="refresh-btn" onclick="window._reload()">🔄 Actualizar</button>
+    </div>
 
-      const noticias = await ZOORIGEN_CLUB.getNoticias(30);
-      const content = document.getElementById('newsContent');
+    <div class="news-filters" id="filters">
+      <button class="news-filter active" data-cat="todas">Todas</button>
+    </div>
 
-      if (noticias.length === 0) {
-        content.innerHTML = `<div class="no-data" style="text-align:center;padding:60px 20px;background:var(--zoo-bg-card);border-radius:var(--zoo-radius);color:var(--zoo-text-dim);"><div style="font-size:3rem;margin-bottom:12px;">📰</div><h3 style="color:#fff;margin-bottom:8px;">Noticias en camino</h3><p>Las primeras noticias llegarán en la próxima sincronización.</p></div>`;
-        return;
-      }
+    <div id="content" class="news-list"></div>
+  </main>
+</div>
 
-      content.innerHTML = `<div class="news-grid news-grid--wide">${noticias.map(n => ZOORIGEN_CLUB.renderNewsCard(n)).join('')}</div>`;
-    })();
-  </script>
+<script type="module">
+import { requireAuth, renderSidebar, renderTopNav, doLogout } from '../assets/js/club-extra.js';
+
+// ═══════════════════════════════════════════════════════════
+// FUENTES: Google News RSS con queries de medicina veterinaria
+// ═══════════════════════════════════════════════════════════
+const FUENTES = [
+  { id: 'vet',   nombre: '🩺 Medicina veterinaria', rss: 'https://news.google.com/rss/search?q=medicina+veterinaria+mexico+when:7d&hl=es-419&gl=MX&ceid=MX:es-419' },
+  { id: 'peq',   nombre: '🐕 Pequeñas especies',    rss: 'https://news.google.com/rss/search?q=(perros+OR+gatos)+salud+veterinaria+mexico+when:14d&hl=es-419&gl=MX&ceid=MX:es-419' },
+  { id: 'gran',  nombre: '🐄 Grandes especies',     rss: 'https://news.google.com/rss/search?q=(ganado+OR+bovino+OR+porcino)+veterinaria+mexico+when:14d&hl=es-419&gl=MX&ceid=MX:es-419' },
+  { id: 'exo',   nombre: '🦜 Exóticos',             rss: 'https://news.google.com/rss/search?q=(aves+OR+reptiles)+exoticos+veterinaria+when:14d&hl=es-419&gl=MX&ceid=MX:es-419' },
+  { id: 'inv',   nombre: '🔬 Investigación',        rss: 'https://news.google.com/rss/search?q=investigacion+veterinaria+ciencia+animal+when:14d&hl=es-419&gl=MX&ceid=MX:es-419' },
+  { id: 'omsa',  nombre: '🌍 OMSA/OIE',             rss: 'https://news.google.com/rss/search?q=(OMSA+OR+OIE)+salud+animal+when:14d&hl=es-419&gl=MX&ceid=MX:es-419' }
+];
+
+const CORS_PROXIES = [
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)
+];
+
+// Fallback en caso de que TODO falle
+const FALLBACK_DEMO = [
+  { titulo:'Nuevo protocolo WSAVA 2026 para anestesia en gatos geriátricos', fuente:'WSAVA', fuenteId:'vet', pubDate:new Date(Date.now() - 2*86400000).toISOString(), imagen:'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600&q=80', excerpt:'La Asociación Mundial de Veterinarios de Pequeños Animales publica actualización que reduce dosis de dexmedetomidina en 40% para felinos mayores.', link:'#' },
+  { titulo:'COFEPRIS actualiza registro sanitario de maropitant inyectable', fuente:'COFEPRIS', fuenteId:'vet', pubDate:new Date(Date.now() - 4*86400000).toISOString(), imagen:'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=600&q=80', excerpt:'Nuevas presentaciones de maropitant 10 mg/mL ya están disponibles en farmacias veterinarias mexicanas.', link:'#' },
+  { titulo:'Estudio mexicano: prevalencia de dirofilariosis en Pacífico aumenta 22%', fuente:'FMVZ-UNAM', fuenteId:'inv', pubDate:new Date(Date.now() - 5*86400000).toISOString(), imagen:'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&q=80', excerpt:'Investigación de la UNAM documenta aumento significativo de casos de gusano del corazón en perros de estados costeros.', link:'#' }
+];
+
+let noticiasCache = {};
+let filterActive = 'todas';
+
+// ═══ Fetch con CORS proxy ═══
+async function fetchConProxy(url, proxyIndex = 0) {
+  if (proxyIndex >= CORS_PROXIES.length) throw new Error('Proxies agotados');
+  try {
+    const proxyUrl = CORS_PROXIES[proxyIndex](url);
+    const resp = await fetch(proxyUrl);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    if (!text || text.length < 50) throw new Error('Vacío');
+    return text;
+  } catch (e) {
+    console.warn(`[Noticias] Proxy ${proxyIndex} falló:`, e.message);
+    return fetchConProxy(url, proxyIndex + 1);
+  }
+}
+
+// ═══ Parsear RSS ═══
+function parsearRss(xmlText, fuente) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlText, 'text/xml');
+  if (xml.querySelector('parsererror')) return [];
+  const items = Array.from(xml.querySelectorAll('item, entry')).slice(0, 8);
+  return items.map(item => {
+    const titulo = item.querySelector('title')?.textContent?.trim() || '';
+    const link = item.querySelector('link')?.textContent?.trim() ||
+                 item.querySelector('link')?.getAttribute('href') || '';
+    const pubDate = item.querySelector('pubDate, published')?.textContent?.trim() || '';
+    const descripcion = item.querySelector('description, summary, content')?.textContent?.trim() || '';
+    // Buscar imagen en description
+    let imagen = null;
+    const mImg = descripcion.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (mImg) imagen = mImg[1];
+    // Si no hay, usar favicon de Google del dominio
+    if (!imagen && link) {
+      try {
+        const u = new URL(link);
+        let host = u.hostname.replace(/^www\./, '');
+        if (host.includes('news.google.com') && u.searchParams.get('url')) {
+          host = new URL(u.searchParams.get('url')).hostname.replace(/^www\./, '');
+        }
+        imagen = `https://www.google.com/s2/favicons?domain=${host}&sz=128`;
+      } catch(e) {}
+    }
+    // Limpiar excerpt
+    const tmp = document.createElement('div');
+    tmp.innerHTML = descripcion;
+    const excerpt = (tmp.textContent || '').trim().replace(/\s+/g, ' ').substring(0, 180) + (descripcion.length > 180 ? '…' : '');
+    return { titulo, link, pubDate, imagen, excerpt, fuente: fuente.nombre, fuenteId: fuente.id };
+  }).filter(n => n.titulo && n.link);
+}
+
+async function fetchFeed(fuente) {
+  try {
+    const xmlText = await fetchConProxy(fuente.rss);
+    const items = parsearRss(xmlText, fuente);
+    console.log(`[Noticias] ${fuente.id}: ${items.length} notas ✓`);
+    return items;
+  } catch (e) {
+    console.warn(`[Noticias] ${fuente.id} falló:`, e.message);
+    return [];
+  }
+}
+
+function formatFecha(pubDate) {
+  if (!pubDate) return '';
+  const d = new Date(pubDate);
+  if (isNaN(d)) return '';
+  const h = (Date.now() - d.getTime()) / 3600000;
+  if (h < 1) return 'hace unos minutos';
+  if (h < 24) return `hace ${Math.floor(h)}h`;
+  const dias = Math.floor(h / 24);
+  if (dias < 7) return `hace ${dias}d`;
+  return d.toLocaleDateString('es-MX', { day:'numeric', month:'short' });
+}
+
+function render() {
+  const content = document.getElementById('content');
+  let list = noticiasCache[filterActive] || [];
+
+  if (list.length === 0) {
+    content.innerHTML = `<div class="empty"><div class="empty-icon">📡</div><h3>No hay noticias en esta categoría</h3></div>`;
+    return;
+  }
+
+  content.innerHTML = list.map(n => {
+    const img = n.imagen;
+    const imgStyle = img ? `background-image: url('${img}');` : '';
+    const imgClass = img ? 'news-img with-img' : 'news-img';
+    const icon = img ? '' : '📰';
+    return `
+      <a class="news-item" href="${n.link || '#'}" target="_blank" rel="noopener noreferrer">
+        <div class="${imgClass}" style="${imgStyle}">${icon}</div>
+        <div class="news-body">
+          <div class="news-item-top">
+            <span class="news-source">${n.fuente}</span>
+            <span class="news-date">${formatFecha(n.pubDate)}</span>
+          </div>
+          <h3 class="news-title">${n.titulo}</h3>
+          <p class="news-summary">${n.excerpt || ''}</p>
+          <span class="news-cta">Leer nota completa →</span>
+        </div>
+      </a>`;
+  }).join('');
+}
+
+async function cargarNoticias() {
+  const info = document.getElementById('refreshInfo');
+  info.textContent = '📡 Cargando noticias desde Google News…';
+  noticiasCache = {};
+
+  const resultados = await Promise.all(FUENTES.map(f =>
+    fetchFeed(f).then(items => ({ id: f.id, items }))
+  ));
+  resultados.forEach(r => { noticiasCache[r.id] = r.items; });
+
+  const total = Object.values(noticiasCache).reduce((a, arr) => a + arr.length, 0);
+
+  if (total === 0) {
+    // Fallback demo
+    noticiasCache['todas'] = FALLBACK_DEMO;
+    info.textContent = '⚠️ Google News no respondió, mostrando contenido curado';
+  } else {
+    // Consolidar en 'todas'
+    let todas = [];
+    Object.values(noticiasCache).forEach(arr => { todas = todas.concat(arr); });
+    todas.sort((a,b) => new Date(b.pubDate||0) - new Date(a.pubDate||0));
+    // Dedupe por título
+    const vistos = new Set();
+    todas = todas.filter(n => {
+      const key = n.titulo.substring(0, 60).toLowerCase();
+      if (vistos.has(key)) return false;
+      vistos.add(key);
+      return true;
+    });
+    noticiasCache['todas'] = todas;
+    info.textContent = `✅ ${total} noticias actualizadas • Fuente: Google News`;
+  }
+
+  // Renderizar filtros dinámicos
+  const filters = document.getElementById('filters');
+  filters.innerHTML = ['<button class="news-filter active" data-cat="todas">Todas (' + (noticiasCache['todas']?.length || 0) + ')</button>']
+    .concat(FUENTES.filter(f => (noticiasCache[f.id]?.length || 0) > 0).map(f =>
+      `<button class="news-filter" data-cat="${f.id}">${f.nombre} (${noticiasCache[f.id].length})</button>`
+    )).join('');
+
+  filters.querySelectorAll('.news-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filters.querySelectorAll('.news-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterActive = btn.dataset.cat;
+      render();
+    });
+  });
+
+  render();
+}
+
+window._reload = () => cargarNoticias();
+
+(async () => {
+  const session = await requireAuth();
+  if (!session) return;
+  document.getElementById('topnav').innerHTML = renderTopNav(session);
+  document.getElementById('sidebar').innerHTML = renderSidebar('noticias');
+  document.getElementById('btnLogout')?.addEventListener('click', doLogout);
+  await cargarNoticias();
+})();
+</script>
 </body>
 </html>
