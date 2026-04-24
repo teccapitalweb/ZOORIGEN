@@ -99,8 +99,8 @@
             <h2 style="color:#fff;font-size:1.2rem;margin-bottom:14px;">Plan actual</h2>
             <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value">Miembro VIP Zoorigen</div></div>
             <div class="info-row"><div class="info-row__label">Precio</div><div class="info-row__value">$199 MXN / mes</div></div>
-            <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-green-500);">● Activa</span>' : '<span style="color:var(--zoo-orange);">✕ Cancelada</span>'}</div></div>
-            <div class="info-row"><div class="info-row__label">${session.planStatus === 'active' ? 'Próxima renovación' : 'Acceso hasta'}</div><div class="info-row__value">${ZOORIGEN_CLUB.formatShort(session.planVence)}</div></div>
+            <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' || session.planStatus === 'cancelled_active' ? '<span style="color:var(--zoo-green-500);">● Activa</span>' : '<span style="color:var(--zoo-orange);">✕ Cancelada</span>'}</div></div>
+            <div class="info-row"><div class="info-row__label">${session.planStatus === 'active' || session.planStatus === 'cancelled_active' ? 'Próxima renovación' : 'Acceso hasta'}</div><div class="info-row__value">${ZOORIGEN_CLUB.formatShort(session.planVence)}</div></div>
             <div class="info-row"><div class="info-row__label">Último pago</div><div class="info-row__value">${session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : '—'}</div></div>
           </div>`;
 
@@ -123,13 +123,13 @@
         // Zona de peligro / reactivar con pago (si ya se venció)
         html += `
           <div class="card" style="margin-top:20px;border-color:rgba(213,90,40,0.3);">
-            <h2 style="color:var(--zoo-orange);font-size:1.1rem;margin-bottom:10px;">${session.planStatus === 'active' ? '⚠️ Zona de peligro' : '🔄 Reactivar con nuevo pago'}</h2>
-            <p style="margin-bottom:16px;">${session.planStatus === 'active'
+            <h2 style="color:var(--zoo-orange);font-size:1.1rem;margin-bottom:10px;">${session.planStatus === 'active' || session.planStatus === 'cancelled_active' ? '⚠️ Zona de peligro' : '🔄 Reactivar con nuevo pago'}</h2>
+            <p style="margin-bottom:16px;">${session.planStatus === 'active' || session.planStatus === 'cancelled_active'
               ? 'Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado. Después perderás acceso a biblioteca, webinars y descuentos VIP.'
               : tieneTiempo
                 ? 'Si prefieres que tu membresía se termine cuando venza, no hagas nada. O puedes reactivarla arriba sin costo extra.'
                 : 'Tu membresía venció. Reactívala para volver a tener acceso completo al contenido VIP.'}</p>
-            ${session.planStatus === 'active'
+            ${session.planStatus === 'active' || session.planStatus === 'cancelled_active'
               ? '<button class="btn-danger" id="cancelBtn">Cancelar membresía</button>'
               : !tieneTiempo
                 ? `<button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Reactivar por $199 MXN</button>`

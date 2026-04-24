@@ -264,12 +264,12 @@
       if (!session) return;
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('sesiones', session);
 
-      if (session.planStatus !== 'active') {
+      if (session.planStatus !== 'active' && session.planStatus !== 'cancelled_active') {
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para recibir el link de Google Meet. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
       }
 
       const sesiones = await ZOORIGEN_CLUB.getSesiones();
-      const isActive = session.planStatus === 'active';
+      const isActive = session.planStatus === 'active' || session.planStatus === 'cancelled_active';
       const nextBox = document.getElementById('nextSession');
       const listWrap = document.getElementById('sessionsWrap');
 

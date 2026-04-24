@@ -645,7 +645,7 @@
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
       // Mostrar guía de bienvenida la primera vez que entra (solo si es VIP activo)
-      if (session.planStatus === 'active') {
+      if (session.planStatus === 'active' || session.planStatus === 'cancelled_active') {
         setTimeout(() => ZOORIGEN_CLUB.showOnboarding(session), 1500);
       }
 
@@ -664,7 +664,7 @@
       // Para pending_payment, el banner dorado del paywall se muestra automáticamente
 
       // Modal de bienvenida solo primera vez
-      if (session.planStatus === 'active') {
+      if (session.planStatus === 'active' || session.planStatus === 'cancelled_active') {
         const welcomeKey = 'zoo_welcome_shown_' + session.uid;
         if (!localStorage.getItem(welcomeKey)) {
           setTimeout(() => {
@@ -677,7 +677,7 @@
       // ═══════════════ BIENVENIDA USUARIO NUEVO SIN PAGAR ═══════════════
       // Viene con ?welcome=1 tras registrarse — mostrar mensaje motivador de exploración
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('welcome') && session.planStatus !== 'active') {
+      if (urlParams.has('welcome') && session.planStatus !== 'active' && session.planStatus !== 'cancelled_active') {
         setTimeout(() => {
           const welcomeOverlay = document.createElement('div');
           welcomeOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .3s ease-out;';
@@ -736,7 +736,7 @@
       //  1) "MAÑANA" — el webinar es mañana o hoy (prioridad más alta)
       //  2) "NUEVO" — webinar nuevo que el usuario aún no ha visto el aviso
       // Cada aviso se muestra UNA SOLA VEZ por webinar (clave localStorage).
-      if (session.planStatus === 'active' && todosLosWebinars && todosLosWebinars.length > 0) {
+      if (session.planStatus === 'active' || session.planStatus === 'cancelled_active' && todosLosWebinars && todosLosWebinars.length > 0) {
         const ahora = new Date();
         let webinarParaMostrar = null;
         let tipoAviso = null;
@@ -984,7 +984,7 @@
       const progress = ZOORIGEN_CLUB.getProgress(session);
 
       // Solo mostrar nivel y stats si es VIP activo
-      if (session.planStatus === 'active') {
+      if (session.planStatus === 'active' || session.planStatus === 'cancelled_active') {
         document.getElementById('levelCard').innerHTML = ZOORIGEN_CLUB.renderLevelCard(progress, session);
         document.getElementById('myStatsCard').innerHTML = ZOORIGEN_CLUB.renderMyStats(progress, session);
       }

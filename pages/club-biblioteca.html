@@ -296,7 +296,7 @@
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
 
-      if (session.planStatus !== 'active') {
+      if (session.planStatus !== 'active' && session.planStatus !== 'cancelled_active') {
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Necesitas membresía activa para ver los cursos completos. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar $199/mes →</a></div>`;
       }
 
@@ -313,7 +313,7 @@
       const filterBar = document.getElementById('filterBar');
       filterBar.innerHTML = areas.map((a, i) => `<button class="filter-chip-club ${i === 0 ? 'is-active' : ''}" data-area="${a}">${a}</button>`).join('');
 
-      const isActive = session.planStatus === 'active';
+      const isActive = session.planStatus === 'active' || session.planStatus === 'cancelled_active';
 
       // Cargar progreso de cursos: PRIMERO de Firestore (persistente entre dispositivos),
       // fallback a localStorage si Firestore falla o está vacío

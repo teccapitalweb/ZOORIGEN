@@ -150,7 +150,7 @@
       document.getElementById('profileSince').textContent = session.createdAt ? ZOORIGEN_CLUB.formatShort(session.createdAt) : '—';
       document.getElementById('profileRenew').textContent = session.planVence ? ZOORIGEN_CLUB.formatShort(session.planVence) : 'Pendiente';
       document.getElementById('profileLast').textContent = session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : 'Sin pagos aún';
-      if (session.planStatus === 'active') document.getElementById('vipTag').textContent = 'Miembro VIP Activo';
+      if (session.planStatus === 'active' || session.planStatus === 'cancelled_active') document.getElementById('vipTag').textContent = 'Miembro VIP Activo';
       else if (session.planStatus === 'cancelled') document.getElementById('vipTag').textContent = 'Membresía cancelada';
 
       // ═══════════════ EDITAR NOMBRE ═══════════════

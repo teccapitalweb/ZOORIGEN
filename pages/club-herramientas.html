@@ -833,7 +833,7 @@
   if (!session) return;
 
   // ═══ SOLO VIP ═══ Si no es VIP activo, mostrar paywall bloqueante
-  const isVIP = session.planActivo === true || session.planStatus === 'active';
+  const isVIP = session.planActivo === true || session.planStatus === 'active' || session.planStatus === 'cancelled_active';
   if (!isVIP) {
     // Renderizar sidebar para que vea el menú pero bloquear el contenido
     if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();

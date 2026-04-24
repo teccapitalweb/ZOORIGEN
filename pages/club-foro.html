@@ -1104,7 +1104,7 @@
     function openNewPostModal() {
       // Permitir publicar si tiene plan activo O cancelado pero aún con acceso vigente
       const tieneAcceso = currentSession.planActivo === true ||
-                          currentSession.planStatus === 'active' ||
+                          currentSession.planStatus === 'active' || currentSession.planStatus === 'cancelled_active' ||
                           (currentSession.planStatus === 'cancelled' && currentSession.planVence && new Date(currentSession.planVence) > new Date());
 
       if (!tieneAcceso) {
