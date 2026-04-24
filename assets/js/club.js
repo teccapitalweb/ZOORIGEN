@@ -1201,7 +1201,17 @@ const ZOORIGEN_CLUB = {
   calculateStatus(data) {
     if (!data) return 'pending_payment';
     if (data.planActivo && !data.planCancelado) return 'active';
-    if (data.planActivo && data.planCancelado) return 'cancelled';
+    if (data.planActivo && data.planCancelado) {
+      // Cancelado pero todavía con tiempo → acceso hasta que venza
+      const vence = data.planVence?.toDate ? data.planVence.toDate() : (data.planVence ? new Date(data.planVence) : null);
+      if (vence && vence > new Date()) return 'cancelled_active'; // tiene acceso aún
+      return 'expired'; // ya venció
+    }
+    // planActivo false pero tiene fecha de vencimiento futura (por si acaso)
+    if (!data.planActivo && data.planVence) {
+      const vence = data.planVence?.toDate ? data.planVence.toDate() : new Date(data.planVence);
+      if (vence > new Date()) return 'cancelled_active';
+    }
     return 'pending_payment';
   },
 
@@ -1254,10 +1264,12 @@ const ZOORIGEN_CLUB = {
 
   renderSidebar(activeId, session) {
     const planLabel = session?.planStatus === 'active' ? 'Plan activo' :
+                      session?.planStatus === 'cancelled_active' ? 'Plan cancelado' :
                       session?.planStatus === 'pending_payment' ? 'Pago pendiente' :
+                      session?.planStatus === 'expired' ? 'Plan vencido' :
                       session?.planStatus === 'cancelled' ? 'Plan cancelado' : 'Plan';
     const renewText = session?.planVence
-      ? `${session.planStatus === 'cancelled' ? 'Acceso hasta' : 'Renueva'} ${this.formatShort(session.planVence)}`
+      ? `${session.planStatus === 'cancelled_active' ? 'Acceso hasta' : session.planStatus === 'cancelled' || session.planStatus === 'expired' ? 'Venció' : 'Renueva'} ${this.formatShort(session.planVence)}`
       : 'Pendiente de activación';
 
     const items = [
@@ -1568,7 +1580,7 @@ const ZOORIGEN_CLUB = {
   // Retorna true si tiene acceso, false si se mostró el paywall.
   requireVIP(session, accionLabel) {
     if (!session) return false;
-    const isActive = session.planActivo === true || session.planStatus === 'active';
+    const isActive = session.planActivo === true || session.planStatus === 'active' || session.planStatus === 'cancelled_active';
     if (isActive) return true;
     this.showPaywall(session, accionLabel);
     return false;
@@ -1640,8 +1652,8 @@ const ZOORIGEN_CLUB = {
 
   // Intercepta clicks en elementos con data-vip-required para mostrar paywall
   enablePaywallOnPage(session) {
-    const isActive = session && (session.planActivo === true || session.planStatus === 'active');
-    if (isActive) return; // Miembro activo, no hace falta bloquear
+    const isActive = session && (session.planActivo === true || session.planStatus === 'active' || session.planStatus === 'cancelled_active');
+    if (isActive) return; // Miembro activo o cancelado con tiempo, no hace falta bloquear
 
     // Buscar todos los elementos con data-vip-required y bloquearlos
     document.querySelectorAll('[data-vip-required]').forEach(el => {
