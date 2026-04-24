@@ -1361,143 +1361,72 @@ const ZOORIGEN_CLUB = {
     });
   },
 
-  // ============== GUÍA DE BIENVENIDA (onboarding de texto) ==============
-  // Se muestra al miembro la primera vez que entra al dashboard.
-  // Se marca como vista en localStorage para no mostrarla más.
+  // ============== GUÍA DE BIENVENIDA (onboarding profesional) ==============
   showOnboarding(session) {
     if (!session) return;
     const key = 'zoo_onboard_done_' + session.uid;
-    if (localStorage.getItem(key)) return; // Ya la vio
+    if (localStorage.getItem(key)) return;
 
-    const steps = [
-      {
-        icon: '🦒',
-        title: '¡Bienvenido al Club VIP Zoorigen!',
-        desc: 'Aquí tienes acceso ilimitado a la comunidad científica de fauna más completa de México. Te mostramos en 5 pasos cómo aprovechar al máximo tu membresía.',
-        tipsTitle: 'Qué encontrarás aquí',
-        tips: [
-          'Biblioteca de cursos en fauna silvestre',
-          'Webinars en vivo con especialistas',
-          'Biblioteca de PDFs y material científico',
-          'Foro privado de la comunidad',
-          '20% OFF permanente en cursos Zoorigen'
-        ]
-      },
-      {
-        icon: '📚',
-        title: 'Biblioteca de cursos',
-        desc: 'Explora cursos completos sobre fauna mexicana, manejo, rehabilitación y más. Tu progreso se guarda automáticamente entre dispositivos.',
-        tipsTitle: 'Cómo usar la biblioteca',
-        tips: [
-          'Entra a "Biblioteca" desde el menú',
-          'Filtra por área de interés',
-          'Cada curso tiene varias clases · debes completar una para desbloquear la siguiente',
-          'Al terminar un curso obtienes tu certificado con folio'
-        ]
-      },
-      {
-        icon: '🎥',
-        title: 'Webinars en vivo',
-        desc: 'Masterclasses mensuales con especialistas invitados, transmitidas por Google Meet. Si no puedes asistir, la grabación queda disponible.',
-        tipsTitle: 'Tips para los webinars',
-        tips: [
-          'Revisa "Webinars en vivo" para ver fechas',
-          'Recibirás notificación cuando se publique un nuevo webinar',
-          'El link de Meet aparece 15 min antes del evento',
-          'Prepara tus preguntas para la sesión de Q&A'
-        ]
-      },
-      {
-        icon: '🏆',
-        title: 'Gana XP y sube de nivel',
-        desc: 'Cada actividad en el club te da puntos XP. Subes de nivel (hay 9) y desbloqueas recompensas reales como descuentos y sesiones privadas.',
-        tipsTitle: 'Cómo ganar XP',
-        tips: [
-          'Completa cursos (+50 a +100 XP)',
-          'Asiste a webinars (+75 XP cada uno)',
-          'Descarga PDFs (+25 XP cada uno)',
-          'Participa en el foro (+30 a +60 XP por publicación)',
-          'Mantén tu racha diaria para bonos extra'
-        ]
-      },
-      {
-        icon: '🎁',
-        title: 'Invita amigos y gana meses gratis',
-        desc: 'Por cada 3 amigos que se suscriban con tu código único, te regalamos 1 mes VIP gratis. Es tu manera de ampliar la comunidad y ahorrar.',
-        tipsTitle: 'Siguientes pasos',
-        tips: [
-          'Entra a "Invitar amigos" en el menú',
-          'Copia tu link único o comparte por WhatsApp',
-          'Cada 3 pagos confirmados = 1 mes gratis para ti',
-          '¿Dudas? Escríbenos por WhatsApp desde el footer'
-        ]
-      }
-    ];
-
-    let current = 0;
+    const nombre = (session.name || session.email.split('@')[0]).split(' ')[0];
 
     const overlay = document.createElement('div');
-    overlay.className = 'zoo-onboard-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .4s ease;';
     overlay.innerHTML = `
-      <div class="zoo-onboard-box">
-        <div class="zoo-onboard-header">
-          <div class="zoo-onboard-step-count" id="zooStepCount">Paso 1 de ${steps.length}</div>
-          <button class="zoo-onboard-close" id="zooOnboardClose" aria-label="Cerrar">✕</button>
+      <style>
+        @keyframes zooFadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+        @keyframes zooFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        .zoo-welcome-box { max-width:520px;width:100%;background:linear-gradient(160deg,#0F3B22 0%,#1a4a2e 40%,#0d2f1a 100%);border:2px solid rgba(232,163,23,0.3);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6); }
+        .zoo-welcome-top { background:linear-gradient(135deg,rgba(232,163,23,0.15),rgba(111,191,115,0.1));padding:40px 30px 20px;text-align:center;position:relative; }
+        .zoo-welcome-logo { width:80px;height:80px;border-radius:50%;border:3px solid rgba(232,163,23,0.4);margin:0 auto 16px;animation:zooFloat 3s ease-in-out infinite;object-fit:cover; }
+        .zoo-welcome-confetti { font-size:2rem;margin-bottom:8px; }
+        .zoo-welcome-title { color:#fff;font-family:'Poppins',sans-serif;font-size:1.6rem;font-weight:800;margin:0 0 4px;line-height:1.2; }
+        .zoo-welcome-name { color:#E8A317;font-size:1.8rem;font-weight:800;font-family:'Poppins',sans-serif; }
+        .zoo-welcome-sub { color:rgba(255,255,255,0.7);font-size:.92rem;margin-top:8px; }
+        .zoo-welcome-body { padding:24px 30px 30px; }
+        .zoo-welcome-features { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px; }
+        .zoo-welcome-feat { background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;text-align:center; }
+        .zoo-welcome-feat-icon { font-size:1.5rem;margin-bottom:6px; }
+        .zoo-welcome-feat-text { color:rgba(255,255,255,0.85);font-size:.82rem;font-weight:600; }
+        .zoo-welcome-cta { display:block;width:100%;padding:16px;background:linear-gradient(135deg,#E8A317,#D55A28);color:#fff;border:0;border-radius:14px;font-family:'Poppins',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:all .2s; }
+        .zoo-welcome-cta:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,163,23,0.4); }
+        .zoo-welcome-skip { display:block;text-align:center;margin-top:12px;color:rgba(255,255,255,0.4);font-size:.8rem;cursor:pointer;border:0;background:0; }
+        @media(max-width:500px) { .zoo-welcome-features{grid-template-columns:1fr;} .zoo-welcome-title{font-size:1.3rem;} .zoo-welcome-name{font-size:1.5rem;} .zoo-welcome-top{padding:30px 20px 16px;} .zoo-welcome-body{padding:20px;} }
+      </style>
+      <div class="zoo-welcome-box">
+        <div class="zoo-welcome-top">
+          <div class="zoo-welcome-confetti">🎉</div>
+          <img src="../assets/img/logo/logo.jpg" class="zoo-welcome-logo" alt="Zoorigen">
+          <div class="zoo-welcome-title">¡Bienvenido al Club VIP!</div>
+          <div class="zoo-welcome-name">${nombre}</div>
+          <div class="zoo-welcome-sub">Ya eres parte de la comunidad científica de fauna más completa de México</div>
         </div>
-        <div class="zoo-onboard-progress" id="zooOnboardProgress">
-          ${steps.map(() => '<div class="zoo-onboard-dot"></div>').join('')}
-        </div>
-        <div class="zoo-onboard-content" id="zooOnboardContent"></div>
-        <div class="zoo-onboard-footer">
-          <button class="zoo-onboard-btn-prev" id="zooOnboardPrev" disabled>← Anterior</button>
-          <button class="zoo-onboard-btn-next" id="zooOnboardNext">Siguiente →</button>
+        <div class="zoo-welcome-body">
+          <div class="zoo-welcome-features">
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">📚</div><div class="zoo-welcome-feat-text">Cursos completos</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">🎥</div><div class="zoo-welcome-feat-text">Webinars en vivo</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">🧬</div><div class="zoo-welcome-feat-text">Herramientas clínicas</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">⚖️</div><div class="zoo-welcome-feat-text">Herramientas legales</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">🏆</div><div class="zoo-welcome-feat-text">Logros y recompensas</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">💬</div><div class="zoo-welcome-feat-text">Foro VIP exclusivo</div></div>
+          </div>
+          <button class="zoo-welcome-cta" id="zooWelcomeStart">Explorar mi Club VIP 🚀</button>
+          <button class="zoo-welcome-skip" id="zooWelcomeSkip">Saltar</button>
         </div>
       </div>
     `;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
 
-    const render = () => {
-      const step = steps[current];
-      const content = document.getElementById('zooOnboardContent');
-      content.innerHTML = `
-        <div class="zoo-onboard-icon">${step.icon}</div>
-        <h2 class="zoo-onboard-title">${step.title}</h2>
-        <p class="zoo-onboard-desc">${step.desc}</p>
-        <div class="zoo-onboard-tips">
-          <div class="zoo-onboard-tips-title">💡 ${step.tipsTitle}</div>
-          <ul>
-            ${step.tips.map(t => `<li>${t}</li>`).join('')}
-          </ul>
-        </div>
-      `;
-      document.getElementById('zooStepCount').textContent = `Paso ${current + 1} de ${steps.length}`;
-      document.getElementById('zooOnboardPrev').disabled = current === 0;
-      document.getElementById('zooOnboardNext').textContent = current === steps.length - 1 ? '✓ Entendido' : 'Siguiente →';
-
-      // Actualizar dots de progreso
-      const dots = document.querySelectorAll('.zoo-onboard-dot');
-      dots.forEach((d, i) => {
-        d.classList.remove('is-active', 'is-done');
-        if (i < current) d.classList.add('is-done');
-        if (i === current) d.classList.add('is-active');
-      });
-    };
-
     const close = () => {
-      overlay.remove();
-      document.body.style.overflow = '';
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity .3s';
+      setTimeout(() => { overlay.remove(); document.body.style.overflow = ''; }, 300);
       localStorage.setItem(key, new Date().toISOString());
     };
 
-    document.getElementById('zooOnboardClose').addEventListener('click', close);
-    document.getElementById('zooOnboardPrev').addEventListener('click', () => {
-      if (current > 0) { current--; render(); }
-    });
-    document.getElementById('zooOnboardNext').addEventListener('click', () => {
-      if (current < steps.length - 1) {
-        current++;
-        render();
+    document.getElementById('zooWelcomeStart').addEventListener('click', close);
+    document.getElementById('zooWelcomeSkip').addEventListener('click', close);
+  },
       } else {
         close();
       }
