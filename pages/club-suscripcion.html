@@ -282,11 +282,14 @@
           reanudarBtn.textContent = 'Reanudando...';
           const msgEl = document.getElementById('reanudarMsg');
           try {
-            await db.collection('miembros').doc(session.uid).update({
-              planCancelado: false,
-              canceladoEn: firebase.firestore.FieldValue.delete(),
-              reanudadoEn: new Date().toISOString()
+            // Llamar al webhook para reactivar en Stripe
+            const res = await fetch(WEBHOOK_SERVER_URL + '/reactivate-subscription', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ firebaseUID: session.uid }),
             });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Error al reanudar');
             msgEl.innerHTML = `<div class="success-msg show">✅ ¡Tu membresía fue reanudada! Seguirás teniendo acceso completo.</div>`;
             setTimeout(() => location.reload(), 1800);
           } catch (err) {
