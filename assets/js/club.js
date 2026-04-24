@@ -1207,14 +1207,16 @@ const ZOORIGEN_CLUB = {
 
   async cancelSubscription() {
     try {
-      const token = await auth.currentUser.getIdToken();
-      const res = await fetch(`${WEBHOOK_SERVER_URL}/api/cancel-subscription`, {
+      const user = auth.currentUser;
+      if (!user) throw new Error('No hay sesión');
+      const res = await fetch(`${WEBHOOK_SERVER_URL}/cancel-subscription`, {
         method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firebaseUID: user.uid }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al cancelar');
-      return { ok: true, accesoHasta: data.accesoHasta };
+      return { ok: true, msg: data.message };
     } catch (err) {
       console.error('Cancel error:', err);
       return { ok: false, msg: 'No se pudo cancelar. Escríbenos por WhatsApp.' };
