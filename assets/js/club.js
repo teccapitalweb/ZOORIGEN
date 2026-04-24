@@ -475,14 +475,14 @@ const ZOORIGEN_CLUB = {
   // ============== SISTEMA DE GAMIFICACIÓN ==============
   LEVELS: [
     { level: 1, name: 'Aprendiz',        icon: '🌱', minXP: 0,    color: '#6FBF73' },
-    { level: 2, name: 'Observador',      icon: '🔍', minXP: 100,  color: '#6FBF73' },
-    { level: 3, name: 'Biólogo Jr',      icon: '🦎', minXP: 250,  color: '#F5C62E' },
-    { level: 4, name: 'Biólogo',         icon: '🦒', minXP: 500,  color: '#F5C62E' },
-    { level: 5, name: 'Explorador',      icon: '🧭', minXP: 900,  color: '#E8A317' },
-    { level: 6, name: 'Investigador',    icon: '🔬', minXP: 1400, color: '#E8A317' },
-    { level: 7, name: 'Experto Fauna',   icon: '🏆', minXP: 2000, color: '#D55A28' },
-    { level: 8, name: 'Maestro Zoólogo', icon: '👑', minXP: 3000, color: '#D55A28' },
-    { level: 9, name: 'Sabio Zoorigen',  icon: '🌟', minXP: 5000, color: '#2AA4D5' }
+    { level: 2, name: 'Observador',      icon: '🔍', minXP: 150,  color: '#6FBF73' },
+    { level: 3, name: 'Biólogo Jr',      icon: '🦎', minXP: 400,  color: '#F5C62E' },
+    { level: 4, name: 'Biólogo',         icon: '🦒', minXP: 800,  color: '#F5C62E' },
+    { level: 5, name: 'Explorador',      icon: '🧭', minXP: 1500, color: '#E8A317' },
+    { level: 6, name: 'Investigador',    icon: '🔬', minXP: 2500, color: '#E8A317' },
+    { level: 7, name: 'Experto Fauna',   icon: '🏆', minXP: 4000, color: '#D55A28' },
+    { level: 8, name: 'Maestro Zoólogo', icon: '👑', minXP: 6000, color: '#D55A28' },
+    { level: 9, name: 'Sabio Zoorigen',  icon: '🌟', minXP: 9000, color: '#2AA4D5' }
   ],
 
   ACHIEVEMENTS: [
@@ -515,14 +515,12 @@ const ZOORIGEN_CLUB = {
   ],
 
   REWARDS: [
-    { level: 2, icon: '🎁', title: 'Descuento 10%',    code: 'BIOLOGO10',   desc: 'En cualquier curso Zoorigen' },
-    { level: 3, icon: '📘', title: 'PDF Premium',       code: 'PDF-FAUNA',   desc: 'Guía exclusiva de 80 páginas' },
-    { level: 4, icon: '🦒', title: 'Sticker digital',   code: 'STICKER-BIO', desc: 'Pack de 5 stickers para WhatsApp' },
-    { level: 5, icon: '💰', title: 'Descuento 30%',     code: 'EXPLORA30',   desc: 'En cualquier curso premium' },
-    { level: 6, icon: '🎟️', title: 'Acceso anticipado', code: 'PRIORIDAD',   desc: 'A sesiones con cupo limitado' },
-    { level: 7, icon: '🏆', title: 'Sesión privada',    code: 'EXPERTO1A1',  desc: '30 min gratis con un especialista' },
-    { level: 8, icon: '👑', title: 'Descuento 50%',     code: 'MAESTRO50',   desc: 'En cualquier curso del catálogo' },
-    { level: 9, icon: '🌟', title: 'Mes gratis',        code: 'SABIO-FREE',  desc: '1 mes extra de VIP sin costo' }
+    { level: 3, icon: '🎁', title: 'Descuento 10%',       code: 'BIOLOGO10',   desc: 'En cualquier curso Zoorigen' },
+    { level: 5, icon: '💰', title: 'Descuento 20%',        code: 'EXPLORA20',   desc: 'En cualquier curso Zoorigen' },
+    { level: 6, icon: '🔥', title: 'Descuento 30%',        code: 'AVANZA30',    desc: 'En cualquier curso premium' },
+    { level: 7, icon: '🎟️', title: 'Acceso anticipado',    code: 'PRIORIDAD',   desc: 'Prioridad en sesiones con cupo limitado' },
+    { level: 8, icon: '👑', title: 'Descuento 40%',        code: 'MAESTRO40',   desc: 'En cualquier curso del catálogo' },
+    { level: 9, icon: '🌟', title: 'Mes gratis VIP',       code: 'SABIO-FREE',  desc: 'Solo si completas TODOS los logros' }
   ],
 
   getProgress(session) {
