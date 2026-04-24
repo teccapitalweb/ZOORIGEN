@@ -294,8 +294,32 @@
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al reanudar');
-            msgEl.innerHTML = `<div class="success-msg show">✅ ¡Tu membresía fue reanudada! Seguirás teniendo acceso completo.</div>`;
-            setTimeout(() => location.reload(), 1800);
+            
+            // Mostrar popup de felicitación
+            const popup = document.createElement('div');
+            popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .4s ease;';
+            popup.innerHTML = `
+              <style>
+                @keyframes zooFadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+                @keyframes confettiFall{0%{transform:translateY(-100vh) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+                .zoo-confetti-r{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100000;overflow:hidden;}
+                .zoo-confetti-r div{position:absolute;top:-20px;animation:confettiFall linear forwards;}
+              </style>
+              <div class="zoo-confetti-r" id="confettiReanudar"></div>
+              <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0F3B22,#1a4a2e);border:2px solid rgba(232,163,23,0.3);border-radius:24px;padding:40px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);z-index:100001;position:relative;">
+                <div style="font-size:4rem;margin-bottom:12px;">🎉</div>
+                <h2 style="color:#fff;font-family:Poppins,sans-serif;font-size:1.5rem;margin:0 0 8px;">¡Bienvenido de regreso!</h2>
+                <p style="color:#E8A317;font-size:1.1rem;font-weight:700;margin:0 0 12px;">Tu membresía VIP está activa</p>
+                <p style="color:rgba(255,255,255,0.7);font-size:.9rem;margin:0 0 24px;line-height:1.5;">Nos alegra tenerte de vuelta. Tu suscripción se renovará automáticamente y seguirás disfrutando de todos los beneficios VIP.</p>
+                <button onclick="this.closest('div[style]').parentElement.remove();location.reload();" style="display:block;width:100%;padding:14px;background:linear-gradient(135deg,#E8A317,#D55A28);color:#fff;border:0;border-radius:14px;font-family:Poppins,sans-serif;font-size:1rem;font-weight:700;cursor:pointer;">Explorar mi Club VIP 🚀</button>
+              </div>
+            `;
+            document.body.appendChild(popup);
+            // Confetti
+            const cc = document.getElementById('confettiReanudar');
+            const cols = ['#E8A317','#6FBF73','#D55A28','#2AA4D5','#fff','#F5C62E','#ff6b9d'];
+            for(let i=0;i<50;i++){const p=document.createElement('div');const s=6+Math.random()*8;p.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.5}s;`;cc.appendChild(p);}
+            setTimeout(()=>{if(cc)cc.remove();},5000);
           } catch (err) {
             console.error(err);
             msgEl.innerHTML = `<div class="error-msg show">⚠️ No se pudo reanudar. Escríbenos por WhatsApp.</div>`;
