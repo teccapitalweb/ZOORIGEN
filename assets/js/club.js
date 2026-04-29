@@ -7,9 +7,9 @@
 // Migrado de Shopify a Stripe Checkout Sessions
 const STRIPE_CONFIG = {
   API_URL: 'https://zoorigen-webhook-production.up.railway.app/create-checkout-session',
-  PUBLIC_KEY: 'pk_test_51TMAchPBgqsOPfUYtBbalhoOLnnGz6LymFleli7OxTDbiK4FNYX0K82ispYDb39zKJQXevyMtIPetxVAvq9hhb5P0B5VGgxu99',
-  PRICE_MENSUAL: 'price_1TPVMWPBgqsOPfUYytgZtVTv',
-  PRICE_ANUAL: 'price_1TPVNoPBgqsOPfUYV9awQMXq',
+  PUBLIC_KEY: 'pk_live_51TMAcSA7If2CqXs9NuKsM1cVT9n5agProkMR8HFiT6QTXzS0g9PtiokZ4cpT1Qo3rk9bbsrZHx9sOUbE9UEOjgGs00n1OM3Y9b',
+  PRICE_MENSUAL: 'price_1TRcJnA7If2CqXs9dMBGRmDF',
+  PRICE_ANUAL: 'price_1TRcJlA7If2CqXs97WQNmKFq',
 };
 
 // Función global para iniciar pago con Stripe (redirect)
