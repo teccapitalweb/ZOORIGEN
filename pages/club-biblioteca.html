@@ -97,6 +97,46 @@
       border: 0;
     }
 
+    /* Bloquea el botón "abrir en Drive" (pop-out) que trae el iframe de Google */
+    .drive-popout-blocker {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 58px;
+      height: 48px;
+      z-index: 6;
+      cursor: default;
+    }
+
+    /* Botón ampliar (modo cine) */
+    .player-box__fs {
+      background: rgba(255,255,255,0.05);
+      border: 0;
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+    }
+    .player-box__fs:hover { background: rgba(111,191,115,0.3); }
+
+    /* Modo cine: el video ocupa toda la altura disponible y se oculta el resto */
+    .player-box.is-cinema { height: calc(100vh - 80px); }
+    .player-box.is-cinema .player-box__video {
+      aspect-ratio: auto;
+      flex: 1;
+      height: auto;
+      min-height: 0;
+    }
+    .player-box.is-cinema .player-box__info,
+    .player-box.is-cinema .classes-list-box { display: none !important; }
+
     .player-box__info {
       padding: 14px 20px 18px;
       flex-shrink: 0;
@@ -275,6 +315,7 @@
     <div class="player-box">
       <div class="player-box__header">
         <h3 id="playerTitle">—</h3>
+        <button class="player-box__fs" id="playerFsBtn" onclick="togglePlayerCine()" aria-label="Ampliar video" title="Ampliar / reducir">⛶</button>
         <button class="player-box__close" onclick="closePlayer()">×</button>
       </div>
       <div class="player-box__video" id="playerVideo"></div>
@@ -730,7 +771,7 @@
       `;
       descDiv.appendChild(infoContent);
 
-      document.getElementById('playerVideo').innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
+      document.getElementById('playerVideo').innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe><div class="drive-popout-blocker"></div>`;
       modal.classList.add('is-open');
 
       if (courseId !== undefined && lessonIdx !== undefined) {
@@ -777,6 +818,12 @@
       // Restaurar display del video y info para la próxima
       modal.querySelector('.player-box__video').style.display = '';
       modal.querySelector('.player-box__info').style.display = '';
+      const box = modal.querySelector('.player-box');
+      if (box) box.classList.remove('is-cinema');
+    }
+    function togglePlayerCine() {
+      const box = document.querySelector('#playerOverlay .player-box');
+      if (box) box.classList.toggle('is-cinema');
     }
     document.getElementById('playerOverlay').addEventListener('click', (e) => {
       if (e.target.id === 'playerOverlay') closePlayer();

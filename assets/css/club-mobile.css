@@ -48,9 +48,10 @@
   backdrop-filter: blur(3px);
   z-index: 998;
   opacity: 0;
+  pointer-events: none;        /* invisible NO debe capturar toques (fix botones trabados) */
   transition: opacity .25s;
 }
-.club-sidebar-overlay.is-visible { opacity: 1; }
+.club-sidebar-overlay.is-visible { opacity: 1; pointer-events: auto; }
 
 /* ═══════════════ NOTIFICACIONES ═══════════════ */
 .notif-icon {
@@ -319,4 +320,30 @@
   }
   .club-sidebar a { width: 100% !important; flex-shrink: 0 !important; }
   .club-sidebar__section { display: block !important; }   /* mostrar "Principal" / "Mi cuenta" */
+}
+
+/* ============================================================ */
+/* TARJETA DE NIVEL — móvil: regalos + racha lado a lado          */
+/* (antes quedaban apilados y desordenados debajo de la barra)    */
+/* ============================================================ */
+@media (max-width: 640px) {
+  .gami-level-card__right {
+    display: flex !important;
+    gap: 10px;
+    margin-top: 4px;
+    align-items: stretch;
+  }
+  .gami-rewards-btn {
+    flex: 1;
+    justify-content: center;
+    margin-bottom: 0 !important;
+    padding: 12px 14px;
+  }
+  .gami-streak {
+    flex: 1;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
 }
