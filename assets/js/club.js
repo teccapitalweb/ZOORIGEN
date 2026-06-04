@@ -1378,7 +1378,9 @@ const ZOORIGEN_CLUB = {
         @keyframes confettiFall { 0%{transform:translateY(-100vh) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
         .zoo-confetti { position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100000;overflow:hidden; }
         .zoo-confetti-piece { position:absolute;width:10px;height:10px;top:-20px;animation:confettiFall linear forwards; }
-        .zoo-welcome-box { max-width:520px;width:100%;background:linear-gradient(160deg,#0F3B22 0%,#1a4a2e 40%,#0d2f1a 100%);border:2px solid rgba(232,163,23,0.3);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;z-index:100001; }
+        .zoo-welcome-box { max-width:520px;width:100%;max-height:92vh;overflow-y:auto;background:linear-gradient(160deg,#0F3B22 0%,#1a4a2e 40%,#0d2f1a 100%);border:2px solid rgba(232,163,23,0.3);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;z-index:100001; }
+        .zoo-welcome-close { position:absolute;top:14px;right:14px;z-index:5;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s; }
+        .zoo-welcome-close:hover { background:rgba(0,0,0,0.55);transform:scale(1.08); }
         .zoo-welcome-top { background:linear-gradient(135deg,rgba(232,163,23,0.15),rgba(111,191,115,0.1));padding:40px 30px 20px;text-align:center;position:relative; }
         .zoo-welcome-logo { width:80px;height:80px;border-radius:50%;border:3px solid rgba(232,163,23,0.4);margin:0 auto 16px;animation:zooFloat 3s ease-in-out infinite;object-fit:cover; }
         .zoo-welcome-confetti { font-size:2rem;margin-bottom:8px; }
@@ -1396,6 +1398,7 @@ const ZOORIGEN_CLUB = {
         @media(max-width:500px) { .zoo-welcome-features{grid-template-columns:1fr;} .zoo-welcome-title{font-size:1.3rem;} .zoo-welcome-name{font-size:1.5rem;} .zoo-welcome-top{padding:30px 20px 16px;} .zoo-welcome-body{padding:20px;} }
       </style>
       <div class="zoo-welcome-box">
+        <button class="zoo-welcome-close" id="zooWelcomeClose" aria-label="Cerrar">✕</button>
         <div class="zoo-welcome-top">
           <div class="zoo-welcome-confetti">🎉</div>
           <img src="../assets/img/logo/logo.jpg" class="zoo-welcome-logo" alt="Zoorigen">
@@ -1446,6 +1449,8 @@ const ZOORIGEN_CLUB = {
 
     document.getElementById('zooWelcomeStart').addEventListener('click', close);
     document.getElementById('zooWelcomeSkip').addEventListener('click', close);
+    document.getElementById('zooWelcomeClose').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
   },
 
   // Forzar mostrar la guía (para ponerla en un botón "Ver guía" después)
