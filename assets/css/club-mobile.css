@@ -282,3 +282,26 @@
     font-size: .95rem !important;
   }
 }
+
+/* ============================================================ */
+/* HAMBURGUESA FLOTANTE — para páginas con .page-header          */
+/* (noticias, pdfs, referidos, sesiones, videos) que no tienen   */
+/* el header flex .club-main__header donde va inline.            */
+/* ============================================================ */
+@media (max-width: 900px) {
+  .mobile-menu-btn--float {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 997;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  }
+  /* Empuja el contenido para que la hamburguesa flotante no tape el título */
+  .club-main:has(> .mobile-menu-btn--float) { padding-top: 64px !important; }
+
+  /* Anti-overflow horizontal global del club en móvil */
+  .club-main, .club-main * { max-width: 100%; }
+  .club-main img, .club-main video, .club-main iframe { max-width: 100%; height: auto; }
+  .club-main table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  body { overflow-x: hidden; }
+}
