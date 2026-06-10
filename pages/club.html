@@ -6,185 +6,841 @@
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Club VIP Zoorigen | Comunidad científica de fauna y biodiversidad</title>
-  <meta name="description" content="Únete al Club VIP Zoorigen. Acceso ilimitado a cursos, sesiones en vivo, PDFs exclusivos y descuentos en capacitaciones.">
-  <meta name="theme-color" content="#1F5F3A">
+  <title>Club VIP Zoorigen | El gremio de quienes trabajan con fauna en serio</title>
+  <meta name="description" content="Únete al Club VIP Zoorigen: biblioteca completa de cursos de fauna y biodiversidad, sesiones en vivo con especialistas, certificados verificables y comunidad científica.">
+  <meta name="theme-color" content="#0A1710">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css">
-  <link rel="stylesheet" href="../assets/css/club-theme.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- MODIFICADO: Rediseño completo Fase 1 — página autocontenida, no depende de club.css -->
+  <style>
+    :root{
+      --bg:#0A1710;
+      --bg-2:#0E1F14;
+      --surface:rgba(20,40,27,.62);
+      --surface-solid:#14281B;
+      --border:rgba(111,191,115,.16);
+      --border-strong:rgba(111,191,115,.34);
+      --green:#6FBF73;
+      --green-deep:#1F5F3A;
+      --amber:#E8A317;
+      --amber-2:#F4B942;
+      --text:#FFFFFF;
+      --muted:rgba(255,255,255,.70);
+      --dim:rgba(255,255,255,.46);
+      --radius:18px;
+      --radius-sm:12px;
+      --font-d:'Poppins',sans-serif;
+      --font-b:'Open Sans',system-ui,sans-serif;
+      --shadow:0 24px 60px rgba(0,0,0,.45);
+      --glow:0 0 0 1px rgba(232,163,23,.25), 0 10px 40px rgba(232,163,23,.18);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--font-b);
+      font-size:16px;
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+    img{display:block;max-width:100%}
+    a{color:inherit}
+    ::selection{background:rgba(232,163,23,.35)}
+
+    /* Scrollbar fino */
+    ::-webkit-scrollbar{width:9px;height:9px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:rgba(111,191,115,.28);border-radius:99px;border:2px solid var(--bg)}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(111,191,115,.45)}
+
+    .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+    /* ───────────── NAV ───────────── */
+    .nav{
+      position:fixed;inset:0 0 auto 0;z-index:100;
+      backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      background:rgba(10,23,16,.72);
+      border-bottom:1px solid var(--border);
+    }
+    .nav__in{
+      max-width:1180px;margin:0 auto;padding:0 22px;
+      height:66px;display:flex;align-items:center;justify-content:space-between;gap:14px;
+    }
+    .nav__brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+    .nav__brand img{width:38px;height:38px;border-radius:10px;object-fit:cover}
+    .nav__brand span{font-family:var(--font-d);font-weight:700;font-size:.98rem;letter-spacing:.01em}
+    .nav__brand b{color:var(--amber);font-weight:800}
+    .nav__acts{display:flex;align-items:center;gap:10px}
+    .btn{
+      font-family:var(--font-d);font-weight:700;font-size:.86rem;
+      padding:11px 20px;border-radius:99px;text-decoration:none;cursor:pointer;border:0;
+      display:inline-flex;align-items:center;gap:8px;
+      transition:transform .15s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;
+      white-space:nowrap;
+    }
+    .btn:active{transform:translateY(0) scale(.98)}
+    .btn--ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+    .btn--ghost:hover{color:#fff;border-color:var(--border-strong)}
+    .btn--gold{
+      background:linear-gradient(135deg,var(--amber),#D68A0A);color:#1B1409;
+      box-shadow:0 6px 22px rgba(232,163,23,.32);
+    }
+    .btn--gold:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(232,163,23,.45)}
+    .btn--lg{padding:16px 32px;font-size:.98rem}
+    .nav__back{display:inline-flex}
+    @media(max-width:680px){
+      .nav__back{display:none}
+    }
+
+    /* ───────────── HERO ───────────── */
+    .hero{
+      position:relative;min-height:100svh;
+      display:grid;place-items:center;
+      padding:130px 0 90px;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .hero__covers{
+      position:absolute;inset:-6% -10%;z-index:-2;
+      display:flex;flex-direction:column;justify-content:center;gap:18px;
+      transform:rotate(-4deg);
+      opacity:.6;
+    }
+    .covers-row{display:flex;gap:18px;width:max-content}
+    .covers-row--a{animation:slideL 70s linear infinite}
+    .covers-row--b{animation:slideR 85s linear infinite}
+    .covers-row img{
+      width:225px;height:132px;object-fit:cover;border-radius:12px;
+      border:1px solid rgba(255,255,255,.08);
+      flex:none;
+    }
+    @keyframes slideL{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    @keyframes slideR{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+    .hero__veil{
+      position:absolute;inset:0;z-index:-1;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 42%, rgba(10,23,16,.55) 0%, rgba(10,23,16,.92) 68%, var(--bg) 100%),
+        linear-gradient(180deg, rgba(10,23,16,.65), rgba(10,23,16,.35) 40%, var(--bg) 96%);
+    }
+    .hero__in{position:relative;text-align:center;max-width:880px;padding:0 22px}
+    .hero__pill{
+      display:inline-flex;align-items:center;gap:8px;
+      background:rgba(232,163,23,.12);border:1px solid rgba(232,163,23,.35);
+      color:var(--amber-2);
+      font-family:var(--font-d);font-weight:700;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;
+      padding:8px 18px;border-radius:99px;margin-bottom:26px;
+    }
+    .hero__pill svg{width:14px;height:14px}
+    .hero h1{
+      font-family:var(--font-d);font-weight:900;
+      font-size:clamp(2.3rem,5.6vw,4.1rem);
+      line-height:1.04;letter-spacing:-.025em;
+      margin-bottom:22px;
+    }
+    .hero h1 em{
+      font-style:normal;color:var(--amber);
+      text-shadow:0 0 40px rgba(232,163,23,.4);
+    }
+    .hero__lead{
+      color:var(--muted);font-size:clamp(1rem,1.6vw,1.16rem);
+      max-width:640px;margin:0 auto 34px;
+    }
+    .hero__cta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:38px}
+    .hero__proof{
+      display:inline-flex;align-items:center;gap:14px;
+      background:var(--surface);backdrop-filter:blur(12px);
+      border:1px solid var(--border);border-radius:99px;
+      padding:9px 22px 9px 10px;
+    }
+    .hero__faces{display:flex}
+    .hero__faces img{
+      width:36px;height:36px;border-radius:50%;object-fit:cover;
+      border:2px solid var(--bg-2);margin-left:-10px;
+    }
+    .hero__faces img:first-child{margin-left:0}
+    .hero__proof span{font-size:.85rem;color:var(--muted);text-align:left;line-height:1.35}
+    .hero__proof b{color:#fff;font-family:var(--font-d)}
+
+    /* ───────────── MARQUEE CURSOS ───────────── */
+    .strip{padding:84px 0 30px}
+    .kicker{
+      font-family:var(--font-d);font-weight:700;font-size:.74rem;
+      letter-spacing:.16em;text-transform:uppercase;color:var(--green);
+      display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:14px;
+    }
+    .kicker::before,.kicker::after{content:"";width:34px;height:1px;background:var(--border-strong)}
+    .h2{
+      font-family:var(--font-d);font-weight:800;text-align:center;
+      font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.02em;line-height:1.12;
+      margin-bottom:14px;
+    }
+    .sub{color:var(--muted);text-align:center;max-width:600px;margin:0 auto}
+
+    .marquee{
+      margin-top:46px;
+      -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+      mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+      overflow:hidden;
+    }
+    .marquee__track{display:flex;gap:20px;width:max-content;animation:slideL 60s linear infinite}
+    .marquee:hover .marquee__track{animation-play-state:paused}
+    .mcard{
+      width:262px;flex:none;border-radius:var(--radius-sm);overflow:hidden;
+      border:1px solid var(--border);position:relative;
+      transition:transform .25s ease,border-color .25s ease;
+      margin:0;
+    }
+    .mcard:hover{transform:translateY(-6px) scale(1.02);border-color:var(--amber)}
+    .mcard img{width:100%;height:152px;object-fit:cover}
+    .mcard figcaption{
+      position:absolute;inset:auto 0 0 0;
+      padding:30px 14px 12px;
+      background:linear-gradient(180deg,transparent,rgba(8,16,11,.92));
+      font-family:var(--font-d);font-weight:600;font-size:.82rem;line-height:1.25;
+    }
+
+    /* ───────────── BENEFICIOS BENTO ───────────── */
+    .section{padding:96px 0}
+    .bento{
+      margin-top:52px;display:grid;gap:18px;
+      grid-template-columns:repeat(3,1fr);
+    }
+    .bcard{
+      background:var(--surface);backdrop-filter:blur(14px);
+      border:1px solid var(--border);border-radius:var(--radius);
+      padding:30px 28px;position:relative;overflow:hidden;
+      transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
+    }
+    .bcard:hover{transform:translateY(-5px);border-color:var(--border-strong);box-shadow:var(--shadow)}
+    .bcard--wide{grid-column:span 2}
+    .bcard__ico{
+      width:48px;height:48px;border-radius:13px;
+      display:grid;place-items:center;margin-bottom:18px;
+      background:rgba(111,191,115,.1);border:1px solid var(--border);
+    }
+    .bcard__ico svg{width:23px;height:23px;stroke:var(--green);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+    .bcard--gold .bcard__ico{background:rgba(232,163,23,.12);border-color:rgba(232,163,23,.3)}
+    .bcard--gold .bcard__ico svg{stroke:var(--amber)}
+    .bcard h3{font-family:var(--font-d);font-weight:700;font-size:1.06rem;margin-bottom:8px}
+    .bcard p{color:var(--muted);font-size:.92rem}
+    .bcard__tag{
+      position:absolute;top:22px;right:22px;
+      font-family:var(--font-d);font-weight:800;font-size:.68rem;letter-spacing:.1em;
+      color:var(--amber);background:rgba(232,163,23,.12);
+      border:1px solid rgba(232,163,23,.3);border-radius:99px;padding:4px 12px;
+    }
+    @media(max-width:900px){.bento{grid-template-columns:1fr 1fr}.bcard--wide{grid-column:span 2}}
+    @media(max-width:600px){.bento{grid-template-columns:1fr}.bcard--wide{grid-column:span 1}}
+
+    /* ───────────── CERTIFICADO ───────────── */
+    .cert{
+      display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center;
+      margin-top:56px;
+    }
+    .cert__txt h3{font-family:var(--font-d);font-weight:800;font-size:clamp(1.5rem,2.6vw,2.1rem);letter-spacing:-.02em;line-height:1.15;margin-bottom:16px}
+    .cert__txt p{color:var(--muted);margin-bottom:22px}
+    .cert__list{list-style:none;display:grid;gap:13px}
+    .cert__list li{display:flex;gap:12px;align-items:flex-start;color:var(--muted);font-size:.94rem}
+    .cert__list svg{width:19px;height:19px;flex:none;margin-top:2px;stroke:var(--amber);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cert__list b{color:#fff}
+
+    .cert__mock{position:relative;perspective:1100px}
+    .cert__paper{
+      background:linear-gradient(160deg,#FDFBF4,#F4EEDC);
+      border-radius:14px;padding:34px 32px;color:#22301F;
+      box-shadow:var(--glow),0 40px 80px rgba(0,0,0,.5);
+      transform:rotateY(-7deg) rotateX(3deg);
+      transition:transform .4s ease;
+      border:1px solid rgba(232,163,23,.5);
+      position:relative;
+    }
+    .cert__mock:hover .cert__paper{transform:rotateY(0) rotateX(0)}
+    .cert__paper::before{
+      content:"";position:absolute;inset:9px;border:1.5px solid rgba(31,95,58,.35);border-radius:9px;pointer-events:none;
+    }
+    .cert__head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+    .cert__head img{width:42px;height:42px;border-radius:9px;object-fit:cover}
+    .cert__head div b{font-family:var(--font-d);font-size:.92rem;color:#1F5F3A;display:block;letter-spacing:.02em}
+    .cert__head div span{font-size:.68rem;color:#6b7a64;letter-spacing:.14em;text-transform:uppercase}
+    .cert__paper h4{
+      font-family:var(--font-d);font-weight:800;font-size:1.18rem;color:#16341F;
+      letter-spacing:-.01em;margin-bottom:4px;
+    }
+    .cert__paper .cname{
+      font-family:var(--font-d);font-weight:600;color:#A47207;font-size:.9rem;margin-bottom:16px;
+    }
+    .cert__meta{display:flex;justify-content:space-between;align-items:flex-end;gap:14px}
+    .cert__folio{font-size:.66rem;color:#6b7a64;line-height:1.7}
+    .cert__folio b{color:#22301F;font-family:'Courier New',monospace;letter-spacing:.04em}
+    .cert__qr{flex:none}
+    .cert__seal{
+      position:absolute;right:-26px;top:-26px;width:110px;height:110px;border-radius:50%;
+      background:radial-gradient(circle at 35% 30%, var(--amber-2), #C07F08);
+      display:grid;place-items:center;
+      font-family:var(--font-d);font-weight:800;font-size:.6rem;letter-spacing:.12em;color:#231803;
+      text-align:center;line-height:1.35;
+      box-shadow:0 14px 34px rgba(232,163,23,.45);
+      transform:rotate(12deg);
+      border:3px dashed rgba(35,24,3,.3);
+    }
+    @media(max-width:880px){
+      .cert{grid-template-columns:1fr;gap:44px}
+      .cert__seal{right:-8px;top:-22px;width:92px;height:92px}
+    }
+
+    /* ───────────── COMUNIDAD ───────────── */
+    .community{margin-top:52px;display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
+    .community img{
+      width:100%;aspect-ratio:1;object-fit:cover;border-radius:11px;
+      border:1px solid var(--border);
+      filter:saturate(.95);
+      transition:transform .25s ease,filter .25s ease,border-color .25s ease;
+    }
+    .community img:hover{transform:scale(1.06);filter:saturate(1.1);border-color:var(--amber);z-index:2;position:relative}
+    .community img:nth-child(8n+3),.community img:nth-child(8n+6){transform:translateY(14px)}
+    .community img:nth-child(8n+3):hover,.community img:nth-child(8n+6):hover{transform:translateY(14px) scale(1.06)}
+    @media(max-width:720px){.community{grid-template-columns:repeat(4,1fr)}}
+
+    /* ───────────── EMPRESAS ───────────── */
+    .logos{
+      margin-top:44px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px 40px;
+    }
+    .logos img{
+      height:46px;width:auto;max-width:130px;object-fit:contain;
+      border-radius:9px;
+      filter:grayscale(1) brightness(1.7) contrast(.85);opacity:.55;
+      transition:filter .25s ease,opacity .25s ease;
+    }
+    .logos img:hover{filter:grayscale(0) brightness(1);opacity:1}
+
+    /* ───────────── PRICING ───────────── */
+    .plans{margin-top:54px;display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:860px;margin-inline:auto}
+    .plan{
+      background:var(--surface);backdrop-filter:blur(14px);
+      border:1px solid var(--border);border-radius:22px;
+      padding:36px 32px;position:relative;
+      display:flex;flex-direction:column;
+      transition:transform .25s ease,box-shadow .25s ease;
+    }
+    .plan:hover{transform:translateY(-6px)}
+    .plan--gold{
+      border:1.5px solid rgba(232,163,23,.55);
+      background:linear-gradient(165deg,rgba(20,40,27,.85),rgba(58,42,8,.45));
+      box-shadow:var(--glow);
+    }
+    .plan__ribbon{
+      position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+      background:linear-gradient(135deg,var(--amber),#D68A0A);color:#1B1409;
+      font-family:var(--font-d);font-weight:800;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+      padding:6px 18px;border-radius:99px;white-space:nowrap;
+      box-shadow:0 8px 22px rgba(232,163,23,.4);
+    }
+    .plan h3{font-family:var(--font-d);font-weight:700;font-size:1.04rem;margin-bottom:4px}
+    .plan__note{font-size:.8rem;color:var(--dim);margin-bottom:20px}
+    .plan__price{font-family:var(--font-d);font-weight:900;font-size:3rem;letter-spacing:-.03em;line-height:1}
+    .plan__price small{font-size:1.05rem;font-weight:700;color:var(--dim);letter-spacing:0}
+    .plan__per{font-size:.84rem;color:var(--muted);margin:6px 0 24px}
+    .plan__per b{color:var(--green)}
+    .plan ul{list-style:none;display:grid;gap:11px;margin-bottom:28px;flex:1}
+    .plan li{display:flex;gap:11px;font-size:.9rem;color:var(--muted);align-items:flex-start}
+    .plan li svg{width:17px;height:17px;flex:none;margin-top:3px;stroke:var(--green);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+    .plan--gold li svg{stroke:var(--amber)}
+    .plan li b{color:#fff}
+    .plan .btn{justify-content:center}
+    @media(max-width:760px){.plans{grid-template-columns:1fr}}
+    .guarantee{
+      margin-top:26px;text-align:center;color:var(--dim);font-size:.84rem;
+      display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+    }
+    .guarantee svg{width:16px;height:16px;stroke:var(--green);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+    /* ───────────── FAQ ───────────── */
+    .faq{max-width:760px;margin:52px auto 0;display:grid;gap:12px}
+    .faq__item{
+      background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+      overflow:hidden;transition:border-color .2s ease;
+    }
+    .faq__item.open{border-color:var(--border-strong)}
+    .faq__q{
+      width:100%;background:none;border:0;cursor:pointer;
+      display:flex;justify-content:space-between;align-items:center;gap:16px;
+      padding:19px 22px;text-align:left;
+      font-family:var(--font-d);font-weight:600;font-size:.96rem;color:#fff;
+    }
+    .faq__q svg{
+      width:18px;height:18px;flex:none;stroke:var(--amber);fill:none;stroke-width:2;
+      stroke-linecap:round;transition:transform .25s ease;
+    }
+    .faq__item.open .faq__q svg{transform:rotate(45deg)}
+    .faq__a{
+      max-height:0;overflow:hidden;transition:max-height .3s ease;
+    }
+    .faq__a p{padding:0 22px 20px;color:var(--muted);font-size:.92rem}
+
+    /* ───────────── CTA FINAL ───────────── */
+    .final{
+      margin:40px auto 0;max-width:840px;text-align:center;position:relative;
+      background:linear-gradient(155deg,rgba(31,95,58,.5),rgba(58,42,8,.35));
+      border:1px solid rgba(232,163,23,.35);border-radius:26px;
+      padding:64px 34px;overflow:hidden;
+    }
+    .final::before{
+      content:"";position:absolute;inset:-40%;z-index:0;
+      background:radial-gradient(circle at 50% 0%,rgba(232,163,23,.18),transparent 55%);
+      pointer-events:none;
+    }
+    .final>*{position:relative;z-index:1}
+    .final h2{font-family:var(--font-d);font-weight:900;font-size:clamp(1.7rem,3.6vw,2.5rem);letter-spacing:-.02em;line-height:1.1;margin-bottom:14px}
+    .final p{color:var(--muted);max-width:520px;margin:0 auto 30px}
+
+    /* ───────────── FOOTER ───────────── */
+    footer{
+      border-top:1px solid var(--border);margin-top:96px;padding:44px 0 38px;
+      text-align:center;color:var(--dim);font-size:.86rem;
+    }
+    footer .fbrand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+    footer .fbrand img{width:34px;height:34px;border-radius:9px;object-fit:cover}
+    footer .fbrand span{font-family:var(--font-d);font-weight:700;color:#fff}
+    footer a{color:var(--muted);text-decoration:none}
+    footer a:hover{color:var(--amber)}
+
+    /* ───────────── ANIMACIÓN ENTRADA ───────────── */
+    .rv{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s ease}
+    .rv.in{opacity:1;transform:translateY(0)}
+    @media(prefers-reduced-motion:reduce){
+      *{animation:none!important;transition:none!important}
+      .rv{opacity:1;transform:none}
+    }
+  </style>
 </head>
 <body>
 
-  <nav class="club-nav">
-    <div class="club-nav__inner">
-      <a href="../index.html" class="club-nav__brand">
+  <nav class="nav">
+    <div class="nav__in">
+      <a href="../index.html" class="nav__brand">
         <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
-        <span>Zoorigen · Club VIP</span>
+        <span>Zoorigen <b>· Club VIP</b></span>
       </a>
-      <div class="club-nav__actions">
-        <a href="../index.html" class="outline">← Volver al sitio</a>
-        <a href="club-login.html" class="outline">Iniciar sesión</a>
-        <a href="club-registro.html" class="gold">Unirme</a>
+      <div class="nav__acts">
+        <a href="../index.html" class="btn btn--ghost nav__back">Volver al sitio</a>
+        <a href="club-login.html" class="btn btn--ghost">Iniciar sesión</a>
+        <a href="club-registro.html" class="btn btn--gold">Unirme</a>
       </div>
     </div>
   </nav>
 
-  <section class="club-hero">
-    <div class="club-hero__inner">
-      <span class="club-hero__badge">🦒 Nuevo · Club VIP</span>
-      <h1 class="club-hero__title">La comunidad científica de <span class="accent">fauna y biodiversidad</span> más completa de México</h1>
-      <p class="club-hero__lead">Acceso ilimitado a cursos, sesiones en vivo con especialistas, biblioteca de PDFs científicos, videos prácticos y 20% de descuento en todas las capacitaciones de Zoorigen.</p>
-      <div class="club-hero__actions">
-        <a href="club-registro.html" class="btn-club" style="display:inline-block;width:auto;padding:16px 32px;font-size:1.02rem;text-decoration:none;">Unirme al Club VIP →</a>
-        <a href="#beneficios" class="btn-club-outline" style="display:inline-block;width:auto;padding:15px 28px;margin:0;">Ver beneficios</a>
+  <!-- ═══════════ HERO ═══════════ -->
+  <header class="hero">
+    <div class="hero__covers" aria-hidden="true">
+      <div class="covers-row covers-row--a">
+        <img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="">
+        <img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="">
+        <img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="">
+        <img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_reproduccion_tarantulas.jpg" alt="">
+        <img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="">
+        <img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="">
+        <img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="">
+        <img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_reproduccion_tarantulas.jpg" alt="">
+      </div>
+      <div class="covers-row covers-row--b">
+        <img src="../assets/img/cursos/etologia_fauna_silvestre.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="">
+        <img src="../assets/img/cursos/identificacion_aracnidos_mexico.jpg" alt="">
+        <img src="../assets/img/cursos/ultrasonografia_mamiferos_silvestres.jpg" alt="">
+        <img src="../assets/img/cursos/introduccion_entomologia_forense.jpg" alt="">
+        <img src="../assets/img/cursos/zooingenieria_habitats_exhibiciones.jpg" alt="">
+        <img src="../assets/img/cursos/etologia_fauna_silvestre.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="">
+        <img src="../assets/img/cursos/identificacion_aracnidos_mexico.jpg" alt="">
+        <img src="../assets/img/cursos/ultrasonografia_mamiferos_silvestres.jpg" alt="">
+        <img src="../assets/img/cursos/introduccion_entomologia_forense.jpg" alt="">
+        <img src="../assets/img/cursos/zooingenieria_habitats_exhibiciones.jpg" alt="">
+      </div>
+      <div class="covers-row covers-row--a" style="animation-duration:78s">
+        <img src="../assets/img/cursos/mariposarios_manejo_conservacion.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_picaduras_serpientes_escorpiones.jpg" alt="">
+        <img src="../assets/img/cursos/roedores_murcielagos_monitoreo.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_integral_umas_fauna_silvestre.jpg" alt="">
+        <img src="../assets/img/cursos/sanidad_apicola.jpg" alt="">
+        <img src="../assets/img/cursos/aracnidos_importancia_medica.jpg" alt="">
+        <img src="../assets/img/cursos/mariposarios_manejo_conservacion.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_picaduras_serpientes_escorpiones.jpg" alt="">
+        <img src="../assets/img/cursos/roedores_murcielagos_monitoreo.jpg" alt="">
+        <img src="../assets/img/cursos/manejo_integral_umas_fauna_silvestre.jpg" alt="">
+        <img src="../assets/img/cursos/sanidad_apicola.jpg" alt="">
+        <img src="../assets/img/cursos/aracnidos_importancia_medica.jpg" alt="">
+      </div>
+    </div>
+    <div class="hero__veil" aria-hidden="true"></div>
+
+    <div class="hero__in">
+      <span class="hero__pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
+        Club VIP Zoorigen
+      </span>
+      <h1>El gremio de quienes trabajan con <em>fauna en serio</em></h1>
+      <p class="hero__lead">Biblioteca completa de cursos científicos, sesiones en vivo con especialistas, certificados verificables con QR y una comunidad que habla tu mismo idioma: el de la vida silvestre.</p>
+      <div class="hero__cta">
+        <a href="club-registro.html" class="btn btn--gold btn--lg">Quiero ser parte
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#dentro" class="btn btn--ghost btn--lg">Ver qué hay dentro</a>
+      </div>
+      <div class="hero__proof">
+        <div class="hero__faces">
+          <img src="../assets/img/alumnos/556039285_122117027300987474_4460183418776072849_n.jpg" alt="Alumna Zoorigen">
+          <img src="../assets/img/alumnos/615273200_122137628114987474_3621861705781586279_n.jpg" alt="Alumno Zoorigen">
+          <img src="../assets/img/alumnos/634770068_122141837270987474_8112416961223197975_n.jpg" alt="Alumna Zoorigen">
+          <img src="../assets/img/alumnos/644488320_122143972388987474_432334517749686693_n.jpg" alt="Alumno Zoorigen">
+        </div>
+        <span><b>+2,000 alumnos</b> ya se formaron<br>con Zoorigen en todo México</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════ LO QUE HAY DENTRO ═══════════ -->
+  <section class="strip" id="dentro">
+    <p class="kicker rv">Esto no es una promesa</p>
+    <h2 class="h2 rv">Es lo que te espera adentro, hoy</h2>
+    <p class="sub rv">Cursos reales, impartidos por especialistas. Pasa el cursor para pausar y echar un ojo.</p>
+
+    <div class="marquee rv" aria-label="Cursos disponibles en la biblioteca VIP">
+      <div class="marquee__track">
+        <figure class="mcard"><img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="Curso Biología de tiburones y rayas" loading="lazy"><figcaption>Biología de tiburones y rayas</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="Curso Fauna ponzoñosa de México" loading="lazy"><figcaption>Fauna ponzoñosa de México</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="Curso Manejo de tortugas marinas" loading="lazy"><figcaption>Manejo de tortugas marinas</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/manejo_reproduccion_tarantulas.jpg" alt="Curso Manejo y reproducción de tarántulas" loading="lazy"><figcaption>Manejo y reproducción de tarántulas</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="Curso Rescate de fauna silvestre" loading="lazy"><figcaption>Rescate de fauna silvestre</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="Curso Fototrampeo y monitoreo de mamíferos" loading="lazy"><figcaption>Fototrampeo y monitoreo de mamíferos</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/introduccion_entomologia_forense.jpg" alt="Curso Introducción a la entomología forense" loading="lazy"><figcaption>Introducción a la entomología forense</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="Curso Manejo integral de colmenas" loading="lazy"><figcaption>Manejo integral de colmenas</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/ultrasonografia_mamiferos_silvestres.jpg" alt="Curso Ultrasonografía en mamíferos silvestres" loading="lazy"><figcaption>Ultrasonografía en mamíferos silvestres</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/zooingenieria_habitats_exhibiciones.jpg" alt="Curso Zooingeniería de hábitats y exhibiciones" loading="lazy"><figcaption>Zooingeniería: hábitats y exhibiciones</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/etologia_fauna_silvestre.jpg" alt="Curso Etología de fauna silvestre" loading="lazy"><figcaption>Etología de fauna silvestre</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/manejo_picaduras_serpientes_escorpiones.jpg" alt="Curso Manejo de picaduras de serpientes y escorpiones" loading="lazy"><figcaption>Manejo de picaduras: serpientes y escorpiones</figcaption></figure>
+        <!-- duplicado para loop infinito -->
+        <figure class="mcard"><img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="" loading="lazy"><figcaption>Biología de tiburones y rayas</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="" loading="lazy"><figcaption>Fauna ponzoñosa de México</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="" loading="lazy"><figcaption>Manejo de tortugas marinas</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/manejo_reproduccion_tarantulas.jpg" alt="" loading="lazy"><figcaption>Manejo y reproducción de tarántulas</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="" loading="lazy"><figcaption>Rescate de fauna silvestre</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="" loading="lazy"><figcaption>Fototrampeo y monitoreo de mamíferos</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/introduccion_entomologia_forense.jpg" alt="" loading="lazy"><figcaption>Introducción a la entomología forense</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="" loading="lazy"><figcaption>Manejo integral de colmenas</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/ultrasonografia_mamiferos_silvestres.jpg" alt="" loading="lazy"><figcaption>Ultrasonografía en mamíferos silvestres</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/zooingenieria_habitats_exhibiciones.jpg" alt="" loading="lazy"><figcaption>Zooingeniería: hábitats y exhibiciones</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/etologia_fauna_silvestre.jpg" alt="" loading="lazy"><figcaption>Etología de fauna silvestre</figcaption></figure>
+        <figure class="mcard"><img src="../assets/img/cursos/manejo_picaduras_serpientes_escorpiones.jpg" alt="" loading="lazy"><figcaption>Manejo de picaduras: serpientes y escorpiones</figcaption></figure>
       </div>
     </div>
   </section>
 
-  <section class="club-section" id="beneficios">
-    <div class="club-section__head">
-      <p class="eyebrow">¿Qué incluye tu membresía?</p>
-      <h2>Todo lo que necesitas para crecer como científico de campo</h2>
-      <p>Zoorigen lleva más de 2,000 alumnos formados. Ahora la experiencia completa en un solo lugar.</p>
-    </div>
-    <div class="benefits-grid-club">
-      <div class="benefit-card-club">
-        <div class="icon">🎓</div>
-        <h3>Biblioteca exclusiva</h3>
-        <p>Cursos completos seleccionados en fauna silvestre, apicultura, fauna ponzoñosa y más.</p>
-      </div>
-      <div class="benefit-card-club">
-        <div class="icon">🔴</div>
-        <h3>Sesiones en vivo mensuales</h3>
-        <p>Masterclasses con biólogos, veterinarios y especialistas invitados, en directo por Zoom.</p>
-      </div>
-      <div class="benefit-card-club">
-        <div class="icon">📄</div>
-        <h3>PDFs y material científico</h3>
-        <p>Guías de identificación, protocolos, fichas técnicas y manuales descargables.</p>
-      </div>
-      <div class="benefit-card-club">
-        <div class="icon">🎥</div>
-        <h3>Videos prácticos</h3>
-        <p>Técnicas de campo explicadas paso a paso por profesionales con experiencia real.</p>
-      </div>
-      <div class="benefit-card-club">
-        <div class="icon">💰</div>
-        <h3>20% OFF en cursos</h3>
-        <p>Descuento permanente en todas las capacitaciones y diplomados de Zoorigen.</p>
-      </div>
-      <div class="benefit-card-club">
-        <div class="icon">💬</div>
-        <h3>Canal exclusivo WhatsApp</h3>
-        <p>Comunidad privada con actualizaciones, novedades del sector y networking directo.</p>
-      </div>
-      <div class="benefit-card-club">
-        <div class="icon">🏅</div>
-        <h3>Certificado mensual</h3>
-        <p>Constancia con folio y QR por tu participación activa en el Club.</p>
-      </div>
-      <div class="benefit-card-club">
-        <div class="icon">🌿</div>
-        <h3>Contenido especializado</h3>
-        <p>Material enfocado en conservación, investigación aplicada y manejo responsable.</p>
-      </div>
-    </div>
-  </section>
+  <!-- ═══════════ BENEFICIOS ═══════════ -->
+  <section class="section">
+    <div class="wrap">
+      <p class="kicker rv">Tu membresía incluye</p>
+      <h2 class="h2 rv">Todo lo que necesitas para crecer<br>como profesional de fauna</h2>
 
-  <section class="club-section" id="precio" style="padding-top:0;">
-    <div class="club-section__head">
-      <p class="eyebrow">Elige tu plan</p>
-      <h2>Toda la experiencia Zoorigen, como tú prefieras pagar</h2>
-      <p>Los dos planes dan acceso completo. Elige el que se acomode a tu ritmo.</p>
-    </div>
+      <div class="bento">
+        <article class="bcard bcard--wide bcard--gold rv">
+          <span class="bcard__tag">Lo más valioso</span>
+          <div class="bcard__ico">
+            <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <h3>Biblioteca completa de cursos</h3>
+          <p>Acceso ilimitado a todos los cursos del club: fauna silvestre, fauna ponzoñosa, apicultura, monitoreo, manejo en cautiverio y más. Nuevos cursos cada mes, sin pagos extra.</p>
+        </article>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;max-width:900px;margin:0 auto;">
+        <article class="bcard rv">
+          <div class="bcard__ico">
+            <svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <h3>Sesiones en vivo mensuales</h3>
+          <p>Masterclasses por Zoom con biólogos, veterinarios y especialistas. Si no puedes asistir, la grabación queda en tu panel.</p>
+        </article>
 
-      <div class="pricing-card" style="max-width:100%;">
-        <h3>Miembro VIP Mensual</h3>
-        <div class="plan-tag">Facturación mensual · Cancela cuando quieras</div>
-        <div class="price"><span class="price-currency">$</span>199</div>
-        <div class="price-unit">MXN / mes</div>
-        <ul>
-          <li>Acceso ilimitado a toda la biblioteca</li>
-          <li>Sesiones en vivo mensuales</li>
-          <li>Todos los PDFs descargables</li>
-          <li>20% de descuento permanente en cursos</li>
-          <li>Canal exclusivo WhatsApp</li>
-          <li>Certificado mensual con folio</li>
-        </ul>
-        <a href="club-registro.html" class="btn-club-outline" style="text-decoration:none;">Empezar mensual</a>
-      </div>
+        <article class="bcard rv">
+          <div class="bcard__ico">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h2"/></svg>
+          </div>
+          <h3>PDFs y material científico</h3>
+          <p>Guías de identificación, protocolos de campo, fichas técnicas y manuales descargables para usar en tu trabajo real.</p>
+        </article>
 
-      <div class="pricing-card" style="max-width:100%;border-color:var(--zoo-amber);background:linear-gradient(135deg,var(--zoo-bg-card) 0%,rgba(232,163,23,0.15) 100%);">
-        <div class="pricing-card__ribbon">Ahorra 2 meses 🔥</div>
-        <h3>Miembro VIP Anual</h3>
-        <div class="plan-tag">Un solo pago · Todo el año sin preocuparte</div>
-        <div class="price"><span class="price-currency">$</span>1,899</div>
-        <div class="price-unit">MXN / año · Equivale a <strong style="color:var(--zoo-green-500);">$158/mes</strong></div>
-        <ul>
-          <li>Todo lo del plan mensual</li>
-          <li><strong style="color:var(--zoo-amber);">2 meses gratis</strong> (ahorras $489)</li>
-          <li>Sin cobros mensuales sorpresa</li>
-          <li>Acceso garantizado por 365 días</li>
-          <li>Prioridad en sesiones con cupo limitado</li>
-          <li>Certificado anual premium</li>
-        </ul>
-        <a href="club-registro.html?plan=anual" class="btn-club" style="text-decoration:none;">Empezar anual →</a>
-      </div>
+        <article class="bcard rv">
+          <div class="bcard__ico">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5L17 22l-5-3-5 3 1.5-8.5"/></svg>
+          </div>
+          <h3>Certificados verificables</h3>
+          <p>Constancias con folio único y código QR que cualquier empleador puede verificar en línea. Súbelas a tu CV y LinkedIn.</p>
+        </article>
 
-    </div>
-  </section>
+        <article class="bcard rv">
+          <div class="bcard__ico">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>Comunidad y networking</h3>
+          <p>Foro VIP y canal exclusivo de WhatsApp con colegas de todo México: oportunidades, dudas resueltas y contactos del gremio.</p>
+        </article>
 
-  <section class="club-section">
-    <div class="club-section__head">
-      <p class="eyebrow">Preguntas frecuentes</p>
-      <h2>Lo que más nos preguntan antes de unirse</h2>
-    </div>
-    <div class="faq-list">
-      <div class="faq-item">
-        <h4>¿Puedo cancelar cuando quiera?</h4>
-        <p>Sí. La membresía se cobra mes a mes y puedes cancelarla desde tu panel en cualquier momento. Mantienes el acceso hasta el final del período pagado.</p>
-      </div>
-      <div class="faq-item">
-        <h4>¿El 20% de descuento aplica en todos los cursos?</h4>
-        <p>Sí, el descuento VIP es permanente y aplica en todos los cursos, diplomados y capacitaciones de Zoorigen mientras tu membresía esté activa.</p>
-      </div>
-      <div class="faq-item">
-        <h4>¿Cómo son las sesiones en vivo?</h4>
-        <p>Son masterclasses mensuales impartidas por especialistas invitados vía Zoom. Duran entre 60 y 90 minutos con sesión de preguntas. Si no puedes asistir, la grabación queda disponible en la plataforma.</p>
-      </div>
-      <div class="faq-item">
-        <h4>¿Los certificados tienen validez?</h4>
-        <p>Cada constancia incluye folio único y código QR verificable. Son certificados oficiales de Zoorigen que puedes incluir en tu CV y redes profesionales.</p>
-      </div>
-      <div class="faq-item">
-        <h4>¿Qué pasa si ya compré cursos antes?</h4>
-        <p>Todos los cursos que ya adquiriste siguen siendo tuyos de por vida. Al unirte al Club VIP tendrás acceso adicional a la biblioteca exclusiva del club y al descuento en futuros cursos.</p>
+        <article class="bcard rv">
+          <div class="bcard__ico">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v2m0 8v2"/></svg>
+          </div>
+          <h3>20% OFF permanente</h3>
+          <p>Descuento de por vida en todos los cursos, diplomados y capacitaciones de Zoorigen mientras tu membresía esté activa.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <section class="club-section" style="padding-top:20px;">
-    <div class="pricing-card" style="max-width:720px;">
-      <h3 style="font-size:1.8rem;">¿Listo para unirte a Zoorigen VIP?</h3>
-      <p style="color: rgba(255,255,255,.82); margin: 10px 0 26px; font-size:1.02rem;">Más de 2,000 personas ya se han capacitado con nosotros. Es tu turno.</p>
-      <a href="club-registro.html" class="btn-club" style="text-decoration:none;">Unirme al Club VIP →</a>
-      <p style="margin-top:14px; font-size:.84rem; color:var(--zoo-text-dim);">Sin permanencia · Cancela cuando quieras · Facturación mensual automática</p>
+  <!-- ═══════════ CERTIFICADO ═══════════ -->
+  <section class="section" style="padding-top:30px">
+    <div class="wrap">
+      <div class="cert">
+        <div class="cert__txt rv">
+          <p class="kicker" style="justify-content:flex-start">Tu carrera, respaldada</p>
+          <h3>Un certificado que sí puedes presumir — y que sí pueden verificar</h3>
+          <p>Cada constancia del Club VIP lleva folio único y código QR. Quien lo escanee — un reclutador, un zoológico, una UMA — verifica al instante que tu formación es real. Sin llamadas, sin dudas.</p>
+          <ul class="cert__list">
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span><b>Folio único</b> registrado en la plataforma Zoorigen</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span><b>QR de verificación</b> pública en línea, 24/7</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span><b>Listo para CV y LinkedIn</b> en formato digital</span></li>
+          </ul>
+        </div>
+
+        <div class="cert__mock rv" aria-label="Ejemplo del certificado Zoorigen">
+          <div class="cert__paper">
+            <div class="cert__head">
+              <img src="../assets/img/logo/logo.jpg" alt="">
+              <div><b>ZOORIGEN</b><span>Constancia oficial</span></div>
+            </div>
+            <h4>Constancia de participación</h4>
+            <p class="cname">Curso · Rescate de fauna silvestre</p>
+            <div class="cert__meta">
+              <div class="cert__folio">
+                Folio · <b>ZOO-2026-XXXXX</b><br>
+                Verificable en zoorigen.com/verificar
+              </div>
+              <svg class="cert__qr" width="64" height="64" viewBox="0 0 29 29" aria-hidden="true">
+                <rect width="29" height="29" fill="#FDFBF4"/>
+                <g fill="#22301F">
+                  <rect x="1" y="1" width="7" height="7"/><rect x="2" y="2" width="5" height="5" fill="#FDFBF4"/><rect x="3" y="3" width="3" height="3"/>
+                  <rect x="21" y="1" width="7" height="7"/><rect x="22" y="2" width="5" height="5" fill="#FDFBF4"/><rect x="23" y="3" width="3" height="3"/>
+                  <rect x="1" y="21" width="7" height="7"/><rect x="2" y="22" width="5" height="5" fill="#FDFBF4"/><rect x="3" y="23" width="3" height="3"/>
+                  <rect x="10" y="2" width="2" height="2"/><rect x="14" y="1" width="2" height="3"/><rect x="17" y="3" width="2" height="2"/>
+                  <rect x="10" y="6" width="3" height="2"/><rect x="15" y="6" width="2" height="2"/><rect x="18" y="6" width="1" height="2"/>
+                  <rect x="2" y="10" width="2" height="2"/><rect x="6" y="10" width="3" height="2"/><rect x="11" y="10" width="2" height="3"/>
+                  <rect x="15" y="11" width="3" height="2"/><rect x="20" y="10" width="2" height="2"/><rect x="24" y="10" width="3" height="2"/>
+                  <rect x="1" y="14" width="3" height="2"/><rect x="6" y="14" width="2" height="3"/><rect x="10" y="15" width="3" height="2"/>
+                  <rect x="14" y="14" width="2" height="2"/><rect x="18" y="15" width="3" height="2"/><rect x="23" y="14" width="2" height="2"/><rect x="26" y="15" width="2" height="2"/>
+                  <rect x="2" y="18" width="2" height="2"/><rect x="5" y="18" width="3" height="1"/><rect x="11" y="18" width="2" height="2"/>
+                  <rect x="15" y="18" width="2" height="3"/><rect x="19" y="19" width="2" height="2"/><rect x="24" y="18" width="2" height="2"/>
+                  <rect x="10" y="22" width="2" height="2"/><rect x="13" y="21" width="3" height="2"/><rect x="17" y="22" width="2" height="2"/>
+                  <rect x="21" y="22" width="2" height="3"/><rect x="25" y="21" width="2" height="2"/>
+                  <rect x="10" y="26" width="3" height="2"/><rect x="14" y="25" width="2" height="3"/><rect x="18" y="26" width="2" height="2"/><rect x="24" y="26" width="3" height="2"/>
+                </g>
+              </svg>
+            </div>
+            <div class="cert__seal">SELLO<br>OFICIAL<br>ZOORIGEN</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <footer class="club-footer">
-    <div class="club-footer__brand">
-      <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
-      <span>Zoorigen · Club VIP</span>
+  <!-- ═══════════ COMUNIDAD ═══════════ -->
+  <section class="section" style="padding-top:36px">
+    <div class="wrap">
+      <p class="kicker rv">No estarás estudiando solo</p>
+      <h2 class="h2 rv">Más de 2,000 alumnos ya forman parte</h2>
+      <p class="sub rv">Estudiantes, biólogos, veterinarios y apasionados de la fauna que decidieron formarse en serio.</p>
+
+      <div class="community rv">
+        <img src="../assets/img/alumnos/556039285_122117027300987474_4460183418776072849_n.jpg" alt="Alumna de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/558936934_122118651386987474_8876696167276015156_n.jpg" alt="Alumno de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/615273200_122137628114987474_3621861705781586279_n.jpg" alt="Alumna de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/615806426_122137628570987474_7979875985612240495_n.jpg" alt="Alumno de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/624573633_122139701654987474_4890198789778163450_n.jpg" alt="Alumna de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/634770065_122141837804987474_2586608960197084879_n.jpg" alt="Alumno de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/634770068_122141837270987474_8112416961223197975_n.jpg" alt="Alumna de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/637136140_122141836028987474_6938857288034908281_n.jpg" alt="Alumno de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/639978231_122142920888987474_5305536481577744145_n.jpg" alt="Alumna de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/641313883_122142921044987474_3045406614503713405_n.jpg" alt="Alumno de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/644488320_122143972388987474_432334517749686693_n.jpg" alt="Alumna de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/644557926_122143971962987474_8074092424957739284_n.jpg" alt="Alumno de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/644564250_122143972682987474_5988611209218948823_n.jpg" alt="Alumna de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/644583531_122143971596987474_2568697580031423750_n.jpg" alt="Alumno de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/648735330_122144899250987474_3241618098984782913_n.jpg" alt="Alumna de Zoorigen" loading="lazy">
+        <img src="../assets/img/alumnos/648817415_122144899334987474_2248167190820477897_n.jpg" alt="Alumno de Zoorigen" loading="lazy">
+      </div>
+
+      <div class="logos rv">
+        <img src="../assets/img/logos/AGROPEC LOGO.jpg" alt="AGROPEC" loading="lazy">
+        <img src="../assets/img/logos/sierra_mazati_logo.jpg" alt="Sierra Mazatí" loading="lazy">
+        <img src="../assets/img/logos/OMRON_Logo.svg.png" alt="OMRON" loading="lazy">
+        <img src="../assets/img/logos/mayakoba-header.jpg" alt="Mayakoba" loading="lazy">
+        <img src="../assets/img/logos/14365.jpg" alt="Aliado Zoorigen" loading="lazy">
+      </div>
     </div>
-    <p>Capacitación científica en fauna, biodiversidad y manejo animal.<br>
-    <a href="https://wa.me/5212361113237" target="_blank">WhatsApp +52 1 236 111 3237</a> · <a href="mailto:zooorigen@gmail.com">zooorigen@gmail.com</a></p>
-    <p style="margin-top:18px; color:var(--zoo-text-dim);">© 2026 ZOORIGEN. Todos los derechos reservados. · <a href="../index.html">Volver al sitio principal</a></p>
+  </section>
+
+  <!-- ═══════════ PRICING ═══════════ -->
+  <section class="section" id="precio">
+    <div class="wrap">
+      <p class="kicker rv">Elige tu plan</p>
+      <h2 class="h2 rv">Menos de lo que cuesta una salida al cine,<br>por toda tu formación</h2>
+
+      <div class="plans">
+        <article class="plan rv">
+          <h3>VIP Mensual</h3>
+          <p class="plan__note">Facturación mensual · Cancela cuando quieras</p>
+          <div class="plan__price"><small>$</small>199</div>
+          <p class="plan__per">MXN al mes</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>Biblioteca <b>completa</b> de cursos</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>Sesiones en vivo mensuales</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>PDFs y guías descargables</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>Certificados con folio y QR</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>20% OFF en cursos Zoorigen</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>Foro VIP + canal de WhatsApp</span></li>
+          </ul>
+          <a href="club-registro.html" class="btn btn--ghost">Empezar mensual</a>
+        </article>
+
+        <article class="plan plan--gold rv">
+          <span class="plan__ribbon">Recomendado · Ahorra $489</span>
+          <h3>VIP Anual</h3>
+          <p class="plan__note">Un solo pago · Despreocúpate todo el año</p>
+          <div class="plan__price"><small>$</small>1,899</div>
+          <p class="plan__per">MXN al año · sale en <b>$158/mes</b></p>
+          <ul>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span><b>Todo</b> lo del plan mensual</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span><b>2 meses gratis</b> incluidos</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>Sin cobros mensuales sorpresa</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>Acceso garantizado 365 días</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>Prioridad en sesiones con cupo</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>Certificado anual premium</span></li>
+          </ul>
+          <a href="club-registro.html?plan=anual" class="btn btn--gold">Empezar anual</a>
+        </article>
+      </div>
+
+      <p class="guarantee rv">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Sin permanencia · Cancela desde tu panel cuando quieras · Conservas acceso hasta el final del periodo pagado
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════ FAQ ═══════════ -->
+  <section class="section" style="padding-top:20px">
+    <div class="wrap">
+      <p class="kicker rv">Preguntas frecuentes</p>
+      <h2 class="h2 rv">Lo que más nos preguntan antes de unirse</h2>
+
+      <div class="faq rv">
+        <div class="faq__item">
+          <button class="faq__q">¿Puedo cancelar cuando quiera?
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a"><p>Sí. Puedes cancelar desde tu panel en cualquier momento, sin llamadas ni trámites. Mantienes el acceso completo hasta el final del periodo que ya pagaste.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">¿El 20% de descuento aplica en todos los cursos?
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a"><p>Sí, el descuento VIP es permanente y aplica en todos los cursos, diplomados y capacitaciones de Zoorigen mientras tu membresía esté activa.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">¿Cómo son las sesiones en vivo?
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a"><p>Son masterclasses mensuales impartidas por especialistas invitados vía Zoom. Duran entre 60 y 90 minutos con sesión de preguntas. Si no puedes asistir, la grabación queda disponible en tu panel.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">¿Los certificados tienen validez?
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a"><p>Cada constancia incluye folio único y código QR verificable en línea. Son certificados oficiales de Zoorigen que puedes incluir en tu CV y redes profesionales.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">¿Qué pasa si ya compré cursos antes?
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a"><p>Todos los cursos que ya adquiriste siguen siendo tuyos de por vida. Al unirte al Club VIP obtienes acceso adicional a la biblioteca exclusiva del club y al descuento en futuros cursos.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ CTA FINAL ═══════════ -->
+  <section class="section" style="padding-top:10px">
+    <div class="wrap">
+      <div class="final rv">
+        <h2>Tu lugar en el gremio<br>te está esperando</h2>
+        <p>Más de 2,000 personas ya se formaron con Zoorigen. La pregunta no es si la fauna de México necesita más profesionales preparados — es si tú vas a ser uno de ellos.</p>
+        <a href="club-registro.html" class="btn btn--gold btn--lg">Unirme al Club VIP
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="fbrand">
+        <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
+        <span>Zoorigen · Club VIP</span>
+      </div>
+      <p>Capacitación científica en fauna, biodiversidad y manejo animal.<br>
+      <a href="https://wa.me/5212361113237" target="_blank" rel="noopener">WhatsApp +52 1 236 111 3237</a> · <a href="mailto:zooorigen@gmail.com">zooorigen@gmail.com</a></p>
+      <p style="margin-top:16px">© 2026 ZOORIGEN. Todos los derechos reservados. · <a href="../index.html">Volver al sitio principal</a></p>
+    </div>
   </footer>
 
+  <script>
+    // Animación de entrada escalonada
+    (function(){
+      const els = document.querySelectorAll('.rv');
+      if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            entry.target.style.transitionDelay = (Math.min(i, 4) * 0.08) + 's';
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      els.forEach(el => io.observe(el));
+    })();
+
+    // FAQ acordeón
+    (function(){
+      document.querySelectorAll('.faq__item').forEach(item => {
+        const q = item.querySelector('.faq__q');
+        const a = item.querySelector('.faq__a');
+        q.addEventListener('click', () => {
+          const open = item.classList.contains('open');
+          document.querySelectorAll('.faq__item.open').forEach(o => {
+            o.classList.remove('open');
+            o.querySelector('.faq__a').style.maxHeight = '0px';
+          });
+          if (!open) {
+            item.classList.add('open');
+            a.style.maxHeight = a.scrollHeight + 'px';
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
