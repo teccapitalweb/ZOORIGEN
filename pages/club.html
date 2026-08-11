@@ -414,6 +414,125 @@
       *{animation:none!important;transition:none!important}
       .rv{opacity:1;transform:none}
     }
+
+    /* Minimal professional entry - aligned with login and registration */
+    .nav{
+      background:rgba(7,28,19,.88);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    .nav__in{height:78px}
+    .nav__brand{gap:14px}
+    .nav__brand img{width:112px;height:auto;border-radius:0;object-fit:contain}
+    .nav__brand span{
+      border-left:1px solid rgba(255,255,255,.14);padding-left:14px;
+      color:rgba(255,255,255,.74);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;
+    }
+    .nav__brand b{color:var(--amber-2)}
+
+    .hero{
+      min-height:100svh;display:flex;align-items:center;padding:126px 0 64px;
+      background:
+        radial-gradient(circle at 86% 16%,rgba(232,163,23,.11),transparent 27%),
+        radial-gradient(circle at 5% 82%,rgba(111,191,115,.09),transparent 30%),
+        linear-gradient(145deg,#071C13 0%,#09271A 54%,#0A2017 100%);
+    }
+    .hero::before{
+      content:"";position:absolute;inset:0;z-index:-1;opacity:.22;pointer-events:none;
+      background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+      background-size:72px 72px;mask-image:linear-gradient(90deg,#000,transparent 64%);
+    }
+    .hero__in{
+      width:min(1180px,calc(100% - 44px));max-width:none;margin:0 auto;padding:0;
+      display:grid;grid-template-columns:minmax(0,1.02fr) minmax(400px,.88fr);
+      gap:72px;align-items:center;text-align:left;
+    }
+    .hero__copy{max-width:650px}
+    .hero__pill{
+      margin:0 0 24px;padding:7px 14px;background:rgba(255,255,255,.045);
+      border-color:rgba(255,255,255,.13);color:rgba(255,255,255,.72);letter-spacing:.13em;
+    }
+    .hero h1{
+      max-width:660px;margin:0 0 24px;font-size:clamp(2.7rem,5vw,4.75rem);
+      line-height:.99;letter-spacing:-.045em;
+    }
+    .hero h1 em{color:var(--amber-2);text-shadow:none}
+    .hero__lead{
+      max-width:600px;margin:0 0 32px;color:rgba(255,255,255,.68);
+      font-size:clamp(1rem,1.35vw,1.12rem);line-height:1.75;
+    }
+    .hero__cta{justify-content:flex-start;margin:0 0 34px}
+    .hero__cta .btn{min-height:54px}
+    .hero__text-link{
+      display:inline-flex;align-items:center;gap:8px;margin-left:2px;color:rgba(255,255,255,.72);
+      font-family:var(--font-d);font-size:.88rem;font-weight:700;text-decoration:none;
+      border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:3px;
+    }
+    .hero__text-link:hover{color:#fff;border-color:var(--amber)}
+    .hero__trust{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding-top:24px;border-top:1px solid rgba(255,255,255,.1)}
+    .hero__trust-item{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.62);font-size:.81rem}
+    .hero__trust-item svg{width:17px;height:17px;stroke:var(--green);fill:none;stroke-width:1.8;flex:none}
+    .hero__trust-item strong{display:block;color:#fff;font-family:var(--font-d);font-size:.85rem}
+
+    .hero-showcase{
+      position:relative;padding:12px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.055);border-radius:28px;
+      box-shadow:0 34px 90px rgba(0,0,0,.33);backdrop-filter:blur(18px);
+    }
+    .hero-showcase::before{
+      content:"";position:absolute;width:150px;height:150px;right:-36px;top:-38px;border-radius:50%;
+      background:rgba(232,163,23,.17);filter:blur(2px);z-index:-1;
+    }
+    .hero-showcase__visual{position:relative;min-height:274px;border-radius:19px;overflow:hidden;background:#10291D}
+    .hero-showcase__visual>img{width:100%;height:274px;object-fit:cover;object-position:center 38%}
+    .hero-showcase__visual::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,18,12,.05),rgba(4,18,12,.88))}
+    .hero-showcase__badge{
+      position:absolute;left:18px;top:18px;z-index:2;display:inline-flex;align-items:center;gap:7px;
+      padding:7px 11px;border-radius:99px;background:rgba(7,28,19,.78);border:1px solid rgba(255,255,255,.15);
+      color:#fff;font-family:var(--font-d);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      backdrop-filter:blur(10px);
+    }
+    .hero-showcase__badge span{color:var(--green)}
+    .hero-showcase__title{position:absolute;inset:auto 20px 20px;z-index:2}
+    .hero-showcase__title small{display:block;color:var(--amber-2);font-family:var(--font-d);font-size:.7rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;margin-bottom:6px}
+    .hero-showcase__title h2{font-family:var(--font-d);font-size:1.35rem;line-height:1.18;letter-spacing:-.015em}
+    .hero-showcase__body{padding:22px 20px 19px}
+    .hero-showcase__body>p{color:rgba(255,255,255,.5);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:13px}
+    .hero-showcase__courses{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+    .hero-showcase__course{min-width:0}
+    .hero-showcase__course img{width:100%;aspect-ratio:1.38;object-fit:cover;border-radius:9px;border:1px solid rgba(255,255,255,.09)}
+    .hero-showcase__course span{display:block;margin-top:7px;color:rgba(255,255,255,.76);font-size:.67rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hero-showcase__note{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:16px;border-top:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.62);font-size:.78rem}
+    .hero-showcase__note strong{color:#fff}
+    .hero-showcase__note a{color:var(--amber-2);font-family:var(--font-d);font-weight:700;text-decoration:none;white-space:nowrap}
+
+    @media(max-width:960px){
+      .hero{padding-top:118px}
+      .hero__in{grid-template-columns:1fr;gap:48px;max-width:720px}
+      .hero__copy{max-width:none}
+      .hero-showcase{max-width:620px}
+    }
+    @media(max-width:680px){
+      .nav__in{height:68px;padding:0 16px}
+      .nav__brand img{width:92px}
+      .nav__brand span{display:none}
+      .nav__acts{gap:7px}
+      .nav__acts .btn{font-size:.75rem;padding:9px 12px}
+      .hero{padding:102px 0 50px;min-height:auto}
+      .hero__in{width:min(100% - 32px,620px);gap:36px}
+      .hero h1{font-size:clamp(2.3rem,12vw,3.35rem)}
+      .hero__lead{font-size:.96rem;line-height:1.65}
+      .hero__cta{display:grid;grid-template-columns:1fr;margin-bottom:28px}
+      .hero__cta .btn{justify-content:center;width:100%}
+      .hero__text-link{justify-self:center;margin-top:5px}
+      .hero__trust{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+      .hero__trust-item:last-child{grid-column:1/-1}
+      .hero-showcase{padding:9px;border-radius:22px}
+      .hero-showcase__visual,.hero-showcase__visual>img{min-height:224px;height:224px}
+      .hero-showcase__courses{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+      .hero-showcase__course span{font-size:.6rem}
+      .hero-showcase__note{align-items:flex-start;flex-direction:column}
+    }
   </style>
 </head>
 <body>
@@ -421,87 +540,69 @@
   <nav class="nav">
     <div class="nav__in">
       <a href="../index.html" class="nav__brand">
-        <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
-        <span>Zoorigen <b>· Club VIP</b></span>
+        <img src="../assets/img/logo/zoorigen-logo-remaster-v1.png" alt="Zoorigen">
+        <span>Acceso <b>Club VIP</b></span>
       </a>
       <div class="nav__acts">
         <a href="../index.html" class="btn btn--ghost nav__back">Volver al sitio</a>
         <a href="club-login.html" class="btn btn--ghost">Iniciar sesión</a>
-        <a href="club-registro.html" class="btn btn--gold">Unirme</a>
+        <a href="club-registro.html" class="btn btn--gold">Crear cuenta</a>
       </div>
     </div>
   </nav>
 
   <!-- ═══════════ HERO ═══════════ -->
   <header class="hero">
-    <div class="hero__covers" aria-hidden="true">
-      <div class="covers-row covers-row--a">
-        <img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="">
-        <img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="">
-        <img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="">
-        <img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_reproduccion_tarantulas.jpg" alt="">
-        <img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="">
-        <img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="">
-        <img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="">
-        <img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_reproduccion_tarantulas.jpg" alt="">
-      </div>
-      <div class="covers-row covers-row--b">
-        <img src="../assets/img/cursos/etologia_fauna_silvestre.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="">
-        <img src="../assets/img/cursos/identificacion_aracnidos_mexico.jpg" alt="">
-        <img src="../assets/img/cursos/ultrasonografia_mamiferos_silvestres.jpg" alt="">
-        <img src="../assets/img/cursos/introduccion_entomologia_forense.jpg" alt="">
-        <img src="../assets/img/cursos/zooingenieria_habitats_exhibiciones.jpg" alt="">
-        <img src="../assets/img/cursos/etologia_fauna_silvestre.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="">
-        <img src="../assets/img/cursos/identificacion_aracnidos_mexico.jpg" alt="">
-        <img src="../assets/img/cursos/ultrasonografia_mamiferos_silvestres.jpg" alt="">
-        <img src="../assets/img/cursos/introduccion_entomologia_forense.jpg" alt="">
-        <img src="../assets/img/cursos/zooingenieria_habitats_exhibiciones.jpg" alt="">
-      </div>
-      <div class="covers-row covers-row--a" style="animation-duration:78s">
-        <img src="../assets/img/cursos/mariposarios_manejo_conservacion.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_picaduras_serpientes_escorpiones.jpg" alt="">
-        <img src="../assets/img/cursos/roedores_murcielagos_monitoreo.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_integral_umas_fauna_silvestre.jpg" alt="">
-        <img src="../assets/img/cursos/sanidad_apicola.jpg" alt="">
-        <img src="../assets/img/cursos/aracnidos_importancia_medica.jpg" alt="">
-        <img src="../assets/img/cursos/mariposarios_manejo_conservacion.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_picaduras_serpientes_escorpiones.jpg" alt="">
-        <img src="../assets/img/cursos/roedores_murcielagos_monitoreo.jpg" alt="">
-        <img src="../assets/img/cursos/manejo_integral_umas_fauna_silvestre.jpg" alt="">
-        <img src="../assets/img/cursos/sanidad_apicola.jpg" alt="">
-        <img src="../assets/img/cursos/aracnidos_importancia_medica.jpg" alt="">
-      </div>
-    </div>
-    <div class="hero__veil" aria-hidden="true"></div>
-
     <div class="hero__in">
-      <span class="hero__pill">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-        Club VIP Zoorigen
-      </span>
-      <h1>El gremio de quienes trabajan con <em>fauna en serio</em></h1>
-      <p class="hero__lead">Biblioteca completa de cursos científicos, sesiones en vivo con especialistas, certificados verificables con QR y una comunidad que habla tu mismo idioma: el de la vida silvestre.</p>
-      <div class="hero__cta">
-        <a href="club-registro.html" class="btn btn--gold btn--lg">Quiero ser parte
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
-        <a href="#dentro" class="btn btn--ghost btn--lg">Ver qué hay dentro</a>
-      </div>
-      <div class="hero__proof">
-        <div class="hero__faces">
-          <img src="../assets/img/alumnos/556039285_122117027300987474_4460183418776072849_n.jpg" alt="Alumna Zoorigen">
-          <img src="../assets/img/alumnos/615273200_122137628114987474_3621861705781586279_n.jpg" alt="Alumno Zoorigen">
-          <img src="../assets/img/alumnos/634770068_122141837270987474_8112416961223197975_n.jpg" alt="Alumna Zoorigen">
-          <img src="../assets/img/alumnos/644488320_122143972388987474_432334517749686693_n.jpg" alt="Alumno Zoorigen">
+      <div class="hero__copy">
+        <span class="hero__pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
+          Formación continua en fauna
+        </span>
+        <h1>Conocimiento que transforma tu trabajo con <em>fauna.</em></h1>
+        <p class="hero__lead">Explora la biblioteca Zoorigen, conoce los temarios y reproduce gratis la primera clase de cada curso. Cuando quieras avanzar, la membresía desbloquea toda la experiencia.</p>
+        <div class="hero__cta">
+          <a href="club-registro.html" class="btn btn--gold btn--lg">Crear cuenta gratis
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="club-login.html" class="btn btn--ghost btn--lg">Ya tengo cuenta</a>
+          <a href="#dentro" class="hero__text-link">Ver qué encontrarás <span aria-hidden="true">↓</span></a>
         </div>
-        <span><b>+2,000 alumnos</b> ya se formaron<br>con Zoorigen en todo México</span>
+        <div class="hero__trust" aria-label="Características de acceso">
+          <div class="hero__trust-item">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span><strong>Registro gratuito</strong>Recorre el club sin pagar</span>
+          </div>
+          <div class="hero__trust-item">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            <span><strong>Primera clase libre</strong>Prueba antes de decidir</span>
+          </div>
+          <div class="hero__trust-item">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3Z"/></svg>
+            <span><strong>Acceso 24/7</strong>Desde cualquier dispositivo</span>
+          </div>
+        </div>
       </div>
+
+      <aside class="hero-showcase" aria-label="Vista previa de la biblioteca Zoorigen">
+        <div class="hero-showcase__visual">
+          <img src="../assets/img/areas/manejo-fauna-cautiverio-exhibicion.jpg" alt="Profesional trabajando con fauna silvestre">
+          <span class="hero-showcase__badge"><span aria-hidden="true">●</span> Biblioteca Zoorigen</span>
+          <div class="hero-showcase__title">
+            <small>Aprende a tu ritmo</small>
+            <h2>Contenido científico, práctico y disponible cuando lo necesites.</h2>
+          </div>
+        </div>
+        <div class="hero-showcase__body">
+          <p>Explora algunos de nuestros temas</p>
+          <div class="hero-showcase__courses">
+            <div class="hero-showcase__course"><img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="Biología de tiburones y rayas"><span>Tiburones y rayas</span></div>
+            <div class="hero-showcase__course"><img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="Fauna ponzoñosa de México"><span>Fauna ponzoñosa</span></div>
+            <div class="hero-showcase__course"><img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="Manejo de tortugas marinas"><span>Tortugas marinas</span></div>
+          </div>
+          <div class="hero-showcase__note"><span><strong>Catálogo abierto.</strong> Conoce cursos, temarios y recursos.</span><a href="club-registro.html">Explorar gratis →</a></div>
+        </div>
+      </aside>
     </div>
   </header>
 
