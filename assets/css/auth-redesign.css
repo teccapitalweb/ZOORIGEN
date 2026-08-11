@@ -815,15 +815,15 @@ body.auth-page {
   }
 
   .auth-story {
-    padding: 74px 18px 30px;
+    padding: 68px 18px 24px;
   }
 
   .auth-story__brand {
-    margin-bottom: 22px;
+    margin-bottom: 17px;
   }
 
   .auth-story__brand img {
-    width: 132px;
+    width: 118px;
   }
 
   .auth-story__brand span {
@@ -831,28 +831,20 @@ body.auth-page {
   }
 
   .auth-story h1 {
-    font-size: clamp(2.15rem, 12vw, 3.1rem);
+    max-width: 340px;
+    font-size: clamp(2rem, 10.5vw, 2.75rem);
   }
 
   .auth-story__lead {
-    margin-top: 18px;
+    max-width: 350px;
+    margin-top: 13px;
     font-size: .9rem;
-    line-height: 1.65;
+    line-height: 1.55;
   }
 
-  .auth-story__benefits {
-    grid-template-columns: 1fr;
-    gap: 9px;
-    margin-top: 24px;
-  }
-
-  .auth-benefit:nth-child(n+3) {
-    display: none;
-  }
-
+  .auth-story__benefits,
   .auth-story__footer {
-    margin-top: 22px;
-    padding-top: 20px;
+    display: none;
   }
 
   .auth-access,
