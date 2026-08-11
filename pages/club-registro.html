@@ -1,321 +1,143 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0A2B1D">
+  <meta name="description" content="Crea tu cuenta gratuita y explora el Club VIP Zoorigen.">
+  <title>Crear cuenta | Club VIP Zoorigen</title>
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Unirme | Club VIP Zoorigen</title>
-  <meta name="theme-color" content="#1F5F3A">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/club.css">
   <link rel="stylesheet" href="../assets/css/club-mobile.css">
   <link rel="stylesheet" href="../assets/css/club-theme.css">
-
-  <!-- MODIFICADO: Rediseño Fase Ads — panel izquierdo que vende + móvil compacto -->
-  <style>
-    /* ── Panel marca: ahora enseña el producto ── */
-    .auth-wrapper__brand{justify-content:center;overflow:hidden}
-    .auth-wrapper__brand h1{font-size:clamp(1.6rem,2.6vw,2.15rem);font-weight:800;letter-spacing:-.02em}
-    .auth-wrapper__brand .brand-lead{margin-bottom:22px}
-
-    /* Cinta de portadas — VERTICAL, proporción natural de los flyers */
-    .reg-marquee{
-      margin:6px 0 22px;
-      -webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);
-      mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);
-      overflow:hidden;
-    }
-    .reg-marquee__track{display:flex;gap:12px;width:max-content;animation:regSlide 45s linear infinite}
-    .reg-marquee img{
-      width:118px;height:158px;object-fit:cover;object-position:top center;border-radius:10px;flex:none;
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow:0 8px 22px rgba(0,0,0,.35);
-    }
-    @keyframes regSlide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-
-    /* ── TESTIMONIOS (sección completa bajo el wrapper) ── */
-    .reg-testis{
-      background:var(--zoo-bg-darker);
-      border-top:1px solid var(--zoo-border);
-      padding:54px 22px 60px;
-    }
-    .reg-testis__head{text-align:center;max-width:560px;margin:0 auto 36px}
-    .reg-testis__head h2{
-      font-family:'Poppins',sans-serif;font-weight:800;color:#fff;
-      font-size:clamp(1.35rem,3vw,1.8rem);letter-spacing:-.02em;margin:0 0 8px;
-    }
-    .reg-testis__head p{color:var(--zoo-text-muted);font-size:.94rem;margin:0}
-    .reg-testis__grid{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
-      max-width:1040px;margin:0 auto;
-    }
-    .testi{
-      background:var(--zoo-bg-card);border:1px solid var(--zoo-border);
-      border-radius:16px;padding:24px 22px;
-      display:flex;flex-direction:column;gap:14px;
-    }
-    .testi__stars{display:flex;gap:3px}
-    .testi__stars svg{width:15px;height:15px;fill:var(--zoo-amber)}
-    .testi__quote{color:rgba(255,255,255,.82);font-size:.92rem;line-height:1.6;margin:0;flex:1}
-    .testi__who{display:flex;align-items:center;gap:11px}
-    .testi__avatar{
-      width:42px;height:42px;border-radius:50%;flex:none;
-      display:grid;place-items:center;
-      font-family:'Poppins',sans-serif;font-weight:800;font-size:.92rem;color:#1B1409;
-      background:linear-gradient(135deg,var(--zoo-amber),#D68A0A);
-      border:2px solid rgba(232,163,23,.35);
-    }
-    .testi__avatar--g{background:linear-gradient(135deg,var(--zoo-green-500),#3d8a52);color:#0E1F14}
-    .testi__avatar--b{background:linear-gradient(135deg,var(--zoo-blue),#1d7ba3);color:#06151c}
-    .testi__who b{display:block;color:#fff;font-family:'Poppins',sans-serif;font-size:.88rem;font-weight:700}
-    .testi__who span{color:var(--zoo-text-dim);font-size:.78rem}
-
-    /* ── Precio ancla v2: anual destacado con ahorro real ── */
-    .reg-price2{
-      margin-top:22px;display:grid;gap:10px;max-width:430px;
-    }
-    .reg-price2__opt{
-      display:flex;align-items:center;gap:14px;
-      background:rgba(0,0,0,.22);border:1px solid var(--zoo-border);
-      border-radius:14px;padding:13px 18px;
-    }
-    .reg-price2__opt b{
-      font-family:'Poppins',sans-serif;font-weight:900;font-size:1.45rem;
-      color:#fff;letter-spacing:-.02em;white-space:nowrap;
-    }
-    .reg-price2__opt small{display:block;color:rgba(255,255,255,.65);font-size:.78rem;line-height:1.4}
-    .reg-price2__opt--gold{
-      background:linear-gradient(135deg,rgba(232,163,23,.16),rgba(232,163,23,.06));
-      border:1.5px solid rgba(232,163,23,.55);position:relative;
-    }
-    .reg-price2__opt--gold b{color:var(--zoo-amber)}
-    .reg-price2__badge{
-      position:absolute;top:-10px;right:14px;
-      background:linear-gradient(135deg,var(--zoo-amber),#D68A0A);color:#1B1409;
-      font-family:'Poppins',sans-serif;font-weight:800;font-size:.62rem;
-      letter-spacing:.08em;text-transform:uppercase;
-      padding:4px 12px;border-radius:99px;
-    }
-    .reg-price2 .tachado{
-      text-decoration:line-through;color:rgba(255,255,255,.45);
-      font-weight:700;font-size:.92rem;margin-right:6px;
-    }
-
-    /* ── MÓVIL: panel compacto, formulario a la vista ── */
-    @media (max-width:768px){
-      .auth-wrapper__brand{padding:22px 20px 18px!important}
-      .auth-wrapper__brand h1{font-size:1.22rem!important;margin-bottom:8px}
-      .auth-wrapper__brand .brand-lead{display:none}
-      .auth-wrapper__brand ul{display:none!important}
-      .reg-marquee{margin:10px 0 4px}
-      .reg-marquee img{width:92px;height:124px}
-      .reg-proof{justify-content:center;margin-top:14px}
-      .reg-price2{margin:14px auto 0;max-width:380px}
-      .reg-price2__opt{padding:11px 15px}
-      .reg-price2__opt b{font-size:1.25rem}
-      .logo-wrap{justify-content:center;margin-bottom:14px!important}
-      .auth-wrapper__form{padding-top:8px}
-      .reg-trust{gap:10px 14px}
-      .reg-testis{padding:40px 18px 48px}
-      .reg-testis__grid{grid-template-columns:1fr;gap:14px;max-width:480px}
-    }
-
-    /* Lista de beneficios con SVG (anula la palomita ✓ de club.css) */
-    .auth-wrapper__brand ul li::before{content:none!important}
-    .auth-wrapper__brand ul li svg{
-      width:21px;height:21px;flex:none;
-      background:var(--zoo-amber);border-radius:50%;padding:4px;
-      stroke:#1f1d17;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;
-    }
-
-    /* Prueba social: avatares reales */
-    .reg-proof{display:flex;align-items:center;gap:13px;margin-top:26px}
-    .reg-proof__faces{display:flex}
-    .reg-proof__faces img{
-      width:34px;height:34px;border-radius:50%;object-fit:cover;
-      border:2px solid #14281B;margin-left:-9px;
-    }
-    .reg-proof__faces img:first-child{margin-left:0}
-    .reg-proof span{font-size:.86rem;color:rgba(255,255,255,.85);line-height:1.35}
-    .reg-proof b{color:#fff}
-
-    /* Precio ancla */
-    .reg-price{
-      display:inline-flex;align-items:baseline;gap:8px;margin-top:20px;
-      background:rgba(232,163,23,.13);border:1px solid rgba(232,163,23,.4);
-      border-radius:14px;padding:12px 20px;
-    }
-    .reg-price b{font-family:'Poppins',sans-serif;font-weight:900;font-size:1.7rem;color:var(--zoo-amber);letter-spacing:-.02em}
-    .reg-price span{font-size:.82rem;color:rgba(255,255,255,.78)}
-
-    /* Confianza bajo el formulario */
-    .reg-trust{
-      display:flex;justify-content:center;gap:18px;flex-wrap:wrap;
-      margin-top:18px;color:var(--zoo-text-dim);font-size:.78rem;
-    }
-    .reg-trust span{display:inline-flex;align-items:center;gap:6px}
-    .reg-trust svg{width:14px;height:14px;stroke:var(--zoo-green-500);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-  </style>
+  <link rel="stylesheet" href="../assets/css/auth-redesign.css?v=20260811-1">
 </head>
-<body>
-  <div class="auth-wrapper">
-    <div class="auth-wrapper__brand">
-      <div class="logo-wrap">
-        <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
-        <div><h3>Zoorigen</h3><small>Club VIP</small></div>
-      </div>
-      <h1>Todos estos cursos de fauna, en una sola membresía</h1>
-      <p class="brand-lead">Biblioteca completa, sesiones en vivo con especialistas y certificados con QR verificable. Esto es lo que te espera adentro:</p>
+<body class="auth-page auth-page--register">
+  <main class="auth-shell">
+    <section class="auth-story" aria-label="Lo que puedes explorar en Zoorigen">
+      <a class="auth-back" href="club.html" aria-label="Volver al Club VIP">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        Volver al Club
+      </a>
+      <div class="auth-story__content">
+        <div class="auth-story__brand">
+          <img src="../assets/img/logo/zoorigen-logo-remaster-v1.png" alt="Zoorigen">
+          <span>Club VIP</span>
+        </div>
+        <p class="auth-story__eyebrow">Explora antes de decidir</p>
+        <h1>Crea tu cuenta y entra <span>sin pagar.</span></h1>
+        <p class="auth-story__lead">Recorre el catálogo, conoce los temarios y reproduce gratis la primera clase de cada curso. Tú decides cuándo dar el siguiente paso.</p>
 
-      <div class="reg-marquee" aria-hidden="true">
-        <div class="reg-marquee__track">
-          <img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="">
-          <img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="">
-          <img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="">
-          <img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="">
-          <img src="../assets/img/cursos/manejo_reproduccion_tarantulas.jpg" alt="">
-          <img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="">
-          <img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="">
-          <img src="../assets/img/cursos/etologia_fauna_silvestre.jpg" alt="">
-          <img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="">
-          <img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="">
-          <img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="">
-          <img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="">
-          <img src="../assets/img/cursos/manejo_reproduccion_tarantulas.jpg" alt="">
-          <img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="">
-          <img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="">
-          <img src="../assets/img/cursos/etologia_fauna_silvestre.jpg" alt="">
+        <div class="auth-story__benefits">
+          <article class="auth-benefit">
+            <span class="auth-benefit__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4Z"/></svg></span>
+            <strong>Primera clase gratis</strong>
+            <small>Prueba cada curso y conoce la experiencia.</small>
+          </article>
+          <article class="auth-benefit">
+            <span class="auth-benefit__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+            <strong>Catálogo visible</strong>
+            <small>Consulta cursos, temarios y recursos disponibles.</small>
+          </article>
+          <article class="auth-benefit">
+            <span class="auth-benefit__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <strong>Registro sin tarjeta</strong>
+            <small>Crear tu cuenta es gratuito y toma menos de un minuto.</small>
+          </article>
+        </div>
+
+        <div class="auth-story__footer">
+          <div class="auth-proof">
+            <div class="auth-proof__faces" aria-hidden="true">
+              <img src="../assets/img/alumnos/556039285_122117027300987474_4460183418776072849_n.jpg" alt="">
+              <img src="../assets/img/alumnos/615273200_122137628114987474_3621861705781586279_n.jpg" alt="">
+              <img src="../assets/img/alumnos/634770068_122141837270987474_8112416961223197975_n.jpg" alt="">
+              <img src="../assets/img/alumnos/648735330_122144899250987474_3241618098984782913_n.jpg" alt="">
+            </div>
+            <p><strong>+2,000 alumnos</strong>ya aprendieron con Zoorigen</p>
+          </div>
+          <div class="auth-story__course-stack" aria-hidden="true">
+            <img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="">
+            <img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="">
+            <img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="">
+          </div>
         </div>
       </div>
+    </section>
 
-      <ul>
-        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Biblioteca completa de cursos</li>
-        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Sesiones en vivo con especialistas</li>
-        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Certificados con folio y QR verificable</li>
-        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>20% OFF permanente en cursos</li>
-        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Canal privado de WhatsApp</li>
-        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Sin permanencia, cancela cuando quieras</li>
-      </ul>
+    <section class="auth-access auth-wrapper__form" aria-label="Formulario para crear una cuenta">
+      <div class="auth-card">
+        <header class="auth-card__header">
+          <p class="auth-card__eyebrow">Cuenta gratuita</p>
+          <h2>Empieza a explorar</h2>
+          <p class="lead">Crea tu perfil. No necesitas tarjeta ni elegir un plan.</p>
+        </header>
 
-      <div class="reg-proof">
-        <div class="reg-proof__faces">
-          <img src="../assets/img/alumnos/556039285_122117027300987474_4460183418776072849_n.jpg" alt="Alumna Zoorigen">
-          <img src="../assets/img/alumnos/615273200_122137628114987474_3621861705781586279_n.jpg" alt="Alumno Zoorigen">
-          <img src="../assets/img/alumnos/634770068_122141837270987474_8112416961223197975_n.jpg" alt="Alumna Zoorigen">
-          <img src="../assets/img/alumnos/644488320_122143972388987474_432334517749686693_n.jpg" alt="Alumno Zoorigen">
-          <img src="../assets/img/alumnos/648735330_122144899250987474_3241618098984782913_n.jpg" alt="Alumna Zoorigen">
+        <div class="error-msg" id="errorMsg" role="alert"></div>
+        <div class="success-msg" id="successMsg" role="status"></div>
+
+        <form class="auth-form" id="registerForm" autocomplete="on">
+          <button type="button" id="googleBtn" class="auth-google">
+            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC04" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Crear cuenta con Google
+          </button>
+
+          <div class="auth-divider"><span>o con tus datos</span></div>
+
+          <div class="auth-fields">
+            <div class="field">
+              <label for="name">Nombre completo</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+                <input type="text" id="name" name="name" placeholder="Ej. Jorge Pérez" required autocomplete="name">
+              </div>
+            </div>
+            <div class="field">
+              <label for="email">Correo electrónico</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+                <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required autocomplete="email">
+              </div>
+            </div>
+            <div class="auth-field-row">
+              <div class="field">
+                <label for="phone">WhatsApp</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.4c-1.5 0-2.9-.4-4.1-1L3 20l1.2-5.2A8.4 8.4 0 1 1 21 11.5z"/></svg></span>
+                  <input type="tel" id="phone" name="phone" placeholder="10 dígitos" required autocomplete="tel" inputmode="tel">
+                </div>
+              </div>
+              <div class="field">
+                <label for="password">Contraseña</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+                  <input type="password" id="password" name="password" placeholder="Mínimo 6 caracteres" required autocomplete="new-password" minlength="6">
+                  <button class="password-toggle" type="button" aria-label="Mostrar contraseña" data-password-toggle="password">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="auth-submit" id="submitBtn">Crear mi cuenta gratis <span aria-hidden="true">→</span></button>
+          <a href="club-login.html" class="auth-secondary">Ya tengo una cuenta</a>
+          <p class="auth-legal">Al registrarte aceptas los <a href="club.html#terminos">términos</a> y el <a href="club.html#privacidad">aviso de privacidad</a> de Zoorigen.</p>
+        </form>
+
+        <div class="auth-trust" aria-label="Ventajas del registro">
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Sin tarjeta</span>
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Datos protegidos</span>
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Menos de un minuto</span>
         </div>
-        <span><b>+2,000 alumnos</b> ya se formaron con Zoorigen</span>
       </div>
-
-      <div class="reg-price2">
-        <div class="reg-price2__opt">
-          <b>$199</b>
-          <small>MXN al mes<br>Cancela cuando quieras</small>
-        </div>
-        <div class="reg-price2__opt reg-price2__opt--gold">
-          <span class="reg-price2__badge">Ahorras $489</span>
-          <b>$1,899</b>
-          <small>MXN al año · sale en <span class="tachado">$199</span><strong style="color:#F4B942;">$158/mes</strong><br>2 meses gratis incluidos</small>
-        </div>
-      </div>
-    </div>
-
-    <div class="auth-wrapper__form">
-      <form class="auth-form" id="registerForm" autocomplete="on">
-        <h2>Crea tu cuenta VIP</h2>
-        <p class="lead">Crea tu cuenta y accede al Club VIP Zoorigen</p>
-        <div class="error-msg" id="errorMsg"></div>
-        <div class="success-msg" id="successMsg"></div>
-
-        <button type="button" id="googleBtn" class="btn-club-outline" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 0;">
-          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC04" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Registrarme con Google
-        </button>
-
-        <div style="text-align:center; color: var(--zoo-text-dim); font-size: .84rem; margin: 16px 0; position: relative;">
-          <span style="background: var(--zoo-bg-dark); padding: 0 12px; position: relative; z-index: 1;">o con correo</span>
-          <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--zoo-border);"></div>
-        </div>
-
-        <div class="field"><label for="name">Nombre completo</label><input type="text" id="name" placeholder="Ej. Jorge Pérez" required autocomplete="name"></div>
-        <div class="field"><label for="email">Correo electrónico</label><input type="email" id="email" placeholder="tucorreo@ejemplo.com" required autocomplete="email"></div>
-        <div class="field"><label for="phone">WhatsApp</label><input type="tel" id="phone" placeholder="10 dígitos" required autocomplete="tel"></div>
-        <div class="field"><label for="password">Crea una contraseña</label><input type="password" id="password" placeholder="Mínimo 6 caracteres" required autocomplete="new-password" minlength="6"></div>
-
-        <button type="submit" class="btn-club" id="submitBtn">Crear cuenta y entrar al club →</button>
-        <a href="club-login.html" class="btn-club-outline">Ya tengo cuenta · Iniciar sesión</a>
-        <p class="auth-footer">Al registrarte aceptas los términos del Club VIP. Cancela cuando quieras.</p>
-        <div class="reg-trust">
-          <span><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pago seguro con Stripe</span>
-          <span><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Acceso inmediato</span>
-          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Sin permanencia</span>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ═══════════ OPINIONES DE MIEMBROS ═══════════ -->
-  <!-- ⚠️ IMPORTANTE (Jorge/Britney): estos 3 textos son BORRADORES de ejemplo.    -->
-  <!-- Reemplazar nombre, rol y cita con testimonios REALES de alumnos antes de    -->
-  <!-- correr pauta. Testimonios inventados pueden tumbar anuncios en Meta.        -->
-  <section class="reg-testis">
-    <div class="reg-testis__head">
-      <h2>Lo que dicen los miembros del Club</h2>
-      <p>Biólogos, veterinarios y estudiantes que ya se forman con Zoorigen.</p>
-    </div>
-    <div class="reg-testis__grid">
-      <article class="testi">
-        <div class="testi__stars">
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-        </div>
-        <p class="testi__quote">"El curso de fauna ponzoñosa me sirvió directo en campo. Y el certificado con QR lo puse en mi CV — en la entrevista lo escanearon ahí mismo."</p>
-        <div class="testi__who">
-          <div class="testi__avatar">MH</div>
-          <div><b>M. Hernández</b><span>Bióloga de campo</span></div>
-        </div>
-      </article>
-
-      <article class="testi">
-        <div class="testi__stars">
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-        </div>
-        <p class="testi__quote">"Por lo que cuesta una salida al cine tengo todos los cursos y las sesiones en vivo. Las grabaciones me salvan porque trabajo en clínica y no siempre alcanzo el horario."</p>
-        <div class="testi__who">
-          <div class="testi__avatar testi__avatar--g">JR</div>
-          <div><b>J. Ramírez</b><span>Médico veterinario</span></div>
-        </div>
-      </article>
-
-      <article class="testi">
-        <div class="testi__stars">
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 5.3 5.6.7-4.2 4 1.1 5.7L12 15l-4.9 2.7L8.2 12 4 8l5.6-.7z"/></svg>
-        </div>
-        <p class="testi__quote">"Entré por el curso de tortugas marinas y me quedé por la comunidad. En el canal de WhatsApp me enteré de una vacante en una UMA — ahí estoy ahora."</p>
-        <div class="testi__who">
-          <div class="testi__avatar testi__avatar--b">AT</div>
-          <div><b>A. Torres</b><span>Estudiante de biología</span></div>
-        </div>
-      </article>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -329,33 +151,37 @@
     const submitBtn = document.getElementById('submitBtn');
     const googleBtn = document.getElementById('googleBtn');
 
-    const showError = (msg) => { errorMsg.textContent = msg; errorMsg.classList.add('show'); successMsg.classList.remove('show'); };
+    const showError = (msg) => {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('show');
+      successMsg.classList.remove('show');
+    };
 
-    // ═══════════════ DETECTAR CÓDIGO DE REFERIDO EN LA URL ═══════════════
+    document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const input = document.getElementById(button.dataset.passwordToggle);
+        const showing = input.type === 'text';
+        input.type = showing ? 'password' : 'text';
+        button.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+      });
+    });
+
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
     if (refCode) {
-      // Guardar en localStorage (para persistir si recarga)
       localStorage.setItem('zoo_refCode', refCode);
-
-      // Mostrar banner de bienvenida con referido
       const banner = document.createElement('div');
-      banner.style.cssText = 'background:linear-gradient(135deg,rgba(232,163,23,0.15),rgba(31,95,58,0.15));border:1px solid rgba(232,163,23,0.4);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;';
-      banner.innerHTML = `
-        <div style="flex:none;width:36px;height:36px;border-radius:10px;background:rgba(232,163,23,0.18);display:grid;place-items:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#E8A317" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 1.5 1.5 3 3 3zM12 8a3 3 0 1 1 3-3c0 1.5-1.5 3-3 3z"/></svg></div>
-        <div style="flex:1;">
-          <div style="color:var(--zoo-amber);font-weight:700;font-size:.95rem;margin-bottom:3px;">¡Vienes recomendado por un amigo!</div>
-          <div style="color:var(--zoo-text-muted);font-size:.84rem;">Código: <strong style="color:var(--zoo-green-500);font-family:monospace;">${refCode}</strong></div>
-        </div>
-      `;
-      const formWrap = document.querySelector('.auth-wrapper__form');
-      if (formWrap) formWrap.insertBefore(banner, formWrap.firstChild);
+      banner.className = 'referral-banner';
+      banner.innerHTML = `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 1.5 1.5 3 3 3zM12 8a3 3 0 1 1 3-3c0 1.5-1.5 3-3 3z"/></svg><div><strong>Vienes recomendado por un amigo</strong>Código de invitación: ${refCode}</div>`;
+      const header = document.querySelector('.auth-card__header');
+      if (header) header.insertAdjacentElement('afterend', banner);
     }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorMsg.classList.remove('show');
-      submitBtn.disabled = true; submitBtn.textContent = 'Creando cuenta...';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creando tu cuenta...';
 
       const data = {
         name: document.getElementById('name').value.trim(),
@@ -367,31 +193,27 @@
 
       const result = await ZOORIGEN_CLUB.register(data);
       if (result.ok) {
-        successMsg.textContent = '¡Cuenta creada! Entrando al club...';
+        successMsg.textContent = 'Cuenta creada. Entrando al club...';
         successMsg.classList.add('show');
-        setTimeout(() => {
-          window.location.href = 'club-dashboard.html?welcome=1';
-        }, 1200);
+        setTimeout(() => { window.location.href = 'club-dashboard.html?welcome=1'; }, 1200);
       } else {
         showError(result.msg);
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Crear cuenta y entrar al club →';
+        submitBtn.innerHTML = 'Crear mi cuenta gratis <span aria-hidden="true">→</span>';
       }
     });
 
     googleBtn.addEventListener('click', async () => {
       googleBtn.disabled = true;
       googleBtn.textContent = 'Conectando con Google...';
-
       const result = await ZOORIGEN_CLUB.loginWithGoogle();
       if (!result.ok) {
         showError(result.msg);
         googleBtn.disabled = false;
-        googleBtn.textContent = 'Registrarme con Google';
+        googleBtn.textContent = 'Crear cuenta con Google';
         return;
       }
 
-      // Guardar código de referido si venía en la URL
       const refCodeG = localStorage.getItem('zoo_refCode');
       if (refCodeG && auth.currentUser) {
         try {
@@ -399,15 +221,12 @@
             referredBy: refCodeG,
             referredAt: new Date().toISOString()
           }, { merge: true });
-        } catch (e) { console.warn(e); }
+        } catch (error) { console.warn(error); }
       }
 
-      // Entrar directo al dashboard
-      successMsg.textContent = '¡Cuenta creada con Google! Entrando al club...';
+      successMsg.textContent = 'Cuenta creada con Google. Entrando al club...';
       successMsg.classList.add('show');
-      setTimeout(() => {
-        window.location.href = 'club-dashboard.html?welcome=1';
-      }, 1200);
+      setTimeout(() => { window.location.href = 'club-dashboard.html?welcome=1'; }, 1200);
     });
   </script>
 </body>
