@@ -1,69 +1,126 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0A2B1D">
+  <meta name="description" content="Inicia sesión en el Club VIP Zoorigen y continúa tu formación científica.">
+  <title>Iniciar sesión | Club VIP Zoorigen</title>
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iniciar sesión | Club VIP Zoorigen</title>
-  <meta name="theme-color" content="#1F5F3A">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/club.css">
   <link rel="stylesheet" href="../assets/css/club-mobile.css">
   <link rel="stylesheet" href="../assets/css/club-theme.css">
+  <link rel="stylesheet" href="../assets/css/auth-redesign.css?v=20260811-1">
 </head>
-<body>
-  <div class="auth-wrapper">
-    <div class="auth-wrapper__brand">
-      <div class="logo-wrap">
-        <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
-        <div><h3>Zoorigen</h3><small>Club VIP</small></div>
+<body class="auth-page auth-page--login">
+  <main class="auth-shell">
+    <section class="auth-story" aria-label="Beneficios del Club VIP Zoorigen">
+      <a class="auth-back" href="club.html" aria-label="Volver al Club VIP">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        Volver al Club
+      </a>
+      <div class="auth-story__content">
+        <div class="auth-story__brand">
+          <img src="../assets/img/logo/zoorigen-logo-remaster-v1.png" alt="Zoorigen">
+          <span>Club VIP</span>
+        </div>
+        <p class="auth-story__eyebrow">Tu espacio de formación</p>
+        <h1>Tu biblioteca científica <span>te espera.</span></h1>
+        <p class="auth-story__lead">Retoma tus cursos, revisa tu progreso y descubre las nuevas sesiones y herramientas de la comunidad Zoorigen.</p>
+
+        <div class="auth-story__benefits">
+          <article class="auth-benefit">
+            <span class="auth-benefit__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+            <strong>Aprende a tu ritmo</strong>
+            <small>Tu biblioteca disponible cuando la necesites.</small>
+          </article>
+          <article class="auth-benefit">
+            <span class="auth-benefit__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></span>
+            <strong>Continúa tu progreso</strong>
+            <small>Vuelve exactamente a la lección donde terminaste.</small>
+          </article>
+          <article class="auth-benefit">
+            <span class="auth-benefit__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg></span>
+            <strong>Respalda lo aprendido</strong>
+            <small>Consulta tus logros y certificados verificables.</small>
+          </article>
+        </div>
+
+        <div class="auth-story__footer">
+          <div class="auth-proof">
+            <div class="auth-proof__faces" aria-hidden="true">
+              <img src="../assets/img/alumnos/556039285_122117027300987474_4460183418776072849_n.jpg" alt="">
+              <img src="../assets/img/alumnos/615273200_122137628114987474_3621861705781586279_n.jpg" alt="">
+              <img src="../assets/img/alumnos/634770068_122141837270987474_8112416961223197975_n.jpg" alt="">
+              <img src="../assets/img/alumnos/648735330_122144899250987474_3241618098984782913_n.jpg" alt="">
+            </div>
+            <p><strong>+2,000 alumnos</strong>forman parte de Zoorigen</p>
+          </div>
+          <div class="auth-story__course-stack" aria-hidden="true">
+            <img src="../assets/img/cursos/biologia_tiburones_rayas.jpg" alt="">
+            <img src="../assets/img/cursos/manejo_tortugas_marinas.jpg" alt="">
+            <img src="../assets/img/cursos/fauna_ponzonosa_mexico.jpg" alt="">
+          </div>
+        </div>
       </div>
-      <h1>Bienvenido de nuevo a la comunidad científica</h1>
-      <p>Continúa donde te quedaste. Nuevos cursos, sesiones en vivo y material exclusivo te esperan.</p>
-      <ul>
-        <li>Acceso ilimitado a la biblioteca</li>
-        <li>Sesiones en vivo mensuales</li>
-        <li>20% OFF en todos los cursos</li>
-        <li>Canal exclusivo WhatsApp</li>
-      </ul>
-    </div>
+    </section>
 
-    <div class="auth-wrapper__form">
-      <form class="auth-form" id="loginForm" autocomplete="on">
-        <h2>Iniciar sesión</h2>
-        <p class="lead">Ingresa con tu correo y contraseña para entrar al área VIP.</p>
-        <div class="error-msg" id="errorMsg"></div>
-        <div class="success-msg" id="successMsg"></div>
+    <section class="auth-access auth-wrapper__form" aria-label="Formulario para iniciar sesión">
+      <div class="auth-card">
+        <header class="auth-card__header">
+          <p class="auth-card__eyebrow">Acceso de miembros</p>
+          <h2>Bienvenido de vuelta</h2>
+          <p class="lead">Ingresa a tu cuenta para continuar aprendiendo.</p>
+        </header>
 
-        <button type="button" id="googleBtn" class="btn-club-outline" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 0;">
-          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC04" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Continuar con Google
-        </button>
+        <div class="error-msg" id="errorMsg" role="alert"></div>
+        <div class="success-msg" id="successMsg" role="status"></div>
 
-        <div style="text-align:center; color: var(--zoo-text-dim); font-size: .84rem; margin: 16px 0; position: relative;">
-          <span style="background: var(--zoo-bg-dark); padding: 0 12px; position: relative; z-index: 1;">o con correo</span>
-          <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--zoo-border);"></div>
+        <form class="auth-form" id="loginForm" autocomplete="on">
+          <button type="button" id="googleBtn" class="auth-google">
+            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC04" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continuar con Google
+          </button>
+
+          <div class="auth-divider"><span>o con tu correo</span></div>
+
+          <div class="auth-fields">
+            <div class="field">
+              <label for="email">Correo electrónico</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+                <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required autocomplete="email">
+              </div>
+            </div>
+            <div class="field">
+              <label for="password">Contraseña</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+                <input type="password" id="password" name="password" placeholder="Tu contraseña" required autocomplete="current-password">
+                <button class="password-toggle" type="button" aria-label="Mostrar contraseña" data-password-toggle="password">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="auth-form__meta"><a href="#" id="forgotLink">¿Olvidaste tu contraseña?</a></div>
+            </div>
+          </div>
+
+          <button type="submit" class="auth-submit" id="submitBtn">Entrar a mi cuenta <span aria-hidden="true">→</span></button>
+          <p class="auth-switch">¿Aún no tienes cuenta? <a href="club-registro.html">Crear cuenta gratis</a></p>
+        </form>
+
+        <div class="auth-trust" aria-label="Características de seguridad">
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Conexión segura</span>
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Datos protegidos</span>
         </div>
-
-        <div class="field">
-          <label for="email">Correo electrónico</label>
-          <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required autocomplete="email">
-        </div>
-        <div class="field">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
-          <a href="#" id="forgotLink" style="color: var(--zoo-green-500); font-size: .84rem; font-weight: 600; display: inline-block; margin-top: 8px;">¿Olvidaste tu contraseña?</a>
-        </div>
-
-        <button type="submit" class="btn-club" id="submitBtn">Entrar</button>
-        <p class="auth-footer">¿No eres miembro aún? <a href="club-registro.html">Únete al Club VIP →</a></p>
-      </form>
-    </div>
-  </div>
+      </div>
+    </section>
+  </main>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -79,16 +136,30 @@
     const googleBtn = document.getElementById('googleBtn');
     const forgotLink = document.getElementById('forgotLink');
 
-    const showError = (msg) => { errorMsg.textContent = '⚠️ ' + msg; errorMsg.classList.add('show'); successMsg.classList.remove('show'); };
-    const showSuccess = (msg) => { successMsg.textContent = '✅ ' + msg; successMsg.classList.add('show'); errorMsg.classList.remove('show'); };
+    const showError = (msg) => { errorMsg.textContent = msg; errorMsg.classList.add('show'); successMsg.classList.remove('show'); };
+    const showSuccess = (msg) => { successMsg.textContent = msg; successMsg.classList.add('show'); errorMsg.classList.remove('show'); };
+
+    document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const input = document.getElementById(button.dataset.passwordToggle);
+        const showing = input.type === 'text';
+        input.type = showing ? 'password' : 'text';
+        button.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+      });
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorMsg.classList.remove('show');
-      submitBtn.disabled = true; submitBtn.textContent = 'Entrando...';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Entrando...';
       const result = await ZOORIGEN_CLUB.login(document.getElementById('email').value.trim(), document.getElementById('password').value);
       if (result.ok) window.location.href = 'club-dashboard.html';
-      else { showError(result.msg); submitBtn.disabled = false; submitBtn.textContent = 'Entrar'; }
+      else {
+        showError(result.msg);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Entrar a mi cuenta <span aria-hidden="true">→</span>';
+      }
     });
 
     googleBtn.addEventListener('click', async () => {
@@ -98,68 +169,58 @@
       else { showError(result.msg); googleBtn.disabled = false; }
     });
 
-    forgotLink.addEventListener('click', async (e) => {
+    forgotLink.addEventListener('click', (e) => {
       e.preventDefault();
-
-      // Mostrar modal bonito
       const modal = document.createElement('div');
-      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+      modal.className = 'password-modal';
       modal.innerHTML = `
-        <div style="background:#131816;border:1px solid rgba(232,163,23,0.3);border-radius:16px;padding:32px 28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
-          <div style="text-align:center;font-size:3rem;margin-bottom:8px;line-height:1;">🔐</div>
-          <h2 style="color:#E8A317;font-family:'Poppins',sans-serif;font-size:1.4rem;font-weight:800;margin:0 0 8px;text-align:center;">Recuperar contraseña</h2>
-          <p style="color:rgba(255,255,255,0.7);font-size:.92rem;line-height:1.5;margin:0 0 18px;text-align:center;">Escribe el correo con el que te registraste y te enviamos un link para crear una nueva contraseña.</p>
-          <label style="display:block;color:#a0a8a4;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Correo electrónico</label>
-          <input type="email" id="resetEmailInput" placeholder="tucorreo@ejemplo.com" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:12px 14px;border-radius:8px;font-family:inherit;font-size:1rem;margin-bottom:16px;box-sizing:border-box;">
-          <div id="resetMsg" style="margin-bottom:12px;"></div>
-          <div style="display:flex;gap:10px;">
-            <button id="resetCancelBtn" style="flex:1;background:transparent;color:#a0a8a4;border:1px solid rgba(255,255,255,0.15);padding:12px;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;">Cancelar</button>
-            <button id="resetSendBtn" style="flex:1;background:linear-gradient(135deg,#E8A317,#D68A0A);color:#1f1d17;border:0;padding:12px;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;">Enviar correo</button>
+        <div class="password-modal__card" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+          <div class="password-modal__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+          <h2 id="resetTitle">Recuperar contraseña</h2>
+          <p>Escribe el correo con el que te registraste. Te enviaremos un enlace para crear una nueva contraseña.</p>
+          <label for="resetEmailInput">Correo electrónico</label>
+          <input type="email" id="resetEmailInput" placeholder="tucorreo@ejemplo.com" autocomplete="email">
+          <div id="resetMsg" class="password-modal__message" role="status"></div>
+          <div class="password-modal__actions">
+            <button id="resetCancelBtn" class="password-modal__cancel" type="button">Cancelar</button>
+            <button id="resetSendBtn" class="password-modal__send" type="button">Enviar enlace</button>
           </div>
-        </div>
-      `;
+        </div>`;
       document.body.appendChild(modal);
 
       const input = modal.querySelector('#resetEmailInput');
       const msg = modal.querySelector('#resetMsg');
       const cancelBtn = modal.querySelector('#resetCancelBtn');
       const sendBtn = modal.querySelector('#resetSendBtn');
-
-      // Pre-llenar si ya escribió email
       const emailPrev = document.getElementById('email').value.trim();
       if (emailPrev) input.value = emailPrev;
       input.focus();
 
       cancelBtn.addEventListener('click', () => modal.remove());
-
+      modal.addEventListener('click', (event) => { if (event.target === modal) modal.remove(); });
       sendBtn.addEventListener('click', async () => {
         const email = input.value.trim();
         if (!email || !email.includes('@')) {
-          msg.innerHTML = '<div style="color:#D55A28;font-size:.86rem;">⚠️ Escribe un correo válido</div>';
+          msg.textContent = 'Escribe un correo válido.';
+          msg.style.color = '#a63b2d';
           return;
         }
         sendBtn.disabled = true;
         sendBtn.textContent = 'Enviando...';
         const result = await ZOORIGEN_CLUB.resetPassword(email);
         if (result.ok) {
-          msg.innerHTML = `
-            <div style="color:#6FBF73;background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.86rem;line-height:1.5;">
-              ✅ ¡Listo! Revisa tu bandeja de entrada (y también SPAM). El correo puede tardar 1-2 minutos.
-            </div>
-          `;
+          msg.textContent = 'Enlace enviado. Revisa tu bandeja de entrada y la carpeta de spam.';
+          msg.style.color = '#23643e';
           sendBtn.textContent = 'Enviado ✓';
           setTimeout(() => modal.remove(), 4000);
         } else {
-          msg.innerHTML = `<div style="color:#D55A28;font-size:.86rem;">⚠️ ${result.msg}</div>`;
+          msg.textContent = result.msg;
+          msg.style.color = '#a63b2d';
           sendBtn.disabled = false;
-          sendBtn.textContent = 'Enviar correo';
+          sendBtn.textContent = 'Enviar enlace';
         }
       });
-
-      // Enter para enviar
-      input.addEventListener('keydown', (ev) => {
-        if (ev.key === 'Enter') sendBtn.click();
-      });
+      input.addEventListener('keydown', (event) => { if (event.key === 'Enter') sendBtn.click(); });
     });
   </script>
 </body>
