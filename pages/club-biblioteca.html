@@ -214,6 +214,14 @@
       background: rgba(111,191,115,0.08);
       border-color: rgba(111,191,115,0.25);
     }
+    .class-item.is-paywalled {
+      background: rgba(232,163,23,0.055);
+      border-color: rgba(232,163,23,0.2);
+    }
+    .class-item.is-free-preview {
+      background: rgba(111,191,115,0.09);
+      border-color: rgba(111,191,115,0.32);
+    }
     .class-item__num {
       width: 34px;
       height: 34px;
@@ -345,6 +353,44 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js"></script>
   <script>
+    // Solo esta clase es gratuita en todo Zoorigen.
+    const ZOORIGEN_FREE_VIDEO_ID = 'befd1641-850a-4099-88a8-047a1badc703';
+
+    function tieneMembresiaActiva() {
+      const session = window.__zooSession;
+      return session && (session.planActivo === true || session.planStatus === 'active' || session.planStatus === 'cancelled_active');
+    }
+
+    function esClaseGratis(lesson) {
+      return String(lesson?.videoId || '') === ZOORIGEN_FREE_VIDEO_ID;
+    }
+
+    function mostrarPaywallCurso() {
+      if (document.getElementById('zooCoursePaywall')) return;
+      const overlay = document.createElement('div');
+      overlay.id = 'zooCoursePaywall';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(7,12,9,.94);backdrop-filter:blur(12px);z-index:200000;display:flex;align-items:center;justify-content:center;padding:20px;';
+      overlay.innerHTML = `
+        <div style="width:min(500px,100%);position:relative;background:linear-gradient(145deg,#1F5F3A,#0F3B22 62%,#173c2a);border:2px solid rgba(232,163,23,.5);border-radius:22px;padding:38px 30px;text-align:center;box-shadow:0 32px 90px rgba(0,0,0,.72);">
+          <button id="zooCoursePaywallClose" aria-label="Cerrar" style="position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.25);color:#fff;cursor:pointer;font-size:1rem;">✕</button>
+          <div style="font-size:3.5rem;margin-bottom:12px;">🔒</div>
+          <div style="display:inline-block;background:rgba(232,163,23,.18);color:#F2BC4A;border-radius:100px;padding:5px 13px;font-size:.72rem;font-weight:800;letter-spacing:.1em;margin-bottom:14px;">CONTENIDO VIP</div>
+          <h2 style="font-family:Poppins;color:#fff;font-size:1.55rem;line-height:1.25;margin:0 0 12px;">Continúa aprendiendo con Zoorigen</h2>
+          <p style="color:rgba(255,255,255,.88);font-size:.96rem;line-height:1.6;margin:0 0 24px;">Disfruta gratis la primera clase. Activa tu membresía para abrir las demás clases y 5 materiales del curso.</p>
+          <button id="zooCourseSubscribe" style="width:100%;background:linear-gradient(135deg,#E8A317,#D68A0A);border:0;color:#1f1d17;padding:14px 20px;border-radius:12px;font:800 .95rem Poppins;cursor:pointer;box-shadow:0 8px 24px rgba(232,163,23,.3);">Suscribirme ahora</button>
+          <button id="zooCourseContinue" style="margin-top:10px;background:transparent;border:0;color:rgba(255,255,255,.65);padding:8px;cursor:pointer;">Seguir explorando</button>
+        </div>`;
+      document.body.appendChild(overlay);
+      const close = () => overlay.remove();
+      document.getElementById('zooCoursePaywallClose').addEventListener('click', close);
+      document.getElementById('zooCourseContinue').addEventListener('click', close);
+      document.getElementById('zooCourseSubscribe').addEventListener('click', () => {
+        closePlayer();
+        close();
+        window.location.href = 'club-suscripcion.html';
+      });
+    }
+
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
       if (!session) return;
@@ -354,10 +400,17 @@
 
 
       if (session.planStatus !== 'active' && session.planStatus !== 'cancelled_active') {
-        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Necesitas membresía activa para ver los cursos completos. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar $199/mes →</a></div>`;
+        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🎁</span>La primera clase del primer curso es completamente gratis. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Desbloquear todo →</a></div>`;
       }
 
       const cursos = await ZOORIGEN_CLUB.getCursos();
+      // Garantiza que el curso que contiene la única clase gratuita aparezca
+      // siempre como el primer curso, sin depender de la fecha de Firestore.
+      cursos.sort((a, b) => {
+        const aGratis = (a.lecciones || []).some(esClaseGratis) ? 1 : 0;
+        const bGratis = (b.lecciones || []).some(esClaseGratis) ? 1 : 0;
+        return bGratis - aGratis;
+      });
       const grid = document.getElementById('coursesGrid');
 
       if (cursos.length === 0) {
@@ -444,6 +497,7 @@
           const lecciones = (c.lecciones && c.lecciones.length) ? c.lecciones : (c.driveId ? [{titulo: c.title, driveId: c.driveId, duration: c.duration}] : []);
           const totalClases = lecciones.length;
           const hasContent = totalClases > 0;
+          const hasFreePreview = lecciones.some(esClaseGratis);
 
           const prog = progress[c.id] || { completedLessons: [], isCompleted: false, completedAt: null, certificateFolio: null };
           const completedCount = prog.completedLessons.length;
@@ -496,7 +550,7 @@
                   ? `<button class="course-card-club__action" onclick='openCourseDetail(${JSON.stringify({...c, lecciones}).replace(/'/g, "&#39;")})'>${totalClases > 1 ? `▶ Ver ${totalClases} clases` : '▶ Ver curso'}</button>`
                   : isActive && hasContent && !isUnlockedByTime
                   ? `<button class="course-card-club__action course-card-club__action--locked" disabled>🔒 Desbloquea en ${daysUntilUnlock} día${daysUntilUnlock !== 1 ? 's' : ''}</button>`
-                  : !isActive ? `<a href="club-suscripcion.html" class="course-card-club__action" style="background:var(--zoo-orange);">🔒 Activar membresía</a>`
+                  : !isActive && hasContent ? `<button class="course-card-club__action" onclick='openCourseDetail(${JSON.stringify({...c, lecciones}).replace(/'/g, "&#39;")})' style="background:${hasFreePreview ? 'linear-gradient(135deg,#6FBF73,#3d8b42)' : 'var(--zoo-orange)'};">${hasFreePreview ? '🎁 Ver clase gratis' : `🔒 Ver ${totalClases} clase${totalClases !== 1 ? 's' : ''}`}</button>`
                   : `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20curso%3A%20${encodeURIComponent(c.title)}" target="_blank" class="course-card-club__action">▶ Solicitar acceso</a>`}
 
                 ${isCertified ? `
@@ -573,14 +627,16 @@
           // Desbloqueada si: es la primera, o la anterior está completada, o esta está completada
           const unlocked = i === 0 || progress.completedLessons.includes(i - 1) || done;
           const isNext = i === nextAvailable;
+          const freePreview = esClaseGratis(l);
+          const paidLocked = !tieneMembresiaActiva() && !freePreview;
 
           // Generar descripción: usa l.descripcion si existe, si no genera una automática
           const descripcion = l.descripcion || l.description || generarDescripcionClase(l.titulo || 'Clase ' + (i+1), i, totalClases);
 
           return `
-            <div class="class-item ${done ? 'is-done' : ''} ${!unlocked ? 'is-locked' : ''} ${isNext ? 'is-next' : ''}">
+            <div class="class-item ${done ? 'is-done' : ''} ${!unlocked ? 'is-locked' : ''} ${paidLocked ? 'is-paywalled' : ''} ${freePreview ? 'is-free-preview' : ''} ${isNext ? 'is-next' : ''}">
               <div class="class-item__num">
-                ${done ? '✓' : (!unlocked ? '🔒' : i + 1)}
+                ${done ? '✓' : (freePreview ? '🎁' : (paidLocked || !unlocked ? '🔒' : i + 1))}
               </div>
               <div class="class-item__body" ${unlocked ? `onclick="openLessonByIndex(${i})"` : ''}>
                 <div class="class-item__title">${l.titulo || 'Clase ' + (i + 1)}</div>
@@ -588,15 +644,17 @@
                 <div class="class-item__meta">
                   ${l.duration ? '⏱️ ' + l.duration : ''}
                   ${done ? (l.duration ? ' · ' : '') + '✓ Completada' : ''}
+                  ${freePreview && !done ? (l.duration ? ' · ' : '') + '🎁 Clase gratuita' : ''}
+                  ${paidLocked && unlocked ? (l.duration ? ' · ' : '') + '🔒 Requiere membresía' : ''}
                   ${!unlocked ? '🔒 Completa la clase anterior para desbloquear' : ''}
                   ${isNext && !done && unlocked ? (l.duration ? ' · ' : '') + '▶ Siguiente clase' : ''}
                 </div>
               </div>
-              ${unlocked ? `
+              ${unlocked && (tieneMembresiaActiva() || freePreview) ? `
                 <button onclick="toggleLessonComplete('${course.id}', ${i})" class="class-item__btn">
                   ${done ? 'Desmarcar' : '✓ Completada'}
                 </button>
-              ` : ''}
+              ` : paidLocked && unlocked ? `<button onclick="openLessonByIndex(${i})" class="class-item__btn" style="color:#E8A317;border-color:rgba(232,163,23,.35);background:rgba(232,163,23,.12);">Desbloquear</button>` : ''}
             </div>
           `;
         }).join('')}
@@ -768,6 +826,13 @@
       const lesson = typeof lessonOrId === 'object' && lessonOrId !== null
         ? lessonOrId
         : { driveId: lessonOrId };
+
+      // Una sola clase es gratuita en toda la plataforma. Todas las demás
+      // muestran el paywall por encima del detalle antes de cargar el video.
+      if (!tieneMembresiaActiva() && !esClaseGratis(lesson)) {
+        mostrarPaywallCurso();
+        return;
+      }
       const modal = document.getElementById('playerOverlay');
       const box = modal.querySelector('.player-box');
 
