@@ -29,6 +29,18 @@
     }
     .player-overlay.is-open { display: flex; }
 
+    .course-card-club.is-clickable {
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .course-card-club.is-clickable:hover,
+    .course-card-club.is-clickable:focus-visible {
+      transform: translateY(-3px);
+      border-color: rgba(232,163,23,.42);
+      box-shadow: 0 16px 38px rgba(0,0,0,.28);
+      outline: none;
+    }
+
     .player-box {
       width: 100%;
       max-width: 760px;
@@ -493,6 +505,7 @@
           unlockInfo.innerHTML = '';
         }
 
+        window.__zooCourseCards = {};
         grid.innerHTML = list.map((c, courseIdx) => {
           const lecciones = (c.lecciones && c.lecciones.length) ? c.lecciones : (c.driveId ? [{titulo: c.title, driveId: c.driveId, duration: c.duration}] : []);
           const totalClases = lecciones.length;
@@ -509,9 +522,12 @@
           const daysUntilUnlock = Math.max(0, (courseIdx * DAYS_PER_UNLOCK) - daysAsMember);
 
           const imageUrl = convertImageUrl(c.image);
+          const cardCanOpen = hasContent && (!isActive || isUnlockedByTime);
+          window.__zooCourseCards[c.id] = { ...c, lecciones };
 
           return `
-            <article class="course-card-club ${!isUnlockedByTime && isActive ? 'is-time-locked' : ''}">
+            <article class="course-card-club ${!isUnlockedByTime && isActive ? 'is-time-locked' : ''} ${cardCanOpen ? 'is-clickable' : ''}"
+              ${cardCanOpen ? `role="button" tabindex="0" onclick='openCourseCard(event, ${JSON.stringify(c.id)})' onkeydown='openCourseCard(event, ${JSON.stringify(c.id)})'` : ''}>
               <div class="course-card-club__img">
                 ${imageUrl ? `<img src="${imageUrl}" alt="${(c.title || '').replace(/"/g, '&quot;')}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.parentElement.classList.add('no-image');">` : ''}
                 <div class="course-card-club__img-placeholder">
@@ -573,6 +589,19 @@
         render(btn.dataset.area);
       });
     })();
+
+    function openCourseCard(event, courseId) {
+      const isKeyboard = event.type === 'keydown';
+      if (isKeyboard && event.key !== 'Enter' && event.key !== ' ') return;
+      if (isKeyboard && event.target !== event.currentTarget) return;
+      // Los botones y enlaces internos conservan su acción sin abrir dos veces.
+      if (!isKeyboard && event.target.closest('button,a')) return;
+      const course = window.__zooCourseCards?.[courseId];
+      if (!course) return;
+      if (isKeyboard) event.preventDefault();
+      openCourseDetail(course);
+    }
+    window.openCourseCard = openCourseCard;
 
     function openCourseDetail(course) {
       const lecciones = course.lecciones || [];
