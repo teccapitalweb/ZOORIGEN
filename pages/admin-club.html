@@ -187,6 +187,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js"></script>
+  <script src="../assets/js/zoorigen-bunny-catalog.js"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
     // CONFIGURACIÓN: Contraseña del panel (2º factor)
@@ -497,7 +498,10 @@
         v.innerHTML += `
           <div class="content-toolbar">
             <strong style="color:#fff;">${items.length} curso${items.length !== 1 ? 's' : ''}</strong>
-            <button class="btn-add" onclick="formCurso()">+ Nuevo curso</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn-add" id="syncBunnyBtn" onclick="sincronizarCatalogoBunny()">🐰 Sincronizar 61 videos Bunny</button>
+              <button class="btn-add" onclick="formCurso()">+ Nuevo curso</button>
+            </div>
           </div>
           <div class="admin-content-list">
             ${items.length === 0 ? '<div class="no-data">Aún no hay cursos. Clic en "+ Nuevo curso" para empezar.</div>' : items.map(c => `
@@ -505,7 +509,7 @@
                 <div class="admin-content-item__thumb" ${c.image ? `style="background-image:url('${c.image}');"` : ''}>${c.image ? '' : '🎓'}</div>
                 <div class="admin-content-item__info">
                   <div class="admin-content-item__title">${c.title}</div>
-                  <div class="admin-content-item__meta">${c.area} · ${c.duration || '—'} · ${c.level || '—'}${c.tag ? ' · 🏷️ ' + c.tag : ''}</div>
+                  <div class="admin-content-item__meta">${c.area} · ${c.duration || '—'} · ${c.level || '—'}${c.tag ? ' · 🏷️ ' + c.tag : ''}${c.videoProvider === 'bunny' ? ' · 🐰 Bunny' : ''}</div>
                 </div>
                 <div class="admin-content-item__actions">
                   <button class="btn-small edit" onclick='formCurso(${JSON.stringify(c).replace(/'/g,"&#39;")})'>Editar</button>
@@ -539,7 +543,7 @@
 
         <div class="field">
           <label>📚 Clases del curso</label>
-          <p class="hint" style="margin-top:0;margin-bottom:10px;">Agrega una o varias clases. Cada clase necesita su propio link de Drive.</p>
+          <p class="hint" style="margin-top:0;margin-bottom:10px;">Las clases sincronizadas usan Bunny. También puedes agregar clases antiguas mediante Drive.</p>
           <div id="leccionesContainer"></div>
           <button type="button" onclick="agregarLeccion()" style="background:rgba(111,191,115,0.15);border:1px dashed rgba(111,191,115,0.4);color:#6FBF73;padding:10px;border-radius:8px;width:100%;cursor:pointer;font-family:inherit;font-weight:600;margin-top:6px;">+ Agregar otra clase</button>
         </div>
@@ -574,7 +578,7 @@
             ${window.__leccionesTemp.length > 1 ? `<button type="button" onclick="eliminarLeccion(${i})" style="background:transparent;border:0;color:#D55A28;cursor:pointer;font-size:1.2rem;padding:0 6px;">🗑️</button>` : ''}
           </div>
           <input type="text" placeholder="Título de la clase" value="${l.titulo || ''}" onchange="window.__leccionesTemp[${i}].titulo=this.value" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">
-          <input type="text" placeholder="Link o ID de Google Drive" value="${l.driveId || ''}" onchange="window.__leccionesTemp[${i}].driveId=extractDriveId(this.value);this.value=window.__leccionesTemp[${i}].driveId;" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">
+          ${l.videoId ? `<div style="width:100%;background:rgba(111,191,115,.1);border:1px solid rgba(111,191,115,.3);color:#9be3a0;padding:8px 10px;border-radius:6px;font-family:monospace;margin-bottom:6px;">🐰 Bunny: ${l.videoId}</div>` : `<input type="text" placeholder="Link o ID de Google Drive" value="${l.driveId || ''}" onchange="window.__leccionesTemp[${i}].driveId=extractDriveId(this.value);this.value=window.__leccionesTemp[${i}].driveId;" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">`}
           <input type="text" placeholder="Duración (ej. 25 min)" value="${l.duration || ''}" onchange="window.__leccionesTemp[${i}].duration=this.value" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;">
         </div>
       `).join('');
@@ -592,7 +596,7 @@
 
     window.saveCurso = async (id) => {
       // Filtrar lecciones vacías
-      const lecciones = (window.__leccionesTemp || []).filter(l => l.driveId && l.driveId.trim());
+      const lecciones = (window.__leccionesTemp || []).filter(l => l.videoId || (l.driveId && l.driveId.trim()));
       const data = {
         title: document.getElementById('f_title').value.trim(),
         area: document.getElementById('f_area').value,
@@ -607,12 +611,122 @@
         tag: document.getElementById('f_tag').value.trim()
       };
       if (!data.title) { toast('Título requerido', true); return; }
-      if (lecciones.length === 0) { toast('Agrega al menos 1 clase con link de Drive', true); return; }
+      if (lecciones.length === 0) { toast('Agrega al menos 1 clase con video', true); return; }
       try {
         if (id) { await db.collection('cursos').doc(id).update(data); toast('✅ Actualizado'); }
         else { data.createdAt = new Date().toISOString(); await db.collection('cursos').add(data); toast('✅ Creado'); }
         closeModal(); loadCursos(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
+    };
+
+    function normalizarTituloBunny(valor) {
+      return String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    }
+
+    function similitudTituloBunny(a, b) {
+      const stop = new Set(['de','del','la','las','los','el','en','para','por','y','con','un','una']);
+      const tokens = valor => new Set(normalizarTituloBunny(valor).split(' ').filter(x => x && !stop.has(x)));
+      const aa = tokens(a), bb = tokens(b);
+      if (!aa.size || !bb.size) return 0;
+      let iguales = 0;
+      aa.forEach(x => { if (bb.has(x)) iguales++; });
+      // El título existente suele ser una versión corta del nombre de Bunny.
+      // Medir contra el conjunto menor permite conservar su portada y textos.
+      return iguales / Math.min(aa.size, bb.size);
+    }
+
+    function slugCursoBunny(valor) {
+      return normalizarTituloBunny(valor).replace(/\s+/g, '-').slice(0, 90) || `curso-${Date.now()}`;
+    }
+
+    // Importación idempotente: reemplaza las clases, pero conserva portadas,
+    // descripciones, materiales, disponibilidad y documentos de progreso.
+    window.sincronizarCatalogoBunny = async () => {
+      const catalogo = window.ZOORIGEN_BUNNY_CATALOG;
+      const btn = document.getElementById('syncBunnyBtn');
+      if (!Array.isArray(catalogo) || catalogo.length !== 15) {
+        toast('No se encontró el catálogo completo de Bunny', true);
+        return;
+      }
+      const totalVideos = catalogo.reduce((n, c) => n + (c.lecciones?.length || 0), 0);
+      if (totalVideos !== 61) {
+        toast(`Catálogo incompleto: ${totalVideos} de 61 videos`, true);
+        return;
+      }
+      if (!confirm(`Se vincularán ${totalVideos} videos Bunny con ${catalogo.length} cursos.\n\nSe conservarán portadas, textos, materiales y progreso. ¿Continuar?`)) return;
+
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Sincronizando…'; }
+      try {
+        const snap = await db.collection('cursos').get();
+        const existentes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const usados = new Set();
+        let actualizados = 0;
+        let creados = 0;
+
+        for (const item of catalogo) {
+          const exacto = existentes.find(c => !usados.has(c.id) && normalizarTituloBunny(c.title) === normalizarTituloBunny(item.title));
+          const aproximado = exacto || existentes
+            .filter(c => !usados.has(c.id))
+            .map(c => ({ curso: c, score: similitudTituloBunny(c.title, item.title) }))
+            .filter(x => x.score >= 0.75)
+            .sort((a, b) => b.score - a.score)[0]?.curso;
+          const previo = aproximado || null;
+          const docId = previo?.id || `bunny-${slugCursoBunny(item.title)}`;
+          if (previo) usados.add(previo.id);
+
+          const leccionesAnteriores = Array.isArray(previo?.lecciones) ? previo.lecciones : [];
+          const lecciones = item.lecciones.map((lesson, index) => {
+            const anterior = leccionesAnteriores[index] || {};
+            const migrada = {
+              ...anterior,
+              titulo: anterior.titulo || lesson.titulo || `Clase ${index + 1}`,
+              provider: 'bunny',
+              videoId: lesson.videoId
+            };
+            if (anterior.driveId) migrada.driveIdAnterior = anterior.driveId;
+            delete migrada.driveId;
+            return migrada;
+          });
+
+          const data = {
+            lecciones,
+            totalClases: lecciones.length,
+            videoProvider: 'bunny',
+            bunnyLibraryId: 731751,
+            bunnyCourseKey: normalizarTituloBunny(item.title),
+            migradoDesdeDrive: true,
+            bunnySincronizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          if (!previo) {
+            Object.assign(data, {
+              title: item.title,
+              area: 'Fauna silvestre',
+              duration: '',
+              level: 'Intermedio',
+              image: '',
+              description: '',
+              tag: 'Bunny',
+              createdAt: new Date().toISOString()
+            });
+            creados++;
+          } else {
+            actualizados++;
+          }
+
+          await db.collection('cursos').doc(docId).set(data, { merge: true });
+        }
+
+        toast(`✅ 61 videos sincronizados · ${actualizados} cursos actualizados · ${creados} creados`);
+        await loadCursos();
+        loadBadges();
+      } catch (error) {
+        console.error('[Bunny sync]', error);
+        toast('No se pudo sincronizar: ' + (error.message || error), true);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '🐰 Sincronizar 61 videos Bunny'; }
+      }
     };
 
     // ═══════════ VIDEOS ═══════════

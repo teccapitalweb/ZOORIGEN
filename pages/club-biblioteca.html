@@ -527,7 +527,7 @@
 
       if (lecciones.length === 1) {
         // Solo 1 clase → abrir player directo
-        openPlayer(lecciones[0].driveId, course.title, course.description || '', course.id, 0);
+        openPlayer(lecciones[0], course.title, course.description || '', course.id, 0);
         return;
       }
 
@@ -582,7 +582,7 @@
               <div class="class-item__num">
                 ${done ? '✓' : (!unlocked ? '🔒' : i + 1)}
               </div>
-              <div class="class-item__body" ${unlocked ? `onclick='openPlayer("${l.driveId}", ${JSON.stringify(l.titulo || "Clase " + (i+1))}, ${JSON.stringify(l.duration || "")}, "${course.id}", ${i})'` : ''}>
+              <div class="class-item__body" ${unlocked ? `onclick="openLessonByIndex(${i})"` : ''}>
                 <div class="class-item__title">${l.titulo || 'Clase ' + (i + 1)}</div>
                 <div class="class-item__desc">${descripcion}</div>
                 <div class="class-item__meta">
@@ -751,7 +751,23 @@
       window.open(`ver-certificado.html?folio=${progress.certificateFolio}`, '_blank');
     }
 
-    function openPlayer(driveId, title, desc, courseId, lessonIdx) {
+    function openLessonByIndex(lessonIdx) {
+      const lesson = window.__currentLecciones?.[lessonIdx];
+      if (!lesson || !window.__currentCourse) return;
+      openPlayer(
+        lesson,
+        lesson.titulo || 'Clase ' + (lessonIdx + 1),
+        lesson.duration || '',
+        window.__currentCourse.id,
+        lessonIdx
+      );
+    }
+    window.openLessonByIndex = openLessonByIndex;
+
+    async function openPlayer(lessonOrId, title, desc, courseId, lessonIdx) {
+      const lesson = typeof lessonOrId === 'object' && lessonOrId !== null
+        ? lessonOrId
+        : { driveId: lessonOrId };
       const modal = document.getElementById('playerOverlay');
       const box = modal.querySelector('.player-box');
 
@@ -787,8 +803,39 @@
       `;
       descDiv.appendChild(infoContent);
 
-      document.getElementById('playerVideo').innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe><div class="drive-popout-blocker"></div>`;
+      const playerVideo = document.getElementById('playerVideo');
+      playerVideo.innerHTML = '<div style="display:grid;place-items:center;min-height:420px;color:#fff;font-weight:700;">⏳ Preparando reproducción segura…</div>';
       modal.classList.add('is-open');
+
+      try {
+        if (lesson.videoId) {
+          const currentUser = firebase.auth().currentUser;
+          if (!currentUser) throw new Error('Tu sesión expiró. Vuelve a iniciar sesión.');
+
+          const idToken = await currentUser.getIdToken();
+          const response = await fetch('https://zoorigen-webhook-production.up.railway.app/api/bunny/embed-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`
+            },
+            body: JSON.stringify({ videoId: lesson.videoId })
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload.embedUrl) {
+            throw new Error(payload.error || `No se pudo abrir la clase (HTTP ${response.status})`);
+          }
+          playerVideo.innerHTML = `<iframe src="${payload.embedUrl}" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe>`;
+        } else if (lesson.driveId) {
+          // Compatibilidad temporal para cursos que todavía no se hayan sincronizado.
+          playerVideo.innerHTML = `<iframe src="https://drive.google.com/file/d/${lesson.driveId}/preview" allow="autoplay" allowfullscreen></iframe><div class="drive-popout-blocker"></div>`;
+        } else {
+          throw new Error('Esta clase todavía no tiene un video vinculado.');
+        }
+      } catch (error) {
+        console.error('[Bunny player]', error);
+        playerVideo.innerHTML = `<div style="display:grid;place-items:center;min-height:420px;padding:28px;text-align:center;color:#fff;"><div><div style="font-size:2rem;margin-bottom:12px;">⚠️</div><strong>No se pudo reproducir la clase</strong><p style="color:var(--zoo-text-muted);margin-top:8px;">${String(error.message || error)}</p></div></div>`;
+      }
 
       if (courseId !== undefined && lessonIdx !== undefined) {
         clearTimeout(window.__autoCompleteTimer);
@@ -818,7 +865,7 @@
       if (nextIdx < lecciones.length) {
         // Abrir siguiente clase
         const l = lecciones[nextIdx];
-        openPlayer(l.driveId, l.titulo || 'Clase ' + (nextIdx + 1), l.duration || '', courseId, nextIdx);
+        openPlayer(l, l.titulo || 'Clase ' + (nextIdx + 1), l.duration || '', courseId, nextIdx);
       } else {
         // Era la última — volver a lista para mostrar botón de certificado
         renderCourseModal();
