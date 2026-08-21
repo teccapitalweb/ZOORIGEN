@@ -326,5 +326,14 @@
 
   <script src="data.js?v=20260820"></script>
   <script src="script.js?v=20260820"></script>
+<script>
+  // ===== PWA: registro del service worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('SW no registrado:', err); });
+    });
+  }
+</script>
 </body>
 </html>
