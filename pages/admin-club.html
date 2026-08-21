@@ -31,6 +31,11 @@
     .login-card .field label { display: block; color: #fff; font-size: .86rem; font-weight: 600; margin-bottom: 6px; }
     .login-card .field input { width: 100%; background: var(--zoo-bg-darker); border: 1px solid var(--zoo-border); color: #fff; padding: 11px 14px; border-radius: var(--zoo-radius-sm); font-family: inherit; font-size: .94rem; }
     .login-card .field input:focus { outline: none; border-color: var(--zoo-amber); }
+    /* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+       Solo en movil; el valor de escritorio queda intacto. */
+    @media (max-width: 768px) {
+      .login-card .field input { font-size: 16px; }
+    }
     .login-card button { width: 100%; background: var(--zoo-amber); color: #1f1d17; padding: 12px; border-radius: var(--zoo-radius-sm); border: 0; cursor: pointer; font-family: inherit; font-weight: 700; font-size: .96rem; margin-top: 10px; }
     .login-card button:hover { filter: brightness(1.06); }
     .login-card button:disabled { opacity: .5; cursor: not-allowed; }
@@ -82,6 +87,10 @@
 
     .admin-search { background: var(--zoo-bg-card); border: 1px solid var(--zoo-border); color: #fff; padding: 10px 14px; border-radius: var(--zoo-radius-sm); width: 100%; max-width: 420px; margin-bottom: 16px; font-family: inherit; font-size: .92rem; }
     .admin-search:focus { outline: none; border-color: var(--zoo-amber); }
+    /* Anti-zoom iOS (>=16px) solo en movil. */
+    @media (max-width: 768px) {
+      .admin-search { font-size: 16px; }
+    }
 
     .btn-small { padding: 5px 11px; border-radius: 8px; font-size: .74rem; font-weight: 700; cursor: pointer; border: 0; margin-right: 4px; font-family: inherit; }
     .btn-small.activate { background: var(--zoo-green-700); color: #fff; }
@@ -103,6 +112,10 @@
     .modal-form input, .modal-form select, .modal-form textarea { width: 100%; background: var(--zoo-bg-darker); border: 1px solid var(--zoo-border); color: #fff; padding: 10px 12px; border-radius: var(--zoo-radius-sm); font-family: inherit; font-size: .9rem; }
     .modal-form textarea { min-height: 80px; resize: vertical; }
     .modal-form input:focus, .modal-form select:focus, .modal-form textarea:focus { outline: none; border-color: var(--zoo-amber); }
+    /* Anti-zoom iOS (>=16px) solo en movil. */
+    @media (max-width: 768px) {
+      .modal-form input, .modal-form select, .modal-form textarea { font-size: 16px; }
+    }
     .modal-form .hint { color: var(--zoo-text-dim); font-size: .78rem; margin-top: 4px; }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--zoo-border); }
     .btn-cancel { background: transparent; border: 1px solid var(--zoo-border); color: var(--zoo-text-muted); padding: 10px 20px; border-radius: var(--zoo-radius-sm); cursor: pointer; font-family: inherit; font-weight: 600; }
@@ -130,9 +143,53 @@
       .admin-shell { grid-template-columns: 1fr; }
       .asb { flex-direction: row; flex-wrap: wrap; padding: 12px; gap: 6px; }
       .asb-brand { width: 100%; margin-bottom: 0; padding-bottom: 8px; }
+      /* Un solo grupo ("Gestion"): el titulo no desambigua nada y en una
+         tira horizontal gastaria una fila entera. Se mantiene oculto. */
       .asb-section { display: none; }
-      .asb-item { flex-shrink: 0; padding: 8px 12px; font-size: .84rem; }
-      .asb-ft { display: none; }
+
+      /* La regla base .asb-item{width:100%} apilaba los 6 botones en 6
+         filas (484px antes de cualquier contenido). En movil la nav es
+         una tira que envuelve. */
+      .asb-item {
+        width: auto;
+        flex: 0 0 auto;
+        min-height: 44px;
+        padding: 8px 12px;
+        font-size: .84rem;
+      }
+
+      /* El pie es la UNICA via de cerrar sesion en todo el panel: no
+         puede seguir oculto en movil. Va como fila propia justo debajo
+         de la tira de navegacion, sin quedar enterrado. */
+      .asb-ft {
+        display: flex;
+        flex: 1 0 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px;
+        padding-top: 10px;
+      }
+      .asb-ft a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 8px 14px;
+        border: 1px solid var(--zoo-border);
+        border-radius: var(--zoo-radius-sm);
+      }
+
+      /* Acciones de fila: eran de ~25px de alto para operaciones
+         destructivas (eliminar miembro). min-height + padding, sin
+         height fijo, para no cortar el texto. */
+      .btn-small {
+        min-height: 44px;
+        padding: 10px 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 4px;
+      }
+
       .am { padding: 18px; }
     }
   </style>

@@ -668,6 +668,11 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   font-family: var(--zoo-font-body);
   transition: all .2s;
 }
+/* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+   Solo en movil; el valor de escritorio queda intacto. */
+@media (max-width: 768px) {
+  .field input { font-size: 16px; }
+}
 .field input::placeholder { color: var(--zoo-text-dim); }
 .field input:focus {
   outline: none;
@@ -2987,6 +2992,10 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   font-size: .92rem;
   resize: vertical;
 }
+/* Anti-zoom iOS (>=16px) solo en movil. */
+@media (max-width: 768px) {
+  .foro-modal-body textarea { font-size: 16px; }
+}
 .foro-modal-body textarea:focus {
   outline: 0;
   border-color: var(--zoo-amber, #E8A317);
@@ -3009,6 +3018,11 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   border-radius: 10px;
   font-family: inherit;
   font-size: .92rem;
+}
+/* Anti-zoom iOS (>=16px) solo en movil. */
+@media (max-width: 768px) {
+  .foro-modal-body .field input,
+  .foro-modal-body .field select { font-size: 16px; }
 }
 .foro-modal-body .field input:focus,
 .foro-modal-body .field select:focus {
@@ -3078,6 +3092,10 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   font-family: inherit;
   font-size: .92rem;
   resize: vertical;
+}
+/* Anti-zoom iOS (>=16px) solo en movil. */
+@media (max-width: 768px) {
+  .foro-reply-form textarea { font-size: 16px; }
 }
 
 @media (max-width: 640px) {

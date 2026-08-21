@@ -171,6 +171,11 @@
     padding: 11px 13px; border-radius: 10px;
     font-family: inherit; font-size: .95rem;
   }
+  /* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+     Solo en movil; el valor de escritorio queda intacto. */
+  @media (max-width: 768px) {
+    .tool-field input, .tool-field select, .tool-field textarea { font-size: 16px; }
+  }
   [data-theme="light"] .tool-field input,
   [data-theme="light"] .tool-field select,
   [data-theme="light"] .tool-field textarea {
