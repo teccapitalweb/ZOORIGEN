@@ -61,7 +61,7 @@
     .asb-ft a { display: block; padding: 8px 12px; color: var(--zoo-text-muted); font-size: .82rem; border-radius: 6px; }
     .asb-ft a:hover { color: var(--zoo-text); background: rgba(255,255,255,0.04); }
 
-    .am { padding: 28px 36px; }
+    .am { padding: 28px 36px; min-width: 0; }
     .am h1 { color: #fff; font-size: 1.7rem; margin-bottom: 4px; }
     .am p.sub { color: var(--zoo-text-muted); font-size: .92rem; margin-bottom: 22px; }
 
@@ -140,9 +140,23 @@
     .sec.is-active { display: block; }
 
     @media (max-width: 860px) {
-      .admin-shell { grid-template-columns: 1fr; }
-      .asb { flex-direction: row; flex-wrap: wrap; padding: 12px; gap: 6px; }
-      .asb-brand { width: 100%; margin-bottom: 0; padding-bottom: 8px; }
+      /* El grid tenia align-content:normal (=stretch): con min-height:100vh
+         repartia el sobrante entre sus filas y resolvia a "372px 328px" en
+         vez de ajustarse al contenido. Esa altura sobrante bajaba a .asb y,
+         por su propio align-content, inflaba las lineas del wrap: los
+         botones pasaban de sus 44px naturales a 76px. Ambos start cortan la
+         cadena. Van dentro del media query, asi que no tocan el escritorio. */
+      .admin-shell { grid-template-columns: 1fr; align-content: start; }
+      .asb {
+        flex-direction: row; flex-wrap: wrap; padding: 12px; gap: 6px;
+        align-content: flex-start;
+        align-items: flex-start;
+      }
+      /* Solo marca del panel (icono + "Zoorigen / Admin"), markup estatico:
+         no identifica al admin de la sesion, asi que en movil se oculta para
+         recuperar su fila. La identidad de quien esta logueado no se muestra
+         en ningun punto de este shell. */
+      .asb-brand { display: none; }
       /* Un solo grupo ("Gestion"): el titulo no desambigua nada y en una
          tira horizontal gastaria una fila entera. Se mantiene oculto. */
       .asb-section { display: none; }

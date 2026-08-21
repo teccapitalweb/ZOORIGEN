@@ -18,6 +18,43 @@
 /*   Reservado para cambios estructurales de este archivo o      */
 /*   para recuperarse de una cache corrupta, no para el ciclo    */
 /*   normal de despliegue.                                       */
+/*                                                              */
+/* ------------------------------------------------------------ */
+/* PROCEDIMIENTO DE EMERGENCIA (kill switch)                     */
+/*                                                              */
+/* Si un despliegue deja el sitio roto para quien ya tiene el SW */
+/* instalado, NO sirve con borrar sw.js del repo: un 404 deja al */
+/* SW anterior vivo y sirviendo su cache. Hay que PUBLICAR un    */
+/* sw.js nuevo que se autodestruya. Reemplazar todo este archivo */
+/* por:                                                          */
+/*                                                              */
+/*   self.addEventListener('install', function () {              */
+/*     self.skipWaiting();                                       */
+/*   });                                                         */
+/*   self.addEventListener('activate', function (event) {        */
+/*     event.waitUntil(                                          */
+/*       caches.keys()                                           */
+/*         .then(function (ns) {                                 */
+/*           return Promise.all(ns.map(function (n) {            */
+/*             return caches.delete(n);                          */
+/*           }));                                                */
+/*         })                                                    */
+/*         .then(function () { return self.registration.unregister(); }) */
+/*         .then(function () { return self.clients.matchAll(); }) */
+/*         .then(function (cs) {                                 */
+/*           cs.forEach(function (c) { c.navigate(c.url); });     */
+/*         })                                                    */
+/*     );                                                        */
+/*   });                                                         */
+/*                                                               */
+/* Sin evento fetch: al no interceptar nada, todo vuelve a red   */
+/* de inmediato. Borra las caches, se desregistra y recarga las  */
+/* pestanas abiertas. Quitar tambien el <script> de registro de  */
+/* los HTML en el mismo despliegue, o volveran a registrarlo.    */
+/* Dejarlo publicado unos dias antes de retirarlo, para que los  */
+/* clientes que abran tarde tambien se limpien.                  */
+/*                                                              */
+/* Esto es solo documentacion: NO esta implementado aqui.        */
 /* ============================================================ */
 
 const CACHE = 'zoorigen-v1';
@@ -102,6 +139,14 @@ self.addEventListener('fetch', function (event) {
   // Google Fonts, gstatic) va directo a red y jamas se cachea.
   if (url.origin !== self.location.origin) return;
   if (debeIgnorarse(url)) return;
+
+  // El propio SW y el manifest NUNCA se interceptan ni se cachean.
+  // El navegador ya excluye del fetch event la peticion del script del
+  // service worker (destination "serviceworker"), pero se deja explicito:
+  // si sw.js se sirviera desde cache, un despliegue roto quedaria clavado
+  // sin forma de reemplazarlo desde el servidor.
+  if (url.pathname === '/sw.js' || url.pathname === '/manifest.json') return;
+  if (req.destination === 'serviceworker' || req.destination === 'manifest') return;
 
   // ── Navegacion (documentos HTML): network-first ──
   if (req.mode === 'navigate') {
