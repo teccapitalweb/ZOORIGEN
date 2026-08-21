@@ -3,17 +3,23 @@
 <head>
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Foro VIP · Club Zoorigen</title>
+  <!-- ===== PWA ===== -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <meta name="theme-color" content="#1F5F3A">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css">
-  <link rel="stylesheet" href="../assets/css/club-theme.css">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <style>
     .foro-hero {
       background: linear-gradient(135deg, #1F5F3A 0%, #0F3B22 60%, #2AA4D5 110%);
@@ -485,6 +491,13 @@
       font-family: inherit;
       font-size: .95rem;
     }
+    /* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+       Solo en movil; el valor de escritorio queda intacto. */
+    @media (max-width: 768px) {
+      .foro-form-group input,
+      .foro-form-group select,
+      .foro-form-group textarea { font-size: 16px; }
+    }
     .foro-form-group select {
       /* Para que en modo oscuro las options se vean bien */
       background-color: #0f1311 !important;
@@ -774,6 +787,11 @@
       min-height: 70px;
       resize: vertical;
     }
+    /* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+       Solo en movil; el valor de escritorio queda intacto. */
+    @media (max-width: 768px) {
+      .foro-view-reply-form textarea { font-size: 16px; }
+    }
     .foro-view-reply-form__actions {
       display: flex;
       justify-content: flex-end;
@@ -863,7 +881,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js"></script>
+  <script src="../assets/js/club.js?v=20260820"></script>
   <script>
     const CAT_LABELS = {
       'casos': '⚕️ Casos clínicos',

@@ -457,6 +457,12 @@ body.auth-page {
   transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
+/* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+   Solo en movil; el valor de escritorio queda intacto. */
+@media (max-width: 768px) {
+  .auth-page .field input { font-size: 16px; }
+}
+
 .auth-page .field input::placeholder {
   color: #9aa49e;
 }

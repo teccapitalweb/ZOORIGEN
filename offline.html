@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sin conexión · Zoorigen</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1F5F3A">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/icon-apple-touch.png">
+  <style>
+    /* Sin fuentes externas: esta página debe renderizar sin red. */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: #0E1F14;
+      color: #fff;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      text-align: center;
+    }
+    .card {
+      max-width: 420px;
+      width: 100%;
+      background: #14281B;
+      border: 1px solid rgba(111, 191, 115, .18);
+      border-radius: 20px;
+      padding: 40px 28px;
+    }
+    img { width: 96px; height: 96px; border-radius: 22px; margin: 0 auto 20px; display: block; }
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; }
+    p { color: rgba(255, 255, 255, .68); line-height: 1.6; font-size: 1rem; }
+    button {
+      margin-top: 24px;
+      min-height: 48px;
+      padding: 12px 28px;
+      border: 0;
+      border-radius: 12px;
+      background: #E8A317;
+      color: #14281B;
+      font: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:active { background: #F4B942; }
+    small { display: block; margin-top: 18px; color: rgba(255, 255, 255, .45); font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="/assets/img/icon-192.png" alt="Zoorigen">
+    <h1>Sin conexión</h1>
+    <p>No pudimos cargar esta página. Revisa tu conexión a internet e inténtalo de nuevo.</p>
+    <button type="button" onclick="location.reload()">Reintentar</button>
+    <small>Club VIP Zoorigen</small>
+  </div>
+</body>
+</html>
