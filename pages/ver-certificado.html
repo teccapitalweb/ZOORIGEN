@@ -785,15 +785,6 @@
       window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
     }
   </script>
-<script>
-  // ===== PWA: registro del service worker =====
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .catch(function (err) { console.warn('SW no registrado:', err); });
-    });
-  }
-</script>
 
   <script>
     // El certificado se escala con transform sobre un lienzo fijo de 1000px.
@@ -815,5 +806,14 @@
       if (window.ResizeObserver) new ResizeObserver(fijar).observe(sc);
     })();
   </script>
+<script>
+  // ===== PWA: registro del service worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('SW no registrado:', err); });
+    });
+  }
+</script>
 </body>
 </html>
