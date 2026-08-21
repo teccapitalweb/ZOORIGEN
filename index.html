@@ -7,6 +7,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ZOORIGEN | Líderes en capacitación científica en fauna, biodiversidad y manejo animal</title>
+  <!-- ===== PWA ===== -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <meta name="description" content="ZOORIGEN ofrece capacitación científica en fauna silvestre, apicultura, biodiversidad, manejo animal e investigación aplicada." />
   <meta name="theme-color" content="#1F5F3A" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -320,5 +325,14 @@
 
   <script src="data.js"></script>
   <script src="script.js"></script>
+<script>
+  // ===== PWA: registro del service worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('SW no registrado:', err); });
+    });
+  }
+</script>
 </body>
 </html>

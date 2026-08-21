@@ -6,11 +6,17 @@
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi suscripción · Club VIP Zoorigen</title>
+  <!-- ===== PWA ===== -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1F5F3A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css">
-  <link rel="stylesheet" href="../assets/css/club-theme.css">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
@@ -330,5 +336,14 @@
       }
     })();
   </script>
+<script>
+  // ===== PWA: registro del service worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('SW no registrado:', err); });
+    });
+  }
+</script>
 </body>
 </html>
