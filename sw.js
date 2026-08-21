@@ -37,7 +37,7 @@ const SHELL = [
   '/assets/img/icon-512.png',
   '/assets/img/icon-maskable-192.png',
   '/assets/img/icon-maskable-512.png',
-  '/assets/img/apple-touch-icon.png'
+  '/assets/img/icon-apple-touch.png'
 ];
 
 /* Hosts / rutas que NUNCA se cachean ni se interceptan.
@@ -116,9 +116,9 @@ self.addEventListener('fetch', function (event) {
   }
 
   // ── CSS / JS / fuentes propias, e iconos de la PWA: cache-first ──
-  // Las imagenes solo entran aqui si son iconos (/assets/img/icon-*).
-  // El resto del catalogo grafico (cursos, galeria, testimonios) NO se
-  // precachea ni se acumula: iria por red y solo cae a cache si falla.
+  // Las imagenes solo entran aqui si son iconos (/assets/img/icon-*),
+  // lo que incluye icon-apple-touch.png. El resto del catalogo grafico
+  // (cursos, galeria, testimonios) NO se precachea ni se acumula.
   const dest = req.destination;
   const esIcono = url.pathname.indexOf('/assets/img/icon-') === 0;
   const cacheFirst =
@@ -142,9 +142,9 @@ self.addEventListener('fetch', function (event) {
   }
 
   // ── Resto del mismo origen: red con respaldo en cache ──
-  // Aqui caen las imagenes de contenido y apple-touch-icon.png. Van
-  // siempre a red; si la red falla se intenta servir de cache (util
-  // para lo que ya esta en el precache).
+  // Aqui caen las imagenes de contenido del catalogo (cursos, galeria,
+  // testimonios) y los documentos que no son navegacion. Van siempre a
+  // red; si la red falla se intenta servir de cache.
   event.respondWith(
     fetch(req).catch(function () { return caches.match(req); })
   );
