@@ -468,9 +468,42 @@
       font-style: italic;
     }
 
-    @media (max-width: 1060px) { #certificado { transform: scale(0.85); transform-origin: top center; } }
-    @media (max-width: 880px) { #certificado { transform: scale(0.6); } }
-    @media (max-width: 640px) { #certificado { transform: scale(0.4); margin-top: -20%; } }
+    /* ESCALADO DEL CERTIFICADO
+       #certificado es un lienzo fijo de 1000x707px (A4 apaisado 1.414:1) y
+       toda su geometria interna -marcos, ornamentos, sellos, filetes- esta
+       en px sobre ese sistema de coordenadas. Por eso se escala en bloque
+       con transform en vez de recalcular sus medidas.
+       El problema de la version anterior era que transform NO reduce la caja
+       de layout: el documento seguia midiendo 707px de alto aunque se viera
+       a 283px, dejando ~620px de hueco (y un margin-top:-20% que ademas
+       recortaba el borde superior). La solucion es .cert-scaler, que si
+       adopta el tamano real: aspect-ratio le da la altura exacta para
+       cualquier ancho y overflow:hidden evita que el lienzo sin escalar
+       desborde. */
+    #certWrap { width: 100%; max-width: 1000px; }
+
+    .cert-scaler {
+      --cert-k: 1;
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 1.414 / 1;
+      overflow: hidden;
+    }
+    .cert-scaler > #certificado {
+      width: 1000px;
+      max-width: none;
+      transform: scale(var(--cert-k));
+      transform-origin: top left;
+    }
+
+    /* --cert-k lo fija el script de abajo con el ancho real del contenedor,
+       de forma continua. Estos escalones son solo el respaldo si no corre:
+       cada valor es el que cabe en el ancho MAS ESTRECHO de su franja, para
+       no recortar nunca. */
+    @media (max-width: 1060px) { .cert-scaler { --cert-k: .84; } }
+    @media (max-width: 880px)  { .cert-scaler { --cert-k: .60; } }
+    @media (max-width: 640px)  { .cert-scaler { --cert-k: .38; } }
+    @media (max-width: 420px)  { .cert-scaler { --cert-k: .28; } }
 
     .cert-state {
       background: rgba(255,255,255,0.04);
@@ -487,6 +520,15 @@
       body { background: #fff; padding: 0; }
       .cert-actions, .no-print { display: none !important; }
       #certificado { box-shadow: none; transform: none !important; margin: 0; }
+      /* En papel el certificado va a tamano completo: el scaler se desactiva
+         para no recortarlo ni imponerle altura. */
+      .cert-scaler {
+        width: auto !important;
+        max-width: none !important;
+        height: auto !important;
+        aspect-ratio: auto !important;
+        overflow: visible !important;
+      }
       @page { size: A4 landscape; margin: 0; }
     }
   </style>
@@ -511,6 +553,7 @@
       <a class="cert-btn cert-btn--ghost" href="club-biblioteca.html">← Biblioteca</a>
     </div>
 
+    <div class="cert-scaler">
     <div id="certificado">
       <div class="cert-frame-outer"></div>
       <div class="cert-frame-mid"></div>
@@ -675,6 +718,7 @@
         </div>
       </div>
     </div>
+    </div><!-- /.cert-scaler -->
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -750,5 +794,26 @@
     });
   }
 </script>
+
+  <script>
+    // El certificado se escala con transform sobre un lienzo fijo de 1000px.
+    // Aqui se fija el factor con el ancho real del contenedor, de forma
+    // continua; los escalones del CSS son solo el respaldo.
+    (function () {
+      var sc = document.querySelector('.cert-scaler');
+      if (!sc) return;
+      function fijar() {
+        var a = sc.clientWidth;
+        if (a > 0) sc.style.setProperty('--cert-k', (a / 1000).toFixed(5));
+      }
+      fijar();
+      // resize siempre, ademas del observer: es el respaldo si el observer
+      // no se dispara (p. ej. dentro de un iframe redimensionado).
+      window.addEventListener('resize', fijar);
+      window.addEventListener('orientationchange', fijar);
+      window.addEventListener('load', fijar);
+      if (window.ResizeObserver) new ResizeObserver(fijar).observe(sc);
+    })();
+  </script>
 </body>
 </html>
