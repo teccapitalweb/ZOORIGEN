@@ -491,6 +491,13 @@
       font-family: inherit;
       font-size: .95rem;
     }
+    /* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+       Solo en movil; el valor de escritorio queda intacto. */
+    @media (max-width: 768px) {
+      .foro-form-group input,
+      .foro-form-group select,
+      .foro-form-group textarea { font-size: 16px; }
+    }
     .foro-form-group select {
       /* Para que en modo oscuro las options se vean bien */
       background-color: #0f1311 !important;
@@ -779,6 +786,11 @@
       font-size: .92rem;
       min-height: 70px;
       resize: vertical;
+    }
+    /* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+       Solo en movil; el valor de escritorio queda intacto. */
+    @media (max-width: 768px) {
+      .foro-view-reply-form textarea { font-size: 16px; }
     }
     .foro-view-reply-form__actions {
       display: flex;
