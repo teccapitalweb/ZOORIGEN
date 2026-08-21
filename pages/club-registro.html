@@ -235,14 +235,5 @@
       setTimeout(() => { window.location.href = 'club-dashboard.html?welcome=1'; }, 1200);
     });
   </script>
-<script>
-  // ===== PWA: registro del service worker =====
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .catch(function (err) { console.warn('SW no registrado:', err); });
-    });
-  }
-</script>
 </body>
 </html>

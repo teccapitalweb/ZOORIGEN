@@ -1679,14 +1679,5 @@ function resetearForm(which) {
   if (which === 'bcs') { document.getElementById('bcsPesoActual').value = ''; document.querySelectorAll('.bcs-item').forEach(i => i.classList.remove('is-selected')); document.querySelector('[data-bcs="5"]').classList.add('is-selected'); document.getElementById('bcsResult').className = 'tool-result'; }
 }
 </script>
-<script>
-  // ===== PWA: registro del service worker =====
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .catch(function (err) { console.warn('SW no registrado:', err); });
-    });
-  }
-</script>
 </body>
 </html>

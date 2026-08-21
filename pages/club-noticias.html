@@ -57,14 +57,5 @@
       content.innerHTML = `<div class="news-grid news-grid--wide">${noticias.map(n => ZOORIGEN_CLUB.renderNewsCard(n)).join('')}</div>`;
     })();
   </script>
-<script>
-  // ===== PWA: registro del service worker =====
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .catch(function (err) { console.warn('SW no registrado:', err); });
-    });
-  }
-</script>
 </body>
 </html>
