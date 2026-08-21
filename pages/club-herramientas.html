@@ -319,6 +319,11 @@
     padding: 11px 14px; border-radius: 10px;
     font-family: inherit; font-size: .95rem;
   }
+  /* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+     Solo en movil; el valor de escritorio queda intacto. */
+  @media (max-width: 768px) {
+    .tool-search-filter input { font-size: 16px; }
+  }
   [data-theme="light"] .tool-search-filter input {
     background: #fff; border: 1px solid #d0d4cb; color: #1a1d1b;
   }
