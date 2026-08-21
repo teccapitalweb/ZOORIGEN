@@ -2,9 +2,22 @@
 /* ZOORIGEN - Service Worker                                    */
 /* Alcance: / (dominio propio www.zoorigen.com, deploy en raiz) */
 /*                                                              */
-/* IMPORTANTE: al desplegar cambios en cualquier archivo del     */
-/* SHELL hay que subir la version de CACHE (v1 -> v2). El        */
-/* activate borra automaticamente las caches anteriores.         */
+/* COMO SE INVALIDA LA CACHE                                     */
+/*                                                              */
+/* Mecanismo principal: el sufijo ?v=AAAAMMDD de cada asset.     */
+/*   Al desplegar un cambio en club.css, club-mobile.css,        */
+/*   club-theme.css o club.js se sube ese sufijo en los HTML     */
+/*   Y en el array SHELL de abajo. Como la URL cambia, deja de   */
+/*   haber coincidencia con la entrada vieja y el navegador      */
+/*   pide la nueva. Las dos listas deben moverse juntas: si se   */
+/*   actualizan los HTML y no el SHELL, el asset sale de         */
+/*   precache y se sirve por red en la primera visita.           */
+/*                                                              */
+/* Respaldo: subir la version de CACHE (v1 -> v2). Purga todo    */
+/*   de golpe (el activate borra las caches con otro nombre).    */
+/*   Reservado para cambios estructurales de este archivo o      */
+/*   para recuperarse de una cache corrupta, no para el ciclo    */
+/*   normal de despliegue.                                       */
 /* ============================================================ */
 
 const CACHE = 'zoorigen-v1';
@@ -19,7 +32,7 @@ const SHELL = [
   '/assets/css/club.css?v=20260820',
   '/assets/css/club-mobile.css?v=20260820',
   '/assets/css/club-theme.css?v=20260820',
-  '/assets/js/club.js',
+  '/assets/js/club.js?v=20260820',
   '/assets/img/icon-192.png',
   '/assets/img/icon-512.png',
   '/assets/img/icon-maskable-192.png',
@@ -102,9 +115,17 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // ── CSS / JS / iconos: cache-first ──
+  // ── CSS / JS / fuentes propias, e iconos de la PWA: cache-first ──
+  // Las imagenes solo entran aqui si son iconos (/assets/img/icon-*).
+  // El resto del catalogo grafico (cursos, galeria, testimonios) NO se
+  // precachea ni se acumula: iria por red y solo cae a cache si falla.
   const dest = req.destination;
-  if (dest === 'style' || dest === 'script' || dest === 'image' || dest === 'font') {
+  const esIcono = url.pathname.indexOf('/assets/img/icon-') === 0;
+  const cacheFirst =
+    dest === 'style' || dest === 'script' || dest === 'font' ||
+    (dest === 'image' && esIcono);
+
+  if (cacheFirst) {
     event.respondWith(
       caches.match(req).then(function (hit) {
         if (hit) return hit;
@@ -121,6 +142,9 @@ self.addEventListener('fetch', function (event) {
   }
 
   // ── Resto del mismo origen: red con respaldo en cache ──
+  // Aqui caen las imagenes de contenido y apple-touch-icon.png. Van
+  // siempre a red; si la red falla se intenta servir de cache (util
+  // para lo que ya esta en el precache).
   event.respondWith(
     fetch(req).catch(function () { return caches.match(req); })
   );
