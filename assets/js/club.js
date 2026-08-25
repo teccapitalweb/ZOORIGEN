@@ -97,7 +97,40 @@ async function iniciarPagoEmbedded(planType, email, containerId) {
   }
 }
 
+// ============== ÍCONOS SVG (reemplazan emojis en toda la membresía) ==============
+const ZOORIGEN_ICONS = {
+  home: '<path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/>',
+  book: '<path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6v13"/><path d="M12 6v13"/><path d="M21 6v13"/>',
+  messages: '<path d="M21 14l-3 -3h-7a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1h9a1 1 0 0 1 1 1v10"/><path d="M14 15v2a1 1 0 0 1 -1 1h-7l-3 3v-10a1 1 0 0 1 1 -1h2"/>',
+  video: '<rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z"/>',
+  broadcast: '<circle cx="12" cy="12" r="1"/><path d="M16.243 16.243a6 6 0 1 0 -8.486 0"/><path d="M19.071 19.071a10 10 0 1 0 -14.142 0"/>',
+  filetext: '<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 9l1 0"/><path d="M9 13l6 0"/><path d="M9 17l6 0"/>',
+  flask: '<path d="M9 3l6 0"/><path d="M10 3v5.5a3.5 3.5 0 0 1 -.5 1.8l-3.5 5.8a3.5 3.5 0 0 0 3 5.4h6a3.5 3.5 0 0 0 3 -5.4l-3.5 -5.8a3.5 3.5 0 0 1 -.5 -1.8v-5.5"/><path d="M6 14l12 0"/>',
+  scale: '<path d="M12 3v18"/><path d="M9 21h6"/><path d="M5 6h14"/><path d="M5 6l-2 6a3 3 0 0 0 6 0l-2 -6"/><path d="M19 6l-2 6a3 3 0 0 0 6 0l-2 -6"/>',
+  trophy: '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1 -10 0z"/><path d="M17 4h4v2a3 3 0 0 1 -3 3h-1"/><path d="M7 4h-4v2a3 3 0 0 0 3 3h1"/>',
+  certificate: '<circle cx="15" cy="15" r="3"/><path d="M13 17.5v4.5l2 -1.5l2 1.5v-4.5"/><path d="M10 19h-5a2 2 0 0 1 -2 -2v-10c0 -1.1 .9 -2 2 -2h14a2 2 0 0 1 2 2v6"/><path d="M6 9h12"/>',
+  gift: '<path d="M3 8m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z"/><path d="M12 8l0 13"/><path d="M19 12v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0 -5c1.5 0 3 1.5 4.5 5c1.5 -3.5 3 -5 4.5 -5a2.5 2.5 0 0 1 0 5"/>',
+  user: '<circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>',
+  creditcard: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/>',
+  moon: '<path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/>',
+  bell: '<path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/>',
+  list: '<path d="M9 6l11 0"/><path d="M9 12l11 0"/><path d="M9 18l11 0"/><path d="M5 6l0 .01"/><path d="M5 12l0 .01"/><path d="M5 18l0 .01"/>',
+  heartpulse: '<path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/><path d="M3.5 12h3l1.5 -3l2 6l1 -3h2.5"/>',
+  hand: '<path d="M8 13v-8.5a1.5 1.5 0 0 1 3 0v7.5"/><path d="M11 11.5v-2a1.5 1.5 0 1 1 3 0v2.5"/><path d="M14 10.5a1.5 1.5 0 0 1 3 0v1.5"/><path d="M17 11.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2a6 6 0 0 1 -5 -2.7l-3.3 -5.7a1.5 1.5 0 0 1 .5 -2l.2 -.1a1.9 1.9 0 0 1 2.3 .3l1.5 1.5"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35 -4.35"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/>',
+  helpcircle: '<circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2 -3 3 -3 3"/><path d="M12 17l0 .01"/>'
+};
+function zooIcon(name, size) {
+  size = size || 17;
+  const d = ZOORIGEN_ICONS[name] || '';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;">${d}</svg>`;
+}
+
 const ZOORIGEN_CLUB = {
+
+  icon: zooIcon,
 
   // ============== LECTURA DE CONTENIDO DESDE FIRESTORE ==============
   async getCursos() {
@@ -1276,21 +1309,21 @@ const ZOORIGEN_CLUB = {
     const planLabelColor = isActivePlan ? 'var(--zoo-green-500, #6FBF73)' : 'var(--zoo-amber, #E8A317)';
 
     const items = [
-      { id: 'inicio', label: 'Inicio', icon: '🏠', href: 'club-dashboard.html' },
-      { id: 'biblioteca', label: 'Biblioteca', icon: '📚', href: 'club-biblioteca.html' },
-      { id: 'foro', label: 'Foro VIP', icon: '💬', href: 'club-foro.html' },
-      { id: 'videos', label: 'Videos', icon: '🎥', href: 'club-videos.html' },
-      { id: 'sesiones', label: 'Webinars en vivo', icon: '🎥', href: 'club-sesiones.html' },
-      { id: 'pdfs', label: 'PDFs', icon: '📄', href: 'club-pdfs.html' },
-      { id: 'herramientas', label: 'Herramientas clínicas', icon: '🧬', href: 'club-herramientas.html' },
-      { id: 'legal', label: 'Herramientas legales', icon: '⚖️', href: 'club-legal.html' }
+      { id: 'inicio', label: 'Inicio', icon: 'home', href: 'club-dashboard.html' },
+      { id: 'biblioteca', label: 'Biblioteca', icon: 'book', href: 'club-biblioteca.html' },
+      { id: 'foro', label: 'Foro VIP', icon: 'messages', href: 'club-foro.html' },
+      { id: 'videos', label: 'Videos', icon: 'video', href: 'club-videos.html' },
+      { id: 'sesiones', label: 'Webinars en vivo', icon: 'broadcast', href: 'club-sesiones.html' },
+      { id: 'pdfs', label: 'PDFs', icon: 'filetext', href: 'club-pdfs.html' },
+      { id: 'herramientas', label: 'Herramientas clínicas', icon: 'flask', href: 'club-herramientas.html' },
+      { id: 'legal', label: 'Herramientas legales', icon: 'scale', href: 'club-legal.html' }
     ];
     const itemsCuenta = [
-      { id: 'logros', label: 'Mis logros', icon: '🏆', href: 'club-logros.html' },
-      { id: 'certificados', label: 'Mis certificados', icon: '🎓', href: 'club-certificados.html' },
-      { id: 'referidos', label: 'Invitar amigos', icon: '🎁', href: 'club-referidos.html' },
-      { id: 'perfil', label: 'Mi perfil', icon: '👤', href: 'club-perfil.html' },
-      { id: 'suscripcion', label: 'Suscripción', icon: '💳', href: 'club-suscripcion.html' }
+      { id: 'logros', label: 'Mis logros', icon: 'trophy', href: 'club-logros.html' },
+      { id: 'certificados', label: 'Mis certificados', icon: 'certificate', href: 'club-certificados.html' },
+      { id: 'referidos', label: 'Invitar amigos', icon: 'gift', href: 'club-referidos.html' },
+      { id: 'perfil', label: 'Mi perfil', icon: 'user', href: 'club-perfil.html' },
+      { id: 'suscripcion', label: 'Suscripción', icon: 'creditcard', href: 'club-suscripcion.html' }
     ];
 
     // Auto-activar paywall en TODAS las páginas (se ejecuta después de renderizar)
@@ -1313,14 +1346,14 @@ const ZOORIGEN_CLUB = {
       <div class="club-sidebar__section">Principal</div>
       ${items.map(i => `
         <a href="${i.href}" class="${i.id === activeId ? 'is-active' : ''}">
-          <span class="icon">${i.icon}</span>${i.label}
+          <span class="icon">${zooIcon(i.icon)}</span>${i.label}
           ${i.badge ? `<span class="badge">${i.badge}</span>` : ''}
         </a>
       `).join('')}
       <div class="club-sidebar__section">Mi cuenta</div>
       ${itemsCuenta.map(i => `
         <a href="${i.href}" class="${i.id === activeId ? 'is-active' : ''}">
-          <span class="icon">${i.icon}</span>${i.label}
+          <span class="icon">${zooIcon(i.icon)}</span>${i.label}
         </a>
       `).join('')}
       <div class="club-sidebar__plan" style="padding:10px 12px;text-align:center;">
@@ -1363,7 +1396,7 @@ const ZOORIGEN_CLUB = {
   _updateThemeIcons(theme) {
     const btns = document.querySelectorAll('.theme-toggle');
     btns.forEach(btn => {
-      btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+      btn.innerHTML = zooIcon(theme === 'dark' ? 'sun' : 'moon', 16);
       btn.title = theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
     });
   },
