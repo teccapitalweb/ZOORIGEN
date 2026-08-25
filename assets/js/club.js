@@ -1271,6 +1271,9 @@ const ZOORIGEN_CLUB = {
     const renewText = session?.planVence
       ? `${session.planStatus === 'cancelled_active' ? 'Acceso hasta' : session.planStatus === 'cancelled' || session.planStatus === 'expired' ? 'Venció' : 'Renueva'} ${this.formatShort(session.planVence)}`
       : 'Pendiente de activación';
+    const isActivePlan = session?.planActivo === true || session?.planStatus === 'active' || session?.planStatus === 'cancelled_active';
+    const planDotColor = session?.planStatus === 'active' ? '#6FBF73' : session?.planStatus === 'cancelled_active' ? '#E8A317' : !isActivePlan ? '#E8A317' : '#a0a8a4';
+    const planLabelColor = isActivePlan ? 'var(--zoo-green-500, #6FBF73)' : 'var(--zoo-amber, #E8A317)';
 
     const items = [
       { id: 'inicio', label: 'Inicio', icon: '🏠', href: 'club-dashboard.html' },
@@ -1304,7 +1307,7 @@ const ZOORIGEN_CLUB = {
         <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
         <div class="club-sidebar__brand-text">
           <h3>Zoorigen</h3>
-          <small>Club VIP</small>
+          <small>Club VIP${!isActivePlan ? ' <span style="color:var(--zoo-amber,#E8A317);font-weight:700;">· Pendiente</span>' : ''}</small>
         </div>
       </div>
       <div class="club-sidebar__section">Principal</div>
@@ -1322,10 +1325,14 @@ const ZOORIGEN_CLUB = {
       `).join('')}
       <div class="club-sidebar__plan" style="padding:10px 12px;text-align:center;">
         <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:4px;">
-          <span style="width:7px;height:7px;border-radius:50%;background:${session?.planStatus === 'active' ? '#6FBF73' : session?.planStatus === 'cancelled' ? '#E8A317' : '#a0a8a4'};"></span>
-          <span class="plan-label" style="margin:0;font-size:.72rem;letter-spacing:.06em;">${planLabel.toUpperCase()}</span>
+          <span style="width:7px;height:7px;border-radius:50%;background:${planDotColor};"></span>
+          <span class="plan-label" style="margin:0;font-size:.72rem;letter-spacing:.06em;color:${planLabelColor};">${planLabel.toUpperCase()}</span>
         </div>
         <div class="plan-meta" style="font-size:.75rem;margin-bottom:8px;opacity:.75;">${renewText}</div>
+        ${!isActivePlan ? `
+        <a href="club-suscripcion.html" style="display:block;font-size:.78rem;background:rgba(232,163,23,0.12);border:1px solid rgba(232,163,23,0.4);color:var(--zoo-amber,#E8A317);padding:7px 10px;border-radius:8px;margin-bottom:8px;font-weight:700;text-decoration:none;">
+          🔓 Activar membresía
+        </a>` : ''}
         <a href="#" class="plan-logout" style="display:inline-block;font-size:.8rem;" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a>
       </div>
     `;
