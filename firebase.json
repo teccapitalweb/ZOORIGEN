@@ -1,0 +1,5 @@
+{
+  "firestore": {
+    "rules": "FIRESTORE-REGLAS-v4.txt"
+  }
+}
