@@ -946,14 +946,14 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
-<script src="../assets/js/club.js?v=20260820"></script>
+  <script src="../assets/js/club.js?v=20260828-membership1"></script>
 <script>
 (async () => {
   const session = await ZOORIGEN_CLUB.requireAuth();
   if (!session) return;
 
   // ═══ SOLO VIP ═══ Si no es VIP activo, mostrar paywall bloqueante
-  const isVIP = session.planActivo === true || session.planStatus === 'active' || session.planStatus === 'cancelled_active';
+  const isVIP = ZOORIGEN_CLUB.hasActiveMembership(session);
   if (!isVIP) {
     if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
     document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('legal', session);

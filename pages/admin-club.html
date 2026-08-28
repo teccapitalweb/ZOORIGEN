@@ -265,7 +265,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20260820"></script>
+  <script src="../assets/js/club.js?v=20260828-membership1"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20260820"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -421,9 +421,9 @@
       const filtered = filter
         ? members.filter(m => (m.name || '').toLowerCase().includes(filter.toLowerCase()) || (m.email || '').toLowerCase().includes(filter.toLowerCase()) || (m.phone || '').includes(filter))
         : members;
-      const active = members.filter(m => m.planActivo && !m.planCancelado);
-      const pending = members.filter(m => !m.planActivo);
-      const cancelled = members.filter(m => m.planCancelado);
+      const active = members.filter(m => ZOORIGEN_CLUB.hasActiveMembership(m));
+      const pending = members.filter(m => ZOORIGEN_CLUB.calculateStatus(m) === 'pending_payment');
+      const cancelled = members.filter(m => ['cancelled_active', 'expired', 'past_due'].includes(ZOORIGEN_CLUB.calculateStatus(m)));
 
       v.innerHTML = `
         <h1>👥 Miembros</h1>
@@ -432,7 +432,7 @@
           <div class="stat-box"><div class="stat-box__label">Total</div><div class="stat-box__value">${members.length}</div></div>
           <div class="stat-box green"><div class="stat-box__label">Activos VIP</div><div class="stat-box__value">${active.length}</div></div>
           <div class="stat-box amber"><div class="stat-box__label">Pendientes</div><div class="stat-box__value">${pending.length}</div></div>
-          <div class="stat-box orange"><div class="stat-box__label">Cancelados</div><div class="stat-box__value">${cancelled.length}</div></div>
+          <div class="stat-box orange"><div class="stat-box__label">Vencidos / cancelados</div><div class="stat-box__value">${cancelled.length}</div></div>
         </div>
         <input type="search" class="admin-search" id="searchMembers" placeholder="🔎 Buscar nombre, correo o WhatsApp..." value="${filter}">
         <div class="mtable">
@@ -440,8 +440,9 @@
             <thead><tr><th>Miembro</th><th>Correo</th><th>Estado</th><th>Plan</th><th>Vence</th><th>Acciones</th></tr></thead>
             <tbody>
               ${filtered.length === 0 ? `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--zoo-text-dim);">Sin resultados</td></tr>` : filtered.map(m => {
-                const status = m.planActivo && !m.planCancelado ? 'active' : m.planCancelado ? 'cancelled' : 'pending';
-                const label = { active: '● Activo', pending: '⏳ Pendiente', cancelled: '✕ Cancelado' }[status];
+                const realStatus = ZOORIGEN_CLUB.calculateStatus(m);
+                const status = realStatus === 'active' || realStatus === 'cancelled_active' ? 'active' : realStatus === 'pending_payment' ? 'pending' : 'cancelled';
+                const label = realStatus === 'active' ? '● Activo' : realStatus === 'cancelled_active' ? '⏳ Acceso vigente' : realStatus === 'past_due' ? '⚠ Pago pendiente' : realStatus === 'expired' ? '✕ Vencido' : '⏳ Sin pago';
                 const name = (m.name || '—').replace(/'/g, "\\'");
                 return `<tr>
                   <td>
@@ -542,10 +543,11 @@
           planActivo: true,
           planCancelado: false,
           planTipo: tipoPlan,
-          planInicio: now.toISOString(),
-          planVence: vence.toISOString(),
-          ultimoPago: now.toISOString(),
-          planActivadoEn: now.toISOString(),
+          planInicio: firebase.firestore.Timestamp.fromDate(now),
+          planVence: firebase.firestore.Timestamp.fromDate(vence),
+          ultimoPago: firebase.firestore.Timestamp.fromDate(now),
+          planActivadoEn: firebase.firestore.Timestamp.fromDate(now),
+          planStatus: 'active',
           activadoManualmente: true,
           activadoPor: 'admin',
           metodoPago: metodo || 'Admin manual',
@@ -563,7 +565,7 @@
     };
     window.adminCancelar = async (uid, name) => {
       if (!confirm(`¿Cancelar membresía de ${name}?`)) return;
-      try { await db.collection('miembros').doc(uid).update({ planCancelado: true, canceladoEn: new Date().toISOString() }); toast('✅ Cancelado'); loadMiembros(); }
+      try { await db.collection('miembros').doc(uid).update({ planCancelado: true, planStatus: 'cancelled_active', canceladoEn: firebase.firestore.FieldValue.serverTimestamp() }); toast('✅ Cancelado'); loadMiembros(); }
       catch (err) { toast('Error: ' + err.message, true); }
     };
 

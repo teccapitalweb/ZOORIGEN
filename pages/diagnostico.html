@@ -98,6 +98,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js?v=20260828"></script>
   <script>
     const checks = document.getElementById('checks');
     const logEl = document.getElementById('log');
@@ -178,26 +179,24 @@
       } else {
         addCheck('warn', 'role = "member"',
           `Tu campo <code>role</code> es <code>${member.role || '(vacío)'}</code>.
-           Los miembros normales pueden generar certificados también si tienen <code>planActivo: true</code>.`);
+           Es el rol normal de una cuenta. El acceso premium depende de un pago vigente verificado.`);
       }
 
-      // ═══ Check 5: planActivo ═══
+      // ═══ Check 5: membresía realmente vigente ═══
       const planActivoType = typeof member.planActivo;
-      if (member.planActivo === true) {
-        addCheck('pass', 'planActivo = <code>true</code> (boolean) ✨',
-          `Tipo: <code>${planActivoType}</code> — ¡Perfecto!`);
+      if (ZOORIGEN_CLUB.hasActiveMembership(member)) {
+        addCheck('pass', 'Membresía vigente ✨',
+          `Estado: <code>${ZOORIGEN_CLUB.calculateStatus(member)}</code> · acceso hasta <code>${ZOORIGEN_CLUB.formatShort(member.planVence)}</code>.`);
       } else if (member.planActivo === "true") {
         addCheck('fail', 'planActivo es STRING, debe ser BOOLEAN',
-          `Valor actual: <code>"true"</code> (string) — Firebase exige que sea <code>true</code> (boolean).<br>
-           Ve a Firebase Console → miembros → tu doc → edita <code>planActivo</code> → cambia el tipo a <strong>boolean</strong>.`);
+          `Valor actual: <code>"true"</code> (string). Este dato no concede acceso.<br>
+           Usa el botón de verificar membresía o pide a soporte revisar el pago; no edites el campo manualmente.`);
       } else if (member.planActivo === false || member.planActivo === "false") {
-        addCheck('fail', 'planActivo es FALSE',
-          `Tu plan aparece como inactivo. Valor: <code>${member.planActivo}</code><br>
-           Si eres admin, ponlo en <code>true</code> (boolean) para probar.`);
+        addCheck('warn', 'Cuenta gratuita',
+          `No hay una membresía vigente confirmada. Puedes ver la primera clase gratis; verifica tu membresía si ya realizaste un pago.`);
       } else {
-        addCheck('fail', 'planActivo NO existe o es inválido',
-          `Valor: <code>${member.planActivo}</code> (tipo: <code>${planActivoType}</code>)<br>
-           Este campo DEBE existir como boolean <code>true</code> para que puedas crear certificados.`);
+        addCheck('warn', 'Membresía sin confirmar',
+          `No existe una vigencia de pago válida. Puedes ver la primera clase gratis; si ya pagaste, solicita una verificación.`);
       }
 
       // ═══ Check 6: Reglas de certificados (intentar leer) ═══
@@ -236,7 +235,7 @@
         addCheck('fail', 'NO puedes crear certificados',
           `Error: <code>${err.code}</code><br>
            Mensaje: <code>${err.message}</code><br><br>
-           <strong>Causa más común:</strong> las reglas v6 no están publicadas, o <code>planActivo</code> no es boolean <code>true</code>.`);
+           <strong>Causa más común:</strong> las reglas de Firestore no están publicadas o la membresía no tiene una vigencia confirmada.`);
       }
 
       // ═══ Check 8: localStorage ═══
@@ -303,7 +302,7 @@
         log(`Mensaje: ${err.message}`, 'error');
         log(`\n💡 Causas probables:`, 'warn');
         log(`  1. Las reglas v6 NO están publicadas en Firebase Console`, 'warn');
-        log(`  2. Tu planActivo no es boolean true`, 'warn');
+        log(`  2. Tu membresía no tiene una vigencia confirmada`, 'warn');
         log(`  3. Tu UID no coincide con memberUid en los datos`, 'warn');
       }
     }

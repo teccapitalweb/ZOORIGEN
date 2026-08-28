@@ -881,7 +881,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20260820"></script>
+  <script src="../assets/js/club.js?v=20260828-membership1"></script>
   <script>
     const CAT_LABELS = {
       'casos': zooIcon('heartpulse', 13) + ' Casos clínicos',
@@ -1080,7 +1080,7 @@
     async function toggleLike(postId, btn, ev) {
       if (ev) ev.stopPropagation();
       // Solo VIP puede dar like
-      const esVIP = currentSession.planActivo === true || currentSession.planStatus === 'active' || currentSession.planStatus === 'cancelled_active';
+      const esVIP = ZOORIGEN_CLUB.hasActiveMembership(currentSession);
       if (!esVIP) {
         alert('🔒 Solo los miembros VIP pueden dar like. Suscríbete para interactuar en el foro.');
         return;
@@ -1127,9 +1127,7 @@
 
     function openNewPostModal() {
       // Permitir publicar si tiene plan activo O cancelado pero aún con acceso vigente
-      const tieneAcceso = currentSession.planActivo === true ||
-                          currentSession.planStatus === 'active' || currentSession.planStatus === 'cancelled_active' ||
-                          (currentSession.planStatus === 'cancelled' && currentSession.planVence && new Date(currentSession.planVence) > new Date());
+      const tieneAcceso = ZOORIGEN_CLUB.hasActiveMembership(currentSession);
 
       if (!tieneAcceso) {
         alert('⚠️ Necesitas membresía VIP activa para publicar en el foro. Ve a "Suscripción" para activar la tuya.');
@@ -1373,7 +1371,7 @@
 
       document.getElementById('submitReply').addEventListener('click', async () => {
         // Solo VIP puede responder
-        const esVIP = currentSession.planActivo === true || currentSession.planStatus === 'active' || currentSession.planStatus === 'cancelled_active';
+        const esVIP = ZOORIGEN_CLUB.hasActiveMembership(currentSession);
         if (!esVIP) {
           alert('🔒 Solo los miembros VIP pueden responder. Suscríbete para interactuar en el foro.');
           return;

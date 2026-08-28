@@ -15,17 +15,41 @@ service cloud.firestore {
     function isActiveVIP() {
       return isAuthed()
         && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
-        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planActivo == true;
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planActivo == true
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planVence is timestamp
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planVence > request.time;
     }
 
     // ══ MIEMBROS ══
     match /miembros/{uid} {
       allow read: if isAuthed() && (request.auth.uid == uid || isAdmin());
-      allow create: if isAuthed() && request.auth.uid == uid;
+      // Una cuenta nueva siempre nace gratuita. El cliente no puede otorgarse
+      // rol admin, vigencia, estado de pago ni identificadores de Stripe.
+      allow create: if isAuthed() && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.role == 'member'
+        && request.resource.data.planActivo == false
+        && request.resource.data.planCancelado == false
+        && request.resource.data.planTipo == null
+        && request.resource.data.planInicio == null
+        && request.resource.data.planVence == null
+        && request.resource.data.ultimoPago == null
+        && !request.resource.data.keys().hasAny([
+          'planStatus', 'stripeCustomerId', 'stripeSubscriptionId',
+          'stripeSubscriptionStatus', 'activadoManualmente', 'activadoPor',
+          'metodoPago', 'montoPagado', 'actualizadoDesdeStripe', 'shopifyOrderId'
+        ]);
       allow update: if isAdmin() || (
         isAuthed() && request.auth.uid == uid
         && !request.resource.data.diff(resource.data).affectedKeys()
-            .hasAny(['planActivo', 'planCancelado', 'planTipo', 'planVence', 'planInicio', 'ultimoPago', 'role'])
+            .hasAny([
+              'planActivo', 'planCancelado', 'planTipo', 'planVence',
+              'planInicio', 'ultimoPago', 'planStatus', 'role',
+              'stripeCustomerId', 'stripeSubscriptionId',
+              'stripeSubscriptionStatus', 'activadoManualmente', 'activadoPor',
+              'metodoPago', 'montoPagado', 'actualizadoDesdeStripe',
+              'shopifyOrderId'
+            ])
       );
       allow delete: if isAdmin();
     }

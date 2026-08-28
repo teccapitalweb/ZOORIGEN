@@ -134,7 +134,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20260820"></script>
+  <script src="../assets/js/club.js?v=20260828-membership1"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -149,16 +149,21 @@
       document.getElementById('profileEmail').textContent = session.email;
       document.getElementById('profilePhone').textContent = session.phone || 'No registrado';
       const statusMap = {
-        'active': '<span style="color:var(--zoo-green-500);">● Activa</span>',
-        'pending_payment': '<span style="color:var(--zoo-amber);">⏳ Pago pendiente</span>',
-        'cancelled': '<span style="color:var(--zoo-orange);">✕ Cancelada</span>'
+        'active': '<span style="color:var(--zoo-green-500);">● Membresía activa</span>',
+        'cancelled_active': '<span style="color:var(--zoo-amber);">⏳ Cancelada · acceso vigente</span>',
+        'pending_payment': '<span style="color:var(--zoo-amber);">Cuenta gratuita</span>',
+        'past_due': '<span style="color:var(--zoo-orange);">⚠ Pago no confirmado</span>',
+        'expired': '<span style="color:var(--zoo-orange);">✕ Membresía vencida</span>'
       };
       document.getElementById('profileStatus').innerHTML = statusMap[session.planStatus] || '—';
       document.getElementById('profileSince').textContent = session.createdAt ? ZOORIGEN_CLUB.formatShort(session.createdAt) : '—';
       document.getElementById('profileRenew').textContent = session.planVence ? ZOORIGEN_CLUB.formatShort(session.planVence) : 'Pendiente';
       document.getElementById('profileLast').textContent = session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : 'Sin pagos aún';
-      if (session.planStatus === 'active' || session.planStatus === 'cancelled_active') document.getElementById('vipTag').textContent = 'Miembro VIP Activo';
-      else if (session.planStatus === 'cancelled') document.getElementById('vipTag').textContent = 'Membresía cancelada';
+      if (session.planStatus === 'active') document.getElementById('vipTag').textContent = 'Membresía activa';
+      else if (session.planStatus === 'cancelled_active') document.getElementById('vipTag').textContent = 'Acceso vigente hasta el fin del periodo';
+      else if (session.planStatus === 'past_due') document.getElementById('vipTag').textContent = 'Pago no confirmado';
+      else if (session.planStatus === 'expired') document.getElementById('vipTag').textContent = 'Membresía vencida';
+      else document.getElementById('vipTag').textContent = 'Cuenta gratuita';
 
       // ═══════════════ EDITAR NOMBRE ═══════════════
       const editBtn = document.getElementById('editNameBtn');

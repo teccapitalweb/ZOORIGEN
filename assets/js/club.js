@@ -20,9 +20,6 @@ async function iniciarPagoStripe(planType, email) {
     window.location.href = 'club-registro.html';
     return;
   }
-  const userEmail = email || user.email;
-  const priceId = planType === 'anual' ? STRIPE_CONFIG.PRICE_ANUAL : STRIPE_CONFIG.PRICE_MENSUAL;
-
   // Mostrar overlay de carga
   const overlay = document.createElement('div');
   const isAnual = planType === 'anual';
@@ -42,13 +39,14 @@ async function iniciarPagoStripe(planType, email) {
   document.body.appendChild(overlay);
 
   try {
+    const idToken = await user.getIdToken();
     const response = await fetch(STRIPE_CONFIG.API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`,
+      },
       body: JSON.stringify({
-        priceId: priceId,
-        firebaseUID: user.uid,
-        email: userEmail,
         planType: planType,
       }),
     });
@@ -69,19 +67,21 @@ async function iniciarPagoStripe(planType, email) {
 async function iniciarPagoEmbedded(planType, email, containerId) {
   const user = firebase.auth().currentUser;
   if (!user) { alert('Debes iniciar sesión primero'); return; }
-  const userEmail = email || user.email;
-  const priceId = planType === 'anual' ? STRIPE_CONFIG.PRICE_ANUAL : STRIPE_CONFIG.PRICE_MENSUAL;
   const container = document.getElementById(containerId);
   if (!container) return;
 
   container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--zoo-text-muted);">Cargando formulario de pago...</div>';
 
   try {
+    const idToken = await user.getIdToken();
     const response = await fetch(STRIPE_CONFIG.API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`,
+      },
       body: JSON.stringify({
-        priceId, firebaseUID: user.uid, email: userEmail, planType, embedded: true,
+        planType, embedded: true,
       }),
     });
     const data = await response.json();
@@ -1219,6 +1219,8 @@ const ZOORIGEN_CLUB = {
             planInicio: data.planInicio || null,
             planVence: data.planVence || null,
             ultimoPago: data.ultimoPago || null,
+            stripeSubscriptionId: data.stripeSubscriptionId || null,
+            stripeSubscriptionStatus: data.stripeSubscriptionStatus || null,
             createdAt: data.createdAt || null,
             streak: data.streak || 0,
             planStatus: this.calculateStatus(data)
@@ -1233,33 +1235,48 @@ const ZOORIGEN_CLUB = {
 
   calculateStatus(data) {
     if (!data) return 'pending_payment';
-    if (data.planActivo && !data.planCancelado) return 'active';
-    if (data.planActivo && data.planCancelado) {
-      // Cancelado pero todavía con tiempo → acceso hasta que venza
-      const vence = data.planVence?.toDate ? data.planVence.toDate() : (data.planVence ? new Date(data.planVence) : null);
-      if (vence && vence > new Date()) return 'cancelled_active'; // tiene acceso aún
-      return 'expired'; // ya venció
-    }
-    // planActivo false pero tiene fecha de vencimiento futura (por si acaso)
-    if (!data.planActivo && data.planVence) {
-      const vence = data.planVence?.toDate ? data.planVence.toDate() : new Date(data.planVence);
-      if (vence > new Date()) return 'cancelled_active';
-    }
+    const vence = this.toDate(data.planVence || data.fechaExpiracion);
+    const vigente = Boolean(vence && vence.getTime() > Date.now());
+    const estadoCobro = data.stripeSubscriptionStatus || data.planStatus;
+    if (['past_due', 'unpaid', 'incomplete'].includes(estadoCobro)) return 'past_due';
+    if (data.planStatus === 'cancelled_active' && vigente) return 'cancelled_active';
+    if (data.planCancelado && vigente && data.planActivo !== false) return 'cancelled_active';
+    if (data.planActivo === true && vigente) return 'active';
+    if (vence && !vigente) return 'expired';
     return 'pending_payment';
+  },
+
+  hasActiveMembership(session) {
+    if (!session) return false;
+    const status = this.calculateStatus(session);
+    return status === 'active' || status === 'cancelled_active';
+  },
+
+  toDate(value) {
+    if (!value) return null;
+    if (typeof value.toDate === 'function') return value.toDate();
+    if (Number.isFinite(value.seconds)) return new Date(value.seconds * 1000);
+    if (Number.isFinite(value._seconds)) return new Date(value._seconds * 1000);
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
   },
 
   async cancelSubscription() {
     try {
       const user = auth.currentUser;
       if (!user) throw new Error('No hay sesión');
+      const idToken = await user.getIdToken();
       const res = await fetch(`${WEBHOOK_SERVER_URL}/cancel-subscription`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firebaseUID: user.uid }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({}),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al cancelar');
-      return { ok: true, msg: data.message };
+      return { ok: true, msg: data.message, accesoHasta: data.accesoHasta || null };
     } catch (err) {
       console.error('Cancel error:', err);
       return { ok: false, msg: 'No se pudo cancelar. Escríbenos por WhatsApp.' };
@@ -1283,8 +1300,8 @@ const ZOORIGEN_CLUB = {
   formatShort(isoDate) {
     if (!isoDate) return '—';
     try {
-      const d = new Date(isoDate);
-      if (isNaN(d.getTime())) return '—';
+      const d = this.toDate(isoDate);
+      if (!d) return '—';
       const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
       return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
     } catch { return '—'; }
@@ -1296,15 +1313,15 @@ const ZOORIGEN_CLUB = {
   },
 
   renderSidebar(activeId, session) {
-    const planLabel = session?.planStatus === 'active' ? 'Plan activo' :
-                      session?.planStatus === 'cancelled_active' ? 'Plan cancelado' :
-                      session?.planStatus === 'pending_payment' ? 'Pago pendiente' :
-                      session?.planStatus === 'expired' ? 'Plan vencido' :
-                      session?.planStatus === 'cancelled' ? 'Plan cancelado' : 'Plan';
+    const planLabel = session?.planStatus === 'active' ? 'Membresía activa' :
+                      session?.planStatus === 'cancelled_active' ? 'Acceso vigente' :
+                      session?.planStatus === 'past_due' ? 'Pago no confirmado' :
+                      session?.planStatus === 'expired' ? 'Membresía vencida' :
+                      'Cuenta gratuita';
     const renewText = session?.planVence
-      ? `${session.planStatus === 'cancelled_active' ? 'Acceso hasta' : session.planStatus === 'cancelled' || session.planStatus === 'expired' ? 'Venció' : 'Renueva'} ${this.formatShort(session.planVence)}`
-      : 'Pendiente de activación';
-    const isActivePlan = session?.planActivo === true || session?.planStatus === 'active' || session?.planStatus === 'cancelled_active';
+      ? `${session.planStatus === 'active' ? 'Renueva' : session.planStatus === 'cancelled_active' ? 'Acceso hasta' : 'Venció'} ${this.formatShort(session.planVence)}`
+      : 'Primera clase gratis';
+    const isActivePlan = this.hasActiveMembership(session);
     const planDotColor = session?.planStatus === 'active' ? '#6FBF73' : session?.planStatus === 'cancelled_active' ? '#E8A317' : !isActivePlan ? '#E8A317' : '#a0a8a4';
     const planLabelColor = isActivePlan ? 'var(--zoo-green-500, #6FBF73)' : 'var(--zoo-amber, #E8A317)';
 
@@ -1340,7 +1357,7 @@ const ZOORIGEN_CLUB = {
         <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
         <div class="club-sidebar__brand-text">
           <h3>Zoorigen</h3>
-          <small>Club VIP${!isActivePlan ? ' <span style="color:var(--zoo-amber,#E8A317);font-weight:700;">· Pendiente</span>' : ''}</small>
+          <small>${isActivePlan ? 'Club VIP' : 'Acceso gratuito'}</small>
         </div>
       </div>
       <div class="club-sidebar__section">Principal</div>
@@ -1567,7 +1584,7 @@ const ZOORIGEN_CLUB = {
   // Retorna true si tiene acceso, false si se mostró el paywall.
   requireVIP(session, accionLabel) {
     if (!session) return false;
-    const isActive = session.planActivo === true || session.planStatus === 'active' || session.planStatus === 'cancelled_active';
+    const isActive = this.hasActiveMembership(session);
     if (isActive) return true;
     this.showPaywall(session, accionLabel);
     return false;
@@ -1639,7 +1656,7 @@ const ZOORIGEN_CLUB = {
 
   // Intercepta clicks en elementos con data-vip-required para mostrar paywall
   enablePaywallOnPage(session) {
-    const isActive = session && (session.planActivo === true || session.planStatus === 'active' || session.planStatus === 'cancelled_active');
+    const isActive = this.hasActiveMembership(session);
     if (isActive) return; // Miembro activo o cancelado con tiempo, no hace falta bloquear
 
     // Buscar todos los elementos con data-vip-required y bloquearlos
@@ -1671,8 +1688,8 @@ const ZOORIGEN_CLUB = {
       banner.innerHTML = `
         <div style="font-size:1.8rem;line-height:1;">🔒</div>
         <div style="flex:1;min-width:200px;">
-          <div style="font-family:Poppins;font-weight:800;font-size:.98rem;margin-bottom:2px;">Modo exploración · Suscríbete para desbloquear todo</div>
-          <div style="font-size:.82rem;opacity:.88;">Puedes navegar pero no acceder a cursos, webinars, foro y herramientas sin membresía.</div>
+          <div style="font-family:Poppins;font-weight:800;font-size:.98rem;margin-bottom:2px;">Acceso gratuito · Tu primera clase está incluida</div>
+          <div style="font-size:.82rem;opacity:.88;">Activa tu membresía para continuar con la clase 2 y abrir el resto de los cursos.</div>
         </div>
         <div style="background:#1f1d17;color:#E8A317;padding:8px 18px;border-radius:10px;font-family:Poppins;font-weight:800;font-size:.88rem;">Suscribirme</div>
       `;

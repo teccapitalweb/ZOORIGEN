@@ -33,7 +33,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20260820"></script>
+  <script src="../assets/js/club.js?v=20260828-membership1"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -45,17 +45,23 @@
       const content = document.getElementById('subContent');
       let html = '';
 
-      if (session.planStatus === 'pending_payment') {
+      if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
+        const estadoTitulo = session.planStatus === 'expired' ? 'Tu membresía venció' : session.planStatus === 'past_due' ? 'No pudimos confirmar tu último pago' : 'Activa tu membresía';
+        const estadoMensaje = session.planStatus === 'expired'
+          ? 'Tu periodo de acceso terminó. Elige un plan para volver a abrir todas las clases y cursos.'
+          : session.planStatus === 'past_due'
+            ? 'Tu acceso está pausado hasta que Stripe confirme el cobro. Puedes verificar de nuevo o elegir un plan.'
+            : 'Tu cuenta gratuita ya está lista e incluye la primera clase del primer curso. Elige un plan para continuar desde la clase 2.';
         // Stripe Checkout Sessions — los botones llaman a openCheckoutModal que usa iniciarPagoStripe
         html += `
           <div class="card" style="background:linear-gradient(135deg,rgba(232,163,23,0.12),rgba(213,90,40,0.08));border-color:var(--zoo-amber);margin-bottom:20px;">
-            <h2 style="color:var(--zoo-amber);font-size:1.3rem;margin-bottom:10px;">⏳ Activa tu membresía VIP</h2>
-            <p style="margin-bottom:20px;">Tu cuenta está creada. Elige tu plan y activa todos los beneficios VIP ahora mismo.</p>
+            <h2 style="color:var(--zoo-amber);font-size:1.3rem;margin-bottom:10px;">${estadoTitulo}</h2>
+            <p style="margin-bottom:20px;">${estadoMensaje}</p>
 
             <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,163,23,0.3);border-radius:10px;padding:14px 18px;margin-top:16px;">
               <div style="color:#fff;font-weight:600;font-size:.95rem;margin-bottom:6px;">💰 ¿Ya realizaste el pago?</div>
               <p style="color:var(--zoo-text-muted);font-size:.84rem;margin-bottom:12px;line-height:1.5;">
-                Si ya pagaste pero tu membresía no se activó, presiona el botón para verificar tu pago manualmente.
+                Si ya pagaste, consulta el estado directamente con Stripe. La verificación no genera ningún cobro.
               </p>
               <button id="verifyPaymentBtn" class="btn-club-outline" style="width:auto;padding:10px 22px;border:1px solid var(--zoo-amber);color:var(--zoo-amber);font-family:inherit;font-size:.92rem;cursor:pointer;">
                 🔍 Verificar mi pago
@@ -97,7 +103,7 @@
           <p style="text-align:center;color:var(--zoo-text-dim);font-size:.84rem;margin-top:18px;">🔒 Pago seguro procesado por Stripe · Tu membresía se activa automáticamente al completar el pago</p>`;
       } else {
         // Calcular si todavía tiene tiempo disponible (para mostrar opción de reanudar sin pagar)
-        const fechaVence = session.planVence ? new Date(session.planVence) : null;
+        const fechaVence = ZOORIGEN_CLUB.toDate(session.planVence);
         const tieneTiempo = fechaVence && fechaVence.getTime() > Date.now();
         const diasRestantes = tieneTiempo ? Math.ceil((fechaVence - new Date()) / (1000*60*60*24)) : 0;
 
@@ -105,27 +111,11 @@
           <div class="card">
             <h2 style="color:#fff;font-size:1.2rem;margin-bottom:14px;">Plan actual</h2>
             <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value">Miembro VIP Zoorigen</div></div>
-            <div class="info-row"><div class="info-row__label">Precio</div><div class="info-row__value">$199 MXN / mes</div></div>
-            <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-green-500);">● Activa</span>' : session.planStatus === 'cancelled_active' ? '<span style="color:var(--zoo-amber);">⏳ Cancelada (acceso activo)</span>' : '<span style="color:var(--zoo-orange);">✕ Cancelada</span>'}</div></div>
-            <div class="info-row"><div class="info-row__label">${session.planStatus === 'active' || session.planStatus === 'cancelled_active' ? 'Próxima renovación' : 'Acceso hasta'}</div><div class="info-row__value">${ZOORIGEN_CLUB.formatShort(session.planVence)}</div></div>
+            <div class="info-row"><div class="info-row__label">Precio</div><div class="info-row__value">${session.planTipo === 'anual' ? '$1,899 MXN / año' : '$199 MXN / mes'}</div></div>
+            <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-green-500);">● Membresía activa</span>' : '<span style="color:var(--zoo-amber);">⏳ Cancelada · acceso vigente</span>'}</div></div>
+            <div class="info-row"><div class="info-row__label">${session.planStatus === 'active' ? 'Próxima renovación' : 'Acceso hasta'}</div><div class="info-row__value">${ZOORIGEN_CLUB.formatShort(session.planVence)}</div></div>
             <div class="info-row"><div class="info-row__label">Último pago</div><div class="info-row__value">${session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : '—'}</div></div>
           </div>`;
-
-        // Si está CANCELADO pero todavía con tiempo → ofrecer reanudar sin pagar
-        if (session.planStatus === 'cancelled' && tieneTiempo) {
-          html += `
-            <div class="card" style="margin-top:20px;background:linear-gradient(135deg,rgba(111,191,115,0.12),rgba(31,95,58,0.15));border:1px solid rgba(111,191,115,0.4);">
-              <h2 style="color:var(--zoo-green-500);font-size:1.15rem;margin-bottom:10px;">💚 ¿Te arrepentiste? Reanuda tu membresía</h2>
-              <p style="margin-bottom:14px;color:var(--zoo-text-muted);font-size:.92rem;line-height:1.55;">
-                Tu membresía está cancelada pero aún tienes <strong style="color:var(--zoo-green-500);">${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} de acceso</strong>.
-                Puedes reactivarla ahora mismo <strong>sin costo adicional</strong> y seguir disfrutando de todos los beneficios VIP con renovación automática.
-              </p>
-              <button id="reanudarBtn" class="btn-club" style="display:inline-block;width:auto;padding:12px 24px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">
-                ✓ Reanudar mi membresía
-              </button>
-              <div id="reanudarMsg" style="margin-top:12px;"></div>
-            </div>`;
-        }
 
         // Zona de peligro / reactivar con pago (si ya se venció)
         html += `
@@ -188,7 +178,7 @@
           try {
             const doc = await db.collection('miembros').doc(session.uid).get();
             const data = doc.data() || {};
-            if (data.planActivo === true || data.planStatus === 'active') {
+            if (ZOORIGEN_CLUB.hasActiveMembership(data)) {
               clearInterval(autoCheck);
               // Éxito: cambiar overlay a mensaje de bienvenida + redirect
               overlay.innerHTML = `
@@ -231,12 +221,21 @@
           msgEl.innerHTML = '';
 
           try {
-            // Recargar el doc del miembro desde Firestore
-            const doc = await db.collection('miembros').doc(session.uid).get();
-            const data = doc.data() || {};
+            const currentUser = firebase.auth().currentUser;
+            const idToken = await currentUser.getIdToken();
+            const response = await fetch(WEBHOOK_SERVER_URL + '/verify-membership', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`,
+              },
+              body: JSON.stringify({}),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'No se pudo verificar');
 
-            if (data.planActivo === true || data.planStatus === 'active') {
-              msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ ¡Pago encontrado! Tu membresía está activa. Recargando...</div>`;
+            if (data.active === true) {
+              msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ Pago confirmado. Tu acceso está vigente${data.expiresAt ? ' hasta ' + ZOORIGEN_CLUB.formatShort(data.expiresAt) : ''}. Recargando...</div>`;
               setTimeout(() => window.location.href = 'club-dashboard.html', 1500);
               return;
             }
@@ -244,10 +243,9 @@
             // Si el webhook no ha activado, mostrar info de contacto
             msgEl.innerHTML = `
               <div style="background:rgba(232,163,23,0.08);border:1px solid rgba(232,163,23,0.3);padding:14px;border-radius:8px;margin-top:6px;">
-                <div style="color:var(--zoo-amber);font-weight:700;margin-bottom:8px;font-size:.92rem;">⚠️ Aún no recibimos la confirmación del pago</div>
+                <div style="color:var(--zoo-amber);font-weight:700;margin-bottom:8px;font-size:.92rem;">No hay una membresía pagada vigente</div>
                 <p style="color:var(--zoo-text-muted);font-size:.84rem;line-height:1.5;margin-bottom:10px;">
-                  Si ya pagaste, espera 1-2 minutos y vuelve a presionar el botón.<br>
-                  Si ya esperaste más de 5 minutos, envía captura de tu pago a soporte:
+                  Puedes seguir viendo gratis la primera clase del primer curso. Si tu cargo ya aparece en el banco, contacta a soporte para revisar el pago sin cobrarte de nuevo:
                 </p>
                 <a href="https://wa.me/5212361113237?text=Hola%2C%20ya%20pagu%C3%A9%20Club%20VIP%20Zoorigen%20pero%20no%20se%20activa%20mi%20membres%C3%ADa.%20Mi%20email%20es%3A%20${encodeURIComponent(session.email)}" target="_blank" style="display:inline-block;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.88rem;">
                   💬 Contactar soporte por WhatsApp
@@ -258,7 +256,8 @@
             verifyBtn.textContent = '🔍 Verificar mi pago';
           } catch (err) {
             console.error(err);
-            msgEl.innerHTML = `<div style="color:var(--zoo-orange);font-size:.88rem;">Error al verificar. Intenta de nuevo.</div>`;
+            msgEl.innerHTML = '<div style="color:var(--zoo-orange);font-size:.88rem;"></div>';
+            msgEl.firstElementChild.textContent = err.message || 'No se pudo verificar. Intenta de nuevo.';
             verifyBtn.disabled = false;
             verifyBtn.textContent = '🔍 Verificar mi pago';
           }
@@ -294,10 +293,15 @@
           const msgEl = document.getElementById('reanudarMsg');
           try {
             // Llamar al webhook para reactivar en Stripe
+            const currentUser = firebase.auth().currentUser;
+            const idToken = await currentUser.getIdToken();
             const res = await fetch(WEBHOOK_SERVER_URL + '/reactivate-subscription', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ firebaseUID: session.uid }),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`,
+              },
+              body: JSON.stringify({}),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al reanudar');

@@ -340,7 +340,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20260820"></script>
+  <script src="../assets/js/club.js?v=20260828-membership1"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -408,7 +408,7 @@
             nombre: d.name || d.nombreCompleto || d.email?.split('@')[0] || 'Sin nombre',
             email: d.email,
             fechaRegistro: d.createdAt,
-            pagado: d.planActivo === true || d.planStatus === 'active'
+            pagado: ZOORIGEN_CLUB.hasActiveMembership(d)
           });
         });
 
