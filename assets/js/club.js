@@ -133,6 +133,23 @@ const ZOORIGEN_CLUB = {
   icon: zooIcon,
 
   // ============== LECTURA DE CONTENIDO DESDE FIRESTORE ==============
+  async getCoursePreview() {
+    if (!this._previewPromise) {
+      this._previewPromise = fetch('https://zoorigen-webhook-production.up.railway.app/api/course-preview', { cache: 'no-store' })
+        .then(async response => {
+          if (!response.ok) throw new Error('No se pudo consultar el curso inicial');
+          const policy = await response.json();
+          if (policy.version !== 1 || typeof policy.courseKey !== 'string' || typeof policy.courseTitle !== 'string' ||
+              !Array.isArray(policy.lecciones) || !Array.isArray(policy.freeVideoIds) ||
+              policy.lessonCount !== policy.lecciones.length) throw new Error('Política de acceso no válida');
+          const eligible = new Set(policy.lecciones.slice(0, -1).map(lesson => lesson.videoId));
+          if (!policy.freeVideoIds.every(id => eligible.has(id))) throw new Error('Política de acceso no válida');
+          return policy;
+        }).catch(error => { console.warn('[Curso inicial]', error.message); this._previewPromise = null; return null; });
+    }
+    return this._previewPromise;
+  },
+
   async getCursos() {
     try {
       const snap = await db.collection('cursos').orderBy('createdAt', 'desc').get();
@@ -1320,7 +1337,7 @@ const ZOORIGEN_CLUB = {
                       'Cuenta gratuita';
     const renewText = session?.planVence
       ? `${session.planStatus === 'active' ? 'Renueva' : session.planStatus === 'cancelled_active' ? 'Acceso hasta' : 'Venció'} ${this.formatShort(session.planVence)}`
-      : 'Primera clase gratis';
+      : 'Curso inicial gratis · última clase con membresía';
     const isActivePlan = this.hasActiveMembership(session);
     const planDotColor = session?.planStatus === 'active' ? '#6FBF73' : session?.planStatus === 'cancelled_active' ? '#E8A317' : !isActivePlan ? '#E8A317' : '#a0a8a4';
     const planLabelColor = isActivePlan ? 'var(--zoo-green-500, #6FBF73)' : 'var(--zoo-amber, #E8A317)';
@@ -1346,6 +1363,7 @@ const ZOORIGEN_CLUB = {
     // Auto-activar paywall en TODAS las páginas (se ejecuta después de renderizar)
     // Excepto en suscripción y perfil (ahí es donde el usuario va a pagar / editar datos)
     setTimeout(() => {
+      if (activeId !== 'biblioteca' && activeId !== 'inicio') this.showOnboarding(session);
       if (activeId !== 'suscripcion' && activeId !== 'perfil') {
         this.enablePaywallOnPage(session);
       }
@@ -1418,102 +1436,39 @@ const ZOORIGEN_CLUB = {
     });
   },
 
-  // ============== GUÍA DE BIENVENIDA (onboarding profesional) ==============
-  showOnboarding(session) {
-    if (!session) return;
-    const key = 'zoo_onboard_done_' + session.uid;
-    if (localStorage.getItem(key)) return;
-
-    const nombre = (session.name || session.email.split('@')[0]).split(' ')[0];
-
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .4s ease;';
-    overlay.innerHTML = `
-      <style>
-        @keyframes zooFadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
-        @keyframes zooFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        @keyframes confettiFall { 0%{transform:translateY(-100vh) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
-        .zoo-confetti { position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100000;overflow:hidden; }
-        .zoo-confetti-piece { position:absolute;width:10px;height:10px;top:-20px;animation:confettiFall linear forwards; }
-        .zoo-welcome-box { max-width:520px;width:100%;max-height:92vh;overflow-y:auto;background:linear-gradient(160deg,#0F3B22 0%,#1a4a2e 40%,#0d2f1a 100%);border:2px solid rgba(232,163,23,0.3);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;z-index:100001; }
-        .zoo-welcome-close { position:absolute;top:14px;right:14px;z-index:5;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s; }
-        .zoo-welcome-close:hover { background:rgba(0,0,0,0.55);transform:scale(1.08); }
-        .zoo-welcome-top { background:linear-gradient(135deg,rgba(232,163,23,0.15),rgba(111,191,115,0.1));padding:40px 30px 20px;text-align:center;position:relative; }
-        .zoo-welcome-logo { width:80px;height:80px;border-radius:50%;border:3px solid rgba(232,163,23,0.4);margin:0 auto 16px;animation:zooFloat 3s ease-in-out infinite;object-fit:cover; }
-        .zoo-welcome-confetti { font-size:2rem;margin-bottom:8px; }
-        .zoo-welcome-title { color:#fff;font-family:'Poppins',sans-serif;font-size:1.6rem;font-weight:800;margin:0 0 4px;line-height:1.2; }
-        .zoo-welcome-name { color:#E8A317;font-size:1.8rem;font-weight:800;font-family:'Poppins',sans-serif; }
-        .zoo-welcome-sub { color:rgba(255,255,255,0.7);font-size:.92rem;margin-top:8px; }
-        .zoo-welcome-body { padding:24px 30px 30px; }
-        .zoo-welcome-features { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px; }
-        .zoo-welcome-feat { background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;text-align:center; }
-        .zoo-welcome-feat-icon { font-size:1.5rem;margin-bottom:6px; }
-        .zoo-welcome-feat-text { color:rgba(255,255,255,0.85);font-size:.82rem;font-weight:600; }
-        .zoo-welcome-cta { display:block;width:100%;padding:16px;background:linear-gradient(135deg,#E8A317,#D55A28);color:#fff;border:0;border-radius:14px;font-family:'Poppins',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:all .2s; }
-        .zoo-welcome-cta:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,163,23,0.4); }
-        .zoo-welcome-skip { display:block;text-align:center;margin-top:12px;color:rgba(255,255,255,0.4);font-size:.8rem;cursor:pointer;border:0;background:0; }
-        @media(max-width:500px) { .zoo-welcome-features{grid-template-columns:1fr;} .zoo-welcome-title{font-size:1.3rem;} .zoo-welcome-name{font-size:1.5rem;} .zoo-welcome-top{padding:30px 20px 16px;} .zoo-welcome-body{padding:20px;} }
-      </style>
-      <div class="zoo-welcome-box">
-        <button class="zoo-welcome-close" id="zooWelcomeClose" aria-label="Cerrar">✕</button>
-        <div class="zoo-welcome-top">
-          <div class="zoo-welcome-confetti">🎉</div>
-          <img src="../assets/img/logo/logo.jpg" class="zoo-welcome-logo" alt="Zoorigen">
-          <div class="zoo-welcome-title">¡Bienvenido al Club VIP!</div>
-          <div class="zoo-welcome-name">${nombre}</div>
-          <div class="zoo-welcome-sub">Ya eres parte de la comunidad científica de fauna más completa de México</div>
-        </div>
-        <div class="zoo-welcome-body">
-          <div class="zoo-welcome-features">
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">📚</div><div class="zoo-welcome-feat-text">Cursos completos</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">🎥</div><div class="zoo-welcome-feat-text">Webinars en vivo</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">🧬</div><div class="zoo-welcome-feat-text">Herramientas clínicas</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">⚖️</div><div class="zoo-welcome-feat-text">Herramientas legales</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">🏆</div><div class="zoo-welcome-feat-text">Logros y recompensas</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">💬</div><div class="zoo-welcome-feat-text">Foro VIP exclusivo</div></div>
-          </div>
-          <button class="zoo-welcome-cta" id="zooWelcomeStart">Explorar mi Club VIP 🚀</button>
-          <button class="zoo-welcome-skip" id="zooWelcomeSkip">Saltar</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-    document.body.style.overflow = 'hidden';
-
-    // Generar confetti
-    const confettiContainer = document.createElement('div');
-    confettiContainer.className = 'zoo-confetti';
-    const colors = ['#E8A317','#6FBF73','#D55A28','#2AA4D5','#fff','#F5C62E','#ff6b9d'];
-    const shapes = ['circle','square'];
-    for (let i = 0; i < 60; i++) {
-      const piece = document.createElement('div');
-      piece.className = 'zoo-confetti-piece';
-      const color = colors[Math.floor(Math.random()*colors.length)];
-      const shape = shapes[Math.floor(Math.random()*shapes.length)];
-      const size = 6 + Math.random()*8;
-      piece.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${size}px;background:${color};border-radius:${shape==='circle'?'50%':'2px'};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.5}s;`;
-      confettiContainer.appendChild(piece);
-    }
-    document.body.appendChild(confettiContainer);
-    setTimeout(() => confettiContainer.remove(), 5000);
-
-    const close = () => {
-      overlay.style.opacity = '0';
-      overlay.style.transition = 'opacity .3s';
-      setTimeout(() => { overlay.remove(); document.body.style.overflow = ''; }, 300);
-      localStorage.setItem(key, new Date().toISOString());
-    };
-
-    document.getElementById('zooWelcomeStart').addEventListener('click', close);
-    document.getElementById('zooWelcomeSkip').addEventListener('click', close);
-    document.getElementById('zooWelcomeClose').addEventListener('click', close);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  // Recorrido con acceso gratuito explicado antes de empezar y repetible en cada página.
+  async showOnboarding(session, autoStart = true) {
+    if (!session || !window.MembershipTour) return null;
+    if (this._tour) return this._tour;
+    if (this._tourPromise) return this._tourPromise;
+    this._tourPromise = (async () => {
+      const policy = await this.getCoursePreview();
+      const access = policy && policy.freeVideoIds.length
+        ? 'Disfruta tu curso inicial gratis: ' + policy.courseTitle + '. Incluye ' + policy.freeVideoIds.length + ' de sus ' + policy.lessonCount + ' clases; la última requiere membresía. Los demás cursos son de pago.'
+        : 'Tu curso inicial incluye acceso gratuito a las clases previas a la última. La última clase y los demás cursos requieren membresía. Consulta en Biblioteca la disponibilidad actual.';
+      this._tour = MembershipTour.mount({
+        brand: 'Zoorigen', userId: session.uid, autoStart,
+        steps: [
+          { title: '¡Felicidades por dar el primer paso!', body: 'Tu cuenta ya está lista. Conoce la comunidad de fauna, el contenido incluido y dónde encontrar ayuda para aprender a tu ritmo.' },
+          { title: 'Disfruta tu curso inicial gratis', body: access, target: '#coursesGrid, a[href="club-biblioteca.html"]' },
+          { title: 'Sigue tu camino de aprendizaje', body: 'La Biblioteca reúne cursos y temarios. Marca tus clases completadas y retoma tu avance; los cursos VIP siguen su calendario de apertura. El certificado requiere completar el curso y tener acceso vigente.', target: 'a[href="club-logros.html"]' },
+          { title: 'Más recursos para tu práctica', body: 'Conoce los webinars, videos, PDFs y herramientas clínicas y legales. Las funciones marcadas VIP se habilitan con la membresía.', target: 'a[href="club-herramientas.html"]' },
+          { title: 'Comunidad y apoyo', body: 'El Foro VIP permite compartir dudas y experiencias. En Mi perfil puedes revisar tus datos; encontrarás ayuda por WhatsApp si necesitas acompañamiento.', target: 'a[href="club-foro.html"]' },
+          { title: 'Elige cuándo continuar', body: 'En Suscripción puedes consultar beneficios, precios y condiciones antes de pagar. Para abrir la última clase del curso inicial o los demás cursos, activa tu membresía. Puedes repetir este recorrido cuando quieras.', target: 'a[href="club-suscripcion.html"]' }
+        ],
+        onStartCourse: () => {
+          if (window.__zooInitialCourse && typeof window.openCourseDetail === 'function') window.openCourseDetail(window.__zooInitialCourse);
+          else window.location.href = 'club-biblioteca.html?curso=inicial';
+        }
+      });
+      return this._tour;
+    })();
+    return this._tourPromise;
   },
 
-  // Forzar mostrar la guía (para ponerla en un botón "Ver guía" después)
-  showOnboardingForced(session) {
-    localStorage.removeItem('zoo_onboard_done_' + session.uid);
-    this.showOnboarding(session);
+  async showOnboardingForced(session) {
+    const tour = await this.showOnboarding(session, false);
+    if (tour) tour.start();
   },
 
   // ============== MOBILE MENU TOGGLE ==============
@@ -1619,19 +1574,7 @@ const ZOORIGEN_CLUB = {
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-          <button id="zooPaywallMens" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:Poppins;transition:all .15s;">
-            <div style="font-weight:700;font-size:.78rem;opacity:.8;">MENSUAL</div>
-            <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$199<span style="font-size:.7rem;opacity:.7;">/mes</span></div>
-            <div style="font-size:.72rem;opacity:.7;">Cancela cuando quieras</div>
-          </button>
-          <button id="zooPaywallAnual" style="background:linear-gradient(135deg,#E8A317,#D68A0A);border:0;color:#1f1d17;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:800;position:relative;box-shadow:0 6px 18px rgba(232,163,23,0.4);">
-            <div style="position:absolute;top:-8px;right:6px;background:#D55A28;color:#fff;font-size:.62rem;padding:2px 8px;border-radius:10px;font-weight:800;">-20% OFF</div>
-            <div style="font-weight:700;font-size:.78rem;">ANUAL</div>
-            <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$1,899<span style="font-size:.7rem;">/año</span></div>
-            <div style="font-size:.72rem;">Ahorra $489</div>
-          </button>
-        </div>
+<a href="club-suscripcion.html" style="display:block;background:#E8A317;color:#1f1d17;padding:14px;border-radius:12px;margin-bottom:14px;font-weight:800;text-decoration:none;">Ver beneficios y planes</a>
 
         <button id="zooPaywallLater" style="background:transparent;border:0;color:rgba(255,255,255,0.6);font-size:.82rem;cursor:pointer;padding:8px;">Seguir explorando</button>
       </div>
@@ -1643,12 +1586,6 @@ const ZOORIGEN_CLUB = {
     `;
     document.body.appendChild(overlay);
 
-    const email = session.email || '';
-    const goCheckout = (plan) => {
-      iniciarPagoStripe(plan, email);
-    };
-    document.getElementById('zooPaywallMens').addEventListener('click', () => goCheckout('mensual'));
-    document.getElementById('zooPaywallAnual').addEventListener('click', () => goCheckout('anual'));
     const close = () => overlay.remove();
     document.getElementById('zooPaywallClose').addEventListener('click', close);
     document.getElementById('zooPaywallLater').addEventListener('click', close);
@@ -1686,10 +1623,10 @@ const ZOORIGEN_CLUB = {
       banner.id = 'zooPayBanner';
       banner.style.cssText = 'background:linear-gradient(135deg,#E8A317,#D55A28);color:#1f1d17;padding:12px 18px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;box-shadow:0 6px 18px rgba(232,163,23,0.25);';
       banner.innerHTML = `
-        <div style="font-size:1.8rem;line-height:1;">🔒</div>
+        <div style="font-size:1.8rem;line-height:1;">🎁</div>
         <div style="flex:1;min-width:200px;">
-          <div style="font-family:Poppins;font-weight:800;font-size:.98rem;margin-bottom:2px;">Acceso gratuito · Tu primera clase está incluida</div>
-          <div style="font-size:.82rem;opacity:.88;">Activa tu membresía para continuar con la clase 2 y abrir el resto de los cursos.</div>
+          <div style="font-family:Poppins;font-weight:800;font-size:.98rem;margin-bottom:2px;">¡Felicidades! Disfruta tu curso inicial gratis</div>
+          <div style="font-size:.82rem;opacity:.88;">Todas sus clases están incluidas, excepto la última. La última clase y los demás cursos requieren membresía.</div>
         </div>
         <div style="background:#1f1d17;color:#E8A317;padding:8px 18px;border-radius:10px;font-family:Poppins;font-weight:800;font-size:.88rem;">Suscribirme</div>
       `;
