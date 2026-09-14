@@ -270,7 +270,7 @@
       <div class="ref-hero">
         <div class="ref-hero__icon">🎁</div>
         <h2>¡Comparte Zoorigen y gana!</h2>
-        <p>Cada amigo que se una paga $199 · Tú ganas 1 mes VIP cada 3 amigos</p>
+        <p>Cada amigo activa su membresía · Tú ganas 1 mes VIP cada 3 amigos</p>
       </div>
 
       <!-- Progreso a próxima recompensa -->
@@ -320,7 +320,7 @@
         <h2 style="color:#fff;font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:700;margin:0 0 14px;">📋 Cómo funciona</h2>
         <ol class="ref-how-steps">
           <li>Comparte tu link único con amigos, colegas o en redes sociales</li>
-          <li>Ellos se registran y pagan $199 su primer mes del Club VIP</li>
+          <li>Ellos se registran y activan su primer mes del Club VIP</li>
           <li>Cada 3 amigos que se suscriban = 1 MES VIP GRATIS agregado a tu membresía</li>
           <li>Recibes notificación cuando alguien se une con tu código</li>
         </ol>
@@ -340,7 +340,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20260828-membership1"></script>
+  <link rel="stylesheet" href="../assets/css/membership-tour.css?v=20260914">
+  <script src="../assets/js/membership-tour.js?v=20260914"></script>
+  <script src="../assets/js/club.js?v=20260914-course-tour"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();

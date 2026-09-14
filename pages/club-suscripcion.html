@@ -33,7 +33,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20260828-membership1"></script>
+  <link rel="stylesheet" href="../assets/css/membership-tour.css?v=20260914">
+  <script src="../assets/js/membership-tour.js?v=20260914"></script>
+  <script src="../assets/js/club.js?v=20260914-course-tour"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -51,7 +53,7 @@
           ? 'Tu periodo de acceso terminó. Elige un plan para volver a abrir todas las clases y cursos.'
           : session.planStatus === 'past_due'
             ? 'Tu acceso está pausado hasta que Stripe confirme el cobro. Puedes verificar de nuevo o elegir un plan.'
-            : 'Tu cuenta gratuita ya está lista e incluye la primera clase del primer curso. Elige un plan para continuar desde la clase 2.';
+            : '¡Felicidades! Tu cuenta incluye el curso inicial gratis, excepto la última clase. Elige un plan para abrir esa última clase y los demás cursos.';
         // Stripe Checkout Sessions — los botones llaman a openCheckoutModal que usa iniciarPagoStripe
         html += `
           <div class="card" style="background:linear-gradient(135deg,rgba(232,163,23,0.12),rgba(213,90,40,0.08));border-color:var(--zoo-amber);margin-bottom:20px;">
@@ -245,7 +247,7 @@
               <div style="background:rgba(232,163,23,0.08);border:1px solid rgba(232,163,23,0.3);padding:14px;border-radius:8px;margin-top:6px;">
                 <div style="color:var(--zoo-amber);font-weight:700;margin-bottom:8px;font-size:.92rem;">No hay una membresía pagada vigente</div>
                 <p style="color:var(--zoo-text-muted);font-size:.84rem;line-height:1.5;margin-bottom:10px;">
-                  Puedes seguir viendo gratis la primera clase del primer curso. Si tu cargo ya aparece en el banco, contacta a soporte para revisar el pago sin cobrarte de nuevo:
+                  Puedes seguir disfrutando el curso inicial gratis, excepto su última clase, que requiere membresía. Si tu cargo ya aparece en el banco, contacta a soporte para revisar el pago sin cobrarte de nuevo:
                 </p>
                 <a href="https://wa.me/5212361113237?text=Hola%2C%20ya%20pagu%C3%A9%20Club%20VIP%20Zoorigen%20pero%20no%20se%20activa%20mi%20membres%C3%ADa.%20Mi%20email%20es%3A%20${encodeURIComponent(session.email)}" target="_blank" style="display:inline-block;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.88rem;">
                   💬 Contactar soporte por WhatsApp
