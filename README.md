@@ -4,9 +4,11 @@ Proyecto independiente para la modernización de la membresía **Club VIP ZOORIG
 
 ## Estado
 
-Fase 1 — descubrimiento completado el 3 de octubre de 2026.
+Fase 1 — descubrimiento completado.
 
-Todavía no contiene una implementación, migración, conexión con producción ni despliegue. El repositorio se creó de forma local y aislada para no modificar los sistemas existentes.
+Fase 2 — primer prototipo navegable implementado y verificado localmente el 3 de octubre de 2026.
+
+El repositorio permanece local, aislado y sin remoto. No se hicieron migraciones, conexiones con producción ni despliegues.
 
 ## Base técnica acordada
 
@@ -17,6 +19,44 @@ El producto se reconstruirá tomando como referencia directa la arquitectura y l
 ## Documentación
 
 - [Resumen de descubrimiento](docs/descubrimiento.md)
+
+## Prototipo incluido
+
+- Landing pública responsive.
+- Acceso local de demostración.
+- Dashboard del miembro.
+- Catálogo y ficha de curso.
+- Biblioteca de recursos.
+- Comunidad y sesiones en vivo.
+- Retos y recompensas.
+- Certificados, perfil y membresía.
+- Panel administrativo estructural.
+- PWA y service worker.
+- API Express fail-closed preparada para Firebase, Stripe y Bunny Stream.
+
+## Ejecutar localmente
+
+```powershell
+npm install
+npm run build
+npm run preview -- --host 127.0.0.1 --port 4173 --strictPort
+```
+
+Abrir:
+
+- Landing: <http://127.0.0.1:4173/>
+- Club: <http://127.0.0.1:4173/club/#/login>
+
+API aislada:
+
+```powershell
+cd api
+npm install
+npm run check
+npm test
+```
+
+La API no habilita pagos ni video cuando faltan variables verificadas. El cliente solo acepta el identificador Firebase `club-zoorigen`.
 
 ## Límites vigentes
 

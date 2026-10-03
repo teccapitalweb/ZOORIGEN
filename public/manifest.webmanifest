@@ -1,0 +1,10 @@
+{
+  "name": "Club VIP ZOORIGEN",
+  "short_name": "ZOORIGEN",
+  "description": "Formación científica en fauna y biodiversidad.",
+  "start_url": "/club/",
+  "display": "standalone",
+  "background_color": "#f6f1e6",
+  "theme_color": "#173f35",
+  "icons": []
+}

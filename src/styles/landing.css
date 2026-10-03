@@ -1,0 +1,112 @@
+@import './base.css';
+
+.site-header {
+  position: fixed;
+  z-index: 40;
+  inset: 0 0 auto;
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(11 37 31 / 78%);
+  color: #fff;
+  backdrop-filter: blur(18px);
+}
+.site-header__inner { width: var(--content); min-height: 74px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.site-header nav { display: flex; align-items: center; gap: 24px; }
+.site-header nav a { color: rgb(255 255 255 / 78%); font-size: 14px; font-weight: 650; text-decoration: none; }
+.site-header nav a:hover { color: #fff; }
+.site-header .brand__text small { color: rgb(255 255 255 / 60%); }
+
+.hero {
+  position: relative;
+  min-height: 760px;
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  background: var(--forest-950);
+  color: #fff;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(8 31 25 / 96%) 0%, rgb(8 31 25 / 76%) 44%, rgb(8 31 25 / 18%) 76%),
+    linear-gradient(0deg, rgb(8 31 25 / 88%), transparent 55%),
+    url('https://www.zoorigen.com/assets/img/areas/fauna-silvestre-conservacion.webp') center 48% / cover;
+  scale: 1.02;
+}
+.hero::after { content: ''; position: absolute; inset: auto -10% -285px; height: 340px; border-radius: 50%; background: var(--paper); }
+.hero__inner { position: relative; z-index: 2; width: var(--content); margin: 0 auto 130px; }
+.hero__copy { max-width: 680px; }
+.hero .pill { border-color: rgb(255 255 255 / 20%); background: rgb(255 255 255 / 10%); color: #fff; }
+.hero h1 { max-width: 760px; margin: 22px 0 18px; font-size: clamp(49px, 7.5vw, 92px); line-height: .92; letter-spacing: -.055em; }
+.hero h1 em { color: var(--gold-soft); font-style: normal; }
+.hero p { max-width: 610px; color: rgb(255 255 255 / 75%); font-size: clamp(17px, 2vw, 21px); }
+.hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.hero__actions .btn--ghost { border-color: rgb(255 255 255 / 30%); }
+.hero__facts { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 44px; color: rgb(255 255 255 / 70%); font-size: 13px; }
+.hero__facts strong { display: block; color: #fff; font-family: Outfit, sans-serif; font-size: 25px; }
+
+.landing-section { position: relative; z-index: 3; width: var(--content); margin: 0 auto; padding: 90px 0; }
+.areas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.area-card { min-height: 190px; border: 1px solid var(--sage-200); border-radius: var(--radius-md); background: var(--white); padding: 24px; box-shadow: var(--shadow-sm); }
+.area-card__icon { display: grid; width: 46px; aspect-ratio: 1; place-items: center; border-radius: 14px; background: var(--sage-100); color: var(--forest-700); font-size: 22px; }
+.area-card h3 { margin: 25px 0 6px; font-size: 21px; }
+.area-card p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+.course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.course-card { overflow: hidden; border: 1px solid var(--sage-200); border-radius: var(--radius-md); background: var(--white); box-shadow: var(--shadow-sm); }
+.course-card__media { position: relative; aspect-ratio: 16/10; overflow: hidden; background: var(--sage-200); }
+.course-card__media img { width: 100%; height: 100%; object-fit: cover; transition: scale .35s ease; }
+.course-card:hover img { scale: 1.04; }
+.course-card__badge { position: absolute; left: 14px; bottom: 14px; border-radius: 999px; background: rgb(11 37 31 / 84%); color: #fff; padding: 6px 10px; font-size: 11px; font-weight: 750; backdrop-filter: blur(8px); }
+.course-card__body { padding: 20px; }
+.course-card h3 { min-height: 54px; margin: 0 0 8px; font-size: 22px; line-height: 1.16; }
+.course-card p { color: var(--ink-soft); font-size: 14px; }
+.course-card__meta { display: flex; justify-content: space-between; border-top: 1px solid var(--sage-200); padding-top: 14px; color: var(--ink-soft); font-size: 12px; }
+
+.club-highlight { overflow: hidden; border-radius: var(--radius-lg); background: var(--forest-900); color: #fff; box-shadow: var(--shadow-lg); }
+.club-highlight__grid { display: grid; grid-template-columns: 1.1fr .9fr; }
+.club-highlight__copy { padding: clamp(34px, 6vw, 74px); }
+.club-highlight__copy h2 { margin: 14px 0 16px; font-size: clamp(35px, 5vw, 62px); line-height: .98; }
+.club-highlight__copy p { color: rgb(255 255 255 / 68%); }
+.benefit-list { display: grid; gap: 12px; margin: 30px 0; padding: 0; list-style: none; }
+.benefit-list li { display: flex; align-items: center; gap: 11px; }
+.benefit-list li::before { content: '✓'; display: grid; width: 26px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: var(--gold); color: var(--forest-950); font-weight: 900; }
+.club-highlight__plan { display: grid; align-content: center; background: linear-gradient(150deg, #255d4e, #0f3027); padding: clamp(34px, 6vw, 70px); }
+.club-highlight__plan .price { font-family: Outfit, sans-serif; font-size: clamp(48px, 7vw, 76px); font-weight: 800; line-height: 1; }
+.club-highlight__plan .price span { font-family: Inter, sans-serif; font-size: 14px; font-weight: 500; }
+.club-highlight__plan small { color: rgb(255 255 255 / 60%); }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; counter-reset: step; }
+.step { position: relative; border-top: 1px solid var(--sage-200); padding: 26px 20px 10px 58px; counter-increment: step; }
+.step::before { content: '0' counter(step); position: absolute; top: 22px; left: 0; color: var(--gold); font-family: Outfit, sans-serif; font-size: 28px; font-weight: 800; }
+.step h3 { margin-bottom: 5px; font-size: 20px; }
+.step p { color: var(--ink-soft); font-size: 14px; }
+
+.landing-footer { background: var(--forest-950); color: #fff; }
+.landing-footer__inner { width: var(--content); margin: auto; display: grid; grid-template-columns: 1fr auto; gap: 50px; padding: 58px 0; }
+.landing-footer p { max-width: 540px; color: rgb(255 255 255 / 60%); }
+.footer-links { display: flex; flex-wrap: wrap; align-content: start; gap: 12px 24px; }
+.footer-links a { color: rgb(255 255 255 / 75%); text-decoration: none; }
+
+.menu-toggle { display: none; width: 44px; height: 44px; border-radius: 50%; background: rgb(255 255 255 / 10%); color: #fff; }
+.empty-state { grid-column: 1/-1; border: 1px dashed var(--sage-500); border-radius: var(--radius-md); padding: 40px; text-align: center; color: var(--ink-soft); }
+
+@media (max-width: 860px) {
+  .site-header nav { display: none; position: absolute; top: 74px; left: 20px; right: 20px; flex-direction: column; align-items: stretch; border-radius: 18px; background: var(--forest-900); padding: 18px; box-shadow: var(--shadow-lg); }
+  .site-header nav.is-open { display: flex; }
+  .menu-toggle { display: grid; place-items: center; }
+  .areas, .course-grid { grid-template-columns: repeat(2, 1fr); }
+  .club-highlight__grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  :root { --content: min(100% - 28px, 1180px); }
+  .hero { min-height: 720px; }
+  .hero::before { background-position: 63% center; }
+  .hero__inner { margin-bottom: 90px; }
+  .hero h1 { font-size: clamp(46px, 15vw, 68px); }
+  .hero__facts { gap: 18px; }
+  .areas, .course-grid, .steps { grid-template-columns: 1fr; }
+  .landing-section { padding: 66px 0; }
+  .landing-footer__inner { grid-template-columns: 1fr; }
+}
