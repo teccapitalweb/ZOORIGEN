@@ -92,7 +92,7 @@ La página de registro muestra **$199 MXN al mes** y **$1,899 MXN al año**. Est
 
 ## 7. Propuesta técnica inicial
 
-Crear una aplicación independiente, mobile-first y accesible, con contenido y marca de ZOORIGEN. La primera versión debe ser un prototipo navegable con datos locales claramente marcados y una capa de dominio que permita conectar servicios reales después.
+Crear una aplicación independiente, mobile-first y accesible, con contenido y marca de ZOORIGEN. La arquitectura, estructura funcional y tecnologías tomarán como base el checkout definitivo de Élite Pecuario, reconstruidas explícitamente dentro del repositorio nuevo. La primera versión debe ser un prototipo navegable con datos locales claramente marcados y una capa de dominio que permita conectar servicios reales después.
 
 Propuesta base:
 
@@ -103,6 +103,8 @@ Propuesta base:
 - Adaptadores separados para identidad, catálogo, pagos, video y certificados.
 - Entornos independientes de desarrollo, pruebas y producción.
 - Pruebas de dominio, integración y recorridos críticos, más revisión visual en escritorio y teléfono.
+
+El alcance detallado de esta decisión está en [`base-tecnica-elite.md`](base-tecnica-elite.md).
 
 ## 8. Límites actuales
 
@@ -121,4 +123,3 @@ Directorio local independiente:
 `C:\Users\Miguel Angel Galicia\Documents\Codex\2026-10-03\files-pasted-by-the-user-vas\outputs\zoorigen-membership`
 
 Se mantendrá sin remoto hasta que el propietario indique la cuenta u organización, el nombre definitivo y la visibilidad. No se modificaron los repositorios existentes.
-
