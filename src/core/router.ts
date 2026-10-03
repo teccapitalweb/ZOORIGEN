@@ -1,9 +1,5 @@
 export type Route = { path: string; params: Record<string, string> };
-
-const patterns = [
-  '/login', '/cursos', '/curso/:id', '/materiales', '/comunidad', '/en-vivo', '/retos', '/recompensas',
-  '/certificados', '/perfil', '/suscripcion', '/admin', '/',
-];
+import { ROUTES } from './route-table';
 
 function match(pattern: string, path: string): Route | null {
   const expected = pattern.split('/').filter(Boolean);
@@ -19,5 +15,5 @@ function match(pattern: string, path: string): Route | null {
 
 export function currentRoute(): Route {
   const path = location.hash.replace(/^#/, '') || '/';
-  return patterns.map((pattern) => match(pattern, path)).find(Boolean) ?? { path: '/', params: {} };
+  return ROUTES.map((pattern) => match(pattern, path)).find(Boolean) ?? { path: '/', params: {} };
 }

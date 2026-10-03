@@ -1,21 +1,21 @@
 :root {
   color-scheme: light;
-  --forest-950: #0b251f;
-  --forest-900: #11352c;
-  --forest-800: #173f35;
-  --forest-700: #215548;
-  --forest-600: #347564;
-  --sage-500: #8da99a;
-  --sage-200: #dce7df;
-  --sage-100: #ebf1ec;
-  --paper: #f7f2e8;
-  --paper-strong: #eee5d5;
-  --ink: #15201c;
-  --ink-soft: #57625d;
-  --gold: #e2aa37;
-  --gold-soft: #f4d78c;
-  --coral: #d76638;
-  --white: #fffefa;
+  --forest-950: #081c17;
+  --forest-900: #0d2c24;
+  --forest-800: #123f33;
+  --forest-700: #1b5746;
+  --forest-600: #31715d;
+  --sage-500: #8fa89b;
+  --sage-200: #d8e1da;
+  --sage-100: #e9eee9;
+  --paper: #f1eee4;
+  --paper-strong: #e6e0d1;
+  --ink: #121b17;
+  --ink-soft: #59635d;
+  --gold: #f0b63e;
+  --gold-soft: #f7dc91;
+  --coral: #c95f3c;
+  --white: #fbfaf4;
   --danger: #b43d2c;
   --shadow-sm: 0 8px 24px rgb(11 37 31 / 8%);
   --shadow-lg: 0 28px 70px rgb(11 37 31 / 18%);
@@ -23,17 +23,4 @@
   --radius-md: 20px;
   --radius-lg: 30px;
   --content: min(1180px, calc(100vw - 40px));
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --paper: #0d201b;
-    --paper-strong: #122a23;
-    --ink: #eef6f1;
-    --ink-soft: #aebdb5;
-    --white: #10251f;
-    --sage-100: #17332a;
-    --sage-200: #214238;
-  }
 }

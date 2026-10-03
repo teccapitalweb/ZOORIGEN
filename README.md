@@ -6,7 +6,7 @@ Proyecto independiente para la modernización de la membresía **Club VIP ZOORIG
 
 Fase 1 — descubrimiento completado.
 
-Fase 2 — primer prototipo navegable implementado y verificado localmente el 3 de octubre de 2026.
+Fase 2 — prototipo navegable y dirección visual “Expedición científica digital” implementados y verificados localmente el 3 de octubre de 2026.
 
 El repositorio permanece local, aislado y sin remoto. No se hicieron migraciones, conexiones con producción ni despliegues.
 
@@ -15,6 +15,7 @@ El repositorio permanece local, aislado y sin remoto. No se hicieron migraciones
 El producto se reconstruirá tomando como referencia directa la arquitectura y las tecnologías del checkout definitivo de **Élite Pecuario**, pero sustituyendo por completo su identidad, contenido, datos e integraciones por los de ZOORIGEN.
 
 - [Mapa de adopción técnica desde Élite Pecuario](docs/base-tecnica-elite.md)
+- [Investigación y dirección visual propia de ZOORIGEN](docs/direccion-visual.md)
 
 ## Documentación
 
@@ -24,15 +25,17 @@ El producto se reconstruirá tomando como referencia directa la arquitectura y l
 
 - Landing pública responsive.
 - Acceso local de demostración.
-- Dashboard del miembro.
-- Catálogo y ficha de curso.
-- Biblioteca de recursos.
+- Dashboard del miembro y onboarding.
+- Catálogo, ficha de curso y ruta de clases.
+- Biblioteca, ficha de recurso y visor protegido.
 - Comunidad y sesiones en vivo.
-- Retos y recompensas.
-- Certificados, perfil y membresía.
-- Panel administrativo estructural.
+- Retos, historia, herramientas, logros y recompensas.
+- Certificados, perfil, membresía y configuración.
+- Panel administrativo con todas las rutas equivalentes a Élite Pecuario.
 - PWA y service worker.
-- API Express fail-closed preparada para Firebase, Stripe y Bunny Stream.
+- API Express modular y fail-closed preparada para Firebase, Stripe y Bunny Stream.
+- Fontsource (Inter, Outfit y JetBrains Mono), Lucide y QR como en la base técnica.
+- Herramientas de Cloudflare presentes, sin despliegue ni conexión a producción.
 
 ## Ejecutar localmente
 

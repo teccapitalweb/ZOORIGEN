@@ -1,7 +1,9 @@
 import './styles/club.css';
 import { Data } from './core/data';
 import { currentRoute } from './core/router';
-import type { Catalog, Course } from './core/types';
+import type { Catalog } from './core/types';
+import { courseCard, demoStrip, pageHead } from './ui/partials';
+import { shell } from './ui/shell';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 if (!app) throw new Error('No se encontró #app');
@@ -9,37 +11,8 @@ if (!app) throw new Error('No se encontró #app');
 let catalog: Catalog = { courses: [], resources: [], areas: [], plans: { monthly: null, annual: null }, verifiedAt: null };
 let activeArea = 'Todas';
 
-const nav = [
-  ['/', '⌂', 'Inicio'], ['/cursos', '▦', 'Cursos'], ['/materiales', '▤', 'Biblioteca'], ['/comunidad', '◎', 'Comunidad'],
-  ['/en-vivo', '◉', 'En vivo'], ['/retos', '✦', 'Retos'], ['/recompensas', '◇', 'Recompensas'], ['/certificados', '⌑', 'Certificados'],
-];
-
-const shell = (content: string, title = 'Tu espacio de aprendizaje') => {
-  const route = currentRoute().path;
-  const navItems = nav.map(([href, icon, label]) => `<a class="${route === href ? 'is-active' : ''}" href="#${href}"><span class="nav-icon">${icon}</span>${label}</a>`).join('');
-  const mobile = nav.filter(([, , label]) => ['Inicio', 'Cursos', 'Biblioteca', 'Retos'].includes(label)).map(([href, icon, label]) => `<a class="${route === href ? 'is-active' : ''}" href="#${href}"><span>${icon}</span>${label}</a>`).join('');
-  return `<div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="/"><span class="brand__mark">Z</span><span class="brand__text">ZOORIGEN<small>CLUB VIP</small></span></a>
-      <span class="sidebar__label">Aprender</span><nav class="side-nav">${navItems}</nav>
-      <span class="sidebar__label">Mi cuenta</span><nav class="side-nav"><a class="${route === '/perfil' ? 'is-active' : ''}" href="#/perfil"><span class="nav-icon">◯</span>Mi perfil</a><a class="${route === '/admin' ? 'is-active' : ''}" href="#/admin"><span class="nav-icon">⚙</span>Administración</a></nav>
-      <div class="sidebar__profile"><div class="profile-row"><span class="avatar">MG</span><div><strong>Miembro demo</strong><small>Explorador · nivel 4</small></div></div></div>
-    </aside>
-    <div class="app-main"><header class="topbar"><div class="topbar__welcome"><small>Club VIP ZOORIGEN</small><strong>${title}</strong></div><div class="topbar__actions"><span class="mode-badge">${Data.mode}</span><button class="icon-btn" type="button" data-toast="Sin notificaciones nuevas" aria-label="Notificaciones">♢</button><a class="avatar" href="#/perfil" aria-label="Abrir perfil">MG</a></div></header>${content}</div>
-    <nav class="mobile-nav">${mobile}<a class="${['/comunidad','/en-vivo','/recompensas','/certificados','/perfil','/admin'].includes(route) ? 'is-active' : ''}" href="#/comunidad"><span>•••</span>Más</a></nav>
-  </div>`;
-};
-
-const pageHead = (eyebrow: string, title: string, text: string, action = '') => `<div class="page-head"><div><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${text}</p></div>${action}</div>`;
-const demoStrip = () => Data.mode === 'demo' ? '<div class="demo-strip">◌ <strong>Modo demostración:</strong> el progreso es local y no activa una membresía real.</div>' : '';
-
-function courseCard(course: Course): string {
-  const progress = course.progress ?? 0;
-  return `<a class="club-course" href="#/curso/${course.id}"><div class="club-course__media"><img src="${course.image}" alt="" loading="lazy"><span class="club-course__level">${course.level}</span></div><div class="club-course__body"><span>${course.area}</span><h3>${course.title}</h3><p>${course.description}</p><div class="progress" aria-label="${progress}% completado"><span style="width:${progress}%"></span></div><div class="course-foot"><span>${progress ? `${progress}% completado` : 'Comenzar'}</span><span>${course.lessons} lecciones</span></div></div></a>`;
-}
-
 function dashboard(): string {
-  return shell(`<main class="page" id="app-main">${demoStrip()}<div class="dash-grid" style="margin-top:20px"><section class="welcome-card"><div class="welcome-card__copy"><span class="pill">Viernes · continúa tu ruta</span><h1>Hola, explorador.</h1><p>Retoma Arácnidos de importancia médica y conserva el ritmo de esta semana.</p><div class="welcome-card__actions"><a class="btn btn--primary" href="#/curso/aracnidos-importancia-medica">Continuar aprendiendo</a><a class="btn btn--ghost" href="#/cursos">Ver catálogo</a></div></div></section><aside class="week-card"><h2>Tu semana</h2><p>La constancia también es una herramienta científica.</p><div class="week-row">${['L','M','M','J','V','S','D'].map((day,index)=>`<span class="day ${index < 4 ? 'is-done' : ''} ${index === 4 ? 'is-today' : ''}"><span>${index < 4 ? '✓' : index + 1}</span>${day}</span>`).join('')}</div><div class="streak"><span style="font-size:29px">♨</span><div><strong>4 días</strong><br><small>Tu mejor racha: 9 días</small></div></div></aside></div><div class="stats"><article class="stat"><span>Clases vistas</span><strong>18</strong><small>+3 esta semana</small></article><article class="stat"><span>Cursos activos</span><strong>2</strong><small>Continúa así</small></article><article class="stat"><span>Horas de estudio</span><strong>12.4</strong><small>+1.8 h</small></article><article class="stat"><span>Certificados</span><strong>1</strong><small>1 en camino</small></article></div><div class="section-row"><h2>Accesos rápidos</h2></div><div class="quick-grid"><a class="quick-card" href="#/cursos"><span>▦</span><h3>Mis cursos</h3><p>Continúa tus lecciones.</p></a><a class="quick-card" href="#/materiales"><span>▤</span><h3>Biblioteca</h3><p>Guías y recursos científicos.</p></a><a class="quick-card" href="#/en-vivo"><span>◉</span><h3>Próxima sesión</h3><p>Agenda por confirmar.</p></a><a class="quick-card" href="#/retos"><span>✦</span><h3>Reto diario</h3><p>5 minutos para practicar.</p></a></div><div class="section-row"><h2>Continúa tu aprendizaje</h2><a href="#/cursos">Ver todos →</a></div><div class="club-course-grid">${catalog.courses.slice(0,3).map(courseCard).join('')}</div></main>`, 'Inicio');
+  return shell(`<main class="page" id="app-main">${demoStrip()}<div class="dash-grid" style="margin-top:20px"><section class="welcome-card"><span class="welcome-card__code">EXPEDICIÓN ACTIVA / 04</span><div class="welcome-card__copy"><span class="pill">Bitácora al día · continúa tu ruta</span><h1>Hola,<br><em>explorador.</em></h1><p>Retoma Arácnidos de importancia médica y conserva el ritmo de esta semana.</p><div class="welcome-card__actions"><a class="btn btn--primary" href="#/curso/aracnidos-importancia-medica">Continuar expedición</a><a class="btn btn--ghost" href="#/cursos">Ver catálogo</a></div></div><span class="welcome-card__coords">18.8516° N<br>97.1037° W</span></section><aside class="week-card"><span class="eyebrow">Registro de actividad</span><h2>Tu semana</h2><p>La constancia también es una herramienta científica.</p><div class="week-row">${['L','M','M','J','V','S','D'].map((day,index)=>`<span class="day ${index < 4 ? 'is-done' : ''} ${index === 4 ? 'is-today' : ''}"><span>${index < 4 ? '✓' : index + 1}</span>${day}</span>`).join('')}</div><div class="streak"><span style="font-size:29px">♨</span><div><strong>4 días</strong><br><small>Tu mejor racha: 9 días</small></div></div><a class="week-card__link" href="#/logros">Abrir bitácora completa ↗</a></aside></div><div class="stats"><article class="stat"><span>Clases vistas</span><strong>18</strong><small>+3 esta semana</small></article><article class="stat"><span>Cursos activos</span><strong>02</strong><small>Continúa así</small></article><article class="stat"><span>Horas de estudio</span><strong>12.4</strong><small>+1.8 h</small></article><article class="stat"><span>Certificados</span><strong>01</strong><small>1 en camino</small></article></div><div class="section-row"><div><span class="eyebrow">Equipo de expedición</span><h2>Accesos rápidos</h2></div></div><div class="quick-grid"><a class="quick-card" href="#/cursos"><span>▦</span><small>01</small><h3>Mis cursos</h3><p>Continúa tus lecciones.</p></a><a class="quick-card" href="#/materiales"><span>▤</span><small>02</small><h3>Archivo de campo</h3><p>Guías y recursos científicos.</p></a><a class="quick-card" href="#/en-vivo"><span>◉</span><small>03</small><h3>Próxima sesión</h3><p>Agenda por confirmar.</p></a><a class="quick-card" href="#/retos"><span>✦</span><small>04</small><h3>Misión diaria</h3><p>5 minutos para practicar.</p></a></div><div class="section-row"><div><span class="eyebrow">Rutas en curso</span><h2>Continúa tu aprendizaje</h2></div><a href="#/cursos">Ver todas ↗</a></div><div class="club-course-grid">${catalog.courses.slice(0,3).map(courseCard).join('')}</div></main>`, 'Bitácora principal');
 }
 
 function courses(): string {
@@ -51,11 +24,25 @@ function courses(): string {
 function course(id: string): string {
   const item = catalog.courses.find((entry)=>entry.id === id) ?? catalog.courses[0];
   if (!item) return shell('<main class="page"><div class="empty-state">Curso no disponible.</div></main>', 'Curso');
-  return shell(`<main class="page" id="app-main"><a href="#/cursos" style="text-decoration:none;color:#607068">← Volver al catálogo</a><section class="challenge-hero" style="margin-top:18px"><div><span class="pill">${item.area} · ${item.level}</span><h2>${item.title}</h2><p>${item.description}</p><div class="welcome-card__actions"><button class="btn btn--primary" data-progress="${item.id}">Continuar curso</button><button class="btn btn--ghost" data-toast="Esta función se conectará al perfil real después">Guardar para después</button></div></div><img src="${item.image}" alt="" style="width:250px;aspect-ratio:1;object-fit:cover;border-radius:22px"></section><div class="section-row"><h2>Contenido del curso</h2><span>${item.lessons} lecciones · ${item.duration}</span></div><div class="thread-list">${Array.from({length: Math.min(item.lessons,8)},(_,index)=>`<article class="thread"><span class="avatar">${index+1}</span><div><h3>${['Introducción y contexto','Fundamentos científicos','Identificación en campo','Métodos de observación','Toma de decisiones','Caso aplicado','Buenas prácticas','Evaluación final'][index]}</h3><p>${index < 2 ? 'Disponible en este prototipo' : 'Requiere membresía confirmada'}</p></div><span class="thread__meta">${index < 2 ? '▶' : '◇'}<br>${18+index*3} min</span></article>`).join('')}</div></main>`, item.title);
+  return shell(`<main class="page" id="app-main"><a href="#/cursos" style="text-decoration:none;color:#607068">← Volver al catálogo</a><section class="challenge-hero" style="margin-top:18px"><div><span class="pill">${item.area} · ${item.level}</span><h2>${item.title}</h2><p>${item.description}</p><div class="welcome-card__actions"><a class="btn btn--primary" href="#/curso/${item.id}/clase/1">Continuar curso</a><button class="btn btn--ghost" data-toast="Esta función se conectará al perfil real después">Guardar para después</button></div></div><img src="${item.image}" alt="" style="width:250px;aspect-ratio:1;object-fit:cover"></section><div class="section-row"><h2>Contenido del curso</h2><span>${item.lessons} lecciones · ${item.duration}</span></div><div class="thread-list">${Array.from({length: Math.min(item.lessons,8)},(_,index)=>`<a class="thread thread--link" href="#/curso/${item.id}/clase/${index+1}"><span class="avatar">${String(index+1).padStart(2,'0')}</span><div><h3>${['Introducción y contexto','Fundamentos científicos','Identificación en campo','Métodos de observación','Toma de decisiones','Caso aplicado','Buenas prácticas','Evaluación final'][index]}</h3><p>${index < 2 ? 'Disponible en este prototipo' : 'Requiere membresía confirmada'}</p></div><span class="thread__meta">${index < 2 ? '▶' : '◇'}<br>${18+index*3} min</span></a>`).join('')}</div></main>`, item.title);
 }
 
 function resources(): string {
-  return shell(`<main class="page" id="app-main">${pageHead('Biblioteca científica','Recursos para volver a consultar','Guías, fichas y documentos complementarios organizados por área.')}<div class="resource-grid">${catalog.resources.map((item)=>`<article class="resource"><div class="resource__cover">${item.type === 'Ficha' ? '⌁' : 'Z'}</div><h3>${item.title}</h3><p>${item.area}</p><div class="resource__meta"><span>${item.type}</span><span>${item.pages ? `${item.pages} páginas` : '[por confirmar]'}</span></div><button class="btn btn--ghost" style="width:100%;margin-top:15px" data-toast="Visor preparado; falta conectar el archivo autorizado">Abrir recurso</button></article>`).join('')}</div></main>`, 'Biblioteca');
+  return shell(`<main class="page" id="app-main">${pageHead('Archivo de campo','Recursos para volver a consultar','Guías, fichas y documentos complementarios organizados por área.')}<div class="resource-grid">${catalog.resources.map((item)=>`<article class="resource"><div class="resource__cover">${item.type === 'Ficha' ? '⌁' : 'Z/'}</div><h3>${item.title}</h3><p>${item.area}</p><div class="resource__meta"><span>${item.type}</span><span>${item.pages ? `${item.pages} páginas` : '[por confirmar]'}</span></div><a class="btn btn--ghost" style="width:100%;margin-top:15px" href="#/materiales/${item.id}">Abrir ficha</a></article>`).join('')}</div></main>`, 'Archivo de campo');
+}
+
+function modulePage(eyebrow: string, title: string, text: string, links: Array<[string,string]> = []): string {
+  return shell(`<main class="page" id="app-main">${pageHead(eyebrow,title,text)}<section class="module-board"><span class="module-board__code">MÓDULO / ESTRUCTURA ÉLITE</span><div><h2>${title}</h2><p>La ruta, el control de acceso y la integración remota ya tienen un lugar propio. El contenido definitivo se conectará cuando ZOORIGEN lo valide.</p></div><div class="module-board__links">${links.map(([href,label])=>`<a class="btn btn--ghost" href="#${href}">${label}</a>`).join('')}</div></section></main>`, title);
+}
+
+function lesson(courseId: string, lessonNumber: string): string {
+  const item = catalog.courses.find((entry)=>entry.id === courseId);
+  return shell(`<main class="page" id="app-main"><div class="lesson-layout"><section class="lesson-stage"><span class="eyebrow">Estación ${lessonNumber} · ${item?.area ?? 'Curso'}</span><h1>${item?.title ?? 'Lección'}</h1><div class="video-placeholder"><span>▶</span><p>El reproductor firmado por Bunny se habilitará con sesión y acceso verificados.</p></div><h2>Objetivo de observación</h2><p>${item?.description ?? 'Contenido pendiente de validación.'}</p></section><aside class="lesson-index"><span class="eyebrow">Ruta de campo</span><h3>${item?.lessons ?? 0} estaciones</h3>${Array.from({length: Math.min(item?.lessons ?? 1,8)},(_,index)=>`<a class="${String(index+1) === lessonNumber ? 'is-active' : ''}" href="#/curso/${courseId}/clase/${index+1}"><span>${String(index+1).padStart(2,'0')}</span> Lección ${index+1}</a>`).join('')}<a class="btn btn--primary" href="#/curso/${courseId}">Volver al curso</a></aside></div></main>`, `Estación ${lessonNumber}`);
+}
+
+function materialDetail(id: string, viewer = false): string {
+  const item = catalog.resources.find((entry)=>entry.id === id);
+  return shell(`<main class="page" id="app-main">${pageHead('Archivo científico', item?.title ?? 'Material', item?.area ?? 'Recurso de consulta')}<section class="material-sheet"><div class="material-sheet__cover">Z/<small>${item?.type ?? 'Documento'}</small></div><div><span class="eyebrow">Ficha de archivo</span><h2>${item?.title ?? 'Material no disponible'}</h2><p>${viewer ? 'El visor seguro está preparado para recibir una URL firmada y temporal desde la API.' : 'Consulta los metadatos antes de abrir el archivo protegido.'}</p>${viewer ? '<div class="viewer-placeholder">Vista previa protegida · archivo pendiente</div>' : `<a class="btn btn--primary" href="#/materiales/${id}/visor">Abrir visor</a>`}</div></section></main>`, item?.title ?? 'Material');
 }
 
 function community(): string {
@@ -93,6 +80,12 @@ function admin(): string {
   return shell(`<main class="page" id="app-main">${pageHead('Panel administrativo','Gestión de ZOORIGEN','Prototipo estructural. En producción exigirá un custom claim administrativo validado por la API.')}<div class="demo-strip" style="margin-bottom:20px">⚿ Este panel no escribe en Firebase ni modifica información real.</div><div class="admin-grid">${items.map(([title,text])=>`<article class="admin-card"><span style="font-size:27px">◇</span><h3>${title}</h3><p>${text}</p><button class="btn btn--ghost" data-toast="Módulo administrativo preparado para integración segura">Abrir módulo</button></article>`).join('')}</div></main>`, 'Administración');
 }
 
+function adminModule(path: string): string {
+  const names: Record<string,string> = { cursos:'Cursos', materiales:'Materiales', 'en-vivo':'Sesiones en vivo', quizzes:'Quizzes', miembros:'Miembros', cupones:'Cupones', comunidad:'Comunidad', avisos:'Avisos', ajustes:'Ajustes', experiencia:'Experiencia' };
+  const key = path.split('/').pop() ?? '';
+  return modulePage('Centro de operaciones', names[key] ?? 'Administración', 'Módulo administrativo con autorización por claim y escritura exclusiva a través de la API.', [['/admin','Volver al centro']]);
+}
+
 function login(): string {
   return `<main class="login-page"><section class="login-scene"><div class="login-scene__copy"><span class="pill">Club VIP ZOORIGEN</span><h1>Tu próxima expedición empieza aquí.</h1><p>Accede a cursos, recursos y comunidad desde cualquier dispositivo.</p></div></section><section class="login-panel"><div class="login-box"><a class="brand" href="/"><span class="brand__mark">Z</span><span>ZOORIGEN</span></a><h2>Bienvenido</h2><p>El acceso real se conectará a Firebase después de validar el proyecto y el entorno correctos.</p><div class="field"><label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="email" placeholder="tu@correo.com"></div><div class="field"><label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••"></div><div class="login-actions"><button class="btn btn--dark" data-demo-login>Entrar al prototipo</button></div><div class="login-separator">o continúa localmente</div><button class="btn btn--ghost" style="width:100%" data-demo-login>Explorar como miembro demo</button><div class="prototype-note" style="margin-top:22px">No escribas una contraseña real. Este formulario no envía información.</div></div></section></main>`;
 }
@@ -102,8 +95,20 @@ function render(): void {
   const pages: Record<string, () => string> = {
     '/': dashboard, '/login': login, '/cursos': courses, '/materiales': resources, '/comunidad': community, '/en-vivo': live,
     '/retos': challenges, '/recompensas': rewards, '/certificados': certificates, '/perfil': profile, '/suscripcion': subscription, '/admin': admin,
+    '/bienvenida': () => modulePage('Primera entrada','Bienvenido a tu expedición','Onboarding equivalente al de Élite Pecuario, adaptado a intereses de fauna y conservación.', [['/encuestas','Configurar mis intereses'],['/','Saltar por ahora']]),
+    '/encuestas': () => modulePage('Perfil de aprendizaje','Tu punto de partida','Encuesta inicial para personalizar rutas, nivel e intereses sin mezclar datos con otro proyecto.', [['/','Guardar en modo demo']]),
+    '/retos/historia': () => modulePage('Historia interactiva','Casos de campo','Mundos, niveles y decisiones conservan la estructura narrativa de Élite Pecuario.', [['/retos/historia/caso-01','Abrir primer caso']]),
+    '/herramientas': () => modulePage('Kit digital','Herramientas de campo','Calculadoras, listas, fichas y utilidades científicas dentro del mismo sistema modular.', [['/materiales','Abrir archivo']]),
+    '/logros': () => modulePage('Bitácora','Logros y liga','Hitos, rachas, XP y liga semanal con validación remota en modo conectado.', [['/recompensas','Ver recompensas']]),
+    '/configuracion': () => modulePage('Cuenta','Configuración','Preferencias, avisos, privacidad y administración de sesión.', [['/perfil','Ir a mi perfil']]),
   };
-  app.innerHTML = route.path === '/curso/:id' ? course(route.params.id) : (pages[route.path] ?? dashboard)();
+  if (route.path === '/curso/:id') app.innerHTML = course(route.params.id);
+  else if (route.path === '/curso/:id/clase/:n') app.innerHTML = lesson(route.params.id, route.params.n);
+  else if (route.path === '/materiales/:id') app.innerHTML = materialDetail(route.params.id);
+  else if (route.path === '/materiales/:id/visor') app.innerHTML = materialDetail(route.params.id, true);
+  else if (route.path === '/retos/historia/:id') app.innerHTML = modulePage('Caso de campo', 'Decisión bajo observación', `Caso ${route.params.id}: escenario interactivo preparado para integrar los niveles de historia.`, [['/retos/historia','Volver a los casos']]);
+  else if (route.path.startsWith('/admin/')) app.innerHTML = adminModule(route.path);
+  else app.innerHTML = (pages[route.path] ?? dashboard)();
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
