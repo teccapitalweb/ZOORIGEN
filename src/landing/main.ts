@@ -43,17 +43,11 @@ async function render(): Promise<void> {
     </header>
     <main id="inicio">
       <section class="hero">
-        <div class="hero__ambient" aria-hidden="true">
-          <span class="hero__year">2026</span>
-          <span class="hero__edition">EDICIÓN / 01</span>
-          <span class="hero__ghost">Fauna viva</span>
-          <span class="hero__orbit"><i></i> EXPERIENCIA ZOORIGEN</span>
-        </div>
         <div class="hero__inner">
           <div class="hero__copy">
-            <span class="hero__kicker"><b>ZO / 01</b> Aprende · observa · conserva</span>
-            <h1>Defiende lo vivo.<br><em>Comprende su origen.</em></h1>
-            <p>Cursos, recursos y comunidad para estudiantes y profesionales que quieren comprender, cuidar y trabajar con la biodiversidad.</p>
+            <span class="hero__kicker">Formación científica · 2026</span>
+            <h1>Comprende la vida.<br><em>Protege su origen.</em></h1>
+            <p>Aprende sobre fauna y conservación con cursos, recursos y una comunidad que lleva el conocimiento al territorio.</p>
             <div class="hero__actions">
               <a class="btn btn--primary" href="#cursos">Explorar cursos</a>
               <a class="btn btn--ghost" href="#club">Conocer el Club VIP</a>
@@ -64,13 +58,8 @@ async function render(): Promise<void> {
               <span><strong>100%</strong><small>en línea</small></span>
             </div>
           </div>
-          <aside class="hero__field-card" aria-label="Ficha de expedición">
-            <span class="field-card__code">EXPEDICIÓN / ZO—001</span>
-            <strong>Una plataforma para mirar más cerca y actuar mejor.</strong>
-            <div><span>Campo</span><b>Fauna + conservación</b></div>
-            <div><span>Método</span><b>Observar · comprender · actuar</b></div>
-          </aside>
         </div>
+        <a class="hero__scroll" href="#areas"><span>↓</span> Descubre la plataforma</a>
       </section>
 
       <section class="manifesto" aria-label="Manifiesto ZOORIGEN">
@@ -85,8 +74,8 @@ async function render(): Promise<void> {
       </section>
 
       <section class="landing-section" id="cursos">
-        <div class="section-title section-title--split"><div><span class="eyebrow">02 / Expediciones destacadas</span><h2>Conocimiento para llevar al campo.</h2></div><p>Selección basada en el catálogo público actual. El contenido final se validará con el equipo de ZOORIGEN.</p></div>
-        <div class="course-grid">${catalog.courses.length ? catalog.courses.map(courseCard).join('') : '<div class="empty-state"><h3>Catálogo temporalmente no disponible</h3><p>No mostramos cursos de ejemplo cuando la API falla. Escríbenos para recibir atención humana.</p></div>'}</div>
+        <div class="section-title section-title--split"><div><span class="eyebrow">02 / Expediciones destacadas</span><h2>Conocimiento para llevar al campo.</h2></div><div><p>Una selección breve para comenzar. El catálogo completo vive dentro del Club ZOORIGEN.</p><a class="section-link" href="/club/#/cursos">Ver catálogo completo ↗</a></div></div>
+        <div class="course-grid">${catalog.courses.length ? catalog.courses.slice(0, 4).map(courseCard).join('') : '<div class="empty-state"><h3>Catálogo temporalmente no disponible</h3><p>No mostramos cursos de ejemplo cuando la API falla. Escríbenos para recibir atención humana.</p></div>'}</div>
       </section>
 
       <section class="landing-section" id="club">
