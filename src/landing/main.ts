@@ -43,10 +43,16 @@ async function render(): Promise<void> {
     </header>
     <main id="inicio">
       <section class="hero">
+        <div class="hero__ambient" aria-hidden="true">
+          <span class="hero__year">2026</span>
+          <span class="hero__edition">EDICIÓN / 01</span>
+          <span class="hero__ghost">Fauna viva</span>
+          <span class="hero__orbit"><i></i> EXPERIENCIA ZOORIGEN</span>
+        </div>
         <div class="hero__inner">
           <div class="hero__copy">
-            <span class="hero__kicker"><b>ZO / 01</b> Plataforma de aprendizaje científico</span>
-            <h1>Aprende a mirar<br>la fauna con <em>otros ojos.</em></h1>
+            <span class="hero__kicker"><b>ZO / 01</b> Aprende · observa · conserva</span>
+            <h1>Defiende lo vivo.<br><em>Comprende su origen.</em></h1>
             <p>Cursos, recursos y comunidad para estudiantes y profesionales que quieren comprender, cuidar y trabajar con la biodiversidad.</p>
             <div class="hero__actions">
               <a class="btn btn--primary" href="#cursos">Explorar cursos</a>
@@ -59,8 +65,8 @@ async function render(): Promise<void> {
             </div>
           </div>
           <aside class="hero__field-card" aria-label="Ficha de expedición">
-            <span class="field-card__code">BITÁCORA / ZO—001</span>
-            <strong>Conocimiento que sale de la pantalla y vuelve al territorio.</strong>
+            <span class="field-card__code">EXPEDICIÓN / ZO—001</span>
+            <strong>Una plataforma para mirar más cerca y actuar mejor.</strong>
             <div><span>Campo</span><b>Fauna + conservación</b></div>
             <div><span>Método</span><b>Observar · comprender · actuar</b></div>
           </aside>

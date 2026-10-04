@@ -3,59 +3,66 @@
 .site-header {
   position: fixed;
   z-index: 40;
-  inset: 0 0 auto;
-  border-bottom: 1px solid rgb(255 255 255 / 12%);
-  background: rgb(11 37 31 / 78%);
-  color: #fff;
-  backdrop-filter: blur(18px);
+  inset: 24px 0 auto;
+  background: transparent;
+  color: var(--forest-950);
 }
-.site-header__inner { width: var(--content); min-height: 78px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.site-header__inner { width: min(1050px, calc(100vw - 48px)); min-height: 62px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; border: 1px solid rgb(255 255 255 / 70%); border-radius: 999px; background: rgb(252 252 246 / 82%); padding: 7px 9px 7px 17px; box-shadow: 0 18px 50px rgb(8 28 23 / 12%); backdrop-filter: blur(18px); }
 .site-header nav { display: flex; align-items: center; gap: 24px; }
-.site-header nav a { color: rgb(255 255 255 / 78%); font-size: 14px; font-weight: 650; text-decoration: none; }
-.site-header nav a:hover { color: #fff; }
-.site-header .brand__text small { color: rgb(255 255 255 / 60%); }
+.site-header nav a { color: rgb(8 28 23 / 70%); font-size: 12px; font-weight: 700; text-decoration: none; }
+.site-header nav a:hover { color: var(--forest-950); }
+.site-header .brand__mark { width: 36px; font-size: 18px; }
+.site-header .brand__text small { color: var(--forest-600); }
+.site-header .btn--primary { min-height: 44px; color: var(--forest-950); }
 
 .hero {
   position: relative;
-  min-height: 760px;
-  display: grid;
-  align-items: end;
+  min-height: 980px;
   overflow: hidden;
-  background: var(--forest-950);
+  background: #dfe9e4;
   color: #fff;
 }
 .hero::before {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -70px;
   background:
-    linear-gradient(90deg, rgb(8 31 25 / 96%) 0%, rgb(8 31 25 / 76%) 44%, rgb(8 31 25 / 18%) 76%),
-    linear-gradient(0deg, rgb(8 31 25 / 88%), transparent 55%),
-    url('https://www.zoorigen.com/assets/img/areas/fauna-silvestre-conservacion.webp') center 48% / cover;
-  scale: 1.02;
+    linear-gradient(180deg, rgb(239 246 243 / 92%) 0%, rgb(215 229 222 / 72%) 31%, rgb(10 43 33 / 82%) 78%, #08231c 100%),
+    url('/assets/zoorigen-fauna-hero-v2.png') center 45% / cover;
+  filter: blur(32px) saturate(.72);
+  scale: 1.13;
 }
-.hero::after { content: ''; position: absolute; inset: auto -10% -285px; height: 340px; border-radius: 50%; background: var(--paper); }
-.hero__inner { position: relative; z-index: 2; width: var(--content); margin: 0 auto 130px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; align-items: end; gap: 70px; }
-.hero__copy { max-width: 760px; }
+.hero::after { content: ''; position: absolute; inset: auto -10% -310px; height: 390px; border-radius: 50%; background: var(--paper); }
+.hero__ambient { position: absolute; z-index: 1; inset: 0; width: var(--content); margin: auto; color: var(--forest-950); }
+.hero__year, .hero__edition { position: absolute; top: 118px; font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+.hero__year { left: 0; }
+.hero__edition { right: 0; }
+.hero__ghost { position: absolute; top: 142px; left: 50%; width: 100%; translate: -50% 0; color: rgb(255 255 255 / 72%); font-family: 'Outfit Variable', Outfit, sans-serif; font-size: clamp(110px, 15vw, 220px); font-weight: 500; line-height: .9; letter-spacing: -.07em; text-align: center; text-shadow: 0 1px 0 rgb(8 28 23 / 8%); white-space: nowrap; }
+.hero__orbit { position: absolute; z-index: 3; top: 296px; left: 50%; translate: -50% 0; rotate: 4deg; border-radius: 999px; background: rgb(252 252 246 / 92%); padding: 7px 12px; color: var(--forest-950); font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-size: 9px; font-weight: 800; letter-spacing: .07em; box-shadow: var(--shadow-sm); }
+.hero__orbit i { display: inline-block; width: 6px; aspect-ratio: 1; margin-right: 5px; border-radius: 50%; background: var(--forest-600); }
+.hero__inner { position: relative; z-index: 2; width: var(--content); min-height: 560px; margin: 318px auto 126px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 290px; align-items: end; gap: 70px; border: 1px solid rgb(255 255 255 / 62%); border-radius: 28px; background: url('/assets/zoorigen-fauna-hero-v2.png') center 48% / cover; padding: 46px; box-shadow: 0 40px 90px rgb(8 28 23 / 30%), inset 0 0 0 7px rgb(255 255 255 / 9%); }
+.hero__inner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgb(4 35 27 / 90%) 0%, rgb(4 35 27 / 56%) 47%, transparent 77%), linear-gradient(0deg, rgb(4 35 27 / 80%), transparent 60%); }
+.hero__inner::after { content: 'ZOORIGEN / CONSERVACIÓN EN MOVIMIENTO'; position: absolute; top: 24px; left: 28px; color: rgb(255 255 255 / 62%); font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-size: 8px; letter-spacing: .13em; }
+.hero__copy { position: relative; z-index: 2; max-width: 680px; }
 .hero .pill { border-color: rgb(255 255 255 / 20%); background: rgb(255 255 255 / 10%); color: #fff; }
 .hero__kicker { display: flex; align-items: center; gap: 12px; color: rgb(255 255 255 / 64%); font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
-.hero__kicker b { border: 1px solid rgb(255 255 255 / 28%); border-radius: 999px; padding: 6px 9px; color: var(--gold); }
-.hero h1 { max-width: 860px; margin: 24px 0 20px; font-size: clamp(49px, 7.5vw, 94px); line-height: .87; letter-spacing: -.06em; }
+.hero__kicker b { border: 1px solid rgb(255 255 255 / 28%); border-radius: 999px; background: rgb(255 255 255 / 10%); padding: 6px 9px; color: var(--gold); backdrop-filter: blur(8px); }
+.hero h1 { max-width: 760px; margin: 20px 0 16px; font-size: clamp(48px, 6vw, 76px); line-height: .9; letter-spacing: -.055em; }
 .hero h1 em { color: var(--gold-soft); font-style: normal; }
-.hero p { max-width: 610px; color: rgb(255 255 255 / 75%); font-size: clamp(17px, 2vw, 21px); }
-.hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.hero p { max-width: 590px; margin-bottom: 0; color: rgb(255 255 255 / 72%); font-size: clamp(15px, 1.6vw, 18px); }
+.hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 .hero__actions .btn--ghost { border-color: rgb(255 255 255 / 30%); }
-.hero__facts { display: flex; flex-wrap: wrap; gap: 0; margin-top: 42px; color: rgb(255 255 255 / 70%); font-size: 13px; }
+.hero__facts { display: flex; flex-wrap: wrap; gap: 0; margin-top: 28px; color: rgb(255 255 255 / 70%); font-size: 13px; }
 .hero__facts > span { min-width: 135px; border-left: 1px solid rgb(255 255 255 / 22%); padding-left: 16px; }
 .hero__facts strong { display: block; color: #fff; font-family: Outfit, sans-serif; font-size: 25px; }
 .hero__facts small { color: rgb(255 255 255 / 52%); font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
-.hero__field-card { position: relative; border: 1px solid rgb(255 255 255 / 23%); background: rgb(8 28 23 / 56%); padding: 25px; backdrop-filter: blur(16px); }
+.hero__field-card { position: relative; z-index: 2; border: 1px solid rgb(255 255 255 / 23%); border-radius: 3px 18px 3px 18px; background: rgb(8 28 23 / 62%); padding: 22px; backdrop-filter: blur(16px); }
 .hero__field-card::before { content: ''; position: absolute; inset: 8px; border: 1px solid rgb(255 255 255 / 8%); pointer-events: none; }
 .field-card__code { color: var(--gold); font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 10px; letter-spacing: .12em; }
-.hero__field-card > strong { display: block; margin: 58px 0 34px; font-family: Outfit, sans-serif; font-size: 26px; line-height: 1.05; }
+.hero__field-card > strong { display: block; margin: 46px 0 28px; font-family: Outfit, sans-serif; font-size: 23px; line-height: 1.05; }
 .hero__field-card > div { display: grid; grid-template-columns: 70px 1fr; gap: 12px; border-top: 1px solid rgb(255 255 255 / 14%); padding: 12px 0; font-size: 11px; }
 .hero__field-card > div span { color: rgb(255 255 255 / 45%); font-family: ui-monospace, 'Cascadia Code', monospace; text-transform: uppercase; }
-.manifesto { position: relative; z-index: 4; width: var(--content); display: grid; grid-template-columns: 90px minmax(0, 1fr) 150px; align-items: center; gap: 34px; margin: -38px auto 0; border: 1px solid #d5cdbb; background: var(--white); padding: 34px 38px; box-shadow: var(--shadow-sm); }
+.manifesto { position: relative; z-index: 4; width: var(--content); display: grid; grid-template-columns: 90px minmax(0, 1fr) 150px; align-items: center; gap: 34px; margin: -52px auto 0; border: 1px solid #d5cdbb; background: var(--white); padding: 34px 38px; box-shadow: var(--shadow-sm); }
 .manifesto__mark { color: var(--coral); font-family: Outfit, sans-serif; font-size: 48px; font-weight: 900; }
 .manifesto p { margin: 0; font-family: Outfit, sans-serif; font-size: clamp(20px, 2.5vw, 30px); line-height: 1.15; }
 .manifesto__meta { color: var(--ink-soft); font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 9px; line-height: 1.8; letter-spacing: .1em; }
@@ -122,10 +129,15 @@
 .empty-state { grid-column: 1/-1; border: 1px dashed var(--sage-500); border-radius: var(--radius-md); padding: 40px; text-align: center; color: var(--ink-soft); }
 
 @media (max-width: 860px) {
-  .site-header nav { display: none; position: absolute; top: 74px; left: 20px; right: 20px; flex-direction: column; align-items: stretch; border-radius: 18px; background: var(--forest-900); padding: 18px; box-shadow: var(--shadow-lg); }
+  .site-header__inner { width: calc(100vw - 32px); }
+  .site-header nav { display: none; position: absolute; top: 72px; left: 16px; right: 16px; flex-direction: column; align-items: stretch; border-radius: 18px; background: var(--forest-900); padding: 18px; box-shadow: var(--shadow-lg); }
+  .site-header nav a { color: rgb(255 255 255 / 75%); }
   .site-header nav.is-open { display: flex; }
-  .menu-toggle { display: grid; place-items: center; }
-  .hero__inner { grid-template-columns: 1fr; gap: 24px; }
+  .menu-toggle { display: grid; place-items: center; background: var(--forest-900); color: #fff; }
+  .hero { min-height: 900px; }
+  .hero__ghost { top: 168px; font-size: clamp(82px, 18vw, 140px); }
+  .hero__orbit { top: 270px; }
+  .hero__inner { min-height: 570px; margin-top: 286px; grid-template-columns: 1fr; gap: 24px; background-position: 57% center; padding: 36px; }
   .hero__field-card { display: none; }
   .manifesto { grid-template-columns: 60px 1fr; }
   .manifesto__meta { display: none; }
@@ -136,11 +148,22 @@
 }
 @media (max-width: 600px) {
   :root { --content: min(100% - 28px, 1180px); }
-  .hero { min-height: 720px; }
-  .hero::before { background-position: 63% center; }
-  .hero__inner { margin-bottom: 90px; }
-  .hero h1 { font-size: clamp(46px, 15vw, 68px); }
-  .hero__facts { gap: 18px; }
+  .site-header { top: 14px; }
+  .site-header__inner { min-height: 58px; padding-left: 12px; }
+  .site-header .brand__text small { display: none; }
+  .hero { min-height: 890px; }
+  .hero__year, .hero__edition { top: 102px; }
+  .hero__ghost { top: 148px; font-size: clamp(72px, 20vw, 104px); white-space: normal; }
+  .hero__orbit { top: 254px; white-space: nowrap; }
+  .hero__inner { width: calc(100% - 28px); min-height: 580px; margin: 276px auto 88px; border-radius: 20px; background-position: 55% center; padding: 25px; }
+  .hero__inner::after { top: 18px; left: 20px; }
+  .hero h1 { font-size: clamp(40px, 12vw, 54px); }
+  .hero__kicker { align-items: flex-start; flex-direction: column; gap: 7px; font-size: 9px; }
+  .hero__actions { display: grid; grid-template-columns: 1fr; }
+  .hero__actions .btn { width: 100%; }
+  .hero__facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .hero__facts > span { min-width: 0; padding-left: 10px; }
+  .hero__facts strong { font-size: 20px; }
   .manifesto { grid-template-columns: 1fr; margin-top: -44px; padding: 25px; }
   .manifesto__mark { font-size: 34px; }
   .areas, .steps { grid-template-columns: 1fr; }
