@@ -8,12 +8,14 @@
   transition: background .25s ease;
 }
 .site-header::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgb(4 24 18 / 62%), transparent); pointer-events: none; }
-.site-header__inner { width: var(--content); min-height: 78px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.site-header nav { display: flex; align-items: center; gap: 24px; }
-.site-header nav a { color: rgb(255 255 255 / 76%); font-size: 13px; font-weight: 700; text-decoration: none; }
-.site-header nav a:hover { color: #fff; }
+.site-header__inner { width: var(--content); min-height: 86px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.site-header nav { display: flex; align-items: center; gap: 19px; border-radius: 999px; background: rgb(255 255 255 / 94%); padding: 6px 7px 6px 20px; box-shadow: 0 16px 44px rgb(2 24 17 / 18%); backdrop-filter: blur(18px); }
+.site-header nav a { position: relative; color: rgb(8 38 29 / 72%); font-size: 12px; font-weight: 750; text-decoration: none; transition: color .2s; }
+.site-header nav a:not(.btn)::after { content: ''; position: absolute; right: 0; bottom: -8px; left: 0; height: 2px; scale: 0 1; border-radius: 999px; background: var(--gold); transform-origin: center; transition: scale .2s; }
+.site-header nav a:not(.btn):hover { color: var(--forest-950); }
+.site-header nav a:not(.btn):hover::after { scale: 1; }
 .site-header .brand__text small { color: rgb(255 255 255 / 55%); }
-.site-header .btn--primary { min-height: 44px; color: var(--forest-950); }
+.site-header .btn--primary { min-height: 42px; padding-inline: 20px; color: var(--forest-950); }
 
 .hero {
   position: relative;
@@ -126,10 +128,11 @@
 
 @media (max-width: 860px) {
   .site-header__inner { width: calc(100vw - 32px); min-height: 76px; }
-  .site-header nav { display: none; position: absolute; top: 76px; left: 16px; right: 16px; flex-direction: column; align-items: stretch; border-radius: 18px; background: var(--forest-900); padding: 18px; box-shadow: var(--shadow-lg); }
-  .site-header nav a { color: rgb(255 255 255 / 75%); }
+  .site-header nav { display: none; position: absolute; top: 76px; left: 16px; right: 16px; flex-direction: column; align-items: stretch; border-radius: 22px; background: rgb(255 255 255 / 97%); padding: 18px; box-shadow: var(--shadow-lg); }
+  .site-header nav a { color: rgb(8 38 29 / 76%); }
+  .site-header nav a:not(.btn)::after { display: none; }
   .site-header nav.is-open { display: flex; }
-  .menu-toggle { display: grid; place-items: center; background: var(--forest-900); color: #fff; }
+  .menu-toggle { display: grid; place-items: center; background: #fff; color: var(--forest-950); box-shadow: 0 10px 30px rgb(2 24 17 / 18%); }
   .hero { min-height: 760px; }
   .hero::before {
     background-image: linear-gradient(0deg, rgb(4 31 23 / 94%) 0%, rgb(4 31 23 / 42%) 56%, rgb(4 31 23 / 8%) 100%), url('/assets/zoorigen-fauna-hero-v3.png');

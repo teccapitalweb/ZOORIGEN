@@ -30,6 +30,7 @@ El inicio adopta la composición solicitada el 3 de octubre de 2026: la escena d
 - La imagen se generó sin texto, logotipos, personas ni interfaz para mantener la marca y el contenido accesible dentro del HTML.
 - En móvil, el mismo encuadre se recorta alrededor del jaguar y conserva acciones, mensaje y métricas visibles.
 - La navegación, el hero y las secciones públicas prescinden de marcos repetitivos; usan espacio, contraste y sombras suaves para reducir la saturación visual sin alterar la arquitectura funcional.
+- La navegación pública se presenta como una barra blanca flotante en escritorio y como un panel blanco compacto en móvil; el mensaje principal prioriza aprendizaje aplicado, fauna, manejo y conservación.
 
 ## Aplicación sin cambiar la estructura
 
