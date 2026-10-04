@@ -8,7 +8,7 @@
   transition: background .25s ease;
 }
 .site-header::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgb(4 24 18 / 62%), transparent); pointer-events: none; }
-.site-header__inner { width: var(--content); min-height: 88px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.site-header__inner { width: var(--content); min-height: 78px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .site-header nav { display: flex; align-items: center; gap: 24px; }
 .site-header nav a { color: rgb(255 255 255 / 76%); font-size: 13px; font-weight: 700; text-decoration: none; }
 .site-header nav a:hover { color: #fff; }
@@ -17,7 +17,7 @@
 
 .hero {
   position: relative;
-  min-height: 100svh;
+  min-height: clamp(680px, 88svh, 820px);
   display: grid;
   align-items: end;
   overflow: hidden;
@@ -32,35 +32,36 @@
     linear-gradient(90deg, rgb(4 31 23 / 88%) 0%, rgb(4 31 23 / 60%) 38%, rgb(4 31 23 / 10%) 68%),
     linear-gradient(0deg, rgb(4 31 23 / 74%) 0%, transparent 48%),
     url('/assets/zoorigen-fauna-hero-v2.png') center 48% / cover;
-  scale: 1.015;
+  scale: 1;
 }
 .hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 77% 42%, transparent 0 24%, rgb(3 25 18 / 12%) 58%, rgb(3 25 18 / 35%) 100%); pointer-events: none; }
-.hero__inner { position: relative; z-index: 2; width: var(--content); margin: 0 auto; padding: 170px 0 118px; }
-.hero__copy { max-width: 720px; }
+.hero__inner { position: relative; z-index: 2; width: var(--content); margin: 0 auto; padding: 138px 0 80px; }
+.hero__copy { max-width: 620px; }
 .hero .pill { border-color: rgb(255 255 255 / 20%); background: rgb(255 255 255 / 10%); color: #fff; }
 .hero__kicker { color: var(--gold-soft); font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
-.hero h1 { max-width: 780px; margin: 22px 0 20px; font-size: clamp(58px, 7.4vw, 104px); line-height: .86; letter-spacing: -.06em; }
+.hero h1 { max-width: 650px; margin: 18px 0 16px; font-size: clamp(46px, 5.6vw, 78px); line-height: .9; letter-spacing: -.055em; }
 .hero h1 em { color: var(--gold-soft); font-style: normal; }
-.hero p { max-width: 570px; margin-bottom: 0; color: rgb(255 255 255 / 74%); font-size: clamp(16px, 1.8vw, 20px); }
-.hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.hero p { max-width: 520px; margin-bottom: 0; color: rgb(255 255 255 / 74%); font-size: clamp(15px, 1.5vw, 18px); }
+.hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
 .hero__actions .btn--ghost { border-color: rgb(255 255 255 / 30%); }
-.hero__facts { display: flex; flex-wrap: wrap; gap: 38px; margin-top: 44px; color: rgb(255 255 255 / 70%); font-size: 13px; }
+.hero__facts { display: flex; flex-wrap: wrap; gap: 32px; margin-top: 32px; color: rgb(255 255 255 / 70%); font-size: 12px; }
 .hero__facts > span { min-width: 110px; }
-.hero__facts strong { display: block; color: #fff; font-family: Outfit, sans-serif; font-size: 28px; }
+.hero__facts strong { display: block; color: #fff; font-family: Outfit, sans-serif; font-size: 24px; }
 .hero__facts small { color: rgb(255 255 255 / 52%); font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
 .hero__scroll { position: absolute; z-index: 3; right: max(24px, calc((100vw - 1180px) / 2)); bottom: 38px; display: flex; align-items: center; gap: 10px; color: rgb(255 255 255 / 67%); font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-size: 9px; letter-spacing: .1em; text-decoration: none; text-transform: uppercase; }
 .hero__scroll span { display: grid; width: 34px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: rgb(255 255 255 / 12%); color: #fff; backdrop-filter: blur(8px); }
 .manifesto { position: relative; z-index: 4; width: var(--content); display: grid; grid-template-columns: 70px minmax(0, 1fr) 150px; align-items: center; gap: 34px; margin: 0 auto; padding: 78px 0 34px; }
 .manifesto__mark { color: var(--coral); font-family: Outfit, sans-serif; font-size: 48px; font-weight: 900; }
-.manifesto p { max-width: 900px; margin: 0; font-family: Outfit, sans-serif; font-size: clamp(23px, 3vw, 38px); line-height: 1.12; }
+.manifesto p { max-width: 820px; margin: 0; font-family: Outfit, sans-serif; font-size: clamp(21px, 2.5vw, 32px); line-height: 1.16; }
 .manifesto__meta { color: var(--ink-soft); font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 9px; line-height: 1.8; letter-spacing: .1em; }
 
-.landing-section { position: relative; z-index: 3; width: var(--content); margin: 0 auto; padding: 105px 0; }
+.landing-section { position: relative; z-index: 3; width: var(--content); margin: 0 auto; padding: 88px 0; }
+.landing-section .section-title h2 { font-size: clamp(29px, 3.4vw, 44px); }
 .section-title--split { max-width: none; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); align-items: end; gap: 60px; }
 .section-title--split p { margin: 0 0 6px; }
 .section-link { display: inline-block; margin-top: 16px; color: var(--forest-700); font-size: 13px; font-weight: 800; text-decoration: none; }
 .areas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-.area-card { position: relative; min-height: 230px; border: 0; border-radius: 26px; background: var(--white); padding: 28px; box-shadow: 0 16px 44px rgb(11 37 31 / 7%); transition: translate .2s, background .2s, color .2s; }
+.area-card { position: relative; min-height: 210px; border: 0; border-radius: 24px; background: var(--white); padding: 26px; box-shadow: 0 16px 44px rgb(11 37 31 / 7%); transition: translate .2s, background .2s, color .2s; }
 .area-card:hover { translate: 0 -5px; }
 .area-card:hover { background: var(--forest-900); color: #fff; }
 .area-card__number { position: absolute; top: 18px; right: 20px; color: var(--sage-500); font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 10px; }
@@ -73,7 +74,7 @@
 
 .course-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
 .course-card { overflow: hidden; border: 0; border-radius: 28px; background: var(--white); box-shadow: 0 18px 50px rgb(11 37 31 / 8%); }
-.course-card__media { position: relative; aspect-ratio: 16/9; overflow: hidden; background: var(--sage-200); }
+.course-card__media { position: relative; aspect-ratio: 16/8; overflow: hidden; background: var(--sage-200); }
 .course-card__media img { width: 100%; height: 100%; object-fit: cover; transition: scale .35s ease; }
 .course-card:hover img { scale: 1.04; }
 .course-card__index { position: absolute; top: 14px; left: 14px; border: 1px solid rgb(255 255 255 / 30%); background: rgb(8 28 23 / 68%); color: #fff; padding: 6px 9px; font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 9px; letter-spacing: .1em; backdrop-filter: blur(8px); }
@@ -87,7 +88,7 @@
 .club-highlight { overflow: hidden; border-radius: 36px; background: var(--forest-900); color: #fff; box-shadow: var(--shadow-lg); }
 .club-highlight__grid { display: grid; grid-template-columns: 1.1fr .9fr; }
 .club-highlight__copy { padding: clamp(34px, 6vw, 74px); }
-.club-highlight__copy h2 { margin: 14px 0 16px; font-size: clamp(35px, 5vw, 62px); line-height: .98; }
+.club-highlight__copy h2 { margin: 14px 0 16px; font-size: clamp(34px, 4.2vw, 52px); line-height: 1; }
 .club-highlight__copy h2 em { color: var(--gold); font-style: normal; }
 .club-highlight__copy p { color: rgb(255 255 255 / 68%); }
 .benefit-list { display: grid; gap: 12px; margin: 30px 0; padding: 0; list-style: none; }
@@ -123,9 +124,9 @@
   .site-header nav a { color: rgb(255 255 255 / 75%); }
   .site-header nav.is-open { display: flex; }
   .menu-toggle { display: grid; place-items: center; background: var(--forest-900); color: #fff; }
-  .hero { min-height: 880px; }
+  .hero { min-height: 760px; }
   .hero::before { background-position: 58% center; }
-  .hero__inner { padding-bottom: 100px; }
+  .hero__inner { padding: 122px 0 68px; }
   .manifesto { grid-template-columns: 60px 1fr; }
   .manifesto__meta { display: none; }
   .section-title--split { grid-template-columns: 1fr; gap: 12px; }
@@ -136,17 +137,23 @@
   :root { --content: min(100% - 28px, 1180px); }
   .site-header__inner { min-height: 68px; }
   .site-header .brand__text small { display: none; }
-  .hero { min-height: 800px; }
-  .hero::before { background: linear-gradient(0deg, rgb(4 31 23 / 88%) 0%, rgb(4 31 23 / 28%) 72%), url('/assets/zoorigen-fauna-hero-v2.png') 51% center / cover; }
-  .hero__inner { width: calc(100% - 28px); padding: 150px 0 92px; }
-  .hero h1 { font-size: clamp(46px, 14vw, 64px); }
-  .hero p { max-width: 360px; font-size: 16px; }
+  .hero { min-height: 700px; }
+  .hero::before {
+    background-image: linear-gradient(0deg, rgb(4 31 23 / 96%) 0%, rgb(4 31 23 / 44%) 55%, rgb(4 31 23 / 10%) 100%), url('/assets/zoorigen-fauna-hero-v2.png');
+    background-position: center, 53% 0;
+    background-repeat: no-repeat;
+    background-size: 100% 100%, 155% auto;
+  }
+  .hero__inner { width: calc(100% - 28px); padding: 116px 0 68px; }
+  .hero h1 { font-size: clamp(34px, 10.5vw, 44px); }
+  .hero p { max-width: 330px; font-size: 14px; }
   .hero__kicker { font-size: 9px; }
   .hero__actions { display: grid; grid-template-columns: 1fr; }
   .hero__actions .btn { width: 100%; }
   .hero__facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
   .hero__facts > span { min-width: 0; }
-  .hero__facts strong { font-size: 20px; }
+  .hero__facts { margin-top: 28px; }
+  .hero__facts strong { font-size: 18px; }
   .hero__scroll { display: none; }
   .manifesto { grid-template-columns: 1fr; padding: 58px 0 0; }
   .manifesto__mark { font-size: 34px; }
