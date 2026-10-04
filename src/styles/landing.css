@@ -31,7 +31,7 @@
   background:
     linear-gradient(90deg, rgb(4 31 23 / 80%) 0%, rgb(4 31 23 / 50%) 39%, transparent 72%),
     linear-gradient(0deg, rgb(4 31 23 / 82%) 0%, transparent 54%),
-    url('/assets/zoorigen-fauna-hero-v2.png') center 48% / cover;
+    url('/assets/zoorigen-fauna-hero-v3.png') center 48% / cover;
   scale: 1;
 }
 .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(3 25 18 / 24%), transparent 28% 76%, rgb(3 25 18 / 26%)); pointer-events: none; }
@@ -40,7 +40,7 @@
 .hero .pill { border-color: rgb(255 255 255 / 20%); background: rgb(255 255 255 / 10%); color: #fff; }
 .hero__kicker { display: flex; align-items: center; gap: 10px; color: rgb(255 226 154 / 84%); font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-size: 9px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
 .hero__kicker::before { content: ''; width: 30px; height: 2px; background: var(--gold); }
-.hero h1 { max-width: 680px; margin: 18px 0 16px; font-size: clamp(45px, 5.5vw, 76px); font-weight: 720; line-height: .91; letter-spacing: -.055em; text-wrap: balance; text-shadow: 0 4px 30px rgb(0 0 0 / 18%); }
+.hero h1 { max-width: 620px; margin: 18px 0 16px; font-size: clamp(44px, 5vw, 70px); font-weight: 720; line-height: .91; letter-spacing: -.055em; text-wrap: balance; text-shadow: 0 4px 30px rgb(0 0 0 / 18%); }
 .hero h1 em { color: var(--gold-soft); font-style: normal; }
 .hero p { max-width: 490px; margin-bottom: 0; color: rgb(255 255 255 / 72%); font-size: clamp(15px, 1.4vw, 17px); line-height: 1.55; }
 .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-top: 24px; }
@@ -131,8 +131,14 @@
   .site-header nav.is-open { display: flex; }
   .menu-toggle { display: grid; place-items: center; background: var(--forest-900); color: #fff; }
   .hero { min-height: 760px; }
-  .hero::before { background-position: 58% center; }
+  .hero::before {
+    background-image: linear-gradient(0deg, rgb(4 31 23 / 94%) 0%, rgb(4 31 23 / 42%) 56%, rgb(4 31 23 / 8%) 100%), url('/assets/zoorigen-fauna-hero-v3.png');
+    background-position: center, 35% 0;
+    background-repeat: no-repeat;
+    background-size: 100% 100%, 120% auto;
+  }
   .hero__inner { padding: 122px 0 68px; }
+  .hero__copy { max-width: 520px; }
   .manifesto { grid-template-columns: 60px 1fr; }
   .manifesto__meta { display: none; }
   .section-title--split { grid-template-columns: 1fr; gap: 12px; }
@@ -145,8 +151,8 @@
   .site-header .brand__text small { display: none; }
   .hero { min-height: 700px; }
   .hero::before {
-    background-image: linear-gradient(0deg, rgb(4 31 23 / 96%) 0%, rgb(4 31 23 / 44%) 55%, rgb(4 31 23 / 10%) 100%), url('/assets/zoorigen-fauna-hero-v2.png');
-    background-position: center, 53% 0;
+    background-image: linear-gradient(0deg, rgb(4 31 23 / 96%) 0%, rgb(4 31 23 / 44%) 55%, rgb(4 31 23 / 10%) 100%), url('/assets/zoorigen-fauna-hero-v3.png');
+    background-position: center, 76% 0;
     background-repeat: no-repeat;
     background-size: 100% 100%, 155% auto;
   }

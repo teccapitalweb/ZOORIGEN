@@ -21,11 +21,11 @@ La interfaz se siente como una mezcla contemporánea de estación de campo, arch
 - Tarjetas asimétricas, líneas de retícula y contornos topográficos; se evita el tablero SaaS genérico.
 - Navegación lateral y móvil intactas en función, pero con identidad de estación de campo.
 
-## Hero v2: fauna en primer plano
+## Hero v3: paisaje con espacio editorial
 
-El inicio adopta la composición solicitada el 3 de octubre de 2026: la escena de fauna ocupa toda la primera pantalla y el mensaje vive directamente sobre la fotografía. La referencia se usó para estudiar profundidad, escala y jerarquía; la escena, el texto, la paleta y los componentes son originales de ZOORIGEN.
+El inicio adopta la composición solicitada el 3 de octubre de 2026: la escena de fauna ocupa toda la primera pantalla y el mensaje vive directamente sobre la fotografía. La versión v3 reserva el lado izquierdo para el contenido y reúne a los protagonistas en el lado derecho, de modo que el texto nunca cubra rostros, cuerpos ni alas. La referencia se usó para estudiar profundidad, escala y jerarquía; la escena, el texto, la paleta y los componentes son originales de ZOORIGEN.
 
-- Activo local: `public/assets/zoorigen-fauna-hero-v2.png`.
+- Activo local vigente: `public/assets/zoorigen-fauna-hero-v3.png`; la versión v2 se conserva como antecedente.
 - Fauna representada: jaguar, tapir de Baird, venado cola blanca, armadillo, guacamaya roja y mariposas monarca.
 - La imagen se generó sin texto, logotipos, personas ni interfaz para mantener la marca y el contenido accesible dentro del HTML.
 - En móvil, el mismo encuadre se recorta alrededor del jaguar y conserva acciones, mensaje y métricas visibles.
