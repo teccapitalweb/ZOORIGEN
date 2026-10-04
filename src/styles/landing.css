@@ -29,25 +29,31 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgb(4 31 23 / 88%) 0%, rgb(4 31 23 / 60%) 38%, rgb(4 31 23 / 10%) 68%),
-    linear-gradient(0deg, rgb(4 31 23 / 74%) 0%, transparent 48%),
+    linear-gradient(90deg, rgb(4 31 23 / 80%) 0%, rgb(4 31 23 / 50%) 39%, transparent 72%),
+    linear-gradient(0deg, rgb(4 31 23 / 82%) 0%, transparent 54%),
     url('/assets/zoorigen-fauna-hero-v2.png') center 48% / cover;
   scale: 1;
 }
-.hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 77% 42%, transparent 0 24%, rgb(3 25 18 / 12%) 58%, rgb(3 25 18 / 35%) 100%); pointer-events: none; }
+.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(3 25 18 / 24%), transparent 28% 76%, rgb(3 25 18 / 26%)); pointer-events: none; }
 .hero__inner { position: relative; z-index: 2; width: var(--content); margin: 0 auto; padding: 138px 0 80px; }
-.hero__copy { max-width: 620px; }
+.hero__copy { max-width: 680px; }
 .hero .pill { border-color: rgb(255 255 255 / 20%); background: rgb(255 255 255 / 10%); color: #fff; }
-.hero__kicker { color: var(--gold-soft); font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
-.hero h1 { max-width: 650px; margin: 18px 0 16px; font-size: clamp(46px, 5.6vw, 78px); line-height: .9; letter-spacing: -.055em; }
+.hero__kicker { display: flex; align-items: center; gap: 10px; color: rgb(255 226 154 / 84%); font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-size: 9px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.hero__kicker::before { content: ''; width: 30px; height: 2px; background: var(--gold); }
+.hero h1 { max-width: 680px; margin: 18px 0 16px; font-size: clamp(45px, 5.5vw, 76px); font-weight: 720; line-height: .91; letter-spacing: -.055em; text-wrap: balance; text-shadow: 0 4px 30px rgb(0 0 0 / 18%); }
 .hero h1 em { color: var(--gold-soft); font-style: normal; }
-.hero p { max-width: 520px; margin-bottom: 0; color: rgb(255 255 255 / 74%); font-size: clamp(15px, 1.5vw, 18px); }
-.hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
-.hero__actions .btn--ghost { border-color: rgb(255 255 255 / 30%); }
-.hero__facts { display: flex; flex-wrap: wrap; gap: 32px; margin-top: 32px; color: rgb(255 255 255 / 70%); font-size: 12px; }
-.hero__facts > span { min-width: 110px; }
-.hero__facts strong { display: block; color: #fff; font-family: Outfit, sans-serif; font-size: 24px; }
-.hero__facts small { color: rgb(255 255 255 / 52%); font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.hero p { max-width: 490px; margin-bottom: 0; color: rgb(255 255 255 / 72%); font-size: clamp(15px, 1.4vw, 17px); line-height: 1.55; }
+.hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-top: 24px; }
+.hero__actions .btn--primary { box-shadow: 0 14px 34px rgb(249 184 55 / 20%); }
+.hero__secondary { display: inline-flex; align-items: center; gap: 9px; color: rgb(255 255 255 / 82%); font-size: 14px; font-weight: 750; text-decoration: none; }
+.hero__secondary span { color: var(--gold); font-size: 17px; transition: translate .2s; }
+.hero__secondary:hover span { translate: 4px -2px; }
+.hero__facts { display: flex; flex-wrap: wrap; width: fit-content; gap: 0; margin-top: 28px; border-top: 1px solid rgb(255 255 255 / 16%); padding-top: 17px; color: rgb(255 255 255 / 70%); }
+.hero__facts > span { display: flex; align-items: baseline; gap: 6px; padding: 0 20px; }
+.hero__facts > span:first-child { padding-left: 0; }
+.hero__facts > span + span { border-left: 1px solid rgb(255 255 255 / 16%); }
+.hero__facts strong { color: #fff; font-family: Outfit, sans-serif; font-size: 16px; }
+.hero__facts small { color: rgb(255 255 255 / 52%); font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
 .hero__scroll { position: absolute; z-index: 3; right: max(24px, calc((100vw - 1180px) / 2)); bottom: 38px; display: flex; align-items: center; gap: 10px; color: rgb(255 255 255 / 67%); font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-size: 9px; letter-spacing: .1em; text-decoration: none; text-transform: uppercase; }
 .hero__scroll span { display: grid; width: 34px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: rgb(255 255 255 / 12%); color: #fff; backdrop-filter: blur(8px); }
 .manifesto { position: relative; z-index: 4; width: var(--content); display: grid; grid-template-columns: 70px minmax(0, 1fr) 150px; align-items: center; gap: 34px; margin: 0 auto; padding: 78px 0 34px; }
@@ -150,10 +156,12 @@
   .hero__kicker { font-size: 9px; }
   .hero__actions { display: grid; grid-template-columns: 1fr; }
   .hero__actions .btn { width: 100%; }
+  .hero__secondary { min-height: 40px; justify-content: center; }
   .hero__facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
-  .hero__facts > span { min-width: 0; }
+  .hero__facts > span { min-width: 0; justify-content: center; padding: 0 8px; }
+  .hero__facts > span:first-child { padding-left: 0; }
   .hero__facts { margin-top: 28px; }
-  .hero__facts strong { font-size: 18px; }
+  .hero__facts strong { font-size: 15px; }
   .hero__scroll { display: none; }
   .manifesto { grid-template-columns: 1fr; padding: 58px 0 0; }
   .manifesto__mark { font-size: 34px; }

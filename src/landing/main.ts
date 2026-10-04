@@ -45,16 +45,16 @@ async function render(): Promise<void> {
       <section class="hero">
         <div class="hero__inner">
           <div class="hero__copy">
-            <span class="hero__kicker">Formación científica · 2026</span>
-            <h1>Comprende la vida.<br><em>Protege su origen.</em></h1>
-            <p>Aprende sobre fauna y conservación con cursos, recursos y una comunidad que lleva el conocimiento al territorio.</p>
+            <span class="hero__kicker">Ciencia aplicada · Edición 2026</span>
+            <h1>Comprende la vida.<br>Protege su <em>origen.</em></h1>
+            <p>Formación práctica sobre fauna y conservación para llevar el conocimiento al territorio.</p>
             <div class="hero__actions">
               <a class="btn btn--primary" href="#cursos">Explorar cursos</a>
-              <a class="btn btn--ghost" href="#club">Conocer el Club VIP</a>
+              <a class="hero__secondary" href="#club">Conocer la membresía <span>↗</span></a>
             </div>
-            <div class="hero__facts">
-              <span><strong>22</strong><small>cursos observados</small></span>
-              <span><strong>06</strong><small>áreas de estudio</small></span>
+            <div class="hero__facts" aria-label="Resumen de la plataforma">
+              <span><strong>22</strong><small>cursos</small></span>
+              <span><strong>06</strong><small>áreas</small></span>
               <span><strong>100%</strong><small>en línea</small></span>
             </div>
           </div>
