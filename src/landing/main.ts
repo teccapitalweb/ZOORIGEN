@@ -40,6 +40,7 @@ async function render(): Promise<void> {
         </nav>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Abrir menú">☰</button>
       </div>
+      <span class="site-header__progress" aria-hidden="true"><span></span></span>
     </header>
     <main id="inicio">
       <section class="hero">
@@ -213,18 +214,75 @@ async function render(): Promise<void> {
   toggle?.addEventListener('click', () => {
     const open = nav?.classList.toggle('is-open') ?? false;
     toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    toggle.textContent = open ? '×' : '☰';
   });
 
+  nav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
+    nav.classList.remove('is-open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    toggle?.setAttribute('aria-label', 'Abrir menú');
+    if (toggle) toggle.textContent = '☰';
+  }));
+
   const header = document.querySelector<HTMLElement>('.site-header');
-  const updateHeader = () => header?.classList.toggle('is-scrolled', window.scrollY > 48);
+  const progress = document.querySelector<HTMLElement>('.site-header__progress span');
+  const updateHeader = () => {
+    header?.classList.toggle('is-scrolled', window.scrollY > 48);
+    const available = document.documentElement.scrollHeight - window.innerHeight;
+    if (progress) progress.style.width = `${available > 0 ? Math.min(100, (window.scrollY / available) * 100) : 0}%`;
+  };
   window.addEventListener('scroll', updateHeader, { passive: true });
   updateHeader();
 
+  const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('.site-header nav a[href^="#"]')];
+  const observedSections = navLinks
+    .map((link) => document.querySelector<HTMLElement>(link.hash))
+    .filter((section): section is HTMLElement => Boolean(section));
+  const sectionObserver = new IntersectionObserver((entries) => {
+    const current = entries.find((entry) => entry.isIntersecting)?.target as HTMLElement | undefined;
+    if (!current) return;
+    navLinks.forEach((link) => {
+      const active = link.hash === `#${current.id}`;
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  }, { rootMargin: '-28% 0px -62% 0px', threshold: 0 });
+  observedSections.forEach((section) => sectionObserver.observe(section));
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealTargets = document.querySelectorAll<HTMLElement>([
+    '.manifesto__copy', '.manifesto__art', '.impact-strip', '.club-intro__copy',
+    '.platform-preview', '.plan-card', '.section-heading', '.step', '.course-card',
+    '.certificate-visual', '.certification-copy', '.area-card', '.community-band__heading',
+    '.community-grid article', '.faq-intro', '.faq-list details', '.final-cta__content',
+  ].join(','));
+  revealTargets.forEach((element, index) => {
+    element.dataset.reveal = '';
+    element.style.setProperty('--reveal-order', String(index % 4));
+  });
+  document.documentElement.classList.add('reveal-ready');
+  if (reduceMotion) revealTargets.forEach((element) => element.classList.add('is-visible'));
+  else {
+    const revealObserver = new IntersectionObserver((entries) => entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      revealObserver.unobserve(entry.target);
+    }), { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    revealTargets.forEach((element) => revealObserver.observe(element));
+  }
+
   const filterButtons = document.querySelectorAll<HTMLButtonElement>('[data-course-filter]');
   const courseCards = document.querySelectorAll<HTMLElement>('[data-course-area]');
+  filterButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.classList.contains('is-active'))));
   filterButtons.forEach((button) => button.addEventListener('click', () => {
     const selected = button.dataset.courseFilter;
-    filterButtons.forEach((item) => item.classList.toggle('is-active', item === button));
+    filterButtons.forEach((item) => {
+      const active = item === button;
+      item.classList.toggle('is-active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
     courseCards.forEach((card) => { card.hidden = selected !== 'Todos' && card.dataset.courseArea !== selected; });
   }));
 }
