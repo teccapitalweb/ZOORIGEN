@@ -78,8 +78,8 @@ async function render(): Promise<void> {
             <li><span>✓</span>Progreso y evidencias de aprendizaje</li>
           </ul>
         </div>
-        <div class="manifesto__art" aria-label="Monitoreo de campo y biodiversidad de ZOORIGEN">
-          <figure class="nature-frame nature-frame--large"><img src="/assets/zoorigen-camera-trap-v2.png" alt="Cámara trampa instalada en un sendero de bosque húmedo" loading="lazy"></figure>
+        <div class="manifesto__art" aria-label="Hábitat forestal y biodiversidad de ZOORIGEN">
+          <figure class="nature-frame nature-frame--large"><img src="/assets/zoorigen-cloudforest-stream-v3.png" alt="Arroyo entre rocas y helechos de un bosque húmedo" loading="lazy"></figure>
           <figure class="nature-frame nature-frame--small"><img src="/assets/zoorigen-fern-detail-v2.png" alt="Helecho joven creciendo sobre el suelo húmedo del bosque" loading="lazy"></figure>
           <span class="field-note">BITÁCORA / 001<br><strong>OBSERVAR · COMPRENDER · CONSERVAR</strong></span>
         </div>
