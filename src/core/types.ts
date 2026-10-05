@@ -1,3 +1,10 @@
+export type Lesson = {
+  num: number;
+  title: string;
+  provider: 'bunny';
+  videoId: string;
+};
+
 export type Course = {
   id: string;
   title: string;
@@ -5,6 +12,7 @@ export type Course = {
   description: string;
   image: string;
   lessons: number;
+  lessonItems: Lesson[];
   duration: string;
   level: 'Inicial' | 'Intermedio' | 'Especializado';
   progress?: number;

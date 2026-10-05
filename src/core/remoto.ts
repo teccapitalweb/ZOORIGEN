@@ -7,8 +7,11 @@ export async function requestApi<T>(path: string, init: RequestInit = {}): Promi
   const token = await Auth.token();
   const response = await fetch(`${apiUrl}${path}`, {
     ...init,
-    headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...init.headers },
+    headers: { Accept: 'application/json', ...(init.body ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}), ...init.headers },
   });
-  if (!response.ok) throw new Error(`API ${response.status}`);
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null) as { message?: string; error?: string } | null;
+    throw new Error(payload?.message || payload?.error || `API ${response.status}`);
+  }
   return response.json() as Promise<T>;
 }

@@ -3,7 +3,7 @@ import type { Course } from '../core/types';
 
 export const pageHead = (eyebrow: string, title: string, text: string, action = '') => `<div class="page-head"><div><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${text}</p></div>${action}</div>`;
 
-export const demoStrip = () => Data.mode === 'demo' ? '<div class="demo-strip">◌ <strong>Modo demostración:</strong> el progreso es local y no activa una membresía real.</div>' : '';
+export const demoStrip = () => Data.mode === 'demo' ? '<div class="demo-strip">◌ <strong>Vista local:</strong> puedes revisar todo el catálogo; videos privados, progreso y pagos permanecen desconectados.</div>' : '';
 
 export function courseCard(course: Course): string {
   const progress = course.progress ?? 0;

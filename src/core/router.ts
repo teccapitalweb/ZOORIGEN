@@ -14,6 +14,6 @@ function match(pattern: string, path: string): Route | null {
 }
 
 export function currentRoute(): Route {
-  const path = location.hash.replace(/^#/, '') || '/';
+  const path = (location.hash.replace(/^#/, '') || '/').split('?')[0];
   return ROUTES.map((pattern) => match(pattern, path)).find(Boolean) ?? { path: '/', params: {} };
 }
