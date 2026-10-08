@@ -36,6 +36,18 @@
     return (m.planVence || m.ultimoPago) ? 'otro' : 'ninguno';
   }
 
+  // "en 8 días", "hace 4 meses": para ver de un vistazo quién vence pronto.
+  function relativo(fecha, ahora = Date.now()) {
+    if (!fecha) return '';
+    const dias = Math.round((fecha.getTime() - ahora) / 86400000);
+    if (dias === 0) return 'hoy';
+    if (dias === 1) return 'mañana';
+    if (dias === -1) return 'ayer';
+    const n = Math.abs(dias);
+    const lapso = n < 60 ? `${n} días` : n < 700 ? `${Math.round(n / 30)} meses` : `${Math.round(n / 365)} años`;
+    return dias > 0 ? `en ${lapso}` : `hace ${lapso}`;
+  }
+
   // club = ZOORIGEN_CLUB (calculateStatus y toDate); se inyecta para no duplicar la regla.
   function analizar(m, club) {
     const estado = club.calculateStatus(m);
@@ -44,11 +56,11 @@
     const conAcceso = estado === 'active' || estado === 'cancelled_active';
     const avisos = [];
 
-    if (!m.createdAt) avisos.push({ id: 'sin-registro', texto: 'Sin fecha de registro (el panel anterior lo ocultaba)' });
-    if (m.planActivo === true && estado === 'expired') avisos.push({ id: 'activo-vencido', texto: 'Marcado como activo, pero su periodo ya venció' });
-    if (m.planActivo === true && !vence) avisos.push({ id: 'activo-sin-fecha', texto: 'Marcado como activo, pero sin fecha de vencimiento' });
-    if (m.stripeSubscriptionId && !conAcceso) avisos.push({ id: 'revisar-stripe', texto: 'Tiene suscripción en Stripe: confirma allá que ya no le cobran' });
-    if (conAcceso && typeof m.planVence === 'string') avisos.push({ id: 'fecha-texto', texto: 'Fecha guardada como texto: no podrá usar el foro' });
+    if (!m.createdAt) avisos.push({ id: 'sin-registro', texto: 'Sin fecha de registro', detalle: 'El panel anterior ocultaba a los miembros sin este campo.' });
+    if (m.planActivo === true && estado === 'expired') avisos.push({ id: 'activo-vencido', texto: 'Marcado activo, ya venció', detalle: 'Quedó la etiqueta de activo, pero su periodo ya terminó. No tiene acceso.' });
+    if (m.planActivo === true && !vence) avisos.push({ id: 'activo-sin-fecha', texto: 'Activo sin fecha', detalle: 'Está marcado como activo pero no tiene fecha de vencimiento.' });
+    if (m.stripeSubscriptionId && !conAcceso) avisos.push({ id: 'revisar-stripe', texto: 'Revisar en Stripe', detalle: 'Tiene suscripción en Stripe: confirma allá que ya no le cobran.' });
+    if (conAcceso && typeof m.planVence === 'string') avisos.push({ id: 'fecha-texto', texto: 'Fecha como texto', detalle: 'Fecha guardada como texto: no podrá usar el foro.' });
 
     return { id: m.id, m, estado, conAcceso, vence, registro, origen: origenDe(m), avisos };
   }
@@ -122,55 +134,70 @@
     });
   }
 
-  function filaHTML(a, club) {
+  const CLASE_ESTADO = {
+    active: 'st-active', cancelled_active: 'st-cancelled-active', past_due: 'st-past-due', expired: 'st-expired', pending_payment: 'st-pending'
+  };
+
+  function filaHTML(a, club, ahora = Date.now()) {
     const m = a.m;
     const etiqueta = ESTADO_ETIQUETA[a.estado] || ESTADO_ETIQUETA.pending_payment;
+    const claseEstado = CLASE_ESTADO[a.estado] || 'st-pending';
     const uid = esc(a.id);
-    const aviso = a.avisos.length
-      ? `<ul style="margin:0;padding-left:16px;font-size:.74rem;color:var(--zoo-amber);">${a.avisos.map(x => `<li>${esc(x.texto)}</li>`).join('')}</ul>`
-      : '<span style="color:var(--zoo-text-dim);">—</span>';
+    const avisos = a.avisos.length
+      ? `<ul class="mb-avisos">${a.avisos.map(x => `<li title="${esc(x.detalle || x.texto)}">${esc(x.texto)}</li>`).join('')}</ul>`
+      : '';
+    const plan = m.planTipo ? (m.planTipo === 'anual' ? 'Anual' : 'Mensual') : null;
+    const sub = [plan, a.origen !== 'ninguno' ? ORIGEN_ETIQUETA[a.origen] : null].filter(Boolean).join(' · ');
     const stripeNota = a.origen === 'stripe'
       ? ' title="Solo marca cancelado aquí. La suscripción de Stripe se cancela desde el panel de Stripe."'
       : '';
     const acciones = a.conAcceso
-      ? `<button class="btn-small activate" data-accion="activar" data-uid="${uid}" style="background:rgba(232,163,23,0.15);color:#E8A317;border-color:rgba(232,163,23,0.3);">Extender</button>
-         <button class="btn-small cancel" data-accion="cancelar" data-uid="${uid}"${stripeNota}>Cancelar</button>`
-      : `<button class="btn-small activate" data-accion="activar" data-uid="${uid}">Activar</button>`;
-    return `<tr>
-      <td>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--zoo-green-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;color:var(--zoo-green-500);">${esc(club.getInitials(m.name))}</div>
-          <div><div style="font-weight:600;">${esc(m.name || '—')}</div><div style="font-size:.74rem;color:var(--zoo-text-dim);">${m.role === 'admin' ? '⚙️ Admin' : 'Miembro'}</div></div>
+      ? `<button type="button" class="btn-small extend" data-accion="activar" data-uid="${uid}">Extender</button>
+         <button type="button" class="btn-small cancel" data-accion="cancelar" data-uid="${uid}"${stripeNota}>Cancelar</button>`
+      : `<button type="button" class="btn-small activate" data-accion="activar" data-uid="${uid}">Activar</button>`;
+    const dias = a.vence ? Math.round((a.vence.getTime() - ahora) / 86400000) : null;
+    const pronto = a.conAcceso && dias !== null && dias <= 7 ? ' is-soon' : '';
+    return `<tr class="mrow">
+      <td class="mcell-member" data-label="Miembro">
+        <div class="mb">
+          <div class="mb-av ${claseEstado}">${esc(club.getInitials(m.name))}</div>
+          <div class="mb-txt">
+            <div class="mb-name">${esc(m.name || 'Sin nombre')}${m.role === 'admin' ? ' <span class="mb-tag">Admin</span>' : ''}</div>
+            <div class="mb-mail">${esc(m.email || '—')}</div>
+            ${avisos}
+          </div>
         </div>
       </td>
-      <td style="font-size:.82rem;">${esc(m.email || '—')}</td>
-      <td><span class="status-pill ${etiqueta.clase}">${esc(etiqueta.texto)}</span></td>
-      <td style="font-size:.82rem;">${esc(ORIGEN_ETIQUETA[a.origen])}</td>
-      <td style="font-size:.82rem;">${m.planTipo ? (m.planTipo === 'anual' ? 'Anual' : 'Mensual') : '—'}</td>
-      <td style="font-size:.82rem;">${a.vence ? esc(club.formatShort(a.vence)) : '—'}</td>
-      <td>${aviso}</td>
-      <td>${acciones}</td>
+      <td class="mcell-estado" data-label="Estado">
+        <span class="status-pill ${etiqueta.clase} ${claseEstado}">${esc(etiqueta.texto)}</span>
+        ${sub ? `<div class="mb-sub">${esc(sub)}</div>` : ''}
+      </td>
+      <td class="mcell-vence" data-label="Vence">
+        ${a.vence ? `<div class="mb-date">${esc(club.formatShort(a.vence))}</div><div class="mb-rel${pronto}">${esc(relativo(a.vence, ahora))}</div>` : '<div class="mb-date mb-none">—</div>'}
+      </td>
+      <td class="mcell-actions">${acciones}</td>
     </tr>`;
   }
 
   function filasHTML(analizados, club) {
     if (!analizados.length) {
-      return '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--zoo-text-dim);">Sin resultados</td></tr>';
+      return '<tr><td colspan="4" class="mb-empty">Sin resultados</td></tr>';
     }
     return analizados.map(a => filaHTML(a, club)).join('');
   }
 
+  // La tarjeta grande es "Con acceso hoy": es el número que más importa.
   function tarjetasHTML(r) {
     const o = r.porOrigen;
     return `
       <div class="admin-stats">
-        <div class="stat-box"><div class="stat-box__label">Total real</div><div class="stat-box__value">${r.total}</div></div>
-        <div class="stat-box green"><div class="stat-box__label">Con acceso hoy</div><div class="stat-box__value">${r.conAcceso}</div>
-          <div style="font-size:.72rem;color:var(--zoo-text-dim);margin-top:8px;">Stripe ${o.stripe} · Manual ${o.manual} · Heredado ${o.heredado}${o.otro ? ` · Otro ${o.otro}` : ''}</div></div>
+        <div class="stat-box stat-hero green"><div class="stat-box__label">Con acceso hoy</div><div class="stat-box__value">${r.conAcceso}</div>
+          <div class="stat-box__note">Stripe ${o.stripe} · Manual ${o.manual} · Heredado ${o.heredado}${o.otro ? ` · Otro ${o.otro}` : ''}</div></div>
+        <div class="stat-box total"><div class="stat-box__label">Total real</div><div class="stat-box__value">${r.total}</div></div>
         <div class="stat-box amber"><div class="stat-box__label">Sin pago</div><div class="stat-box__value">${r.sinPago}</div></div>
         <div class="stat-box orange"><div class="stat-box__label">Vencidos / pago pendiente</div><div class="stat-box__value">${r.vencidos + r.pagoPendiente}</div></div>
         <div class="stat-box orange"><div class="stat-box__label">A revisar</div><div class="stat-box__value">${r.aRevisar}</div>
-          ${r.sinFechaRegistro ? `<div style="font-size:.72rem;color:var(--zoo-text-dim);margin-top:8px;">${r.sinFechaRegistro} sin fecha de registro</div>` : ''}</div>
+          ${r.sinFechaRegistro ? `<div class="stat-box__note">${r.sinFechaRegistro} sin fecha de registro</div>` : ''}</div>
       </div>`;
   }
 
@@ -180,11 +207,8 @@
 
   function chipsHTML(filtroActual, r) {
     const cuenta = { todos: r.total, activos: r.conAcceso, 'sin-pago': r.sinPago, vencidos: r.vencidos + r.pagoPendiente, revisar: r.aRevisar };
-    return CHIPS.map(([id, nombre]) => {
-      const activo = id === filtroActual;
-      return `<button type="button" class="zoo-chip" data-filtro="${id}" style="padding:6px 12px;border-radius:999px;border:1px solid ${activo ? 'var(--zoo-green-500)' : 'var(--zoo-border)'};background:${activo ? 'rgba(76,175,80,.16)' : 'transparent'};color:${activo ? 'var(--zoo-green-500)' : '#fff'};font-size:.8rem;font-weight:600;cursor:pointer;">${nombre} · ${cuenta[id]}</button>`;
-    }).join(' ');
+    return CHIPS.map(([id, nombre]) => `<button type="button" class="zoo-chip${id === filtroActual ? ' is-active' : ''}" data-filtro="${id}" aria-pressed="${id === filtroActual}">${nombre} · ${cuenta[id]}</button>`).join('');
   }
 
-  return { esc, origenDe, analizar, resumen, resumenTexto, ordenar, filtrar, filaHTML, filasHTML, tarjetasHTML, chipsHTML };
+  return { esc, relativo, origenDe, analizar, resumen, resumenTexto, ordenar, filtrar, filaHTML, filasHTML, tarjetasHTML, chipsHTML };
 });

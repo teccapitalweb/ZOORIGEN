@@ -207,6 +207,7 @@
       .am { padding: 18px; }
     }
   </style>
+  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261008">
 </head>
 <body>
 
@@ -409,7 +410,7 @@
     // ═══════════ MIEMBROS ═══════════
     async function loadMiembros() {
       const v = document.getElementById('secView');
-      v.innerHTML = '<h1>👥 Miembros</h1><p class="sub">Gestión de miembros y suscripciones</p><p>Cargando...</p>';
+      v.innerHTML = '<h1>Miembros</h1><p class="sub">Gestión de miembros y suscripciones</p><p>Cargando...</p>';
       try {
         // Sin orderBy: ordenar en Firestore deja fuera a quien no tenga el campo (createdAt).
         const snap = await db.collection('miembros').get();
@@ -425,18 +426,23 @@
       const r = A.resumen(analizados);
       let filtro = 'todos', texto = '';
       const v = document.getElementById('secView');
+      const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
       v.innerHTML = `
-        <h1>👥 Miembros</h1>
-        <p class="sub">Datos reales de Firestore · Total: ${r.total}</p>
+        <header class="m-head">
+          <div>
+            <h1>Miembros</h1>
+            <p class="sub">Datos reales de Firestore · ${hoy}</p>
+          </div>
+          <button type="button" id="copiarResumen" class="btn-small extend m-copy">📋 Copiar resumen</button>
+        </header>
         ${A.tarjetasHTML(r)}
-        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0;">
-          <div id="miembrosChips" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
-          <button type="button" id="copiarResumen" class="btn-small activate" style="margin-left:auto;">📋 Copiar resumen</button>
+        <div class="m-controls">
+          <div class="zoo-chips" id="miembrosChips" role="group" aria-label="Filtrar miembros"></div>
+          <input type="search" class="admin-search" id="searchMembers" placeholder="Buscar nombre, correo o WhatsApp" aria-label="Buscar miembros">
         </div>
-        <input type="search" class="admin-search" id="searchMembers" placeholder="🔎 Buscar nombre, correo o WhatsApp...">
         <div class="mtable">
           <table>
-            <thead><tr><th>Miembro</th><th>Correo</th><th>Estado</th><th>Origen</th><th>Plan</th><th>Vence</th><th>Avisos</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Miembro</th><th>Estado</th><th>Vence</th><th><span class="sr-only">Acciones</span></th></tr></thead>
             <tbody id="miembrosBody"></tbody>
           </table>
         </div>`;
@@ -568,7 +574,7 @@
     // ═══════════ CURSOS ═══════════
     async function loadCursos() {
       const v = document.getElementById('secView');
-      v.innerHTML = '<h1>📚 Cursos</h1><p class="sub">Biblioteca completa del Club VIP</p>';
+      v.innerHTML = '<h1>Cursos</h1><p class="sub">Biblioteca completa del Club VIP</p>';
       try {
         const snap = await db.collection('cursos').orderBy('createdAt', 'desc').get();
         const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -809,7 +815,7 @@
     // ═══════════ VIDEOS ═══════════
     async function loadVideos() {
       const v = document.getElementById('secView');
-      v.innerHTML = '<h1>🎥 Videos</h1><p class="sub">Técnicas de campo explicadas paso a paso</p>';
+      v.innerHTML = '<h1>Videos</h1><p class="sub">Técnicas de campo explicadas paso a paso</p>';
       try {
         const snap = await db.collection('videos').orderBy('createdAt', 'desc').get();
         const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -862,7 +868,7 @@
     // ═══════════ PDFS ═══════════
     async function loadPdfs() {
       const v = document.getElementById('secView');
-      v.innerHTML = '<h1>📄 PDFs</h1><p class="sub">Material descargable y guías científicas</p>';
+      v.innerHTML = '<h1>PDFs</h1><p class="sub">Material descargable y guías científicas</p>';
       try {
         const snap = await db.collection('pdfs').orderBy('createdAt', 'desc').get();
         const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -915,7 +921,7 @@
     // ═══════════ WEBINARS ═══════════
     async function loadSesiones() {
       const v = document.getElementById('secView');
-      v.innerHTML = '<h1>🎥 Webinars en vivo</h1><p class="sub">Masterclasses por Google Meet</p>';
+      v.innerHTML = '<h1>Webinars en vivo</h1><p class="sub">Masterclasses por Google Meet</p>';
       try {
         const snap = await db.collection('sesiones').orderBy('date', 'asc').get();
         const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -977,7 +983,7 @@
     // ═══════════ NOTICIAS ═══════════
     async function loadNoticias() {
       const v = document.getElementById('secView');
-      v.innerHTML = '<h1>📰 Noticias</h1><p class="sub">Auto-sincronizadas desde Mongabay, SciDev, DW y BBC Mundo cada 6 horas</p>';
+      v.innerHTML = '<h1>Noticias</h1><p class="sub">Auto-sincronizadas desde Mongabay, SciDev, DW y BBC Mundo cada 6 horas</p>';
       try {
         const snap = await db.collection('noticias').orderBy('createdAt', 'desc').limit(30).get();
         const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));

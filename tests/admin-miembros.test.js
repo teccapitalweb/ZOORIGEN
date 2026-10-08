@@ -228,3 +228,80 @@ test('las tarjetas y los chips muestran los números reales', () => {
 test('sin resultados muestra un mensaje y no una tabla vacía', () => {
   assert.ok(A.filasHTML([], club).includes('Sin resultados'));
 });
+
+// ── Rediseño: fechas relativas, filas y accesibilidad ─────
+test('relativo(): hoy, mañana, ayer, días, meses y años', () => {
+  const ahora = Date.UTC(2026, 9, 8, 12);
+  const d = n => new Date(ahora + n * DIA);
+  assert.equal(A.relativo(d(0), ahora), 'hoy');
+  assert.equal(A.relativo(d(1), ahora), 'mañana');
+  assert.equal(A.relativo(d(-1), ahora), 'ayer');
+  assert.equal(A.relativo(d(8), ahora), 'en 8 días');
+  assert.equal(A.relativo(d(-20), ahora), 'hace 20 días');
+  assert.equal(A.relativo(d(-130), ahora), 'hace 4 meses');
+  assert.equal(A.relativo(d(300), ahora), 'en 10 meses');
+  assert.equal(A.relativo(d(-800), ahora), 'hace 2 años');
+  assert.equal(A.relativo(null, ahora), '');
+});
+
+test('la fila muestra la fecha y cuándo vence; avisa si vence en 7 días o menos', () => {
+  const pronto = A.filaHTML(analizar(base('p', { planActivo: true, planVence: ts(5) })), club);
+  assert.ok(pronto.includes('en 5 días') && pronto.includes('mb-rel is-soon'));
+  const lejos = A.filaHTML(analizar(base('l', { planActivo: true, planVence: ts(40) })), club);
+  assert.ok(lejos.includes('en 40 días') && !lejos.includes('is-soon'));
+  const vencido = A.filaHTML(analizar(base('v', { planActivo: true, planVence: ts(-130) })), club);
+  assert.ok(vencido.includes('hace 4 meses') && !vencido.includes('is-soon'));
+  const sinFecha = A.filaHTML(analizar(base('s', { planActivo: false })), club);
+  assert.ok(sinFecha.includes('mb-none'));
+});
+
+test('la fila tiene 4 celdas (miembro, estado, vence, acciones): sin desplazamiento lateral', () => {
+  const html = A.filaHTML(analizar(base('c', { planActivo: true, planVence: ts(9), stripeSubscriptionId: 'sub_1' })), club);
+  assert.equal((html.match(/<td/g) || []).length, 4);
+  assert.ok(html.includes('Mensual') === false || html.includes('Stripe'));
+});
+
+test('el estado distingue colores por clase y muestra plan y origen', () => {
+  const html = A.filaHTML(analizar(base('a', { planActivo: true, planStatus: 'active', planTipo: 'anual', planVence: ts(100), stripeSubscriptionId: 'sub_9' })), club);
+  assert.ok(html.includes('st-active'));
+  assert.ok(html.includes('Anual · Stripe'));
+  const pend = A.filaHTML(analizar(base('p2', { planActivo: false })), club);
+  assert.ok(pend.includes('st-pending'));
+  const venc = A.filaHTML(analizar(base('v2', { planActivo: true, planVence: ts(-30) })), club);
+  assert.ok(venc.includes('st-expired'));
+});
+
+test('los avisos salen como etiquetas cortas con el detalle en el title', () => {
+  const html = A.filaHTML(analizar(base('x', { planActivo: true, planStatus: 'active', planVence: ts(-130) })), club);
+  assert.ok(html.includes('mb-avisos'));
+  assert.ok(html.includes('>Marcado activo, ya venció<'));
+  assert.ok(html.includes('title="Quedó la etiqueta de activo'));
+});
+
+test('un admin se distingue con una etiqueta; un miembro normal no', () => {
+  assert.ok(A.filaHTML(analizar(base('ad', { role: 'admin' })), club).includes('mb-tag'));
+  assert.ok(!A.filaHTML(analizar(base('me')), club).includes('mb-tag'));
+});
+
+test('sin nombre se muestra "Sin nombre" en lugar de una raya', () => {
+  const html = A.filaHTML(analizar({ id: 'n1', email: 'n1@example.com', createdAt: iso(-3), planActivo: false }), club);
+  assert.ok(html.includes('Sin nombre'));
+});
+
+test('los chips informan su estado a lectores de pantalla (aria-pressed)', () => {
+  const r = A.resumen(poblacion().map(analizar));
+  const chips = A.chipsHTML('vencidos', r);
+  assert.ok(chips.includes('data-filtro="vencidos" aria-pressed="true"'));
+  assert.ok(chips.includes('data-filtro="todos" aria-pressed="false"'));
+  assert.ok(chips.includes('type="button"'));
+});
+
+test('la tarjeta principal ("Con acceso hoy") es la grande', () => {
+  const r = A.resumen(poblacion().map(analizar));
+  assert.ok(A.tarjetasHTML(r).includes('stat-box stat-hero green'));
+});
+
+test('la fila ya no usa estilos en línea (todo vive en la hoja de estilos)', () => {
+  const html = A.filaHTML(analizar(base('e', { planActivo: true, planVence: ts(3), stripeSubscriptionId: 'sub_2' })), club);
+  assert.ok(!html.includes('style='));
+});
