@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261009">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
     .player-overlay {
@@ -370,6 +371,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20260828-membership1"></script>
+  <script src="../assets/js/club-juegos.js?v=20261009"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
     const ZOORIGEN_FREE_VIDEO_ID = 'befd1641-850a-4099-88a8-047a1badc703';
@@ -683,6 +685,7 @@
                   ${paidLocked && unlocked ? (l.duration ? ' · ' : '') + '🔒 Requiere membresía' : ''}
                   ${!unlocked ? '🔒 Completa la clase anterior para desbloquear' : ''}
                   ${isNext && !done && unlocked ? (l.duration ? ' · ' : '') + '▶ Siguiente clase' : ''}
+                  ${nombreJuegoDeClase(l) ? (l.duration || done || isNext ? ' · ' : '') + 'Juego: ' + nombreJuegoDeClase(l) : ''}
                 </div>
               </div>
               ${unlocked && (tieneMembresiaActiva() || freePreview) ? `
@@ -885,19 +888,25 @@
 
       const infoContent = document.createElement('div');
       infoContent.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;';
+      const hayLista = courseId !== undefined && window.__currentLecciones?.length > 1;
+      const nombreJuego = courseId !== undefined && lessonIdx !== undefined ? nombreJuegoDeClase(lesson) : '';
+      const botonJuego = nombreJuego ? `
+            <button onclick="practicarJuegoClase(${lessonIdx})" style="background:rgba(232,163,23,0.16);border:1px solid rgba(232,163,23,0.55);color:#F4C45A;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
+              Juego de la clase: ${nombreJuego}
+            </button>` : '';
       infoContent.innerHTML = `
         <span style="color:var(--zoo-text-muted);font-size:.88rem;">
           ${desc ? '⏱️ ' + desc : ''}
           ${courseId !== undefined && lessonIdx !== undefined ? `${desc ? ' · ' : ''}Clase ${lessonIdx + 1} de ${window.__currentLecciones?.length || 1}` : ''}
         </span>
-        ${courseId !== undefined && window.__currentLecciones?.length > 1 ? `
-          <div style="display:flex;gap:8px;">
-            <button onclick="renderCourseModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;font-size:.8rem;">
+        ${hayLista || botonJuego ? `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">${botonJuego}
+            ${hayLista ? `<button onclick="renderCourseModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;font-size:.8rem;">
               ← Lista de clases
             </button>
             <button onclick="marcarYSiguiente('${courseId}', ${lessonIdx})" style="background:linear-gradient(135deg,#6FBF73,#3d8b42);border:0;color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
               ✓ Completada, siguiente →
-            </button>
+            </button>` : ''}
           </div>
         ` : ''}
       `;
@@ -962,15 +971,49 @@
       const lecciones = window.__currentLecciones;
       const nextIdx = lessonIdx + 1;
 
-      if (nextIdx < lecciones.length) {
-        // Abrir siguiente clase
-        const l = lecciones[nextIdx];
-        openPlayer(l, l.titulo || 'Clase ' + (nextIdx + 1), l.duration || '', courseId, nextIdx);
-      } else {
-        // Era la última — volver a lista para mostrar botón de certificado
-        renderCourseModal();
-      }
+      const continuar = () => {
+        if (nextIdx < lecciones.length) {
+          // Abrir siguiente clase
+          const l = lecciones[nextIdx];
+          openPlayer(l, l.titulo || 'Clase ' + (nextIdx + 1), l.duration || '', courseId, nextIdx);
+        } else {
+          // Era la última — volver a lista para mostrar botón de certificado
+          renderCourseModal();
+        }
+      };
+
+      // Si la clase trae un juego, se juega al terminarla; al acabar (o al cerrarlo) se continúa.
+      // El avance ya quedó guardado arriba: el juego es práctica y no condiciona el certificado.
+      abrirJuegoDeClase(lessonIdx, continuar);
     }
+
+    // Nombre legible del juego de una clase ('' si no tiene uno válido)
+    function nombreJuegoDeClase(lesson) {
+      if (!window.ZOO_JUEGOS || !lesson || !lesson.juego) return '';
+      const limpio = ZOO_JUEGOS.limpiarJuego(lesson.juego);
+      return limpio ? ZOO_JUEGOS.esc(ZOO_JUEGOS.TIPOS[limpio.tipo]) : '';
+    }
+
+    // Abre el juego de la clase; `despues` se ejecuta una sola vez al terminar o al cerrar la ventana.
+    function abrirJuegoDeClase(lessonIdx, despues) {
+      const lesson = window.__currentLecciones?.[lessonIdx];
+      if (!window.ZOO_JUEGOS || !lesson || !lesson.juego) { despues(); return; }
+      const curso = window.__currentCourse || {};
+      let seguido = false;
+      const seguir = () => { if (seguido) return; seguido = true; despues(); };
+      ZOO_JUEGOS.abrir(lesson.juego, {
+        subtitulo: (lesson.titulo || 'Clase ' + (lessonIdx + 1)) + (curso.title ? ' · ' + curso.title : ''),
+        portada: curso.image,
+        imagenPorDefecto: '../assets/img/banner/banner.png',
+        obligatorio: false,
+        textoContinuar: 'Continuar',
+        alTerminar: seguir,
+        alCerrar: seguir
+      });
+    }
+
+    // Botón "Juego de la clase": practicar sin avanzar de clase
+    window.practicarJuegoClase = (lessonIdx) => abrirJuegoDeClase(lessonIdx, () => {});
     function closePlayer() {
       const modal = document.getElementById('playerOverlay');
       modal.classList.remove('is-open');

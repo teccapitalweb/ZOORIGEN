@@ -74,7 +74,7 @@ test('todos los íconos que usa el panel existen', () => {
 
 test('el menú lateral, el pie y la marca llevan ícono y el logo real', () => {
   const h = leer('pages/admin-club.html');
-  for (const sec of ['miembros', 'cursos', 'videos', 'pdfs', 'sesiones', 'noticias']) {
+  for (const sec of ['miembros', 'cursos', 'certificados', 'videos', 'pdfs', 'sesiones', 'noticias']) {
     const m = h.match(new RegExp(`data-sec="${sec}">(<svg class="zi"[^>]*>)`));
     assert.ok(m, `el botón "${sec}" no empieza con un ícono`);
   }
@@ -86,7 +86,7 @@ test('el menú lateral, el pie y la marca llevan ícono y el logo real', () => {
 test('no queda ningún emoji en la interfaz del panel (solo el campo de "Icono" de noticias, que es contenido)', () => {
   const emoji = /[\p{Extended_Pictographic}️]/u;
   const permitido = l => l.includes("id=\"f_icon\"") || l.includes("icon: document.getElementById('f_icon')");
-  for (const rel of ['pages/admin-club.html', 'assets/js/admin-miembros.js', 'assets/css/admin-redesign.css']) {
+  for (const rel of ['pages/admin-club.html', 'assets/js/admin-miembros.js', 'assets/js/admin-cursos.js', 'assets/js/admin-certificados.js', 'assets/css/admin-redesign.css']) {
     const malas = leer(rel).split('\n').map((l, i) => [i + 1, l]).filter(([, l]) => emoji.test(l) && !permitido(l));
     assert.deepEqual(malas.map(([n, l]) => `${rel}:${n} ${l.trim().slice(0, 80)}`), [], 'quedaron emojis');
   }

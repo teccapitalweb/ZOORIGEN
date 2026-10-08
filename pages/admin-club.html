@@ -239,6 +239,7 @@
       <div class="asb-section">Gestión</div>
       <button class="asb-item is-active" data-sec="miembros"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" /></svg><span class="asb-label">Miembros</span> <span class="nbg" id="nb-miembros">0</span></button>
       <button class="asb-item" data-sec="cursos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></svg><span class="asb-label">Cursos</span> <span class="nbg" id="nb-cursos">0</span></button>
+      <button class="asb-item" data-sec="certificados"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" /><circle cx="12" cy="8" r="6" /></svg><span class="asb-label">Certificados</span> <span class="nbg" id="nb-certificados">0</span></button>
       <button class="asb-item" data-sec="videos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12.296 3.464 3.02 3.956" /><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3z" /><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m6.18 5.276 3.1 3.899" /></svg><span class="asb-label">Videos</span> <span class="nbg" id="nb-videos">0</span></button>
       <button class="asb-item" data-sec="pdfs"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="asb-label">PDFs</span> <span class="nbg" id="nb-pdfs">0</span></button>
       <button class="asb-item" data-sec="sesiones"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" /><path d="M19.075 4.933a10 10 0 0 1 0 14.134" /><path d="M4.925 19.067a10 10 0 0 1 0-14.134" /><path d="M7.753 16.239a6 6 0 0 1 0-8.478" /><circle cx="12" cy="12" r="2" /></svg><span class="asb-label">Sesiones</span> <span class="nbg" id="nb-sesiones">0</span></button>
@@ -267,8 +268,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20260828-membership1"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261008"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261009"></script>
+  <script src="../assets/js/club-juegos.js?v=20261009"></script>
   <script src="../assets/js/admin-miembros.js?v=20261008"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261009"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261009"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20260820"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -358,8 +362,8 @@
       t.className = 'toast show' + (isError ? ' error' : '');
       setTimeout(() => t.classList.remove('show'), 2800);
     };
-    const openModal = (html) => { document.getElementById('modalForm').innerHTML = html; document.getElementById('modalOverlay').classList.add('is-open'); };
-    const closeModal = () => document.getElementById('modalOverlay').classList.remove('is-open');
+    const openModal = (html) => { document.getElementById('modalForm').classList.remove('ce-host'); document.getElementById('modalForm').innerHTML = html; document.getElementById('modalOverlay').classList.add('is-open'); };
+    const closeModal = () => { document.getElementById('modalForm').classList.remove('ce-host'); document.getElementById('modalOverlay').classList.remove('is-open'); };
     window.closeM = closeModal;
     document.getElementById('modalOverlay').addEventListener('click', (e) => { if (e.target.id === 'modalOverlay') closeModal(); });
 
@@ -389,7 +393,7 @@
     }
 
     async function loadBadges() {
-      const cols = ['cursos', 'videos', 'pdfs', 'sesiones', 'noticias'];
+      const cols = ['cursos', 'certificados', 'videos', 'pdfs', 'sesiones', 'noticias'];
       for (const c of cols) {
         try {
           const snap = await db.collection(c).get();
@@ -405,6 +409,7 @@
     function renderSection(sec) {
       if (sec === 'miembros') loadMiembros();
       else if (sec === 'cursos') loadCursos();
+      else if (sec === 'certificados') loadCertificados();
       else if (sec === 'videos') loadVideos();
       else if (sec === 'pdfs') loadPdfs();
       else if (sec === 'sesiones') loadSesiones();
@@ -576,114 +581,165 @@
     };
 
     // ═══════════ CURSOS ═══════════
+    const CURSOS = window.ZOO_ADMIN_CURSOS;
+    const cursosEstado = { items: [], texto: '', area: 'todas', orden: 'recientes', vista: 'grid' };
+    try {
+      const vistaGuardada = localStorage.getItem('zoo_admin_cursos_vista');
+      if (vistaGuardada === 'lista' || vistaGuardada === 'grid') cursosEstado.vista = vistaGuardada;
+    } catch (e) { /* sin almacenamiento: se usa la vista por defecto */ }
+
     async function loadCursos() {
       const v = document.getElementById('secView');
-      v.innerHTML = '<h1>Cursos</h1><p class="sub">Biblioteca completa del Club VIP</p>';
+      v.innerHTML = '<h1>Cursos</h1><p class="sub">Cargando cursos…</p>';
       try {
-        const snap = await db.collection('cursos').orderBy('createdAt', 'desc').get();
-        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        v.innerHTML += `
-          <div class="content-toolbar">
-            <strong style="color:#fff;">${items.length} curso${items.length !== 1 ? 's' : ''}</strong>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn-add" id="syncBunnyBtn" onclick="sincronizarCatalogoBunny()">${ZOO_ICONOS.svg('cloud-download', { size: 16 })} Sincronizar 61 videos Bunny</button>
-              <button class="btn-add" onclick="formCurso()">+ Nuevo curso</button>
-            </div>
-          </div>
-          <div class="admin-content-list">
-            ${items.length === 0 ? '<div class="no-data">Aún no hay cursos. Clic en "+ Nuevo curso" para empezar.</div>' : items.map(c => `
-              <div class="admin-content-item">
-                <div class="admin-content-item__thumb" ${c.image ? `style="background-image:url('${c.image}');"` : ''}>${c.image ? '' : ZOO_ICONOS.svg('graduation-cap', { size: 24 })}</div>
-                <div class="admin-content-item__info">
-                  <div class="admin-content-item__title">${c.title}</div>
-                  <div class="admin-content-item__meta">${c.area} · ${c.duration || '—'} · ${c.level || '—'}${c.tag ? ' · ' + c.tag : ''}${c.videoProvider === 'bunny' ? ' · Bunny' : ''}</div>
-                </div>
-                <div class="admin-content-item__actions">
-                  <button class="btn-small edit" onclick='formCurso(${JSON.stringify(c).replace(/'/g,"&#39;")})'>Editar</button>
-                  <button class="btn-small delete" onclick="delDoc('cursos','${c.id}','${(c.title||'').replace(/'/g,"\\'")}')">Eliminar</button>
-                </div>
-              </div>`).join('')}
-          </div>`;
-      } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${err.message}</div>`; }
+        // Sin orderBy: ordenar en Firestore deja fuera a los cursos que no tengan el campo createdAt.
+        const snap = await db.collection('cursos').get();
+        cursosEstado.items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderCursos();
+      } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${CURSOS.esc(err.message)}</div>`; }
     }
 
+    function renderCursos() {
+      const v = document.getElementById('secView');
+      const e = cursosEstado, items = e.items;
+      v.innerHTML = `
+        <header class="sec-hero">
+          <div class="sec-hero__txt">
+            <span class="sec-eyebrow">Catálogo de cursos</span>
+            <h1>Cursos</h1>
+            <p>Busca, filtra y edita tus cursos, sus clases y los juegos que cierran cada clase.</p>
+          </div>
+          <div class="sec-hero__acc">
+            <button class="btn-add btn-add--suave" id="syncBunnyBtn" onclick="sincronizarCatalogoBunny()">${ZOO_ICONOS.svg('cloud-download', { size: 16 })} Sincronizar 61 videos Bunny</button>
+            <button class="btn-add" onclick="formCurso()">${ZOO_ICONOS.svg('plus', { size: 16 })} Nuevo curso</button>
+          </div>
+        </header>
+        ${CURSOS.kpisHTML(CURSOS.resumenCursos(items))}
+        <div class="cc-toolbar">
+          <div class="m-search">${ZOO_ICONOS.svg('search', { size: 16 })}<input type="search" class="admin-search" id="cursoBuscar" placeholder="Buscar por título, área o etiqueta" aria-label="Buscar cursos" value="${CURSOS.esc(e.texto)}"></div>
+          <div class="zoo-chips" id="cursoOrden" role="group" aria-label="Ordenar cursos"></div>
+          <div class="cc-vistas" id="cursoVista" role="group" aria-label="Tipo de vista"></div>
+        </div>
+        <div class="cc-areas" id="cursoAreas" role="group" aria-label="Filtrar por área"></div>
+        <div id="cursoLista"></div>`;
+
+      const pintar = () => {
+        const filtrados = CURSOS.filtrarCursos(items, { texto: e.texto, area: e.area, orden: e.orden });
+        document.getElementById('cursoOrden').innerHTML = CURSOS.ordenHTML(e.orden);
+        document.getElementById('cursoVista').innerHTML = CURSOS.vistaHTML(e.vista);
+        document.getElementById('cursoAreas').innerHTML = CURSOS.chipsAreasHTML(CURSOS.areasConConteo(items), items.length, e.area);
+        document.getElementById('cursoLista').innerHTML = CURSOS.listaHTML(filtrados, e.vista);
+      };
+      pintar();
+
+      document.getElementById('cursoBuscar').addEventListener('input', ev => { e.texto = ev.target.value; pintar(); });
+      document.getElementById('cursoOrden').addEventListener('click', ev => {
+        const b = ev.target.closest('[data-orden]');
+        if (b) { e.orden = b.dataset.orden; pintar(); }
+      });
+      document.getElementById('cursoVista').addEventListener('click', ev => {
+        const b = ev.target.closest('[data-vista]');
+        if (!b) return;
+        e.vista = b.dataset.vista;
+        try { localStorage.setItem('zoo_admin_cursos_vista', e.vista); } catch (err) { /* sin almacenamiento */ }
+        pintar();
+      });
+      document.getElementById('cursoAreas').addEventListener('click', ev => {
+        const b = ev.target.closest('[data-area]');
+        if (b) { e.area = b.dataset.area; pintar(); }
+      });
+      document.getElementById('cursoLista').addEventListener('click', ev => {
+        const b = ev.target.closest('[data-accion]');
+        const c = b && items.find(x => x.id === b.dataset.id);
+        if (!c) return;
+        if (b.dataset.accion === 'editar') formCurso(c);
+        else if (b.dataset.accion === 'eliminar') delDoc('cursos', c.id, c.title || '');
+      });
+    }
+
+    // ── Formulario de curso (nuevo / editar) con editor de clases y juegos ──
     window.formCurso = (data = {}) => {
+      // Copia profunda: lo que se edita no toca el curso hasta que se guarda.
+      let lecciones = JSON.parse(JSON.stringify(Array.isArray(data.lecciones) ? data.lecciones : []));
       // Convertir lecciones viejas (driveId único) al formato nuevo de array
-      let lecciones = data.lecciones || [];
       if (!lecciones.length && data.driveId) {
         lecciones = [{ titulo: data.title || 'Clase 1', driveId: data.driveId, duration: data.duration || '' }];
       }
-      if (!lecciones.length) lecciones = [{ titulo: '', driveId: '', duration: '' }];
-
+      if (!lecciones.length) lecciones = [CURSOS.leccionVacia()];
       window.__leccionesTemp = lecciones;
 
-      openModal(`
-        <h3>${data.id ? 'Editar' : 'Nuevo'} curso</h3>
-        <div class="field"><label>Título del curso *</label><input type="text" id="f_title" value="${data.title || ''}" placeholder="Ej. Fototrampeo de jaguares"></div>
-        <div class="field"><label>Área *</label><select id="f_area">${AREAS.map(a => `<option ${data.area === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
-        <div class="field"><label>Duración total</label><input type="text" id="f_duration" value="${data.duration || ''}" placeholder="Ej. 6 h"></div>
-        <div class="field"><label>Nivel</label><select id="f_level">
-          <option value="Básico" ${data.level === 'Básico' ? 'selected' : ''}>Básico</option>
-          <option value="Intermedio" ${data.level === 'Intermedio' ? 'selected' : ''}>Intermedio</option>
-          <option value="Avanzado" ${data.level === 'Avanzado' ? 'selected' : ''}>Avanzado</option>
-        </select></div>
-
-        <div class="field">
-          <label>Clases del curso</label>
-          <p class="hint" style="margin-top:0;margin-bottom:10px;">Las clases sincronizadas usan Bunny. También puedes agregar clases antiguas mediante Drive.</p>
-          <div id="leccionesContainer"></div>
-          <button type="button" onclick="agregarLeccion()" style="background:rgba(111,191,115,0.15);border:1px dashed rgba(111,191,115,0.4);color:#6FBF73;padding:10px;border-radius:8px;width:100%;cursor:pointer;font-family:inherit;font-weight:600;margin-top:6px;">+ Agregar otra clase</button>
-        </div>
-
-        <div class="field">
-          <label>URL de imagen (opcional)</label>
-          <input type="text" id="f_image" value="${data.image || ''}" placeholder="Pega link de Google Drive o URL directa">
-          <p class="hint" style="margin-top:6px;line-height:1.5;">
-            <strong>Drive:</strong> Comparte → "Cualquiera con el link" → pega el link normal<br>
-            <strong>Unsplash:</strong> clic derecho en la foto → "Copiar dirección de imagen"<br>
-            <strong>Upload a GitHub:</strong> sube a <code>assets/img/</code> y usa URL raw<br>
-            Medida ideal: 800×450px horizontal · JPG &lt; 300KB
-          </p>
-        </div>
-        <div class="field"><label>Descripción</label><textarea id="f_desc" placeholder="Breve descripción">${data.description || ''}</textarea></div>
-        <div class="field"><label>Tag destacado (opcional)</label><input type="text" id="f_tag" value="${data.tag || ''}" placeholder="Ej. Nuevo, Popular"></div>
-        <div class="modal-actions">
-          <button class="btn-cancel" onclick="closeM()">Cancelar</button>
-          <button class="btn-save" onclick="saveCurso('${data.id || ''}')">${data.id ? 'Guardar' : 'Crear'}</button>
-        </div>`);
-
+      openModal(CURSOS.modalCursoHTML(data, AREAS));
+      document.getElementById('modalForm').classList.add('ce-host');
       renderLeccionesForm();
+      enlazarLecciones();
     };
 
     window.renderLeccionesForm = () => {
       const cont = document.getElementById('leccionesContainer');
-      if (!cont) return;
-      cont.innerHTML = window.__leccionesTemp.map((l, i) => `
-        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin-bottom:8px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <strong style="color:#E8A317;font-size:.84rem;">Clase ${i + 1}</strong>
-            ${window.__leccionesTemp.length > 1 ? `<button type="button" onclick="eliminarLeccion(${i})" style="background:transparent;border:0;color:#D55A28;cursor:pointer;font-size:1.2rem;padding:0 6px;">${ZOO_ICONOS.svg('trash-2', { size: 16 })}</button>` : ''}
-          </div>
-          <input type="text" placeholder="Título de la clase" value="${l.titulo || ''}" onchange="window.__leccionesTemp[${i}].titulo=this.value" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">
-          ${l.videoId ? `<div style="width:100%;background:rgba(111,191,115,.1);border:1px solid rgba(111,191,115,.3);color:#9be3a0;padding:8px 10px;border-radius:6px;font-family:monospace;margin-bottom:6px;">Bunny: ${l.videoId}</div>` : `<input type="text" placeholder="Link o ID de Google Drive" value="${l.driveId || ''}" onchange="window.__leccionesTemp[${i}].driveId=extractDriveId(this.value);this.value=window.__leccionesTemp[${i}].driveId;" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">`}
-          <input type="text" placeholder="Duración (ej. 25 min)" value="${l.duration || ''}" onchange="window.__leccionesTemp[${i}].duration=this.value" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;">
-        </div>
-      `).join('');
+      if (cont) cont.innerHTML = CURSOS.leccionesHTML(window.__leccionesTemp);
     };
+
+    // Un solo juego de eventos para todo el editor de clases (no se pierde el foco al escribir).
+    function enlazarLecciones() {
+      const cont = document.getElementById('leccionesContainer');
+      if (!cont) return;
+      const indice = el => { const c = el.closest('[data-lec]'); return c ? parseInt(c.dataset.lec, 10) : -1; };
+      const redibujar = (enfocar) => {
+        const caja = document.querySelector('#modalForm .ce-form');   // el área que se desplaza dentro de la ventana
+        const y = caja ? caja.scrollTop : 0;
+        renderLeccionesForm();
+        if (caja) caja.scrollTop = y;
+        if (enfocar !== undefined) {
+          const filas = cont.querySelectorAll(`[data-lec="${enfocar}"] .ce-fila`);
+          const campo = filas.length ? filas[filas.length - 1].querySelector('input') : null;
+          if (campo) campo.focus();
+        }
+      };
+
+      cont.addEventListener('input', ev => {
+        const t = ev.target, i = indice(t);
+        if (t.dataset.ruta && i >= 0) CURSOS.asignarRuta(window.__leccionesTemp[i], t.dataset.ruta, t.value);
+      });
+      cont.addEventListener('change', ev => {
+        const t = ev.target, i = indice(t);
+        if (i < 0) return;
+        const lec = window.__leccionesTemp[i];
+        if (t.dataset.accion === 'juego-tipo') { lec.juego = CURSOS.nuevoJuego(t.value); redibujar(); }
+        else if (t.dataset.ruta && t.tagName === 'SELECT') CURSOS.asignarRuta(lec, t.dataset.ruta, t.value);
+      });
+      cont.addEventListener('click', ev => {
+        const b = ev.target.closest('[data-accion]');
+        if (!b || b.disabled || b.tagName === 'SELECT') return;
+        const i = indice(b);
+        if (i < 0) return;
+        const lista = window.__leccionesTemp, lec = lista[i];
+        switch (b.dataset.accion) {
+          case 'lec-subir': if (CURSOS.moverLeccion(lista, i, -1)) redibujar(); break;
+          case 'lec-bajar': if (CURSOS.moverLeccion(lista, i, 1)) redibujar(); break;
+          case 'lec-quitar':
+            if (lista.length <= 1) break;
+            if (lec.juego && !confirm('Esta clase tiene un juego. ¿Quitarla de todos modos?')) break;
+            lista.splice(i, 1); redibujar(); break;
+          case 'juego-agregar': lec.juego = { tipo: '', datos: {} }; redibujar(); break;
+          case 'juego-quitar': delete lec.juego; redibujar(); break;
+          case 'fila-agregar': if (CURSOS.agregarFila(lec.juego)) redibujar(i); break;
+          case 'fila-quitar': if (CURSOS.quitarFila(lec.juego, parseInt(b.dataset.fila, 10))) redibujar(); break;
+        }
+      });
+    }
 
     window.agregarLeccion = () => {
-      window.__leccionesTemp.push({ titulo: '', driveId: '', duration: '' });
+      window.__leccionesTemp.push(CURSOS.leccionVacia());
       renderLeccionesForm();
-    };
-
-    window.eliminarLeccion = (i) => {
-      window.__leccionesTemp.splice(i, 1);
-      renderLeccionesForm();
+      const cont = document.getElementById('leccionesContainer');
+      const ultima = cont && cont.querySelector('[data-lec]:last-child input');
+      if (ultima) ultima.focus();
     };
 
     window.saveCurso = async (id) => {
-      // Filtrar lecciones vacías
-      const lecciones = (window.__leccionesTemp || []).filter(l => l.videoId || (l.driveId && l.driveId.trim()));
+      // Valida y limpia las clases (descarta las vacías y revisa que cada juego esté completo)
+      const { lecciones, errores } = CURSOS.limpiarLecciones(window.__leccionesTemp);
+      if (errores.length) { toast(`${errores[0].mensaje}. Complétalo o quítalo.`, true); return; }
       const data = {
         title: document.getElementById('f_title').value.trim(),
         area: document.getElementById('f_area').value,
@@ -763,18 +819,8 @@
           if (previo) usados.add(previo.id);
 
           const leccionesAnteriores = Array.isArray(previo?.lecciones) ? previo.lecciones : [];
-          const lecciones = item.lecciones.map((lesson, index) => {
-            const anterior = leccionesAnteriores[index] || {};
-            const migrada = {
-              ...anterior,
-              titulo: anterior.titulo || lesson.titulo || `Clase ${index + 1}`,
-              provider: 'bunny',
-              videoId: lesson.videoId
-            };
-            if (anterior.driveId) migrada.driveIdAnterior = anterior.driveId;
-            delete migrada.driveId;
-            return migrada;
-          });
+          // Conserva títulos y juegos de cada clase (función probada en tests/admin-cursos.test.js)
+          const lecciones = CURSOS.migrarLecciones(leccionesAnteriores, item.lecciones);
 
           const data = {
             lecciones,
@@ -1046,6 +1092,77 @@
         loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
+
+    // ═══════════ CERTIFICADOS EMITIDOS ═══════════
+    const CERTS = window.ZOO_ADMIN_CERTS;
+    const certEstado = { items: [], texto: '', curso: 'todos', orden: 'recientes' };
+
+    async function loadCertificados() {
+      const v = document.getElementById('secView');
+      v.innerHTML = '<h1>Certificados emitidos</h1><p class="sub">Cargando certificados…</p>';
+      try {
+        // Sin orderBy: se ordena aquí para no dejar fuera ningún certificado.
+        const snap = await db.collection('certificados').get();
+        certEstado.items = snap.docs.map(d => CERTS.normalizar({ id: d.id, ...d.data() }));
+        renderCertificados();
+      } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${CERTS.esc(err.message)}</div>`; }
+    }
+
+    function renderCertificados() {
+      const v = document.getElementById('secView');
+      const e = certEstado, items = e.items;
+      v.innerHTML = `
+        <header class="sec-hero">
+          <div class="sec-hero__txt">
+            <span class="sec-eyebrow">Emisión</span>
+            <h1>Certificados emitidos</h1>
+            <p>Consulta los certificados que han obtenido tus alumnos, comparte su enlace de verificación o descarga la lista.</p>
+          </div>
+          <div class="sec-hero__acc">
+            <button class="btn-add btn-add--suave" id="certCsv">${ZOO_ICONOS.svg('download', { size: 16 })} Descargar lista (CSV)</button>
+          </div>
+        </header>
+        ${CERTS.kpisHTML(CERTS.resumen(items))}
+        <div class="cc-toolbar">
+          <div class="m-search">${ZOO_ICONOS.svg('search', { size: 16 })}<input type="search" class="admin-search" id="certBuscar" placeholder="Buscar por alumno, correo, curso o folio" aria-label="Buscar certificados" value="${CERTS.esc(e.texto)}"></div>
+          <label class="cf-selector"><span class="sr-only">Filtrar por curso</span><select id="certCurso" class="ce-input"></select></label>
+          <div class="zoo-chips" id="certOrden" role="group" aria-label="Ordenar certificados"></div>
+        </div>
+        <div id="certLista"></div>`;
+
+      let filtrados = [];
+      const pintar = () => {
+        filtrados = CERTS.filtrar(items, { texto: e.texto, curso: e.curso, orden: e.orden });
+        document.getElementById('certCurso').innerHTML = CERTS.opcionesCursoHTML(CERTS.cursosConConteo(items), e.curso, items.length);
+        document.getElementById('certOrden').innerHTML = CERTS.ordenHTML(e.orden);
+        document.getElementById('certLista').innerHTML = CERTS.listaHTML(filtrados);
+        document.getElementById('certCsv').disabled = filtrados.length === 0;
+      };
+      pintar();
+
+      document.getElementById('certBuscar').addEventListener('input', ev => { e.texto = ev.target.value; pintar(); });
+      document.getElementById('certCurso').addEventListener('change', ev => { e.curso = ev.target.value; pintar(); });
+      document.getElementById('certOrden').addEventListener('click', ev => {
+        const b = ev.target.closest('[data-orden]');
+        if (b) { e.orden = b.dataset.orden; pintar(); }
+      });
+      document.getElementById('certLista').addEventListener('click', async ev => {
+        const b = ev.target.closest('[data-accion="copiar"]');
+        if (!b) return;
+        const url = CERTS.urlVerificar(b.dataset.folio);
+        try { await navigator.clipboard.writeText(url); toast('Enlace de verificación copiado'); }
+        catch (err) { window.prompt('Copia el enlace de verificación:', url); }
+      });
+      document.getElementById('certCsv').addEventListener('click', () => {
+        const blob = new Blob(['﻿' + CERTS.csv(filtrados)], { type: 'text/csv;charset=utf-8' });
+        const enlace = document.createElement('a');
+        enlace.href = URL.createObjectURL(blob);
+        enlace.download = `certificados-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(enlace); enlace.click(); enlace.remove();
+        setTimeout(() => URL.revokeObjectURL(enlace.href), 1000);
+        toast(`Se descargaron ${filtrados.length} certificado${filtrados.length === 1 ? '' : 's'}`);
+      });
+    }
 
     // ═══════════ ARRANCAR ═══════════
     checkAccess();
