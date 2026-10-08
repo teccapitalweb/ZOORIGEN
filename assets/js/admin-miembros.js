@@ -4,10 +4,13 @@
 /* Se prueba en tests/admin-miembros.test.js                     */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.ZOO_ADMIN_MIEMBROS = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'));
+  else root.ZOO_ADMIN_MIEMBROS = factory(root.ZOO_ICONOS);
+})(typeof self !== 'undefined' ? self : this, function (iconos) {
   'use strict';
+
+  // Si los íconos no cargaron, la interfaz sigue funcionando solo con texto.
+  const ico = (nombre, opciones) => (iconos && iconos.svg ? iconos.svg(nombre, opciones) : '');
 
   // Todo texto que escribe un miembro (nombre, correo, teléfono) se escapa antes de
   // llegar a innerHTML: cualquiera puede registrarse con un nombre arbitrario.
@@ -22,11 +25,11 @@
   };
 
   const ESTADO_ETIQUETA = {
-    active: { texto: '● Activo', clase: 'active' },
-    cancelled_active: { texto: '⏳ Acceso vigente (cancelado)', clase: 'active' },
-    past_due: { texto: '⚠ Pago pendiente', clase: 'cancelled' },
-    expired: { texto: '✕ Vencido', clase: 'cancelled' },
-    pending_payment: { texto: '⏳ Sin pago', clase: 'pending' }
+    active: { texto: 'Activo', icono: 'circle-check', clase: 'active' },
+    cancelled_active: { texto: 'Acceso vigente (cancelado)', icono: 'hourglass', clase: 'active' },
+    past_due: { texto: 'Pago pendiente', icono: 'triangle-alert', clase: 'cancelled' },
+    expired: { texto: 'Vencido', icono: 'circle-x', clase: 'cancelled' },
+    pending_payment: { texto: 'Sin pago', icono: 'circle-dashed', clase: 'pending' }
   };
 
   function origenDe(m) {
@@ -152,9 +155,9 @@
       ? ' title="Solo marca cancelado aquí. La suscripción de Stripe se cancela desde el panel de Stripe."'
       : '';
     const acciones = a.conAcceso
-      ? `<button type="button" class="btn-small extend" data-accion="activar" data-uid="${uid}">Extender</button>
-         <button type="button" class="btn-small cancel" data-accion="cancelar" data-uid="${uid}"${stripeNota}>Cancelar</button>`
-      : `<button type="button" class="btn-small activate" data-accion="activar" data-uid="${uid}">Activar</button>`;
+      ? `<button type="button" class="btn-small extend" data-accion="activar" data-uid="${uid}">${ico('calendar-plus', { size: 14 })}Extender</button>
+         <button type="button" class="btn-small cancel" data-accion="cancelar" data-uid="${uid}"${stripeNota}>${ico('ban', { size: 14 })}Cancelar</button>`
+      : `<button type="button" class="btn-small activate" data-accion="activar" data-uid="${uid}">${ico('badge-check', { size: 14 })}Activar</button>`;
     const dias = a.vence ? Math.round((a.vence.getTime() - ahora) / 86400000) : null;
     const pronto = a.conAcceso && dias !== null && dias <= 7 ? ' is-soon' : '';
     return `<tr class="mrow">
@@ -169,7 +172,7 @@
         </div>
       </td>
       <td class="mcell-estado" data-label="Estado">
-        <span class="status-pill ${etiqueta.clase} ${claseEstado}">${esc(etiqueta.texto)}</span>
+        <span class="status-pill ${etiqueta.clase} ${claseEstado}">${ico(etiqueta.icono, { size: 14 })}<span>${esc(etiqueta.texto)}</span></span>
         ${sub ? `<div class="mb-sub">${esc(sub)}</div>` : ''}
       </td>
       <td class="mcell-vence" data-label="Vence">

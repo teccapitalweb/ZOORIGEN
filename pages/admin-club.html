@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-tema="jirafa" data-modo="claro">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -214,7 +214,7 @@
   <!-- ═══════════ LOGIN SCREEN ═══════════ -->
   <div class="login-wrap" id="loginScreen">
     <div class="login-card">
-      <div class="login-card__logo">🦒</div>
+      <div class="login-card__logo"><img src="../assets/img/logo/zoorigen-logo-remaster-v1.png" alt="Zoorigen"></div>
       <h1>Panel Admin Zoorigen</h1>
       <p class="subtitle">Acceso exclusivo para administradores</p>
       <div class="login-err" id="loginErr"></div>
@@ -223,7 +223,7 @@
         <input type="password" id="accessPwd" placeholder="Contraseña admin" autocomplete="off">
       </div>
       <button id="loginBtn">Ingresar al panel</button>
-      <p class="login-hint">⚠️ Requiere sesión activa con cuenta admin en Firebase + contraseña del panel.</p>
+      <p class="login-hint"><svg class="zi" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg> Requiere sesión activa con cuenta admin en Firebase + contraseña del panel.</p>
     </div>
   </div>
 
@@ -232,21 +232,21 @@
 
     <aside class="asb">
       <div class="asb-brand">
-        <div class="icon">🦒</div>
-        <div><h3>Zoorigen</h3><small>Admin</small></div>
+        <img class="asb-logo" src="../assets/img/logo/zoorigen-logo-remaster-v1.png" alt="Zoorigen">
+        <small>Panel admin</small>
       </div>
 
       <div class="asb-section">Gestión</div>
-      <button class="asb-item is-active" data-sec="miembros">👥 Miembros <span class="nbg" id="nb-miembros">0</span></button>
-      <button class="asb-item" data-sec="cursos">📚 Cursos <span class="nbg" id="nb-cursos">0</span></button>
-      <button class="asb-item" data-sec="videos">🎥 Videos <span class="nbg" id="nb-videos">0</span></button>
-      <button class="asb-item" data-sec="pdfs">📄 PDFs <span class="nbg" id="nb-pdfs">0</span></button>
-      <button class="asb-item" data-sec="sesiones">🔴 Sesiones <span class="nbg" id="nb-sesiones">0</span></button>
-      <button class="asb-item" data-sec="noticias">📰 Noticias <span class="nbg" id="nb-noticias">0</span></button>
+      <button class="asb-item is-active" data-sec="miembros"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" /></svg><span class="asb-label">Miembros</span> <span class="nbg" id="nb-miembros">0</span></button>
+      <button class="asb-item" data-sec="cursos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></svg><span class="asb-label">Cursos</span> <span class="nbg" id="nb-cursos">0</span></button>
+      <button class="asb-item" data-sec="videos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12.296 3.464 3.02 3.956" /><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3z" /><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m6.18 5.276 3.1 3.899" /></svg><span class="asb-label">Videos</span> <span class="nbg" id="nb-videos">0</span></button>
+      <button class="asb-item" data-sec="pdfs"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="asb-label">PDFs</span> <span class="nbg" id="nb-pdfs">0</span></button>
+      <button class="asb-item" data-sec="sesiones"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" /><path d="M19.075 4.933a10 10 0 0 1 0 14.134" /><path d="M4.925 19.067a10 10 0 0 1 0-14.134" /><path d="M7.753 16.239a6 6 0 0 1 0-8.478" /><circle cx="12" cy="12" r="2" /></svg><span class="asb-label">Sesiones</span> <span class="nbg" id="nb-sesiones">0</span></button>
+      <button class="asb-item" data-sec="noticias"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 18h-5" /><path d="M18 14h-8" /><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2" /><rect width="8" height="4" x="10" y="6" rx="1" /></svg><span class="asb-label">Noticias</span> <span class="nbg" id="nb-noticias">0</span></button>
 
       <div class="asb-ft">
-        <a href="club-dashboard.html">👁 Ver como miembro</a>
-        <a href="#" onclick="adminLogout();return false;">🚪 Cerrar sesión</a>
+        <a href="club-dashboard.html"><svg class="zi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg><span>Ver como miembro</span></a>
+        <a href="#" onclick="adminLogout();return false;"><svg class="zi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg><span>Cerrar sesión</span></a>
       </div>
     </aside>
 
@@ -267,6 +267,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20260828-membership1"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261008"></script>
   <script src="../assets/js/admin-miembros.js?v=20261008"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20260820"></script>
   <script>
@@ -296,7 +297,7 @@
             if (data.role !== 'admin') {
               document.getElementById('loginScreen').innerHTML = `
                 <div class="login-card">
-                  <div class="login-card__logo" style="background:var(--zoo-orange);">🔒</div>
+                  <div class="login-card__logo is-icon" style="background:var(--zoo-orange);">${ZOO_ICONOS.svg('lock', { size: 32 })}</div>
                   <h1>Acceso denegado</h1>
                   <p class="subtitle">Tu cuenta no tiene permisos de administrador.</p>
                   <a href="club-dashboard.html" style="display:inline-block;margin-top:20px;color:var(--zoo-green-500);font-weight:600;text-decoration:none;">← Volver al club</a>
@@ -338,7 +339,7 @@
         err.classList.remove('show');
         showAdmin();
       } else {
-        err.textContent = '❌ Contraseña incorrecta';
+        err.textContent = 'Contraseña incorrecta';
         err.classList.add('show');
         document.getElementById('accessPwd').value = '';
       }
@@ -350,7 +351,10 @@
     // ═══════════ TOAST / MODAL HELPERS ═══════════
     const toast = (msg, isError = false) => {
       const t = document.getElementById('toast');
-      t.textContent = msg;
+      // sin emojis: el ícono lo pone la propia notificación
+      const texto = String(msg).replace(/^[^\p{L}\p{N}¿¡"'(]+/u, '').trim();
+      t.innerHTML = ZOO_ICONOS.svg(isError ? 'circle-alert' : 'circle-check', { size: 18 }) + '<span class="toast__txt"></span>';
+      t.querySelector('.toast__txt').textContent = texto;
       t.className = 'toast show' + (isError ? ' error' : '');
       setTimeout(() => t.classList.remove('show'), 2800);
     };
@@ -433,12 +437,12 @@
             <h1>Miembros</h1>
             <p class="sub">Datos reales de Firestore · ${hoy}</p>
           </div>
-          <button type="button" id="copiarResumen" class="btn-small extend m-copy">📋 Copiar resumen</button>
+          <button type="button" id="copiarResumen" class="btn-small extend m-copy">${ZOO_ICONOS.svg('clipboard-copy', { size: 16 })}Copiar resumen</button>
         </header>
         ${A.tarjetasHTML(r)}
         <div class="m-controls">
           <div class="zoo-chips" id="miembrosChips" role="group" aria-label="Filtrar miembros"></div>
-          <input type="search" class="admin-search" id="searchMembers" placeholder="Buscar nombre, correo o WhatsApp" aria-label="Buscar miembros">
+          <div class="m-search">${ZOO_ICONOS.svg('search', { size: 16 })}<input type="search" class="admin-search" id="searchMembers" placeholder="Buscar nombre, correo o WhatsApp" aria-label="Buscar miembros"></div>
         </div>
         <div class="mtable">
           <table>
@@ -465,14 +469,14 @@
       });
       document.getElementById('copiarResumen').addEventListener('click', async () => {
         const txt = A.resumenTexto(r);
-        try { await navigator.clipboard.writeText(txt); toast('📋 Resumen copiado (sin datos personales)'); }
+        try { await navigator.clipboard.writeText(txt); toast('Resumen copiado (sin datos personales)'); }
         catch { window.prompt('Copia el resumen:', txt); }
       });
     }
 
     window.adminActivar = (uid, name, email) => {
       openModal(`
-        <h3>✅ Activar membresía manualmente</h3>
+        <h3>Activar membresía manualmente</h3>
         <p style="color:var(--zoo-text-muted);font-size:.9rem;margin-bottom:14px;">
           Activarás la membresía VIP de <strong style="color:#fff;">${ZOO_ADMIN_MIEMBROS.esc(name || email || uid)}</strong>.<br>
           Útil cuando el pago se hizo fuera de Stripe (transferencia, efectivo, cortesía, etc.).
@@ -504,7 +508,7 @@
 
         <div class="modal-actions">
           <button class="btn-cancel" onclick="closeM()">Cancelar</button>
-          <button class="btn-save" onclick="adminActivarConfirm('${uid}')">✓ Activar ahora</button>
+          <button class="btn-save" onclick="adminActivarConfirm('${uid}')">Activar ahora</button>
         </div>
       `);
 
@@ -557,17 +561,17 @@
           needsLinkToAuth: firebase.firestore.FieldValue.delete()
         }, { merge: true });
 
-        toast(`✅ Plan ${tipoPlan} activado (${dias} días)`);
+        toast(`Plan ${tipoPlan} activado (${dias} días)`);
         closeModal();
         loadMiembros();
       } catch (err) {
         console.error('adminActivar error:', err);
-        toast('❌ Error: ' + err.message, true);
+        toast('Error: ' + err.message, true);
       }
     };
     window.adminCancelar = async (uid, name) => {
       if (!confirm(`¿Cancelar membresía de ${name}?`)) return;
-      try { await db.collection('miembros').doc(uid).update({ planCancelado: true, planStatus: 'cancelled_active', canceladoEn: firebase.firestore.FieldValue.serverTimestamp() }); toast('✅ Cancelado'); loadMiembros(); }
+      try { await db.collection('miembros').doc(uid).update({ planCancelado: true, planStatus: 'cancelled_active', canceladoEn: firebase.firestore.FieldValue.serverTimestamp() }); toast('Cancelado'); loadMiembros(); }
       catch (err) { toast('Error: ' + err.message, true); }
     };
 
@@ -582,17 +586,17 @@
           <div class="content-toolbar">
             <strong style="color:#fff;">${items.length} curso${items.length !== 1 ? 's' : ''}</strong>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn-add" id="syncBunnyBtn" onclick="sincronizarCatalogoBunny()">🐰 Sincronizar 61 videos Bunny</button>
+              <button class="btn-add" id="syncBunnyBtn" onclick="sincronizarCatalogoBunny()">${ZOO_ICONOS.svg('cloud-download', { size: 16 })} Sincronizar 61 videos Bunny</button>
               <button class="btn-add" onclick="formCurso()">+ Nuevo curso</button>
             </div>
           </div>
           <div class="admin-content-list">
             ${items.length === 0 ? '<div class="no-data">Aún no hay cursos. Clic en "+ Nuevo curso" para empezar.</div>' : items.map(c => `
               <div class="admin-content-item">
-                <div class="admin-content-item__thumb" ${c.image ? `style="background-image:url('${c.image}');"` : ''}>${c.image ? '' : '🎓'}</div>
+                <div class="admin-content-item__thumb" ${c.image ? `style="background-image:url('${c.image}');"` : ''}>${c.image ? '' : ZOO_ICONOS.svg('graduation-cap', { size: 24 })}</div>
                 <div class="admin-content-item__info">
                   <div class="admin-content-item__title">${c.title}</div>
-                  <div class="admin-content-item__meta">${c.area} · ${c.duration || '—'} · ${c.level || '—'}${c.tag ? ' · 🏷️ ' + c.tag : ''}${c.videoProvider === 'bunny' ? ' · 🐰 Bunny' : ''}</div>
+                  <div class="admin-content-item__meta">${c.area} · ${c.duration || '—'} · ${c.level || '—'}${c.tag ? ' · ' + c.tag : ''}${c.videoProvider === 'bunny' ? ' · Bunny' : ''}</div>
                 </div>
                 <div class="admin-content-item__actions">
                   <button class="btn-small edit" onclick='formCurso(${JSON.stringify(c).replace(/'/g,"&#39;")})'>Editar</button>
@@ -614,7 +618,7 @@
       window.__leccionesTemp = lecciones;
 
       openModal(`
-        <h3>${data.id ? '✏️ Editar' : '➕ Nuevo'} curso</h3>
+        <h3>${data.id ? 'Editar' : 'Nuevo'} curso</h3>
         <div class="field"><label>Título del curso *</label><input type="text" id="f_title" value="${data.title || ''}" placeholder="Ej. Fototrampeo de jaguares"></div>
         <div class="field"><label>Área *</label><select id="f_area">${AREAS.map(a => `<option ${data.area === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
         <div class="field"><label>Duración total</label><input type="text" id="f_duration" value="${data.duration || ''}" placeholder="Ej. 6 h"></div>
@@ -625,20 +629,20 @@
         </select></div>
 
         <div class="field">
-          <label>📚 Clases del curso</label>
+          <label>Clases del curso</label>
           <p class="hint" style="margin-top:0;margin-bottom:10px;">Las clases sincronizadas usan Bunny. También puedes agregar clases antiguas mediante Drive.</p>
           <div id="leccionesContainer"></div>
           <button type="button" onclick="agregarLeccion()" style="background:rgba(111,191,115,0.15);border:1px dashed rgba(111,191,115,0.4);color:#6FBF73;padding:10px;border-radius:8px;width:100%;cursor:pointer;font-family:inherit;font-weight:600;margin-top:6px;">+ Agregar otra clase</button>
         </div>
 
         <div class="field">
-          <label>🖼️ URL de imagen (opcional)</label>
+          <label>URL de imagen (opcional)</label>
           <input type="text" id="f_image" value="${data.image || ''}" placeholder="Pega link de Google Drive o URL directa">
           <p class="hint" style="margin-top:6px;line-height:1.5;">
-            ✅ <strong>Drive:</strong> Comparte → "Cualquiera con el link" → pega el link normal<br>
-            ✅ <strong>Unsplash:</strong> clic derecho en la foto → "Copiar dirección de imagen"<br>
-            ✅ <strong>Upload a GitHub:</strong> sube a <code>assets/img/</code> y usa URL raw<br>
-            📐 Medida ideal: 800×450px horizontal · JPG &lt; 300KB
+            <strong>Drive:</strong> Comparte → "Cualquiera con el link" → pega el link normal<br>
+            <strong>Unsplash:</strong> clic derecho en la foto → "Copiar dirección de imagen"<br>
+            <strong>Upload a GitHub:</strong> sube a <code>assets/img/</code> y usa URL raw<br>
+            Medida ideal: 800×450px horizontal · JPG &lt; 300KB
           </p>
         </div>
         <div class="field"><label>Descripción</label><textarea id="f_desc" placeholder="Breve descripción">${data.description || ''}</textarea></div>
@@ -658,10 +662,10 @@
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin-bottom:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <strong style="color:#E8A317;font-size:.84rem;">Clase ${i + 1}</strong>
-            ${window.__leccionesTemp.length > 1 ? `<button type="button" onclick="eliminarLeccion(${i})" style="background:transparent;border:0;color:#D55A28;cursor:pointer;font-size:1.2rem;padding:0 6px;">🗑️</button>` : ''}
+            ${window.__leccionesTemp.length > 1 ? `<button type="button" onclick="eliminarLeccion(${i})" style="background:transparent;border:0;color:#D55A28;cursor:pointer;font-size:1.2rem;padding:0 6px;">${ZOO_ICONOS.svg('trash-2', { size: 16 })}</button>` : ''}
           </div>
           <input type="text" placeholder="Título de la clase" value="${l.titulo || ''}" onchange="window.__leccionesTemp[${i}].titulo=this.value" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">
-          ${l.videoId ? `<div style="width:100%;background:rgba(111,191,115,.1);border:1px solid rgba(111,191,115,.3);color:#9be3a0;padding:8px 10px;border-radius:6px;font-family:monospace;margin-bottom:6px;">🐰 Bunny: ${l.videoId}</div>` : `<input type="text" placeholder="Link o ID de Google Drive" value="${l.driveId || ''}" onchange="window.__leccionesTemp[${i}].driveId=extractDriveId(this.value);this.value=window.__leccionesTemp[${i}].driveId;" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">`}
+          ${l.videoId ? `<div style="width:100%;background:rgba(111,191,115,.1);border:1px solid rgba(111,191,115,.3);color:#9be3a0;padding:8px 10px;border-radius:6px;font-family:monospace;margin-bottom:6px;">Bunny: ${l.videoId}</div>` : `<input type="text" placeholder="Link o ID de Google Drive" value="${l.driveId || ''}" onchange="window.__leccionesTemp[${i}].driveId=extractDriveId(this.value);this.value=window.__leccionesTemp[${i}].driveId;" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;margin-bottom:6px;">`}
           <input type="text" placeholder="Duración (ej. 25 min)" value="${l.duration || ''}" onchange="window.__leccionesTemp[${i}].duration=this.value" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:8px 10px;border-radius:6px;font-family:inherit;">
         </div>
       `).join('');
@@ -696,8 +700,8 @@
       if (!data.title) { toast('Título requerido', true); return; }
       if (lecciones.length === 0) { toast('Agrega al menos 1 clase con video', true); return; }
       try {
-        if (id) { await db.collection('cursos').doc(id).update(data); toast('✅ Actualizado'); }
-        else { data.createdAt = new Date().toISOString(); await db.collection('cursos').add(data); toast('✅ Creado'); }
+        if (id) { await db.collection('cursos').doc(id).update(data); toast('Actualizado'); }
+        else { data.createdAt = new Date().toISOString(); await db.collection('cursos').add(data); toast('Creado'); }
         closeModal(); loadCursos(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
@@ -739,7 +743,7 @@
       }
       if (!confirm(`Se vincularán ${totalVideos} videos Bunny con ${catalogo.length} cursos.\n\nSe conservarán portadas, textos, materiales y progreso. ¿Continuar?`)) return;
 
-      if (btn) { btn.disabled = true; btn.textContent = '⏳ Sincronizando…'; }
+      if (btn) { btn.disabled = true; btn.innerHTML = ZOO_ICONOS.svg('refresh-cw', { size: 16, clase: 'zi-spin' }) + ' Sincronizando…'; }
       try {
         const snap = await db.collection('cursos').get();
         const existentes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -801,14 +805,14 @@
           await db.collection('cursos').doc(docId).set(data, { merge: true });
         }
 
-        toast(`✅ 61 videos sincronizados · ${actualizados} cursos actualizados · ${creados} creados`);
+        toast(`61 videos sincronizados · ${actualizados} cursos actualizados · ${creados} creados`);
         await loadCursos();
         loadBadges();
       } catch (error) {
         console.error('[Bunny sync]', error);
         toast('No se pudo sincronizar: ' + (error.message || error), true);
       } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '🐰 Sincronizar 61 videos Bunny'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = ZOO_ICONOS.svg('cloud-download', { size: 16 }) + ' Sincronizar 61 videos Bunny'; }
       }
     };
 
@@ -827,7 +831,7 @@
           <div class="admin-content-list">
             ${items.length === 0 ? '<div class="no-data">Aún no hay videos.</div>' : items.map(x => `
               <div class="admin-content-item">
-                <div class="admin-content-item__thumb" style="background:var(--zoo-orange);">🎥</div>
+                <div class="admin-content-item__thumb" style="background:var(--zoo-orange);">${ZOO_ICONOS.svg('clapperboard', { size: 24 })}</div>
                 <div class="admin-content-item__info">
                   <div class="admin-content-item__title">${x.title}</div>
                   <div class="admin-content-item__meta">${x.area || ''} · ${x.duration || '—'}</div>
@@ -843,7 +847,7 @@
 
     window.formVideo = (data = {}) => {
       openModal(`
-        <h3>${data.id ? '✏️ Editar' : '➕ Nuevo'} video</h3>
+        <h3>${data.id ? 'Editar' : 'Nuevo'} video</h3>
         <div class="field"><label>Título *</label><input type="text" id="f_title" value="${data.title || ''}"></div>
         <div class="field"><label>Área *</label><select id="f_area">${AREAS.map(a => `<option ${data.area === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
         <div class="field"><label>Duración</label><input type="text" id="f_duration" value="${data.duration || ''}" placeholder="Ej. 12 min"></div>
@@ -861,7 +865,7 @@
       try {
         if (id) await db.collection('videos').doc(id).update(data);
         else { data.createdAt = new Date().toISOString(); await db.collection('videos').add(data); }
-        toast('✅ Guardado'); closeModal(); loadVideos(); loadBadges();
+        toast('Guardado'); closeModal(); loadVideos(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
 
@@ -880,7 +884,7 @@
           <div class="admin-content-list">
             ${items.length === 0 ? '<div class="no-data">Aún no hay PDFs.</div>' : items.map(x => `
               <div class="admin-content-item">
-                <div class="admin-content-item__thumb" style="background:var(--zoo-blue);">📄</div>
+                <div class="admin-content-item__thumb" style="background:var(--zoo-blue);">${ZOO_ICONOS.svg('file-text', { size: 24 })}</div>
                 <div class="admin-content-item__info">
                   <div class="admin-content-item__title">${x.title}</div>
                   <div class="admin-content-item__meta">${x.area || ''} · ${x.pages || '—'} páginas</div>
@@ -896,7 +900,7 @@
 
     window.formPdf = (data = {}) => {
       openModal(`
-        <h3>${data.id ? '✏️ Editar' : '➕ Nuevo'} PDF</h3>
+        <h3>${data.id ? 'Editar' : 'Nuevo'} PDF</h3>
         <div class="field"><label>Título *</label><input type="text" id="f_title" value="${data.title || ''}"></div>
         <div class="field"><label>Área *</label><select id="f_area">${AREAS.map(a => `<option ${data.area === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
         <div class="field"><label>Páginas</label><input type="number" id="f_pages" value="${data.pages || ''}"></div>
@@ -914,7 +918,7 @@
       try {
         if (id) await db.collection('pdfs').doc(id).update(data);
         else { data.createdAt = new Date().toISOString(); await db.collection('pdfs').add(data); }
-        toast('✅ Guardado'); closeModal(); loadPdfs(); loadBadges();
+        toast('Guardado'); closeModal(); loadPdfs(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
 
@@ -933,10 +937,10 @@
           <div class="admin-content-list">
             ${items.length === 0 ? '<div class="no-data">Aún no hay webinars programados.</div>' : items.map(x => `
               <div class="admin-content-item">
-                <div class="admin-content-item__thumb" style="background:var(--zoo-orange);">🎥</div>
+                <div class="admin-content-item__thumb" style="background:var(--zoo-orange);">${ZOO_ICONOS.svg('radio', { size: 24 })}</div>
                 <div class="admin-content-item__info">
                   <div class="admin-content-item__title">${x.title}</div>
-                  <div class="admin-content-item__meta">${x.speaker || '—'} · ${ZOORIGEN_CLUB.formatShort(x.date)} · ${x.time || '19:00'} · 💻 Google Meet</div>
+                  <div class="admin-content-item__meta">${x.speaker || '—'} · ${ZOORIGEN_CLUB.formatShort(x.date)} · ${x.time || '19:00'} · Google Meet</div>
                 </div>
                 <div class="admin-content-item__actions">
                   <button class="btn-small edit" onclick='formSesion(${JSON.stringify(x).replace(/'/g,"&#39;")})'>Editar</button>
@@ -949,7 +953,7 @@
 
     window.formSesion = (data = {}) => {
       openModal(`
-        <h3>${data.id ? '✏️ Editar' : '➕ Nuevo'} webinar</h3>
+        <h3>${data.id ? 'Editar' : 'Nuevo'} webinar</h3>
         <div class="field"><label>Título del webinar *</label><input type="text" id="f_title" value="${data.title || ''}" placeholder="Ej. Manejo de fauna silvestre en UMAs"></div>
         <div class="field"><label>Ponente / Especialista</label><input type="text" id="f_speaker" value="${data.speaker || ''}" placeholder="Ej. Dr. Iván Coronel"></div>
         <div class="field"><label>Fecha *</label><input type="date" id="f_date" value="${data.date || ''}"></div>
@@ -976,7 +980,7 @@
       try {
         if (id) await db.collection('sesiones').doc(id).update(data);
         else { data.createdAt = new Date().toISOString(); await db.collection('sesiones').add(data); }
-        toast('✅ Guardado'); closeModal(); loadSesiones(); loadBadges();
+        toast('Guardado'); closeModal(); loadSesiones(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
 
@@ -995,10 +999,10 @@
           <div class="admin-content-list">
             ${items.length === 0 ? '<div class="no-data">Aún no hay noticias. El cron del Railway sincroniza automáticamente cada 6 horas.</div>' : items.map(n => `
               <div class="admin-content-item">
-                <div class="admin-content-item__thumb" style="background:${n.auto ? 'var(--zoo-green-700)' : 'var(--zoo-amber)'};color:#fff;">${n.icon || '📰'}</div>
+                <div class="admin-content-item__thumb" style="background:${n.auto ? 'var(--zoo-green-700)' : 'var(--zoo-amber)'};color:#fff;">${ZOO_ICONOS.svg('newspaper', { size: 24 })}</div>
                 <div class="admin-content-item__info">
                   <div class="admin-content-item__title">${n.title}</div>
-                  <div class="admin-content-item__meta">${n.source || '—'} · ${n.auto ? '🤖 Auto' : '✍️ Manual'}${n.link ? ` · <a href="${n.link}" target="_blank" style="color:var(--zoo-green-500);">Ver ↗</a>` : ''}</div>
+                  <div class="admin-content-item__meta">${n.source || '—'} · ${n.auto ? ZOO_ICONOS.svg('bot', { size: 14 }) + ' Auto' : ZOO_ICONOS.svg('pen-line', { size: 14 }) + ' Manual'}${n.link ? ` · <a href="${n.link}" target="_blank" style="color:var(--zoo-green-500);">Ver ${ZOO_ICONOS.svg('external-link', { size: 13 })}</a>` : ''}</div>
                 </div>
                 <div class="admin-content-item__actions">
                   <button class="btn-small delete" onclick="delDoc('noticias','${n.id}','${(n.title||'').substring(0,30).replace(/'/g,"\\'")}')">Eliminar</button>
@@ -1010,7 +1014,7 @@
 
     window.formNoticia = (data = {}) => {
       openModal(`
-        <h3>➕ Nueva noticia manual</h3>
+        <h3>Nueva noticia manual</h3>
         <div class="field"><label>Título *</label><input type="text" id="f_title" value="${data.title || ''}"></div>
         <div class="field"><label>Resumen</label><textarea id="f_summary">${data.summary || ''}</textarea></div>
         <div class="field"><label>Fuente</label><input type="text" id="f_source" value="${data.source || 'Zoorigen'}"></div>
@@ -1028,7 +1032,7 @@
       try {
         if (id) await db.collection('noticias').doc(id).update(data);
         else { data.createdAt = new Date().toISOString(); await db.collection('noticias').add(data); }
-        toast('✅ Guardado'); closeModal(); loadNoticias(); loadBadges();
+        toast('Guardado'); closeModal(); loadNoticias(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
 
@@ -1037,7 +1041,7 @@
       if (!confirm(`¿Eliminar "${name}"?`)) return;
       try {
         await db.collection(col).doc(id).delete();
-        toast('✅ Eliminado');
+        toast('Eliminado');
         renderSection(currentSec);
         loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
