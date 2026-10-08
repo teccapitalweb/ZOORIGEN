@@ -1,0 +1,190 @@
+/* ============================================================ */
+/* JUEGOS DINÁMICOS DE CLASE · estilos (Club VIP Zoorigen)       */
+/* Usan las variables --zoo-* del Club, así que siguen el tema   */
+/* oscuro o claro del alumno. La lógica está en club-juegos.js.  */
+/* ============================================================ */
+
+body.jg-abierto { overflow: hidden; }
+
+.jg-overlay {
+  --jg-card: var(--zoo-bg-card, #14281B);
+  --jg-text: var(--zoo-text, #ffffff);
+  --jg-muted: var(--zoo-text-muted, rgba(255, 255, 255, 0.68));
+  --jg-dim: var(--zoo-text-dim, rgba(255, 255, 255, 0.45));
+  --jg-line: var(--zoo-border, rgba(127, 127, 127, 0.3));
+  --jg-surface: rgba(127, 127, 127, 0.10);
+  --jg-surface-2: rgba(127, 127, 127, 0.18);
+  --jg-acc: var(--zoo-amber, #E8A317);
+  --jg-ok: #2E9E5B;
+  --jg-bad: #D1352B;
+  position: fixed; inset: 0; z-index: 1400;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(4, 11, 7, 0.78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  font-family: var(--zoo-font-body, 'Open Sans', system-ui, sans-serif);
+}
+.jg-box {
+  display: flex; flex-direction: column; width: min(100%, 780px); max-height: 94vh; overflow: auto; outline: none;
+  background: var(--jg-card); color: var(--jg-text); border: 1px solid var(--jg-line); border-radius: 22px;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.5);
+  animation: jgEntra .35s cubic-bezier(.2, .8, .25, 1);
+}
+@keyframes jgEntra { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: none; } }
+
+.jg-head {
+  position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 18px 22px; color: #fff; border-radius: 22px 22px 0 0;
+  background: linear-gradient(135deg, #1F5F3A, #2f7a4f 62%, #C75402);
+}
+.jg-head__txt { min-width: 0; }
+.jg-title { margin: 0; font: 700 1.15rem/1.2 var(--zoo-font-heading, 'Poppins', sans-serif); letter-spacing: -0.01em; }
+.jg-subtitle { margin: 3px 0 0; font-size: .8rem; opacity: .88; overflow-wrap: anywhere; }
+.jg-close {
+  flex: none; width: 36px; height: 36px; display: grid; place-items: center; cursor: pointer;
+  color: #fff; background: rgba(255, 255, 255, 0.16); border: 0; border-radius: 50%; transition: background .15s;
+}
+.jg-close:hover { background: rgba(255, 255, 255, 0.28); }
+.jg-body { flex: 1; padding: 20px 22px; }
+.jg-foot {
+  position: sticky; bottom: 0; z-index: 3; display: flex; gap: 10px; align-items: center; justify-content: flex-end;
+  padding: 14px 22px 18px; background: var(--jg-card); border-top: 1px solid var(--jg-line); border-radius: 0 0 22px 22px;
+}
+
+.jg-lead {
+  margin: 0 0 16px; padding: 14px 16px; font-size: .88rem; line-height: 1.6; color: var(--jg-muted);
+  background: var(--jg-surface); border: 1px solid var(--jg-line); border-radius: 15px;
+}
+.jg-lead b { color: var(--jg-text); }
+.jg-hint {
+  margin-bottom: 16px; padding: 12px 15px; font-size: .86rem; line-height: 1.5; color: var(--jg-muted);
+  background: rgba(232, 163, 23, 0.10); border: 1px solid rgba(232, 163, 23, 0.32); border-radius: 14px;
+}
+.jg-progress { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.jg-progress__track { flex: 1; height: 8px; overflow: hidden; background: var(--jg-surface-2); border-radius: 4px; }
+.jg-progress__fill {
+  width: 0; height: 100%; border-radius: 4px; transition: width .4s cubic-bezier(.2, .8, .25, 1);
+  background: linear-gradient(90deg, #6FBF73, #E8A317, #F58220);
+}
+.jg-progress__txt { font: 700 .72rem/1 var(--zoo-font-heading, 'Poppins', sans-serif); color: var(--jg-dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.jg-continuar {
+  padding: 13px 28px; color: #fff; font: 700 .9rem var(--zoo-font-body, 'Open Sans', sans-serif); cursor: pointer;
+  background: linear-gradient(135deg, #3d8b42, #2f7a4f); border: 0; border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(31, 95, 58, 0.28); transition: opacity .2s, transform .15s, box-shadow .2s;
+}
+.jg-continuar:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+.jg-continuar:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(31, 95, 58, 0.36); }
+.jg-ghost {
+  padding: 11px 20px; color: var(--jg-muted); font: 700 .84rem var(--zoo-font-body, 'Open Sans', sans-serif); cursor: pointer;
+  background: transparent; border: 1.5px solid var(--jg-line); border-radius: 100px; transition: all .15s;
+}
+.jg-ghost:hover { color: var(--jg-text); border-color: var(--jg-acc); }
+.jg-overlay :focus-visible { outline: 2px solid var(--jg-acc); outline-offset: 2px; }
+
+.jg-win {
+  display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px;
+  color: var(--jg-ok); font-size: .98rem; font-weight: 800; text-align: center;
+  animation: jgPop .4s cubic-bezier(.2, .8, .25, 1);
+}
+.jg-win.is-lose { color: var(--jg-muted); }
+@keyframes jgPop { 0% { transform: scale(.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes jgShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+
+/* ── Sopa de letras ── */
+.sp-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+.sp-board {
+  position: relative; display: grid; gap: 4px; width: min(100%, 440px); aspect-ratio: 1; padding: 12px;
+  user-select: none; -webkit-user-select: none; touch-action: none;
+  background: var(--jg-surface); border: 1px solid var(--jg-line); border-radius: 22px;
+}
+.sp-cell {
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--jg-text); font: 700 clamp(10px, 1.9vw, 15px) var(--zoo-font-heading, 'Poppins', sans-serif);
+  background: var(--jg-card); border: 1px solid var(--jg-line); border-radius: 8px;
+  transition: background .12s, transform .12s, color .12s, box-shadow .12s;
+}
+.sp-cell:hover { transform: scale(1.08); }
+.sp-cell.is-path { color: #1f1d17; background: var(--jg-acc); border-color: transparent; transform: scale(1.07); box-shadow: 0 7px 15px rgba(232, 163, 23, 0.3); }
+.sp-cell.is-found { color: #fff; border-color: transparent; }
+.sp-side { flex: 1; min-width: 180px; }
+.sp-side__title { margin-bottom: 10px; font: 700 .68rem/1 var(--zoo-font-heading, 'Poppins', sans-serif); letter-spacing: .14em; text-transform: uppercase; color: var(--jg-dim); }
+.sp-chip {
+  display: flex; align-items: center; gap: 9px; margin-bottom: 7px; padding: 9px 13px; font-size: .84rem; font-weight: 700;
+  color: var(--jg-muted); background: var(--jg-surface); border: 1px solid var(--jg-line); border-radius: 11px; transition: all .25s;
+}
+.sp-chip__dot { flex: none; width: 10px; height: 10px; background: var(--jg-surface-2); border-radius: 50%; transition: background .25s; }
+.sp-chip.is-found { color: var(--jg-text); text-decoration: line-through; text-decoration-thickness: 2px; }
+.sp-help { margin: 10px 0 0; font-size: .76rem; line-height: 1.5; color: var(--jg-dim); }
+
+/* ── Memorama ── */
+.mm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 44%), 1fr)); gap: 14px; padding: 4px; }
+.mm-card { min-height: 126px; padding: 0; perspective: 1100px; cursor: pointer; background: none; border: 0; font: inherit; color: inherit; }
+.mm-inner { position: relative; width: 100%; height: 100%; min-height: 118px; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.2, .8, .25, 1); }
+.mm-card.is-up .mm-inner, .mm-card.is-matched .mm-inner { transform: rotateY(180deg); }
+.mm-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 12px; text-align: center; border-radius: 14px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.mm-front {
+  background: radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.2), transparent 30%), linear-gradient(145deg, #1F5F3A, #2f7a4f 60%, #C75402);
+  border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25);
+}
+.mm-front::after { content: "?"; font: 800 34px var(--zoo-font-heading, 'Poppins', sans-serif); color: rgba(255, 255, 255, 0.92); text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25); }
+.mm-back { flex-direction: column; gap: 7px; background: var(--jg-card); border: 1px solid var(--jg-line); transform: rotateY(180deg); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18); }
+.mm-back__tag { padding: 2px 8px; font: 800 .56rem/1.4 var(--zoo-font-heading, 'Poppins', sans-serif); letter-spacing: .12em; text-transform: uppercase; border-radius: 100px; }
+.mm-back__tag--t { color: #036CB0; background: rgba(3, 123, 201, 0.14); }
+.mm-back__tag--d { color: #B34A02; background: rgba(245, 130, 32, 0.16); }
+.mm-back__txt { font-size: .8rem; font-weight: 600; line-height: 1.35; color: var(--jg-text); overflow-wrap: anywhere; }
+.mm-card.is-matched .mm-back { border-color: var(--jg-ok); box-shadow: 0 0 0 2px rgba(46, 158, 91, 0.4), 0 8px 20px rgba(46, 158, 91, 0.25); }
+.mm-card.is-wrong .mm-back { border-color: var(--jg-bad); animation: jgShake .45s; }
+
+/* ── Rompecabezas ── */
+.pz-shell { padding: 18px; background: var(--jg-surface); border: 1px solid var(--jg-line); border-radius: 24px; perspective: 1200px; }
+.pz-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.pz-refhint { font-size: .74rem; color: var(--jg-muted); }
+.pz-reference { width: 74px; height: 52px; object-fit: cover; border: 3px solid #fff; border-radius: 11px; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); }
+.pz-moves { padding: 8px 11px; font: 700 .66rem/1 var(--zoo-font-heading, 'Poppins', sans-serif); letter-spacing: .08em; text-transform: uppercase; color: var(--jg-muted); background: var(--jg-surface); border: 1px solid var(--jg-line); border-radius: 10px; }
+.pz-board {
+  position: relative; margin: 0 auto; overflow: visible; touch-action: none; border-radius: 18px;
+  background-color: var(--jg-surface-2);
+  background-image: linear-gradient(rgba(127, 127, 127, 0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(127, 127, 127, 0.18) 1px, transparent 1px);
+  border: 1px solid var(--jg-line); box-shadow: inset 0 4px 18px rgba(0, 0, 0, 0.18);
+}
+.pz-piece { position: absolute; cursor: grab; transition: left .36s cubic-bezier(.2, .8, .25, 1), top .36s cubic-bezier(.2, .8, .25, 1), filter .2s, transform .2s; filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.4)); transform-origin: center; }
+.pz-piece:hover { filter: drop-shadow(0 9px 9px rgba(0, 0, 0, 0.45)); transform: scale(1.025); z-index: 4; }
+.pz-piece.is-sel { filter: drop-shadow(0 0 9px #E8A317) drop-shadow(0 10px 12px rgba(0, 0, 0, 0.45)); transform: scale(1.035); z-index: 8; }
+.pz-piece.is-drag { transition: none; z-index: 20; cursor: grabbing; filter: drop-shadow(0 22px 20px rgba(0, 0, 0, 0.5)); transform: scale(1.07) rotate(1.5deg); }
+.pz-piece.is-correct { filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.25)); }
+.pz-piece.is-locked { cursor: default; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15)); transform: none; }
+.pz-help { margin: 12px 0 0; font-size: .76rem; line-height: 1.5; text-align: center; color: var(--jg-dim); }
+
+/* ── Ahorcado ── */
+.ah-stage { display: flex; justify-content: center; width: min(100%, 310px); margin: 0 auto 12px; padding: 18px; color: var(--jg-text); background: var(--jg-surface); border: 1px solid var(--jg-line); border-radius: 22px; }
+.ah-word { margin: 18px 0; font: 800 clamp(19px, 5vw, 28px) var(--zoo-font-heading, 'Poppins', sans-serif); letter-spacing: 7px; text-align: center; color: var(--jg-text); overflow-wrap: anywhere; }
+.ah-vidas { margin-bottom: 18px; font-size: .84rem; font-weight: 700; text-align: center; color: var(--jg-muted); }
+.ah-keys { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.ah-key {
+  width: 36px; height: 40px; cursor: pointer; color: var(--jg-text); font: 700 .82rem var(--zoo-font-heading, 'Poppins', sans-serif);
+  background: var(--jg-card); border: 1px solid var(--jg-line); border-radius: 10px; transition: all .15s;
+}
+.ah-key:hover:not(:disabled) { border-color: var(--jg-acc); transform: translateY(-2px); }
+.ah-key.is-hint { cursor: default; color: var(--jg-ok); background: rgba(46, 158, 91, 0.16); border-color: rgba(46, 158, 91, 0.5); }
+.ah-key.is-ok { cursor: default; color: var(--jg-ok); background: rgba(46, 158, 91, 0.22); border-color: var(--jg-ok); }
+.ah-key.is-bad { cursor: default; opacity: .45; background: var(--jg-surface); }
+
+@media (max-width: 600px) {
+  .jg-overlay { padding: 0; align-items: flex-end; }
+  .jg-box { width: 100%; max-height: 100vh; border-radius: 22px 22px 0 0; }
+  .jg-head { padding: 16px 16px; border-radius: 22px 22px 0 0; }
+  .jg-body { padding: 16px; }
+  .jg-foot { padding: 12px 16px 16px; border-radius: 0; }
+  .pz-toolbar { flex-wrap: wrap; }
+  .ah-key { width: 32px; height: 38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jg-box, .jg-win { animation: none; }
+  .mm-inner, .pz-piece, .jg-progress__fill { transition: none; }
+}
+
+/* El tema claro del Club oscurece los títulos: en la cabecera verde siempre va texto blanco. */
+.jg-overlay .jg-head .jg-title,
+.jg-overlay .jg-head .jg-subtitle { color: #fff !important; }
+/* El foco automático de la ventana no debe dibujar un aro alrededor de todo. */
+.jg-overlay .jg-box:focus,
+.jg-overlay .jg-box:focus-visible { outline: none; }
