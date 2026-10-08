@@ -757,6 +757,8 @@
     crearCartas, sonPar,
     barajarSlots, puzzleResuelto,
     nuevaPartidaAhorcado, jugarLetra, ganoAhorcado, perdioAhorcado,
-    abrir
+    abrir,
+    // Piezas de pantalla que reutiliza club-quiz.js (solo funcionan en el navegador)
+    crearVentana, botonContinuar
   };
 });

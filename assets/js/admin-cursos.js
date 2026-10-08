@@ -5,9 +5,9 @@
 /* real: se prueba en tests/admin-cursos.test.js                 */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'), require('./club-juegos.js'));
-  else root.ZOO_ADMIN_CURSOS = factory(root.ZOO_ICONOS, root.ZOO_JUEGOS);
-})(typeof self !== 'undefined' ? self : this, function (iconos, juegos) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'), require('./club-juegos.js'), require('./club-quiz.js'));
+  else root.ZOO_ADMIN_CURSOS = factory(root.ZOO_ICONOS, root.ZOO_JUEGOS, root.ZOO_QUIZ);
+})(typeof self !== 'undefined' ? self : this, function (iconos, juegos, quiz) {
   'use strict';
 
   const ico = (nombre, opciones) => (iconos && iconos.svg ? iconos.svg(nombre, opciones) : '');
@@ -51,6 +51,7 @@
     return [];
   }
   const contarClases = c => leccionesDe(c).length || Number(c && c.totalClases) || 0;
+  const contarPreguntas = c => leccionesDe(c).reduce((n, l) => n + (l && quiz ? quiz.preguntasDeClase(l).length : 0), 0);
   const contarJuegos = c => leccionesDe(c).filter(l => l && juegos && juegos.limpiarJuego(l.juego)).length;
 
   function resumenCursos(cursos) {
@@ -137,6 +138,11 @@
     const partes = [`<span class="cc-m">${ico('clapperboard', { size: 14 })}${clases} clase${clases === 1 ? '' : 's'}</span>`];
     if (c.duration) partes.push(`<span class="cc-m">${ico('clock', { size: 14 })}${esc(c.duration)}</span>`);
     if (j) partes.push(`<span class="cc-m cc-m--juego">${ico('gamepad-2', { size: 14 })}${j} juego${j === 1 ? '' : 's'}</span>`);
+    const p = contarPreguntas(c);
+    if (p) partes.push(`<span class="cc-m cc-m--preg">${ico('circle-help', { size: 14 })}${p} pregunta${p === 1 ? '' : 's'}</span>`);
+    if (c.cursoMuestraGratis === true) partes.push(`<span class="cc-m cc-m--gratis">${ico('gift', { size: 14 })}Muestra gratis</span>`);
+    if (c.disponibleSiempre === true) partes.push(`<span class="cc-m cc-m--gratis">${ico('calendar-clock', { size: 14 })}Siempre disponible</span>`);
+    if (c.instructor) partes.push(`<span class="cc-m">${ico('user', { size: 14 })}${esc(c.instructor)}</span>`);
     return partes.join('');
   }
 
@@ -233,7 +239,10 @@
     /^juego\.datos\.(dificultad|imagenUrl)$/,
     /^juego\.datos\.palabras\.\d{1,2}$/,
     /^juego\.datos\.palabras\.\d{1,2}\.(palabra|pista)$/,
-    /^juego\.datos\.pares\.\d{1,2}\.(termino|definicion)$/
+    /^juego\.datos\.pares\.\d{1,2}\.(termino|definicion)$/,
+    /^preguntas\.\d{1,2}\.pregunta$/,
+    /^preguntas\.\d{1,2}\.opciones\.\d$/,
+    /^preguntas\.\d{1,2}\.correcta$/
   ];
   function asignarRuta(leccion, ruta, valor) {
     if (!leccion || typeof ruta !== 'string' || !RUTAS_PERMITIDAS.some(r => r.test(ruta))) return false;
@@ -247,7 +256,73 @@
     const ultimo = partes[partes.length - 1];
     if (nodo == null || typeof nodo !== 'object') return false;
     if (Array.isArray(nodo) && !(Number(ultimo) < nodo.length)) return false;
+    if (ultimo === 'correcta') { const n = parseInt(valor, 10); nodo[ultimo] = Number.isInteger(n) && n >= 0 ? n : 0; return true; }
     nodo[ultimo] = String(valor == null ? '' : valor).slice(0, 2000);
+    return true;
+  }
+
+  /* ── Fuente del video: ID de Bunny, enlace de Bunny, enlace de Drive o ID de Drive ── */
+  const RE_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const BIBLIOTECA_BUNNY = '731751';
+  // Devuelve { vacio:true } | { videoId } (Bunny) | { driveId } | { error }
+  function normalizarFuente(entrada) {
+    const t = String(entrada == null ? '' : entrada).trim();
+    if (!t) return { vacio: true };
+    if (RE_UUID.test(t)) return { videoId: t.toLowerCase() };
+    const b = t.match(/mediadelivery\.net\/(?:embed|play)\/(\d+)\/([0-9a-f-]{36})(?![0-9a-f-])/i);
+    if (b) {
+      if (b[1] !== BIBLIOTECA_BUNNY) return { error: 'ese video es de otra biblioteca de Bunny, no de la de Zoorigen' };
+      if (RE_UUID.test(b[2])) return { videoId: b[2].toLowerCase() };
+    }
+    if (/^https?:\/\//i.test(t)) {
+      let host = '';
+      try { host = new URL(t).hostname.toLowerCase(); } catch (e) { host = ''; }
+      if (host === 'drive.google.com' || host === 'docs.google.com') {
+        const m = t.match(/\/file\/d\/([A-Za-z0-9_-]+)/) || t.match(/[?&]id=([A-Za-z0-9_-]+)/) || t.match(/\/d\/([A-Za-z0-9_-]+)/);
+        if (m) return { driveId: m[1] };
+      }
+      return { error: 'solo se aceptan enlaces de Google Drive o de Bunny' };
+    }
+    if (/^[A-Za-z0-9_-]{6,}$/.test(t)) return { driveId: t };
+    return { error: 'pega el ID del video de Bunny o el enlace de Google Drive' };
+  }
+
+  /* ── Preguntas de la clase (verdadero/falso u opción múltiple) ── */
+  const MAX_PREGUNTAS = quiz && quiz.REGLAS ? quiz.REGLAS.maxPreguntas : 15;
+  const MAX_OPCIONES = quiz && quiz.REGLAS ? quiz.REGLAS.opcionesMax : 6;
+  const nuevaPregunta = () => ({ pregunta: '', tipo: 'vof', opciones: [], correcta: 0 });
+
+  function agregarPregunta(leccion) {
+    if (!leccion || typeof leccion !== 'object') return false;
+    if (!Array.isArray(leccion.preguntas)) leccion.preguntas = [];
+    if (leccion.preguntas.length >= MAX_PREGUNTAS) return false;
+    leccion.preguntas.push(nuevaPregunta());
+    return true;
+  }
+  function quitarPregunta(leccion, i) {
+    const lista = leccion && leccion.preguntas;
+    if (!Array.isArray(lista) || !Number.isInteger(i) || i < 0 || i >= lista.length) return false;
+    lista.splice(i, 1);
+    return true;
+  }
+  function cambiarTipoPregunta(p, tipo) {
+    if (!p || typeof p !== 'object') return false;
+    if (tipo === 'multiple') { p.tipo = 'multiple'; p.opciones = ['', '']; }
+    else { p.tipo = 'vof'; p.opciones = []; }
+    p.correcta = 0;
+    return true;
+  }
+  function agregarOpcion(p) {
+    if (!p || p.tipo !== 'multiple' || !Array.isArray(p.opciones) || p.opciones.length >= MAX_OPCIONES) return false;
+    p.opciones.push('');
+    return true;
+  }
+  // Quita una opción (mínimo 2) y deja la respuesta correcta apuntando a la misma opción.
+  function quitarOpcion(p, i) {
+    if (!p || p.tipo !== 'multiple' || !Array.isArray(p.opciones) || p.opciones.length <= 2 || !Number.isInteger(i) || i < 0 || i >= p.opciones.length) return false;
+    p.opciones.splice(i, 1);
+    if (i < p.correcta) p.correcta--;
+    else if (i === p.correcta) p.correcta = 0;
     return true;
   }
 
@@ -258,16 +333,27 @@
     return true;
   }
 
-  // Al guardar: descarta clases sin video, valida/limpia el juego y conserva el resto de campos.
+  // Al guardar: normaliza el video, valida preguntas y juego, y conserva el resto de campos.
+  // Una clase sin video se descarta. Devuelve { lecciones, errores:[{clase, mensaje}] }.
   function limpiarLecciones(lecciones) {
     const salida = [], errores = [];
     (Array.isArray(lecciones) ? lecciones : []).forEach((l, i) => {
       if (!l || typeof l !== 'object') return;
-      const tieneVideo = l.videoId || (l.driveId && String(l.driveId).trim());
-      if (!tieneVideo) return;
       const clase = { ...l };
+      if (!l.videoId) {
+        const f = normalizarFuente(l.driveId);
+        if (f.vacio) return;
+        if (f.error) { errores.push({ clase: i + 1, mensaje: `Clase ${i + 1}: ${f.error}` }); return; }
+        if (f.videoId) { clase.videoId = f.videoId; clase.provider = 'bunny'; delete clase.driveId; }
+        else clase.driveId = f.driveId;
+      }
       if (typeof clase.titulo === 'string') clase.titulo = clase.titulo.trim();
       if (typeof clase.duration === 'string') clase.duration = clase.duration.trim();
+      if (l.gratis === true) clase.gratis = true; else delete clase.gratis;
+      delete clase.preguntas;
+      const q = quiz ? quiz.limpiarPreguntas(l.preguntas) : { preguntas: [], errores: [] };
+      q.errores.forEach(e => errores.push({ clase: i + 1, mensaje: `Clase ${i + 1}: ${e.mensaje.charAt(0).toLowerCase()}${e.mensaje.slice(1)}` }));
+      if (q.preguntas.length) clase.preguntas = q.preguntas;
       delete clase.juego;
       if (l.juego && l.juego.tipo) {
         const limpio = juegos ? juegos.limpiarJuego(l.juego) : null;
@@ -347,10 +433,44 @@
       </div>`;
   }
 
+  function preguntaHTML(p, qi) {
+    const multiple = p.tipo === 'multiple';
+    const opciones = multiple ? (Array.isArray(p.opciones) ? p.opciones : ['', '']) : [];
+    const correcta = Number.isInteger(p.correcta) ? p.correcta : 0;
+    const cuerpo = multiple
+      ? `<div class="ce-opciones">${opciones.map((op, oi) => `<div class="ce-opcion">
+            <input type="radio" class="ce-radio" name="corr-${qi}" data-ruta="preguntas.${qi}.correcta" value="${oi}"${correcta === oi ? ' checked' : ''} aria-label="Marcar la opción ${oi + 1} como correcta">
+            ${inputHTML(`preguntas.${qi}.opciones.${oi}`, op, `Opción ${oi + 1}`, { max: 160 })}
+            <button type="button" class="ce-mini" data-accion="opcion-quitar" data-o="${oi}" aria-label="Quitar la opción ${oi + 1}"${opciones.length <= 2 ? ' disabled' : ''}>${ico('x', { size: 14 })}</button>
+          </div>`).join('')}
+          <button type="button" class="ce-mas" data-accion="opcion-agregar"${opciones.length >= MAX_OPCIONES ? ' disabled' : ''}>${ico('plus', { size: 14 })}Agregar opción</button>
+          <small class="ce-ayuda">Marca con el círculo la respuesta correcta.</small></div>`
+      : `<div class="ce-vof">
+          <label><input type="radio" class="ce-radio" name="corr-${qi}" data-ruta="preguntas.${qi}.correcta" value="0"${correcta === 0 ? ' checked' : ''}> Verdadero es lo correcto</label>
+          <label><input type="radio" class="ce-radio" name="corr-${qi}" data-ruta="preguntas.${qi}.correcta" value="1"${correcta === 1 ? ' checked' : ''}> Falso es lo correcto</label></div>`;
+    return `<div class="ce-preg" data-q="${qi}">
+        <div class="ce-preg__cab"><span class="ce-preg__num">Pregunta ${qi + 1}</span>
+          <select class="ce-input ce-preg__tipo" data-accion="pregunta-tipo" aria-label="Tipo de la pregunta ${qi + 1}">
+            <option value="vof"${multiple ? '' : ' selected'}>Verdadero / Falso</option>
+            <option value="multiple"${multiple ? ' selected' : ''}>Opción múltiple</option>
+          </select>
+          <button type="button" class="ce-mini ce-mini--peligro" data-accion="pregunta-quitar" aria-label="Quitar la pregunta ${qi + 1}">${ico('trash-2', { size: 14 })}</button></div>
+        <textarea class="ce-input" data-ruta="preguntas.${qi}.pregunta" rows="2" maxlength="300" placeholder="Escribe la pregunta">${esc(p.pregunta)}</textarea>
+        ${cuerpo}
+      </div>`;
+  }
+
+  function preguntasZonaHTML(l) {
+    const lista = Array.isArray(l.preguntas) ? l.preguntas : [];
+    const lleno = lista.length >= MAX_PREGUNTAS;
+    return `${lista.map(preguntaHTML).join('')}
+      <button type="button" class="ce-juego-btn ce-preg-btn" data-accion="pregunta-agregar"${lleno ? ' disabled' : ''}>${ico('circle-help', { size: 16 })}Agregar pregunta <small>se responde al terminar la clase, antes del juego</small></button>`;
+  }
+
   function leccionHTML(l, i, total) {
     const fuente = l.videoId
       ? `<div class="ce-fuente">${ico('badge-check', { size: 15 })}Video Bunny vinculado <code>${esc(l.videoId)}</code></div>`
-      : inputHTML('driveId', l.driveId, 'Link o ID de Google Drive', { max: 400 });
+      : inputHTML('driveId', l.driveId, 'ID del video de Bunny, o enlace/ID de Google Drive', { max: 400 });
     return `<div class="ce-clase" data-lec="${i}">
         <div class="ce-clase__cab">
           <span class="ce-badge">Clase ${i + 1}</span>
@@ -363,6 +483,8 @@
         ${inputHTML('titulo', l.titulo, 'Título de la clase', { max: 160 })}
         ${fuente}
         ${inputHTML('duration', l.duration, 'Duración (ej. 25 min)', { max: 40 })}
+        <label class="ce-gratis"><input type="checkbox" data-accion="gratis"${l.gratis === true ? ' checked' : ''}><span>${ico('gift', { size: 15 })}Clase gratis <small>la ven quienes no tienen membresía (solo si el curso está marcado con clases gratis de muestra)</small></span></label>
+        <div class="ce-preg-zona">${preguntasZonaHTML(l)}</div>
         <div class="ce-juego-zona">${zonaJuegoHTML(l.juego)}</div>
       </div>`;
   }
@@ -390,13 +512,23 @@
         <label class="ce-campo ce-campo--full"><span>Descripción</span><textarea class="ce-input" id="f_desc" placeholder="Breve descripción" maxlength="600">${esc(d.description)}</textarea></label>
         <label class="ce-campo"><span>Área *</span><select class="ce-input" id="f_area">${lista.map(a => `<option${d.area === a ? ' selected' : ''}>${esc(a)}</option>`).join('')}</select></label>
         <label class="ce-campo"><span>Nivel</span><select class="ce-input" id="f_level">${nivs.map(n => `<option value="${esc(n)}"${d.level === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+        <label class="ce-campo ce-campo--full"><span>Instructor (opcional)</span><input type="text" class="ce-input" id="f_instructor" value="${esc(d.instructor)}" placeholder="Ej. Dra. Ana Martínez" maxlength="120"></label>
         <label class="ce-campo"><span>Duración total</span><input type="text" class="ce-input" id="f_duration" value="${esc(d.duration)}" placeholder="Ej. 6 h" maxlength="40"></label>
         <label class="ce-campo"><span>Etiqueta destacada (opcional)</span><input type="text" class="ce-input" id="f_tag" value="${esc(d.tag)}" placeholder="Ej. Nuevo, Popular" maxlength="30"></label>
         <label class="ce-campo ce-campo--full"><span>URL de portada (opcional)</span><input type="text" class="ce-input" id="f_image" value="${esc(d.image)}" placeholder="Pega un enlace a la imagen" maxlength="500">
           <small class="ce-ayuda">Medida ideal: 800×450 px horizontal · JPG de menos de 300 KB. Puedes subirla a <code>assets/img/</code> del sitio.</small></label>
+        <fieldset class="ce-campo ce-campo--full ce-disp">
+          <legend>Disponibilidad para los miembros</legend>
+          <label class="ce-opt"><input type="radio" name="f_disp" value="progresivo"${d.disponibleSiempre === true ? '' : ' checked'}>
+            <span><strong>Desbloqueo progresivo (cada 8 días)</strong><small>El curso aparece según su orden en la lista: el primero el día 0, el segundo el día 8, y así.</small></span></label>
+          <label class="ce-opt"><input type="radio" name="f_disp" value="siempre"${d.disponibleSiempre === true ? ' checked' : ''}>
+            <span><strong>Disponible desde el primer día</strong><small>Se ve de inmediato y no cuenta en el turno de los demás cursos.</small></span></label>
+        </fieldset>
+        <label class="ce-campo ce-campo--full ce-muestra"><input type="checkbox" id="f_muestra"${d.cursoMuestraGratis === true ? ' checked' : ''}>
+          <span><strong>Este curso tiene clases gratis de muestra</strong><small>Quien no tenga membresía podrá ver las clases que marques como gratis. Solo un curso puede tenerlo. Las demás clases piden membresía.</small></span></label>
         <div class="ce-campo ce-campo--full">
           <span>Clases del curso</span>
-          <small class="ce-ayuda">Las clases sincronizadas usan Bunny. También puedes agregar clases antiguas con un enlace de Drive. Cada clase puede cerrar con un juego.</small>
+          <small class="ce-ayuda">Para una clase nueva pega el ID del video de Bunny (o un enlace de Google Drive). Cada clase puede llevar preguntas y cerrar con un juego.</small>
           <div id="leccionesContainer" class="ce-clases"></div>
           <button type="button" class="ce-agregar" onclick="agregarLeccion()">${ico('plus', { size: 16 })}Agregar otra clase</button>
         </div>
@@ -408,11 +540,12 @@
   }
 
   return {
-    AREAS, NIVELES, esc, colorArea, parseHoras, leccionesDe, contarClases, contarJuegos, resumenCursos,
+    AREAS, NIVELES, esc, colorArea, parseHoras, leccionesDe, contarClases, contarJuegos, contarPreguntas, resumenCursos,
     ordenarCursos, filtrarCursos, areasConConteo, urlPortada,
     kpisHTML, chipsAreasHTML, ordenHTML, vistaHTML, tarjetaGridHTML, tarjetaListaHTML, listaHTML,
     FILAS_MINIMAS, leccionVacia, nuevoJuego, agregarFila, quitarFila, asignarRuta, moverLeccion,
-    limpiarLecciones, migrarLecciones,
-    leccionHTML, leccionesHTML, zonaJuegoHTML, camposJuegoHTML, modalCursoHTML
+    limpiarLecciones, migrarLecciones, normalizarFuente,
+    nuevaPregunta, agregarPregunta, quitarPregunta, cambiarTipoPregunta, agregarOpcion, quitarOpcion,
+    preguntaHTML, preguntasZonaHTML, leccionHTML, leccionesHTML, zonaJuegoHTML, camposJuegoHTML, modalCursoHTML
   };
 });

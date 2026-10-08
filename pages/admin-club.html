@@ -268,10 +268,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20260828-membership1"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261009"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261010"></script>
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
+  <script src="../assets/js/club-quiz.js?v=20261010"></script>
   <script src="../assets/js/admin-miembros.js?v=20261008"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261009"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261010"></script>
   <script src="../assets/js/admin-certificados.js?v=20261009"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20260820"></script>
   <script>
@@ -704,7 +705,10 @@
         const t = ev.target, i = indice(t);
         if (i < 0) return;
         const lec = window.__leccionesTemp[i];
+        const qi = (() => { const c = t.closest('[data-q]'); return c ? parseInt(c.dataset.q, 10) : -1; })();
         if (t.dataset.accion === 'juego-tipo') { lec.juego = CURSOS.nuevoJuego(t.value); redibujar(); }
+        else if (t.dataset.accion === 'pregunta-tipo') { if (lec.preguntas && lec.preguntas[qi] && CURSOS.cambiarTipoPregunta(lec.preguntas[qi], t.value)) redibujar(); }
+        else if (t.dataset.accion === 'gratis') lec.gratis = t.checked === true;
         else if (t.dataset.ruta && t.tagName === 'SELECT') CURSOS.asignarRuta(lec, t.dataset.ruta, t.value);
       });
       cont.addEventListener('click', ev => {
@@ -724,6 +728,16 @@
           case 'juego-quitar': delete lec.juego; redibujar(); break;
           case 'fila-agregar': if (CURSOS.agregarFila(lec.juego)) redibujar(i); break;
           case 'fila-quitar': if (CURSOS.quitarFila(lec.juego, parseInt(b.dataset.fila, 10))) redibujar(); break;
+          case 'pregunta-agregar':
+            if (CURSOS.agregarPregunta(lec)) {
+              redibujar();
+              const cajas = cont.querySelectorAll(`[data-lec="${i}"] .ce-preg textarea`);
+              if (cajas.length) cajas[cajas.length - 1].focus();
+            }
+            break;
+          case 'pregunta-quitar': { const q = b.closest('[data-q]'); if (q && CURSOS.quitarPregunta(lec, parseInt(q.dataset.q, 10))) redibujar(); break; }
+          case 'opcion-agregar': { const q = b.closest('[data-q]'); if (q && lec.preguntas && CURSOS.agregarOpcion(lec.preguntas[parseInt(q.dataset.q, 10)])) redibujar(); break; }
+          case 'opcion-quitar': { const q = b.closest('[data-q]'); if (q && lec.preguntas && CURSOS.quitarOpcion(lec.preguntas[parseInt(q.dataset.q, 10)], parseInt(b.dataset.o, 10))) redibujar(); break; }
         }
       });
     }
@@ -739,12 +753,25 @@
     window.saveCurso = async (id) => {
       // Valida y limpia las clases (descarta las vacías y revisa que cada juego esté completo)
       const { lecciones, errores } = CURSOS.limpiarLecciones(window.__leccionesTemp);
-      if (errores.length) { toast(`${errores[0].mensaje}. Complétalo o quítalo.`, true); return; }
+      if (errores.length) { toast(`${errores[0].mensaje}.`, true); return; }
+      const disponibleSiempre = (document.querySelector('input[name="f_disp"]:checked') || {}).value === 'siempre';
+      const cursoMuestraGratis = !!(document.getElementById('f_muestra') || {}).checked;
+      const hayClaseGratis = lecciones.some(l => l.gratis === true);
+      if (cursoMuestraGratis) {
+        const otro = (cursosEstado.items || []).find(c => c.id !== id && c.cursoMuestraGratis === true);
+        if (otro) { toast(`Ya hay un curso con clases gratis de muestra: "${otro.title || 'otro curso'}". Desmárcalo primero.`, true); return; }
+        if (!hayClaseGratis) { toast('Marca al menos una clase como gratis, o desactiva "clases gratis de muestra".', true); return; }
+      } else if (hayClaseGratis) {
+        toast('Hay clases marcadas como gratis, pero el curso no tiene activadas las "clases gratis de muestra".', true); return;
+      }
       const data = {
         title: document.getElementById('f_title').value.trim(),
         area: document.getElementById('f_area').value,
         duration: document.getElementById('f_duration').value.trim(),
         level: document.getElementById('f_level').value,
+        instructor: document.getElementById('f_instructor').value.trim(),
+        disponibleSiempre,
+        cursoMuestraGratis,
         lecciones: lecciones,
         totalClases: lecciones.length,
         // Mantener driveId de primera clase para retrocompatibilidad

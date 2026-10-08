@@ -865,3 +865,44 @@ textarea.ce-input { min-height: 84px; resize: vertical; line-height: 1.5; }
 @media (max-width: 400px) {
   .zoo-chip { padding: 8px 10px; gap: 4px; font-size: .76rem; }
 }
+
+/* ─────────────── Preguntas, clases gratis y disponibilidad ─────────────── */
+.cc-m--preg { color: var(--c-accent-text); font-weight: 700; }
+.cc-m--gratis { color: var(--c-ok-ink); font-weight: 700; }
+.ce-gratis { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; cursor: pointer; background: var(--c-ok-bg); border: 1px solid var(--c-ok-line); border-radius: 12px; }
+.ce-gratis input { flex: none; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--c-accent); cursor: pointer; }
+.ce-gratis span { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: .84rem; font-weight: 700; color: var(--c-ok-ink); }
+.ce-gratis small { flex-basis: 100%; font-weight: 600; font-size: .74rem; line-height: 1.45; color: var(--c-text-3); }
+.ce-preg-zona { display: flex; flex-direction: column; gap: 10px; padding-top: 12px; border-top: 1px dashed var(--c-line-strong); }
+.ce-preg-btn { color: var(--c-accent-text); border-color: var(--c-accent); }
+.ce-preg-btn:hover { background: color-mix(in srgb, var(--c-accent) 9%, transparent); }
+.ce-preg-btn:disabled { opacity: .5; cursor: not-allowed; }
+.ce-preg { display: flex; flex-direction: column; gap: 10px; padding: 12px; background: color-mix(in srgb, var(--c-accent) 6%, transparent); border: 1px solid color-mix(in srgb, var(--c-accent) 38%, transparent); border-radius: 14px; }
+.ce-preg__cab { display: flex; align-items: center; gap: 10px; }
+.ce-preg__num { flex: none; font: 700 .68rem/1 var(--zoo-font-heading); letter-spacing: .1em; text-transform: uppercase; color: var(--c-accent-text); }
+.ce-preg__tipo { flex: 1; min-width: 0; padding-top: 8px; padding-bottom: 8px; }
+.ce-opciones { display: flex; flex-direction: column; gap: 8px; }
+.ce-opcion { display: flex; align-items: center; gap: 8px; }
+.ce-opcion .ce-input { flex: 1; min-width: 0; }
+.ce-radio { flex: none; width: 18px; height: 18px; accent-color: var(--c-accent); cursor: pointer; }
+.ce-vof { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .84rem; color: var(--c-text-2); }
+.ce-vof label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.ce-mas:disabled { opacity: .5; cursor: not-allowed; }
+.ce-disp { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.ce-disp legend { padding: 0; margin-bottom: 8px; font: 700 .68rem/1 var(--zoo-font-heading); letter-spacing: .1em; text-transform: uppercase; color: var(--c-text-3); }
+.ce-opt, .ce-muestra { display: flex; align-items: flex-start; gap: 10px; padding: 11px 13px; cursor: pointer; background: var(--c-input); border: 1px solid var(--c-line); border-radius: 12px; }
+.ce-opt input, .ce-muestra input { flex: none; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--c-accent); cursor: pointer; }
+.ce-opt strong, .ce-muestra strong { display: block; font-size: .86rem; color: var(--c-text); text-transform: none; letter-spacing: 0; font-family: var(--zoo-font-body); }
+.ce-opt small, .ce-muestra small { display: block; margin-top: 3px; font-size: .76rem; line-height: 1.45; color: var(--c-text-3); font-weight: 400; text-transform: none; letter-spacing: 0; font-family: var(--zoo-font-body); }
+.ce-muestra > span:first-of-type { display: block; }
+.ce-opt:has(input:checked), .ce-muestra:has(input:checked) { border-color: var(--c-accent); }
+@media (max-width: 560px) { .ce-preg__cab { flex-wrap: wrap; } .ce-preg__tipo { flex-basis: 60%; } }
+/* La ventana base da ancho completo y bloque a todo input y label; aquí se corrige para casillas y círculos. */
+.modal-form .ce-opt, .modal-form .ce-muestra, .modal-form .ce-gratis { display: flex; flex-direction: row; align-items: flex-start; gap: 10px; margin: 0; }
+.modal-form .ce-opt input, .modal-form .ce-muestra input, .modal-form .ce-gratis input,
+.modal-form .ce-radio, .modal-form .ce-vof input { flex: none; width: 18px; height: 18px; padding: 0; margin: 2px 0 0; background: transparent; }
+.modal-form .ce-vof label { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-weight: 600; }
+.modal-form .ce-vof input { margin: 0; }
+.modal-form .ce-opcion .ce-radio { margin: 0; }
+.modal-form .ce-muestra > span { display: block; text-transform: none; }
+.modal-form .ce-muestra > span strong { font: 700 .86rem var(--zoo-font-body); }
