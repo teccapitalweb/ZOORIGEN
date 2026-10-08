@@ -196,7 +196,7 @@
         <div class="stat-box total"><div class="stat-box__label">Total real</div><div class="stat-box__value">${r.total}</div></div>
         <div class="stat-box amber"><div class="stat-box__label">Sin pago</div><div class="stat-box__value">${r.sinPago}</div></div>
         <div class="stat-box orange"><div class="stat-box__label">Vencidos / pago pendiente</div><div class="stat-box__value">${r.vencidos + r.pagoPendiente}</div></div>
-        <div class="stat-box orange"><div class="stat-box__label">A revisar</div><div class="stat-box__value">${r.aRevisar}</div>
+        <div class="stat-box review"><div class="stat-box__label">A revisar</div><div class="stat-box__value">${r.aRevisar}</div>
           ${r.sinFechaRegistro ? `<div class="stat-box__note">${r.sinFechaRegistro} sin fecha de registro</div>` : ''}</div>
       </div>`;
   }
