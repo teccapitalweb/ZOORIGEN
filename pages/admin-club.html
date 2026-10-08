@@ -266,6 +266,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20260828-membership1"></script>
+  <script src="../assets/js/admin-miembros.js?v=20261008"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20260820"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -410,70 +411,65 @@
       const v = document.getElementById('secView');
       v.innerHTML = '<h1>👥 Miembros</h1><p class="sub">Gestión de miembros y suscripciones</p><p>Cargando...</p>';
       try {
-        const snap = await db.collection('miembros').orderBy('createdAt', 'desc').get();
+        // Sin orderBy: ordenar en Firestore deja fuera a quien no tenga el campo (createdAt).
+        const snap = await db.collection('miembros').get();
         const members = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderMiembros(members);
-      } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${err.message}</div>`; }
+      } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${ZOO_ADMIN_MIEMBROS.esc(err.message)}</div>`; }
     }
 
-    function renderMiembros(members, filter = '') {
+    function renderMiembros(members) {
+      const A = ZOO_ADMIN_MIEMBROS;
+      const analizados = A.ordenar(members.map(m => A.analizar(m, ZOORIGEN_CLUB)));
+      const porId = new Map(members.map(m => [m.id, m]));
+      const r = A.resumen(analizados);
+      let filtro = 'todos', texto = '';
       const v = document.getElementById('secView');
-      const filtered = filter
-        ? members.filter(m => (m.name || '').toLowerCase().includes(filter.toLowerCase()) || (m.email || '').toLowerCase().includes(filter.toLowerCase()) || (m.phone || '').includes(filter))
-        : members;
-      const active = members.filter(m => ZOORIGEN_CLUB.hasActiveMembership(m));
-      const pending = members.filter(m => ZOORIGEN_CLUB.calculateStatus(m) === 'pending_payment');
-      const cancelled = members.filter(m => ['cancelled_active', 'expired', 'past_due'].includes(ZOORIGEN_CLUB.calculateStatus(m)));
-
       v.innerHTML = `
         <h1>👥 Miembros</h1>
-        <p class="sub">Gestión de miembros y suscripciones · Total: ${members.length}</p>
-        <div class="admin-stats">
-          <div class="stat-box"><div class="stat-box__label">Total</div><div class="stat-box__value">${members.length}</div></div>
-          <div class="stat-box green"><div class="stat-box__label">Activos VIP</div><div class="stat-box__value">${active.length}</div></div>
-          <div class="stat-box amber"><div class="stat-box__label">Pendientes</div><div class="stat-box__value">${pending.length}</div></div>
-          <div class="stat-box orange"><div class="stat-box__label">Vencidos / cancelados</div><div class="stat-box__value">${cancelled.length}</div></div>
+        <p class="sub">Datos reales de Firestore · Total: ${r.total}</p>
+        ${A.tarjetasHTML(r)}
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0;">
+          <div id="miembrosChips" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+          <button type="button" id="copiarResumen" class="btn-small activate" style="margin-left:auto;">📋 Copiar resumen</button>
         </div>
-        <input type="search" class="admin-search" id="searchMembers" placeholder="🔎 Buscar nombre, correo o WhatsApp..." value="${filter}">
+        <input type="search" class="admin-search" id="searchMembers" placeholder="🔎 Buscar nombre, correo o WhatsApp...">
         <div class="mtable">
           <table>
-            <thead><tr><th>Miembro</th><th>Correo</th><th>Estado</th><th>Plan</th><th>Vence</th><th>Acciones</th></tr></thead>
-            <tbody>
-              ${filtered.length === 0 ? `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--zoo-text-dim);">Sin resultados</td></tr>` : filtered.map(m => {
-                const realStatus = ZOORIGEN_CLUB.calculateStatus(m);
-                const status = realStatus === 'active' || realStatus === 'cancelled_active' ? 'active' : realStatus === 'pending_payment' ? 'pending' : 'cancelled';
-                const label = realStatus === 'active' ? '● Activo' : realStatus === 'cancelled_active' ? '⏳ Acceso vigente' : realStatus === 'past_due' ? '⚠ Pago pendiente' : realStatus === 'expired' ? '✕ Vencido' : '⏳ Sin pago';
-                const name = (m.name || '—').replace(/'/g, "\\'");
-                return `<tr>
-                  <td>
-                    <div style="display:flex;align-items:center;gap:10px;">
-                      <div style="width:32px;height:32px;border-radius:50%;background:var(--zoo-green-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;color:var(--zoo-green-500);">${ZOORIGEN_CLUB.getInitials(m.name)}</div>
-                      <div><div style="font-weight:600;">${m.name || '—'}</div><div style="font-size:.74rem;color:var(--zoo-text-dim);">${m.role === 'admin' ? '⚙️ Admin' : 'Miembro'}</div></div>
-                    </div>
-                  </td>
-                  <td style="font-size:.82rem;">${m.email || '—'}</td>
-                  <td><span class="status-pill ${status}">${label}</span></td>
-                  <td style="font-size:.82rem;">${m.planTipo ? (m.planTipo === 'anual' ? 'Anual' : 'Mensual') : '—'}</td>
-                  <td style="font-size:.82rem;">${m.planVence ? ZOORIGEN_CLUB.formatShort(m.planVence) : '—'}</td>
-                  <td>
-                    ${status !== 'active' ? `<button class="btn-small activate" onclick="adminActivar('${m.id}','${(name || '').replace(/'/g, "\\'")}','${m.email || ''}')">Activar</button>` : ''}
-                    ${status === 'active' ? `<button class="btn-small activate" onclick="adminActivar('${m.id}','${(name || '').replace(/'/g, "\\'")}','${m.email || ''}')" style="background:rgba(232,163,23,0.15);color:#E8A317;border-color:rgba(232,163,23,0.3);">Extender</button>` : ''}
-                    ${status === 'active' ? `<button class="btn-small cancel" onclick="adminCancelar('${m.id}','${(name || '').replace(/'/g, "\\'")}')">Cancelar</button>` : ''}
-                  </td>
-                </tr>`;
-              }).join('')}
-            </tbody>
+            <thead><tr><th>Miembro</th><th>Correo</th><th>Estado</th><th>Origen</th><th>Plan</th><th>Vence</th><th>Avisos</th><th>Acciones</th></tr></thead>
+            <tbody id="miembrosBody"></tbody>
           </table>
         </div>`;
-      document.getElementById('searchMembers').addEventListener('input', (e) => renderMiembros(members, e.target.value));
+      const pintar = () => {
+        document.getElementById('miembrosChips').innerHTML = A.chipsHTML(filtro, r);
+        document.getElementById('miembrosBody').innerHTML = A.filasHTML(A.filtrar(analizados, { filtro, texto }), ZOORIGEN_CLUB);
+      };
+      pintar();
+      document.getElementById('searchMembers').addEventListener('input', e => { texto = e.target.value; pintar(); });
+      document.getElementById('miembrosChips').addEventListener('click', e => {
+        const b = e.target.closest('[data-filtro]');
+        if (b) { filtro = b.dataset.filtro; pintar(); }
+      });
+      document.getElementById('miembrosBody').addEventListener('click', e => {
+        const b = e.target.closest('[data-accion]');
+        const m = b && porId.get(b.dataset.uid);
+        if (!m) return;
+        if (b.dataset.accion === 'activar') adminActivar(m.id, m.name || '', m.email || '');
+        else if (b.dataset.accion === 'cancelar') adminCancelar(m.id, m.name || '');
+      });
+      document.getElementById('copiarResumen').addEventListener('click', async () => {
+        const txt = A.resumenTexto(r);
+        try { await navigator.clipboard.writeText(txt); toast('📋 Resumen copiado (sin datos personales)'); }
+        catch { window.prompt('Copia el resumen:', txt); }
+      });
     }
 
     window.adminActivar = (uid, name, email) => {
       openModal(`
         <h3>✅ Activar membresía manualmente</h3>
         <p style="color:var(--zoo-text-muted);font-size:.9rem;margin-bottom:14px;">
-          Activarás la membresía VIP de <strong style="color:#fff;">${name || email || uid}</strong>.<br>
-          Útil cuando el pago se hizo fuera de Shopify (transferencia, efectivo, etc.).
+          Activarás la membresía VIP de <strong style="color:#fff;">${ZOO_ADMIN_MIEMBROS.esc(name || email || uid)}</strong>.<br>
+          Útil cuando el pago se hizo fuera de Stripe (transferencia, efectivo, cortesía, etc.).
         </p>
 
         <div class="field">
