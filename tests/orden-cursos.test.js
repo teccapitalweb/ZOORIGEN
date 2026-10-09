@@ -97,8 +97,9 @@ test('la biblioteca y el panel usan estas reglas', () => {
   const RAIZ = path.resolve(__dirname, '..');
   const bib = fs.readFileSync(path.join(RAIZ, 'pages', 'club-biblioteca.html'), 'utf8');
   const adm = fs.readFileSync(path.join(RAIZ, 'pages', 'admin-club.html'), 'utf8');
-  assert.match(bib, /ZOO_ACCESO\.ordenarCursos\(cursosDeFirestore\)/);
-  assert.ok(bib.indexOf('ordenarCursos(cursosDeFirestore)') < bib.indexOf('cursos.sort('), 'primero el orden de la fila, luego el curso gratis al principio');
+  // El orden de la fila (cursos nuevos al final y la clase gratis de siempre primero) vive en ZOO_ACCESO.ordenParaDesbloqueo,
+  // que la biblioteca y los premios comparten (su equivalencia con el orden anterior se prueba en tests/club-premios-acceso.test.js).
+  assert.match(bib, /ZOO_ACCESO\.ordenParaDesbloqueo\(cursosDeFirestore\)/);
   assert.match(adm, /CURSOS\.calcularOrdenVip\(cursosEstado\.items, actual, \{ disponibleSiempre, cursoMuestraGratis \}\)/);
   assert.match(adm, /if \(ordenVip !== undefined\) data\.ordenVip = ordenVip;/);
   assert.match(adm, /CURSOS\.siguienteOrdenVip\(existentes\.concat\(creadosEnEstaCorrida\)\)/);

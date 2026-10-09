@@ -123,17 +123,77 @@
     return Number.isFinite(t) ? t : 0;   // 0 = terminó pero sin fecha: cuenta desde "ya"
   }
 
+  /* ───────────── Cursos adelantados con un premio ───────────── */
+
+  // Deja solo ids de curso válidos (texto no vacío), sin repetir. Cualquier otra cosa se ignora.
+  function normalizarAdelantados(a) {
+    const fuera = [];
+    (Array.isArray(a) ? a : []).forEach(x => {
+      const id = typeof x === 'string' ? x.trim() : '';
+      if (id && fuera.indexOf(id) < 0) fuera.push(id);
+    });
+    return fuera;
+  }
+  function esAdelantado(adelantados, cursoId) {
+    if (!Array.isArray(adelantados) || typeof cursoId !== 'string' || !cursoId) return false;
+    return adelantados.some(x => typeof x === 'string' && x.trim() === cursoId);
+  }
+  // Ids de los cursos que el miembro ya abrió con premio, según GET /api/premios (premios[].usado.cursoId).
+  // Si la respuesta no es la esperada, no hay adelantados y todo funciona como siempre.
+  function adelantadosDeRespuesta(resp) {
+    const premios = resp && typeof resp === 'object' && Array.isArray(resp.premios) ? resp.premios : [];
+    return normalizarAdelantados(premios.map(p => (p && p.usado && typeof p.usado === 'object' ? p.usado.cursoId : null)));
+  }
+
+  // Días como miembro (misma cuenta que usaba la biblioteca). `ahora` en ms (opcional, para pruebas).
+  function diasComoMiembro(session, ahora) {
+    const s = session || {};
+    const t = Number.isFinite(ahora) ? ahora : Date.now();
+    const desde = s.planActivadoEn || s.createdAt || new Date(t).toISOString();
+    return Math.floor((t - new Date(desde).getTime()) / (1000 * 60 * 60 * 24));
+  }
+
+  // Orden de la fila de desbloqueo tal como la usa la biblioteca: primero el orden de los cursos de siempre / nuevos
+  // (ordenarCursos) y después la clase gratis de siempre arriba (orden estable). Devuelve una lista NUEVA.
+  function ordenParaDesbloqueo(cursosDeFirestore) {
+    const cursos = ordenarCursos(cursosDeFirestore).slice();
+    const gratisDeSiempre = c => (c.lecciones || []).some(l => esClaseGratis(l, c));
+    cursos.sort((a, b) => (gratisDeSiempre(b) ? 1 : 0) - (gratisDeSiempre(a) ? 1 : 0));
+    return cursos;
+  }
+
+  // Resumen de la ruta (sin prueba elegida): cuántos cursos están abiertos, cuántos siguen bloqueados y en cuántos días
+  // se abre el próximo. Con `adelantados` vacío da lo mismo que la cuenta anterior de la biblioteca.
+  function resumenDesbloqueo(opc) {
+    const o = opc || {};
+    const lista = Array.isArray(o.lista) ? o.lista : [];
+    let disponibles = 0, bloqueados = 0, faltan = null;
+    lista.forEach((c, i) => {
+      const r = desbloqueoCurso({ lista, i, dias: o.dias, adelantados: o.adelantados });
+      if (r.desbloqueado) { disponibles++; return; }
+      bloqueados++;
+      const f = Number(r.diasFalta);
+      if (Number.isFinite(f) && (faltan === null || f < faltan)) faltan = f;
+    });
+    return { disponibles, bloqueados, faltan: faltan === null ? 0 : faltan, total: lista.length };
+  }
+
   // Desbloqueo de un curso de la lista. Devuelve { desbloqueado, diasFalta, motivo }.
   //   motivo: null | 'tiempo' | 'termina-prueba'  (diasFalta = null cuando todavía no empieza el conteo)
   // Sin prueba elegida: exactamente la regla de siempre (1 curso cada 8 días desde que se hizo miembro).
   // Con prueba elegida (y ya con membresía): el curso de prueba y los "siempre disponibles" quedan fuera de la fila.
   // El conteo empieza cuando termina el curso de prueba; el primero de la fila (el curso de siempre) se abre
   // 8 días después y cada siguiente 8 días más.
+  //
+  // PREMIOS: `adelantados` es un arreglo de ids de curso que el miembro abrió con un premio. Esos cursos quedan ABIERTOS
+  // (con porPremio:true) y NADA más cambia: los demás conservan su lugar en la fila (el adelanto no corre el turno de nadie).
+  // Sin `adelantados` (o vacío) el resultado es exactamente el de siempre.
   function desbloqueoCurso(opc) {
     const o = opc || {};
     const lista = Array.isArray(o.lista) ? o.lista : [];
     const i = o.i;
     const curso = lista[i];
+    if (curso && esAdelantado(o.adelantados, curso.id)) return { desbloqueado: true, diasFalta: 0, motivo: null, porPremio: true };
     const p = o.prueba;
     const elegida = p && p.elegida && lista.some(c => c && c.id === p.elegida) ? p.elegida : null;
     if (!elegida) {
@@ -158,6 +218,7 @@
     estadoPrueba, esUltimaClase, terminoPruebaEn, desbloqueoCurso,
     VIDEO_GRATIS_FIJO, DIAS_POR_CURSO, ordenarCursos, tieneOrdenVip,
     siempreDisponible, esClaseGratis, cursoTieneClaseGratis,
-    posicionDesbloqueo, cursosEnFila, maxDesbloqueado, desbloqueadoPorTiempo, diasParaDesbloquear
+    posicionDesbloqueo, cursosEnFila, maxDesbloqueado, desbloqueadoPorTiempo, diasParaDesbloquear,
+    normalizarAdelantados, esAdelantado, adelantadosDeRespuesta, diasComoMiembro, ordenParaDesbloqueo, resumenDesbloqueo
   };
 });
