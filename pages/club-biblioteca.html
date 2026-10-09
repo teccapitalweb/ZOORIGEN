@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261009">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261013">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
     .player-overlay {
@@ -373,7 +374,9 @@
   <script src="../assets/js/club.js?v=20260828-membership1"></script>
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
   <script src="../assets/js/club-quiz.js?v=20261010"></script>
-  <script src="../assets/js/club-acceso.js?v=20261012"></script>
+  <script src="../assets/js/club-acceso.js?v=20261013"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261010"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261013"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
     const ZOORIGEN_FREE_VIDEO_ID = 'befd1641-850a-4099-88a8-047a1badc703';
@@ -386,11 +389,14 @@
     const escHtml = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
     // La regla (clase gratis de siempre + clases marcadas en el panel) vive en club-acceso.js
-    function esClaseGratis(lesson, curso) {
-      return window.ZOO_ACCESO
-        ? ZOO_ACCESO.esClaseGratis(lesson, curso)
-        : String(lesson?.videoId || '') === ZOORIGEN_FREE_VIDEO_ID;
+    function esClaseGratis(lesson, curso, idx) {
+      if (!window.ZOO_ACCESO) return String(lesson?.videoId || '') === ZOORIGEN_FREE_VIDEO_ID;
+      // Con membresía no importa la prueba; sin ella rige el estado de la prueba gratuita
+      const prueba = window.__zooSession && tieneMembresiaActiva() ? null : window.__zooPrueba;
+      return ZOO_ACCESO.esClaseGratis(lesson, curso, prueba, idx);
     }
+    // Estado de la prueba gratuita (hasta que el servidor responda, "no aplica" y todo sigue como antes)
+    window.__zooPrueba = window.ZOO_ACCESO ? ZOO_ACCESO.estadoPrueba(null) : { elegible: false, elegida: null, aplica: false, cursosElegibles: [], cursoPorDefectoId: null };
 
     function mostrarPaywallCurso() {
       if (document.getElementById('zooCoursePaywall')) return;
@@ -430,14 +436,16 @@
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🎁</span>Tienes gratis la clase 1 del primer curso. Desde la clase 2 necesitas una membresía vigente. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
       }
 
+      window.__zooPrueba = await cargarEstadoPrueba();
       const cursosDeFirestore = await ZOORIGEN_CLUB.getCursos();
       // Los cursos nuevos (con "ordenVip") van al final de la fila de desbloqueo; los de siempre no se mueven.
       const cursos = window.ZOO_ACCESO ? ZOO_ACCESO.ordenarCursos(cursosDeFirestore) : cursosDeFirestore;
       // Garantiza que el curso que contiene la única clase gratuita aparezca
       // siempre como el primer curso, sin depender de la fecha de Firestore.
       cursos.sort((a, b) => {
-        const aGratis = (a.lecciones || []).some(l => esClaseGratis(l, a)) ? 1 : 0;
-        const bGratis = (b.lecciones || []).some(l => esClaseGratis(l, b)) ? 1 : 0;
+        const gratisDeSiempre = (c) => (c.lecciones || []).some(l => window.ZOO_ACCESO ? ZOO_ACCESO.esClaseGratis(l, c) : String(l?.videoId || '') === ZOORIGEN_FREE_VIDEO_ID);
+        const aGratis = gratisDeSiempre(a) ? 1 : 0;
+        const bGratis = gratisDeSiempre(b) ? 1 : 0;
         return bGratis - aGratis;
       });
       const grid = document.getElementById('coursesGrid');
@@ -493,113 +501,116 @@
       }
       window.__convertImg = convertImageUrl;
 
-      const render = (filter = 'Todas') => {
-        const list = filter === 'Todas' ? cursos : cursos.filter(c => c.area === filter);
+      // ═══════════════ CATÁLOGO (diseño de tarjetas estilo alintecfood) ═══════════════
+      // Modo según quién entra:
+      //   miembro   → con membresía vigente (desbloqueo: 1 curso cada 8 días, o tras su curso de prueba)
+      //   pendiente → nunca pagó y todavía no elige su prueba gratuita
+      //   prueba    → ya eligió su curso de prueba (todas sus clases menos la última son gratis)
+      //   libre     → el servidor de la prueba no respondió o no aplica (se comporta como antes)
+      const modoCatalogo = () => {
+        const p = window.__zooPrueba;
+        return isActive ? 'miembro' : (p.elegible ? 'pendiente' : (p.elegida ? 'prueba' : 'libre'));
+      };
+      const diasComoMiembro = () => {
+        const desde = session.planActivadoEn || session.createdAt || new Date().toISOString();
+        return Math.floor((Date.now() - new Date(desde).getTime()) / (1000 * 60 * 60 * 24));
+      };
+      // Desbloqueo de un curso (se calcula sobre la lista COMPLETA, no sobre el filtro de área)
+      window.__zooDesbloqueo = (curso) => {
+        const dias = diasComoMiembro();
+        const i = cursos.findIndex(x => x.id === curso.id);
+        if (!isActive || !window.ZOO_ACCESO) return { desbloqueado: true, diasFalta: 0, motivo: null };
+        return ZOO_ACCESO.desbloqueoCurso({ lista: cursos, i, dias, prueba: window.__zooPrueba, progreso: window.__zooCourseProgress });
+      };
+      window.__zooCursosLista = cursos;
 
-        // ═══════════════ DESBLOQUEO PROGRESIVO — 1 curso/8 días ═══════════════
-        const memberSince = session.planActivadoEn || session.createdAt || new Date().toISOString();
-        const daysAsMember = Math.floor((Date.now() - new Date(memberSince).getTime()) / (1000 * 60 * 60 * 24));
-        const DAYS_PER_UNLOCK = 8;
-        const maxUnlockedIndex = Math.floor(daysAsMember / DAYS_PER_UNLOCK);
-        window.__zooMaxUnlocked = maxUnlockedIndex;
-        window.__zooDaysAsMember = daysAsMember;
-
-        // Mostrar banner de desbloqueo si es miembro activo y hay cursos aún bloqueados
-        const unlockInfo = document.getElementById('unlockInfo');
-        const enFila = window.ZOO_ACCESO ? ZOO_ACCESO.cursosEnFila(list) : list.length;   // cursos "siempre disponibles" no hacen fila
-        if (isActive && enFila > (maxUnlockedIndex + 1)) {
-          const nextUnlockIn = Math.max(0, ((maxUnlockedIndex + 1) * DAYS_PER_UNLOCK) - daysAsMember);
-          unlockInfo.innerHTML = `
-            <div class="unlock-schedule-banner">
-              <div class="unlock-schedule-banner__icon">🔓</div>
-              <div class="unlock-schedule-banner__text">
-                Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>.
-                Llevas <strong>${daysAsMember} día${daysAsMember !== 1 ? 's' : ''}</strong> como miembro,
-                tienes <strong>${Math.min(enFila, maxUnlockedIndex + 1) + (list.length - enFila)}</strong> de ${list.length} cursos disponibles.
-                ${nextUnlockIn > 0 ? `El siguiente se desbloquea en <strong>${nextUnlockIn} día${nextUnlockIn !== 1 ? 's' : ''}</strong>.` : ''}
-              </div>
-            </div>`;
-        } else {
-          unlockInfo.innerHTML = '';
+      const avisoSuperior = (modo, dias) => {
+        const caja = document.getElementById('unlockInfo');
+        const aviso = document.getElementById('lockedNotice');
+        const p = window.__zooPrueba;
+        caja.innerHTML = '';
+        if (modo === 'pendiente') {
+          caja.innerHTML = window.ZOO_CURSOS_UI.bannerPruebaHTML();
+          aviso.innerHTML = '';
+        } else if (modo === 'prueba') {
+          const elegido = cursos.find(c => c.id === p.elegida);
+          aviso.innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🎁</span>Tu prueba gratuita: <strong>${escHtml(elegido ? elegido.title : 'curso elegido')}</strong>. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
+        } else if (modo === 'miembro') {
+          const lista = cursos;
+          if (p.elegida && lista.some(c => c.id === p.elegida)) {
+            const fin = window.ZOO_ACCESO.terminoPruebaEn((window.__zooCourseProgress || {})[p.elegida]);
+            caja.innerHTML = fin === null
+              ? `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon">🔓</div><div class="unlock-schedule-banner__text">Termina tu curso de prueba para empezar tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. El conteo empieza cuando lo termines.</div></div>`
+              : `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon">🔓</div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong> desde que terminaste tu curso de prueba.</div></div>`;
+          } else {
+            const maxIdx = ZOO_ACCESO.maxDesbloqueado(dias);
+            const enFila = ZOO_ACCESO.cursosEnFila(lista);
+            if (enFila > maxIdx + 1) {
+              const faltan = Math.max(0, ((maxIdx + 1) * 8) - dias);
+              caja.innerHTML = `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon">🔓</div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. Llevas <strong>${dias} día${dias !== 1 ? 's' : ''}</strong> como miembro, tienes <strong>${Math.min(enFila, maxIdx + 1) + (lista.length - enFila)}</strong> de ${lista.length} cursos disponibles.${faltan > 0 ? ` El siguiente se desbloquea en <strong>${faltan} día${faltan !== 1 ? 's' : ''}</strong>.` : ''}</div></div>`;
+            }
+          }
         }
+      };
+
+      const render = (filter = 'Todas') => {
+        window.__zooFiltro = filter;
+        const UI = window.ZOO_CURSOS_UI, ACC = window.ZOO_ACCESO;
+        const modo = modoCatalogo();
+        const p = window.__zooPrueba;
+        const dias = diasComoMiembro();
+        window.__zooCardsPorId = {};
+        avisoSuperior(modo, dias);
+
+        let lista = filter === 'Todas' ? cursos : cursos.filter(c => c.area === filter);
+        // El curso de prueba (si lo hay) se muestra primero; no cambia el orden de desbloqueo de los demás.
+        if (p.elegida) lista = lista.slice().sort((a, b) => (b.id === p.elegida ? 1 : 0) - (a.id === p.elegida ? 1 : 0));
 
         window.__zooCourseCards = {};
-        grid.innerHTML = list.map((c, courseIdx) => {
-          const lecciones = (c.lecciones && c.lecciones.length) ? c.lecciones : (c.driveId ? [{titulo: c.title, driveId: c.driveId, duration: c.duration}] : []);
-          const totalClases = lecciones.length;
-          const hasContent = totalClases > 0;
-          const hasFreePreview = lecciones.some(l => esClaseGratis(l, c));
-
-          const prog = progress[c.id] || { completedLessons: [], isCompleted: false, completedAt: null, certificateFolio: null };
-          const completedCount = prog.completedLessons.length;
-          const percent = totalClases > 0 ? Math.round((completedCount / totalClases) * 100) : 0;
-          const isCertified = prog.isCompleted;
-
-          // Desbloqueo: curso 0 siempre disponible; curso N disponible a partir del día N*8
-          const isUnlockedByTime = window.ZOO_ACCESO ? ZOO_ACCESO.desbloqueadoPorTiempo(list, courseIdx, daysAsMember) : courseIdx <= maxUnlockedIndex;
-          const daysUntilUnlock = window.ZOO_ACCESO ? ZOO_ACCESO.diasParaDesbloquear(list, courseIdx, daysAsMember) : Math.max(0, (courseIdx * DAYS_PER_UNLOCK) - daysAsMember);
-
-          const imageUrl = convertImageUrl(c.image);
-          const cardCanOpen = hasContent && (!isActive || isUnlockedByTime);
+        grid.className = 'zc-grid';
+        grid.innerHTML = lista.map(c => {
+          const lecciones = (c.lecciones && c.lecciones.length) ? c.lecciones : (c.driveId ? [{ titulo: c.title, driveId: c.driveId, duration: c.duration }] : []);
           window.__zooCourseCards[c.id] = { ...c, lecciones };
-
-          return `
-            <article class="course-card-club ${!isUnlockedByTime && isActive ? 'is-time-locked' : ''} ${cardCanOpen ? 'is-clickable' : ''}"
-              ${cardCanOpen ? `role="button" tabindex="0" onclick='openCourseCard(event, ${JSON.stringify(c.id)})' onkeydown='openCourseCard(event, ${JSON.stringify(c.id)})'` : ''}>
-              <div class="course-card-club__img">
-                ${imageUrl ? `<img src="${imageUrl}" alt="${(c.title || '').replace(/"/g, '&quot;')}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.parentElement.classList.add('no-image');">` : ''}
-                <div class="course-card-club__img-placeholder">
-                  <span style="font-size:3.5rem;opacity:.3;">🦒</span>
-                </div>
-                ${c.tag ? `<span class="course-card-club__tag">${c.tag}</span>` : ''}
-                ${totalClases > 1 ? `<span class="course-card-club__classes">📹 ${totalClases} clases</span>` : ''}
-                ${isCertified ? `<span class="course-card-club__certified">🏆 Certificado</span>` : ''}
-                ${!isUnlockedByTime && isActive ? `
-                  <div class="course-time-lock">
-                    <div class="course-time-lock__icon">🔒</div>
-                    <div class="course-time-lock__text">
-                      Se desbloquea en<br><strong>${daysUntilUnlock} día${daysUntilUnlock !== 1 ? 's' : ''}</strong>
-                    </div>
-                  </div>
-                ` : ''}
-              </div>
-              <div class="course-card-club__body">
-                <div class="course-card-club__area">${c.area || ''}</div>
-                <h3 class="course-card-club__title">${c.title}</h3>
-                ${c.instructor ? `<div style="font-size:.78rem;color:var(--zoo-text-muted);margin:-2px 0 8px;">Instructor: ${escHtml(c.instructor)}</div>` : ''}
-                ${(!isActive && c.cursoMuestraGratis === true) || c.disponibleSiempre === true ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px;">${!isActive && c.cursoMuestraGratis === true ? '<span style="font-size:.68rem;font-weight:800;letter-spacing:.06em;padding:3px 9px;border-radius:99px;background:rgba(111,191,115,.18);color:#6FBF73;">CLASES GRATIS</span>' : ''}${c.disponibleSiempre === true ? '<span style="font-size:.68rem;font-weight:800;letter-spacing:.06em;padding:3px 9px;border-radius:99px;background:rgba(232,163,23,.18);color:#E8A317;">DISPONIBLE</span>' : ''}</div>` : ''}
-                <p class="course-card-club__desc">${c.description || `Duración: ${c.duration || '—'} · Nivel: ${c.level || '—'}`}</p>
-
-                ${hasContent && completedCount > 0 && isUnlockedByTime ? `
-                  <div class="course-progress-wrap">
-                    <div class="course-progress-info">
-                      <span>${percent}% completado</span>
-                      <span>${completedCount}/${totalClases}</span>
-                    </div>
-                    <div class="course-progress-bar">
-                      <div class="course-progress-bar__fill" style="width:${percent}%;"></div>
-                    </div>
-                  </div>
-                ` : ''}
-
-                ${isActive && hasContent && isUnlockedByTime
-                  ? `<button class="course-card-club__action" onclick='openCourseDetail(${JSON.stringify({...c, lecciones}).replace(/'/g, "&#39;")})'>${totalClases > 1 ? `▶ Ver ${totalClases} clases` : '▶ Ver curso'}</button>`
-                  : isActive && hasContent && !isUnlockedByTime
-                  ? `<button class="course-card-club__action course-card-club__action--locked" disabled>🔒 Desbloquea en ${daysUntilUnlock} día${daysUntilUnlock !== 1 ? 's' : ''}</button>`
-                  : !isActive && hasContent ? `<button class="course-card-club__action" onclick='openCourseDetail(${JSON.stringify({...c, lecciones}).replace(/'/g, "&#39;")})' style="background:${hasFreePreview ? 'linear-gradient(135deg,#6FBF73,#3d8b42)' : 'var(--zoo-orange)'};">${hasFreePreview ? '🎁 Ver clase gratis' : `🔒 Ver ${totalClases} clase${totalClases !== 1 ? 's' : ''}`}</button>`
-                  : `<a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20VIP%20y%20quiero%20el%20curso%3A%20${encodeURIComponent(c.title)}" target="_blank" class="course-card-club__action">▶ Solicitar acceso</a>`}
-
-                ${isCertified ? `
-                  <button class="course-certificate-btn" onclick='descargarCertificado("${c.id}", ${JSON.stringify(c.title).replace(/'/g, "&#39;")})'>
-                    🎓 Descargar certificado
-                  </button>
-                ` : ''}
-              </div>
-            </article>
-          `;
+          const imagen = convertImageUrl(c.image);
+          const hasContent = lecciones.length > 0;
+          if (modo === 'pendiente') {
+            const esElegible = p.cursosElegibles.includes(c.id);
+            const esDefecto = c.id === p.cursoPorDefectoId;
+            return UI.tarjetaPendienteHTML(c, { imagen, elegible: esElegible, motivoNo: esDefecto ? 'Se abre después de tu prueba' : 'No disponible como prueba' });
+          }
+          const prog = (window.__zooCourseProgress || {})[c.id] || { completedLessons: [], isCompleted: false };
+          const pruebaGratis = isActive ? null : p;
+          const clasesGratis = isActive ? 0 : lecciones.filter((l, i) => esClaseGratis(l, { ...c, lecciones }, i)).length;
+          return UI.tarjetaHTML({ ...c, lecciones }, {
+            imagen, modo, completadas: prog.completedLessons.length, certificado: prog.isCompleted === true,
+            desbloqueo: isActive ? window.__zooDesbloqueo(c) : null,
+            esPrueba: modo === 'prueba' && c.id === p.elegida, clasesGratis,
+            abrible: hasContent
+          });
         }).join('');
       };
+
+      window.__zooRender = render;
       render();
+
+      // Un solo juego de eventos para todas las tarjetas
+      grid.addEventListener('click', (ev) => {
+        const elegir = ev.target.closest('[data-elegir]');
+        if (elegir) { ev.stopPropagation(); confirmarPrueba(elegir.dataset.elegir); return; }
+        const card = ev.target.closest('.zc-card');
+        if (card && card.dataset.id) openCourseCard({ type: 'click', target: ev.target, currentTarget: card }, card.dataset.id);
+      });
+      grid.addEventListener('keydown', (ev) => {
+        const card = ev.target.closest && ev.target.closest('.zc-card');
+        if (card && ev.target === card && card.dataset.id) openCourseCard(ev, card.dataset.id);
+      });
+
+      // Llegó desde "Elegir mi curso" de la bienvenida: lleva a la selección y la resalta
+      if (new URLSearchParams(location.search).get('elegir') === '1') {
+        const b = document.getElementById('prueba-card');
+        if (b) { b.scrollIntoView({ behavior: 'smooth', block: 'center' }); b.classList.add('zc-banner--pulso'); }
+        try { history.replaceState(null, '', location.pathname); } catch (e) {}
+      }
 
       filterBar.addEventListener('click', (e) => {
         const btn = e.target.closest('.filter-chip-club');
@@ -610,6 +621,96 @@
       });
     })();
 
+    // ═══════════════ PRUEBA GRATUITA A ELEGIR ═══════════════
+    const URL_PRUEBA = 'https://zoorigen-webhook-production.up.railway.app/api/prueba-gratuita';
+
+    async function llamarPrueba(metodo, cuerpo) {
+      const user = firebase.auth().currentUser;
+      if (!user) throw new Error('Tu sesión expiró. Vuelve a iniciar sesión.');
+      const token = await user.getIdToken();
+      const ctl = new AbortController();
+      const corte = setTimeout(() => ctl.abort(), 9000);
+      try {
+        const r = await fetch(URL_PRUEBA, {
+          method: metodo, signal: ctl.signal,
+          headers: Object.assign({ Authorization: 'Bearer ' + token }, cuerpo ? { 'Content-Type': 'application/json' } : {}),
+          body: cuerpo ? JSON.stringify(cuerpo) : undefined
+        });
+        const datos = await r.json().catch(() => ({}));
+        return { ok: r.ok, status: r.status, datos };
+      } finally { clearTimeout(corte); }
+    }
+
+    // Estado de la prueba gratuita. Si el servidor no responde, la prueba "no aplica" y todo sigue como antes.
+    async function cargarEstadoPrueba() {
+      try {
+        const r = await llamarPrueba('GET');
+        return ZOO_ACCESO.estadoPrueba(r.ok ? r.datos : null);
+      } catch (e) {
+        console.warn('[prueba gratuita] sin respuesta del servidor:', e.message || e);
+        return ZOO_ACCESO.estadoPrueba(null);
+      }
+    }
+
+    function zcToast(texto, error) {
+      const t = document.createElement('div');
+      t.className = 'zc-toast' + (error ? ' zc-toast--error' : '');
+      t.setAttribute('role', 'status');
+      t.textContent = texto;
+      document.body.appendChild(t);
+      setTimeout(() => t.classList.add('is-in'), 20);
+      setTimeout(() => { t.classList.remove('is-in'); setTimeout(() => t.remove(), 300); }, 4200);
+    }
+
+    // "Selecciona tu prueba gratuita": se muestra al tocar un curso o una clase antes de elegir
+    function avisoSeleccionaPrueba(cursoId) {
+      const elegible = cursoId && window.__zooPrueba.cursosElegibles.includes(cursoId);
+      ZOO_CURSOS_UI.ventana({
+        titulo: 'Selecciona tu prueba gratuita',
+        cuerpoHTML: '<p>Elige el curso de tu preferencia para poder ver el contenido de los cursos.</p>',
+        botones: [{ texto: 'Cerrar' }].concat(elegible
+          ? [{ texto: 'Elegir este curso', clase: 'zc-btn--main', alPulsar: () => { setTimeout(() => confirmarPrueba(cursoId), 0); } }]
+          : [])
+      });
+    }
+
+    function confirmarPrueba(cursoId) {
+      const curso = window.__zooCourseCards?.[cursoId];
+      if (!curso || !window.__zooPrueba.cursosElegibles.includes(cursoId)) return;
+      const img = ZOO_CURSOS_UI.urlSegura(window.__convertImg ? window.__convertImg(curso.image) : curso.image);
+      ZOO_CURSOS_UI.ventana({
+        titulo: '¿Seguro que deseas este curso?',
+        subtitulo: 'Tu prueba gratuita',
+        cuerpoHTML: `<div class="zc-conf"><span class="zc-conf__img"${img ? ` style="--zc-img:url('${ZOO_CURSOS_UI.esc(img)}')"` : ''}></span><strong>${ZOO_CURSOS_UI.esc(curso.title)}</strong></div>
+          <p>Será tu <b>prueba gratuita</b>.</p>
+          <p><b>Solo puedes elegir uno y después no se puede cambiar.</b></p>`,
+        botones: [
+          { texto: 'No, ver otros cursos' },
+          { texto: 'Sí, es mi prueba gratuita', clase: 'zc-btn--main', alPulsar: async ({ boton }) => {
+              boton.disabled = true; boton.textContent = 'Guardando…';
+              try {
+                const r = await llamarPrueba('POST', { cursoId });
+                if (!r.ok) {
+                  zcToast(r.datos && r.datos.error ? r.datos.error : 'No se pudo guardar tu elección. Intenta de nuevo.', true);
+                  if (r.status === 409 || r.status === 403) { window.__zooPrueba = await cargarEstadoPrueba(); window.__zooRender(window.__zooFiltro); }
+                  else { boton.disabled = false; boton.textContent = 'Sí, es mi prueba gratuita'; return false; }
+                  return;
+                }
+              } catch (e) {
+                zcToast('No se pudo guardar tu elección. Revisa tu conexión e intenta de nuevo.', true);
+                boton.disabled = false; boton.textContent = 'Sí, es mi prueba gratuita';
+                return false;
+              }
+              window.__zooPrueba = ZOO_ACCESO.estadoPrueba({ elegible: false, elegida: { cursoId } });
+              window.__zooRender(window.__zooFiltro);
+              zcToast('¡Listo! Tu prueba gratuita está activa. Ya puedes ver las clases de «' + curso.title + '».');
+              setTimeout(() => openCourseDetail(window.__zooCourseCards[cursoId]), 150);
+            } }
+        ]
+      });
+    }
+
+    // ═══════════════ TARJETAS Y DETALLE DEL CURSO ═══════════════
     function openCourseCard(event, courseId) {
       const isKeyboard = event.type === 'keydown';
       if (isKeyboard && event.key !== 'Enter' && event.key !== ' ') return;
@@ -619,35 +720,89 @@
       const course = window.__zooCourseCards?.[courseId];
       if (!course) return;
       if (isKeyboard) event.preventDefault();
+      // Quien todavía no eligió su prueba gratuita debe elegir primero
+      if (!tieneMembresiaActiva() && window.__zooPrueba.elegible) { avisoSeleccionaPrueba(courseId); return; }
       openCourseDetail(course);
     }
     window.openCourseCard = openCourseCard;
 
     function openCourseDetail(course) {
-      const lecciones = course.lecciones || [];
       window.__currentCourse = course;
-      window.__currentLecciones = lecciones;
+      window.__currentLecciones = course.lecciones || [];
+      renderCourseModal();
+    }
 
-      if (lecciones.length === 1) {
-        // Solo 1 clase → abrir player directo
-        openPlayer(lecciones[0], course.title, course.description || '', course.id, 0);
+    function aviso(titulo, cuerpoHTML) {
+      ZOO_CURSOS_UI.ventana({ titulo, cuerpoHTML, botones: [{ texto: 'Entendido', clase: 'zc-btn--main' }] });
+    }
+
+    // Clic en una clase de la lista del detalle
+    function zcClickClase(i, accion) {
+      const desbloqueo = tieneMembresiaActiva() ? window.__zooDesbloqueo(window.__currentCourse) : { desbloqueado: true };
+      if (accion === 'abrir') { openLessonByIndex(i); return; }
+      if (accion === 'paywall') { mostrarPaywallCurso(); return; }
+      if (accion === 'aviso-espera') {
+        if (desbloqueo.motivo === 'termina-prueba') {
+          aviso('Termina primero tu curso de prueba', '<p>Cuando termines tu curso de prueba con tu membresía activa empieza tu ruta VIP: tu siguiente curso se abre 8 días después y los demás cada 8 días.</p>');
+        } else {
+          aviso(ZOO_CURSOS_UI.textoFaltan(desbloqueo), '<p>Este curso se abre pronto. Los cursos se desbloquean uno cada 8 días. Mientras tanto puedes ver de qué trata y qué clases incluye.</p>');
+        }
         return;
       }
+      aviso('Completa la clase anterior', '<p>Marca como vista la clase anterior (terminando sus preguntas y su juego, si los tiene) para desbloquear esta.</p>');
+    }
 
-      // Mostrar lista de clases con estado de completado
-      renderCourseModal();
+    function zcAccion(id) {
+      const curso = window.__currentCourse;
+      if (id === 'continuar') { if (Number.isInteger(window.__zcSiguiente)) openLessonByIndex(window.__zcSiguiente); }
+      else if (id === 'cert') generarCertificado(curso.id);
+      else if (id === 'vercert') descargarCertificado(curso.id, curso.title);
     }
 
     function renderCourseModal() {
       const course = window.__currentCourse;
       const lecciones = window.__currentLecciones;
+      const UI = window.ZOO_CURSOS_UI;
+      const esMiembro = tieneMembresiaActiva();
       const progress = window.__zooCourseProgress[course.id] || { completedLessons: [], isCompleted: false };
-      const completedCount = progress.completedLessons.length;
-      const totalClases = lecciones.length;
-      const allCompleted = completedCount >= totalClases;
+      const hechas = progress.completedLessons;
+      const total = lecciones.length;
+      const todas = hechas.length >= total && total > 0;
+      const imagen = window.__convertImg ? window.__convertImg(course.image) : course.image;
+      const espera = esMiembro ? window.__zooDesbloqueo(course) : { desbloqueado: true, diasFalta: 0, motivo: null };
+      const enPrueba = !esMiembro && window.__zooPrueba.elegida === course.id;
+      const nextAvailable = lecciones.findIndex((_, i) => !hechas.includes(i));
+
+      const filas = lecciones.map((l, i) => {
+        const est = UI.estadoClase({
+          hecha: hechas.includes(i), anteriorHecha: i > 0 && hechas.includes(i - 1), esPrimera: i === 0,
+          esMiembro, gratis: esClaseGratis(l, course, i), espera, esSiguiente: i === nextAvailable
+        });
+        return { i, titulo: l.titulo || 'Clase ' + (i + 1), duracion: l.duration || '', estado: est.estado, texto: est.texto, accion: est.accion,
+          preguntas: cantidadPreguntas(l), juego: nombreJuegoDeClase(l) };
+      });
+
+      // Botón principal: comenzar / continuar (solo si el curso está disponible)
+      let accionPrincipal = null;
+      window.__zcSiguiente = null;
+      if (espera.desbloqueado && nextAvailable >= 0 && total > 0) {
+        const f = filas[nextAvailable];
+        if (f && f.accion === 'abrir') {
+          window.__zcSiguiente = nextAvailable;
+          accionPrincipal = { id: 'continuar', texto: hechas.length ? `Continuar con la clase ${nextAvailable + 1}` : 'Comenzar el curso' };
+        }
+      }
+      const certificadoHTML = todas && !progress.isCompleted
+        ? '<button type="button" class="zc-cert-btn" data-zc="cert">Obtener certificado</button>'
+        : (progress.isCompleted ? '<button type="button" class="zc-cert-btn" data-zc="vercert">Ver certificado</button>' : '');
+      let avisoHTML = '';
+      if (enPrueba) {
+        const gratis = Math.max(0, total - 1);
+        avisoHTML = `<b>Tu prueba gratuita.</b> ${gratis === 1 ? 'La primera clase es gratis' : `Las primeras ${gratis} clases son gratis`}; la última se desbloquea al suscribirte. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;">Ver planes →</a>`;
+      }
 
       const modal = document.getElementById('playerOverlay');
-      document.getElementById('playerTitle').textContent = course.title;
+      document.getElementById('playerTitle').textContent = 'Detalle del curso';
       document.getElementById('playerVideo').innerHTML = '';
       document.getElementById('playerDesc').textContent = '';
 
@@ -657,64 +812,31 @@
       box.querySelector('.player-box__video').style.display = 'none';
       box.querySelector('.player-box__info').style.display = 'none';
 
-      // Encontrar el índice de la siguiente clase disponible
-      const nextAvailable = lecciones.findIndex((_, i) => !progress.completedLessons.includes(i));
-
       const listEl = document.createElement('div');
       listEl.className = 'classes-list-box';
-      listEl.innerHTML = `
-        <div class="classes-list-header">
-          <div class="classes-list-title">📚 ${totalClases} clases · ${completedCount}/${totalClases} completadas</div>
-          ${allCompleted && !progress.isCompleted ? `<button onclick="generarCertificado('${course.id}')" class="cert-btn-top">🎓 Obtener certificado</button>` : ''}
-          ${progress.isCompleted ? `<button onclick='descargarCertificado("${course.id}", ${JSON.stringify(course.title).replace(/'/g, "&#39;")})' class="cert-btn-top cert-btn-top--done">🎓 Ver certificado</button>` : ''}
-        </div>
-        ${course.instructor ? `<div style="margin:-4px 0 10px;font-size:.82rem;color:var(--zoo-text-muted);">Instructor: <strong>${escHtml(course.instructor)}</strong></div>` : ''}
-        <div class="classes-progress-bar">
-          <div class="classes-progress-bar__fill" style="width:${(completedCount/totalClases*100)}%;"></div>
-        </div>
-        ${lecciones.map((l, i) => {
-          const done = progress.completedLessons.includes(i);
-          // Desbloqueada si: es la primera, o la anterior está completada, o esta está completada
-          // (una clase gratis de muestra se puede abrir sin haber hecho las anteriores)
-          const unlocked = i === 0 || progress.completedLessons.includes(i - 1) || done || (!tieneMembresiaActiva() && esClaseGratis(l, course));
-          const isNext = i === nextAvailable;
-          const freePreview = esClaseGratis(l, course);
-          const paidLocked = !tieneMembresiaActiva() && !freePreview;
-
-          // Generar descripción: usa l.descripcion si existe, si no genera una automática
-          const descripcion = l.descripcion || l.description || generarDescripcionClase(l.titulo || 'Clase ' + (i+1), i, totalClases);
-
-          return `
-            <div class="class-item ${done ? 'is-done' : ''} ${!unlocked ? 'is-locked' : ''} ${paidLocked ? 'is-paywalled' : ''} ${freePreview ? 'is-free-preview' : ''} ${isNext ? 'is-next' : ''}">
-              <div class="class-item__num">
-                ${done ? '✓' : (freePreview ? '🎁' : (paidLocked || !unlocked ? '🔒' : i + 1))}
-              </div>
-              <div class="class-item__body" ${unlocked ? `onclick="openLessonByIndex(${i})"` : ''}>
-                <div class="class-item__title">${l.titulo || 'Clase ' + (i + 1)}</div>
-                <div class="class-item__desc">${descripcion}</div>
-                <div class="class-item__meta">
-                  ${l.duration ? '⏱️ ' + l.duration : ''}
-                  ${done ? (l.duration ? ' · ' : '') + '✓ Completada' : ''}
-                  ${freePreview && !done ? (l.duration ? ' · ' : '') + '🎁 Clase gratuita' : ''}
-                  ${paidLocked && unlocked ? (l.duration ? ' · ' : '') + '🔒 Requiere membresía' : ''}
-                  ${!unlocked ? '🔒 Completa la clase anterior para desbloquear' : ''}
-                  ${isNext && !done && unlocked ? (l.duration ? ' · ' : '') + '▶ Siguiente clase' : ''}
-                  ${cantidadPreguntas(l) ? (l.duration || done || isNext ? ' · ' : '') + cantidadPreguntas(l) + ' pregunta' + (cantidadPreguntas(l) === 1 ? '' : 's') : ''}
-                  ${nombreJuegoDeClase(l) ? (l.duration || done || isNext || cantidadPreguntas(l) ? ' · ' : '') + 'Juego: ' + nombreJuegoDeClase(l) : ''}
-                </div>
-              </div>
-              ${unlocked && (tieneMembresiaActiva() || freePreview) ? `
-                <button onclick="toggleLessonComplete('${course.id}', ${i})" class="class-item__btn">
-                  ${done ? 'Desmarcar' : '✓ Completada'}
-                </button>
-              ` : paidLocked && unlocked ? `<button onclick="openLessonByIndex(${i})" class="class-item__btn" style="color:#E8A317;border-color:rgba(232,163,23,.35);background:rgba(232,163,23,.12);">Desbloquear</button>` : ''}
-            </div>
-          `;
-        }).join('')}
-      `;
+      listEl.innerHTML = UI.detalleHTML({
+        curso: { ...course, description: course.description }, imagen, completadas: hechas.length, total, filas, espera,
+        accionPrincipal, certificadoHTML, avisoHTML, etiquetaPrueba: enPrueba ? 'Prueba gratuita' : ''
+      });
       box.appendChild(listEl);
       modal.classList.add('is-open');
     }
+
+    // Un solo juego de eventos para la lista de clases y los botones del detalle
+    (function () {
+      const ov = document.getElementById('playerOverlay');
+      ov.addEventListener('click', (ev) => {
+        const fila = ev.target.closest('.zc-fila');
+        if (fila) { zcClickClase(parseInt(fila.dataset.i, 10), fila.dataset.accion); return; }
+        const b = ev.target.closest('[data-zc]');
+        if (b) zcAccion(b.dataset.zc);
+      });
+      ov.addEventListener('keydown', (ev) => {
+        if (ev.key !== 'Enter' && ev.key !== ' ') return;
+        const fila = ev.target.closest && ev.target.closest('.zc-fila');
+        if (fila && ev.target === fila) { ev.preventDefault(); zcClickClase(parseInt(fila.dataset.i, 10), fila.dataset.accion); }
+      });
+    })();
 
     // Genera una descripción breve y útil basada en el título de la clase
     function generarDescripcionClase(titulo, index, total) {
@@ -751,6 +873,12 @@
           progress[courseId].isCompleted = false;
         }
       } else {
+        // Una clase con preguntas o juego solo se da por vista al completarlos
+        const leccion = window.__currentLecciones?.[lessonIdx];
+        if (leccion && window.__currentCourse?.id === courseId && leccionTieneActividad(leccion)) {
+          abrirActividadesDeClase(lessonIdx, async () => { await guardarClaseVista(courseId, lessonIdx); renderCourseModal(); }, { obligatorio: true });
+          return;
+        }
         progress[courseId].completedLessons.push(lessonIdx);
       }
 
@@ -800,6 +928,13 @@
         const random = Math.floor(Math.random() * 90000) + 10000;
         const folio = `ZOO-${year}-${random}`;
 
+        // Nombre que el miembro eligió para su certificado (tarjeta de bienvenida); si no eligió, su nombre de siempre
+        let nombreEnCertificado = '';
+        try {
+          const perfil = await db.collection('miembros').doc(window.__zooSession.uid).get();
+          nombreEnCertificado = String((perfil.exists && perfil.data().nombreCertificado) || '').trim().slice(0, 60);
+        } catch (e) { /* si no se puede leer, se usa el nombre de siempre */ }
+
         const certData = {
           folio,
           courseId: String(courseId),
@@ -807,7 +942,7 @@
           courseArea: window.__currentCourse.area || 'General',
           courseDuration: window.__currentCourse.duration || '',
           memberUid: window.__zooSession.uid,
-          memberName: window.__zooSession.name || window.__zooSession.email || 'Miembro VIP',
+          memberName: nombreEnCertificado || window.__zooSession.name || window.__zooSession.email || 'Miembro VIP',
           memberEmail: window.__zooSession.email || '',
           issuedAt: new Date().toISOString(),
           totalClases: window.__currentLecciones.length
@@ -865,6 +1000,7 @@
     function openLessonByIndex(lessonIdx) {
       const lesson = window.__currentLecciones?.[lessonIdx];
       if (!lesson || !window.__currentCourse) return;
+      if (tieneMembresiaActiva() && !window.__zooDesbloqueo(window.__currentCourse).desbloqueado) { zcClickClase(lessonIdx, 'aviso-espera'); return; }
       openPlayer(
         lesson,
         lesson.titulo || 'Clase ' + (lessonIdx + 1),
@@ -882,7 +1018,7 @@
 
       // Una sola clase es gratuita en toda la plataforma. Todas las demás
       // muestran el paywall por encima del detalle antes de cargar el video.
-      if (!tieneMembresiaActiva() && !esClaseGratis(lesson, window.__currentCourse)) {
+      if (!tieneMembresiaActiva() && !esClaseGratis(lesson, window.__currentCourse, lessonIdx)) {
         mostrarPaywallCurso();
         return;
       }
@@ -966,8 +1102,8 @@
         playerVideo.innerHTML = `<div style="display:grid;place-items:center;min-height:420px;padding:28px;text-align:center;color:#fff;"><div><div style="font-size:2rem;margin-bottom:12px;">⚠️</div><strong>No se pudo reproducir la clase</strong><p style="color:var(--zoo-text-muted);margin-top:8px;">${String(error.message || error)}</p></div></div>`;
       }
 
-      if (courseId !== undefined && lessonIdx !== undefined) {
-        clearTimeout(window.__autoCompleteTimer);
+      clearTimeout(window.__autoCompleteTimer);
+      if (courseId !== undefined && lessonIdx !== undefined && !leccionTieneActividad(lesson)) {   // con preguntas/juego NO se marca sola
         window.__autoCompleteTimer = setTimeout(async () => {
           const progress = window.__zooCourseProgress;
           if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
@@ -979,15 +1115,22 @@
       }
     }
 
-    async function marcarYSiguiente(courseId, lessonIdx) {
+    // Marca la clase como vista y guarda el avance (si ya estaba, no hace nada)
+    async function guardarClaseVista(courseId, lessonIdx) {
       const progress = window.__zooCourseProgress;
       if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
-
       if (!progress[courseId].completedLessons.includes(lessonIdx)) {
         progress[courseId].completedLessons.push(lessonIdx);
         await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
       }
+    }
 
+    // ¿La clase tiene preguntas o juego que hay que completar para darla por vista?
+    function leccionTieneActividad(lesson) {
+      return cantidadPreguntas(lesson) > 0 || !!nombreJuegoDeClase(lesson);
+    }
+
+    async function marcarYSiguiente(courseId, lessonIdx) {
       const lecciones = window.__currentLecciones;
       const nextIdx = lessonIdx + 1;
 
@@ -1002,9 +1145,12 @@
         }
       };
 
-      // Si la clase trae un juego, se juega al terminarla; al acabar (o al cerrarlo) se continúa.
-      // El avance ya quedó guardado arriba: el juego es práctica y no condiciona el certificado.
-      abrirActividadesDeClase(lessonIdx, continuar);
+      // Como en alintecfood: si la clase trae preguntas o juego, hay que completarlos (no se pueden cerrar)
+      // y SOLO entonces la clase cuenta como vista y se avanza. Sin actividad, se guarda y avanza de inmediato.
+      abrirActividadesDeClase(lessonIdx, async () => {
+        await guardarClaseVista(courseId, lessonIdx);
+        continuar();
+      }, { obligatorio: true });
     }
 
     function cantidadPreguntas(lesson) {
@@ -1012,15 +1158,18 @@
     }
 
     // Al terminar una clase: primero sus preguntas (si tiene), luego su juego (si tiene) y al final se continúa.
-    // Cualquiera de las dos ventanas se puede cerrar y el flujo sigue: nada de esto traba al miembro.
-    function abrirActividadesDeClase(lessonIdx, despues) {
+    // opciones.obligatorio: sin botón de cerrar (la clase no cuenta como vista hasta terminar). Si una actividad
+    // está mal armada o no se puede dibujar, se salta sola para no dejar atorado a nadie.
+    function abrirActividadesDeClase(lessonIdx, despues, opciones) {
+      const obligatorio = !!(opciones && opciones.obligatorio);
       const lesson = window.__currentLecciones?.[lessonIdx];
       let pasado = false;
-      const aJuego = () => { if (pasado) return; pasado = true; abrirJuegoDeClase(lessonIdx, despues); };
+      const aJuego = () => { if (pasado) return; pasado = true; abrirJuegoDeClase(lessonIdx, despues, { obligatorio }); };
       if (!cantidadPreguntas(lesson)) { aJuego(); return; }
       const curso = window.__currentCourse || {};
       ZOO_QUIZ.abrir(lesson.preguntas, {
         subtitulo: (lesson.titulo || 'Clase ' + (lessonIdx + 1)) + (curso.title ? ' · ' + curso.title : ''),
+        obligatorio,
         alTerminar: aJuego,
         alCerrar: aJuego
       });
@@ -1041,8 +1190,8 @@
       return limpio ? ZOO_JUEGOS.esc(ZOO_JUEGOS.TIPOS[limpio.tipo]) : '';
     }
 
-    // Abre el juego de la clase; `despues` se ejecuta una sola vez al terminar o al cerrar la ventana.
-    function abrirJuegoDeClase(lessonIdx, despues) {
+    // Abre el juego de la clase; `despues` se ejecuta una sola vez al terminar (o al cerrar, si no es obligatorio).
+    function abrirJuegoDeClase(lessonIdx, despues, opciones) {
       const lesson = window.__currentLecciones?.[lessonIdx];
       if (!window.ZOO_JUEGOS || !lesson || !lesson.juego) { despues(); return; }
       const curso = window.__currentCourse || {};
@@ -1052,7 +1201,7 @@
         subtitulo: (lesson.titulo || 'Clase ' + (lessonIdx + 1)) + (curso.title ? ' · ' + curso.title : ''),
         portada: curso.image,
         imagenPorDefecto: '../assets/img/banner/banner.png',
-        obligatorio: false,
+        obligatorio: !!(opciones && opciones.obligatorio),
         textoContinuar: 'Continuar',
         alTerminar: seguir,
         alCerrar: seguir

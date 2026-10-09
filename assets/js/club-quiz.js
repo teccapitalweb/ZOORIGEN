@@ -105,6 +105,7 @@
    *   subtitulo   texto bajo el título (nombre de la clase)
    *   alTerminar() se llama al pulsar "Continuar"
    *   alCerrar()   se llama si se cierra con la X
+   *   obligatorio  true: sin X ni Esc; hay que terminar para continuar
    * Devuelve { cerrar() } o null si no hay preguntas válidas (en ese caso llama a alTerminar).
    */
   function abrir(preguntasCrudas, opciones) {
@@ -113,7 +114,8 @@
     const saltar = () => { if (typeof o.alTerminar === 'function') o.alTerminar(); return null; };
     if (!preguntas.length || typeof document === 'undefined' || !juegos || !juegos.crearVentana) return saltar();
 
-    const ventana = juegos.crearVentana('Antes de seguir', o.subtitulo || '', false, o.alCerrar);
+    // obligatorio: sin botón de cerrar; hay que contestar y pulsar "Continuar" (como en alintecfood)
+    const ventana = juegos.crearVentana('Antes de seguir', o.subtitulo || '', o.obligatorio === true, o.alCerrar);
     const respuestas = new Array(preguntas.length).fill(null);
     let comprobado = false;
 
