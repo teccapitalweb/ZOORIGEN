@@ -134,3 +134,18 @@ test('terminoPruebaEn', () => {
   assert.equal(A.terminoPruebaEn({ isCompleted: true, completedAt: '2026-10-01T00:00:00.000Z' }), Date.UTC(2026, 9, 1));
   assert.equal(A.terminoPruebaEn({ isCompleted: true }), 0);
 });
+
+test('si eligen como prueba el curso que tenían por defecto: sus clases menos la última son gratis y la fila no lo cuenta dos veces', () => {
+  const defecto = curso('defecto', 3); defecto.lecciones[0].videoId = GRATIS;
+  const l = [defecto, curso('a', 3), curso('b', 3)];
+  const p = A.estadoPrueba({ elegible: false, elegida: 'defecto' });
+  assert.deepEqual(defecto.lecciones.map((x, i) => A.esClaseGratis(x, defecto, p, i)), [true, true, false]);
+  const fin = Date.UTC(2026, 9, 1);
+  const prog = { defecto: { isCompleted: true, completedAt: new Date(fin).toISOString() } };
+  const e = (id, dias) => A.desbloqueoCurso({ lista: l, i: l.findIndex(c => c.id === id), prueba: p, progreso: prog, ahora: fin + dias * DIA });
+  assert.equal(e('defecto', 0).desbloqueado, true, 'el curso de prueba sigue abierto');
+  assert.equal(e('a', 7).desbloqueado, false);
+  assert.equal(e('a', 8).desbloqueado, true, 'el primero de la fila (ahora el siguiente) se abre 8 días después');
+  assert.equal(e('b', 15).desbloqueado, false);
+  assert.equal(e('b', 16).desbloqueado, true);
+});
