@@ -575,8 +575,8 @@
           const hasContent = lecciones.length > 0;
           if (modo === 'pendiente') {
             const esElegible = p.cursosElegibles.includes(c.id);
-            const esDefecto = c.id === p.cursoPorDefectoId;
-            return UI.tarjetaPendienteHTML(c, { imagen, elegible: esElegible, motivoNo: esDefecto ? 'Se abre después de tu prueba' : 'No disponible como prueba' });
+            // Ningún curso está impuesto como prueba: se puede elegir cualquiera que el servidor marque como elegible
+            return UI.tarjetaPendienteHTML(c, { imagen, elegible: esElegible, motivoNo: 'No disponible como prueba' });
           }
           const prog = (window.__zooCourseProgress || {})[c.id] || { completedLessons: [], isCompleted: false };
           const pruebaGratis = isActive ? null : p;

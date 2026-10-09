@@ -79,3 +79,9 @@ test('el certificado usa el nombre que el miembro eligió en la bienvenida (y su
 test('el paywall del reproductor usa la regla de clases gratis con el curso actual', () => {
   assert.match(pagina, /!esClaseGratis\(lesson, window\.__currentCourse, lessonIdx\)/);
 });
+
+test('ningún curso está impuesto como prueba: la biblioteca no trata de forma especial al "curso por defecto"', () => {
+  assert.equal(pagina.includes('Se abre después de tu prueba'), false);
+  assert.equal(/const esDefecto/.test(pagina), false);
+  assert.match(pagina, /elegible: esElegible, motivoNo: 'No disponible como prueba'/);
+});
