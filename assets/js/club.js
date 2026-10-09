@@ -702,6 +702,28 @@ const ZOORIGEN_CLUB = {
     return data;
   },
 
+  // Igual que apiFetch pero devuelve un archivo (Blob), por ejemplo un PDF. El navegador no puede mandar el token en un
+  // <iframe src>, por eso se pide con fetch y se muestra con una URL de blob.
+  async apiBlob(ruta) {
+    let user = null;
+    try { user = (typeof auth !== 'undefined' && auth.currentUser) || (window.firebase && window.firebase.auth().currentUser); } catch (e) { user = null; }
+    if (!user) { const e = new Error('Inicia sesión para continuar.'); e.status = 401; throw e; }
+    const token = await user.getIdToken();
+    let res;
+    try {
+      res = await fetch(this.apiBase() + ruta, { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
+    } catch (err) {
+      const e = new Error('No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.'); e.status = 0; throw e;
+    }
+    if (!res.ok) {
+      let data = null;
+      try { data = await res.json(); } catch (e) { data = null; }
+      const e = new Error((data && data.error) || 'No se pudo abrir el documento. Inténtalo de nuevo.');
+      e.status = res.status; e.data = data; throw e;
+    }
+    return await res.blob();
+  },
+
   // ============== DISPOSITIVO (para que los referidos cuenten solo si vienen de dispositivos distintos) ==============
   // deviceId: UUID que se guarda en este navegador. huella: resumen (hash) de navegador + idioma + zona horaria + pantalla.
   // Ninguno es infalible (modo incógnito u otro navegador dan valores nuevos); el servidor los usa junto con la IP.

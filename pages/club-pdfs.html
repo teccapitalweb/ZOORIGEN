@@ -5,7 +5,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDFs · Club VIP Zoorigen</title>
+  <title>PDFs y materiales · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#1F5F3A">
@@ -19,24 +19,24 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261024-panel">
+  <link rel="stylesheet" href="../assets/css/club-materiales.css?v=20261024-materiales">
 </head>
 <body>
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <button class="mobile-menu-btn mobile-menu-btn--float" id="mobileMenuBtn" aria-label="Menú">☰</button>
-      <div class="page-header"><h1>📄 PDFs y material descargable</h1><p>Guías de identificación, protocolos, fichas técnicas y manuales científicos</p></div>
       <div id="lockedNotice"></div>
-      <div class="content-list" id="pdfsList">Cargando...</div>
+      <div id="materiales"><div class="mt-vacio"><span>Cargando…</span></div></div>
     </main>
   </div>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261024-panel"></script>
+  <script src="../assets/js/club.js?v=20261025-materiales"></script>
   <script src="../assets/js/club-shell.js?v=20261024-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
+  <script src="../assets/js/club-materiales.js?v=20261024-materiales"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -61,24 +61,7 @@
 
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('pdfs', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
-      const pdfs = await ZOORIGEN_CLUB.getPdfs();
-      const list = document.getElementById('pdfsList');
-      if (pdfs.length === 0) {
-        list.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);">📄 Aún no hay PDFs disponibles. Pronto tendrás guías y manuales científicos.</div>`;
-        return;
-      }
-      list.innerHTML = pdfs.map(p => `
-        <div class="content-item">
-          <div class="content-item__thumb" style="background:var(--zoo-blue);color:#fff;">📄</div>
-          <div class="content-item__info">
-            <div class="content-item__title">${p.title}</div>
-            <div class="content-item__meta">${p.area || ''}${p.pages ? ' · ' + p.pages + ' páginas' : ''}</div>
-          </div>
-          ${p.driveId
-            ? `<a href="https://drive.google.com/file/d/${p.driveId}/view" target="_blank" class="content-item__tag">⬇ Abrir</a>`
-            : `<span class="content-item__tag" style="opacity:0.6;">Sin link</span>`}
-        </div>
-      `).join('');
+      ZOO_MATERIALES.montar({ sesion: session, club: ZOORIGEN_CLUB, contenedor: document.getElementById('materiales'), hrefRetos: 'club-retos.html' });
     })();
   </script>
 <script>

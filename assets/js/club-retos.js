@@ -529,6 +529,13 @@
       if (r.xpGanado > 0) toast('+' + r.xpGanado + ' XP', contexto || 'Reto superado');
       else if (r.aprobado) toast('Reto superado', esCamino ? 'Sigue con el siguiente del camino.' : 'Hoy ya cobraste los XP de este reto. Vuelve mañana.', 'info');
       (r.insigniasNuevas || []).forEach(n => toast('Nueva insignia', n && n.nombre ? n.nombre : 'Insignia nueva'));
+      // Si este reto abrió un libro, el servidor lo dice en librosNuevos (ids) y manda el resumen en libros.
+      const abiertos = Array.isArray(r.librosNuevos) ? r.librosNuevos : [];
+      if (abiertos.length) {
+        const lista = Array.isArray(r.libros) ? r.libros : [];
+        const titulo = id => { const l = lista.find(x => x && x.id === id); return l && l.titulo ? '«' + l.titulo + '»' : 'un libro'; };
+        toast(abiertos.length === 1 ? '¡Desbloqueaste un libro!' : '¡Desbloqueaste libros!', 'Ya puedes leer ' + abiertos.map(titulo).join(' y ') + ' en PDFs y materiales.');
+      }
     }
     // Avisa si el servidor ya te subió de nivel (el nivel se recalcula allá, aquí solo se compara).
     function revisarSubida() {
