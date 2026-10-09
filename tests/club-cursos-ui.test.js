@@ -56,7 +56,7 @@ test('tarjeta "solo título" para elegir: botón activo o deshabilitado con su m
 test('banner de la prueba gratuita', () => {
   const b = U.bannerPruebaHTML();
   assert.match(b, /Selecciona el curso de tu preferencia para obtener tu prueba gratuita/);
-  assert.match(b, /Solo puedes elegir <b>un<\/b> curso y después no se puede cambiar/);
+  assert.equal(b.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(), 'Selecciona el curso de tu preferencia para obtener tu prueba gratuita', 'el aviso dice SOLO eso');
   assert.match(b, /id="prueba-card"/);
 });
 
@@ -123,4 +123,33 @@ test('textos de espera', () => {
   assert.equal(U.textoEspera({ desbloqueado: true }), '');
   assert.equal(U.textoFaltan({ desbloqueado: false, diasFalta: 0, motivo: 'tiempo' }), 'Faltan 0 días para su desbloqueo');
   assert.equal(U.textoEspera({ desbloqueado: false, diasFalta: NaN, motivo: 'tiempo' }), 'Aún no disponible');
+});
+
+test('una clase sin acceso (paywall o curso en espera) NO revela su nombre, duración, preguntas ni juego', () => {
+  const base = { i: 2, titulo: 'Anatomía secreta', duracion: '30 min', preguntas: 3, juego: 'Memorama', accion: 'paywall' };
+  const paywall = U.filaClaseHTML(Object.assign({}, base, { estado: 'paywall', texto: 'Activa tu membresía para ver esta clase' }), '');
+  assert.match(paywall, /<strong>Clase 3<\/strong>/);
+  assert.match(paywall, /Activa tu membresía para ver esta clase/);
+  const espera = U.filaClaseHTML(Object.assign({}, base, { estado: 'espera', accion: 'aviso-espera', texto: 'Faltan 5 días para su desbloqueo' }), '');
+  assert.match(espera, /<strong>Clase 3<\/strong>/);
+  assert.match(espera, /Faltan 5 días para su desbloqueo/);
+  for (const html of [paywall, espera]) assert.ok(!/Anatomía secreta|30 min|pregunta|Memorama|zc-chip/.test(html), 'no debe filtrar contenido');
+});
+
+test('una clase accesible sí muestra su nombre, duración, preguntas y juego', () => {
+  const html = U.filaClaseHTML({ i: 0, titulo: 'Introducción', duracion: '25 min', estado: 'abierta', texto: 'Click para ver la clase', accion: 'abrir', preguntas: 2, juego: 'Memorama' }, '');
+  assert.match(html, /<strong>Introducción<\/strong>/);
+  assert.match(html, /25 min/);
+  assert.match(html, /2 preguntas/);
+  assert.match(html, /Memorama/);
+});
+
+test('el detalle no explica cuántas clases son gratis ni que la última se desbloquea al suscribirse', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const fuente = fs.readFileSync(require.resolve('../assets/js/club-cursos-ui.js'), 'utf8');
+  const pagina = fs.readFileSync(path.join(__dirname, '..', 'pages', 'club-biblioteca.html'), 'utf8');
+  for (const frase of ['menos la última', 'se desbloquea al suscribirte', 'La última se desbloquea', 'Las primeras']) {
+    assert.ok(!fuente.includes(frase), 'club-cursos-ui.js dice: ' + frase);
+    assert.ok(!pagina.includes(frase), 'club-biblioteca.html dice: ' + frase);
+  }
 });

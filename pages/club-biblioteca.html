@@ -376,7 +376,7 @@
   <script src="../assets/js/club-quiz.js?v=20261010"></script>
   <script src="../assets/js/club-acceso.js?v=20261013"></script>
   <script src="../assets/js/admin-iconos.js?v=20261010"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261013"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261016"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
     const ZOORIGEN_FREE_VIDEO_ID = 'befd1641-850a-4099-88a8-047a1badc703';
@@ -505,7 +505,7 @@
       // Modo según quién entra:
       //   miembro   → con membresía vigente (desbloqueo: 1 curso cada 8 días, o tras su curso de prueba)
       //   pendiente → nunca pagó y todavía no elige su prueba gratuita
-      //   prueba    → ya eligió su curso de prueba (todas sus clases menos la última son gratis)
+      //   prueba    → ya eligió su curso de prueba
       //   libre     → el servidor de la prueba no respondió o no aplica (se comporta como antes)
       const modoCatalogo = () => {
         const p = window.__zooPrueba;
@@ -795,11 +795,6 @@
       const certificadoHTML = todas && !progress.isCompleted
         ? '<button type="button" class="zc-cert-btn" data-zc="cert">Obtener certificado</button>'
         : (progress.isCompleted ? '<button type="button" class="zc-cert-btn" data-zc="vercert">Ver certificado</button>' : '');
-      let avisoHTML = '';
-      if (enPrueba) {
-        const gratis = Math.max(0, total - 1);
-        avisoHTML = `<b>Tu prueba gratuita.</b> ${gratis === 1 ? 'La primera clase es gratis' : `Las primeras ${gratis} clases son gratis`}; la última se desbloquea al suscribirte. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;">Ver planes →</a>`;
-      }
 
       const modal = document.getElementById('playerOverlay');
       document.getElementById('playerTitle').textContent = 'Detalle del curso';
@@ -816,7 +811,7 @@
       listEl.className = 'classes-list-box';
       listEl.innerHTML = UI.detalleHTML({
         curso: { ...course, description: course.description }, imagen, completadas: hechas.length, total, filas, espera,
-        accionPrincipal, certificadoHTML, avisoHTML, etiquetaPrueba: enPrueba ? 'Prueba gratuita' : ''
+        accionPrincipal, certificadoHTML, etiquetaPrueba: enPrueba ? 'Prueba gratuita' : ''
       });
       box.appendChild(listEl);
       modal.classList.add('is-open');

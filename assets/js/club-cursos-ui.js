@@ -118,8 +118,7 @@
   function bannerPruebaHTML() {
     return `<div class="zc-banner" id="prueba-card" role="region" aria-label="Prueba gratuita">
       <span class="zc-banner__ico">${ico('gift', { size: 22 })}</span>
-      <div><strong>Selecciona el curso de tu preferencia para obtener tu prueba gratuita</strong>
-      <p>Solo puedes elegir <b>un</b> curso y después no se puede cambiar.</p></div>
+      <div><strong>Selecciona el curso de tu preferencia para obtener tu prueba gratuita</strong></div>
     </div>`;
   }
 
@@ -145,17 +144,21 @@
   // fila: { i, titulo, duracion, estado, texto, accion, preguntas, juego }
   function filaClaseHTML(f, imagen) {
     const img = urlSegura(imagen);
+    // Clases con membresía por pagar o curso aún en espera: solo "Clase N" y el motivo (nada del contenido)
+    const oculta = f.estado === 'paywall' || f.estado === 'espera';
+    const titulo = oculta ? `Clase ${f.i + 1}` : f.titulo;
+    const duracion = oculta ? '' : f.duracion;
     const num = f.estado === 'hecha' ? ico('check', { size: 16 })
       : (f.estado === 'paywall' || f.estado === 'orden' || f.estado === 'espera') ? ico('lock', { size: 16 })
       : esc(f.i + 1);
-    const chips = [
+    const chips = oculta ? '' : [
       f.preguntas ? `<span class="zc-chip">${ico('circle-help', { size: 12 })}${esc(plural(f.preguntas, 'pregunta', 'preguntas'))}</span>` : '',
       f.juego ? `<span class="zc-chip zc-chip--juego">${ico('gamepad-2', { size: 12 })}${esc(f.juego)}</span>` : ''
     ].join('');
     return `<li class="zc-fila zc-fila--${esc(f.estado)}" data-i="${esc(f.i)}" data-accion="${esc(f.accion)}" role="button" tabindex="0">
       <span class="zc-num">${num}</span>
       <span class="zc-thumb"${img ? ` style="--zc-img:url('${esc(img)}')"` : ''}></span>
-      <span class="zc-info"><strong>${esc(f.titulo)}</strong><small>${esc(f.texto)}${f.duracion ? ` · ${esc(f.duracion)}` : ''}</small>${chips ? `<span class="zc-chips">${chips}</span>` : ''}</span>
+      <span class="zc-info"><strong>${esc(titulo)}</strong><small>${esc(f.texto)}${duracion ? ` · ${esc(duracion)}` : ''}</small>${chips ? `<span class="zc-chips">${chips}</span>` : ''}</span>
       <span class="zc-go" aria-hidden="true">→</span>
     </li>`;
   }
