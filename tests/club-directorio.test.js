@@ -169,3 +169,14 @@ test('lista vacía: mensajes distintos con o sin filtro; error con Reintentar', 
   const lista = D.renderLista(TARJETAS.map(D.normalizarTarjeta), { miUid: '2' });
   assert.equal((lista.match(/zd-tarjeta--mia/g) || []).length, 1);
 });
+
+test('paraServidor: el correo de contacto viaja con el nombre del contrato (email) y no se cuelan campos de más', () => {
+  const D = require('../assets/js/club-directorio.js');
+  const v = D.validarTarjeta({ nombre: 'Ana Pérez', profesion: 'Bióloga', sector: 'Conservación', ciudad: 'Mérida', bio: 'Hola', whatsapp: '55 1234 5678', correo: 'ana@correo.com', linkedin: 'linkedin.com/in/ana' });
+  assert.equal(v.ok, true);
+  const cuerpo = D.paraServidor(v.valor);
+  assert.deepEqual(Object.keys(cuerpo).sort(), ['bio', 'ciudad', 'contacto', 'nombre', 'profesion', 'sector']);
+  assert.equal(cuerpo.contacto.email, 'ana@correo.com');
+  assert.equal('correo' in cuerpo.contacto, false);
+  assert.deepEqual(D.paraServidor({ nombre: 'Ana', profesion: 'x', sector: 'Otro', ciudad: 'y', bio: '', contacto: {} }).contacto, {});
+});

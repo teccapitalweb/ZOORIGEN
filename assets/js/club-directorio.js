@@ -125,6 +125,16 @@
     };
   }
 
+  // Lo que se manda al servidor: el contrato llama `email` al correo de contacto (el formulario le dice `correo`).
+  function paraServidor(valor) {
+    var c = (valor && valor.contacto) || {};
+    var contacto = {};
+    if (c.whatsapp) contacto.whatsapp = c.whatsapp;
+    if (c.correo) contacto.email = c.correo;
+    if (c.linkedin) contacto.linkedin = c.linkedin;
+    return { nombre: valor.nombre, profesion: valor.profesion, sector: valor.sector, ciudad: valor.ciudad, bio: valor.bio, contacto: contacto };
+  }
+
   function normalizarRespuesta(resp) {
     var r = resp && typeof resp === 'object' ? resp : {};
     return {
@@ -206,7 +216,7 @@
 
   return {
     SECTORES: SECTORES, LIMITES: LIMITES, TEXTOS: TEXTOS,
-    esc: esc, telefonoLimpio: telefonoLimpio, enlaceWhatsApp: enlaceWhatsApp, correoValido: correoValido, linkedinLimpio: linkedinLimpio,
+    esc: esc, telefonoLimpio: telefonoLimpio, enlaceWhatsApp: enlaceWhatsApp, correoValido: correoValido, paraServidor: paraServidor, linkedinLimpio: linkedinLimpio,
     validarTarjeta: validarTarjeta, normalizarTarjeta: normalizarTarjeta, normalizarRespuesta: normalizarRespuesta,
     filtrar: filtrar, iniciales: iniciales, colorIndice: colorIndice,
     renderTarjeta: renderTarjeta, renderLista: renderLista, renderChips: renderChips, renderContactos: renderContactos, renderError: renderError

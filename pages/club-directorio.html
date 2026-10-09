@@ -239,7 +239,7 @@
           const guardar = f('zdGuardar');
           guardar.disabled = true; guardar.textContent = 'Guardando...';
           try {
-            await ZOORIGEN_CLUB.apiFetch('/api/directorio', { method: 'POST', body: r.valor });
+            await ZOORIGEN_CLUB.apiFetch('/api/directorio', { method: 'POST', body: ZOO_DIRECTORIO.paraServidor(r.valor) });
             cerrarModal();
             aviso('Tu tarjeta quedó guardada.');
             await cargar();
