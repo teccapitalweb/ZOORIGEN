@@ -376,7 +376,7 @@
   <script src="../assets/js/club-quiz.js?v=20261010"></script>
   <script src="../assets/js/club-acceso.js?v=20261013"></script>
   <script src="../assets/js/admin-iconos.js?v=20261010"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261016"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261017"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
     const ZOORIGEN_FREE_VIDEO_ID = 'befd1641-850a-4099-88a8-047a1badc703';
@@ -1035,23 +1035,13 @@
       const infoContent = document.createElement('div');
       infoContent.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;';
       const hayLista = courseId !== undefined && window.__currentLecciones?.length > 1;
-      const nombreJuego = courseId !== undefined && lessonIdx !== undefined ? nombreJuegoDeClase(lesson) : '';
-      const nPreguntas = courseId !== undefined && lessonIdx !== undefined ? cantidadPreguntas(lesson) : 0;
-      const botonPreguntas = nPreguntas ? `
-            <button onclick="practicarPreguntasClase(${lessonIdx})" style="background:rgba(111,191,115,0.14);border:1px solid rgba(111,191,115,0.5);color:#8fd493;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
-              Preguntas de la clase (${nPreguntas})
-            </button>` : '';
-      const botonJuego = nombreJuego ? `
-            <button onclick="practicarJuegoClase(${lessonIdx})" style="background:rgba(232,163,23,0.16);border:1px solid rgba(232,163,23,0.55);color:#F4C45A;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
-              Juego de la clase: ${nombreJuego}
-            </button>` : '';
       infoContent.innerHTML = `
         <span style="color:var(--zoo-text-muted);font-size:.88rem;">
           ${desc ? '⏱️ ' + desc : ''}
           ${courseId !== undefined && lessonIdx !== undefined ? `${desc ? ' · ' : ''}Clase ${lessonIdx + 1} de ${window.__currentLecciones?.length || 1}` : ''}
         </span>
-        ${hayLista || botonJuego || botonPreguntas ? `
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">${botonPreguntas}${botonJuego}
+        ${hayLista ? `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
             ${hayLista ? `<button onclick="renderCourseModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;font-size:.8rem;">
               ← Lista de clases
             </button>
@@ -1170,14 +1160,6 @@
       });
     }
 
-    // Botón "Preguntas de la clase": practicar sin avanzar de clase
-    window.practicarPreguntasClase = (lessonIdx) => {
-      const lesson = window.__currentLecciones?.[lessonIdx];
-      const curso = window.__currentCourse || {};
-      if (!cantidadPreguntas(lesson)) return;
-      ZOO_QUIZ.abrir(lesson.preguntas, { subtitulo: (lesson.titulo || 'Clase ' + (lessonIdx + 1)) + (curso.title ? ' · ' + curso.title : '') });
-    };
-
     // Nombre legible del juego de una clase ('' si no tiene uno válido)
     function nombreJuegoDeClase(lesson) {
       if (!window.ZOO_JUEGOS || !lesson || !lesson.juego) return '';
@@ -1203,8 +1185,6 @@
       });
     }
 
-    // Botón "Juego de la clase": practicar sin avanzar de clase
-    window.practicarJuegoClase = (lessonIdx) => abrirJuegoDeClase(lessonIdx, () => {});
     function closePlayer() {
       const modal = document.getElementById('playerOverlay');
       modal.classList.remove('is-open');

@@ -151,10 +151,8 @@
     const num = f.estado === 'hecha' ? ico('check', { size: 16 })
       : (f.estado === 'paywall' || f.estado === 'orden' || f.estado === 'espera') ? ico('lock', { size: 16 })
       : esc(f.i + 1);
-    const chips = oculta ? '' : [
-      f.preguntas ? `<span class="zc-chip">${ico('circle-help', { size: 12 })}${esc(plural(f.preguntas, 'pregunta', 'preguntas'))}</span>` : '',
-      f.juego ? `<span class="zc-chip zc-chip--juego">${ico('gamepad-2', { size: 12 })}${esc(f.juego)}</span>` : ''
-    ].join('');
+    // Las preguntas y el juego del final de cada clase son sorpresa: no se muestran en la lista.
+    const chips = '';
     return `<li class="zc-fila zc-fila--${esc(f.estado)}" data-i="${esc(f.i)}" data-accion="${esc(f.accion)}" role="button" tabindex="0">
       <span class="zc-num">${num}</span>
       <span class="zc-thumb"${img ? ` style="--zc-img:url('${esc(img)}')"` : ''}></span>

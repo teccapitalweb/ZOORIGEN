@@ -105,8 +105,7 @@ test('detalle del curso: portada, instructor, avance, clases y avisos (todo esca
   assert.match(html, /1\/2 · 50%/);
   assert.match(html, /Curso especializado · Zoorigen/);
   assert.match(html, /Dra\. Ana/);
-  assert.match(html, /2 preguntas/);
-  assert.match(html, /Memorama/);
+  assert.ok(!/pregunta|Memorama|zc-chip/.test(html), 'el detalle no revela preguntas ni juegos');
   assert.match(html, /data-zc="continuar"/);
   assert.match(html, /data-accion="paywall"/);
   assert.ok(!html.includes('<script>') && !html.includes('Intro <b>'));
@@ -136,12 +135,11 @@ test('una clase sin acceso (paywall o curso en espera) NO revela su nombre, dura
   for (const html of [paywall, espera]) assert.ok(!/Anatomía secreta|30 min|pregunta|Memorama|zc-chip/.test(html), 'no debe filtrar contenido');
 });
 
-test('una clase accesible sí muestra su nombre, duración, preguntas y juego', () => {
+test('una clase accesible muestra su nombre y duración, pero NUNCA sus preguntas ni su juego', () => {
   const html = U.filaClaseHTML({ i: 0, titulo: 'Introducción', duracion: '25 min', estado: 'abierta', texto: 'Click para ver la clase', accion: 'abrir', preguntas: 2, juego: 'Memorama' }, '');
   assert.match(html, /<strong>Introducción<\/strong>/);
   assert.match(html, /25 min/);
-  assert.match(html, /2 preguntas/);
-  assert.match(html, /Memorama/);
+  assert.ok(!/pregunta|Memorama|zc-chip/.test(html), 'no debe revelar la sorpresa del final de la clase');
 });
 
 test('el detalle no explica cuántas clases son gratis ni que la última se desbloquea al suscribirse', () => {

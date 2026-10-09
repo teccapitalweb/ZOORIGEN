@@ -28,25 +28,24 @@ test('como en alintecfood: la clase SOLO cuenta como vista cuando se terminan su
 });
 
 test('las actividades obligatorias no se pueden cerrar (juego y preguntas) y se pasan al abrirlas', () => {
-  const juego = entre('function abrirJuegoDeClase', 'window.practicarJuegoClase');
+  const juego = entre('function abrirJuegoDeClase', 'function closePlayer');
   assert.match(juego, /obligatorio:\s*!!\(opciones && opciones\.obligatorio\)/);
   assert.match(juego, /alTerminar:\s*seguir/);
   assert.match(juego, /if \(seguido\) return/, 'continuar debe ejecutarse una sola vez');
-  const acts = entre('function abrirActividadesDeClase', 'window.practicarPreguntasClase');
+  const acts = entre('function abrirActividadesDeClase', 'function nombreJuegoDeClase');
   assert.match(acts, /obligatorio,\s*\n\s*alTerminar:\s*aJuego/);
   assert.match(acts, /abrirJuegoDeClase\(lessonIdx, despues, \{ obligatorio \}\)/);
   assert.match(acts, /if \(pasado\) return/, 'el juego se abre una sola vez');
   assert.match(acts, /if \(!cantidadPreguntas\(lesson\)\) \{ aJuego\(\); return; \}/, 'sin preguntas va directo al juego');
 });
 
-test('los botones de "practicar" sí se pueden cerrar (no obligatorios)', () => {
-  assert.match(pagina, /window\.practicarJuegoClase = \(lessonIdx\) => abrirJuegoDeClase\(lessonIdx, \(\) => \{\}\);/);
-  const preg = entre('window.practicarPreguntasClase', 'function nombreJuegoDeClase');
-  assert.equal(/obligatorio/.test(preg), false);
+test('el reproductor NO ofrece botones que revelen o dejen repetir las preguntas y el juego (son sorpresa)', () => {
+  assert.equal(/practicarJuegoClase|practicarPreguntasClase/.test(pagina), false);
+  assert.equal(/Juego de la clase|Preguntas de la clase/.test(pagina), false);
 });
 
 test('una clase sin juego, o sin el módulo cargado, continúa igual que antes', () => {
-  const bloque = entre('function abrirJuegoDeClase', 'window.practicarJuegoClase');
+  const bloque = entre('function abrirJuegoDeClase', 'function closePlayer');
   assert.match(bloque, /!window\.ZOO_JUEGOS \|\| !lesson \|\| !lesson\.juego\) \{ despues\(\); return; \}/);
 });
 
