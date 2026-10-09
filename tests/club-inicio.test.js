@@ -76,8 +76,9 @@ test('esperando: "Espera tu próximo curso", cuenta regresiva y "Mientras espera
   const html = I.widgetHTML({ tipo: 'proximo', curso: curso('1'), diasFalta: 3, resumen: { cursosAbiertos: 0, cursosTotal: 2, clasesHechas: 0, clasesTotal: 8 } }, { ahora: new Date('2026-10-09T12:00:00') });
   assert.match(html, /Espera tu próximo curso./);
   assert.match(html, /Próximo desbloqueo/);
-  assert.match(html, /en 3 días/);
-  assert.match(html, /12 oct/);
+  assert.match(html, /Se abre en/);
+  assert.match(html, /3 días · lunes, 12 de octubre/);
+  assert.match(html, /Ver todos los cursos/);
   assert.match(html, /Mientras esperas/);
   assert.match(html, /Cuando se abra/);
 });
@@ -106,4 +107,18 @@ test('foto del curso: la suya si es segura; si no, una foto propia del sitio seg
   assert.match(I.fotoDelCurso({ area: 'Etología' }), /etologia/);
   assert.match(I.fotoDelCurso({ area: 'Cosa rara' }), /fauna-silvestre-conservacion/);
   assert.match(I.fotoDelCurso({ image: 'javascript:1', area: 'Manejo en cautiverio' }), /manejo-fauna-cautiverio/);
+});
+
+test('columna derecha: clases en vivo, comunidad, descuento, actividad y presencia', () => {
+  assert.match(I.vivoHTML(null), /Próximamente/);
+  assert.match(I.vivoHTML({ title: '<b>Tema</b>', date: '2026-10-20', speaker: 'Dra. Ana' }), /&lt;b&gt;Tema/);
+  assert.match(I.comunidadHTML(), /club-canal.html/);
+  assert.match(I.descuentoHTML('https://wa.me/1?text=x'), /20%/);
+  const act = I.actividadHTML({ cursosHechos: 2, cursosTotal: 8, certificados: 2, retos: 7, logros: 3, logrosTotal: 20 });
+  assert.ok(act.includes('2/8') && act.includes('3/20'));
+  assert.ok(!/NaN|undefined/.test(I.actividadHTML({})), 'sin datos no inventa ni rompe');
+  assert.match(I.presenciaHTML(false), /Crear mi tarjeta/);
+  assert.match(I.presenciaHTML(true), /100%/);
+  assert.equal(I.textoApertura(0), 'hoy');
+  assert.equal(I.textoApertura(1), '1 día');
 });

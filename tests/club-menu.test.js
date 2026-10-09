@@ -94,7 +94,8 @@ test('canal: la dirección está en la constante ZOO_CANAL_URL y el panel lleva 
   assert.match(canal, /Suscribirme/);
   for (const regla of ['Respeto', 'Sin spam', 'Temas de fauna', 'Sin venta de animales ni tráfico']) assert.ok(canal.includes(regla), regla);
   const tablero = leer('pages/club-dashboard.html');
-  assert.match(tablero, /<a href="club-canal\.html" class="card aside-channel">/);
+  assert.ok(tablero.includes('comunidadHTML'), 'el panel muestra la tarjeta de la comunidad');
+  assert.ok(leer('assets/js/club-inicio.js').includes('href="club-canal.html"'), 'la tarjeta lleva a la página del canal');
   assert.doesNotMatch(tablero, /canal%20VIP%20de%20Zoorigen/);
 });
 

@@ -288,3 +288,13 @@
   .profile-card { flex-wrap: wrap; }
   .profile-card .profile-edit-btn { margin-left: 0; width: 100%; }
 }
+
+/* Barra superior flotante (tarjeta redondeada) como alintecfood; el buscador solo aparece en celular y tableta */
+@media (min-width: 981px) {
+  .zs-topbar { margin: 0 0 20px; top: 12px; padding: 10px 14px 10px 18px; border-radius: 22px; border: 1px solid var(--zoo-border-strong); background: var(--zoo-bg-card); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .zs-search { display: none; }
+  .zs-quien { display: inline-flex; }
+}
+.zs-quien { display: none; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--zs-pill-line); font: 700 .66rem/1 'JetBrains Mono', ui-monospace, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--zoo-text-muted); }
+
+@media (min-width: 981px) { .zs-quien { display: inline-flex; } }

@@ -196,6 +196,7 @@
   function barraSuperiorHTML(sesion) {
     var nombre = primerNombre(sesion && sesion.name, sesion && sesion.email);
     return '' +
+      '<span class="zs-quien">' + icono('user', 14) + esc(nombre) + '</span>' +
       '<div class="zs-search" id="zsSearch" role="search">' +
         '<span class="zs-search__ico">' + icono('search', 17) + '</span>' +
         '<input type="search" id="zsSearchInput" placeholder="Buscar cursos o secciones…" autocomplete="off" aria-label="Buscar">' +

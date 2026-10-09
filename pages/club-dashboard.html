@@ -20,9 +20,9 @@
   <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261024-panel">
-  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261024-noticias">
-  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261026-inicio">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261027-panel">
+  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261027-noticias">
+  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261027-inicio">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261016">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261015">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261022">
@@ -524,20 +524,16 @@
       <div id="pendingBanner"></div>
       <div id="avisoCorreo"></div>
 
-      <div id="inicioSaludo"></div>
-
-      <div class="ih-ancho">
-        <div id="resumeCard"></div>
-        <!-- ════ TARJETA DE NIVEL (solo si es VIP activo) ════ -->
-        <div id="levelCard"></div>
-      </div>
-
       <div class="dashboard-grid">
         <div class="dashboard-main">
+          <div id="inicioSaludo"></div>
+          <div id="resumeCard"></div>
+          <!-- ════ TARJETA DE NIVEL (solo si es VIP activo) ════ -->
+          <div id="levelCard"></div>
 
           <!-- ════ NOTICIAS DEL SECTOR ════ -->
           <section class="nt-seccion ih-noticias" id="noticias">
-            <div class="nt-encabezado"><h2>Noticias del sector</h2><span class="nt-hoy">Hoy</span></div>
+            <div class="ih-noticias__cab"><h2>Noticias del sector</h2><span class="nt-hoy">Hoy</span></div>
             <div id="newsList"><div class="nt-vacio"><span>Cargando noticias…</span></div></div>
           </section>
 
@@ -562,29 +558,12 @@
           </div>
         </div>
 
-        <aside class="dashboard-aside">
-          <!-- ════ STATS PEQUEÑAS DE MI PROGRESO ════ -->
-          <div id="myStatsCard"></div>
-
-          <div id="nextSessionCard" class="card aside-card" style="background: rgba(31,95,58,0.3); border-color: var(--zoo-border-strong);">
-            <div class="aside-card__eyebrow">● Próximamente</div>
-            <div class="aside-card__title">Cargando sesión...</div>
-          </div>
-
-          <a href="club-canal.html" class="card aside-channel">
-            <div class="aside-channel__icon">💬</div>
-            <div>
-              <div style="color:var(--zoo-text,#fff);font-weight:600;font-size:.92rem;">Canal Zoorigen</div>
-              <div style="color:var(--zoo-text-dim);font-size:.8rem;">Novedades oficiales</div>
-            </div>
-          </a>
-
-          <div class="card aside-discount">
-            <div class="aside-discount__eyebrow">Tu descuento VIP</div>
-            <span class="percent">20%</span>
-            <div class="aside-discount__desc">En todos los cursos Zoorigen</div>
-            <a href="https://wa.me/5212361113237?text=Hola%2C%20quiero%20aplicar%20mi%2020%25%20VIP" target="_blank" class="btn-gold">Canjear</a>
-          </div>
+        <aside class="dashboard-aside" id="inicioAside">
+          <div id="asideVivo"></div>
+          <div id="asideComunidad"></div>
+          <div id="asideDescuento"></div>
+          <div id="asideActividad"></div>
+          <div id="asidePresencia"></div>
         </aside>
       </div>
     </main>
@@ -595,13 +574,13 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20261025-materiales"></script>
-  <script src="../assets/js/club-shell.js?v=20261024-panel"></script>
+  <script src="../assets/js/club-shell.js?v=20261027-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
   <script src="../assets/js/club-acceso.js?v=20261020"></script>
-  <script src="../assets/js/club-noticias-ui.js?v=20261024-noticias"></script>
-  <script src="../assets/js/club-inicio.js?v=20261026-inicio"></script>
+  <script src="../assets/js/club-noticias-ui.js?v=20261027-noticias"></script>
+  <script src="../assets/js/club-inicio.js?v=20261027-inicio"></script>
   <script src="../assets/js/club-premios.js?v=20261022"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
   <script src="../assets/js/club-onboarding.js?v=20261023"></script>
@@ -1012,17 +991,16 @@
       // Solo se muestran si es VIP activo; si el servidor falla, la tarjeta lo dice y ofrece Reintentar.
       if (ZOORIGEN_CLUB.hasActiveMembership(session)) {
         const nivelCont = document.getElementById('levelCard');
-        const statsCont = document.getElementById('myStatsCard');
         const cargarNivel = async (forzar) => {
           try {
             const datos = await ZOORIGEN_CLUB.fetchPremios(forzar);
             if (!ZOORIGEN_CLUB.resumenNivel(datos)) throw new Error('respuesta incompleta');
             nivelCont.innerHTML = ZOORIGEN_CLUB.renderLevelCard(datos);
-            statsCont.innerHTML = ZOORIGEN_CLUB.renderMyStats(datos);
+            window.__zooInicioPremios = datos;
+            if (window.__zooInicioActividad) window.__zooInicioActividad();
           } catch (err) {
             console.warn('[Dashboard] nivel:', err);
             nivelCont.innerHTML = ZOORIGEN_CLUB.renderLevelCard(null);
-            statsCont.innerHTML = '';
           }
         };
         nivelCont.addEventListener('click', (ev) => { if (ev.target.closest('[data-nivel-reintentar]')) cargarNivel(true); });
@@ -1057,6 +1035,8 @@
             hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), adelantados: ZOO_ACCESO.adelantadosDeRespuesta(premios), progreso });
           }
           const lista = mats && Array.isArray(mats.materiales) ? mats.materiales : null;
+          window.__zooInicioRetos = mats && Number.isFinite(mats.superados) ? mats.superados : 0;
+          if (window.__zooInicioActividad) window.__zooInicioActividad();
           resume.innerHTML = ZOO_INICIO.widgetHTML(hero, { ahora: new Date(), pdfsAbiertos: lista ? lista.filter(x => x.desbloqueado).length : 0, pdfsTotal: lista ? lista.length : undefined });
         } catch (e) {
           console.warn('[Dashboard] tarjeta de cursos:', e);
@@ -1066,30 +1046,36 @@
       };
       pintarTarjetaCursos();
 
-      // Próximo webinar (aside)
-      const ns = document.getElementById('nextSessionCard');
-      if (proximaSesion) {
-        ns.innerHTML = `
-          <div class="aside-card__eyebrow" style="color:var(--zoo-amber);">🎥 Próximo webinar</div>
-          <div class="aside-card__title">${proximaSesion.title}</div>
-          <div class="aside-card__meta">${proximaSesion.speaker || ''} · ${ZOORIGEN_CLUB.formatShort(proximaSesion.date)} · ${proximaSesion.time || '19:00'}</div>
-          <div style="color:var(--zoo-green-500);font-size:.78rem;font-weight:600;margin-top:8px;">💻 Por Google Meet</div>
-          <div class="countdown" id="countdown"></div>
-          <a href="club-sesiones.html" class="btn-mini">Ver webinar →</a>`;
-        ZOORIGEN_CLUB.startCountdown('countdown', proximaSesion.date);
-      } else {
-        ns.innerHTML = `
-          <div class="aside-card__eyebrow" style="color:var(--zoo-amber);">🎥 Webinars</div>
-          <div class="aside-card__title">Pronto habrá nuevos webinars</div>
-          <div class="aside-card__meta">Masterclasses en vivo por Google Meet</div>`;
-      }
+      // Columna derecha: clases en vivo, comunidad, descuento, tu actividad y tu presencia
+      document.getElementById('asideVivo').innerHTML = ZOO_INICIO.vivoHTML(proximaSesion);
+      if (proximaSesion) ZOORIGEN_CLUB.startCountdown('countdown', proximaSesion.date);
+      document.getElementById('asideComunidad').innerHTML = ZOO_INICIO.comunidadHTML();
+      document.getElementById('asideDescuento').innerHTML = ZOO_INICIO.descuentoHTML('https://wa.me/5212361113237?text=Hola%2C%20quiero%20aplicar%20mi%2020%25%20VIP');
+      const pintarActividad = async () => {
+        let progreso = {};
+        try { progreso = await ZOORIGEN_CLUB.getCourseProgress(session.uid); } catch (e) { progreso = {}; }
+        const terminados = cursos.filter(c => progreso[c.id] && progreso[c.id].isCompleted === true).length;
+        const prem = window.__zooInicioPremios || null;
+        const logros = prem && Array.isArray(prem.logros) ? prem.logros : [];
+        document.getElementById('asideActividad').innerHTML = ZOO_INICIO.actividadHTML({
+          cursosHechos: terminados, cursosTotal: cursos.length, certificados: terminados,
+          retos: window.__zooInicioRetos || 0, logros: logros.filter(l => l && l.ganado).length, logrosTotal: logros.length
+        });
+      };
+      window.__zooInicioActividad = pintarActividad;
+      pintarActividad();
+      (async () => {
+        let tiene = false;
+        try { const d = await ZOORIGEN_CLUB.apiFetch('/api/directorio'); tiene = !!(d && d.mia); } catch (e) { tiene = false; }
+        document.getElementById('asidePresencia').innerHTML = ZOO_INICIO.presenciaHTML(tiene);
+      })();
 
       // Noticias del sector (las trae el servidor; si falla, el inicio sigue funcionando)
       (async () => {
         const nl = document.getElementById('newsList');
         try {
-          const r = await ZOORIGEN_CLUB.apiFetch('/api/noticias?limit=6');
-          ZOO_NOTICIAS.pintar(nl, Array.isArray(r && r.noticias) ? r.noticias : [], { max: 6 });
+          const r = await ZOORIGEN_CLUB.apiFetch('/api/noticias?limit=8');
+          ZOO_NOTICIAS.pintar(nl, Array.isArray(r && r.noticias) ? r.noticias : [], { max: 8 });
         } catch (err) {
           console.warn('[Dashboard] noticias:', err);
           nl.innerHTML = '<div class="nt-vacio"><strong>No se pudieron cargar las noticias</strong><span>Revisa tu conexión y vuelve a abrir el Inicio en un momento.</span></div>';

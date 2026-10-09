@@ -146,13 +146,12 @@
     var texto = n.extracto || (n.resumen[0] || '');
     return '<article class="hoja hoja--' + n.plantilla + '" role="button" tabindex="0" data-noticia="' + esc(n.id) + '" data-i="' + esc(indice) + '" aria-label="' + esc(n.titulo) + '">' +
       '<div class="hoja__top"><span>zoorigen.com</span><span>' + esc(fechaLarga(n.fecha || ahora)) + '</span></div>' +
-      '<div class="hoja__mast"><span class="hoja__logo">Zoorigen</span><strong>Actualidad</strong></div>' +
-      '<div class="hoja__cat"><i style="background:' + esc(n.categoria.color) + '"></i>' + esc(n.categoria.nombre) + ' — ' + esc(n.fuente) + '</div>' +
+      '<div class="hoja__mast"><span class="hoja__logo">Zoorigen Actualidad</span><strong>' + esc(n.categoria.nombre) + ' — ' + esc(n.fuente) + '</strong></div>' +
       '<div class="hoja__foto"><img src="' + esc(n.imagen || respaldo) + '" data-cat="' + esc(n.categoria.id) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></div>' +
       '<h3 class="hoja__titulo">' + esc(n.titulo) + '</h3>' +
       '<div class="hoja__meta">' + esc(n.fuente) + (n.fecha ? ' · ' + esc(tiempoRelativo(n.fecha, ahora)) : '') + '</div>' +
       (texto ? '<p class="hoja__texto">' + esc(limpiar(texto, 300)) + '</p>' : '') +
-      '<div class="hoja__pie"><span>Ver resumen ampliado →</span><span>pág. ' + (Number(indice || 0) + 1) + '</span></div>' +
+      '<div class="hoja__pie"><span>Ver resumen ampliado →</span><span>' + String(Number(indice || 0) + 1).padStart(2, '0') + '</span></div>' +
     '</article>';
   }
 
@@ -167,8 +166,7 @@
       : (n.extracto ? '<p>' + esc(n.extracto) + '</p>' : '');
     return '<div class="hoja hoja--' + n.plantilla + ' hoja--grande" role="document">' +
       '<div class="hoja__top"><span>zoorigen.com</span><span>' + esc(fechaLarga(n.fecha || ahora)) + '</span></div>' +
-      '<div class="hoja__mast"><span class="hoja__logo">Zoorigen</span><strong>Actualidad</strong></div>' +
-      '<div class="hoja__cat"><i style="background:' + esc(n.categoria.color) + '"></i>' + esc(n.categoria.nombre) + ' — ' + esc(n.fuente) + '</div>' +
+      '<div class="hoja__mast"><span class="hoja__logo">Zoorigen Actualidad</span><strong>' + esc(n.categoria.nombre) + ' — ' + esc(n.fuente) + '</strong></div>' +
       '<h2 class="hoja__titulo hoja__titulo--grande">' + esc(n.titulo) + '</h2>' +
       '<div class="hoja__meta">Por ' + esc(n.fuente) + (n.fecha ? ' · ' + esc(tiempoRelativo(n.fecha, ahora)) : '') + '</div>' +
       '<div class="hoja__foto hoja__foto--grande"><img src="' + esc(n.imagen || respaldo) + '" data-cat="' + esc(n.categoria.id) + '" alt="" decoding="async" referrerpolicy="no-referrer"></div>' +
