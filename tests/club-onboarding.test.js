@@ -425,11 +425,12 @@ test('contenido: la bienvenida tiene portada y 4 diapositivas de beneficios; con
   for (const s of con) if (s.icono) assert.ok(require('../assets/js/admin-iconos.js').existe(s.icono), 'icono Lucide existente: ' + s.icono);
 });
 
-test('contenido: la tarjeta de regreso explica la regla de la última clase', () => {
+test('contenido: la tarjeta de regreso invita a elegir y NO menciona la regla de la última clase', () => {
   const r = O.TEXTOS.retorno;
   assert.equal(r.titulo, '¡Bienvenido de nuevo!');
   assert.match(r.texto, /prueba gratuita/);
-  assert.match(r.pasos.join(' '), /menos la última/);
+  assert.equal(r.pasos.length, 3);
+  assert.doesNotMatch(JSON.stringify(O.TEXTOS), /menos la última|desbloquea al suscribirte/);
   assert.equal(r.elegir, 'Elegir mi curso');
   assert.equal(r.luego, 'Más tarde');
   assert.equal(O.URL_ELEGIR_CURSO, 'club-biblioteca.html?elegir=1');

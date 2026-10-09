@@ -57,7 +57,7 @@
     pruebaNuevo: {
       titulo: 'Tu prueba gratuita',
       texto: 'Al ser miembro nuevo, te damos a elegir un curso de tu interés como prueba gratuita.',
-      detalle: 'Todas sus clases son gratis, menos la última, que se desbloquea al suscribirte.',
+      detalle: 'Es nuestro regalo para que conozcas cómo aprendes con Zoorigen.',
       elegir: 'Elegir mi curso',
       luego: 'Más tarde'
     },
@@ -67,7 +67,7 @@
       pasos: [
         'Elige un curso que te interese.',
         'Confirma tu elección.',
-        'Todas sus clases son gratis, menos la última, que se desbloquea al suscribirte.'
+        'Empieza a aprender hoy mismo, a tu ritmo.'
       ],
       elegir: 'Elegir mi curso',
       luego: 'Más tarde'
@@ -539,6 +539,20 @@
       if (document.visibilityState !== 'hidden' && !hayModalAjeno()) { quietos++; if (quietos >= 2) return Promise.resolve(true); }
       else quietos = 0;
       return pausa(350).then(vuelta);
+    }
+    return vuelta();
+  }
+
+  // Un miembro con plan activo que aún no ha visto los avisos VIP de club.js (modal de bienvenida y guía)
+  // los va a ver en breve: se les da hasta 5 s para aparecer y luego esperarLibre() aguarda a que cierren.
+  function esperarAvisosVip(session, uid, ls) {
+    if (!tienePlanActivo(session)) return Promise.resolve();
+    function visto(k) { try { return !!(ls && ls.getItem(k + uid)); } catch (e) { return false; } }
+    if (visto('zoo_welcome_shown_') && visto('zoo_onboard_done_')) return Promise.resolve();
+    var t0 = Date.now();
+    function vuelta() {
+      if (hayModalAjeno() || Date.now() - t0 > 5000) return Promise.resolve();
+      return pausa(250).then(vuelta);
     }
     return vuelta();
   }
@@ -1192,7 +1206,7 @@
             return mostrarTarjetaPrueba(ctx, 'retorno').then(function (r) { return almacen.marcar('retornoVisto').then(function () { return r; }); });
           }
         };
-        return pausa(inicioMs).then(function () {
+        return pausa(inicioMs).then(function () { return esperarAvisosVip(session, uid, ls); }).then(function () {
           return ejecutarSecuencia(plan.pasos, mostrar, {
             esperarLibre: function () { return esperarLibre(o.esperaMaxMs); },
             pausa: function () { return pausa(o.entrePasosMs !== undefined ? o.entrePasosMs : 350); }
