@@ -127,16 +127,16 @@ test('sin sesión: no hay nada', () => {
   assert.deepEqual(O.planificar({ session: null, marcas: {}, ahora: AHORA }).pasos, []);
 });
 
-test('miembro nuevo sin plan y elegible: bienvenida, nombre, recorrido, prueba (en ese orden)', () => {
+test('miembro nuevo sin plan y elegible: bienvenida, nombre, premio +100 XP, recorrido, prueba (en ese orden)', () => {
   const r = plan(miembro());
   assert.equal(r.tipo, 'nuevo');
-  assert.deepEqual(r.pasos, ['bienvenida', 'nombre', 'tour', 'prueba']);
+  assert.deepEqual(r.pasos, ['bienvenida', 'nombre', 'premio', 'tour', 'prueba']);
 });
 
 test('miembro nuevo: llega con ?welcome=1 aunque falte el dato de fecha', () => {
   const r = plan(miembro({ createdAt: null }), { welcome: true });
   assert.equal(r.tipo, 'nuevo');
-  assert.deepEqual(r.pasos, ['bienvenida', 'nombre', 'tour', 'prueba']);
+  assert.deepEqual(r.pasos, ['bienvenida', 'nombre', 'premio', 'tour', 'prueba']);
   assert.equal(plan(miembro({ createdAt: null })).tipo, 'retorno', 'sin welcome y sin fecha se trata como cuenta antigua');
 });
 
@@ -148,29 +148,31 @@ test('?welcome=1 en una cuenta vieja (más de 30 días) no la vuelve "nueva"', (
 
 test('miembro nuevo con el servidor caído (estado null): ve bienvenida, nombre y recorrido, pero NO la prueba', () => {
   const r = plan(miembro(), { estado: null });
-  assert.deepEqual(r.pasos, ['bienvenida', 'nombre', 'tour']);
+  assert.deepEqual(r.pasos, ['bienvenida', 'nombre', 'premio', 'tour']);
 });
 
 test('miembro nuevo con estado aún desconocido: la prueba queda como posible (se decide al llegar)', () => {
-  assert.deepEqual(plan(miembro(), { estado: undefined }).pasos, ['bienvenida', 'nombre', 'tour', 'prueba']);
+  assert.deepEqual(plan(miembro(), { estado: undefined }).pasos, ['bienvenida', 'nombre', 'premio', 'tour', 'prueba']);
 });
 
 test('miembro nuevo que ya eligió curso o no es elegible: sin tarjeta de prueba', () => {
-  assert.deepEqual(plan(miembro(), { estado: { elegible: false, elegida: null } }).pasos, ['bienvenida', 'nombre', 'tour']);
-  assert.deepEqual(plan(miembro(), { estado: { elegible: true, elegida: { cursoId: 'c1' } } }).pasos, ['bienvenida', 'nombre', 'tour']);
-  assert.deepEqual(plan(miembro(), { estado: { elegible: 'true' } }).pasos, ['bienvenida', 'nombre', 'tour'], 'solo elegible === true cuenta');
+  assert.deepEqual(plan(miembro(), { estado: { elegible: false, elegida: null } }).pasos, ['bienvenida', 'nombre', 'premio', 'tour']);
+  assert.deepEqual(plan(miembro(), { estado: { elegible: true, elegida: { cursoId: 'c1' } } }).pasos, ['bienvenida', 'nombre', 'premio', 'tour']);
+  assert.deepEqual(plan(miembro(), { estado: { elegible: 'true' } }).pasos, ['bienvenida', 'nombre', 'premio', 'tour'], 'solo elegible === true cuenta');
 });
 
 test('miembro nuevo con plan activo: no se duplica la bienvenida VIP ni se ofrece prueba', () => {
   const vence = new Date(Date.now() + 20 * 86400000).toISOString();
   const pagado = miembro({ planActivo: true, planStatus: 'active', planVence: vence, planTipo: 'mensual' });
-  assert.deepEqual(plan(pagado).pasos, ['nombre', 'tour']);
+  assert.deepEqual(plan(pagado).pasos, ['nombre', 'premio', 'tour'], 'el premio de bienvenida también es para quien ya paga');
 });
 
 test('se reanuda donde se quedó: solo lo que falta', () => {
   const m = { bienvenidaVista: '2026-10-15T10:00:00.000Z' };
-  assert.deepEqual(plan(miembro(), { marcas: m }).pasos, ['nombre', 'tour', 'prueba']);
+  assert.deepEqual(plan(miembro(), { marcas: m }).pasos, ['nombre', 'premio', 'tour', 'prueba']);
   m.nombreVisto = '2026-10-15T10:01:00.000Z';
+  assert.deepEqual(plan(miembro(), { marcas: m }).pasos, ['premio', 'tour', 'prueba']);
+  m.premioVisto = '2026-10-15T10:01:30.000Z';
   assert.deepEqual(plan(miembro(), { marcas: m }).pasos, ['tour', 'prueba']);
   m.tourVisto = '2026-10-15T10:02:00.000Z';
   assert.deepEqual(plan(miembro(), { marcas: m }).pasos, ['prueba']);
@@ -179,8 +181,8 @@ test('se reanuda donde se quedó: solo lo que falta', () => {
 });
 
 test('si ya tiene nombre de certificado válido, no se lo vuelve a pedir', () => {
-  assert.deepEqual(plan(miembro({ nombreCertificado: 'Ana Pérez' })).pasos, ['bienvenida', 'tour', 'prueba']);
-  assert.deepEqual(plan(miembro({ nombreCertificado: 'x' })).pasos, ['bienvenida', 'nombre', 'tour', 'prueba'], 'uno inválido no cuenta');
+  assert.deepEqual(plan(miembro({ nombreCertificado: 'Ana Pérez' })).pasos, ['bienvenida', 'premio', 'tour', 'prueba']);
+  assert.deepEqual(plan(miembro({ nombreCertificado: 'x' })).pasos, ['bienvenida', 'nombre', 'premio', 'tour', 'prueba'], 'uno inválido no cuenta');
 });
 
 test('miembro antiguo que nunca ha pagado y es elegible: UNA sola tarjeta de regreso', () => {
@@ -251,7 +253,7 @@ test('marcas: reanudar tras cerrar la pestaña (otra instancia con el mismo alma
   const b = O.crearAlmacen({ uid: 'u1', ls, ahora: () => AHORA });
   assert.deepEqual(Object.keys(b.marcas()).sort(), ['bienvenidaVista', 'nombreVisto']);
   const r = plan(miembro(), { marcas: b.marcas() });
-  assert.deepEqual(r.pasos, ['tour', 'prueba']);
+  assert.deepEqual(r.pasos, ['premio', 'tour', 'prueba']);
   const otra = O.crearAlmacen({ uid: 'otro', ls });
   assert.deepEqual(otra.marcas(), {}, 'cada cuenta tiene sus marcas');
 });
@@ -488,4 +490,118 @@ test('enganche: el panel carga los archivos y llama al orquestador', () => {
   assert.ok(html.indexOf('club.js?v=') < html.indexOf('club-onboarding.js?v='), 'club.js va primero');
   assert.match(html, /!window\.ZOO_ONBOARDING\) \{/, 'el mensaje de bienvenida anterior cede su lugar');
   for (const f of ['assets/js/club-onboarding.js', 'assets/css/club-onboarding.css', 'assets/js/admin-iconos.js']) assert.ok(fs.existsSync(path.join(RAIZ, f)), f);
+});
+
+test('enganche: el panel carga el módulo de la tarjeta de premio (JS y CSS) antes de la secuencia', () => {
+  const html = fs.readFileSync(path.join(RAIZ, 'pages/club-dashboard.html'), 'utf8');
+  assert.match(html, /assets\/css\/club-curso-premio\.css\?v=/);
+  assert.match(html, /assets\/js\/club-premios\.js\?v=/);
+  assert.match(html, /assets\/js\/club-curso-premio\.js\?v=/);
+  const i = s => html.indexOf(s);
+  assert.ok(i('admin-iconos.js?v=') < i('club-premios.js?v=') && i('club-premios.js?v=') < i('club-curso-premio.js?v=') && i('club-curso-premio.js?v=') < i('club-onboarding.js?v='));
+});
+
+/* ───────────── premio de bienvenida +100 XP ───────────── */
+
+const respSrv = (status, datos) => ({ ok: status >= 200 && status < 300, status, datos });
+const NIVEL1 = { id: 1, nombre: 'Aprendiz', xp: 100, desde: 0, hasta: 300, faltan: 200 };
+
+test('premio de bienvenida: el orden es splash, nombre, premio, tour, prueba y el premio marca "premioVisto"', () => {
+  assert.ok(O.MARCAS.includes('premioVisto'));
+  const pasos = plan(miembro()).pasos;
+  assert.deepEqual(pasos, ['bienvenida', 'nombre', 'premio', 'tour', 'prueba']);
+  assert.equal(pasos.indexOf('premio') - pasos.indexOf('nombre'), 1);
+  assert.equal(pasos.indexOf('tour') - pasos.indexOf('premio'), 1);
+  assert.deepEqual(plan(miembro(), { marcas: { premioVisto: '2026-10-15T10:00:00.000Z' } }).pasos, ['bienvenida', 'nombre', 'tour', 'prueba']);
+  assert.deepEqual(plan(miembro({ role: 'admin' })).pasos, [], 'a un admin nunca se le muestra nada');
+  assert.deepEqual(plan(miembro({ createdAt: diasAtras(120) })).pasos, ['retorno'], 'el premio es solo de la secuencia del miembro nuevo');
+});
+
+test('reclamarPremioBienvenida: nuevo, ya reclamado, no aplica (400/403) y error', async () => {
+  const llamadas = [];
+  const con = (r) => async (ruta, metodo) => { llamadas.push([ruta, metodo]); if (r instanceof Error) throw r; return r; };
+  assert.equal((await O.reclamarPremioBienvenida({ pedir: con(respSrv(200, { ok: true, xp: 100, yaReclamado: false, xpTotal: 100, nivel: NIVEL1 })) })).estado, 'nuevo');
+  assert.deepEqual(llamadas[0], ['/api/premios/bienvenida', 'POST']);
+  assert.equal((await O.reclamarPremioBienvenida({ pedir: con(respSrv(200, { ok: true, xp: 100, yaReclamado: true })) })).estado, 'ya');
+  assert.equal((await O.reclamarPremioBienvenida({ pedir: con(respSrv(403, { error: 'Tu cuenta ya no es nueva.' })) })).estado, 'no-aplica');
+  assert.equal((await O.reclamarPremioBienvenida({ pedir: con(respSrv(400, { error: 'x' })) })).estado, 'no-aplica');
+  for (const mala of [respSrv(500, { error: 'x' }), respSrv(200, null), respSrv(200, { ok: false }), respSrv(401, {}), null, new Error('sin red')]) {
+    assert.equal((await O.reclamarPremioBienvenida({ pedir: con(mala) })).estado, 'error', String(mala && mala.status));
+  }
+  assert.equal((await O.reclamarPremioBienvenida({})).estado, 'error', 'sin función para pedir no truena');
+});
+
+test('reclamarPremioBienvenida: un servidor que no contesta no atora la secuencia', async () => {
+  const t0 = Date.now();
+  const r = await O.reclamarPremioBienvenida({ pedir: () => new Promise(() => {}), timeoutMs: 30 });
+  assert.equal(r.estado, 'error');
+  assert.ok(Date.now() - t0 < 1500);
+});
+
+function modulosFalsos(resp) {
+  const bitacora = { pedidos: [], tarjetas: [] };
+  const tarjetas = {
+    calcularBienvenida: d => (d && d.ok ? { tipo: 'bienvenida', xp: d.xp } : null),
+    mostrarBienvenida: async (info, opc) => { bitacora.tarjetas.push({ info, opc }); return { como: 'accion' }; }
+  };
+  const pedirPremios = async (ruta, metodo) => { bitacora.pedidos.push([ruta, metodo]); if (resp instanceof Error) throw resp; return resp; };
+  return { bitacora, tarjetas, pedirPremios };
+}
+
+test('paso "premio": si es nuevo, pide el premio, muestra la tarjeta y se marca como visto', async () => {
+  const m = modulosFalsos(respSrv(200, { ok: true, xp: 100, yaReclamado: false, xpTotal: 100, nivel: NIVEL1 }));
+  const r = await O.mostrarPremioBienvenida({ session: miembro(), tarjetas: m.tarjetas, pedirPremios: m.pedirPremios });
+  assert.equal(r.como, 'visto');
+  assert.ok(!r.sinMarcar);
+  assert.equal(m.bitacora.tarjetas.length, 1);
+  assert.deepEqual(m.bitacora.tarjetas[0].opc, { sinMembresia: true }, 'sin plan se avisa que el XP queda guardado');
+  const vence = new Date(Date.now() + 20 * 86400000).toISOString();
+  const con = await O.mostrarPremioBienvenida({ session: miembro({ planActivo: true, planStatus: 'active', planVence: vence }), tarjetas: m.tarjetas, pedirPremios: m.pedirPremios });
+  assert.equal(con.como, 'visto');
+  assert.deepEqual(m.bitacora.tarjetas[1].opc, { sinMembresia: false });
+});
+
+test('paso "premio": ya reclamado o 403 -> NO sale la tarjeta, se marca visto y la secuencia sigue', async () => {
+  for (const resp of [respSrv(200, { ok: true, xp: 100, yaReclamado: true }), respSrv(403, { error: 'No aplica' })]) {
+    const m = modulosFalsos(resp);
+    const r = await O.mostrarPremioBienvenida({ session: miembro(), tarjetas: m.tarjetas, pedirPremios: m.pedirPremios });
+    assert.equal(m.bitacora.tarjetas.length, 0);
+    assert.ok(!r.sinMarcar, 'se marca como visto para no volver a intentarlo');
+  }
+});
+
+test('paso "premio": si el servidor falla o falta un módulo, no sale la tarjeta, NO se marca y no truena', async () => {
+  const falla = modulosFalsos(respSrv(500, { error: 'x' }));
+  const r1 = await O.mostrarPremioBienvenida({ session: miembro(), tarjetas: falla.tarjetas, pedirPremios: falla.pedirPremios });
+  assert.equal(r1.sinMarcar, true);
+  assert.equal(falla.bitacora.tarjetas.length, 0);
+  const red = modulosFalsos(new Error('sin red'));
+  assert.equal((await O.mostrarPremioBienvenida({ session: miembro(), tarjetas: red.tarjetas, pedirPremios: red.pedirPremios })).sinMarcar, true);
+  const sinModulo = await O.mostrarPremioBienvenida({ session: miembro(), tarjetas: null, pedirPremios: falla.pedirPremios });
+  assert.equal(sinModulo.sinMarcar, true);
+  assert.equal(falla.bitacora.pedidos.length, 1, 'sin el módulo de la tarjeta ni siquiera se pide el premio');
+});
+
+test('la secuencia completa corre en el orden nuevo y un premio que falla no traba el recorrido ni la prueba', async () => {
+  const vistos = [];
+  const falla = modulosFalsos(respSrv(500, {}));
+  await O.ejecutarSecuencia(['bienvenida', 'nombre', 'premio', 'tour', 'prueba'], {
+    bienvenida: async () => { vistos.push('bienvenida'); },
+    nombre: async () => { vistos.push('nombre'); },
+    premio: async () => { const r = await O.mostrarPremioBienvenida({ session: miembro(), tarjetas: falla.tarjetas, pedirPremios: falla.pedirPremios }); vistos.push('premio:' + r.como); },
+    tour: async () => { vistos.push('tour'); },
+    prueba: async () => { vistos.push('prueba'); }
+  });
+  assert.deepEqual(vistos, ['bienvenida', 'nombre', 'premio:error', 'tour', 'prueba']);
+});
+
+test('el orquestador tiene el paso "premio" en la tabla de pantallas y no marca premioVisto cuando falla', () => {
+  const fuente = fs.readFileSync(path.join(RAIZ, 'assets/js/club-onboarding.js'), 'utf8');
+  assert.match(fuente, /premio: function \(\) \{[\s\S]*mostrarPremioBienvenida\(ctx\)[\s\S]*almacen\.marcar\('premioVisto'\)/);
+  assert.match(fuente, /r && r\.sinMarcar/);
+});
+
+test('el módulo de onboarding sigue sin emojis (pantallas nuevas con SVG)', () => {
+  const t = fs.readFileSync(path.join(RAIZ, 'assets/js/club-onboarding.js'), 'utf8');
+  assert.equal(/\p{Extended_Pictographic}/u.test(t), false);
 });

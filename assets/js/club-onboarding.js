@@ -2,8 +2,8 @@
 /* SECUENCIA DE BIENVENIDA · Club VIP Zoorigen                   */
 /*                                                                */
 /* Miembro nuevo : bienvenida con confeti -> nombre del           */
-/*                 certificado -> recorrido guiado -> prueba      */
-/*                 gratuita.                                      */
+/*                 certificado -> premio de bienvenida (+100 XP)  */
+/*                 -> recorrido guiado -> prueba gratuita.        */
 /* Miembro antiguo que nunca ha pagado: UNA tarjeta de            */
 /*                 "¡Bienvenido de nuevo!" con la prueba gratuita.*/
 /* Admins: nunca se les muestra nada.                             */
@@ -23,7 +23,8 @@
 
   /* ───────────────────────── Constantes ───────────────────────── */
 
-  var MARCAS = ['bienvenidaVista', 'nombreVisto', 'tourVisto', 'pruebaIntroVista', 'retornoVisto'];
+  var MARCAS = ['bienvenidaVista', 'nombreVisto', 'premioVisto', 'tourVisto', 'pruebaIntroVista', 'retornoVisto'];
+  var RUTA_PREMIO_BIENVENIDA = '/api/premios/bienvenida';
   var NOMBRE_MIN = 3;
   var NOMBRE_MAX = 38;
   var NOMBRE_AVISO = 32;          // desde aquí se avisa que se acerca al límite
@@ -354,6 +355,9 @@
       // Con plan activo ya sale el modal de bienvenida VIP de club.js: no se duplica.
       if (!tienePlanActivo(session) && !marcas.bienvenidaVista) pasos.push('bienvenida');
       if (!marcas.nombreVisto && !tieneNombreCertificado(session)) pasos.push('nombre');
+      // Premio de bienvenida (+100 XP): después del nombre y antes del recorrido. Si el servidor dice que ya se
+      // reclamó (o la cuenta no aplica), la tarjeta no sale y la secuencia sigue.
+      if (!marcas.premioVisto) pasos.push('premio');
       if (!marcas.tourVisto) pasos.push('tour');
       var hayPrueba = o.estado === undefined ? pruebaPosible(session) : puedeVerPrueba(o.estado, session);
       if (!marcas.pruebaIntroVista && hayPrueba) pasos.push('prueba');
@@ -361,6 +365,24 @@
       pasos.push('retorno');
     }
     return { tipo: tipo, pasos: pasos };
+  }
+
+  // Pide el premio de bienvenida al servidor. pedir(ruta, metodo, cuerpo, ms) → Promise<{ok,status,datos}>.
+  // Devuelve { estado, datos }:
+  //   'nuevo'     → se acaba de dar el premio: hay que mostrar la tarjeta
+  //   'ya'        → ya lo había reclamado: sin tarjeta, se marca como visto
+  //   'no-aplica' → 400/403 (cuenta no nueva, admin…): sin tarjeta, se marca como visto
+  //   'error'     → sin red / servidor caído / respuesta rara: sin tarjeta y NO se marca (se reintenta otro día)
+  function reclamarPremioBienvenida(o) {
+    o = o || {};
+    if (typeof o.pedir !== 'function') return Promise.resolve({ estado: 'error', datos: null });
+    return conLimite(Promise.resolve().then(function () { return o.pedir(RUTA_PREMIO_BIENVENIDA, 'POST', {}, o.timeoutMs || 8000); }), (o.timeoutMs || 8000) + 1000).then(function (r) {
+      if (!r) return { estado: 'error', datos: null };
+      if (r.status === 400 || r.status === 403) return { estado: 'no-aplica', datos: r.datos || null };
+      if (!r.ok || !r.datos || typeof r.datos !== 'object' || r.datos.ok === false) return { estado: 'error', datos: null };
+      if (r.datos.yaReclamado === true) return { estado: 'ya', datos: r.datos };
+      return { estado: 'nuevo', datos: r.datos };
+    }).catch(function () { return { estado: 'error', datos: null }; });
   }
 
   // Ejecuta las pantallas una a una. esperarLibre() devuelve false si no se pudo (entonces se corta y
@@ -801,6 +823,23 @@
     });
   }
 
+  /* ── 2b) Premio de bienvenida +100 XP (tarjeta hermana de "Curso completado") ── */
+  // Si falta el módulo de la tarjeta o el de premios, ni siquiera se pide el premio (no se reclama algo que no se ve).
+  function mostrarPremioBienvenida(ctx) {
+    var tarjetas = ctx.tarjetas || (typeof window !== 'undefined' ? window.ZOO_CURSO_PREMIO : null);
+    var pedir = ctx.pedirPremios || (typeof window !== 'undefined' && window.ZOO_PREMIOS ? window.ZOO_PREMIOS.pedir : null);
+    if (!tarjetas || typeof tarjetas.mostrarBienvenida !== 'function' || typeof pedir !== 'function') return Promise.resolve({ como: 'sin-modulo', sinMarcar: true });
+    return reclamarPremioBienvenida({ pedir: pedir }).then(function (r) {
+      if (r.estado === 'error') return { como: 'error', sinMarcar: true };
+      if (r.estado !== 'nuevo') return { como: r.estado };
+      var info = tarjetas.calcularBienvenida ? tarjetas.calcularBienvenida(r.datos) : null;
+      if (!info) return { como: 'sin-datos' };
+      return Promise.resolve(tarjetas.mostrarBienvenida(info, { sinMembresia: !tienePlanActivo(ctx.session) })).then(function (v) {
+        return { como: 'visto', cierre: v && v.como };
+      });
+    }).catch(function () { return { como: 'error', sinMarcar: true }; });
+  }
+
   /* ── 4) Tarjetas de la prueba gratuita (miembro nuevo / miembro que vuelve) ── */
   function irAElegirCurso() { window.location.href = URL_ELEGIR_CURSO; }
 
@@ -1171,7 +1210,9 @@
       marcarYEsperar: function (id) {
         return conLimite(almacen.marcar(id), 1500).catch(function () { return false; });
       },
-      irAElegir: o.irAElegir
+      irAElegir: o.irAElegir,
+      pedirPremios: o.pedirPremios,   // pruebas: sustituye a ZOO_PREMIOS.pedir
+      tarjetas: o.tarjetas            // pruebas: sustituye a ZOO_CURSO_PREMIO
     };
     estado.contexto = ctx;
     instalarBotonRepetir(ctx);
@@ -1200,6 +1241,9 @@
         var mostrar = {
           bienvenida: function () { return mostrarBienvenida(ctx).then(function (r) { return almacen.marcar('bienvenidaVista').then(function () { return r; }); }); },
           nombre: function () { return mostrarNombre(ctx).then(function (r) { return almacen.marcar('nombreVisto').then(function () { return r; }); }); },
+          premio: function () {
+            return mostrarPremioBienvenida(ctx).then(function (r) { return (r && r.sinMarcar ? Promise.resolve() : almacen.marcar('premioVisto')).then(function () { return r; }); });
+          },
           tour: function () { return correrRecorrido(ctx).then(function (r) { return (r && r.como === 'en-curso' ? Promise.resolve() : almacen.marcar('tourVisto')).then(function () { return r; }); }); },
           prueba: function () {
             return mostrarTarjetaPrueba(ctx, 'nuevo').then(function (r) { return almacen.marcar('pruebaIntroVista').then(function () { return r; }); });
@@ -1235,6 +1279,7 @@
     guardarNombreCertificado: guardarNombreCertificado,
     normalizarEstadoPrueba: normalizarEstadoPrueba, pedirEstadoPrueba: pedirEstadoPrueba, puedeVerPrueba: puedeVerPrueba,
     esCuentaNueva: esCuentaNueva, clasificar: clasificar, planificar: planificar, ejecutarSecuencia: ejecutarSecuencia,
+    reclamarPremioBienvenida: reclamarPremioBienvenida, mostrarPremioBienvenida: mostrarPremioBienvenida, RUTA_PREMIO_BIENVENIDA: RUTA_PREMIO_BIENVENIDA,
     diapositivas: diapositivas, pasosTour: pasosTour, calcularLayoutTour: calcularLayoutTour,
     // pantallas
     iniciar: iniciar, repetirRecorrido: repetirRecorrido
