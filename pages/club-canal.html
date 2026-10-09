@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canal de WhatsApp · Club VIP Zoorigen</title>
+  <!-- ===== PWA ===== -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1F5F3A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Zoorigen">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261016">
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <button class="mobile-menu-btn mobile-menu-btn--float" id="mobileMenuBtn" aria-label="Menú">☰</button>
+      <div class="zc-wrap">
+        <div class="page-header">
+          <h1>Canal de WhatsApp</h1>
+          <p>Novedades oficiales de Zoorigen directo en tu teléfono.</p>
+        </div>
+
+        <section class="zk-hero" aria-labelledby="zkTitulo">
+          <div class="zk-hero__icono" id="zkIcono"></div>
+          <div class="zk-hero__texto">
+            <h2 id="zkTitulo">Únete al canal de la comunidad</h2>
+            <p>Avisos de webinars en vivo, cursos nuevos, noticias de fauna y recursos para miembros. Recibes lo importante sin tener que entrar al club.</p>
+            <div class="zk-hero__botones" id="zkBotones"></div>
+          </div>
+        </section>
+
+        <div class="zk-bloqueo" id="zkBloqueo" hidden>
+          <p><strong>El canal es para miembros con membresía activa.</strong> Puedes ver cómo funciona, y al suscribirte podrás entrar.</p>
+          <a class="zc-btn zc-btn--primario" href="club-suscripcion.html">Suscribirme</a>
+        </div>
+
+        <section class="zc-card" aria-labelledby="zkReglasTitulo">
+          <h2 id="zkReglasTitulo"><span id="zkIconoReglas"></span>Reglas de la comunidad</h2>
+          <p class="zc-card__sub">Para que el canal siga siendo un lugar útil y seguro, pedimos a todas las personas cumplir estas cuatro reglas.</p>
+          <ul class="zk-reglas" id="zkReglas"></ul>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js?v=20261016-comunidad"></script>
+  <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
+  <script src="../assets/js/club-referidos.js?v=20261016"></script>
+  <script>
+    // Dirección del canal. Hoy es el chat de WhatsApp de Zoorigen para pedir entrada; cuando exista el enlace
+    // directo del canal (https://whatsapp.com/channel/...), basta con cambiar esta constante.
+    const ZOO_CANAL_URL = 'https://wa.me/5212361113237?text=Hola%20quiero%20entrar%20al%20canal%20VIP%20de%20Zoorigen';
+
+    const REGLAS = [
+      { icono: 'heart-handshake', titulo: 'Respeto ante todo', texto: 'Trata con amabilidad a todas las personas. No se permiten insultos, burlas ni discriminación.' },
+      { icono: 'ban', titulo: 'Sin spam', texto: 'Nada de publicidad, cadenas, enlaces repetidos ni mensajes ajenos a la comunidad.' },
+      { icono: 'message-circle', titulo: 'Temas de fauna', texto: 'Comparte y pregunta sobre manejo, conservación, biología y fauna silvestre de México.' },
+      { icono: 'shield-check', titulo: 'Sin venta de animales ni tráfico', texto: 'Está prohibido ofrecer, comprar o intercambiar animales silvestres, sus partes o productos.' }
+    ];
+
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('canal', session);
+      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
+      const I = window.ZOO_ICONOS_COM;
+      const R = window.ZOO_REFERIDOS;
+      const membresia = ZOORIGEN_CLUB.hasActiveMembership(session);
+
+      document.getElementById('zkIcono').innerHTML = I.svg('message-circle', { size: 42, trazo: 1.8 });
+      document.getElementById('zkIconoReglas').innerHTML = I.svg('shield-check', { size: 18 });
+      document.getElementById('zkReglas').innerHTML = REGLAS.map(r =>
+        `<li class="zk-regla">${I.svg(r.icono, { size: 22 })}<strong>${R.esc(r.titulo)}</strong><span>${R.esc(r.texto)}</span></li>`).join('');
+
+      // "Compartir invitación" manda tu enlace de invitado (así tus amigos cuentan para tus premios), no el canal.
+      const enlace = R.enlaceLocal(R.codigoLocal(session.uid));
+      const compartir = R.enlacesCompartir(enlace).whatsapp;
+
+      const abrir = membresia
+        ? `<a class="zc-btn zk-btn-blanco" href="${R.esc(ZOO_CANAL_URL)}" target="_blank" rel="noopener noreferrer">Abrir canal</a>`
+        : `<a class="zc-btn zk-btn-blanco" href="club-suscripcion.html">Suscribirme</a>`;
+      document.getElementById('zkBotones').innerHTML = abrir +
+        `<a class="zc-btn zk-btn-borde" href="${R.esc(compartir)}" target="_blank" rel="noopener noreferrer">${I.svg('share-2', { size: 16 })}Compartir invitación</a>`;
+      if (!membresia) document.getElementById('zkBloqueo').hidden = false;
+    })();
+  </script>
+<script>
+  // ===== PWA: registro del service worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('SW no registrado:', err); });
+    });
+  }
+</script>
+</body>
+</html>

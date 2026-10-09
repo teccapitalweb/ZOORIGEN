@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Directorio VIP · Club VIP Zoorigen</title>
+  <!-- ===== PWA ===== -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1F5F3A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Zoorigen">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261016">
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <button class="mobile-menu-btn mobile-menu-btn--float" id="mobileMenuBtn" aria-label="Menú">☰</button>
+      <div class="zc-wrap">
+        <div class="page-header">
+          <h1>Directorio VIP</h1>
+          <p>Conoce a otras personas de la comunidad que trabajan con fauna silvestre. Crea tu tarjeta para que te encuentren y contacta a quien quieras.</p>
+        </div>
+
+        <div class="zd-barra">
+          <div class="zd-buscar" id="zdBuscarCaja">
+            <label for="zdBuscar" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Buscar en el directorio</label>
+            <input type="search" id="zdBuscar" placeholder="Buscar por nombre, profesión o ciudad" autocomplete="off" maxlength="80">
+          </div>
+          <button type="button" class="zc-btn zc-btn--primario" id="zdMiTarjeta" hidden></button>
+        </div>
+        <div class="zd-chips" id="zdChips" role="group" aria-label="Filtrar por sector"></div>
+
+        <div id="zdContenido" aria-live="polite">
+          <div class="zd-grid"><div class="zc-esqueleto" style="height:170px"></div><div class="zc-esqueleto" style="height:170px"></div><div class="zc-esqueleto" style="height:170px"></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js?v=20261016-comunidad"></script>
+  <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
+  <script src="../assets/js/club-directorio.js?v=20261016"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('directorio', session);
+      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
+      const D = window.ZOO_DIRECTORIO;
+      const I = window.ZOO_ICONOS_COM;
+      const $ = (id) => document.getElementById(id);
+      const contenido = $('zdContenido');
+      const btnMia = $('zdMiTarjeta');
+      const buscador = $('zdBuscar');
+
+      let datos = null;            // respuesta normalizada del servidor
+      let sector = 'Todos';
+      let q = '';
+
+      $('zdBuscarCaja').insertAdjacentHTML('afterbegin', I.svg('search', { size: 18 }));
+      $('zdChips').innerHTML = D.renderChips(sector);
+
+      function aviso(msg) {
+        const t = document.createElement('div');
+        t.className = 'zc-toast'; t.setAttribute('role', 'status'); t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3200);
+      }
+
+      /* ───────── Pintar ───────── */
+      function pintar() {
+        if (!datos) return;
+        if (!datos.membresia) {
+          // Sin membresía: vista previa con las tarjetas de ejemplo que manda el servidor (sin contactos).
+          contenido.innerHTML = `
+            <div class="zd-vista">
+              <div class="zd-vista__rejilla" aria-hidden="true">${D.renderLista(datos.tarjetas.slice(0, 3), { sinContacto: true })}</div>
+              <div class="zd-vista__cta"><div class="zd-vista__caja">
+                ${I.svg('crown', { size: 30 })}
+                <strong>Conoce a los profesionales de la comunidad</strong>
+                <p>${D.esc(D.TEXTOS.vistaPrevia)}</p>
+                <a class="zc-btn zc-btn--primario" href="club-suscripcion.html">Suscribirme</a>
+              </div></div>
+            </div>`;
+          return;
+        }
+        const lista = D.filtrar(datos.tarjetas, { sector, q });
+        contenido.innerHTML = D.renderLista(lista, { miUid: session.uid, filtrando: sector !== 'Todos' || q.trim() !== '' });
+      }
+
+      function prepararBotonMia() {
+        btnMia.hidden = false;
+        if (!datos.membresia) {
+          btnMia.innerHTML = 'Suscribirme';
+          btnMia.dataset.modo = 'suscribir';
+          $('zdBuscarCaja').style.display = 'none';
+          $('zdChips').style.display = 'none';
+        } else {
+          btnMia.innerHTML = I.svg('pencil', { size: 16 }) + (datos.mia ? 'Editar mi tarjeta' : 'Crear mi tarjeta');
+          btnMia.dataset.modo = 'tarjeta';
+          $('zdBuscarCaja').style.display = '';
+          $('zdChips').style.display = '';
+        }
+      }
+
+      /* ───────── Cargar ───────── */
+      async function cargar() {
+        try {
+          const resp = await ZOORIGEN_CLUB.apiFetch('/api/directorio');
+          datos = D.normalizarRespuesta(resp);
+          prepararBotonMia();
+          pintar();
+        } catch (err) {
+          console.warn('directorio:', err);
+          btnMia.hidden = true;
+          contenido.innerHTML = D.renderError(err && err.status === 0 ? D.TEXTOS.error : (err && err.message) || D.TEXTOS.error);
+        }
+      }
+      contenido.addEventListener('click', (ev) => {
+        if (ev.target.closest('[data-reintentar]')) {
+          contenido.innerHTML = '<div class="zd-grid"><div class="zc-esqueleto" style="height:170px"></div><div class="zc-esqueleto" style="height:170px"></div></div>';
+          cargar();
+        }
+      });
+
+      buscador.addEventListener('input', () => { q = buscador.value; pintar(); });
+      $('zdChips').addEventListener('click', (ev) => {
+        const chip = ev.target.closest('[data-sector]');
+        if (!chip) return;
+        sector = chip.dataset.sector;
+        $('zdChips').innerHTML = D.renderChips(sector);
+        pintar();
+      });
+
+      /* ───────── Mi tarjeta (crear, editar, borrar) ───────── */
+      let abierto = null;
+      function cerrarModal() {
+        if (!abierto) return;
+        document.removeEventListener('keydown', abierto.teclas);
+        abierto.nodo.remove();
+        document.body.style.overflow = '';
+        const volver = abierto.volverA;
+        abierto = null;
+        if (volver && volver.focus) volver.focus();
+      }
+
+      function abrirModal() {
+        if (abierto) return;
+        const mia = datos && datos.mia;
+        const nodo = document.createElement('div');
+        nodo.className = 'zd-modal';
+        nodo.innerHTML = `
+          <div class="zd-modal__caja" role="dialog" aria-modal="true" aria-labelledby="zdModalTitulo">
+            <h2 id="zdModalTitulo">${mia ? 'Editar mi tarjeta' : 'Crear mi tarjeta'}</h2>
+            <p>Esto es lo que verá el resto de la comunidad. Los datos de contacto son opcionales: pon solo los que quieras compartir.</p>
+            <form id="zdForm" novalidate>
+              <div class="zd-general" id="zdGeneral" role="alert"></div>
+              <div class="zd-campo" data-campo="nombre"><label for="zdNombre">Nombre visible</label><input id="zdNombre" type="text" maxlength="60" autocomplete="name" required><div class="zd-error" id="zdErr-nombre"></div></div>
+              <div class="zd-campo" data-campo="profesion"><label for="zdProfesion">Profesión u ocupación</label><input id="zdProfesion" type="text" maxlength="80" placeholder="Ej. Médica veterinaria de fauna silvestre" required><div class="zd-error" id="zdErr-profesion"></div></div>
+              <div class="zd-fila">
+                <div class="zd-campo" data-campo="sector"><label for="zdSector">Sector</label><select id="zdSector" required><option value="">Elige una opción</option>${D.SECTORES.map(s => `<option value="${D.esc(s)}">${D.esc(s)}</option>`).join('')}</select><div class="zd-error" id="zdErr-sector"></div></div>
+                <div class="zd-campo" data-campo="ciudad"><label for="zdCiudad">Ciudad o estado</label><input id="zdCiudad" type="text" maxlength="60" autocomplete="address-level2" required><div class="zd-error" id="zdErr-ciudad"></div></div>
+              </div>
+              <div class="zd-campo" data-campo="bio"><label for="zdBio">Presentación <small>(opcional, hasta 280 caracteres)</small></label><textarea id="zdBio" maxlength="280"></textarea><div class="zd-contador" id="zdContador">0 / 280</div><div class="zd-error" id="zdErr-bio"></div></div>
+              <div class="zd-campo" data-campo="whatsapp"><label for="zdWhatsapp">WhatsApp <small>(opcional)</small></label><input id="zdWhatsapp" type="tel" inputmode="tel" maxlength="24" placeholder="10 dígitos, ej. 5512345678" autocomplete="tel"><div class="zd-error" id="zdErr-whatsapp"></div></div>
+              <div class="zd-campo" data-campo="correo"><label for="zdCorreo">Correo de contacto <small>(opcional)</small></label><input id="zdCorreo" type="email" maxlength="120" autocomplete="email"><div class="zd-error" id="zdErr-correo"></div></div>
+              <div class="zd-campo" data-campo="linkedin"><label for="zdLinkedin">LinkedIn <small>(opcional)</small></label><input id="zdLinkedin" type="url" maxlength="200" placeholder="linkedin.com/in/tu-nombre"><div class="zd-error" id="zdErr-linkedin"></div></div>
+              <div class="zd-acciones" id="zdAcciones">
+                ${mia ? '<button type="button" class="zc-btn zc-btn--peligro zd-borrar" id="zdBorrar">Borrar mi tarjeta</button>' : ''}
+                <button type="button" class="zc-btn zc-btn--suave" id="zdCancelar">Cancelar</button>
+                <button type="submit" class="zc-btn zc-btn--primario" id="zdGuardar">Guardar</button>
+              </div>
+            </form>
+          </div>`;
+        document.body.appendChild(nodo);
+        document.body.style.overflow = 'hidden';
+
+        // Los datos se ponen como valores (nunca dentro del HTML).
+        const f = (id) => nodo.querySelector('#' + id);
+        const c = (mia && mia.contacto) || {};
+        f('zdNombre').value = (mia && mia.nombre) || (session.name || '').slice(0, 60);
+        f('zdProfesion').value = (mia && mia.profesion) || '';
+        f('zdSector').value = (mia && mia.sector) || '';
+        f('zdCiudad').value = (mia && mia.ciudad) || '';
+        f('zdBio').value = (mia && mia.bio) || '';
+        f('zdWhatsapp').value = c.whatsapp || '';
+        f('zdCorreo').value = c.correo || '';
+        f('zdLinkedin').value = c.linkedin || '';
+
+        const contar = () => { f('zdContador').textContent = f('zdBio').value.length + ' / 280'; };
+        f('zdBio').addEventListener('input', contar); contar();
+
+        const ponerErrores = (errores) => {
+          nodo.querySelectorAll('.zd-campo').forEach((campo) => {
+            const msg = errores[campo.dataset.campo] || '';
+            campo.classList.toggle('tiene-error', !!msg);
+            const el = campo.querySelector('.zd-error'); if (el) el.textContent = msg;
+            const input = campo.querySelector('input,select,textarea');
+            if (input) { if (msg) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid'); }
+          });
+        };
+        const general = (t) => { f('zdGeneral').textContent = t || ''; };
+        const entrada = () => ({
+          nombre: f('zdNombre').value, profesion: f('zdProfesion').value, sector: f('zdSector').value, ciudad: f('zdCiudad').value,
+          bio: f('zdBio').value, whatsapp: f('zdWhatsapp').value, correo: f('zdCorreo').value, linkedin: f('zdLinkedin').value
+        });
+
+        const teclas = (ev) => { if (ev.key === 'Escape') cerrarModal(); };
+        document.addEventListener('keydown', teclas);
+        abierto = { nodo, teclas, volverA: btnMia };
+
+        f('zdCancelar').addEventListener('click', cerrarModal);
+
+        nodo.querySelector('#zdForm').addEventListener('submit', async (ev) => {
+          ev.preventDefault();
+          general('');
+          const r = D.validarTarjeta(entrada());
+          ponerErrores(r.errores);
+          if (!r.ok) {
+            const primero = nodo.querySelector('.tiene-error input, .tiene-error select, .tiene-error textarea');
+            if (primero) primero.focus();
+            return;
+          }
+          const guardar = f('zdGuardar');
+          guardar.disabled = true; guardar.textContent = 'Guardando...';
+          try {
+            await ZOORIGEN_CLUB.apiFetch('/api/directorio', { method: 'POST', body: r.valor });
+            cerrarModal();
+            aviso('Tu tarjeta quedó guardada.');
+            await cargar();
+          } catch (err) {
+            general(err && err.message ? err.message : 'No se pudo guardar tu tarjeta. Inténtalo de nuevo.');
+            guardar.disabled = false; guardar.textContent = 'Guardar';
+          }
+        });
+
+        const borrar = f('zdBorrar');
+        if (borrar) borrar.addEventListener('click', () => {
+          const acciones = f('zdAcciones');
+          acciones.innerHTML = `
+            <span style="margin-right:auto;font-size:.88rem;color:var(--zoo-text);font-weight:600;">¿Borrar tu tarjeta? Dejarás de aparecer en el directorio.</span>
+            <button type="button" class="zc-btn zc-btn--suave" id="zdNoBorrar">No, conservarla</button>
+            <button type="button" class="zc-btn zc-btn--peligro" id="zdSiBorrar">Sí, borrar</button>`;
+          f('zdNoBorrar').addEventListener('click', () => { cerrarModal(); abrirModal(); });
+          f('zdSiBorrar').addEventListener('click', async () => {
+            const b = f('zdSiBorrar'); b.disabled = true; b.textContent = 'Borrando...';
+            try {
+              await ZOORIGEN_CLUB.apiFetch('/api/directorio', { method: 'DELETE' });
+              cerrarModal();
+              aviso('Tu tarjeta se borró del directorio.');
+              await cargar();
+            } catch (err) {
+              general(err && err.message ? err.message : 'No se pudo borrar tu tarjeta. Inténtalo de nuevo.');
+              b.disabled = false; b.textContent = 'Sí, borrar';
+            }
+          });
+        });
+
+        f('zdNombre').focus();
+      }
+
+      btnMia.addEventListener('click', () => {
+        if (btnMia.dataset.modo === 'suscribir') { window.location.href = 'club-suscripcion.html'; return; }
+        abrirModal();
+      });
+
+      cargar();
+    })();
+  </script>
+<script>
+  // ===== PWA: registro del service worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('SW no registrado:', err); });
+    });
+  }
+</script>
+</body>
+</html>

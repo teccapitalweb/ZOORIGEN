@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261016">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261015">
   <style>
     /* ═══════════════ NOTIFICACIONES ═══════════════ */
@@ -517,6 +518,7 @@
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
       <div id="pendingBanner"></div>
+      <div id="avisoCorreo"></div>
 
       <div class="club-main__header">
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button>
@@ -587,19 +589,20 @@
 
           <!-- ════ SECCIÓN INVITAR AMIGOS ════ -->
           <div>
-            <div class="section-title">🎁 Invita amigos y gana meses gratis</div>
+            <div class="section-title">Invita amigos y gana cursos antes de tiempo</div>
             <div class="dash-refer-card" data-vip-required data-vip-label="obtener tu código de referido">
               <div class="dash-refer-icon">🎁</div>
               <div class="dash-refer-body">
-                <h3>Invita a 3 amigos = 1 mes gratis</h3>
-                <p>Comparte tu código único. Por cada 3 amigos que se suscriban con él, te regalamos 1 mes VIP sin costo.</p>
+                <h3>Invita a 3 amigos y adelanta un curso</h3>
+                <p>Comparte tu código. Cuando 3 amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha. Con 6, ganas otro.</p>
                 <div class="dash-refer-code-box">
                   <span class="dash-refer-code-label">Tu código:</span>
                   <code id="dashRefCode">ZOO-XXXXXX</code>
                   <button class="dash-refer-copy" onclick="copyReferCode()">Copiar</button>
                 </div>
                 <div class="dash-refer-stats" id="dashReferStats"></div>
-                <button class="dash-refer-share" onclick="shareReferLink()">📤 Compartir por WhatsApp</button>
+                <button class="dash-refer-share" onclick="shareReferLink()">Compartir por WhatsApp</button>
+                <a href="club-referidos.html" style="display:inline-block;margin-left:10px;color:#fff;font-weight:700;font-size:.88rem;text-decoration:underline;">Ver mis invitados</a>
               </div>
             </div>
           </div>
@@ -614,10 +617,10 @@
             <div class="aside-card__title">Cargando sesión...</div>
           </div>
 
-          <a href="https://wa.me/5212361113237?text=Hola%20quiero%20entrar%20al%20canal%20VIP%20de%20Zoorigen" target="_blank" class="card aside-channel">
+          <a href="club-canal.html" class="card aside-channel">
             <div class="aside-channel__icon">💬</div>
             <div>
-              <div style="color:#fff;font-weight:600;font-size:.92rem;">Canal Zoorigen</div>
+              <div style="color:var(--zoo-text,#fff);font-weight:600;font-size:.92rem;">Canal Zoorigen</div>
               <div style="color:var(--zoo-text-dim);font-size:.8rem;">Novedades oficiales</div>
             </div>
           </a>
@@ -637,8 +640,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261015-gratis"></script>
+  <script src="../assets/js/club.js?v=20261016-comunidad"></script>
   <script src="../assets/js/admin-iconos.js?v=20261015"></script>
+  <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
   <script src="../assets/js/club-onboarding.js?v=20261015"></script>
   <script>
     (async () => {
@@ -997,12 +1001,80 @@
       // ════════════════════════════════════════════
       // SISTEMA DE GAMIFICACIÓN
       // ════════════════════════════════════════════
-      const progress = ZOORIGEN_CLUB.getProgress(session);
+      // Si el registro del invitado no alcanzó a llegar al servidor, se reintenta UNA vez (no bloquea nada).
+      try { ZOORIGEN_CLUB.reintentarReferidoPendiente(auth.currentUser); } catch (e) { /* nada */ }
 
-      // Solo mostrar nivel y stats si es VIP activo
+      // Aviso discreto "Confirma tu correo" (solo cuentas de correo y contraseña sin confirmar; Google no lo muestra).
+      // Confirmarlo NO es requisito para usar el club.
+      (function avisoConfirmarCorreo() {
+        const u = auth.currentUser;
+        if (!ZOORIGEN_CLUB.necesitaConfirmarCorreo(u)) return;
+        const clave = 'zoo_aviso_correo_' + u.uid;
+        try { const t = Number(localStorage.getItem(clave) || 0); if (t && Date.now() - t < 3 * 86400000) return; } catch (e) { /* sin almacenamiento */ }
+        const I = window.ZOO_ICONOS_COM;
+        const cont = document.getElementById('avisoCorreo');
+        cont.innerHTML = `
+          <div class="zc-aviso-correo" role="status">
+            ${I.svg('mail', { size: 22 })}
+            <div class="zc-aviso-correo__texto"><strong>Confirma tu correo</strong><span>Te enviamos un mensaje al crear tu cuenta. Confirmarlo protege tu cuenta; no es necesario para usar el club.</span></div>
+            <div class="zc-aviso-correo__acciones">
+              <button type="button" class="zc-btn zc-btn--suave zc-btn--chico" data-reenviar>Reenviar correo</button>
+              <button type="button" class="zc-btn zc-btn--suave zc-btn--chico" data-listo>Ya lo confirmé</button>
+              <button type="button" class="zc-aviso-correo__cerrar" data-cerrar aria-label="Descartar aviso">${I.svg('x', { size: 16 })}</button>
+            </div>
+            <p class="zc-aviso-correo__estado" data-estado aria-live="polite"></p>
+          </div>`;
+        const estado = cont.querySelector('[data-estado]');
+        const btnReenviar = cont.querySelector('[data-reenviar]');
+        const decir = (t) => { estado.textContent = t; };
+        let espera = null;
+        btnReenviar.addEventListener('click', async () => {
+          btnReenviar.disabled = true;
+          try {
+            try { auth.languageCode = 'es'; } catch (e) { /* nada */ }
+            await u.sendEmailVerification();
+            decir('Listo, te enviamos otro correo. Revisa tu bandeja de entrada y la carpeta de spam.');
+            let seg = 60;
+            espera = setInterval(() => {
+              seg--;
+              if (seg <= 0) { clearInterval(espera); btnReenviar.disabled = false; btnReenviar.textContent = 'Reenviar correo'; }
+              else btnReenviar.textContent = 'Reenviar en ' + seg + ' s';
+            }, 1000);
+          } catch (err) {
+            btnReenviar.disabled = false;
+            decir(err && err.code === 'auth/too-many-requests' ? 'Ya pediste varios correos. Espera unos minutos antes de intentar de nuevo.' : 'No pudimos enviar el correo ahora. Inténtalo más tarde.');
+          }
+        });
+        cont.querySelector('[data-listo]').addEventListener('click', async () => {
+          try { await u.reload(); } catch (e) { /* sin red */ }
+          if (u.emailVerified) { cont.innerHTML = ''; }
+          else decir('Todavía no aparece como confirmado. Abre el enlace del correo y vuelve a pulsar este botón.');
+        });
+        cont.querySelector('[data-cerrar]').addEventListener('click', () => {
+          try { localStorage.setItem(clave, String(Date.now())); } catch (e) { /* nada */ }
+          cont.innerHTML = '';
+        });
+      })();
+
+      // El nivel y los puntos los calcula el servidor (GET /api/premios). No bloquea el resto del panel.
+      // Solo se muestran si es VIP activo; si el servidor falla, la tarjeta lo dice y ofrece Reintentar.
       if (ZOORIGEN_CLUB.hasActiveMembership(session)) {
-        document.getElementById('levelCard').innerHTML = ZOORIGEN_CLUB.renderLevelCard(progress, session);
-        document.getElementById('myStatsCard').innerHTML = ZOORIGEN_CLUB.renderMyStats(progress, session);
+        const nivelCont = document.getElementById('levelCard');
+        const statsCont = document.getElementById('myStatsCard');
+        const cargarNivel = async (forzar) => {
+          try {
+            const datos = await ZOORIGEN_CLUB.fetchPremios(forzar);
+            if (!ZOORIGEN_CLUB.resumenNivel(datos)) throw new Error('respuesta incompleta');
+            nivelCont.innerHTML = ZOORIGEN_CLUB.renderLevelCard(datos);
+            statsCont.innerHTML = ZOORIGEN_CLUB.renderMyStats(datos);
+          } catch (err) {
+            console.warn('[Dashboard] nivel:', err);
+            nivelCont.innerHTML = ZOORIGEN_CLUB.renderLevelCard(null);
+            statsCont.innerHTML = '';
+          }
+        };
+        nivelCont.addEventListener('click', (ev) => { if (ev.target.closest('[data-nivel-reintentar]')) cargarNivel(true); });
+        cargarNivel(false);
       }
 
       // Card resumen de curso
@@ -1145,36 +1217,32 @@
 
     // ═══════════════ FUNCIONES DE REFERIDOS ═══════════════
     async function cargarReferidos(session) {
+      // Código de referido: ZOO- + 6 primeras letras del UID. Es el mismo que usa el servidor.
+      const refCode = 'ZOO-' + session.uid.substring(0, 6).toUpperCase();
+      document.getElementById('dashRefCode').textContent = refCode;
+      window.__zooRefCode = refCode;
+      try { await db.collection('miembros').doc(session.uid).set({ refCode }, { merge: true }); } catch (e) { /* no es necesario */ }
+
+      const statsEl = document.getElementById('dashReferStats');
       try {
-        // Generar/obtener código de referido único para este usuario
-        let refCode = session.refCode;
-        if (!refCode) {
-          // Generar código basado en uid
-          refCode = 'ZOO-' + session.uid.substring(0, 6).toUpperCase();
-          await db.collection('miembros').doc(session.uid).set({ refCode }, { merge: true });
-        }
-        document.getElementById('dashRefCode').textContent = refCode;
-        window.__zooRefCode = refCode;
-
-        // Buscar cuántos referidos tiene el usuario
-        let invitados = 0;
-        let pagados = 0;
-        try {
-          const snap = await db.collection('miembros').where('referredBy', '==', refCode).get();
-          invitados = snap.size;
-          pagados = snap.docs.filter(d => ZOORIGEN_CLUB.hasActiveMembership(d.data())).length;
-        } catch (e) { console.warn('No se pudieron leer referidos', e); }
-
-        const mesesGratis = Math.floor(pagados / 3);
-        const restantes = 3 - (pagados % 3);
-        document.getElementById('dashReferStats').innerHTML = `
-          <span><strong>${invitados}</strong> invitados</span>
-          <span><strong>${pagados}</strong> pagados</span>
-          <span><strong>${mesesGratis}</strong> meses gratis</span>
-          ${pagados % 3 !== 0 ? `<span style="margin-left:auto;color:#E8A317;font-weight:700;">¡${restantes} más para tu siguiente mes!</span>` : ''}
-        `;
+        // Los invitados los cuenta el servidor (correo confirmado y dispositivo distinto); lo escrito en el navegador ya no cuenta.
+        const r = await ZOORIGEN_CLUB.apiFetch('/api/referidos/estado', { headers: { 'X-Device-Id': ZOORIGEN_CLUB.getDeviceId() } });
+        const validos = Math.max(0, Number(r && r.validos) || 0);
+        const pendientes = Math.max(0, Number(r && r.pendientes) || 0);
+        const puntos = Math.max(0, Number(r && r.puntosTotales) || 0);
+        const listo = Array.isArray(r && r.premios) && r.premios.some(p => p && p.ganado && !p.usado);
+        const meta = validos < 3 ? 3 : 6;
+        const aviso = listo ? 'Tienes un premio listo para canjear'
+          : validos >= 6 ? 'Ya llegaste a los dos premios'
+          : 'Te faltan ' + (meta - validos) + ' para tu ' + (validos < 3 ? 'primer' : 'segundo') + ' premio';
+        statsEl.innerHTML =
+          '<span><strong>' + validos + '</strong> confirmados</span>' +
+          '<span><strong>' + pendientes + '</strong> por confirmar</span>' +
+          '<span><strong>' + puntos + '</strong> puntos</span>' +
+          '<span style="margin-left:auto;color:#E8A317;font-weight:700;">' + aviso + '</span>';
       } catch (err) {
-        console.error('Error referidos:', err);
+        console.warn('Error referidos:', err);
+        statsEl.innerHTML = '<span>No pudimos cargar tus invitados ahora. <a href="club-referidos.html" style="color:#fff;text-decoration:underline;">Ver el detalle</a></span>';
       }
     }
 
