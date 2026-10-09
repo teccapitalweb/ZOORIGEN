@@ -183,9 +183,15 @@
   /* Quita los botones sueltos que algunas páginas traían en su encabezado (tema, guía, campana):
      ahora viven en la barra superior de todas las páginas. */
   function limpiarEncabezadosViejos() {
-    document.querySelectorAll('.club-main .club-main__header .theme-toggle, .club-main .club-main__header .guide-btn, .club-main .club-main__header .notif-icon').forEach(function (el) { el.remove(); });
-    document.querySelectorAll('.club-main > #notifPanel, .club-main #notifPanel:not(.zs-notif)').forEach(function (el) { el.remove(); });
-    document.querySelectorAll('.club-main .dashboard-header-actions').forEach(function (el) { if (!el.children.length) el.remove(); });
+    var quitar = '.club-main .theme-toggle, .club-main .guide-btn, .club-main .notif-icon:not(.zs-bell), .club-main .mobile-menu-btn, .club-main .notif-panel:not(.zs-notif)';
+    document.querySelectorAll(quitar).forEach(function (el) {
+      var padre = el.parentElement;
+      el.remove();
+      /* si el contenedor que traía esos botones se quedó vacío, también se quita */
+      while (padre && padre.classList && !padre.classList.contains('club-main') && !padre.children.length && !(padre.textContent || '').trim()) {
+        var sig = padre.parentElement; padre.remove(); padre = sig;
+      }
+    });
   }
 
   function barraSuperiorHTML(sesion) {

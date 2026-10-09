@@ -282,3 +282,9 @@
 .av-todo:hover { background: rgba(213, 90, 40, 0.12); }
 
 @media (max-width: 980px) { .notif-panel.zs-notif { width: auto; } }
+
+/* Perfil: en pantallas chicas el botón "Editar nombre" baja a su propia línea en vez de salirse de la tarjeta */
+@media (max-width: 560px) {
+  .profile-card { flex-wrap: wrap; }
+  .profile-card .profile-edit-btn { margin-left: 0; width: 100%; }
+}

@@ -163,6 +163,9 @@ body.mt-noscroll { overflow: hidden; }
 
 @media (max-width: 640px) {
   .mt-hero { padding: 20px; }
+  .mt-hero__kpis { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; gap: 8px; }
+  .mt-hero__kpis > div { min-width: 0; padding: 10px 6px; }
+  .mt-buscar, .mt-buscar input { width: 100%; }
   .mt-libro { flex-basis: 148px; }
   .mt-banner .mt-btn { width: 100%; }
 }

@@ -273,7 +273,7 @@
 
       html += '<div class="mt-barra"><div class="mt-tabs" role="tablist">' + PESTANAS.filter(function (t) { return t[0] !== 'mas' || estado.drive.length; }).map(function (t) {
         return '<button type="button" role="tab" class="mt-tab' + (p === t[0] ? ' is-active' : '') + '" data-pestana="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
-        '<div class="mt-buscar"><input type="search" id="mtBuscar" placeholder="Buscar por título o tema…" value="' + esc(q) + '" aria-label="Buscar"></div></div>';
+        '<div class="mt-buscar"><input type="search" id="mtBuscar" placeholder="Buscar…" value="' + esc(q) + '" aria-label="Buscar"></div></div>';
 
       if (estado.errorServidor && (verLibros || verDocs)) {
         html += '<div class="mt-aviso">' + esc(estado.errorServidor) + ' <button type="button" class="mt-link" id="mtReintentar">Reintentar</button></div>';
