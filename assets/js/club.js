@@ -1320,7 +1320,7 @@ const ZOORIGEN_CLUB = {
                       'Cuenta gratuita';
     const renewText = session?.planVence
       ? `${session.planStatus === 'active' ? 'Renueva' : session.planStatus === 'cancelled_active' ? 'Acceso hasta' : 'Venció'} ${this.formatShort(session.planVence)}`
-      : 'Primera clase gratis';
+      : 'Acceso gratuito';
     const isActivePlan = this.hasActiveMembership(session);
     const planDotColor = session?.planStatus === 'active' ? '#6FBF73' : session?.planStatus === 'cancelled_active' ? '#E8A317' : !isActivePlan ? '#E8A317' : '#a0a8a4';
     const planLabelColor = isActivePlan ? 'var(--zoo-green-500, #6FBF73)' : 'var(--zoo-amber, #E8A317)';
@@ -1688,8 +1688,8 @@ const ZOORIGEN_CLUB = {
       banner.innerHTML = `
         <div style="font-size:1.8rem;line-height:1;">🔒</div>
         <div style="flex:1;min-width:200px;">
-          <div style="font-family:Poppins;font-weight:800;font-size:.98rem;margin-bottom:2px;">Acceso gratuito · Tu primera clase está incluida</div>
-          <div style="font-size:.82rem;opacity:.88;">Activa tu membresía para continuar con la clase 2 y abrir el resto de los cursos.</div>
+          <div style="font-family:Poppins;font-weight:800;font-size:.98rem;margin-bottom:2px;">Acceso gratuito</div>
+          <div style="font-size:.82rem;opacity:.88;">Activa tu membresía para abrir todos los cursos.</div>
         </div>
         <div style="background:#1f1d17;color:#E8A317;padding:8px 18px;border-radius:10px;font-family:Poppins;font-weight:800;font-size:.88rem;">Suscribirme</div>
       `;
