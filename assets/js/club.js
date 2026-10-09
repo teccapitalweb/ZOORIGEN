@@ -120,8 +120,14 @@ const ZOORIGEN_ICONS = {
   hand: '<path d="M8 13v-8.5a1.5 1.5 0 0 1 3 0v7.5"/><path d="M11 11.5v-2a1.5 1.5 0 1 1 3 0v2.5"/><path d="M14 10.5a1.5 1.5 0 0 1 3 0v1.5"/><path d="M17 11.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2a6 6 0 0 1 -5 -2.7l-3.3 -5.7a1.5 1.5 0 0 1 .5 -2l.2 -.1a1.9 1.9 0 0 1 2.3 .3l1.5 1.5"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35 -4.35"/>',
   briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/>',
-  helpcircle: '<circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2 -3 3 -3 3"/><path d="M12 17l0 .01"/>'
+  helpcircle: '<circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2 -3 3 -3 3"/><path d="M12 17l0 .01"/>',
+  target: '<circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/>',
+  users: '<circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/>',
+  brandwhatsapp: '<path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9"/><path d="M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1"/>'
 };
+function zooEsc(valor) {
+  return String(valor == null ? '' : valor).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 function zooIcon(name, size) {
   size = size || 17;
   const d = ZOORIGEN_ICONS[name] || '';
@@ -538,446 +544,264 @@ const ZOORIGEN_CLUB = {
     }
   },
 
-  // ============== SISTEMA DE GAMIFICACIÓN ==============
-  LEVELS: [
-    { level: 1, name: 'Aprendiz',        icon: '🌱', minXP: 0,    color: '#6FBF73' },
-    { level: 2, name: 'Observador',      icon: '🔍', minXP: 150,  color: '#6FBF73' },
-    { level: 3, name: 'Biólogo Jr',      icon: '🦎', minXP: 400,  color: '#F5C62E' },
-    { level: 4, name: 'Biólogo',         icon: '🦒', minXP: 800,  color: '#F5C62E' },
-    { level: 5, name: 'Explorador',      icon: '🧭', minXP: 1500, color: '#E8A317' },
-    { level: 6, name: 'Investigador',    icon: '🔬', minXP: 2500, color: '#E8A317' },
-    { level: 7, name: 'Experto Fauna',   icon: '🏆', minXP: 4000, color: '#D55A28' },
-    { level: 8, name: 'Maestro Zoólogo', icon: '👑', minXP: 6000, color: '#D55A28' },
-    { level: 9, name: 'Sabio Zoorigen',  icon: '🌟', minXP: 9000, color: '#2AA4D5' }
+  // ============== NIVEL, XP Y LOGROS: AHORA VIENEN DEL SERVIDOR ==============
+  // Antes el navegador calculaba XP y logros en localStorage (zoo_progress_<uid>), lo que se podía alterar
+  // desde la consola. Ahora el servidor los calcula (GET /api/premios) y aquí solo se dibujan.
+  // Las funciones viejas se quedan con la misma firma pero ya NO guardan ni muestran XP falso:
+  // así ninguna página que todavía las llame se rompe.
+  NIVELES: [
+    { id: 1, nombre: 'Aprendiz',    color: '#6FBF73' },
+    { id: 2, nombre: 'Técnico',     color: '#2AA4D5' },
+    { id: 3, nombre: 'Profesional', color: '#F5C62E' },
+    { id: 4, nombre: 'Líder',       color: '#E8A317' },
+    { id: 5, nombre: 'Maestro',     color: '#D55A28' }
   ],
-
-  ACHIEVEMENTS: [
-    { id: 'first_login',   icon: '🚪', name: 'Primer paso',        desc: 'Entrar al Club VIP',            xp: 20,  category: 'inicio' },
-    { id: 'profile_done',  icon: '✨', name: 'Perfil completo',    desc: 'Completa tu perfil al 100%',    xp: 40,  category: 'inicio' },
-    { id: 'vip_annual',    icon: '🏅', name: 'Compromiso anual',   desc: 'Adquiere plan anual',           xp: 300, category: 'inicio' },
-    { id: 'first_course',  icon: '🎓', name: 'Primer curso',       desc: 'Completa tu primer curso',      xp: 50,  category: 'cursos' },
-    { id: 'three_courses', icon: '📗', name: 'Estudiante activo',  desc: 'Completa 3 cursos',             xp: 120, category: 'cursos' },
-    { id: 'five_courses',  icon: '📚', name: 'Biblioteca activa',  desc: 'Completa 5 cursos',             xp: 200, category: 'cursos' },
-    { id: 'ten_courses',   icon: '🏛️', name: 'Devorador de saber', desc: 'Completa 10 cursos',            xp: 400, category: 'cursos' },
-    { id: 'all_areas',     icon: '🌎', name: 'Todoterreno',        desc: 'Completa cursos en 3 áreas distintas', xp: 250, category: 'cursos' },
-    { id: 'first_session', icon: '🎥', name: 'En vivo y directo',  desc: 'Asiste a tu primera sesión',    xp: 75,  category: 'sesiones' },
-    { id: 'three_sessions',icon: '📡', name: 'Fiel seguidor',      desc: 'Asiste a 3 sesiones en vivo',   xp: 200, category: 'sesiones' },
-    { id: 'ten_sessions',  icon: '🛰️', name: 'Espectador VIP',     desc: 'Asiste a 10 sesiones en vivo',  xp: 500, category: 'sesiones' },
-    { id: 'streak_3',      icon: '🔥', name: '3 días seguidos',    desc: 'Racha de 3 días activos',       xp: 30,  category: 'rachas' },
-    { id: 'streak_7',      icon: '⚡', name: 'Semana completa',    desc: 'Racha de 7 días activos',       xp: 100, category: 'rachas' },
-    { id: 'streak_14',     icon: '🌟', name: 'Dos semanas firme',  desc: 'Racha de 14 días activos',      xp: 250, category: 'rachas' },
-    { id: 'streak_30',     icon: '💎', name: 'Mes perfecto',       desc: 'Racha de 30 días activos',      xp: 500, category: 'rachas' },
-    { id: 'first_post',    icon: '📝', name: 'Primera discusión',  desc: 'Inicia tu primera discusión',   xp: 60,  category: 'comunidad' },
-    { id: 'first_reply',   icon: '💬', name: 'Primera respuesta',  desc: 'Responde a un colega',          xp: 30,  category: 'comunidad' },
-    { id: 'five_replies',  icon: '🗣️', name: 'Voz activa',         desc: 'Responde 5 veces en el foro',   xp: 150, category: 'comunidad' },
-    { id: 'ten_posts',     icon: '🎤', name: 'Líder de opinión',   desc: 'Publica 10 discusiones',        xp: 350, category: 'comunidad' },
-    { id: 'first_pdf',     icon: '📄', name: 'Lector',             desc: 'Descarga tu primer PDF',        xp: 25,  category: 'contenido' },
-    { id: 'ten_pdfs',      icon: '📕', name: 'Bibliotecario',      desc: 'Descarga 10 PDFs',              xp: 150, category: 'contenido' },
-    { id: 'first_cert',    icon: '📜', name: 'Certificado oro',    desc: 'Obtén tu primer certificado',   xp: 100, category: 'certificados' },
-    { id: 'five_certs',    icon: '🏅', name: 'Coleccionista',      desc: 'Obtén 5 certificados',          xp: 350, category: 'certificados' },
-    { id: 'early_bird',    icon: '🌅', name: 'Madrugador',         desc: 'Entra antes de las 7am',        xp: 15,  category: 'secretos', secret: true },
-    { id: 'night_owl',     icon: '🌙', name: 'Nocturno',           desc: 'Estudia después de las 11pm',   xp: 15,  category: 'secretos', secret: true },
-    { id: 'weekend_warrior',icon:'🏖️', name: 'Fin de semana',      desc: 'Estudia sábado y domingo',      xp: 50,  category: 'secretos', secret: true }
-  ],
-
-  REWARDS: [
-    { level: 3, icon: '🎁', title: 'Descuento 10%',       code: 'BIOLOGO10',   desc: 'En cualquier curso Zoorigen' },
-    { level: 5, icon: '💰', title: 'Descuento 20%',        code: 'EXPLORA20',   desc: 'En cualquier curso Zoorigen' },
-    { level: 6, icon: '🔥', title: 'Descuento 30%',        code: 'AVANZA30',    desc: 'En cualquier curso premium' },
-    { level: 7, icon: '🎟️', title: 'Acceso anticipado',    code: 'PRIORIDAD',   desc: 'Prioridad en sesiones con cupo limitado' },
-    { level: 8, icon: '👑', title: 'Descuento 40%',        code: 'MAESTRO40',   desc: 'En cualquier curso del catálogo' },
-    { level: 9, icon: '🌟', title: 'Mes gratis VIP',       code: 'SABIO-FREE',  desc: 'Solo si completas TODOS los logros' }
-  ],
+  ACHIEVEMENTS: [],   // el catálogo real de logros lo manda el servidor (GET /api/premios)
 
   getProgress(session) {
-    const key = 'zoo_progress_' + session.uid;
-    let data = {};
-    try { data = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
-
-    if (!data.xp) data.xp = 0;
-    if (!data.coursesCompleted) data.coursesCompleted = 0;
-    if (!data.sessionsAttended) data.sessionsAttended = 0;
-    if (!data.pdfsDownloaded) data.pdfsDownloaded = 0;
-    if (!data.streak) data.streak = 0;
-    if (!data.unlockedAchievements) data.unlockedAchievements = [];
-    if (!data.lastActive) data.lastActive = new Date().toISOString();
-    if (!data.weeklyMinutes) data.weeklyMinutes = 0;
-    if (!data.joinedAt) data.joinedAt = session.createdAt || new Date().toISOString();
-
-    if (!data.unlockedAchievements.includes('first_login')) {
-      data.unlockedAchievements.push('first_login');
-      data.xp += 20;
-    }
-
-    if (session.planTipo === 'anual' && !data.unlockedAchievements.includes('vip_annual')) {
-      data.unlockedAchievements.push('vip_annual');
-      data.xp += 300;
-    }
-
-    let currentLevel = this.LEVELS[0];
-    let nextLevel = this.LEVELS[1];
-    for (let i = 0; i < this.LEVELS.length; i++) {
-      if (data.xp >= this.LEVELS[i].minXP) {
-        currentLevel = this.LEVELS[i];
-        nextLevel = this.LEVELS[i + 1] || this.LEVELS[i];
-      }
-    }
-
-    const xpInLevel = data.xp - currentLevel.minXP;
-    const xpNeeded = nextLevel.minXP - currentLevel.minXP;
-    const progressPercent = xpNeeded > 0 ? Math.min(100, Math.round((xpInLevel / xpNeeded) * 100)) : 100;
-    const xpToNext = Math.max(0, nextLevel.minXP - data.xp);
-
-    localStorage.setItem(key, JSON.stringify(data));
-
+    // Respuesta neutra y segura (sin XP inventado). La pantalla debe pedir los datos reales con fetchPremios().
     return {
-      ...data,
-      level: currentLevel,
-      nextLevel: nextLevel,
-      progressPercent,
-      xpToNext,
-      isMaxLevel: currentLevel.level === this.LEVELS[this.LEVELS.length - 1].level
+      xp: 0, coursesCompleted: 0, sessionsAttended: 0, pdfsDownloaded: 0, streak: 0,
+      unlockedAchievements: [], weeklyMinutes: 0,
+      joinedAt: (session && session.createdAt) || null,
+      level: { level: 1, name: 'Aprendiz', icon: '', minXP: 0, color: '#6FBF73' },
+      nextLevel: { level: 2, name: 'Técnico', icon: '', minXP: 300, color: '#2AA4D5' },
+      progressPercent: 0, xpToNext: 0, isMaxLevel: false, delServidor: true
     };
   },
 
-  renderLevelCard(progress, session) {
-    const isMax = progress.isMaxLevel;
-    const unlockedRewards = this.REWARDS.filter(r => progress.level.level >= r.level).length;
+  awardAchievement() { return false; },   // sin efecto: los logros los otorga el servidor
+  showAchievementToast() {},
+  showLevelUpModal() {},
+
+  // GET /api/premios con el ID token. Guarda la respuesta unos segundos para no repetir llamadas dentro de la misma pantalla.
+  async fetchPremios(forzar) {
+    const ahora = Date.now();
+    if (!forzar && this._premiosCache && ahora - this._premiosCache.t < 20000) return this._premiosCache.datos;
+    const datos = await this.apiFetch('/api/premios');
+    this._premiosCache = { t: ahora, datos };
+    return datos;
+  },
+
+  // Convierte la respuesta del servidor en lo que necesita la tarjeta (con valores seguros si falta algo).
+  resumenNivel(datos) {
+    if (!datos || typeof datos !== 'object' || !datos.nivel || typeof datos.nivel !== 'object') return null;
+    const n = datos.nivel;
+    const id = Math.min(5, Math.max(1, Math.round(Number(n.id) || 1)));
+    const def = this.NIVELES[id - 1];
+    const xpTotal = Math.max(0, Math.round(Number((datos.xp && datos.xp.total != null) ? datos.xp.total : n.xp) || 0));
+    const desde = Math.max(0, Number(n.desde) || 0);
+    const hasta = Number(n.hasta) > desde ? Number(n.hasta) : desde;
+    const esMaximo = id >= 5;
+    const faltan = esMaximo ? 0 : Math.max(0, Math.round(Number(n.faltan != null ? n.faltan : hasta - xpTotal) || 0));
+    const pct = esMaximo || hasta <= desde ? 100 : Math.max(0, Math.min(100, Math.round(((xpTotal - desde) / (hasta - desde)) * 100)));
+    return {
+      id, nombre: String(n.nombre || def.nombre), color: def.color,
+      siguiente: esMaximo ? null : this.NIVELES[id],
+      xp: xpTotal, faltan, pct, esMaximo,
+      racha: Math.max(0, Math.round(Number(datos.racha) || 0)),
+      diasActivos: Math.max(0, Math.round(Number(datos.diasActivos) || 0)),
+      premiosDisponibles: Math.max(0, Math.round(Number(datos.disponibles) || 0)),
+      logrosGanados: Array.isArray(datos.logros) ? datos.logros.filter(l => l && l.ganado).length : 0
+    };
+  },
+
+  // Tarjeta de nivel del panel. Recibe la respuesta de GET /api/premios (ya no el progreso local).
+  renderLevelCard(datos) {
+    const r = this.resumenNivel(datos);
+    if (!r) {
+      return `
+      <div class="gami-level-card" role="status">
+        <div class="gami-level-card__center">
+          <div class="gami-level-badge">Mi nivel</div>
+          <div class="gami-level-name">No pudimos cargar tu nivel</div>
+          <div class="gami-level-xp"><span class="gami-xp-next">Revisa tu conexión e inténtalo de nuevo.</span></div>
+          <button type="button" class="card-resume__action" data-nivel-reintentar>Reintentar</button>
+        </div>
+      </div>`;
+    }
     return `
       <div class="gami-level-card">
         <div class="gami-level-card__left">
-          <div class="gami-level-icon" style="background:linear-gradient(135deg, ${progress.level.color}, ${progress.level.color}dd);">
-            ${progress.level.icon}
+          <div class="gami-level-icon" style="background:linear-gradient(135deg, ${r.color}, ${r.color}dd);color:#fff;">
+            ${zooIcon('trophy', 34)}
           </div>
         </div>
         <div class="gami-level-card__center">
-          <div class="gami-level-badge">NIVEL ${progress.level.level}</div>
-          <div class="gami-level-name">${progress.level.name}</div>
+          <div class="gami-level-badge">NIVEL ${r.id} DE 5</div>
+          <div class="gami-level-name">${zooEsc(r.nombre)}</div>
           <div class="gami-level-xp">
-            <span class="gami-xp-count">${progress.xp.toLocaleString()} XP</span>
-            ${!isMax ? `<span class="gami-xp-next">· ${progress.xpToNext} XP para ${progress.nextLevel.name}</span>` : '<span class="gami-xp-next">· ¡Nivel máximo! 🌟</span>'}
+            <span class="gami-xp-count">${r.xp.toLocaleString('es-MX')} XP</span>
+            ${r.esMaximo ? '<span class="gami-xp-next">· Nivel máximo</span>' : `<span class="gami-xp-next">· ${r.faltan.toLocaleString('es-MX')} XP para ${zooEsc(r.siguiente.nombre)}</span>`}
           </div>
-          <div class="gami-progress-bar">
-            <div class="gami-progress-bar__fill" style="width: ${progress.progressPercent}%; background:linear-gradient(90deg, ${progress.level.color}, ${progress.nextLevel.color});"></div>
+          <div class="gami-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${r.pct}">
+            <div class="gami-progress-bar__fill" style="width: ${r.pct}%; background:linear-gradient(90deg, ${r.color}, ${(r.siguiente || r).color});"></div>
           </div>
         </div>
         <div class="gami-level-card__right">
-          <button class="gami-rewards-btn" onclick='ZOORIGEN_CLUB.showRewardsModal(ZOORIGEN_CLUB.getProgress(${JSON.stringify(session).replace(/'/g, "&#39;")}))'>
-            🎁 <span>${unlockedRewards}</span>
-          </button>
-          <div class="gami-streak">
-            <div class="gami-streak__num">${progress.streak}</div>
-            <div class="gami-streak__label">🔥 días</div>
-          </div>
+          <a class="gami-streak" href="club-logros.html" style="display:block;text-decoration:none;">
+            <div class="gami-streak__num">${r.racha}</div>
+            <div class="gami-streak__label">días seguidos</div>
+          </a>
         </div>
       </div>`;
   },
 
-  renderWeeklyGoals(progress) {
-    const goals = [
-      { icon: '📚', label: 'Ver 3 cursos esta semana', current: Math.min(3, progress.coursesCompleted % 10), target: 3 },
-      { icon: '🔴', label: 'Asistir a 1 sesión en vivo',  current: Math.min(1, progress.sessionsAttended), target: 1 },
-      { icon: '📄', label: 'Descargar 2 PDFs',            current: Math.min(2, progress.pdfsDownloaded), target: 2 }
-    ];
-
-    return `
-      <div class="gami-goals-card">
-        <div class="gami-goals-header">
-          <div class="gami-goals-title">🎯 Metas de la semana</div>
-          <div class="gami-goals-sub">Completa para ganar XP extra</div>
-        </div>
-        <div class="gami-goals-list">
-          ${goals.map(g => {
-            const percent = Math.min(100, (g.current / g.target) * 100);
-            const done = g.current >= g.target;
-            return `
-              <div class="gami-goal ${done ? 'is-done' : ''}">
-                <div class="gami-goal__icon">${done ? '✅' : g.icon}</div>
-                <div class="gami-goal__info">
-                  <div class="gami-goal__label">${g.label}</div>
-                  <div class="gami-goal__progress-wrap">
-                    <div class="gami-goal__progress">
-                      <div class="gami-goal__fill" style="width: ${percent}%;"></div>
-                    </div>
-                    <div class="gami-goal__count">${g.current}/${g.target}</div>
-                  </div>
-                </div>
-              </div>`;
-          }).join('')}
-        </div>
-      </div>`;
-  },
-
-  renderAchievements(progress) {
-    const unlockedCount = progress.unlockedAchievements.length;
-    const totalCount = this.ACHIEVEMENTS.length;
-
-    return `
-      <div class="gami-achievements-card">
-        <div class="gami-achievements-header">
-          <div>
-            <div class="gami-achievements-title">🏆 Logros</div>
-            <div class="gami-achievements-sub">${unlockedCount} de ${totalCount} desbloqueados</div>
-          </div>
-          <div class="gami-achievements-count">
-            <span class="gami-big-num">${unlockedCount}</span>
-            <span class="gami-small-num">/${totalCount}</span>
-          </div>
-        </div>
-        <div class="gami-achievements-grid">
-          ${this.ACHIEVEMENTS.map(a => {
-            const unlocked = progress.unlockedAchievements.includes(a.id);
-            return `
-              <div class="gami-achievement ${unlocked ? 'is-unlocked' : 'is-locked'}" title="${a.desc}">
-                <div class="gami-achievement__icon">${unlocked ? a.icon : '🔒'}</div>
-                <div class="gami-achievement__name">${a.name}</div>
-                <div class="gami-achievement__xp">+${a.xp} XP</div>
-              </div>`;
-          }).join('')}
-        </div>
-      </div>`;
-  },
-
-  renderMyStats(progress, session) {
-    const daysAsMember = Math.floor((Date.now() - new Date(progress.joinedAt).getTime()) / 86400000);
+  // Recuadro "Mi progreso" del panel, con números reales del servidor.
+  renderMyStats(datos) {
+    const r = this.resumenNivel(datos);
+    if (!r) return '';
+    const celda = (icono, valor, texto) => `
+          <div class="gami-stat">
+            <div class="gami-stat__icon">${zooIcon(icono, 20)}</div>
+            <div class="gami-stat__val">${valor}</div>
+            <div class="gami-stat__lbl">${texto}</div>
+          </div>`;
     return `
       <div class="card gami-stats-card">
         <div class="gami-stats-header">Mi progreso</div>
         <div class="gami-stats-grid">
-          <div class="gami-stat">
-            <div class="gami-stat__icon">📚</div>
-            <div class="gami-stat__val">${progress.coursesCompleted}</div>
-            <div class="gami-stat__lbl">Cursos</div>
-          </div>
-          <div class="gami-stat">
-            <div class="gami-stat__icon">🔴</div>
-            <div class="gami-stat__val">${progress.sessionsAttended}</div>
-            <div class="gami-stat__lbl">Sesiones</div>
-          </div>
-          <div class="gami-stat">
-            <div class="gami-stat__icon">📄</div>
-            <div class="gami-stat__val">${progress.pdfsDownloaded}</div>
-            <div class="gami-stat__lbl">PDFs</div>
-          </div>
-          <div class="gami-stat">
-            <div class="gami-stat__icon">🗓️</div>
-            <div class="gami-stat__val">${daysAsMember}</div>
-            <div class="gami-stat__lbl">Días VIP</div>
-          </div>
+          ${celda('trophy', r.xp.toLocaleString('es-MX'), 'Puntos XP')}
+          ${celda('sun', r.racha, 'Racha (días)')}
+          ${celda('certificate', r.logrosGanados, 'Logros')}
+          ${celda('gift', r.premiosDisponibles, 'Premios listos')}
         </div>
       </div>`;
   },
 
-  awardAchievement(userUid, achievementId) {
-    const key = 'zoo_progress_' + userUid;
-    let data = {};
-    try { data = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
-    data.unlockedAchievements = data.unlockedAchievements || [];
-    if (data.unlockedAchievements.includes(achievementId)) return false;
-    const ach = this.ACHIEVEMENTS.find(a => a.id === achievementId);
-    if (!ach) return false;
+  // ============== SERVIDOR: LLAMADAS CON ID TOKEN ==============
+  apiBase() {
+    return (typeof WEBHOOK_SERVER_URL !== 'undefined' && WEBHOOK_SERVER_URL) ? WEBHOOK_SERVER_URL : 'https://zoorigen-webhook-production.up.railway.app';
+  },
 
-    const prevLevel = this._calculateLevel(data.xp || 0);
-    data.unlockedAchievements.push(achievementId);
-    data.xp = (data.xp || 0) + ach.xp;
-    const newLevel = this._calculateLevel(data.xp);
-
-    localStorage.setItem(key, JSON.stringify(data));
-
-    this.showAchievementToast(ach);
-
-    if (newLevel.level > prevLevel.level) {
-      setTimeout(() => this.showLevelUpModal(newLevel), 3200);
+  // Llama a un endpoint del servidor con el ID token del usuario. Devuelve el JSON; si falla lanza un Error
+  // con .status (0 = sin red) y .data (el cuerpo si lo hubo). Los errores del servidor vienen como { error }.
+  async apiFetch(ruta, op) {
+    op = op || {};
+    let user = null;
+    try { user = (typeof auth !== 'undefined' && auth.currentUser) || (window.firebase && window.firebase.auth().currentUser); } catch (e) { user = null; }
+    if (!user) { const e = new Error('Inicia sesión para continuar.'); e.status = 401; throw e; }
+    const token = await user.getIdToken();
+    const headers = Object.assign({ 'Authorization': 'Bearer ' + token }, op.headers || {});
+    const conCuerpo = op.body !== undefined && op.body !== null;
+    if (conCuerpo) headers['Content-Type'] = 'application/json';
+    let res;
+    try {
+      res = await fetch(this.apiBase() + ruta, { method: op.method || 'GET', headers, body: conCuerpo ? JSON.stringify(op.body) : undefined, cache: 'no-store' });
+    } catch (err) {
+      const e = new Error('No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.'); e.status = 0; throw e;
     }
-    return true;
-  },
-
-  _calculateLevel(xp) {
-    let current = this.LEVELS[0];
-    for (const lvl of this.LEVELS) {
-      if (xp >= lvl.minXP) current = lvl;
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok) {
+      const e = new Error((data && data.error) || 'No se pudo completar la solicitud. Inténtalo de nuevo.');
+      e.status = res.status; e.data = data; throw e;
     }
-    return current;
+    return data;
   },
 
-  showAchievementToast(achievement) {
-    const existing = document.getElementById('zoo-ach-toast');
-    if (existing) existing.remove();
-
-    const toast = document.createElement('div');
-    toast.id = 'zoo-ach-toast';
-    toast.innerHTML = `
-      <div class="zoo-ach-toast-confetti">
-        ${Array.from({length: 20}, () =>
-          `<div class="zoo-ach-confetti-piece" style="
-            left: ${Math.random() * 100}%;
-            animation-delay: ${Math.random() * 0.8}s;
-            background: ${['#E8A317','#6FBF73','#D55A28','#F5C62E'][Math.floor(Math.random() * 4)]};
-          "></div>`
-        ).join('')}
-      </div>
-      <div class="zoo-ach-toast__icon">${achievement.icon}</div>
-      <div class="zoo-ach-toast__content">
-        <div class="zoo-ach-toast__label">🏆 ¡Logro desbloqueado!</div>
-        <div class="zoo-ach-toast__name">${achievement.name}</div>
-        <div class="zoo-ach-toast__xp">+${achievement.xp} XP</div>
-      </div>
-    `;
-    document.body.appendChild(toast);
-
-    this._playAchievementSound();
-
-    setTimeout(() => toast.classList.add('leaving'), 4200);
-    setTimeout(() => toast.remove(), 4700);
-  },
-
-  showLevelUpModal(newLevel) {
-    const reward = this.REWARDS.find(r => r.level === newLevel.level);
-
-    const modal = document.createElement('div');
-    modal.id = 'zoo-levelup-modal';
-    modal.innerHTML = `
-      <div class="zoo-levelup-backdrop"></div>
-      <div class="zoo-levelup-confetti">
-        ${Array.from({length: 50}, () =>
-          `<div class="zoo-confetti-piece" style="
-            left: ${Math.random() * 100}%;
-            animation-delay: ${Math.random() * 2.5}s;
-            animation-duration: ${3 + Math.random() * 2.5}s;
-            background: ${['#E8A317','#6FBF73','#D55A28','#F5C62E','#2AA4D5'][Math.floor(Math.random() * 5)]};
-          "></div>`
-        ).join('')}
-      </div>
-      <div class="zoo-levelup-box">
-        <button class="zoo-welcome-close" aria-label="Cerrar">×</button>
-        <div class="zoo-levelup-badge">🎉 ¡SUBISTE DE NIVEL!</div>
-        <div class="zoo-levelup-icon" style="background:linear-gradient(135deg, ${newLevel.color}, ${newLevel.color}dd);">
-          ${newLevel.icon}
-        </div>
-        <div class="zoo-levelup-level">Nivel ${newLevel.level}</div>
-        <h2 class="zoo-levelup-name">${newLevel.name}</h2>
-        ${reward ? `
-          <div class="zoo-levelup-reward">
-            <div class="zoo-levelup-reward-title">🎁 Desbloqueaste una recompensa</div>
-            <div class="zoo-levelup-reward-icon">${reward.icon}</div>
-            <div class="zoo-levelup-reward-name">${reward.title}</div>
-            <div class="zoo-levelup-reward-desc">${reward.desc}</div>
-            <div class="zoo-levelup-reward-code">
-              <span>Código:</span>
-              <code>${reward.code}</code>
-            </div>
-            <div class="zoo-levelup-reward-note">Úsalo por WhatsApp para canjearlo</div>
-          </div>
-        ` : ''}
-        <button class="zoo-welcome-cta" id="zoo-levelup-close-btn">🚀 Continuar</button>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-
-    const close = () => {
-      modal.remove();
-      document.body.style.overflow = '';
-    };
-    modal.querySelector('.zoo-welcome-close').addEventListener('click', close);
-    modal.querySelector('#zoo-levelup-close-btn').addEventListener('click', close);
-    modal.querySelector('.zoo-levelup-backdrop').addEventListener('click', close);
-
-    this._playLevelUpSound();
-  },
-
-  showRewardsModal(progress) {
-    const modal = document.createElement('div');
-    modal.id = 'zoo-rewards-modal';
-    modal.innerHTML = `
-      <div class="zoo-welcome-backdrop"></div>
-      <div class="zoo-rewards-box">
-        <button class="zoo-welcome-close" aria-label="Cerrar">×</button>
-        <div class="zoo-rewards-header">
-          <div class="zoo-rewards-emoji">🎁</div>
-          <h2>Mis recompensas</h2>
-          <p>Desbloquea recompensas reales al subir de nivel</p>
-        </div>
-        <div class="zoo-rewards-list">
-          ${this.REWARDS.map(r => {
-            const unlocked = progress.level.level >= r.level;
-            return `
-              <div class="zoo-reward-item ${unlocked ? 'is-unlocked' : 'is-locked'}">
-                <div class="zoo-reward-icon">${unlocked ? r.icon : '🔒'}</div>
-                <div class="zoo-reward-info">
-                  <div class="zoo-reward-title">${r.title}</div>
-                  <div class="zoo-reward-desc">${r.desc}</div>
-                  ${unlocked
-                    ? `<div class="zoo-reward-code-wrap">
-                        <code>${r.code}</code>
-                        <button class="zoo-reward-copy" onclick="ZOORIGEN_CLUB._copyCode('${r.code}', this)">Copiar</button>
-                      </div>`
-                    : `<div class="zoo-reward-need">Nivel ${r.level} requerido</div>`
-                  }
-                </div>
-              </div>`;
-          }).join('')}
-        </div>
-        <div class="zoo-rewards-footer">
-          💬 Canjea tus códigos con nosotros por <a href="https://wa.me/5212361113237?text=Hola%2C%20quiero%20canjear%20mi%20c%C3%B3digo%20de%20recompensa%20VIP" target="_blank">WhatsApp</a>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-    const close = () => { modal.remove(); document.body.style.overflow = ''; };
-    modal.querySelector('.zoo-welcome-close').addEventListener('click', close);
-    modal.querySelector('.zoo-welcome-backdrop').addEventListener('click', close);
-  },
-
-  _copyCode(code, btn) {
-    navigator.clipboard.writeText(code).then(() => {
-      btn.textContent = '✓ Copiado';
-      btn.classList.add('is-copied');
-      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('is-copied'); }, 1800);
+  // ============== DISPOSITIVO (para que los referidos cuenten solo si vienen de dispositivos distintos) ==============
+  // deviceId: UUID que se guarda en este navegador. huella: resumen (hash) de navegador + idioma + zona horaria + pantalla.
+  // Ninguno es infalible (modo incógnito u otro navegador dan valores nuevos); el servidor los usa junto con la IP.
+  _uuid() {
+    try {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+      if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        const b = new Uint8Array(16); crypto.getRandomValues(b);
+        b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+        const h = Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+        return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+      }
+    } catch (e) { /* cae al respaldo */ }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
   },
 
-  _playAchievementSound() {
-    if (localStorage.getItem('zoo_mute') === 'yes') return;
+  getDeviceId() {
+    const valido = s => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      [523.25, 659.25, 783.99].forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.frequency.value = freq;
-        osc.type = 'triangle';
-        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
-        gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + i * 0.12 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.2);
-        osc.start(ctx.currentTime + i * 0.12);
-        osc.stop(ctx.currentTime + i * 0.12 + 0.25);
-      });
-    } catch {}
+      let id = localStorage.getItem('zoo_device_id');
+      if (!valido(id)) { id = this._uuid(); localStorage.setItem('zoo_device_id', id); }
+      return id;
+    } catch (e) {
+      return this._uuid();   // sin almacenamiento: sirve para esta visita
+    }
   },
 
-  _playLevelUpSound() {
-    if (localStorage.getItem('zoo_mute') === 'yes') return;
+  // Hash corto y estable (cyrb53) en hexadecimal.
+  _hash(texto) {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < texto.length; i++) {
+      const ch = texto.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(14, '0');
+  },
+
+  getHuella() {
+    let ua = '', idioma = '', zona = '', pantalla = '';
+    try { ua = navigator.userAgent || ''; idioma = navigator.language || ''; } catch (e) { /* sin navigator */ }
+    try { zona = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { zona = ''; }
+    try { pantalla = screen.width + 'x' + screen.height + 'x' + screen.colorDepth; } catch (e) { pantalla = ''; }
+    return this._hash([ua, idioma, zona, pantalla].join('|'));
+  },
+
+  // ============== REFERIDOS: REGISTRO DEL INVITADO EN EL SERVIDOR ==============
+  // Lo que el navegador escriba en miembros.referredBy ya NO cuenta. El invitado se registra con
+  // POST /api/referidos/registrar usando su ID token. Si falla, NO bloquea el registro: queda pendiente
+  // (localStorage zoo_ref_pendiente) y el panel lo reintenta una vez.
+  async registrarReferido(user) {
+    let codigo = null;
+    try { codigo = localStorage.getItem('zoo_refCode'); } catch (e) { codigo = null; }
+    codigo = (codigo || '').trim().toUpperCase().slice(0, 40);
+    if (!codigo || !user) return { ok: false, motivo: 'sin-codigo' };
+    const marcar = v => { try { if (v === null) localStorage.removeItem('zoo_ref_pendiente'); else localStorage.setItem('zoo_ref_pendiente', v); } catch (e) { /* sin almacenamiento */ } };
+    marcar('1');
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.frequency.value = freq;
-        osc.type = 'triangle';
-        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.15);
-        gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + i * 0.15 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
-        osc.start(ctx.currentTime + i * 0.15);
-        osc.stop(ctx.currentTime + i * 0.15 + 0.45);
+      const token = await user.getIdToken();
+      const res = await fetch(this.apiBase() + '/api/referidos/registrar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ codigo, deviceId: this.getDeviceId(), huella: this.getHuella() }),
+        cache: 'no-store'
       });
-    } catch {}
+      let data = null;
+      try { data = await res.json(); } catch (e) { data = null; }
+      if (res.ok && data && data.ok !== false) {
+        marcar(null);
+        try { localStorage.removeItem('zoo_refCode'); } catch (e) { /* nada */ }
+        return { ok: true, estado: data.estado || null, motivo: data.motivo || null };
+      }
+      return { ok: false, motivo: (data && data.error) || 'error-servidor', status: res.status };
+    } catch (err) {
+      return { ok: false, motivo: 'sin-red' };
+    }
+  },
+
+  // Reintento ÚNICO desde el panel si el registro del referido no alcanzó a llegar al servidor.
+  async reintentarReferidoPendiente(user) {
+    let pendiente = null;
+    try { pendiente = localStorage.getItem('zoo_ref_pendiente'); } catch (e) { pendiente = null; }
+    if (pendiente !== '1') return { ok: false, motivo: 'nada-pendiente' };
+    try { localStorage.setItem('zoo_ref_pendiente', '0'); } catch (e) { /* nada */ }   // se consume: solo un reintento
+    const r = await this.registrarReferido(user);
+    try {
+      if (r.ok) localStorage.removeItem('zoo_ref_pendiente');
+      else { localStorage.setItem('zoo_ref_pendiente', '0'); localStorage.removeItem('zoo_refCode'); }   // segundo intento fallido: se descarta
+    } catch (e) { /* nada */ }
+    return r;
+  },
+
+  // ¿Hay que invitar a esta persona a confirmar su correo? (cuentas de correo y contraseña; Google ya viene confirmado)
+  necesitaConfirmarCorreo(user) {
+    if (!user || user.emailVerified !== false) return false;
+    const prov = Array.isArray(user.providerData) ? user.providerData : [];
+    if (prov.length && prov.every(p => p && p.providerId === 'google.com')) return false;
+    return true;
   },
 
   showWelcomeModal(session) {
@@ -1116,13 +940,16 @@ const ZOORIGEN_CLUB = {
         createdAt: new Date().toISOString()
       };
 
-      if (data.referredBy) {
-        docData.referredBy = data.referredBy;
-        docData.referredAt = new Date().toISOString();
-      }
-
+      // Ya NO se escribe referredBy desde el navegador (no cuenta): el referido se registra en el servidor.
       await db.collection('miembros').doc(cred.user.uid).set(docData);
-      return { ok: true, uid: cred.user.uid };
+
+      // Ambas cosas son "de cortesía": si fallan, la cuenta ya quedó creada y el registro NO se bloquea.
+      try { auth.languageCode = 'es'; } catch (e) { /* nada */ }
+      const [correoEnviado, referido] = await Promise.all([
+        cred.user.sendEmailVerification().then(() => true).catch(() => false),
+        this._conTiempo(this.registrarReferido(cred.user), 7000)
+      ]);
+      return { ok: true, uid: cred.user.uid, correoEnviado, referido };
     } catch (err) {
       console.error('Register error:', err);
       const map = {
@@ -1158,7 +985,9 @@ const ZOORIGEN_CLUB = {
       const user = result.user;
       const docRef = db.collection('miembros').doc(user.uid);
       const doc = await docRef.get();
+      let nuevo = false;
       if (!doc.exists) {
+        nuevo = true;
         await docRef.set({
           uid: user.uid,
           email: user.email,
@@ -1176,7 +1005,9 @@ const ZOORIGEN_CLUB = {
           authProvider: 'google'
         });
       }
-      return { ok: true };
+      // Solo una cuenta NUEVA puede contar como invitada (Google ya trae el correo confirmado).
+      const referido = nuevo ? await this._conTiempo(this.registrarReferido(user), 7000) : null;
+      return { ok: true, nuevo, referido };
     } catch (err) {
       console.error('Google login error:', err);
       let msg = 'No se pudo iniciar sesión con Google';
@@ -1185,6 +1016,14 @@ const ZOORIGEN_CLUB = {
       if (err.code === 'auth/cancelled-popup-request') msg = 'Solo puede haber un popup de Google a la vez.';
       return { ok: false, msg };
     }
+  },
+
+  // Espera una promesa como máximo `ms` milisegundos; si tarda más, responde que se agotó el tiempo (la promesa sigue su curso).
+  _conTiempo(promesa, ms) {
+    return new Promise(resolver => {
+      const t = setTimeout(() => resolver({ ok: false, motivo: 'tiempo' }), ms);
+      Promise.resolve(promesa).then(v => { clearTimeout(t); resolver(v); }, () => { clearTimeout(t); resolver({ ok: false, motivo: 'error' }); });
+    });
   },
 
   async resetPassword(email) {
@@ -1328,7 +1167,10 @@ const ZOORIGEN_CLUB = {
     const items = [
       { id: 'inicio', label: 'Inicio', icon: 'home', href: 'club-dashboard.html' },
       { id: 'biblioteca', label: 'Biblioteca', icon: 'book', href: 'club-biblioteca.html' },
+      { id: 'retos', label: 'Retos', icon: 'target', href: 'club-retos.html' },
       { id: 'foro', label: 'Foro VIP', icon: 'messages', href: 'club-foro.html' },
+      { id: 'directorio', label: 'Directorio VIP', icon: 'users', href: 'club-directorio.html' },
+      { id: 'canal', label: 'Canal de WhatsApp', icon: 'brandwhatsapp', href: 'club-canal.html' },
       { id: 'videos', label: 'Videos', icon: 'video', href: 'club-videos.html' },
       { id: 'sesiones', label: 'Webinars en vivo', icon: 'broadcast', href: 'club-sesiones.html' },
       { id: 'pdfs', label: 'PDFs', icon: 'filetext', href: 'club-pdfs.html' },
