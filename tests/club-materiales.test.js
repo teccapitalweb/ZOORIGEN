@@ -133,3 +133,29 @@ test('la página de PDFs carga el módulo y la hoja de estilos', () => {
   const h = fs.readFileSync(path.resolve(__dirname, '../pages/club-pdfs.html'), 'utf8');
   assert.ok(h.includes('club-materiales.js') && h.includes('club-materiales.css') && h.includes('ZOO_MATERIALES.montar'));
 });
+
+test('el lector: modo una página forzado, en pantalla angosta siempre una, y la foto de cada material', () => {
+  assert.equal(M.vistaPaginas(17, 4, 1280, 'una').doble, false);
+  assert.equal(M.vistaPaginas(17, 4, 1280, 'dos').doble, true);
+  assert.equal(M.vistaPaginas(17, 4, 1280, '').doble, true);
+  assert.equal(M.vistaPaginas(17, 4, 390, 'dos').doble, false, 'en celular nunca dos páginas');
+  assert.equal(M.vistaPaginas(17, 5, 1280, 'una').anterior, 4);
+  assert.match(M.fotoDeMaterial({ area: 'Apicultura', titulo: 'x' }), /apicultura-polinizacion/);
+  assert.match(M.fotoDeMaterial({ area: 'Bienestar', titulo: 'x' }), /etologia/);
+  assert.match(M.fotoDeMaterial({ area: 'Normatividad', titulo: 'Glosario' }), /fauna-silvestre-conservacion/);
+  const html = M.materialCardHTML({ id: 'a', titulo: 'T', tipo: 'guia', area: 'Manejo', paginas: 2, desbloqueado: true }, {});
+  assert.match(html, /mt-doc__foto/);
+  assert.match(html, /Material de apoyo/);
+  const pag = M.paginaHTML({ titulo: 'T', parrafos: ['x'] }, 4, 17, 'Mi libro');
+  assert.match(pag, /MI LIBRO/);
+  assert.ok(pag.includes('<span>5</span>'));
+});
+
+test('las fotos que usan las portadas existen en el sitio', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const lista = [];
+  const src = fs.readFileSync(path.resolve(__dirname, '../assets/js/club-materiales.js'), 'utf8');
+  for (const m of src.matchAll(/'\.\.\/(assets\/img\/areas\/[a-z0-9.-]+)'/g)) lista.push(m[1]);
+  assert.ok(lista.length >= 5);
+  for (const rel of lista) assert.ok(fs.existsSync(path.resolve(__dirname, '..', rel)), rel + ' no existe');
+});

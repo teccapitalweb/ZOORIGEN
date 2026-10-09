@@ -17,7 +17,8 @@ test('el menú tiene los grupos esperados y cada sección apunta a una página q
     ids.add(i.id);
     assert.ok(fs.existsSync(path.join(RAIZ, 'pages', i.href)), i.href + ' no existe');
   }
-  assert.ok(ids.has('pdfs') && ids.has('noticias') && ids.has('retos'));
+  assert.ok(ids.has('pdfs') && ids.has('retos'));
+  assert.ok(!ids.has('noticias'), 'las noticias viven en el Inicio, no tienen sección aparte');
 });
 
 test('la barra inferior del celular: Inicio, Cursos, PDFs, Vivo, Pro y Más', () => {
@@ -38,7 +39,7 @@ test('qué pestaña queda marcada según la página', () => {
 test('el buscador encuentra secciones sin importar acentos ni mayúsculas', () => {
   assert.equal(S.buscarSecciones('CERTIFICADOS')[0].id, 'certificados');
   assert.equal(S.buscarSecciones('clinicas')[0].id, 'herramientas');
-  assert.equal(S.buscarSecciones('noticias')[0].id, 'noticias');
+  assert.deepEqual(S.buscarSecciones('noticias'), []);
   assert.ok(S.buscarSecciones('comunidad').length >= 3, 'busca también por grupo');
   assert.deepEqual(S.buscarSecciones('   '), []);
   assert.deepEqual(S.buscarSecciones('zzzz'), []);

@@ -47,16 +47,63 @@ test('un curso adelantado con premio cuenta como abierto', () => {
   assert.equal(con.curso.id, '3');
 });
 
-test('el HTML escapa textos y solo acepta imágenes seguras', () => {
-  const html = I.heroHTML({ tipo: 'continuar', curso: curso('1', { title: '<img src=x onerror=1>', image: 'javascript:alert(1)' }), hechas: 1, total: 4 });
+test('resumen: cursos abiertos, clases hechas y total', () => {
+  const cursos = [curso('1'), curso('2'), curso('3')];
+  const h = I.elegirHero({ cursos, dias: 400, progreso: { 1: { completedLessons: [0, 1, 2, 3], isCompleted: true }, 2: { completedLessons: [0], isCompleted: false } } });
+  assert.equal(h.resumen.cursosTotal, 3);
+  assert.equal(h.resumen.cursosAbiertos, 3);
+  assert.equal(h.resumen.clasesTotal, 12);
+  assert.equal(h.resumen.clasesHechas, 5);
+  assert.equal(I.elegirHero({ cursos: [] }).resumen.cursosTotal, 0);
+});
+
+test('el widget escapa textos y solo acepta imágenes seguras', () => {
+  const html = I.widgetHTML({ tipo: 'continuar', curso: curso('1', { title: '<img src=x onerror=1>', image: 'javascript:alert(1)' }), hechas: 1, total: 4, resumen: { cursosAbiertos: 1, cursosTotal: 3, clasesHechas: 1, clasesTotal: 12 } });
   assert.ok(!/<img src=x/.test(html));
   assert.ok(!/javascript:/.test(html));
   assert.match(html, /1 de 4 clases · 25%/);
+  assert.match(html, /Continúa tu curso./);
+  assert.match(html, /Tu siguiente meta/);
   assert.equal(I.imagenSegura('https://x.com/a.jpg'), 'https://x.com/a.jpg');
   assert.equal(I.imagenSegura('assets/img/cursos/a.jpg'), '../assets/img/cursos/a.jpg');
   assert.equal(I.imagenSegura('https://drive.google.com/file/d/1/view'), '');
   assert.equal(I.imagenSegura('http://x.com/a.jpg'), '');
-  assert.match(I.heroHTML({ tipo: 'proximo', curso: curso('1'), diasFalta: 3 }, { ahora: new Date('2026-10-09T12:00:00') }), /en 3 días[\s\S]*12 oct/);
   assert.equal(I.textoDias(0), 'hoy');
   assert.equal(I.textoDias(1), 'mañana');
+});
+
+test('esperando: "Espera tu próximo curso", cuenta regresiva y "Mientras esperas"', () => {
+  const html = I.widgetHTML({ tipo: 'proximo', curso: curso('1'), diasFalta: 3, resumen: { cursosAbiertos: 0, cursosTotal: 2, clasesHechas: 0, clasesTotal: 8 } }, { ahora: new Date('2026-10-09T12:00:00') });
+  assert.match(html, /Espera tu próximo curso./);
+  assert.match(html, /Próximo desbloqueo/);
+  assert.match(html, /en 3 días/);
+  assert.match(html, /12 oct/);
+  assert.match(html, /Mientras esperas/);
+  assert.match(html, /Cuando se abra/);
+});
+
+test('los cuatro accesos: Cursos, Clases, PDFs y Pro con sus números', () => {
+  const k = I.kpisDe({ resumen: { cursosAbiertos: 2, cursosTotal: 5, clasesHechas: 7, clasesTotal: 20 } }, { pdfsAbiertos: 4, pdfsTotal: 9 });
+  assert.deepEqual(k.map(x => x.etiqueta), ['Cursos', 'Clases', 'PDFs', 'Pro']);
+  assert.deepEqual(k.map(x => x.valor), ['2/5', '7/20', '4/9', '13']);
+  assert.equal(I.kpisDe({}, {})[2].valor, '—', 'sin dato de PDFs no inventa números');
+  for (const x of k) assert.match(x.href, /^club-[a-z]+.html$/);
+});
+
+test('saludo: hora, fecha larga y nombre escapado', () => {
+  assert.equal(I.saludoHora(8), 'Buenos días');
+  assert.equal(I.saludoHora(15), 'Buenas tardes');
+  assert.equal(I.saludoHora(21), 'Buenas noches');
+  assert.equal(I.fechaLarga(new Date('2026-10-09T12:00:00')), 'viernes 9 de octubre de 2026');
+  const s = I.saludoHTML('<b>Ana</b>', new Date('2026-10-09T09:00:00'));
+  assert.ok(!/<b>Ana/.test(s));
+  assert.match(s, /Buenos días/);
+});
+
+test('foto del curso: la suya si es segura; si no, una foto propia del sitio según su área', () => {
+  assert.equal(I.fotoDelCurso({ image: 'https://x.com/a.jpg' }), 'https://x.com/a.jpg');
+  assert.match(I.fotoDelCurso({ area: 'Apicultura' }), /apicultura-polinizacion/);
+  assert.match(I.fotoDelCurso({ area: 'Etología' }), /etologia/);
+  assert.match(I.fotoDelCurso({ area: 'Cosa rara' }), /fauna-silvestre-conservacion/);
+  assert.match(I.fotoDelCurso({ image: 'javascript:1', area: 'Manejo en cautiverio' }), /manejo-fauna-cautiverio/);
 });

@@ -137,9 +137,12 @@
   }
 
   /* Solo se navega a páginas del propio sitio: un id del menú ("certificados") o un nombre de página ("club-pdfs.html"). */
+  /* Las noticias ya no tienen página propia: viven en el Inicio. */
+  var ALIAS = { 'noticias': 'club-dashboard.html#noticias', 'club-noticias.html': 'club-dashboard.html#noticias' };
   function destino(enlace, secciones) {
     var e = String(enlace || '').trim();
     if (!e) return '';
+    if (Object.prototype.hasOwnProperty.call(ALIAS, e)) return ALIAS[e];
     if (/^[a-z0-9-]+\.html$/i.test(e)) return e;
     if (/^[a-z0-9-]+$/i.test(e)) {
       var hit = (secciones || []).filter(function (s) { return s.id === e; })[0];

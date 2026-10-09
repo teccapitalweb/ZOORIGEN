@@ -24,6 +24,16 @@
     { id: 'conabio', titulo: 'CONABIO · Biodiversidad Mexicana', detalle: 'Información oficial sobre la biodiversidad de México', url: 'https://www.biodiversidad.gob.mx', tipo: 'Consulta' }
   ];
 
+  /* Fotos propias del sitio por tema (para las portadas de los PDF). */
+  var FOTOS = [
+    [/apic|abeja|polin|miel|colmena/i, '../assets/img/areas/apicultura-polinizacion.jpg'],
+    [/bienestar|etolog|comport/i, '../assets/img/areas/etologia-manejo-animal.jpg'],
+    [/manejo|bioseg|cautiv|ejemplar|registro/i, '../assets/img/areas/manejo-fauna-cautiverio-exhibicion.jpg'],
+    [/ponzo|venen|toxic/i, '../assets/img/areas/fauna-ponzonosa-toxicologia.jpg'],
+    [/investig|monitor|ciencia/i, '../assets/img/areas/investigacion-cientifica-monitoreo.jpg']
+  ];
+  var FOTO_GENERAL = '../assets/img/areas/fauna-silvestre-conservacion.webp';
+
   var TIPOS = {
     guia: { nombre: 'Guía', color: '#2F7A4F' },
     plantilla: { nombre: 'Plantilla', color: '#C75402' },
@@ -118,12 +128,14 @@
   function guardarPagina(alm, uid, id, n) { try { alm.setItem(claveLectura(uid, id), String(entero(n, 0))); } catch (e) { /* nada */ } }
 
   /* Páginas que se muestran a la vez: 2 en pantalla ancha, 1 en celular (el índice siempre es de la página izquierda). */
-  function vistaPaginas(total, indice, ancho) {
-    var doble = ancho >= 1000 && total > 1;
+  function vistaPaginas(total, indice, ancho, modo) {
+    var ancha = ancho >= 900 && total > 1;
+    var doble = ancha && modo !== 'una';   // en pantallas angostas siempre es una página
     var i = Math.max(0, Math.min(entero(indice, 0), Math.max(0, total - 1)));
     if (doble && i % 2 === 1) i -= 1;
+    var paso = doble ? 2 : 1;
     var paginas = doble ? [i, i + 1].filter(function (p) { return p < total; }) : [i];
-    return { indice: i, paginas: paginas, doble: doble, anterior: i > 0 ? Math.max(0, i - (doble ? 2 : 1)) : null, siguiente: (i + (doble ? 2 : 1)) < total ? i + (doble ? 2 : 1) : null };
+    return { indice: i, paginas: paginas, doble: doble, anterior: i > 0 ? Math.max(0, i - paso) : null, siguiente: (i + paso) < total ? i + paso : null };
   }
 
   /* ───── HTML ───── */
@@ -136,6 +148,7 @@
   function iconoSVG(nombre, tam) {
     return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONOS_PATH[nombre] || ICONOS_PATH.book) + '</svg>';
   }
+  var FOLDER = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"/></svg>';
   var CANDADO = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
   var MARCADOR = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6 -4l-6 4v-15a1 1 0 0 1 1 -1z"/></svg>';
 
@@ -192,16 +205,25 @@
       '<a class="mt-btn mt-btn--suave" href="' + href + '">Ir a los retos</a></div>';
   }
 
+  function fotoDeMaterial(m) {
+    var area = String((m && (m.area || '')) + ' ' + (m && m.titulo || ''));
+    for (var i = 0; i < FOTOS.length; i++) if (FOTOS[i][0].test(area)) return FOTOS[i][1];
+    return FOTO_GENERAL;
+  }
+
   function materialCardHTML(m, ctx) {
     ctx = ctx || {};
     var t = TIPOS[m.tipo] || { nombre: 'Material', color: '#2F7A4F' };
     var abierto = !!m.desbloqueado;
     var etiq = abierto ? '' : '<span class="mt-doc__lock">' + CANDADO + esc(textoBloqueo(m)) + '</span>';
+    var pags = m.paginas ? entero(m.paginas, 0) + (entero(m.paginas, 0) === 1 ? ' página' : ' páginas') : '';
     return '<article class="mt-doc' + (abierto ? '' : ' is-bloq') + '" data-doc="' + esc(m.id) + '" tabindex="0" role="button" aria-label="' + esc(m.titulo) + (abierto ? '' : ' (bloqueado)') + '">' +
-      '<div class="mt-doc__portada" style="--mt-c:' + esc(t.color) + '"><span class="mt-doc__tipo">' + esc(t.nombre) + '</span><span class="mt-doc__pdf">PDF</span>' +
-        '<strong>' + esc(m.titulo) + '</strong><span class="mt-doc__sello">ZOORIGEN</span>' + pinHTML('doc:' + m.id, !!ctx.guardado) + '</div>' +
-      '<div class="mt-doc__info"><div class="mt-doc__area">' + esc(m.area || '') + (m.paginas ? ' · ' + entero(m.paginas, 0) + (entero(m.paginas, 0) === 1 ? ' página' : ' páginas') : '') + '</div>' +
-        '<p>' + esc(m.descripcion || '') + '</p>' + etiq + '</div></article>';
+      '<div class="mt-doc__portada" style="--mt-c:' + esc(t.color) + '"><img class="mt-doc__foto" src="' + esc(fotoDeMaterial(m)) + '" alt="" loading="lazy" decoding="async">' +
+        '<span class="mt-doc__marca">ZOO<b>RIGEN</b></span><span class="mt-doc__pdf">PDF</span>' + pinHTML('doc:' + m.id, !!ctx.guardado) +
+        (abierto ? '' : '<span class="mt-doc__candado" aria-hidden="true">' + CANDADO + '</span>') +
+        '<div class="mt-doc__tarjeta"><small>' + esc(m.area || t.nombre) + '</small><strong>' + esc(m.titulo) + '</strong><em>' + esc(t.nombre) + (pags ? ' · ' + pags : '') + '</em></div></div>' +
+      '<div class="mt-doc__pie"><span class="mt-doc__chip">PDF</span><span class="mt-doc__sub">' + esc(m.tipo === 'presentacion' ? 'Presentación' : 'Material de apoyo') + '</span></div>' +
+      '<div class="mt-doc__area">' + FOLDER + esc(m.area || '') + '</div>' + etiq + '</article>';
   }
 
   function oficialesHTML() {
@@ -221,16 +243,17 @@
   }
 
   /* Una página del libro. */
-  function paginaHTML(p, numero, total) {
+  function paginaHTML(p, numero, total, tituloLibro) {
     p = p || {};
     var parrafos = (Array.isArray(p.parrafos) ? p.parrafos : []).map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('');
     var lista = Array.isArray(p.lista) && p.lista.length ? '<ul>' + p.lista.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' : '';
-    return '<div class="rdr-hoja"><h3>' + esc(p.titulo || '') + '</h3><div class="rdr-texto">' + parrafos + lista + '</div><div class="rdr-num">' + (numero + 1) + ' / ' + total + '</div></div>';
+    return '<div class="rdr-hoja" lang="es"><div class="rdr-hoja__cab"><span>' + esc(String(tituloLibro || '').toUpperCase()) + '</span><span>' + (numero + 1) + '</span></div>' +
+      '<h3>' + esc(p.titulo || '') + '</h3><div class="rdr-texto">' + parrafos + lista + '</div></div>';
   }
 
   var API = {
     OFICIALES: OFICIALES, TIPOS: TIPOS, PESTANAS: PESTANAS,
-    esc: esc, normalizar: normalizar, urlHttps: urlHttps, siguienteMeta: siguienteMeta, textoBloqueo: textoBloqueo, mensajeBloqueo: mensajeBloqueo,
+    fotoDeMaterial: function (m) { return fotoDeMaterial(m); }, esc: esc, normalizar: normalizar, urlHttps: urlHttps, siguienteMeta: siguienteMeta, textoBloqueo: textoBloqueo, mensajeBloqueo: mensajeBloqueo,
     filtrarMateriales: filtrarMateriales, filtrarLibros: filtrarLibros,
     leerGuardados: leerGuardados, alternarGuardado: alternarGuardado, leerPagina: leerPagina, guardarPagina: guardarPagina, claveGuardados: claveGuardados, claveLectura: claveLectura,
     vistaPaginas: vistaPaginas, libroCardHTML: libroCardHTML, libroDestacadoHTML: libroDestacadoHTML, bannerRetosHTML: bannerRetosHTML,
@@ -317,44 +340,104 @@
     function cerrarLector() {
       if (!lector) return;
       document.removeEventListener('keydown', lector.teclas); window.removeEventListener('resize', lector.redim);
+      clearTimeout(lector.t1); clearTimeout(lector.t2);
       lector.nodo.remove(); document.body.classList.remove('mt-noscroll'); lector = null; pintar();
     }
     function mostrarLector(libro) {
       cerrarLector();
-      var total = libro.paginas.length, indice = leerPagina(alm, uid, libro.id, total);
       var tt = document.getElementById('mtToast'); if (tt) tt.classList.remove('is-on');
+      var total = libro.paginas.length, guardada = leerPagina(alm, uid, libro.id, total), indice = guardada;
+      var modo = '';
+      try { modo = alm.getItem('zoo_lector_modo') || ''; } catch (e) { modo = ''; }
+      var reducir = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
       var nodo = document.createElement('div'); nodo.className = 'rdr'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-label', libro.titulo);
-      nodo.innerHTML = '<div class="rdr-cab"><div class="rdr-cab__t"><strong>' + esc(libro.titulo) + '</strong><small>' + esc(libro.subtitulo || '') + '</small></div>' +
-        '<div class="rdr-cab__acc"><label class="rdr-ir">Ir a <select id="rdrIr" aria-label="Ir a la página"></select></label><button type="button" class="rdr-x" id="rdrX" aria-label="Cerrar libro">✕</button></div></div>' +
-        '<div class="rdr-cuerpo"><button type="button" class="rdr-nav rdr-nav--ant" id="rdrAnt" aria-label="Página anterior">‹</button><div class="rdr-libro" id="rdrLibro" tabindex="0"></div><button type="button" class="rdr-nav rdr-nav--sig" id="rdrSig" aria-label="Página siguiente">›</button></div>' +
-        '<div class="rdr-pie"><div class="rdr-barra" id="rdrBarra" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i></i></div><span id="rdrTxt"></span></div>';
+      nodo.innerHTML = '<div class="rdr-cab"><button type="button" class="rdr-volver" id="rdrX">← PDFs y materiales</button>' +
+        '<div class="rdr-cab__t"><strong>' + esc(libro.titulo) + '</strong><small>' + esc(String(libro.categoria || '').toUpperCase()) + '</small></div>' +
+        '<div class="rdr-cab__acc"><button type="button" class="rdr-modo" id="rdrModo"></button><button type="button" class="rdr-x" id="rdrX2" aria-label="Cerrar libro">✕</button></div></div>' +
+        '<div class="rdr-continuar" id="rdrCont" hidden></div>' +
+        '<div class="rdr-cuerpo"><button type="button" class="rdr-nav" id="rdrAnt" aria-label="Página anterior">←</button>' +
+        '<div class="rdr-escena"><div class="rdr-libro" id="rdrLibro" tabindex="0"></div></div>' +
+        '<button type="button" class="rdr-nav" id="rdrSig" aria-label="Página siguiente">→</button></div>' +
+        '<div class="rdr-pie"><label class="rdr-ir">Ir a <select id="rdrIr" aria-label="Ir a la página"></select></label><div class="rdr-barra" id="rdrBarra" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i></i></div><span id="rdrTxt"></span></div>';
       document.body.appendChild(nodo); document.body.classList.add('mt-noscroll');
-      var sel = nodo.querySelector('#rdrIr');
+      var escena = nodo.querySelector('#rdrLibro'), sel = nodo.querySelector('#rdrIr'), ocupado = false;
       sel.innerHTML = libro.paginas.map(function (p, i) { return '<option value="' + i + '">' + (i + 1) + '. ' + esc(String(p.titulo || '').slice(0, 40)) + '</option>'; }).join('');
-      function ver(i) {
-        var v = vistaPaginas(total, i, window.innerWidth); indice = v.indice; guardarPagina(alm, uid, libro.id, indice);
-        nodo.querySelector('#rdrLibro').innerHTML = v.paginas.map(function (n) { return paginaHTML(libro.paginas[n], n, total); }).join('');
-        nodo.querySelector('#rdrLibro').className = 'rdr-libro' + (v.doble ? ' rdr-libro--doble' : '');
+      var hoja = function (n) { return paginaHTML(libro.paginas[n], n, total, libro.titulo); };
+      var papel = '<div class="rdr-hoja rdr-hoja--vacia"></div>';
+
+      function pintarModo(v) { var b = nodo.querySelector('#rdrModo'); b.textContent = v.doble ? 'Una página' : 'Dos páginas'; b.setAttribute('aria-pressed', v.doble ? 'true' : 'false'); }
+      function poner(v) {
+        indice = v.indice; guardarPagina(alm, uid, libro.id, indice);
+        escena.className = 'rdr-libro' + (v.doble ? ' rdr-libro--doble' : '');
+        escena.innerHTML = v.paginas.map(hoja).join('');
         var ult = v.paginas[v.paginas.length - 1], pct = Math.round((ult + 1) * 100 / total);
         nodo.querySelector('#rdrBarra i').style.width = pct + '%'; nodo.querySelector('#rdrBarra').setAttribute('aria-valuenow', String(pct));
         nodo.querySelector('#rdrTxt').textContent = (v.doble && v.paginas.length > 1 ? 'Páginas ' + (v.paginas[0] + 1) + '–' + (ult + 1) : 'Página ' + (v.paginas[0] + 1)) + ' de ' + total;
         nodo.querySelector('#rdrAnt').disabled = v.anterior === null; nodo.querySelector('#rdrSig').disabled = v.siguiente === null;
-        sel.value = String(v.indice); nodo.querySelector('#rdrLibro').scrollTop = 0; nodo._v = v;
+        sel.value = String(v.indice); pintarModo(v); nodo._v = v;
+        Array.prototype.forEach.call(escena.querySelectorAll('.rdr-hoja'), function (h) { h.scrollTop = 0; });
       }
-      nodo.querySelector('#rdrAnt').onclick = function () { if (nodo._v.anterior !== null) ver(nodo._v.anterior); };
-      nodo.querySelector('#rdrSig').onclick = function () { if (nodo._v.siguiente !== null) ver(nodo._v.siguiente); };
-      sel.onchange = function () { ver(parseInt(sel.value, 10) || 0); };
-      nodo.querySelector('#rdrX').onclick = cerrarLector;
+      function ver(i) { poner(vistaPaginas(total, i, window.innerWidth, modo)); }
+
+      /* Pasar la página: una hoja gira sobre el lomo y deja ver la página nueva. */
+      function girar(destino, haciaAdelante) {
+        var v = nodo._v, nuevo = vistaPaginas(total, destino, window.innerWidth, modo);
+        if (ocupado || nuevo.indice === v.indice) return;
+        if (reducir) return poner(nuevo);
+        ocupado = true;
+        var doble = v.doble;
+        var viejoIzq = v.paginas[0], viejoDer = v.paginas[1], nuevoIzq = nuevo.paginas[0], nuevoDer = nuevo.paginas[1];
+        var frente, dorso, base;
+        if (doble) {
+          if (haciaAdelante) { frente = hoja(viejoDer !== undefined ? viejoDer : viejoIzq); dorso = nuevoIzq !== undefined ? hoja(nuevoIzq) : papel; base = hoja(viejoIzq) + (nuevoDer !== undefined ? hoja(nuevoDer) : papel); }
+          else { frente = hoja(viejoIzq); dorso = nuevoDer !== undefined ? hoja(nuevoDer) : papel; base = (nuevoIzq !== undefined ? hoja(nuevoIzq) : papel) + (viejoDer !== undefined ? hoja(viejoDer) : papel); }
+        } else {
+          frente = hoja(viejoIzq); dorso = papel; base = hoja(nuevoIzq);
+        }
+        escena.innerHTML = base;
+        var hojaGiro = document.createElement('div');
+        hojaGiro.className = 'rdr-giro ' + (doble ? (haciaAdelante ? 'rdr-giro--der' : 'rdr-giro--izq') : (haciaAdelante ? 'rdr-giro--uno' : 'rdr-giro--uno-atras'));
+        hojaGiro.innerHTML = '<div class="rdr-giro__cara rdr-giro__frente">' + frente + '</div><div class="rdr-giro__cara rdr-giro__dorso">' + dorso + '</div>';
+        escena.appendChild(hojaGiro);
+        void hojaGiro.offsetWidth;
+        hojaGiro.classList.add('is-girando');
+        lector.t1 = setTimeout(function () { poner(nuevo); ocupado = false; }, 720);
+      }
+      function siguiente() { var v = nodo._v; if (v.siguiente !== null) girar(v.siguiente, true); }
+      function anterior() { var v = nodo._v; if (v.anterior !== null) girar(v.anterior, false); }
+
+      nodo.querySelector('#rdrSig').onclick = siguiente;
+      nodo.querySelector('#rdrAnt').onclick = anterior;
+      sel.onchange = function () { var d = parseInt(sel.value, 10) || 0; if (!ocupado) girar(d, d > indice); };
+      nodo.querySelector('#rdrX').onclick = cerrarLector; nodo.querySelector('#rdrX2').onclick = cerrarLector;
+      nodo.querySelector('#rdrModo').onclick = function () {
+        modo = nodo._v.doble ? 'una' : 'dos'; try { alm.setItem('zoo_lector_modo', modo); } catch (e) { /* nada */ }
+        ver(indice);
+      };
       var teclas = function (e) {
         if (e.key === 'Escape') cerrarLector();
-        else if (e.key === 'ArrowRight' || e.key === 'PageDown') { if (nodo._v.siguiente !== null) ver(nodo._v.siguiente); }
-        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { if (nodo._v.anterior !== null) ver(nodo._v.anterior); }
+        else if (e.key === 'ArrowRight' || e.key === 'PageDown') siguiente();
+        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') anterior();
       };
-      var redim = function () { ver(indice); };
+      var redim = function () { if (!ocupado) ver(indice); };
       document.addEventListener('keydown', teclas); window.addEventListener('resize', redim);
-      lector = { nodo: nodo, teclas: teclas, redim: redim };
+      lector = { nodo: nodo, teclas: teclas, redim: redim, t1: 0, t2: 0 };
+      /* gestos: deslizar el dedo para pasar de página */
+      var x0 = null;
+      escena.addEventListener('touchstart', function (e) { x0 = e.touches && e.touches[0] ? e.touches[0].clientX : null; }, { passive: true });
+      escena.addEventListener('touchend', function (e) {
+        if (x0 === null || !e.changedTouches || !e.changedTouches[0]) return;
+        var dx = e.changedTouches[0].clientX - x0; x0 = null;
+        if (Math.abs(dx) > 60) { if (dx < 0) siguiente(); else anterior(); }
+      }, { passive: true });
       ver(indice);
-      var f = nodo.querySelector('#rdrLibro'); if (f) f.focus();
+      if (guardada > 0) {
+        var c = nodo.querySelector('#rdrCont'); c.hidden = false;
+        c.innerHTML = '<span>Continúas desde la página ' + (nodo._v.indice + 1) + '</span><button type="button" id="rdrInicio">Ir al inicio</button>';
+        nodo.querySelector('#rdrInicio').onclick = function () { c.hidden = true; girar(0, false); };
+        lector.t2 = setTimeout(function () { c.hidden = true; }, 7000);
+      }
+      var fo = nodo.querySelector('#rdrLibro'); if (fo) fo.focus();
     }
 
     /* ───── visor de PDF ───── */
@@ -366,8 +449,8 @@
       if (!m.desbloqueado) { toast(mensajeBloqueo(m), true); return; }
       cerrarVisor();
       var nodo = document.createElement('div'); nodo.className = 'mt-visor'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-label', m.titulo);
-      nodo.innerHTML = '<div class="mt-visor__cab"><strong>' + esc(m.titulo) + '</strong><div class="mt-visor__acc"><a class="mt-btn mt-btn--suave" id="mvDescargar" hidden>Descargar PDF</a><button type="button" class="rdr-x" id="mvX" aria-label="Cerrar">✕</button></div></div>' +
-        '<div class="mt-visor__cuerpo" id="mvCuerpo"><div class="mt-vacio">Preparando el documento…</div></div>';
+      nodo.innerHTML = '<div class="mt-visor__ventana"><div class="mt-visor__cab"><strong>' + esc(m.titulo) + '</strong><div class="mt-visor__acc"><a class="mt-icono" id="mvDescargar" hidden title="Descargar PDF" aria-label="Descargar PDF">⬇</a><a class="mt-icono" id="mvAbrir" hidden target="_blank" rel="noopener" title="Abrir en otra pestaña" aria-label="Abrir en otra pestaña">↗</a><button type="button" class="mt-icono" id="mvX" aria-label="Cerrar">✕</button></div></div>' +
+        '<div class="mt-visor__cuerpo" id="mvCuerpo"><div class="mt-vacio">Preparando el documento…</div></div></div>';
       document.body.appendChild(nodo); document.body.classList.add('mt-noscroll');
       visor = { nodo: nodo, url: '' };
       nodo.querySelector('#mvX').onclick = cerrarVisor;
@@ -375,11 +458,11 @@
       Promise.resolve().then(function () { return club.apiBlob('/api/materiales/' + encodeURIComponent(id) + '/archivo'); }).then(function (blob) {
         if (!visor || visor.nodo !== nodo) return;
         visor.url = URL.createObjectURL(blob);
-        var d = nodo.querySelector('#mvDescargar'); d.href = visor.url; d.download = id + '.pdf'; d.hidden = false;
+        var d = nodo.querySelector('#mvDescargar'); d.href = visor.url; d.download = id + '.pdf'; d.hidden = false; var ab = nodo.querySelector('#mvAbrir'); ab.href = visor.url; ab.hidden = false;
         var chico = window.innerWidth < 760;
         nodo.querySelector('#mvCuerpo').innerHTML = chico
           ? '<div class="mt-vacio"><strong>Tu documento está listo</strong><span>En el celular es mejor abrirlo o descargarlo.</span><a class="mt-btn" href="' + esc(visor.url) + '" target="_blank" rel="noopener">Abrir PDF</a></div>'
-          : '<iframe title="' + esc(m.titulo) + '" src="' + esc(visor.url) + '"></iframe>';
+          : '<iframe title="' + esc(m.titulo) + '" src="' + esc(visor.url) + '#navpanes=0"></iframe>';
       }).catch(function (e) {
         if (!visor || visor.nodo !== nodo) return;
         nodo.querySelector('#mvCuerpo').innerHTML = '<div class="mt-vacio"><strong>No se pudo abrir</strong><span>' + esc(e && e.message ? e.message : 'Inténtalo de nuevo.') + '</span></div>';

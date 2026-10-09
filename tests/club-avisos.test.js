@@ -69,6 +69,8 @@ test('destino: solo páginas del propio sitio', () => {
   const secciones = [{ id: 'logros', href: 'club-logros.html' }, { id: 'pdfs', href: 'club-pdfs.html' }];
   assert.equal(A.destino('logros', secciones), 'club-logros.html');
   assert.equal(A.destino('club-pdfs.html', secciones), 'club-pdfs.html');
+  assert.equal(A.destino('noticias', secciones), 'club-dashboard.html#noticias', 'las noticias llevan al Inicio');
+  assert.equal(A.destino('club-noticias.html', secciones), 'club-dashboard.html#noticias');
   for (const mal of ['https://malo.com', 'javascript:alert(1)', '//malo.com', '../../x', 'desconocida', '', null, 'a/b.html']) assert.equal(A.destino(mal, secciones), '', String(mal));
 });
 

@@ -25,7 +25,6 @@
     ] },
     { id: 'material', titulo: 'Material', items: [
       { id: 'pdfs', label: 'PDFs y materiales', icon: 'filetext', href: 'club-pdfs.html' },
-      { id: 'noticias', label: 'Noticias del sector', icon: 'news', href: 'club-noticias.html' },
       { id: 'videos', label: 'Videos', icon: 'video', href: 'club-videos.html' },
       { id: 'sesiones', label: 'Webinars en vivo', icon: 'broadcast', href: 'club-sesiones.html' }
     ] },

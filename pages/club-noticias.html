@@ -1,97 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Noticias del sector · Club VIP Zoorigen</title>
-  <!-- ===== PWA ===== -->
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#1F5F3A">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Zoorigen">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261024-panel">
-  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261024-noticias">
+  <meta http-equiv="refresh" content="0; url=club-dashboard.html#noticias">
+  <script>location.replace('club-dashboard.html#noticias');</script>
 </head>
 <body>
-  <div class="club-layout">
-    <aside class="club-sidebar" id="sidebar"></aside>
-    <main class="club-main">
-      <div class="page-header">
-        <div class="nt-encabezado" style="margin:0 0 6px;"><h1 style="margin:0;">Noticias del sector</h1><span class="nt-hoy">Hoy</span></div>
-        <p>Lo último en fauna silvestre, conservación, veterinaria y normatividad ambiental. Cada nota enlaza a su fuente original.</p>
-      </div>
-
-      <div class="nt-chips" id="ntChips" hidden></div>
-      <div id="newsContent"><div class="nt-vacio"><span>Cargando noticias…</span></div></div>
-    </main>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261025-materiales"></script>
-  <script src="../assets/js/club-shell.js?v=20261024-panel"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
-  <script src="../assets/js/club-noticias-ui.js?v=20261024-noticias"></script>
-  <script>
-    (async () => {
-      const session = await ZOORIGEN_CLUB.requireAuth();
-      if (!session) return;
-      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('noticias', session);
-      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
-
-      const contenido = document.getElementById('newsContent');
-      const chips = document.getElementById('ntChips');
-      let todas = [], categoria = 'todas';
-
-      function pintar() {
-        const lista = ZOO_NOTICIAS.filtrar(todas, categoria);
-        ZOO_NOTICIAS.pintar(contenido, lista, { mensajeVacio: categoria === 'todas' ? 'Aún no hay noticias publicadas. Se actualizan cada mañana.' : 'No hay noticias en esta categoría por ahora.' });
-      }
-      function pintarChips() {
-        chips.hidden = todas.length === 0;
-        chips.innerHTML = ZOO_NOTICIAS.chipsHTML(todas, categoria);
-      }
-      chips.addEventListener('click', e => {
-        const b = e.target.closest('.nt-chip'); if (!b) return;
-        categoria = b.dataset.cat; pintarChips(); pintar();
-      });
-
-      async function cargar() {
-        contenido.innerHTML = '<div class="nt-vacio"><span>Cargando noticias…</span></div>';
-        try {
-          const r = await ZOORIGEN_CLUB.apiFetch('/api/noticias?limit=30');
-          todas = Array.isArray(r && r.noticias) ? r.noticias : [];
-          pintarChips(); pintar();
-        } catch (err) {
-          chips.hidden = true;
-          contenido.innerHTML = '<div class="nt-vacio"><strong>No se pudieron cargar las noticias</strong><span>' + ZOO_NOTICIAS.esc(err && err.message || 'Inténtalo de nuevo en un momento.') + '</span><button type="button" class="nt-chip" id="ntReintentar" style="align-self:center;margin-top:8px;">Reintentar</button></div>';
-          const b = document.getElementById('ntReintentar'); if (b) b.onclick = cargar;
-        }
-      }
-      await cargar();
-    })();
-  </script>
-<script>
-  // ===== PWA: registro del service worker =====
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .catch(function (err) { console.warn('SW no registrado:', err); });
-    });
-  }
-</script>
+  <p>Las noticias ahora están en el <a href="club-dashboard.html#noticias">Inicio</a>.</p>
 </body>
 </html>

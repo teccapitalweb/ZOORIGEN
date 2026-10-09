@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261024-panel">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261024-noticias">
+  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261026-inicio">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261016">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261015">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261022">
@@ -523,44 +524,20 @@
       <div id="pendingBanner"></div>
       <div id="avisoCorreo"></div>
 
-      <div class="club-main__header">
-        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button>
-        <div class="club-main__greeting">
-          <h1 id="greeting">Cargando...</h1>
-          <p class="date" id="date"></p>
-        </div>
-        <div class="dashboard-header-actions" style="display:flex;gap:10px;align-items:center;margin-left:auto;">
-          <button class="theme-toggle" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema" onclick="ZOORIGEN_CLUB.toggleTheme()">☀️</button>
-          <button class="guide-btn" id="guideBtn" title="Ver guía de bienvenida" aria-label="Ver guía" onclick="ZOORIGEN_CLUB._showGuideFromSidebar()" style="width:42px;height:42px;border-radius:12px;background:var(--zoo-bg-card,#131816);border:1px solid var(--zoo-border-strong,#2a3530);color:var(--zoo-text,#fff);cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6v13"/><path d="M12 6v13"/><path d="M21 6v13"/></svg></button>
-          <button class="notif-icon" id="notifBtn" title="Notificaciones" aria-label="Notificaciones">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>
-            <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
-          </button>
-        </div>
-      </div>
+      <div id="inicioSaludo"></div>
 
-      <!-- Panel de notificaciones -->
-      <div class="notif-panel" id="notifPanel" style="display:none;">
-        <div class="notif-panel__header">
-          <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>Notificaciones</h3>
-          <button class="notif-panel__close" id="notifPanelClose" aria-label="Cerrar">✕</button>
-        </div>
-        <div class="notif-panel__actions" id="notifPanelActions" style="display:none;">
-          <button class="notif-mark-all" id="notifMarkAll">Marcar todas como leídas</button>
-        </div>
-        <div class="notif-panel__list" id="notifList">Cargando...</div>
+      <div class="ih-ancho">
+        <div id="resumeCard"></div>
+        <!-- ════ TARJETA DE NIVEL (solo si es VIP activo) ════ -->
+        <div id="levelCard"></div>
       </div>
-
-      <!-- ════ TARJETA DE NIVEL (solo si es VIP activo) ════ -->
-      <div id="levelCard"></div>
 
       <div class="dashboard-grid">
         <div class="dashboard-main">
-          <div id="resumeCard"></div>
 
           <!-- ════ NOTICIAS DEL SECTOR ════ -->
-          <section class="nt-seccion" id="newsSection">
-            <div class="nt-encabezado"><h2>Noticias del sector</h2><span class="nt-hoy">Hoy</span><a class="nt-ver-todas" href="club-noticias.html">Ver todas →</a></div>
+          <section class="nt-seccion ih-noticias" id="noticias">
+            <div class="nt-encabezado"><h2>Noticias del sector</h2><span class="nt-hoy">Hoy</span></div>
             <div id="newsList"><div class="nt-vacio"><span>Cargando noticias…</span></div></div>
           </section>
 
@@ -624,7 +601,7 @@
   <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
   <script src="../assets/js/club-acceso.js?v=20261020"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261024-noticias"></script>
-  <script src="../assets/js/club-inicio.js?v=20261024-noticias"></script>
+  <script src="../assets/js/club-inicio.js?v=20261026-inicio"></script>
   <script src="../assets/js/club-premios.js?v=20261022"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
   <script src="../assets/js/club-onboarding.js?v=20261023"></script>
@@ -650,12 +627,8 @@
         setTimeout(() => ZOORIGEN_CLUB.showOnboarding(session), 1500);
       }
 
-      // Inicializar sistema de notificaciones (reutilizable)
-      await ZOORIGEN_CLUB.initNotifications(session);
-
       const firstName = session.name.split(' ')[0];
-      document.getElementById('greeting').innerHTML = `${ZOORIGEN_CLUB.getGreeting()}, <span class="accent">${firstName}</span> 🦒`;
-      document.getElementById('date').textContent = ZOORIGEN_CLUB.formatDate();
+      document.getElementById('inicioSaludo').innerHTML = ZOO_INICIO.saludoHTML(firstName, new Date());
 
       // Solo mostrar banner si hay problema con el plan
       const pb = document.getElementById('pendingBanner');
@@ -1056,20 +1029,21 @@
         cargarNivel(false);
       }
 
-      // Tarjeta principal: "Continúa tu curso" / "Próximo desbloqueo" (miembros con membresía). Sin membresía, el acceso a Cursos.
+      // Tarjeta principal: "Continúa tu curso" / "Espera tu próximo curso" + "Tu siguiente meta" + accesos con números.
       const resume = document.getElementById('resumeCard');
       const pintarTarjetaCursos = async () => {
+        const base = { cursos };
         if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
-          resume.innerHTML = cursos.length
-            ? ZOO_INICIO.heroHTML({ tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]) })
-            : ZOO_INICIO.heroHTML({ tipo: 'sin-cursos' });
+          const sin = ZOO_INICIO.elegirHero({ cursos, dias: 0, progreso: {} });
+          resume.innerHTML = ZOO_INICIO.widgetHTML(cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]), resumen: sin.resumen } : sin, { ahora: new Date() });
           return;
         }
         try {
-          const [progreso, premios, prueba] = await Promise.all([
+          const [progreso, premios, prueba, mats] = await Promise.all([
             ZOORIGEN_CLUB.getCourseProgress(session.uid).catch(() => ({})),
             ZOORIGEN_CLUB.fetchPremios(false).catch(() => null),
-            ZOORIGEN_CLUB.apiFetch('/api/prueba-gratuita').catch(() => null)
+            ZOORIGEN_CLUB.apiFetch('/api/prueba-gratuita').catch(() => null),
+            ZOORIGEN_CLUB.apiFetch('/api/materiales').catch(() => null)
           ]);
           const est = ZOO_ACCESO.estadoPrueba(prueba);
           let hero;
@@ -1077,14 +1051,17 @@
             // Con prueba gratuita elegida la ruta de desbloqueo es otra: aquí solo se muestra el curso elegido o se manda a Cursos.
             const elegido = cursos.find(c => c.id === est.elegida);
             const av = elegido ? ZOO_INICIO.avanceDe(progreso, elegido.id) : null;
-            hero = elegido && !av.terminado ? { tipo: 'continuar', curso: elegido, hechas: av.hechas, total: ZOO_INICIO.totalClases(elegido) } : { tipo: 'terminado' };
+            const resumen = ZOO_INICIO.elegirHero({ cursos, dias: 0, progreso }).resumen;
+            hero = elegido && !av.terminado ? { tipo: 'continuar', curso: elegido, hechas: av.hechas, total: ZOO_INICIO.totalClases(elegido), resumen } : { tipo: 'terminado', resumen };
           } else {
             hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), adelantados: ZOO_ACCESO.adelantadosDeRespuesta(premios), progreso });
           }
-          resume.innerHTML = ZOO_INICIO.heroHTML(hero, { ahora: new Date() });
+          const lista = mats && Array.isArray(mats.materiales) ? mats.materiales : null;
+          resume.innerHTML = ZOO_INICIO.widgetHTML(hero, { ahora: new Date(), pdfsAbiertos: lista ? lista.filter(x => x.desbloqueado).length : 0, pdfsTotal: lista ? lista.length : undefined });
         } catch (e) {
           console.warn('[Dashboard] tarjeta de cursos:', e);
-          resume.innerHTML = ZOO_INICIO.heroHTML(cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]) } : { tipo: 'sin-cursos' });
+          const sin = ZOO_INICIO.elegirHero({ cursos, dias: 0, progreso: {} });
+          resume.innerHTML = ZOO_INICIO.widgetHTML(cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]), resumen: sin.resumen } : sin, { ahora: new Date() });
         }
       };
       pintarTarjetaCursos();
@@ -1111,11 +1088,11 @@
       (async () => {
         const nl = document.getElementById('newsList');
         try {
-          const r = await ZOORIGEN_CLUB.apiFetch('/api/noticias?limit=3');
-          ZOO_NOTICIAS.pintar(nl, Array.isArray(r && r.noticias) ? r.noticias : [], { max: 3 });
+          const r = await ZOORIGEN_CLUB.apiFetch('/api/noticias?limit=6');
+          ZOO_NOTICIAS.pintar(nl, Array.isArray(r && r.noticias) ? r.noticias : [], { max: 6 });
         } catch (err) {
           console.warn('[Dashboard] noticias:', err);
-          nl.innerHTML = '<div class="nt-vacio"><strong>No se pudieron cargar las noticias</strong><span>Revisa tu conexión; puedes verlas en la sección Noticias del sector.</span></div>';
+          nl.innerHTML = '<div class="nt-vacio"><strong>No se pudieron cargar las noticias</strong><span>Revisa tu conexión y vuelve a abrir el Inicio en un momento.</span></div>';
         }
       })();
 
