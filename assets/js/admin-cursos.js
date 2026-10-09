@@ -365,6 +365,80 @@
     return { lecciones: salida, errores };
   }
 
+  /* ── Sincronizar UN curso con Bunny (desde el formulario del curso) ── */
+
+  const normTitulo = t => String(t == null ? '' : t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  // Qué tan parecidos son dos títulos (0 a 1)
+  function puntajeTitulo(a, b) {
+    const na = normTitulo(a), nb = normTitulo(b);
+    if (!na || !nb) return 0;
+    if (na === nb) return 1;
+    if (na.includes(nb) || nb.includes(na)) return 0.9;
+    const ta = new Set(na.split(' ').filter(x => x.length > 2));
+    const tb = new Set(nb.split(' ').filter(x => x.length > 2));
+    const union = new Set([...ta, ...tb]);
+    let inter = 0;
+    tb.forEach(x => { if (ta.has(x)) inter++; });
+    return union.size ? inter / union.size : 0;
+  }
+
+  // La colección de Bunny más parecida al título del curso: { coleccion, puntaje } o null si ninguna se parece lo bastante.
+  function mejorColeccion(titulo, catalogo, minimo) {
+    const piso = typeof minimo === 'number' ? minimo : 0.45;
+    let mejor = null;
+    (Array.isArray(catalogo) ? catalogo : []).forEach(c => {
+      if (!c || !Array.isArray(c.sesiones) || !c.sesiones.length) return;
+      const puntaje = puntajeTitulo(titulo, c.titulo);
+      if (!mejor || puntaje > mejor.puntaje) mejor = { coleccion: c, puntaje };
+    });
+    return mejor && mejor.puntaje >= piso ? mejor : null;
+  }
+
+  // El catálogo guardado en el sitio (archivo con los 61 videos) tiene otra forma; aquí se adapta a la de Bunny en vivo.
+  function catalogoDesdeArchivo(archivo) {
+    return (Array.isArray(archivo) ? archivo : []).map(c => ({
+      titulo: c.title, collectionId: null,
+      sesiones: (c.lecciones || []).map((l, i) => ({ numero: l.num || i + 1, titulo: l.titulo || `Clase ${i + 1}`, videoId: l.videoId }))
+    }));
+  }
+
+  // Pone cada video de la colección en su clase (por orden). NO toca títulos escritos, preguntas, juegos ni clases gratis.
+  // Las clases que ya estaban y que Bunny no trae se conservan (no se borra nada). Devuelve { lecciones, actualizadas, nuevas, sobrantes }.
+  function aplicarColeccion(lecciones, coleccion) {
+    const previas = Array.isArray(lecciones) ? lecciones.map(l => ({ ...l })) : [];
+    const sesiones = (coleccion && Array.isArray(coleccion.sesiones) ? coleccion.sesiones : [])
+      .filter(s => s && RE_UUID.test(String(s.videoId || '')))
+      .slice().sort((a, b) => (a.numero - b.numero) || String(a.titulo).localeCompare(String(b.titulo)));
+    let actualizadas = 0, nuevas = 0;
+    sesiones.forEach((s, i) => {
+      const id = String(s.videoId).toLowerCase();
+      const limpio = String(s.titulo || '').replace(/\.[a-z0-9]{2,5}$/i, '').trim();
+      let clase = previas[i];
+      const vacia = !clase || (!clase.videoId && !(clase.driveId && String(clase.driveId).trim()) && !(clase.titulo && clase.titulo.trim()));
+      if (vacia) { clase = { ...(clase || {}), titulo: limpio || `Clase ${i + 1}`, duration: (clase && clase.duration) || '' }; nuevas++; }
+      else actualizadas++;
+      if (clase.driveId) clase.driveIdAnterior = clase.driveId;
+      delete clase.driveId;
+      clase.videoId = id; clase.provider = 'bunny';
+      if (!clase.titulo || !String(clase.titulo).trim()) clase.titulo = limpio || `Clase ${i + 1}`;
+      previas[i] = clase;
+    });
+    const resultado = previas.filter((l, i) => i < sesiones.length || l.videoId || (l.driveId && String(l.driveId).trim()) || (l.titulo && l.titulo.trim()));
+    return { lecciones: resultado, actualizadas, nuevas, sobrantes: Math.max(0, resultado.length - sesiones.length) };
+  }
+
+  // Videos de Bunny que ya usa OTRO curso (para avisar antes de vincular dos veces el mismo video)
+  function videosUsadosPorOtros(cursos, idActual, coleccion) {
+    const ids = new Set((coleccion && coleccion.sesiones || []).map(s => String(s.videoId || '').toLowerCase()));
+    const usados = [];
+    (Array.isArray(cursos) ? cursos : []).forEach(c => {
+      if (!c || c.id === idActual) return;
+      if (leccionesDe(c).some(l => l && ids.has(String(l.videoId || '').toLowerCase()))) usados.push(c.title || c.id);
+    });
+    return usados;
+  }
+
   // Sincronización con Bunny: reemplaza videos por posición pero CONSERVA todo lo demás (títulos, juegos…).
   function migrarLecciones(anteriores, nuevas) {
     const previas = Array.isArray(anteriores) ? anteriores : [];
@@ -528,9 +602,13 @@
           <span><strong>Este curso tiene clases gratis de muestra</strong><small>Quien no tenga membresía podrá ver las clases que marques como gratis. Solo un curso puede tenerlo. Las demás clases piden membresía.</small></span></label>
         <div class="ce-campo ce-campo--full">
           <span>Clases del curso</span>
-          <small class="ce-ayuda">Para una clase nueva pega el ID del video de Bunny (o un enlace de Google Drive). Cada clase puede llevar preguntas y cerrar con un juego.</small>
+          <small class="ce-ayuda">Lo más fácil: escribe el título del curso arriba y pulsa "Sincronizar con Bunny". También puedes pegar a mano el ID del video de Bunny (o un enlace de Google Drive). Cada clase puede llevar preguntas y cerrar con un juego.</small>
           <div id="leccionesContainer" class="ce-clases"></div>
-          <button type="button" class="ce-agregar" onclick="agregarLeccion()">${ico('plus', { size: 16 })}Agregar otra clase</button>
+          <div class="ce-botones">
+            <button type="button" class="ce-agregar" onclick="agregarLeccion()">${ico('plus', { size: 16 })}Agregar otra clase</button>
+            <button type="button" class="ce-agregar ce-sync" id="cf-sync-bunny" onclick="sincronizarCursoBunny()" title="Busca en Bunny la colección con el nombre más parecido al título del curso y llena el video de cada clase">${ico('cloud-download', { size: 16 })}Sincronizar con Bunny</button>
+          </div>
+          <small class="ce-ayuda">"Sincronizar con Bunny" busca la colección parecida al título del curso y llena solo el video de cada clase. No cambia títulos que ya escribiste, preguntas, juegos ni clases gratis.</small>
         </div>
       </div>
       <div class="ce-pie">
@@ -545,6 +623,7 @@
     kpisHTML, chipsAreasHTML, ordenHTML, vistaHTML, tarjetaGridHTML, tarjetaListaHTML, listaHTML,
     FILAS_MINIMAS, leccionVacia, nuevoJuego, agregarFila, quitarFila, asignarRuta, moverLeccion,
     limpiarLecciones, migrarLecciones, normalizarFuente,
+    puntajeTitulo, mejorColeccion, catalogoDesdeArchivo, aplicarColeccion, videosUsadosPorOtros,
     nuevaPregunta, agregarPregunta, quitarPregunta, cambiarTipoPregunta, agregarOpcion, quitarOpcion,
     preguntaHTML, preguntasZonaHTML, leccionHTML, leccionesHTML, zonaJuegoHTML, camposJuegoHTML, modalCursoHTML
   };

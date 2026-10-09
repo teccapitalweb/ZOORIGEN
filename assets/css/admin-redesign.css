@@ -906,3 +906,9 @@ textarea.ce-input { min-height: 84px; resize: vertical; line-height: 1.5; }
 .modal-form .ce-opcion .ce-radio { margin: 0; }
 .modal-form .ce-muestra > span { display: block; text-transform: none; }
 .modal-form .ce-muestra > span strong { font: 700 .86rem var(--zoo-font-body); }
+
+/* Botones bajo la lista de clases */
+.ce-botones { display: flex; flex-wrap: wrap; gap: 10px; }
+.ce-botones .ce-agregar { flex: 1 1 200px; }
+.ce-sync { color: var(--c-accent-text); border-color: var(--c-accent); }
+.ce-sync:disabled { opacity: .6; cursor: wait; }

@@ -272,7 +272,7 @@
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
   <script src="../assets/js/club-quiz.js?v=20261010"></script>
   <script src="../assets/js/admin-miembros.js?v=20261008"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261010"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261011"></script>
   <script src="../assets/js/admin-certificados.js?v=20261009"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20260820"></script>
   <script>
@@ -668,6 +668,7 @@
       }
       if (!lecciones.length) lecciones = [CURSOS.leccionVacia()];
       window.__leccionesTemp = lecciones;
+      window.__cursoEditandoId = data.id || '';
 
       openModal(CURSOS.modalCursoHTML(data, AREAS));
       document.getElementById('modalForm').classList.add('ce-host');
@@ -741,6 +742,53 @@
         }
       });
     }
+
+    // Botón "Sincronizar con Bunny" del formulario: llena los videos de ESTE curso.
+    // Pide la lista al servidor (Bunny en vivo). Si el servidor aún no tiene la clave de Bunny,
+    // usa el catálogo guardado en el sitio (los 15 cursos ya conocidos).
+    window.sincronizarCursoBunny = async () => {
+      const btn = document.getElementById('cf-sync-bunny');
+      const titulo = (document.getElementById('f_title') || {}).value || '';
+      if (!titulo.trim()) { toast('Escribe primero el título del curso: con él se busca la colección en Bunny.', true); return; }
+      const texto = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = ZOO_ICONOS.svg('refresh-cw', { size: 16, clase: 'zi-spin' }) + 'Consultando Bunny…'; }
+      let catalogo = null, origen = 'vivo';
+      try {
+        const user = firebase.auth().currentUser;
+        if (!user) throw new Error('sesion');
+        const token = await user.getIdToken();
+        const r = await fetch('https://zoorigen-webhook-production.up.railway.app/api/admin/bunny-catalogo', { headers: { Authorization: 'Bearer ' + token } });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok && Array.isArray(data.catalogo)) catalogo = data.catalogo;
+        else if (data && data.codigo !== 'sin_api_key' && r.status !== 404) throw new Error(data.error || ('HTTP ' + r.status));
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.innerHTML = texto; }
+        toast('No se pudo consultar Bunny: ' + (err.message === 'sesion' ? 'tu sesión expiró, vuelve a entrar' : err.message), true);
+        return;
+      }
+      if (!catalogo) { catalogo = CURSOS.catalogoDesdeArchivo(window.ZOORIGEN_BUNNY_CATALOG); origen = 'archivo'; }
+      if (btn) { btn.disabled = false; btn.innerHTML = texto; }
+
+      const hallada = CURSOS.mejorColeccion(titulo, catalogo);
+      if (!hallada) {
+        toast(origen === 'archivo'
+          ? 'No encontré ese curso en el catálogo guardado en el sitio. Para ver videos nuevos de Bunny falta conectar la clave de Bunny en el servidor.'
+          : `No encontré en Bunny una colección parecida a "${titulo.trim()}". Revisa que se llamen parecido.`, true);
+        return;
+      }
+      const col = hallada.coleccion;
+      const idActual = window.__cursoEditandoId || '';
+      const enUso = CURSOS.videosUsadosPorOtros(cursosEstado.items, idActual, col);
+      const aviso = `Se encontró la colección "${col.titulo}" en Bunny (${col.sesiones.length} videos).\n\n` +
+        (hallada.puntaje < 0.9 ? 'OJO: el nombre no es igual al del curso, revisa que sea la correcta.\n\n' : '') +
+        (enUso.length ? `OJO: esos videos ya están en: ${enUso.join(', ')}.\n\n` : '') +
+        'Se llenará el video de cada clase por orden. No se cambian títulos que ya escribiste, preguntas, juegos ni clases gratis. Aún no se guarda nada hasta pulsar "Guardar". ¿Continuar?';
+      if (!confirm(aviso)) return;
+      const r = CURSOS.aplicarColeccion(window.__leccionesTemp, col);
+      window.__leccionesTemp = r.lecciones.length ? r.lecciones : [CURSOS.leccionVacia()];
+      renderLeccionesForm();
+      toast(`${r.actualizadas + r.nuevas} clases vinculadas desde "${col.titulo}"${r.sobrantes ? ` · ${r.sobrantes} clase(s) del curso no tienen video en Bunny` : ''}${origen === 'archivo' ? ' (catálogo guardado en el sitio)' : ''}. Pulsa Guardar para terminar.`);
+    };
 
     window.agregarLeccion = () => {
       window.__leccionesTemp.push(CURSOS.leccionVacia());
