@@ -119,7 +119,7 @@
     return `<div class="zc-banner" id="prueba-card" role="region" aria-label="Prueba gratuita">
       <span class="zc-banner__ico">${ico('gift', { size: 22 })}</span>
       <div><strong>Selecciona el curso de tu preferencia para obtener tu prueba gratuita</strong>
-      <p>Solo puedes elegir <b>un</b> curso y después no se puede cambiar. Todas sus clases son gratis, menos la última: esa se desbloquea al suscribirte.</p></div>
+      <p>Solo puedes elegir <b>un</b> curso y después no se puede cambiar.</p></div>
     </div>`;
   }
 

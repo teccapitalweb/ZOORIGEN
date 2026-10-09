@@ -534,7 +534,7 @@
           aviso.innerHTML = '';
         } else if (modo === 'prueba') {
           const elegido = cursos.find(c => c.id === p.elegida);
-          aviso.innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🎁</span>Tu prueba gratuita: <strong>${escHtml(elegido ? elegido.title : 'curso elegido')}</strong>. Todas sus clases son gratis, menos la última: esa se desbloquea al suscribirte. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
+          aviso.innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🎁</span>Tu prueba gratuita: <strong>${escHtml(elegido ? elegido.title : 'curso elegido')}</strong>. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
         } else if (modo === 'miembro') {
           const lista = cursos;
           if (p.elegida && lista.some(c => c.id === p.elegida)) {
@@ -682,7 +682,7 @@
         titulo: '¿Seguro que deseas este curso?',
         subtitulo: 'Tu prueba gratuita',
         cuerpoHTML: `<div class="zc-conf"><span class="zc-conf__img"${img ? ` style="--zc-img:url('${ZOO_CURSOS_UI.esc(img)}')"` : ''}></span><strong>${ZOO_CURSOS_UI.esc(curso.title)}</strong></div>
-          <p>Será tu <b>prueba gratuita</b>: todas sus clases menos la última son gratis.</p>
+          <p>Será tu <b>prueba gratuita</b>.</p>
           <p><b>Solo puedes elegir uno y después no se puede cambiar.</b></p>`,
         botones: [
           { texto: 'No, ver otros cursos' },
