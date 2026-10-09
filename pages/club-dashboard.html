@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261015">
   <style>
     /* ═══════════════ NOTIFICACIONES ═══════════════ */
     .notif-icon {
@@ -637,6 +638,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20260828-membership1"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261015"></script>
+  <script src="../assets/js/club-onboarding.js?v=20261015"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -649,6 +652,10 @@
 
       // Inicializar menú móvil (hamburguesa + sidebar responsive)
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
+      // Secuencia de bienvenida (miembro nuevo) o prueba gratuita (miembro que vuelve). Nunca a admins.
+      // No espera ni bloquea la página: si algo falla, el panel sigue igual.
+      if (window.ZOO_ONBOARDING) { try { ZOO_ONBOARDING.iniciar({ session }); } catch (e) { console.warn('onboarding:', e); } }
 
       // Mostrar guía de bienvenida la primera vez que entra (solo si es VIP activo)
       if (ZOORIGEN_CLUB.hasActiveMembership(session)) {
@@ -685,7 +692,8 @@
       // ═══════════════ BIENVENIDA USUARIO NUEVO SIN PAGAR ═══════════════
       // Viene con ?welcome=1 tras registrarse — mostrar mensaje motivador de exploración
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('welcome') && !ZOORIGEN_CLUB.hasActiveMembership(session)) {
+      // (Si está cargada la nueva secuencia de bienvenida —club-onboarding.js— ella reemplaza este mensaje.)
+      if (urlParams.has('welcome') && !ZOORIGEN_CLUB.hasActiveMembership(session) && !window.ZOO_ONBOARDING) {
         setTimeout(() => {
           const welcomeOverlay = document.createElement('div');
           welcomeOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .3s ease-out;';
