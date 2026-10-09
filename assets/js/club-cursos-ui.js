@@ -70,6 +70,7 @@
     const img = urlSegura(x.imagen);
     let insignia = '';
     if (bloqueado) insignia = `<span class="zc-badge zc-badge--lock">${ico('lock', { size: 13 })}${esc(textoEspera(x.desbloqueo))}</span>`;
+    else if (x.modo === 'miembro' && x.desbloqueo && x.desbloqueo.porPremio === true) insignia = `<span class="zc-badge zc-badge--premio">${ico('trophy', { size: 13 })}Abierto por premio</span>`;
     else if (x.esPrueba) insignia = `<span class="zc-badge zc-badge--free">${ico('gift', { size: 13 })}${x.clasesGratis ? esc(plural(x.clasesGratis, 'CLASE GRATIS', 'CLASES GRATIS')) : 'TU PRUEBA GRATUITA'}</span>`;
     else if (x.modo === 'libre' && x.clasesGratis) insignia = `<span class="zc-badge zc-badge--free">${ico('gift', { size: 13 })}${esc(plural(x.clasesGratis, 'CLASE GRATIS', 'CLASES GRATIS'))}</span>`;
     else if (c && c.disponibleSiempre === true) insignia = '<span class="zc-badge zc-badge--ok">DISPONIBLE</span>';

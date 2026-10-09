@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261009">
-  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261013">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261020">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
     .player-overlay {
@@ -374,9 +374,10 @@
   <script src="../assets/js/club.js?v=20261015-gratis"></script>
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
   <script src="../assets/js/club-quiz.js?v=20261010"></script>
-  <script src="../assets/js/club-acceso.js?v=20261013"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261010"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261017"></script>
+  <script src="../assets/js/club-acceso.js?v=20261020"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261020"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261020"></script>
+  <script src="../assets/js/club-premios.js?v=20261020"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
     const ZOORIGEN_FREE_VIDEO_ID = 'befd1641-850a-4099-88a8-047a1badc703';
@@ -436,18 +437,14 @@
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🎁</span>Tienes gratis la clase 1 del primer curso. Desde la clase 2 necesitas una membresía vigente. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
       }
 
-      window.__zooPrueba = await cargarEstadoPrueba();
+      // Estado de la prueba gratuita y cursos que el miembro ya abrió con un premio (en paralelo; si el servidor no responde, sin adelantados)
+      const [estadoPrueba, adelantados] = await Promise.all([cargarEstadoPrueba(), cargarAdelantados(session)]);
+      window.__zooPrueba = estadoPrueba;
+      window.__zooAdelantados = adelantados;
       const cursosDeFirestore = await ZOORIGEN_CLUB.getCursos();
       // Los cursos nuevos (con "ordenVip") van al final de la fila de desbloqueo; los de siempre no se mueven.
-      const cursos = window.ZOO_ACCESO ? ZOO_ACCESO.ordenarCursos(cursosDeFirestore) : cursosDeFirestore;
-      // Garantiza que el curso que contiene la única clase gratuita aparezca
-      // siempre como el primer curso, sin depender de la fecha de Firestore.
-      cursos.sort((a, b) => {
-        const gratisDeSiempre = (c) => (c.lecciones || []).some(l => window.ZOO_ACCESO ? ZOO_ACCESO.esClaseGratis(l, c) : String(l?.videoId || '') === ZOORIGEN_FREE_VIDEO_ID);
-        const aGratis = gratisDeSiempre(a) ? 1 : 0;
-        const bGratis = gratisDeSiempre(b) ? 1 : 0;
-        return bGratis - aGratis;
-      });
+      // Además, el curso que contiene la única clase gratuita aparece siempre primero, sin depender de la fecha de Firestore.
+      const cursos = ZOO_ACCESO.ordenParaDesbloqueo(cursosDeFirestore);
       const grid = document.getElementById('coursesGrid');
 
       if (cursos.length === 0) {
@@ -511,16 +508,13 @@
         const p = window.__zooPrueba;
         return isActive ? 'miembro' : (p.elegible ? 'pendiente' : (p.elegida ? 'prueba' : 'libre'));
       };
-      const diasComoMiembro = () => {
-        const desde = session.planActivadoEn || session.createdAt || new Date().toISOString();
-        return Math.floor((Date.now() - new Date(desde).getTime()) / (1000 * 60 * 60 * 24));
-      };
+      const diasComoMiembro = () => ZOO_ACCESO.diasComoMiembro(session);
       // Desbloqueo de un curso (se calcula sobre la lista COMPLETA, no sobre el filtro de área)
       window.__zooDesbloqueo = (curso) => {
         const dias = diasComoMiembro();
         const i = cursos.findIndex(x => x.id === curso.id);
         if (!isActive || !window.ZOO_ACCESO) return { desbloqueado: true, diasFalta: 0, motivo: null };
-        return ZOO_ACCESO.desbloqueoCurso({ lista: cursos, i, dias, prueba: window.__zooPrueba, progreso: window.__zooCourseProgress });
+        return ZOO_ACCESO.desbloqueoCurso({ lista: cursos, i, dias, prueba: window.__zooPrueba, progreso: window.__zooCourseProgress, adelantados: window.__zooAdelantados });
       };
       window.__zooCursosLista = cursos;
 
@@ -545,9 +539,17 @@
           } else {
             const maxIdx = ZOO_ACCESO.maxDesbloqueado(dias);
             const enFila = ZOO_ACCESO.cursosEnFila(lista);
-            if (enFila > maxIdx + 1) {
-              const faltan = Math.max(0, ((maxIdx + 1) * 8) - dias);
-              caja.innerHTML = `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon">🔓</div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. Llevas <strong>${dias} día${dias !== 1 ? 's' : ''}</strong> como miembro, tienes <strong>${Math.min(enFila, maxIdx + 1) + (lista.length - enFila)}</strong> de ${lista.length} cursos disponibles.${faltan > 0 ? ` El siguiente se desbloquea en <strong>${faltan} día${faltan !== 1 ? 's' : ''}</strong>.` : ''}</div></div>`;
+            // Sin premios usados la cuenta es la de siempre; con premios se cuentan también los cursos adelantados.
+            let ruta = null;
+            if ((window.__zooAdelantados || []).length) {
+              const r = ZOO_ACCESO.resumenDesbloqueo({ lista, dias, adelantados: window.__zooAdelantados });
+              if (r.bloqueados > 0) ruta = { disponibles: r.disponibles, faltan: r.faltan };
+            } else if (enFila > maxIdx + 1) {
+              ruta = { disponibles: Math.min(enFila, maxIdx + 1) + (lista.length - enFila), faltan: Math.max(0, ((maxIdx + 1) * 8) - dias) };
+            }
+            if (ruta) {
+              const faltan = ruta.faltan;
+              caja.innerHTML = `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon">🔓</div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. Llevas <strong>${dias} día${dias !== 1 ? 's' : ''}</strong> como miembro, tienes <strong>${ruta.disponibles}</strong> de ${lista.length} cursos disponibles.${faltan > 0 ? ` El siguiente se desbloquea en <strong>${faltan} día${faltan !== 1 ? 's' : ''}</strong>.` : ''}</div></div>`;
             }
           }
         }
@@ -649,6 +651,19 @@
       } catch (e) {
         console.warn('[prueba gratuita] sin respuesta del servidor:', e.message || e);
         return ZOO_ACCESO.estadoPrueba(null);
+      }
+    }
+
+    // Cursos que el miembro ya abrió con un premio (GET /api/premios). Solo con membresía vigente y con un tiempo corto de espera:
+    // si el servidor no responde, no hay adelantados y la biblioteca funciona exactamente como siempre.
+    async function cargarAdelantados(session) {
+      try {
+        if (!window.ZOO_PREMIOS || !ZOORIGEN_CLUB.hasActiveMembership(session)) return [];
+        const r = await ZOO_PREMIOS.consultar(4000);
+        return r.ok ? ZOO_ACCESO.adelantadosDeRespuesta(r.crudo) : [];
+      } catch (e) {
+        console.warn('[premios] sin respuesta del servidor:', e.message || e);
+        return [];
       }
     }
 
