@@ -726,7 +726,9 @@
       dots.forEach(function (d) { d.addEventListener('click', function () { detenerAuto(); ir(parseInt(d.getAttribute('data-i'), 10)); }); });
       el.addEventListener('pointerenter', function () { clearTimeout(timer); });
       el.addEventListener('pointerleave', programar);
-      el.addEventListener('focusin', function () { clearTimeout(timer); });
+      // Quien navega con teclado (o toca la pantalla) lleva su propio ritmo: se apaga el avance automático.
+      el.addEventListener('keydown', detenerAuto);
+      el.addEventListener('touchstart', detenerAuto, { passive: true });
       ir(0);
     });
   }
@@ -1104,7 +1106,7 @@
     if (guia && guia.parentNode === cont) cont.insertBefore(b, guia.nextSibling); else cont.insertBefore(b, cont.firstChild);
     b.addEventListener('click', function () {
       if (estado.tourActivo && estado.tourActivo.activo) return;
-      if (hayModalAjeno()) return;
+      if (hayModalAjeno() || document.querySelector('.zob')) return;
       correrRecorrido(ctx);
     });
   }
