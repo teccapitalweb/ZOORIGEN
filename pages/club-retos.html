@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zona de retos · Club VIP Zoorigen</title>
+  <!-- ===== PWA ===== -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Zoorigen">
+  <meta name="theme-color" content="#1F5F3A">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-retos.css?v=20261016">
+</head>
+<body>
+  <div class="club-layout">
+    <aside class="club-sidebar" id="sidebar"></aside>
+    <main class="club-main">
+      <div class="club-main__header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button>
+        <div class="club-main__greeting">
+          <h1>Zona de retos</h1>
+          <p class="date">Practica, supera retos cortos y sube de nivel</p>
+        </div>
+      </div>
+
+      <div id="retosApp" class="rz"><p style="color:var(--zoo-text-muted);">Cargando...</p></div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js?v=20261015-gratis"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261016"></script>
+  <script src="../assets/js/club-retos-datos.js?v=20261016"></script>
+  <script src="../assets/js/club-retos.js?v=20261016"></script>
+  <script>
+    (async () => {
+      const session = await ZOORIGEN_CLUB.requireAuth();
+      if (!session) return;
+      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('retos', session);
+      if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+      if (ZOORIGEN_CLUB.initNotifications) ZOORIGEN_CLUB.initNotifications(session);
+
+      // Zona de retos: el nivel, el XP y los resultados los valida el servidor (ver assets/js/club-retos.js).
+      ZOO_RETOS.iniciar({
+        contenedor: '#retosApp',
+        miembro: ZOORIGEN_CLUB.hasActiveMembership(session),
+        base: '../'
+      });
+    })();
+  </script>
+<script>
+  // ===== PWA: registro del service worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('SW no registrado:', err); });
+    });
+  }
+</script>
+</body>
+</html>
