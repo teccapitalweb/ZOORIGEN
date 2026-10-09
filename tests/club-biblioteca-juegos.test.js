@@ -72,6 +72,11 @@ test('la biblioteca carga las preguntas y las reglas de acceso, y las usa', () =
   assert.match(pagina, /ZOO_ACCESO\.esClaseGratis\(lesson, curso, prueba, idx\)/);
 });
 
+test('el certificado usa el nombre que el miembro eligió en la bienvenida (y su nombre de siempre si no eligió)', () => {
+  assert.match(pagina, /perfil\.data\(\)\.nombreCertificado/);
+  assert.match(pagina, /memberName: nombreEnCertificado \|\| window\.__zooSession\.name/);
+});
+
 test('el paywall del reproductor usa la regla de clases gratis con el curso actual', () => {
   assert.match(pagina, /!esClaseGratis\(lesson, window\.__currentCourse, lessonIdx\)/);
 });

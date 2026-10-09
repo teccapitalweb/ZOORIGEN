@@ -928,6 +928,13 @@
         const random = Math.floor(Math.random() * 90000) + 10000;
         const folio = `ZOO-${year}-${random}`;
 
+        // Nombre que el miembro eligió para su certificado (tarjeta de bienvenida); si no eligió, su nombre de siempre
+        let nombreEnCertificado = '';
+        try {
+          const perfil = await db.collection('miembros').doc(window.__zooSession.uid).get();
+          nombreEnCertificado = String((perfil.exists && perfil.data().nombreCertificado) || '').trim().slice(0, 60);
+        } catch (e) { /* si no se puede leer, se usa el nombre de siempre */ }
+
         const certData = {
           folio,
           courseId: String(courseId),
@@ -935,7 +942,7 @@
           courseArea: window.__currentCourse.area || 'General',
           courseDuration: window.__currentCourse.duration || '',
           memberUid: window.__zooSession.uid,
-          memberName: window.__zooSession.name || window.__zooSession.email || 'Miembro VIP',
+          memberName: nombreEnCertificado || window.__zooSession.name || window.__zooSession.email || 'Miembro VIP',
           memberEmail: window.__zooSession.email || '',
           issuedAt: new Date().toISOString(),
           totalClases: window.__currentLecciones.length
