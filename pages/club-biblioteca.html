@@ -751,6 +751,12 @@
           progress[courseId].isCompleted = false;
         }
       } else {
+        // Una clase con preguntas o juego solo se da por vista al completarlos
+        const leccion = window.__currentLecciones?.[lessonIdx];
+        if (leccion && window.__currentCourse?.id === courseId && leccionTieneActividad(leccion)) {
+          abrirActividadesDeClase(lessonIdx, async () => { await guardarClaseVista(courseId, lessonIdx); renderCourseModal(); }, { obligatorio: true });
+          return;
+        }
         progress[courseId].completedLessons.push(lessonIdx);
       }
 
@@ -966,8 +972,8 @@
         playerVideo.innerHTML = `<div style="display:grid;place-items:center;min-height:420px;padding:28px;text-align:center;color:#fff;"><div><div style="font-size:2rem;margin-bottom:12px;">⚠️</div><strong>No se pudo reproducir la clase</strong><p style="color:var(--zoo-text-muted);margin-top:8px;">${String(error.message || error)}</p></div></div>`;
       }
 
-      if (courseId !== undefined && lessonIdx !== undefined) {
-        clearTimeout(window.__autoCompleteTimer);
+      clearTimeout(window.__autoCompleteTimer);
+      if (courseId !== undefined && lessonIdx !== undefined && !leccionTieneActividad(lesson)) {   // con preguntas/juego NO se marca sola
         window.__autoCompleteTimer = setTimeout(async () => {
           const progress = window.__zooCourseProgress;
           if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
@@ -979,15 +985,22 @@
       }
     }
 
-    async function marcarYSiguiente(courseId, lessonIdx) {
+    // Marca la clase como vista y guarda el avance (si ya estaba, no hace nada)
+    async function guardarClaseVista(courseId, lessonIdx) {
       const progress = window.__zooCourseProgress;
       if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
-
       if (!progress[courseId].completedLessons.includes(lessonIdx)) {
         progress[courseId].completedLessons.push(lessonIdx);
         await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
       }
+    }
 
+    // ¿La clase tiene preguntas o juego que hay que completar para darla por vista?
+    function leccionTieneActividad(lesson) {
+      return cantidadPreguntas(lesson) > 0 || !!nombreJuegoDeClase(lesson);
+    }
+
+    async function marcarYSiguiente(courseId, lessonIdx) {
       const lecciones = window.__currentLecciones;
       const nextIdx = lessonIdx + 1;
 
@@ -1002,9 +1015,12 @@
         }
       };
 
-      // Si la clase trae un juego, se juega al terminarla; al acabar (o al cerrarlo) se continúa.
-      // El avance ya quedó guardado arriba: el juego es práctica y no condiciona el certificado.
-      abrirActividadesDeClase(lessonIdx, continuar);
+      // Como en alintecfood: si la clase trae preguntas o juego, hay que completarlos (no se pueden cerrar)
+      // y SOLO entonces la clase cuenta como vista y se avanza. Sin actividad, se guarda y avanza de inmediato.
+      abrirActividadesDeClase(lessonIdx, async () => {
+        await guardarClaseVista(courseId, lessonIdx);
+        continuar();
+      }, { obligatorio: true });
     }
 
     function cantidadPreguntas(lesson) {
@@ -1012,15 +1028,18 @@
     }
 
     // Al terminar una clase: primero sus preguntas (si tiene), luego su juego (si tiene) y al final se continúa.
-    // Cualquiera de las dos ventanas se puede cerrar y el flujo sigue: nada de esto traba al miembro.
-    function abrirActividadesDeClase(lessonIdx, despues) {
+    // opciones.obligatorio: sin botón de cerrar (la clase no cuenta como vista hasta terminar). Si una actividad
+    // está mal armada o no se puede dibujar, se salta sola para no dejar atorado a nadie.
+    function abrirActividadesDeClase(lessonIdx, despues, opciones) {
+      const obligatorio = !!(opciones && opciones.obligatorio);
       const lesson = window.__currentLecciones?.[lessonIdx];
       let pasado = false;
-      const aJuego = () => { if (pasado) return; pasado = true; abrirJuegoDeClase(lessonIdx, despues); };
+      const aJuego = () => { if (pasado) return; pasado = true; abrirJuegoDeClase(lessonIdx, despues, { obligatorio }); };
       if (!cantidadPreguntas(lesson)) { aJuego(); return; }
       const curso = window.__currentCourse || {};
       ZOO_QUIZ.abrir(lesson.preguntas, {
         subtitulo: (lesson.titulo || 'Clase ' + (lessonIdx + 1)) + (curso.title ? ' · ' + curso.title : ''),
+        obligatorio,
         alTerminar: aJuego,
         alCerrar: aJuego
       });
@@ -1041,8 +1060,8 @@
       return limpio ? ZOO_JUEGOS.esc(ZOO_JUEGOS.TIPOS[limpio.tipo]) : '';
     }
 
-    // Abre el juego de la clase; `despues` se ejecuta una sola vez al terminar o al cerrar la ventana.
-    function abrirJuegoDeClase(lessonIdx, despues) {
+    // Abre el juego de la clase; `despues` se ejecuta una sola vez al terminar (o al cerrar, si no es obligatorio).
+    function abrirJuegoDeClase(lessonIdx, despues, opciones) {
       const lesson = window.__currentLecciones?.[lessonIdx];
       if (!window.ZOO_JUEGOS || !lesson || !lesson.juego) { despues(); return; }
       const curso = window.__currentCourse || {};
@@ -1052,7 +1071,7 @@
         subtitulo: (lesson.titulo || 'Clase ' + (lessonIdx + 1)) + (curso.title ? ' · ' + curso.title : ''),
         portada: curso.image,
         imagenPorDefecto: '../assets/img/banner/banner.png',
-        obligatorio: false,
+        obligatorio: !!(opciones && opciones.obligatorio),
         textoContinuar: 'Continuar',
         alTerminar: seguir,
         alCerrar: seguir
