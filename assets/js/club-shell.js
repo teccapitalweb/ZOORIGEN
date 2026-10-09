@@ -122,6 +122,9 @@
   };
   var estado = { montado: false, cursos: null };
 
+  /* ZOORIGEN_CLUB se declara con const en club.js: no es propiedad de window, se busca por su nombre. */
+  function club() { try { return (typeof ZOORIGEN_CLUB !== 'undefined') ? ZOORIGEN_CLUB : null; } catch (e) { return null; } }
+
   /* Íconos que el menú nuevo necesita y club.js aún no tenía. */
   function completarIconos() {
     try {
@@ -131,7 +134,8 @@
         menu: '<path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/>',
         logout: '<path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M9 12h12l-3 -3"/><path d="M18 15l3 -3"/>',
         tools: '<path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5"/>',
-        x: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>'
+        x: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>',
+        bulb: '<path d="M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7"/><path d="M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3"/><path d="M9.7 17l4.6 0"/>'
       };
       Object.keys(extra).forEach(function (k) { if (!ZOORIGEN_ICONS[k]) ZOORIGEN_ICONS[k] = extra[k]; });
     } catch (e) { /* sin íconos extra */ }
@@ -167,7 +171,7 @@
   }
 
   function cambiarTema() {
-    if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB.toggleTheme) ZOORIGEN_CLUB.toggleTheme();
+    if (club() && club().toggleTheme) club().toggleTheme();
     else {
       var sig = temaActual() === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', sig);
@@ -204,12 +208,9 @@
       '</div>';
   }
 
+  /* El contenido del panel lo pinta club-avisos.js (o, si no está, la campana anterior de club.js). */
   function panelNotifHTML() {
-    return '<div class="notif-panel zs-notif" id="notifPanel" style="display:none;">' +
-      '<div class="notif-panel__header"><h3>' + icono('bell', 16) + ' Notificaciones</h3>' +
-      '<button class="notif-panel__close" id="notifPanelClose" aria-label="Cerrar">✕</button></div>' +
-      '<div class="notif-panel__actions" id="notifPanelActions" style="display:none;"><button class="notif-mark-all" id="notifMarkAll">Marcar todas como leídas</button></div>' +
-      '<div class="notif-panel__list" id="notifList">Cargando…</div></div>';
+    return '<div class="notif-panel zs-notif" id="notifPanel" style="display:none;"></div>';
   }
 
   function barraInferiorHTML(activo) {
@@ -266,9 +267,9 @@
   }
 
   function cargarCursosParaBuscar() {
-    if (estado.cursos || !window.ZOORIGEN_CLUB || !ZOORIGEN_CLUB.getCursos) return;
+    if (estado.cursos || !club() || !club().getCursos) return;
     estado.cursos = [];
-    Promise.resolve().then(function () { return ZOORIGEN_CLUB.getCursos(); })
+    Promise.resolve().then(function () { return club().getCursos(); })
       .then(function (lista) { estado.cursos = Array.isArray(lista) ? lista : []; var i = document.getElementById('zsSearchInput'); if (i && i.value) pintarResultados(i.value); })
       .catch(function () { estado.cursos = []; });
   }
@@ -283,7 +284,7 @@
   }
 
   function cerrarSesion() {
-    if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB.logout) ZOORIGEN_CLUB.logout();
+    if (club() && club().logout) club().logout();
   }
 
   /* Monta la estructura. opciones: { sesion, activo }. Se puede llamar más de una vez sin duplicar nada. */
@@ -330,7 +331,7 @@
     document.getElementById('zsThemeCajon').addEventListener('click', cambiarTema);
     document.getElementById('zsSalir').addEventListener('click', cerrarSesion);
     document.getElementById('zsSalirCajon').addEventListener('click', cerrarSesion);
-    function verGuia() { abrirCajon(false); if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB._showGuideFromSidebar) ZOORIGEN_CLUB._showGuideFromSidebar(); }
+    function verGuia() { abrirCajon(false); if (club() && club()._showGuideFromSidebar) club()._showGuideFromSidebar(); }
     document.getElementById('zsHelp').addEventListener('click', verGuia);
     document.getElementById('zsAyudaCajon').addEventListener('click', verGuia);
     document.getElementById('zsMas').addEventListener('click', function () { abrirCajon(true); });
@@ -349,8 +350,20 @@
     window.addEventListener('resize', function () { if (window.innerWidth > BREAKPOINT_MOVIL) abrirCajon(false); });
 
     /* campana: la lógica ya existe en club.js y busca estos mismos ids */
-    if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB.initNotifications && sesion && sesion.uid) {
-      Promise.resolve().then(function () { return ZOORIGEN_CLUB.initNotifications(sesion); }).catch(function () { /* sin campana */ });
+    if (sesion && sesion.uid) {
+      var cl = club();
+      if (window.ZOO_AVISOS && cl) {
+        window.ZOO_AVISOS.montar({
+          sesion: sesion, boton: document.getElementById('notifBtn'), panel: document.getElementById('notifPanel'), secciones: planos(),
+          apiFetch: function (ruta) { return cl.apiFetch(ruta); },
+          legado: function () { return cl.getNotificaciones ? cl.getNotificaciones(sesion) : []; }
+        });
+      } else if (cl && cl.initNotifications) {
+        /* respaldo: la campana anterior necesita su propio contenido dentro del panel */
+        var p = document.getElementById('notifPanel');
+        if (p) p.innerHTML = '<div class="notif-panel__header"><h3>Notificaciones</h3><button class="notif-panel__close" id="notifPanelClose" aria-label="Cerrar">✕</button></div><div class="notif-panel__actions" id="notifPanelActions" style="display:none;"><button class="notif-mark-all" id="notifMarkAll">Marcar todas como leídas</button></div><div class="notif-panel__list" id="notifList">Cargando…</div>';
+        Promise.resolve().then(function () { return cl.initNotifications(sesion); }).catch(function () { /* sin campana */ });
+      }
     }
     return true;
   }

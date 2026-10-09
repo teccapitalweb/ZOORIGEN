@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261024-panel">
+  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261024-noticias">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261016">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261015">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261022">
@@ -557,37 +558,11 @@
         <div class="dashboard-main">
           <div id="resumeCard"></div>
 
-          <div class="card card-promo">
-            <div class="card-promo__icon">🎓</div>
-            <div class="card-promo__text">
-              <div class="card-promo__title">¿Quieres los nuevos cursos de Zoorigen?</div>
-              <div class="card-promo__subtitle">Como Miembro VIP recibes 20% de descuento en todas las capacitaciones</div>
-            </div>
-            <a href="https://wa.me/5212361113237?text=Hola%2C%20soy%20miembro%20VIP%20Zoorigen%20y%20quiero%20info%20de%20cursos" target="_blank" class="card-promo__badge">20% OFF</a>
-          </div>
-
-          <div>
-            <div class="section-title">📰 Noticias y novedades</div>
-            <div id="newsList">Cargando noticias...</div>
-          </div>
-
-          <!-- ════ SECCIÓN VIDEOS PRÁCTICOS ════ -->
-          <div>
-            <div class="section-title">🎥 Videos prácticos</div>
-            <div id="dashVideosList" class="content-list">Cargando videos...</div>
-          </div>
-
-          <!-- ════ SECCIÓN WEBINARS EN VIVO ════ -->
-          <div>
-            <div class="section-title">🎥 Webinars en vivo</div>
-            <div id="dashWebinarsList" class="content-list">Cargando webinars...</div>
-          </div>
-
-          <!-- ════ SECCIÓN PDFs & MATERIAL ════ -->
-          <div>
-            <div class="section-title">📄 PDFs & material científico</div>
-            <div id="dashPdfsList" class="content-list">Cargando PDFs...</div>
-          </div>
+          <!-- ════ NOTICIAS DEL SECTOR ════ -->
+          <section class="nt-seccion" id="newsSection">
+            <div class="nt-encabezado"><h2>Noticias del sector</h2><span class="nt-hoy">Hoy</span><a class="nt-ver-todas" href="club-noticias.html">Ver todas →</a></div>
+            <div id="newsList"><div class="nt-vacio"><span>Cargando noticias…</span></div></div>
+          </section>
 
           <!-- ════ SECCIÓN INVITAR AMIGOS ════ -->
           <div>
@@ -644,8 +619,12 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20261024-panel"></script>
   <script src="../assets/js/club-shell.js?v=20261024-panel"></script>
+  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
+  <script src="../assets/js/club-acceso.js?v=20261020"></script>
+  <script src="../assets/js/club-noticias-ui.js?v=20261024-noticias"></script>
+  <script src="../assets/js/club-inicio.js?v=20261024-noticias"></script>
   <script src="../assets/js/club-premios.js?v=20261022"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
   <script src="../assets/js/club-onboarding.js?v=20261023"></script>
@@ -744,16 +723,11 @@
       }
 
       // Cargar datos desde Firestore (robusto: si uno falla, los demás siguen)
-      const [cursos, noticias, proximaSesion, todosLosWebinars, videos, pdfs] = await Promise.all([
+      const [cursos, proximaSesion, todosLosWebinars] = await Promise.all([
         ZOORIGEN_CLUB.getCursos().catch(e => { console.warn('getCursos falló:', e); return []; }),
-        ZOORIGEN_CLUB.getNoticias(5).catch(e => { console.warn('getNoticias falló:', e); return []; }),
         ZOORIGEN_CLUB.getProximaSesion().catch(e => { console.warn('getProximaSesion falló:', e); return null; }),
-        ZOORIGEN_CLUB.getSesiones().catch(e => { console.warn('getSesiones falló:', e); return []; }),
-        ZOORIGEN_CLUB.getVideos().catch(e => { console.warn('getVideos falló:', e); return []; }),
-        ZOORIGEN_CLUB.getPdfs().catch(e => { console.warn('getPdfs falló:', e); return []; })
+        ZOORIGEN_CLUB.getSesiones().catch(e => { console.warn('getSesiones falló:', e); return []; })
       ]);
-
-      console.log('[Dashboard] Datos cargados:', { cursos: cursos.length, noticias: noticias.length, webinars: todosLosWebinars.length, videos: videos.length, pdfs: pdfs.length });
 
       // ═══════════════ POPUP DE WEBINAR ═══════════════
       // Revisa TODOS los webinars próximos y muestra popup del PRIMERO que el usuario no haya visto.
@@ -1082,31 +1056,38 @@
         cargarNivel(false);
       }
 
-      // Card resumen de curso
+      // Tarjeta principal: "Continúa tu curso" / "Próximo desbloqueo" (miembros con membresía). Sin membresía, el acceso a Cursos.
       const resume = document.getElementById('resumeCard');
-      if (cursos.length > 0) {
-        const c = cursos[0];
-        resume.innerHTML = `
-          <div class="card card-resume">
-            <div class="card-resume__icon">▶</div>
-            <div class="card-resume__text">
-              <div class="card-resume__eyebrow">Empieza con tu primer curso</div>
-              <div class="card-resume__title">${c.title}</div>
-              <div class="card-resume__meta">${c.area} · ${c.duration || ''}${c.level ? ' · ' + c.level : ''}</div>
-            </div>
-            <a href="club-biblioteca.html" class="card-resume__action">Ver curso</a>
-          </div>`;
-      } else {
-        resume.innerHTML = `
-          <div class="card card-resume" style="opacity:0.7;">
-            <div class="card-resume__icon" style="background:var(--zoo-green-900);">🎓</div>
-            <div class="card-resume__text">
-              <div class="card-resume__eyebrow">Cursos VIP</div>
-              <div class="card-resume__title">Pronto tendrás cursos disponibles</div>
-              <div class="card-resume__meta">El equipo Zoorigen está subiendo los primeros cursos</div>
-            </div>
-          </div>`;
-      }
+      const pintarTarjetaCursos = async () => {
+        if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
+          resume.innerHTML = cursos.length
+            ? ZOO_INICIO.heroHTML({ tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]) })
+            : ZOO_INICIO.heroHTML({ tipo: 'sin-cursos' });
+          return;
+        }
+        try {
+          const [progreso, premios, prueba] = await Promise.all([
+            ZOORIGEN_CLUB.getCourseProgress(session.uid).catch(() => ({})),
+            ZOORIGEN_CLUB.fetchPremios(false).catch(() => null),
+            ZOORIGEN_CLUB.apiFetch('/api/prueba-gratuita').catch(() => null)
+          ]);
+          const est = ZOO_ACCESO.estadoPrueba(prueba);
+          let hero;
+          if (est.aplica) {
+            // Con prueba gratuita elegida la ruta de desbloqueo es otra: aquí solo se muestra el curso elegido o se manda a Cursos.
+            const elegido = cursos.find(c => c.id === est.elegida);
+            const av = elegido ? ZOO_INICIO.avanceDe(progreso, elegido.id) : null;
+            hero = elegido && !av.terminado ? { tipo: 'continuar', curso: elegido, hechas: av.hechas, total: ZOO_INICIO.totalClases(elegido) } : { tipo: 'terminado' };
+          } else {
+            hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), adelantados: ZOO_ACCESO.adelantadosDeRespuesta(premios), progreso });
+          }
+          resume.innerHTML = ZOO_INICIO.heroHTML(hero, { ahora: new Date() });
+        } catch (e) {
+          console.warn('[Dashboard] tarjeta de cursos:', e);
+          resume.innerHTML = ZOO_INICIO.heroHTML(cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]) } : { tipo: 'sin-cursos' });
+        }
+      };
+      pintarTarjetaCursos();
 
       // Próximo webinar (aside)
       const ns = document.getElementById('nextSessionCard');
@@ -1126,93 +1107,17 @@
           <div class="aside-card__meta">Masterclasses en vivo por Google Meet</div>`;
       }
 
-      // Noticias
-      const nl = document.getElementById('newsList');
-      if (noticias.length === 0) {
-        nl.innerHTML = `<div class="news-card" style="grid-template-columns:1fr;">
-          <div class="news-card__body" style="padding:22px;">
-            <span class="news-card__source">🦒 Zoorigen</span>
-            <h4 class="news-card__title">Bienvenido al Club Zoorigen</h4>
-            <p class="news-card__summary">Las noticias de fauna y biodiversidad se sincronizan automáticamente desde Mongabay, SciDev y DW cada 6 horas.</p>
-          </div>
-        </div>`;
-      } else {
-        nl.innerHTML = `<div class="news-grid">${noticias.map(n => ZOORIGEN_CLUB.renderNewsCard(n)).join('')}</div>`;
-      }
-
-      // ═══════════════ VIDEOS PRÁCTICOS ═══════════════
-      try {
-        const dvl = document.getElementById('dashVideosList');
-        if (!dvl) { console.warn('[Dashboard] dashVideosList no encontrado'); }
-        else if (!videos || videos.length === 0) {
-          dvl.innerHTML = `<div class="dash-empty-mini">🎬 Próximamente: videos prácticos con técnicas de campo paso a paso.</div>`;
-        } else {
-          dvl.innerHTML = videos.slice(0, 4).map(v => {
-            const driveEmbed = v.driveId ? ZOORIGEN_CLUB.buildDriveEmbed(v.driveId) : null;
-            const linkHref = driveEmbed ? `javascript:window.open('${driveEmbed}','_blank','width=900,height=600');` : (v.url || '#');
-            return `
-              <a href="${linkHref}" ${!driveEmbed && v.url ? 'target="_blank"' : ''} class="dash-mini-item" data-vip-required data-vip-label="ver este video">
-                <div class="dash-mini-item__thumb">🎥</div>
-                <div class="dash-mini-item__body">
-                  <div class="dash-mini-item__title">${v.title || 'Video sin título'}</div>
-                  <div class="dash-mini-item__meta">${v.category || 'Práctica'} · ${v.duration || ''}</div>
-                </div>
-              </a>`;
-          }).join('');
+      // Noticias del sector (las trae el servidor; si falla, el inicio sigue funcionando)
+      (async () => {
+        const nl = document.getElementById('newsList');
+        try {
+          const r = await ZOORIGEN_CLUB.apiFetch('/api/noticias?limit=3');
+          ZOO_NOTICIAS.pintar(nl, Array.isArray(r && r.noticias) ? r.noticias : [], { max: 3 });
+        } catch (err) {
+          console.warn('[Dashboard] noticias:', err);
+          nl.innerHTML = '<div class="nt-vacio"><strong>No se pudieron cargar las noticias</strong><span>Revisa tu conexión; puedes verlas en la sección Noticias del sector.</span></div>';
         }
-      } catch (e) { console.error('[Dashboard] Error render videos:', e); }
-
-      // ═══════════════ WEBINARS EN VIVO ═══════════════
-      try {
-        const dwl = document.getElementById('dashWebinarsList');
-        if (!dwl) { console.warn('[Dashboard] dashWebinarsList no encontrado'); }
-        else if (!todosLosWebinars || todosLosWebinars.length === 0) {
-          dwl.innerHTML = `<div class="dash-empty-mini">📅 No hay webinars programados. Pronto anunciaremos el próximo.</div>`;
-        } else {
-          const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
-          dwl.innerHTML = todosLosWebinars.slice(0, 3).map(w => {
-            const d = new Date(w.date);
-            const day = !isNaN(d) ? d.getDate() : '?';
-            const month = !isNaN(d) ? meses[d.getMonth()] : '';
-            const meetBtn = w.meetUrl ? `<a href="${w.meetUrl}" target="_blank" style="display:inline-block;margin-top:6px;background:#2AA4D5;color:#fff;padding:4px 10px;border-radius:6px;font-size:.76rem;font-weight:700;text-decoration:none;">📹 Entrar a Meet</a>` : '';
-            return `
-              <div class="dash-mini-item">
-                <div class="dash-webinar-date">
-                  <span class="day">${day}</span>
-                  <span class="month">${month}</span>
-                </div>
-                <div class="dash-mini-item__body">
-                  <div class="dash-mini-item__title">${w.title || 'Webinar'}</div>
-                  <div class="dash-mini-item__meta">${w.speaker || ''} · ${w.time || '19:00'} ${w.duration ? '· ' + w.duration : ''}</div>
-                  ${meetBtn}
-                </div>
-              </div>`;
-          }).join('');
-        }
-      } catch (e) { console.error('[Dashboard] Error render webinars:', e); }
-
-      // ═══════════════ PDFs & MATERIAL ═══════════════
-      // ═══════════════ PDFs & MATERIAL ═══════════════
-      try {
-        const dpl = document.getElementById('dashPdfsList');
-        if (!dpl) { console.warn('[Dashboard] dashPdfsList no encontrado'); }
-        else if (!pdfs || pdfs.length === 0) {
-          dpl.innerHTML = `<div class="dash-empty-mini">📄 Pronto agregaremos PDFs y material científico descargable.</div>`;
-        } else {
-          dpl.innerHTML = pdfs.slice(0, 4).map(p => {
-            const driveView = p.driveId ? ZOORIGEN_CLUB.buildDrivePdfView(p.driveId) : null;
-            const linkHref = driveView || p.url || '#';
-            return `
-              <a href="${linkHref}" target="_blank" class="dash-mini-item" data-vip-required data-vip-label="descargar este PDF">
-                <div class="dash-mini-item__thumb" style="background:linear-gradient(135deg,rgba(213,90,40,0.25),rgba(232,163,23,0.2));">📄</div>
-                <div class="dash-mini-item__body">
-                  <div class="dash-mini-item__title">${p.title || 'PDF sin título'}</div>
-                  <div class="dash-mini-item__meta">${p.category || 'Material'} ${p.pages ? '· ' + p.pages + ' páginas' : ''}</div>
-                </div>
-              </a>`;
-          }).join('');
-        }
-      } catch (e) { console.error('[Dashboard] Error render PDFs:', e); }
+      })();
 
       // ═══════════════ SISTEMA DE REFERIDOS ═══════════════
       try {

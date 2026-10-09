@@ -322,6 +322,8 @@ const ZOORIGEN_CLUB = {
   // Se usa en todas las páginas: dashboard, biblioteca, foro, etc.
   async initNotifications(session) {
     if (!session) return;
+    // Con la estructura nueva la campana la monta club-avisos.js; esta versión queda de respaldo.
+    if (typeof ZOO_AVISOS !== 'undefined' && ZOO_AVISOS.activo && ZOO_AVISOS.activo()) return;
     const notifBtn = document.getElementById('notifBtn');
     const notifPanel = document.getElementById('notifPanel');
     if (!notifBtn || !notifPanel) return; // página no tiene campana
