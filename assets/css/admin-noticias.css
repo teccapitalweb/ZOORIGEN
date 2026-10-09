@@ -1,0 +1,39 @@
+/* ============================================================ */
+/* PANEL ADMIN · Noticias, datos curiosos y avisos               */
+/* Usa la paleta del panel (--c-*): sigue sola cualquier tema.   */
+/* ============================================================ */
+.an-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 18px; border-bottom: 1px solid var(--c-line, rgba(111,191,115,.18)); }
+.an-tab { padding: 10px 18px; border-radius: 10px 10px 0 0; font-weight: 700; font-size: .92rem; color: var(--c-text-2, rgba(255,255,255,.68)); border-bottom: 3px solid transparent; background: transparent; }
+.an-tab:hover { color: var(--c-text, #fff); }
+.an-tab.is-active { color: var(--c-accent-text, #E8A317); border-bottom-color: var(--c-accent, #E8A317); }
+.an-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 960px) { .an-grid { grid-template-columns: 1fr; } }
+.an-card { background: var(--c-surface, #14281B); border: 1px solid var(--c-line, rgba(111,191,115,.18)); border-radius: 16px; padding: 18px 20px; color: var(--c-text, #fff); box-shadow: var(--c-card-shadow, none); }
+.an-card h3 { margin: 0 0 12px; font-size: 1.02rem; color: var(--c-text, #fff); }
+.an-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .an-dos { grid-template-columns: 1fr; } }
+.an-card .field label { color: var(--c-text, #fff); }
+.an-card .field small { color: var(--c-text-3, rgba(255,255,255,.5)); font-weight: 400; }
+.an-card select, .an-card input[type="text"], .an-card input:not([type]), .an-card textarea, .an-card .field input { width: 100%; background: var(--c-input, rgba(0,0,0,.28)); color: var(--c-text, #fff); border: 1px solid var(--c-line-strong, rgba(111,191,115,.28)); border-radius: 10px; padding: 10px 12px; font: inherit; }
+.an-card select { appearance: auto; }
+.an-card textarea { font-family: inherit; line-height: 1.5; resize: vertical; }
+.an-card .field input:focus, .an-card textarea:focus, .an-card select:focus { border-color: var(--c-accent, #E8A317); outline: none; background: var(--c-input-focus, rgba(0,0,0,.4)); }
+.an-check { display: flex; align-items: center; gap: 8px; margin: 6px 0 14px; font-size: .9rem; color: var(--c-text-2, rgba(255,255,255,.7)); }
+.an-check input { width: auto; }
+.an-nota { font-size: .84rem; line-height: 1.5; color: var(--c-text-2, rgba(255,255,255,.68)); margin: 10px 0 0; }
+.an-plantillas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.an-plantilla { display: flex; flex-direction: column; gap: 6px; align-items: stretch; padding: 8px; border-radius: 12px; border: 2px solid var(--c-line, rgba(255,255,255,.14)); background: var(--c-surface-flat, rgba(255,255,255,.03)); font-size: .78rem; font-weight: 700; color: var(--c-text-2, rgba(255,255,255,.7)); text-align: center; cursor: pointer; }
+.an-plantilla i { display: block; height: 28px; border-radius: 6px; background: linear-gradient(100deg, #1f5f3a, #2f7a4f); }
+.an-plantilla--naranja i { background: linear-gradient(100deg, #c2571a, #e8861f); }
+.an-plantilla--bicolor i { background: linear-gradient(100deg, #1f5f3a 0 55%, #e8a317 55% 100%); }
+.an-plantilla.is-active { border-color: var(--c-accent, #E8A317); color: var(--c-text, #fff); }
+.an-previa { max-width: 300px; margin: 0 auto; }
+.an-previa .hoja { min-height: 0; }
+.an-pausado { opacity: .55; }
+.an-aviso { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--c-line-strong, rgba(111,191,115,.35)); background: var(--c-warn-bg, rgba(232,163,23,.08)); }
+.an-aviso strong { font-size: .92rem; color: var(--c-text, #fff); }
+.an-aviso span { font-size: .84rem; color: var(--c-text-2, rgba(255,255,255,.7)); }
+.an-subtitulo { margin: 24px 0 10px; font-size: 1.02rem; color: var(--c-text, #fff); }
+.an-card .btn-cancel, .an-card .btn-save { cursor: pointer; }
+.an-card .btn-cancel { background: var(--c-ghost-bg, transparent); color: var(--c-ghost-ink, inherit); border: 1px solid var(--c-ghost-line, rgba(255,255,255,.2)); border-radius: 999px; padding: 10px 18px; font-weight: 700; }
+.an-card input::placeholder, .an-card textarea::placeholder { color: var(--c-text-3, rgba(255,255,255,.45)); opacity: 1; }
