@@ -68,8 +68,23 @@
     return Math.max(0, pos * DIAS_POR_CURSO - (Number(dias) || 0));
   }
 
+  // Orden de los cursos para el desbloqueo.
+  // Los cursos de siempre (sin "ordenVip") conservan EXACTAMENTE el orden que traen (más nuevo primero, como antes).
+  // Los cursos nuevos llevan un número "ordenVip" y se acomodan DESPUÉS de todos los anteriores, en orden de llegada:
+  // así un curso nuevo nunca empuja a los que ya existían.
+  const tieneOrdenVip = c => !!c && typeof c.ordenVip === 'number' && Number.isFinite(c.ordenVip);
+  function ordenarCursos(lista) {
+    const cursos = Array.isArray(lista) ? lista : [];
+    const antiguos = cursos.filter(c => !tieneOrdenVip(c));
+    const nuevos = cursos.filter(tieneOrdenVip)
+      .map((c, i) => ({ c, i }))
+      .sort((a, b) => (a.c.ordenVip - b.c.ordenVip) || (a.i - b.i))
+      .map(x => x.c);
+    return antiguos.concat(nuevos);
+  }
+
   return {
-    VIDEO_GRATIS_FIJO, DIAS_POR_CURSO,
+    VIDEO_GRATIS_FIJO, DIAS_POR_CURSO, ordenarCursos, tieneOrdenVip,
     siempreDisponible, esClaseGratis, cursoTieneClaseGratis,
     posicionDesbloqueo, cursosEnFila, maxDesbloqueado, desbloqueadoPorTiempo, diasParaDesbloquear
   };

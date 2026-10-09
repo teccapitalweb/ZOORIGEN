@@ -373,7 +373,7 @@
   <script src="../assets/js/club.js?v=20260828-membership1"></script>
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
   <script src="../assets/js/club-quiz.js?v=20261010"></script>
-  <script src="../assets/js/club-acceso.js?v=20261010"></script>
+  <script src="../assets/js/club-acceso.js?v=20261012"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
     const ZOORIGEN_FREE_VIDEO_ID = 'befd1641-850a-4099-88a8-047a1badc703';
@@ -430,7 +430,9 @@
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🎁</span>Tienes gratis la clase 1 del primer curso. Desde la clase 2 necesitas una membresía vigente. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
       }
 
-      const cursos = await ZOORIGEN_CLUB.getCursos();
+      const cursosDeFirestore = await ZOORIGEN_CLUB.getCursos();
+      // Los cursos nuevos (con "ordenVip") van al final de la fila de desbloqueo; los de siempre no se mueven.
+      const cursos = window.ZOO_ACCESO ? ZOO_ACCESO.ordenarCursos(cursosDeFirestore) : cursosDeFirestore;
       // Garantiza que el curso que contiene la única clase gratuita aparezca
       // siempre como el primer curso, sin depender de la fecha de Firestore.
       cursos.sort((a, b) => {

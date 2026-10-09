@@ -439,6 +439,28 @@
     return usados;
   }
 
+  /* ── Orden de desbloqueo de los cursos nuevos ── */
+
+  // Siguiente número de orden: después del más alto que exista (o 0 si todavía ninguno lo tiene).
+  function siguienteOrdenVip(cursos) {
+    const nums = (Array.isArray(cursos) ? cursos : []).map(c => c && c.ordenVip).filter(n => typeof n === 'number' && Number.isFinite(n));
+    return (nums.length ? Math.max(...nums) : -1) + 1;
+  }
+
+  // ¿Qué número de orden guardar al crear/editar un curso?
+  //   un número  → asignarlo (curso nuevo, o curso que antes estaba fuera de la fila y ahora entra)
+  //   undefined  → no tocar el campo (los cursos de siempre NO deben moverse de lugar)
+  function calcularOrdenVip(cursos, cursoActual, opciones) {
+    const o = opciones || {};
+    if (o.disponibleSiempre === true || o.cursoMuestraGratis === true) return undefined;   // no hacen fila
+    if (cursoActual) {
+      if (typeof cursoActual.ordenVip === 'number') return undefined;                      // ya tiene lugar
+      const estabaFuera = cursoActual.disponibleSiempre === true || cursoActual.cursoMuestraGratis === true;
+      if (!estabaFuera) return undefined;                                                  // curso de siempre: se queda donde está
+    }
+    return siguienteOrdenVip(cursos);
+  }
+
   // Sincronización con Bunny: reemplaza videos por posición pero CONSERVA todo lo demás (títulos, juegos…).
   function migrarLecciones(anteriores, nuevas) {
     const previas = Array.isArray(anteriores) ? anteriores : [];
@@ -623,6 +645,7 @@
     kpisHTML, chipsAreasHTML, ordenHTML, vistaHTML, tarjetaGridHTML, tarjetaListaHTML, listaHTML,
     FILAS_MINIMAS, leccionVacia, nuevoJuego, agregarFila, quitarFila, asignarRuta, moverLeccion,
     limpiarLecciones, migrarLecciones, normalizarFuente,
+    siguienteOrdenVip, calcularOrdenVip,
     puntajeTitulo, mejorColeccion, catalogoDesdeArchivo, aplicarColeccion, videosUsadosPorOtros,
     nuevaPregunta, agregarPregunta, quitarPregunta, cambiarTipoPregunta, agregarOpcion, quitarOpcion,
     preguntaHTML, preguntasZonaHTML, leccionHTML, leccionesHTML, zonaJuegoHTML, camposJuegoHTML, modalCursoHTML

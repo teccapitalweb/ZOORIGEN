@@ -272,7 +272,7 @@
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
   <script src="../assets/js/club-quiz.js?v=20261010"></script>
   <script src="../assets/js/admin-miembros.js?v=20261008"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261011"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261012"></script>
   <script src="../assets/js/admin-certificados.js?v=20261009"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20260820"></script>
   <script>
@@ -828,6 +828,10 @@
         description: document.getElementById('f_desc').value.trim(),
         tag: document.getElementById('f_tag').value.trim()
       };
+      // Orden de desbloqueo: solo para cursos nuevos (o los que antes no hacían fila). Los de siempre no se mueven.
+      const actual = id ? (cursosEstado.items || []).find(c => c.id === id) : null;
+      const ordenVip = CURSOS.calcularOrdenVip(cursosEstado.items, actual, { disponibleSiempre, cursoMuestraGratis });
+      if (ordenVip !== undefined) data.ordenVip = ordenVip;
       if (!data.title) { toast('Título requerido', true); return; }
       if (lecciones.length === 0) { toast('Agrega al menos 1 clase con video', true); return; }
       try {
@@ -881,6 +885,7 @@
         const usados = new Set();
         let actualizados = 0;
         let creados = 0;
+        const creadosEnEstaCorrida = [];
 
         for (const item of catalogo) {
           const exacto = existentes.find(c => !usados.has(c.id) && normalizarTituloBunny(c.title) === normalizarTituloBunny(item.title));
@@ -908,6 +913,10 @@
           };
 
           if (!previo) {
+            // Un curso creado por la sincronización también va al final de la fila, no al principio
+            const nuevoOrden = CURSOS.siguienteOrdenVip(existentes.concat(creadosEnEstaCorrida));
+            creadosEnEstaCorrida.push({ ordenVip: nuevoOrden });
+            data.ordenVip = nuevoOrden;
             Object.assign(data, {
               title: item.title,
               area: 'Fauna silvestre',
