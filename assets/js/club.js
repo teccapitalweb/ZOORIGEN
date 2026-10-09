@@ -1164,6 +1164,9 @@ const ZOORIGEN_CLUB = {
     const planDotColor = session?.planStatus === 'active' ? '#6FBF73' : session?.planStatus === 'cancelled_active' ? '#E8A317' : !isActivePlan ? '#E8A317' : '#a0a8a4';
     const planLabelColor = isActivePlan ? 'var(--zoo-green-500, #6FBF73)' : 'var(--zoo-amber, #E8A317)';
 
+    // Con la estructura nueva (club-shell.js) el menú sale agrupado de una sola fuente; sin ella queda el listado plano de antes.
+    this._shellActivo = activeId;
+    this._shellSesion = session;
     const items = [
       { id: 'inicio', label: 'Inicio', icon: 'home', href: 'club-dashboard.html' },
       { id: 'biblioteca', label: 'Cursos', icon: 'book', href: 'club-biblioteca.html' },
@@ -1202,6 +1205,7 @@ const ZOORIGEN_CLUB = {
           <small>${isActivePlan ? 'Club VIP' : 'Acceso gratuito'}</small>
         </div>
       </div>
+      ${(typeof ZOO_SHELL !== 'undefined' && ZOO_SHELL.menuHTML) ? ZOO_SHELL.menuHTML(activeId, '') : `
       <div class="club-sidebar__section">Principal</div>
       ${items.map(i => `
         <a href="${i.href}" class="${i.id === activeId ? 'is-active' : ''}">
@@ -1214,7 +1218,7 @@ const ZOORIGEN_CLUB = {
         <a href="${i.href}" class="${i.id === activeId ? 'is-active' : ''}">
           <span class="icon">${zooIcon(i.icon)}</span>${i.label}
         </a>
-      `).join('')}
+      `).join('')}`}
       <div class="club-sidebar__plan" style="padding:10px 12px;text-align:center;">
         <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:4px;">
           <span style="width:7px;height:7px;border-radius:50%;background:${planDotColor};"></span>
@@ -1362,6 +1366,11 @@ const ZOORIGEN_CLUB = {
   initMobileMenu() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
+
+    // Barra superior, barra inferior del celular y cajón "Más" (club-shell.js)
+    try {
+      if (typeof ZOO_SHELL !== 'undefined' && ZOO_SHELL.montar) ZOO_SHELL.montar({ sesion: this._shellSesion, activo: this._shellActivo });
+    } catch (e) { console.warn('Estructura del panel no disponible:', e); }
 
     // Cerrar sidebar
     const closeSidebar = () => {
@@ -1536,7 +1545,9 @@ const ZOORIGEN_CLUB = {
         <div style="background:#1f1d17;color:#E8A317;padding:8px 18px;border-radius:10px;font-family:Poppins;font-weight:800;font-size:.88rem;">Suscribirme</div>
       `;
       banner.addEventListener('click', () => this.showPaywall(session, 'desbloquear todo el contenido'));
-      main.insertBefore(banner, main.firstChild);
+      const barra = document.getElementById('zsTopbar');
+      if (barra && barra.parentNode === main) barra.insertAdjacentElement('afterend', banner);
+      else main.insertBefore(banner, main.firstChild);
     }
   }
 };
