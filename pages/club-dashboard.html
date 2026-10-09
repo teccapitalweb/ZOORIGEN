@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261016">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261015">
+  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261022">
   <style>
     /* ═══════════════ NOTIFICACIONES ═══════════════ */
     .notif-icon {
@@ -593,8 +594,8 @@
             <div class="dash-refer-card" data-vip-required data-vip-label="obtener tu código de referido">
               <div class="dash-refer-icon">🎁</div>
               <div class="dash-refer-body">
-                <h3>Invita a 3 amigos y adelanta un curso</h3>
-                <p>Comparte tu código. Cuando 3 amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha. Con 6, ganas otro.</p>
+                <h3>Invita a 4 amigos y adelanta un curso</h3>
+                <p>Comparte tu código. Cuando 4 amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha.</p>
                 <div class="dash-refer-code-box">
                   <span class="dash-refer-code-label">Tu código:</span>
                   <code id="dashRefCode">ZOO-XXXXXX</code>
@@ -643,7 +644,9 @@
   <script src="../assets/js/club.js?v=20261016-comunidad"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
-  <script src="../assets/js/club-onboarding.js?v=20261015"></script>
+  <script src="../assets/js/club-premios.js?v=20261022"></script>
+  <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
+  <script src="../assets/js/club-onboarding.js?v=20261022"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -1231,10 +1234,11 @@
         const pendientes = Math.max(0, Number(r && r.pendientes) || 0);
         const puntos = Math.max(0, Number(r && r.puntosTotales) || 0);
         const listo = Array.isArray(r && r.premios) && r.premios.some(p => p && p.ganado && !p.usado);
-        const meta = validos < 3 ? 3 : 6;
+        const META_REFERIDOS = 4;   // un solo premio: 4 invitados válidos
+        const usado = Array.isArray(r && r.premios) && r.premios.some(p => p && p.usado);
         const aviso = listo ? 'Tienes un premio listo para canjear'
-          : validos >= 6 ? 'Ya llegaste a los dos premios'
-          : 'Te faltan ' + (meta - validos) + ' para tu ' + (validos < 3 ? 'primer' : 'segundo') + ' premio';
+          : (validos >= META_REFERIDOS || usado) ? 'Ya ganaste tu premio de invitados'
+          : 'Te ' + (META_REFERIDOS - validos === 1 ? 'falta 1' : 'faltan ' + (META_REFERIDOS - validos)) + ' para tu premio';
         statsEl.innerHTML =
           '<span><strong>' + validos + '</strong> confirmados</span>' +
           '<span><strong>' + pendientes + '</strong> por confirmar</span>' +

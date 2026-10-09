@@ -1,0 +1,304 @@
+/* ============================================================ */
+/* TARJETAS DE PREMIO · Club VIP Zoorigen                        */
+/* "Curso completado" (+XP por curso) y "Premio de bienvenida".   */
+/* Las dibuja assets/js/club-curso-premio.js. Tema oscuro por     */
+/* defecto (como el área de miembros) y tema claro con            */
+/* data-theme="light" (diseño de referencia: tarjeta clara con    */
+/* degradado suave, trofeo dorado, casillas 1-10 y barra verde).  */
+/* ============================================================ */
+
+.zcp,
+.zcp * { box-sizing: border-box; }
+
+.zcp {
+  --zcp-fondo: linear-gradient(165deg, #1d3a2a 0%, #14281B 62%, #112117 100%);
+  --zcp-borde: rgba(111, 191, 115, .38);
+  --zcp-sombra: 0 34px 90px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .03);
+  --zcp-velo: rgba(4, 12, 8, .78);
+  --zcp-texto: #f2f7f3;
+  --zcp-suave: rgba(235, 244, 237, .78);
+  --zcp-kicker: #9ec7a8;
+  --zcp-verde: #7fd481;
+  --zcp-casilla: rgba(255, 255, 255, .06);
+  --zcp-casilla-borde: rgba(255, 255, 255, .16);
+  --zcp-casilla-texto: rgba(235, 244, 237, .6);
+  --zcp-pista: rgba(255, 255, 255, .13);
+  --zcp-x: rgba(255, 255, 255, .08);
+  --zcp-x-texto: #dbe9de;
+  --zcp-foco: #8fd0ff;
+  --zcp-subida-fondo: rgba(255, 214, 123, .14);
+  --zcp-subida-borde: rgba(255, 214, 123, .5);
+  --zcp-subida-texto: #ffe3a3;
+  --zcp-nota-fondo: rgba(255, 255, 255, .06);
+
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--zcp-velo);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  font-family: var(--zoo-font-body, 'Open Sans', system-ui, sans-serif);
+  animation: zcp-velo .25s ease both;
+}
+[data-theme="light"] .zcp {
+  --zcp-fondo: linear-gradient(165deg, #ffffff 0%, #f5faf5 55%, #eef5ee 100%);
+  --zcp-borde: #c9dccb;
+  --zcp-sombra: 0 30px 80px rgba(20, 40, 25, .32);
+  --zcp-velo: rgba(24, 36, 28, .6);
+  --zcp-texto: #14231a;
+  --zcp-suave: #4a584f;
+  --zcp-kicker: #6b7f72;
+  --zcp-verde: #2e7d32;
+  --zcp-casilla: #eef3ee;
+  --zcp-casilla-borde: #d8e3d9;
+  --zcp-casilla-texto: #8a998f;
+  --zcp-pista: #e6eee7;
+  --zcp-x: #e8efe9;
+  --zcp-x-texto: #3d4c42;
+  --zcp-foco: #025E9A;
+  --zcp-subida-fondo: #fff4d6;
+  --zcp-subida-borde: #e8b94a;
+  --zcp-subida-texto: #6b4a05;
+  --zcp-nota-fondo: #eef5ee;
+}
+.zcp--saliendo { animation: zcp-velo-fuera .2s ease both; }
+.zcp--saliendo .zcp__tarjeta { animation: zcp-sale .2s ease both; }
+
+.zcp__tarjeta {
+  position: relative;
+  width: min(440px, 100%);
+  max-height: none;
+  margin: auto;
+  padding: 30px 28px 26px;
+  color: var(--zcp-texto);
+  text-align: center;
+  background: var(--zcp-fondo);
+  border: 1px solid var(--zcp-borde);
+  border-radius: 30px;
+  box-shadow: var(--zcp-sombra);
+  animation: zcp-entra .42s cubic-bezier(.2, .9, .3, 1.15) both;
+}
+
+/* Cerrar */
+.zcp__x {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--zcp-x-texto);
+  cursor: pointer;
+  background: var(--zcp-x);
+  border: 0;
+  border-radius: 50%;
+  transition: transform .15s ease, background-color .15s ease;
+}
+.zcp__x:hover { transform: scale(1.08); }
+
+/* Trofeo / regalo */
+.zcp__trofeo {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 12px;
+  color: #6b3d0a;
+  background: radial-gradient(circle at 32% 26%, #ffeaa6 0%, #ffd467 45%, #f6b432 100%);
+  border-radius: 50%;
+  box-shadow: 0 10px 26px rgba(232, 163, 23, .42), inset 0 -4px 10px rgba(173, 102, 8, .22), inset 0 3px 8px rgba(255, 255, 255, .55);
+}
+.zcp__trofeo svg { fill: #fff6d4; filter: drop-shadow(0 2px 2px rgba(120, 70, 8, .35)); }
+.zcp__trofeo svg path, .zcp__trofeo svg rect { stroke-width: 1.7; }
+
+.zcp__kicker {
+  margin: 0 0 4px;
+  color: var(--zcp-kicker);
+  font: 700 .72rem/1.2 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.zcp__xp {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  margin: 0;
+  color: var(--zcp-verde);
+  font-family: var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+  line-height: 1;
+}
+.zcp__xp-num { font-size: clamp(3rem, 14vw, 3.7rem); font-weight: 800; letter-spacing: -.02em; }
+.zcp__xp-u { font-size: 1.75rem; font-weight: 800; }
+
+.zcp__titulo {
+  margin: 8px 0 8px;
+  color: var(--zcp-texto);
+  font: 800 1.35rem/1.25 var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+}
+.zcp__texto {
+  margin: 0 0 18px;
+  color: var(--zcp-suave);
+  font-size: .95rem;
+  line-height: 1.55;
+}
+.zcp__texto b { color: var(--zcp-texto); font-weight: 700; }
+
+/* Casillas 1-10 */
+.zcp__casillas {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.zcp__casilla {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  color: var(--zcp-casilla-texto);
+  font: 700 .74rem/1 var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+  background: var(--zcp-casilla);
+  border: 1px solid var(--zcp-casilla-borde);
+  border-radius: 9px;
+}
+.zcp__casilla.is-hecha {
+  color: #fff;
+  background: linear-gradient(135deg, #2f7a35, #43a047);
+  border-color: transparent;
+  box-shadow: 0 4px 10px rgba(46, 125, 50, .35);
+}
+.zcp__casilla--estrella {
+  color: #7a4a05;
+  background: linear-gradient(135deg, #ffe39a, #f6b93b);
+  border-color: transparent;
+}
+.zcp__casilla--estrella svg { fill: currentColor; }
+.zcp__casilla--estrella.is-hecha {
+  color: #5b3402;
+  background: linear-gradient(135deg, #ffd96b, #f2a516);
+  box-shadow: 0 0 0 3px rgba(246, 185, 59, .32), 0 5px 14px rgba(232, 163, 23, .5);
+}
+.zcp__hint {
+  margin: 10px 0 18px;
+  color: var(--zcp-casilla-texto);
+  font-size: .76rem;
+  line-height: 1.4;
+}
+[data-theme="light"] .zcp__hint { color: #7d8c82; }
+.zcp__hint b { color: var(--zcp-suave); }
+
+/* Subiste de nivel */
+.zcp__subida {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 9px 14px;
+  color: var(--zcp-subida-texto);
+  font: 700 .9rem/1.25 var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+  background: var(--zcp-subida-fondo);
+  border: 1px solid var(--zcp-subida-borde);
+  border-radius: 14px;
+}
+.zcp__subida svg { flex: none; }
+
+/* Nota (por ejemplo: XP guardado sin membresía) */
+.zcp__nota {
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  color: var(--zcp-suave);
+  font-size: .8rem;
+  line-height: 1.45;
+  background: var(--zcp-nota-fondo);
+  border-radius: 12px;
+}
+
+/* Nivel y barra */
+.zcp__nivel { margin: 0 0 18px; text-align: left; }
+.zcp__nivel-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 12px;
+  margin-bottom: 7px;
+  color: var(--zcp-suave);
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.zcp__nivel-fila b { color: var(--zcp-texto); font-weight: 800; }
+.zcp__barra {
+  height: 11px;
+  overflow: hidden;
+  background: var(--zcp-pista);
+  border-radius: 99px;
+}
+.zcp__barra i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #5cb82b 0%, #8fd14f 55%, #b4e57a 100%);
+  border-radius: inherit;
+  animation: zcp-llena .9s cubic-bezier(.2, .8, .2, 1) .25s both;
+}
+
+/* Botón principal */
+.zcp__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 54px;
+  padding: 14px 20px;
+  color: #fff;
+  font: 800 1.02rem/1.2 var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+  cursor: pointer;
+  background: linear-gradient(100deg, #2e7d32 0%, #4c9a3c 55%, #98cc62 100%);
+  border: 0;
+  border-radius: 17px;
+  box-shadow: 0 12px 26px rgba(46, 125, 50, .35);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.zcp__btn:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 16px 30px rgba(46, 125, 50, .42); }
+.zcp__btn:active { transform: translateY(0); }
+
+.zcp__btn:focus-visible,
+.zcp__x:focus-visible { outline: 2px solid var(--zcp-foco); outline-offset: 3px; }
+
+html.zcp-lock, html.zcp-lock body { overflow: hidden; }
+
+@keyframes zcp-llena { from { width: 0; } }
+@keyframes zcp-velo { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zcp-velo-fuera { from { opacity: 1; } to { opacity: 0; } }
+@keyframes zcp-entra { from { opacity: 0; transform: translateY(18px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes zcp-sale { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(10px) scale(.97); } }
+
+@media (max-width: 420px) {
+  .zcp { padding: 12px; }
+  .zcp__tarjeta { padding: 26px 18px 20px; border-radius: 26px; }
+  .zcp__casillas { gap: 4px; }
+  .zcp__casilla { border-radius: 7px; font-size: .64rem; }
+  .zcp__titulo { font-size: 1.2rem; }
+  .zcp__texto { font-size: .9rem; }
+  .zcp__nivel-fila { font-size: .74rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zcp, .zcp__tarjeta, .zcp--saliendo, .zcp--saliendo .zcp__tarjeta { animation: none; }
+  .zcp__barra i { animation: none; }
+  .zcp__btn, .zcp__x { transition: none; }
+}

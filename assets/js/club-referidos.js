@@ -14,8 +14,8 @@
   'use strict';
 
   var URL_REGISTRO = 'https://www.zoorigen.com/pages/club-registro.html';
-  var META_PREMIOS = { 'referidos-1': 3, 'referidos-2': 6 };   // invitados válidos para cada premio
-  var TOTAL_BARRA = 6;
+  var META_PREMIOS = { 'referidos-1': 4 };   // un solo premio: 4 invitados válidos
+  var TOTAL_BARRA = 4;
   var MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
   var TEXTOS = {
@@ -111,8 +111,7 @@
     var ganado = p.ganado === true;
     var usado = p.usado && typeof p.usado === 'object' ? { cursoId: texto(p.usado.cursoId, 80), fecha: p.usado.fecha || null } : (p.usado === true ? { cursoId: '', fecha: null } : null);
     var faltan = p.faltan != null ? entero(p.faltan, 1000) : Math.max(0, meta - validos);
-    var numero = clave === 'referidos-2' ? 2 : 1;
-    return { clave: clave, numero: numero, meta: meta, actual: Math.min(validos, meta), faltan: ganado ? 0 : faltan, ganado: ganado, usado: usado, disponible: ganado && !usado };
+    return { clave: clave, numero: 1, meta: meta, actual: Math.min(validos, meta), faltan: ganado ? 0 : faltan, ganado: ganado, usado: usado, disponible: ganado && !usado };
   }
 
   // Devuelve siempre el mismo molde, aunque el servidor mande datos incompletos o raros.
@@ -122,11 +121,9 @@
     var enlace = typeof r.enlace === 'string' && /^https:\/\/[^\s]+$/.test(r.enlace) ? r.enlace : enlaceLocal(codigo);
     var invitados = Array.isArray(r.invitados) ? r.invitados.map(normalizarInvitado).filter(Boolean).slice(0, 200) : [];
     var validos = r.validos != null ? entero(r.validos, 100000) : invitados.filter(function (i) { return i.estado === 'valido'; }).length;
-    var premios = (Array.isArray(r.premios) ? r.premios : []).map(function (p) { return normalizarPremio(p, validos); }).filter(Boolean);
-    ['referidos-1', 'referidos-2'].forEach(function (clave) {   // si el servidor no manda un premio, se muestra con su meta de siempre
-      if (!premios.some(function (p) { return p.clave === clave; })) premios.push(normalizarPremio({ clave: clave }, validos));
-    });
-    premios.sort(function (a, b) { return a.numero - b.numero; });
+    // Solo existe un premio de referidos. Si el servidor manda otro (por ejemplo uno viejo), no se muestra.
+    var premios = (Array.isArray(r.premios) ? r.premios : []).map(function (p) { return normalizarPremio(p, validos); }).filter(function (p) { return p && p.clave === 'referidos-1'; }).slice(0, 1);
+    if (!premios.length) premios.push(normalizarPremio({ clave: 'referidos-1' }, validos));   // si no lo manda, se muestra con su meta de siempre
     return {
       codigo: codigo, enlace: enlace, validos: validos,
       pendientes: r.pendientes != null ? entero(r.pendientes, 100000) : invitados.filter(function (i) { return i.estado === 'pendiente-correo'; }).length,
@@ -139,10 +136,10 @@
 
   function hayPremioDisponible(est) { return !!est && est.premios.some(function (p) { return p.disponible; }); }
 
-  // Posición de la barra: de 0 a 6 invitados válidos, con marcas en 3 y 6.
+  // Posición de la barra: de 0 a 4 invitados válidos, con la marca del premio al final.
   function progreso(est) {
     var v = Math.min(est.validos, TOTAL_BARRA);
-    return { validos: est.validos, total: TOTAL_BARRA, pct: Math.round((v / TOTAL_BARRA) * 100), marcas: [Math.round(META_PREMIOS['referidos-1'] / TOTAL_BARRA * 100), 100] };
+    return { validos: est.validos, total: TOTAL_BARRA, pct: Math.round((v / TOTAL_BARRA) * 100), marcas: [100] };
   }
 
   function etiquetaEstado(estado) {
@@ -197,8 +194,8 @@
     var p = progreso(est);
     return '<div class="zc-barra" role="progressbar" aria-valuemin="0" aria-valuemax="' + p.total + '" aria-valuenow="' + Math.min(p.validos, p.total) + '" aria-label="Invitados válidos">' +
       '<div class="zc-barra__relleno" style="width:' + p.pct + '%"></div>' +
-      p.marcas.map(function (m, i) { return '<span class="zc-barra__marca" style="left:' + m + '%" title="Premio ' + (i + 1) + '"></span>'; }).join('') +
-      '</div><div class="zc-barra__texto"><span>' + p.validos + ' de ' + p.total + ' invitados válidos</span><span>Premio 1 a los 3 · Premio 2 a los 6</span></div>';
+      p.marcas.map(function (m) { return '<span class="zc-barra__marca" style="left:' + m + '%" title="Premio"></span>'; }).join('') +
+      '</div><div class="zc-barra__texto"><span>' + Math.min(p.validos, p.total) + ' de ' + p.total + ' invitados válidos</span><span>Premio al llegar a ' + p.total + ' amigos</span></div>';
   }
 
   function renderPremio(p, membresia) {
@@ -217,7 +214,7 @@
       cuerpo = '<div class="zc-premio__estado">' + icono('lock', 15) + 'Te ' + (p.faltan === 1 ? 'falta 1 amigo válido' : 'faltan ' + p.faltan + ' amigos válidos') + '</div>';
     }
     return '<div class="zc-premio' + (p.disponible ? ' is-disponible' : '') + (p.usado ? ' is-usado' : '') + '" data-premio="' + esc(p.clave) + '">' +
-      '<div class="zc-premio__cab">' + icono('award', 20) + '<div><strong>Premio ' + p.numero + '</strong><small>' + p.meta + ' invitados válidos</small></div></div>' +
+      '<div class="zc-premio__cab">' + icono('award', 20) + '<div><strong>Premio por invitar a ' + p.meta + ' amigos</strong><small>' + p.meta + ' invitados válidos</small></div></div>' +
       '<p class="zc-premio__desc">Elige un curso y ábrelo antes de su fecha. Se usa una sola vez y no se puede cambiar el curso.</p>' + cuerpo + '</div>';
   }
 

@@ -35,13 +35,12 @@
     { id: 5, nombre: 'Maestro', desde: 4500, hasta: 99999 }
   ];
 
-  // Los cuatro premios que se muestran, siempre en este orden.
+  // Los tres premios que se muestran, siempre en este orden (un solo premio por referidos).
   //   tipo 'xp': se gana al llegar a esa cantidad de XP · tipo 'invitados': al tener esos invitados válidos
   const PREMIOS_INFO = [
     { clave: 'profesional', titulo: 'Profesional', tipo: 'xp', umbral: 1200, descripcion: '1 curso antes de tiempo al llegar al nivel Profesional.', requisito: '1,200 XP' },
     { clave: 'maestro', titulo: 'Maestro', tipo: 'xp', umbral: 4500, descripcion: '1 curso más antes de tiempo al llegar al nivel Maestro.', requisito: '4,500 XP' },
-    { clave: 'referidos-1', titulo: 'Invita a 3 amigos', tipo: 'invitados', umbral: 3, descripcion: '1 curso antes de tiempo cuando 3 invitados válidos se unan.', requisito: '3 invitados válidos' },
-    { clave: 'referidos-2', titulo: 'Invita a 6 amigos', tipo: 'invitados', umbral: 6, descripcion: '1 curso más antes de tiempo cuando 6 invitados válidos se unan.', requisito: '6 invitados válidos' }
+    { clave: 'referidos-1', titulo: 'Invita a 4 amigos', tipo: 'invitados', umbral: 4, descripcion: '1 curso antes de tiempo cuando 4 invitados válidos se unan.', requisito: '4 invitados válidos' }
   ];
 
   const num = (v, d) => { const n = Number(v); return Number.isFinite(n) ? n : (d === undefined ? 0 : d); };
@@ -56,6 +55,23 @@
     return n;
   }
 
+  // Los niveles que manda el servidor (`niveles`); si faltan o vienen mal, se usan los de respaldo de arriba.
+  function normalizarNiveles(lista) {
+    const respaldo = () => NIVELES.map(n => Object.assign({}, n));
+    if (!Array.isArray(lista)) return respaldo();
+    const limpios = lista.filter(n => n && typeof n === 'object' && Number.isFinite(Number(n.id)) && txt(n.nombre).trim() && Number.isFinite(Number(n.desde)) && Number.isFinite(Number(n.hasta)))
+      .map(n => ({ id: Math.round(Number(n.id)), nombre: txt(n.nombre).trim(), desde: Number(n.desde), hasta: Number(n.hasta) }))
+      .sort((a, b) => a.id - b.id);
+    const idsOk = limpios.length >= 2 && limpios.every((n, i) => n.id === i + 1);
+    return idsOk ? limpios : respaldo();
+  }
+  function nivelEn(niveles, xp) {
+    const x = Math.max(0, num(xp));
+    let n = niveles[0];
+    niveles.forEach(c => { if (x >= c.desde) n = c; });
+    return n;
+  }
+
   // Convierte la respuesta de GET /api/premios en datos seguros para la pantalla.
   // Devuelve null si no es una respuesta válida (la pantalla muestra "reintentar", sin inventar nada).
   function normalizar(resp) {
@@ -63,8 +79,9 @@
     const membresia = resp.membresia === true;
     const x = typeof resp.xp === 'object' && resp.xp ? resp.xp : { total: resp.xp };
     const n = objeto(resp.nivel);
+    const niveles = normalizarNiveles(resp.niveles);
     const xpTotal = Math.max(0, num(x.total, num(n.xp)));
-    const base = n.id == null ? nivelPorXp(xpTotal) : NIVELES[entero(n.id, 1, 5, 1) - 1];
+    const base = n.id == null ? nivelEn(niveles, xpTotal) : niveles[entero(n.id, 1, niveles.length, 1) - 1];
     const nivel = {
       id: base.id,
       nombre: txt(n.nombre).trim() || base.nombre,
@@ -73,7 +90,7 @@
       hasta: num(n.hasta, base.hasta),
       faltan: 0
     };
-    nivel.faltan = Number.isFinite(Number(n.faltan)) ? Math.max(0, Number(n.faltan)) : (base.id >= 5 ? 0 : Math.max(0, nivel.hasta - nivel.xp));
+    nivel.faltan = Number.isFinite(Number(n.faltan)) ? Math.max(0, Number(n.faltan)) : (base.id >= niveles.length ? 0 : Math.max(0, nivel.hasta - nivel.xp));
 
     const logros = (Array.isArray(resp.logros) ? resp.logros : []).filter(l => l && typeof l === 'object' && (txt(l.id) || typeof l.id === 'number')).map(l => ({
       id: String(l.id), nombre: txt(l.nombre) || String(l.id), descripcion: txt(l.descripcion),
@@ -88,9 +105,18 @@
       };
     });
     const disponibles = Number.isFinite(Number(resp.disponibles)) ? Math.max(0, Math.round(Number(resp.disponibles))) : premios.filter(p => p.disponible).length;
+    // Cursos terminados con su XP (solo con membresía), en el orden cronológico en que llegan.
+    const c = objeto(resp.cursos);
+    const lista = (membresia && Array.isArray(c.lista) ? c.lista : []).filter(k => k && typeof k === 'object' && txt(k.courseId)).map(k => ({
+      courseId: String(k.courseId), n: Math.max(1, Math.round(num(k.n, 1))), xp: Math.max(0, num(k.xp)), fecha: k.fecha == null ? null : k.fecha
+    }));
+    const terminados = !membresia ? 0 : Number.isFinite(Number(c.terminados)) ? Math.max(0, Math.round(Number(c.terminados))) : lista.length;
+    const b = objeto(resp.bienvenida);
     return {
-      membresia, nivel,
-      xp: { total: xpTotal, logros: Math.max(0, num(x.logros)), retos: Math.max(0, num(x.retos)), referidos: Math.max(0, num(x.referidos)) },
+      membresia, nivel, niveles,
+      xp: { total: xpTotal, logros: Math.max(0, num(x.logros)), retos: Math.max(0, num(x.retos)), referidos: Math.max(0, num(x.referidos)), cursos: membresia ? Math.max(0, num(x.cursos)) : 0, bienvenida: membresia ? Math.max(0, num(x.bienvenida)) : 0 },
+      cursos: { terminados, lista },
+      bienvenida: { disponible: b.disponible === true && b.reclamado !== true, xp: Math.max(0, num(b.xp, 100)), reclamado: membresia && b.reclamado === true },
       racha: Math.max(0, Math.round(num(resp.racha))), diasActivos: Math.max(0, Math.round(num(resp.diasActivos))),
       logros, premios, disponibles
     };
@@ -346,7 +372,7 @@
   };
 
   const api = {
-    NIVELES, PREMIOS_INFO, nivelPorXp, normalizar, cursosCanjeables,
+    NIVELES, PREMIOS_INFO, nivelPorXp, normalizarNiveles, nivelEn, normalizar, cursosCanjeables,
     textoEspera, textoDisponibles, textoConfirmar, elegirHTML, mensajeError, TEXTO_SIN_CURSOS, esc,
     crear
   };

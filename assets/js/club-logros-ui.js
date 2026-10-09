@@ -74,28 +74,31 @@
 
   /* ───────────── Nivel: ruta de 5 nodos y medidor ───────────── */
 
-  function porcentajeNivel(nivel, xpTotal) {
-    if (nivel.id >= 5) return 100;
+  function porcentajeNivel(nivel, xpTotal, niveles) {
+    if (nivel.id >= (niveles || PREMIOS.NIVELES).length) return 100;
     const rango = nivel.hasta - nivel.desde;
     if (!(rango > 0)) return 100;
     return Math.max(0, Math.min(100, Math.round(((xpTotal - nivel.desde) / rango) * 100)));
   }
 
-  function rutaHTML(nivel, pct) {
-    const NIVELES = PREMIOS.NIVELES;
-    const avance = nivel.id >= 5 ? 100 : Math.round((((nivel.id - 1) + pct / 100) / (NIVELES.length - 1)) * 100);
+  // Los niveles y sus umbrales los manda el servidor (d.niveles). PREMIOS.NIVELES solo es respaldo.
+  const nivelesDe = d => (d && Array.isArray(d.niveles) && d.niveles.length >= 2 ? d.niveles : PREMIOS.NIVELES);
+
+  function rutaHTML(nivel, pct, niveles) {
+    const NIVELES = Array.isArray(niveles) && niveles.length >= 2 ? niveles : PREMIOS.NIVELES;
+    const avance = nivel.id >= NIVELES.length ? 100 : Math.round((((nivel.id - 1) + pct / 100) / (NIVELES.length - 1)) * 100);
     return `<div class="lg-ruta" role="group" aria-label="Ruta de niveles: nivel ${nivel.id} de ${NIVELES.length}">
       <div class="lg-ruta__riel" aria-hidden="true"><i style="width:${avance}%"></i></div>
       <ol class="lg-ruta__nodos">${NIVELES.map(n => {
         const estado = n.id < nivel.id ? 'is-hecho' : (n.id === nivel.id ? 'is-actual' : 'is-sig');
-        return `<li class="lg-nodo ${estado}"${n.id === nivel.id ? ' aria-current="step"' : ''}><b>${n.id < nivel.id ? ico('check', { size: 15, trazo: 3 }) : n.id}</b><small>${esc(n.nombre)}</small></li>`;
+        return `<li class="lg-nodo ${estado}"${n.id === nivel.id ? ' aria-current="step"' : ''}><b>${n.id < nivel.id ? ico('check', { size: 15, trazo: 3 }) : n.id}</b><small>${esc(n.nombre)}</small><em class="lg-nodo__xp">${fmt(n.desde)} XP</em></li>`;
       }).join('')}</ol></div>`;
   }
 
   function medidorHTML(d, pct) {
     const { nivel, xp } = d;
-    const maximo = nivel.id >= 5;
-    const siguiente = maximo ? null : PREMIOS.NIVELES[nivel.id];
+    const maximo = nivel.id >= nivelesDe(d).length;
+    const siguiente = maximo ? null : nivelesDe(d)[nivel.id];
     const faltan = Math.max(0, nivel.faltan);
     return `<div class="lg-orbita">
       <div class="lg-medidor" role="img" aria-label="${pct}% de avance${siguiente ? ' hacia ' + esc(siguiente.nombre) : ''}">
@@ -111,25 +114,27 @@
         </div></div></div>`;
   }
 
-  function desgloseHTML(xp) {
-    const fila = (icono, nombre, valor) => `<li>${ico(icono, { size: 16 })}<span>${nombre}</span><b>${fmt(valor)} XP</b></li>`;
-    return `<ul class="lg-desglose" aria-label="De dónde viene tu XP">${fila('award', 'Logros', xp.logros)}${fila('target', 'Retos', xp.retos)}${fila('user-plus', 'Invitados', xp.referidos)}</ul>`;
+  // De dónde viene el XP: las cinco fuentes que cuenta el servidor, más el total. El segundo renglón es una nota corta bajo el nombre.
+  function desgloseHTML(xp, cursos) {
+    const terminados = cursos && Number.isFinite(Number(cursos.terminados)) ? Number(cursos.terminados) : null;
+    const fila = (icono, nombre, valor, extra) => `<li>${ico(icono, { size: 16 })}<span>${nombre}${extra ? `<small>${extra}</small>` : ''}</span><b>${fmt(valor)} XP</b></li>`;
+    return `<ul class="lg-desglose" aria-label="De dónde viene tu XP">${fila('award', 'Logros', xp.logros)}${fila('target', 'Retos', xp.retos)}${fila('user-plus', 'Invitados', xp.referidos)}${fila('graduation-cap', 'Cursos', xp.cursos, terminados === null ? '' : plural(terminados, 'terminado', 'terminados'))}${fila('gift', 'Bienvenida', xp.bienvenida)}${fila('zap', 'Total', xp.total)}</ul>`;
   }
 
   function heroHTML(d) {
     const { nivel } = d;
-    const pct = porcentajeNivel(nivel, d.xp.total);
+    const pct = porcentajeNivel(nivel, d.xp.total, nivelesDe(d));
     const racha = d.membresia ? `<div class="lg-racha" title="Días seguidos con actividad">${ico('flame', { size: 18 })}<b>${fmt(d.racha)}</b><small>${d.racha === 1 ? 'día de racha' : 'días de racha'}</small></div>` : '';
     const cuerpo = d.membresia
-      ? medidorHTML(d, pct) + desgloseHTML(d.xp)
+      ? medidorHTML(d, pct) + desgloseHTML(d.xp, d.cursos)
       : `<div class="lg-orbita lg-orbita--previa"><div class="lg-orbita__txt"><span class="lg-eyebrow">Tu avance</span><strong>Empieza a sumar XP</strong><p>${esc(TEXTO_VISTA_PREVIA)}</p><a class="lg-btn lg-btn--claro" href="club-suscripcion.html">Ver suscripción</a></div></div>`;
     return `<section class="lg-hero" aria-label="Tu nivel">
       <div class="lg-hero__cab">
         <div class="lg-hero__medalla">${ico('trophy', { size: 34 })}</div>
-        <div class="lg-hero__tit"><span class="lg-eyebrow">Nivel ${nivel.id} de ${PREMIOS.NIVELES.length}</span><h2>${esc(nivel.nombre)}</h2>${d.membresia ? `<p>${fmt(d.xp.total)} XP en total</p>` : ''}</div>
+        <div class="lg-hero__tit"><span class="lg-eyebrow">Nivel ${nivel.id} de ${nivelesDe(d).length}</span><h2>${esc(nivel.nombre)}</h2>${d.membresia ? `<p>${fmt(d.xp.total)} XP en total</p>` : ''}</div>
         ${racha}
       </div>
-      ${rutaHTML(nivel, d.membresia ? pct : 0)}
+      ${rutaHTML(nivel, d.membresia ? pct : 0, nivelesDe(d))}
       ${cuerpo}</section>`;
   }
 
@@ -143,7 +148,8 @@
       ${kpi('award', 'Logros ganados', v(fmt(ganados)), d.membresia ? '/' + fmt(d.logros.length) : '')}
       ${kpi('zap', 'XP total', v(fmt(d.xp.total)))}
       ${kpi('calendar', 'Días activos', v(fmt(d.diasActivos)))}
-      ${kpi('flame', 'Racha', v(fmt(d.racha)), d.membresia ? (d.racha === 1 ? 'día' : 'días') : '')}</div>`;
+      ${kpi('flame', 'Racha', v(fmt(d.racha)), d.membresia ? (d.racha === 1 ? 'día' : 'días') : '')}
+      ${kpi('graduation-cap', 'Cursos terminados', v(fmt(d.cursos ? d.cursos.terminados : 0)))}</div>`;
   }
 
   /* ───────────── Insignias por categoría ───────────── */
@@ -170,7 +176,7 @@
 
   /* ───────────── Premios ───────────── */
 
-  // Los cuatro premios de siempre, en orden, con su estado visible. ctx: { titulosCursos:{id:titulo}, faltanInvitados:{clave:n} }
+  // Los tres premios, en orden, con su estado visible. ctx: { titulosCursos:{id:titulo}, faltanInvitados:{clave:n} }
   function premiosVista(d, ctx) {
     const x = ctx || {};
     const titulos = x.titulosCursos || {};
@@ -178,7 +184,7 @@
     const delServidor = {};
     d.premios.forEach(p => { delServidor[p.clave] = p; });
     const claves = PREMIOS.PREMIOS_INFO.map(i => i.clave);
-    const extras = d.premios.filter(p => claves.indexOf(p.clave) < 0).map(p => ({ clave: p.clave, titulo: p.titulo || p.clave, tipo: 'otro', umbral: 0, descripcion: p.descripcion, requisito: p.requisito }));
+    const extras = d.premios.filter(p => claves.indexOf(p.clave) < 0 && p.clave !== 'referidos-2').map(p => ({ clave: p.clave, titulo: p.titulo || p.clave, tipo: 'otro', umbral: 0, descripcion: p.descripcion, requisito: p.requisito }));
     return PREMIOS.PREMIOS_INFO.concat(extras).map(info => {
       const s = delServidor[info.clave] || null;
       const usado = s && s.usado ? s.usado : null;
@@ -204,7 +210,7 @@
     });
   }
 
-  const ICONO_PREMIO = { profesional: 'trophy', maestro: 'crown', 'referidos-1': 'user-plus', 'referidos-2': 'users' };
+  const ICONO_PREMIO = { profesional: 'trophy', maestro: 'crown', 'referidos-1': 'user-plus' };
 
   function premiosHTML(d, ctx) {
     const tiers = premiosVista(d, ctx);
@@ -235,7 +241,7 @@
 
   return {
     TEXTO_VISTA_PREVIA, CATEGORIAS, esc, fmt, agruparPorCategoria, porcentajeNivel,
-    avisoVistaPreviaHTML, cargandoHTML, errorHTML, rutaHTML, medidorHTML, heroHTML, kpisHTML, insigniaHTML, categoriasHTML,
+    avisoVistaPreviaHTML, cargandoHTML, errorHTML, rutaHTML, medidorHTML, desgloseHTML, heroHTML, kpisHTML, insigniaHTML, categoriasHTML,
     premiosVista, premiosHTML, paginaHTML
   };
 });

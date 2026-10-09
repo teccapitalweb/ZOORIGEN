@@ -15,7 +15,9 @@ const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{2B55}\u{FE0F}\u{1
 const resp = (extra) => Object.assign({
   ok: true, membresia: true,
   nivel: { id: 3, nombre: 'Profesional', xp: 1350, desde: 1200, hasta: 2500, faltan: 1150 },
-  xp: { total: 1350, logros: 800, retos: 450, referidos: 100 }, racha: 4, diasActivos: 12,
+  niveles: [{ id: 1, nombre: 'Aprendiz', desde: 0, hasta: 300 }, { id: 2, nombre: 'Técnico', desde: 300, hasta: 1200 }, { id: 3, nombre: 'Profesional', desde: 1200, hasta: 2500 }, { id: 4, nombre: 'Líder', desde: 2500, hasta: 4500 }, { id: 5, nombre: 'Maestro', desde: 4500, hasta: 99999 }],
+  xp: { total: 1350, logros: 500, retos: 400, referidos: 100, cursos: 290, bienvenida: 60 }, cursos: { terminados: 5, lista: [] },
+  racha: 4, diasActivos: 12,
   logros: [
     { id: 'l1', nombre: 'Primer paso', descripcion: 'Entra al club', categoria: 'Inicio', xp: 20, ganado: true },
     { id: 'l2', nombre: 'Curso terminado', descripcion: 'Termina un curso', categoria: 'Cursos', xp: 80, ganado: true },
@@ -28,8 +30,7 @@ const resp = (extra) => Object.assign({
   premios: [
     { clave: 'profesional', ganado: true, usado: null, disponible: true },
     { clave: 'maestro', ganado: false, usado: null, disponible: false },
-    { clave: 'referidos-1', ganado: true, usado: { cursoId: 'c2', fecha: '2026-10-01' }, disponible: false },
-    { clave: 'referidos-2', ganado: false, usado: null, disponible: false }
+    { clave: 'referidos-1', ganado: true, usado: { cursoId: 'c2', fecha: '2026-10-01' }, disponible: false }
   ],
   disponibles: 1
 }, extra || {});
@@ -66,15 +67,16 @@ test('porcentaje de nivel: dentro del rango, tope en el máximo y sin dividir en
 });
 
 test('en el nivel máximo no hay "te faltan" ni siguiente rango', () => {
-  const h = L.heroHTML(norm({ nivel: { id: 5, nombre: 'Maestro', xp: 5000, desde: 4500, hasta: 99999, faltan: 0 }, xp: { total: 5000, logros: 3000, retos: 1500, referidos: 500 } }));
+  const h = L.heroHTML(norm({ nivel: { id: 5, nombre: 'Maestro', xp: 5000, desde: 4500, hasta: 99999, faltan: 0 }, xp: { total: 5000, logros: 3000, retos: 1500, referidos: 500, cursos: 0, bienvenida: 0 } }));
   assert.ok(h.includes('Nivel 5 de 5'));
   assert.ok(h.includes('Nivel máximo alcanzado'));
   assert.ok(!h.includes('Te faltan'));
 });
 
-test('cuatro indicadores: logros ganados, XP total, días activos y racha', () => {
+test('cinco indicadores: logros ganados, XP total, días activos, racha y cursos terminados', () => {
   const k = L.kpisHTML(norm());
-  assert.equal((k.match(/class="lg-kpi"/g) || []).length, 4);
+  assert.equal((k.match(/class="lg-kpi"/g) || []).length, 5);
+  assert.ok(k.includes('Cursos terminados') && k.includes('>5<'));
   assert.ok(k.includes('Logros ganados') && k.includes('>3<small>/7</small>'));
   assert.ok(k.includes('XP total') && k.includes('1,350'));
   assert.ok(k.includes('Días activos') && k.includes('>12<'));
@@ -97,12 +99,13 @@ test('las categorías se reconocen aunque cambien mayúsculas o acentos', () => 
   assert.deepEqual(g.map(x => [x.nombre, x.logros.length]), [['Inicio', 1], ['Maestría', 2]]);
 });
 
-test('tarjeta de premios: los 4 premios con su estado (Disponible, Usado: curso, Te faltan N XP / invitados)', () => {
-  const h = L.premiosHTML(norm(), { titulosCursos: { c2: 'Manejo de reptiles' }, faltanInvitados: { 'referidos-2': 2 } });
-  for (const t of ['Profesional', 'Maestro', 'Invita a 3 amigos', 'Invita a 6 amigos']) assert.ok(h.includes('<h3>' + t + '</h3>'), t);
+test('tarjeta de premios: los 3 premios con su estado (Disponible, Usado: curso, Te faltan N XP / invitados)', () => {
+  const h = L.premiosHTML(norm({ premios: [{ clave: 'profesional', ganado: true, usado: null, disponible: true }, { clave: 'maestro', ganado: false }, { clave: 'referidos-1', ganado: false }] }), { titulosCursos: { c2: 'Manejo de reptiles' }, faltanInvitados: { 'referidos-1': 2 } });
+  for (const t of ['Profesional', 'Maestro', 'Invita a 4 amigos']) assert.ok(h.includes('<h3>' + t + '</h3>'), t);
+  assert.equal((h.match(/class="lg-tier /g) || []).length, 3, 'tres premios');
+  assert.ok(!h.includes('Invita a 3 amigos') && !h.includes('Invita a 6 amigos'));
   assert.ok(h.includes('lg-chip--disponible'));
   assert.ok(h.includes('>Disponible<'));
-  assert.ok(h.includes('Usado: Manejo de reptiles'));
   assert.ok(h.includes('Te faltan 3,150 XP'), 'Maestro: 4,500 - 1,350');
   assert.ok(h.includes('Te faltan 2 invitados'));
   assert.ok(h.includes('data-accion="elegir"') && h.includes('Elegir mi curso'));
@@ -112,7 +115,7 @@ test('tarjeta de premios: los 4 premios con su estado (Disponible, Usado: curso,
 test('premios: sin dato de invitados dice qué se necesita; el curso usado sin nombre dice "un curso"', () => {
   const h = L.premiosHTML(norm(), {});
   assert.ok(h.includes('Usado: un curso'));
-  assert.ok(h.includes('Requiere 6 invitados válidos'));
+  assert.ok(L.premiosHTML(norm({ premios: [] }), {}).includes('Requiere 4 invitados válidos'));
 });
 
 test('premios: sin premio disponible no hay botón "Elegir mi curso"', () => {
@@ -125,13 +128,14 @@ test('premios: un premio ganado pero todavía sin usar ni disponible se muestra 
   const v = L.premiosVista(norm({ premios: [{ clave: 'maestro', ganado: true, usado: null, disponible: false }] }), { faltanInvitados: { 'referidos-1': 1 } });
   assert.equal(v.find(x => x.clave === 'maestro').chip.texto, 'Ganado');
   assert.equal(v.find(x => x.clave === 'referidos-1').chip.texto, 'Te faltan 1 invitado');
-  assert.equal(v.length, 4);
+  assert.equal(v.length, 3);
 });
 
 test('premios: el "faltan" que manda el servidor tiene prioridad', () => {
   const v = L.premiosVista(norm({ premios: [{ clave: 'profesional', ganado: false, faltan: 77 }, { clave: 'referidos-1', ganado: false, faltan: 3 }] }), { faltanInvitados: { 'referidos-1': 9 } });
   assert.equal(v[0].chip.texto, 'Te faltan 77 XP');
   assert.equal(v[2].chip.texto, 'Te faltan 3 invitados');
+  assert.equal(v.length, 3);
 });
 
 test('SIN membresía: vista previa con nivel y nombres de insignias, sin XP ni detalle, y con el aviso de suscripción', () => {
@@ -203,4 +207,55 @@ test('las versiones (?v=) de lo editado son iguales en todas las páginas que lo
     for (const f of paginas) for (const m of leer('pages/' + f).matchAll(new RegExp(archivo.replace('.', '\\.') + '\\?v=([\\w.-]+)', 'g'))) vs.add(m[1]);
     assert.ok(vs.size <= 1, `${archivo} con versiones distintas: ${[...vs].join(', ')}`);
   }
+});
+
+/* ───────────── Adenda 2: desglose de XP, niveles del servidor y tres premios ───────────── */
+
+test('desglose de XP: logros, retos, invitados, cursos, bienvenida y total (con "N terminados")', () => {
+  const h = L.desgloseHTML(norm().xp, norm().cursos);
+  const filas = [...h.matchAll(/<li>[\s\S]*?<\/li>/g)].map(m => m[0]);
+  assert.equal(filas.length, 6);
+  const quita = s => s.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  assert.deepEqual(filas.map(quita), ['Logros 500 XP', 'Retos 400 XP', 'Invitados 100 XP', 'Cursos 5 terminados 290 XP', 'Bienvenida 60 XP', 'Total 1,350 XP']);
+  assert.ok(L.desgloseHTML({ logros: 0, retos: 0, referidos: 0, cursos: 20, bienvenida: 0, total: 20 }, { terminados: 1 }).includes('1 terminado<'), 'singular');
+  assert.ok(L.heroHTML(norm()).includes('class="lg-desglose"'));
+});
+
+test('el indicador de cursos terminados sale de cursos.terminados del servidor', () => {
+  const k = L.kpisHTML(norm({ cursos: { terminados: 12, lista: [] } }));
+  assert.ok(k.includes('>12<') && k.includes('Cursos terminados'));
+  assert.ok(L.kpisHTML(SIN_MEMBRESIA()).includes('—'), 'sin membresía no se muestra el número');
+});
+
+test('los niveles y umbrales se dibujan con lo que manda el servidor (no los copia)', () => {
+  const niveles = [{ id: 1, nombre: 'Novato', desde: 0, hasta: 500 }, { id: 2, nombre: 'Aficionado', desde: 500, hasta: 2000 }, { id: 3, nombre: 'Experto', desde: 2000, hasta: 4000 }];
+  const d = norm({ niveles, nivel: { id: 2, nombre: 'Aficionado', xp: 1250, desde: 500, hasta: 2000, faltan: 750 }, xp: { total: 1250, logros: 1250 } });
+  const h = L.heroHTML(d);
+  assert.ok(h.includes('Nivel 2 de 3'), 'cuenta los niveles del servidor');
+  for (const n of ['Novato', 'Aficionado', 'Experto']) assert.ok(h.includes('>' + n + '<'), n);
+  assert.ok(!h.includes('>Profesional<') && !h.includes('>Maestro<'));
+  assert.equal((h.match(/<li class="lg-nodo/g) || []).length, 3);
+  assert.ok(h.includes('>500 XP<') && h.includes('>2,000 XP<'), 'umbral de cada nivel');
+  assert.ok(h.includes('50%'), '(1250-500)/(2000-500)');
+  assert.ok(h.includes('>Experto<'), 'siguiente rango');
+  // el último nivel del servidor es el máximo aunque no sea el 5
+  const max = L.heroHTML(norm({ niveles, nivel: { id: 3, nombre: 'Experto', xp: 4100, desde: 2000, hasta: 4000, faltan: 0 }, xp: { total: 4100 } }));
+  assert.ok(max.includes('Nivel máximo alcanzado'));
+});
+
+test('sin niveles del servidor se usan los de respaldo (5) y la ruta muestra los umbrales', () => {
+  const d = P.normalizar({ ok: true, membresia: true, nivel: { id: 2, nombre: 'Técnico', xp: 400, desde: 300, hasta: 1200, faltan: 800 }, xp: { total: 400 }, logros: [], premios: [] });
+  const r = L.rutaHTML(d.nivel, 10, d.niveles);
+  assert.equal((r.match(/<li class="lg-nodo/g) || []).length, 5);
+  assert.ok(r.includes('>1,200 XP<') && r.includes('>4,500 XP<'));
+});
+
+test('premios: solo hay tres (Profesional, Maestro y un único premio de referidos con 4 invitados)', () => {
+  const v = L.premiosVista(norm({ premios: [{ clave: 'referidos-2', ganado: true, disponible: true }] }), {});
+  assert.deepEqual(v.map(x => x.clave), ['profesional', 'maestro', 'referidos-1'], 'un referidos-2 viejo del servidor no se muestra');
+  assert.deepEqual(P.PREMIOS_INFO.map(p => p.clave), ['profesional', 'maestro', 'referidos-1']);
+  const h = L.premiosHTML(norm({ premios: [{ clave: 'referidos-1', ganado: true, usado: { cursoId: 'c2' } }] }), { titulosCursos: { c2: 'Manejo de reptiles' } });
+  assert.ok(h.includes('Usado: Manejo de reptiles'));
+  assert.ok(h.includes('Invita a 4 amigos') && h.includes('4 invitados válidos'));
+  assert.ok(!/Invita a (3|6) amigos|6 invitados|3 invitados/.test(h));
 });

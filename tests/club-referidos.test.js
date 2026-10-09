@@ -69,8 +69,7 @@ const RESP = {
     { alias: 'Sofía T.', fecha: '2026-10-08T12:00:00.000Z', estado: 'rechazado', motivo: 'Se registró desde el mismo dispositivo que tú.' }
   ],
   premios: [
-    { clave: 'referidos-1', requisito: '3 invitados válidos', faltan: 0, ganado: true, usado: null },
-    { clave: 'referidos-2', requisito: '6 invitados válidos', faltan: 2, ganado: false, usado: null }
+    { clave: 'referidos-1', requisito: '4 invitados válidos', faltan: 0, ganado: true, usado: null }
   ]
 };
 
@@ -79,17 +78,18 @@ test('normalizarEstado conserva lo importante y calcula premios', () => {
   assert.equal(e.codigo, 'ZOO-ABCDEF');
   assert.equal(e.validos, 4);
   assert.equal(e.invitados.length, 3);
-  assert.equal(e.premios.length, 2);
-  assert.deepEqual(e.premios.map(p => [p.clave, p.meta, p.disponible]), [['referidos-1', 3, true], ['referidos-2', 6, false]]);
+  assert.equal(e.premios.length, 1, 'un solo premio de referidos');
+  assert.deepEqual(e.premios.map(p => [p.clave, p.meta, p.disponible]), [['referidos-1', 4, true]]);
   assert.equal(R.hayPremioDisponible(e), true);
-  assert.equal(e.premios[1].faltan, 2);
+  assert.equal(e.premios[0].faltan, 0);
 });
 
 test('normalizarEstado resiste respuestas vacías o rarísimas sin lanzar errores', () => {
   for (const mala of [null, undefined, 42, 'x', [], { invitados: 'no' }, { invitados: [null, 3, { estado: 'inventado' }], premios: [null, 7] }]) {
     const e = R.normalizarEstado(mala, 'zzz999');
     assert.equal(e.codigo, 'ZOO-ZZZ999');
-    assert.equal(e.premios.length, 2, 'siempre se muestran los dos premios');
+    assert.equal(e.premios.length, 1, 'siempre se muestra el premio de 4 amigos');
+    assert.equal(e.premios[0].meta, 4);
     assert.equal(R.hayPremioDisponible(e), false);
     assert.ok(Array.isArray(e.invitados));
   }
@@ -112,9 +112,11 @@ test('un premio ganado y ya usado no vuelve a estar disponible', () => {
   assert.match(R.renderPremio(e.premios[0], true), /Ya lo usaste el 8 oct 2026/);
 });
 
-test('la barra de progreso va de 0 a 6 con marcas en 3 y 6', () => {
+test('la barra de progreso va de 0 a 4 con una sola marca de premio al final', () => {
   const p = R.progreso(R.normalizarEstado(RESP, 'u'));
-  assert.deepEqual([p.validos, p.total, p.pct, p.marcas], [4, 6, 67, [50, 100]]);
+  assert.deepEqual([p.validos, p.total, p.pct, p.marcas], [4, 4, 100, [100]]);
+  assert.deepEqual(R.progreso(R.normalizarEstado({ validos: 1 }, 'u')).pct, 25);
+  assert.deepEqual(R.progreso(R.normalizarEstado({ validos: 3 }, 'u')).pct, 75);
   assert.equal(R.progreso(R.normalizarEstado({ validos: 99 }, 'u')).pct, 100);
   assert.equal(R.progreso(R.normalizarEstado({}, 'u')).pct, 0);
 });
@@ -164,7 +166,8 @@ test('con premio y membresía sale "Elegir mi curso"; sin membresía, mensaje cl
   assert.doesNotMatch(sin, /data-canjear/);
   assert.match(sin, /El premio se canjea con membresía activa/);
   assert.match(sin, /href="club-suscripcion\.html"/);
-  assert.match(R.renderPremios(R.normalizarEstado({ validos: 1 }, 'u'), true), /Te faltan 2 amigos válidos/);
+  assert.match(R.renderPremios(R.normalizarEstado({ validos: 1 }, 'u'), true), /Te faltan 3 amigos válidos/);
+  assert.match(R.renderPremios(R.normalizarEstado({ validos: 3 }, 'u'), true), /Te falta 1 amigo válido/);
 });
 
 test('todo lo que viene del servidor se escapa (alias y motivo con HTML no se ejecutan)', () => {
@@ -354,4 +357,41 @@ test('fetchPremios y apiFetch usan el ID token y devuelven errores claros', asyn
   await assert.rejects(() => c3.apiFetch('/api/x'), e => e.status === 0 && /conexión/.test(e.message));
   const { club: c4 } = crearClub({ auth: { currentUser: null } });
   await assert.rejects(() => c4.apiFetch('/api/x'), e => e.status === 401);
+});
+
+/* ───────────── Adenda 2: un solo premio con 4 invitados ───────────── */
+
+test('un premio "referidos-2" viejo que mande el servidor ya no se muestra: solo el de 4 amigos', () => {
+  const e = R.normalizarEstado({ validos: 5, premios: [{ clave: 'referidos-2', requisito: '6 invitados válidos', faltan: 1 }, { clave: 'referidos-1', requisito: '4 invitados válidos', ganado: true }] }, 'u');
+  assert.deepEqual(e.premios.map(p => p.clave), ['referidos-1']);
+  assert.equal(e.premios[0].meta, 4);
+  assert.deepEqual(Object.keys(R.META_PREMIOS), ['referidos-1']);
+  assert.equal(R.META_PREMIOS['referidos-1'], 4);
+});
+
+test('la tarjeta de premio y la barra hablan de 4 amigos (nada de 3 ni 6)', () => {
+  const e = R.normalizarEstado({ validos: 2 }, 'u');
+  const premio = R.renderPremios(e, true);
+  assert.match(premio, /Premio por invitar a 4 amigos/);
+  assert.match(premio, /4 invitados válidos/);
+  assert.match(premio, /Te faltan 2 amigos válidos/);
+  assert.equal((premio.match(/class="zc-premio[ "]/g) || []).length, 1, 'una sola tarjeta de premio');
+  const barra = R.renderBarra(e);
+  assert.match(barra, /2 de 4 invitados válidos/);
+  assert.match(barra, /aria-valuemax="4"/);
+  assert.equal((barra.match(/zc-barra__marca/g) || []).length, 1);
+  assert.doesNotMatch(barra + premio, /Premio 2|a los 6|6 invitados|3 invitados/);
+  assert.match(R.renderBarra(R.normalizarEstado({ validos: 9 }, 'u')), /4 de 4 invitados válidos/, 'la barra no pasa de 4');
+});
+
+test('las páginas ya no mencionan 3 ni 6 amigos ni "dos premios"', () => {
+  for (const rel of ['pages/club-referidos.html', 'pages/club-dashboard.html', 'assets/js/club-referidos.js', 'assets/js/club-premios.js', 'pages/club-logros.html']) {
+    const t = fs.readFileSync(path.join(RAIZ, rel), 'utf8');
+    assert.doesNotMatch(t, /Invita a (3|6) amigos|\b(3|6) amigos\b|\b(3|6) invitados\b|referidos-2|dos premios|segundo premio|Premio 2/i, rel);
+  }
+  const ref = fs.readFileSync(path.join(RAIZ, 'pages/club-referidos.html'), 'utf8');
+  assert.match(ref, /Con 4 amigos válidos ganas tu premio/);
+  const dash = fs.readFileSync(path.join(RAIZ, 'pages/club-dashboard.html'), 'utf8');
+  assert.match(dash, /Invita a 4 amigos y adelanta un curso/);
+  assert.match(dash, /META_REFERIDOS = 4/);
 });

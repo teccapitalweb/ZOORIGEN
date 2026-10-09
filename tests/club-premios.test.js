@@ -35,7 +35,9 @@ test('normalizar: respuesta completa', () => {
   const d = P.normalizar(respuestaCompleta());
   assert.equal(d.membresia, true);
   assert.deepEqual(d.nivel, { id: 3, nombre: 'Profesional', xp: 1350, desde: 1200, hasta: 2500, faltan: 1150 });
-  assert.deepEqual(d.xp, { total: 1350, logros: 800, retos: 450, referidos: 100 });
+  assert.deepEqual(d.xp, { total: 1350, logros: 800, retos: 450, referidos: 100, cursos: 0, bienvenida: 0 });
+  assert.deepEqual(d.cursos, { terminados: 0, lista: [] });
+  assert.deepEqual(d.bienvenida, { disponible: false, xp: 100, reclamado: false });
   assert.equal(d.racha, 4);
   assert.equal(d.diasActivos, 12);
   assert.equal(d.logros.length, 2);
@@ -81,9 +83,11 @@ test('normalizar: un premio usado no cuenta como disponible', () => {
   assert.equal(d.disponibles, 1);
 });
 
-test('hay cuatro premios con los niveles y claves del contrato', () => {
-  assert.deepEqual(P.PREMIOS_INFO.map(p => p.clave), ['profesional', 'maestro', 'referidos-1', 'referidos-2']);
-  assert.deepEqual(P.PREMIOS_INFO.map(p => p.titulo), ['Profesional', 'Maestro', 'Invita a 3 amigos', 'Invita a 6 amigos']);
+test('hay tres premios (un solo premio de referidos, con 4 invitados) y los niveles de respaldo del contrato', () => {
+  assert.deepEqual(P.PREMIOS_INFO.map(p => p.clave), ['profesional', 'maestro', 'referidos-1']);
+  assert.deepEqual(P.PREMIOS_INFO.map(p => p.titulo), ['Profesional', 'Maestro', 'Invita a 4 amigos']);
+  assert.deepEqual(P.PREMIOS_INFO.map(p => p.umbral).slice(2), [4]);
+  assert.match(P.PREMIOS_INFO[2].requisito, /^4 invitados/);
   assert.deepEqual(P.NIVELES.map(n => [n.nombre, n.desde]), [['Aprendiz', 0], ['Técnico', 300], ['Profesional', 1200], ['Líder', 2500], ['Maestro', 4500]]);
   assert.equal(P.nivelPorXp(299).id, 1);
   assert.equal(P.nivelPorXp(300).id, 2);
@@ -367,4 +371,65 @@ test('en el navegador (ventana simulada) consultar() y canjear() existen y llama
   assert.equal(r.ok, true);
   assert.equal(r.datos.nivel.id, 3);
   assert.deepEqual(llamadas, [{ url: 'https://zoorigen-webhook-production.up.railway.app/api/premios', auth: 'Bearer tok', metodo: 'GET' }]);
+});
+
+/* ───────────── Adenda 2: niveles del servidor, XP por cursos y bienvenida ───────────── */
+
+const NIVELES_SERVIDOR = [
+  { id: 1, nombre: 'Aprendiz', desde: 0, hasta: 400 }, { id: 2, nombre: 'Técnico', desde: 400, hasta: 1500 },
+  { id: 3, nombre: 'Profesional', desde: 1500, hasta: 3200 }, { id: 4, nombre: 'Líder', desde: 3200, hasta: 5600 },
+  { id: 5, nombre: 'Maestro', desde: 5600, hasta: 99999 }
+];
+const respuestaAdenda = () => Object.assign(respuestaCompleta(), {
+  niveles: NIVELES_SERVIDOR,
+  nivel: { id: 2, nombre: 'Técnico', xp: 640, desde: 400, hasta: 1500, faltan: 860 },
+  xp: { total: 640, logros: 300, retos: 120, referidos: 40, cursos: 130, bienvenida: 50 },
+  cursos: { terminados: 2, lista: [{ courseId: 'c1', n: 1, xp: 20, fecha: '2026-10-01' }, { courseId: 'c2', n: 2, xp: 30, fecha: '2026-10-05' }, { courseId: '', n: 3, xp: 1 }, null] },
+  bienvenida: { disponible: false, xp: 100, reclamado: true }
+});
+
+test('normalizar: toma los niveles y umbrales del servidor (no los copia) y los usa para el nivel', () => {
+  const d = P.normalizar(respuestaAdenda());
+  assert.deepEqual(d.niveles, NIVELES_SERVIDOR);
+  assert.equal(d.niveles[1].desde, 400, 'umbral distinto al de respaldo (300): el que manda es el del servidor');
+  assert.deepEqual(d.xp, { total: 640, logros: 300, retos: 120, referidos: 40, cursos: 130, bienvenida: 50 });
+  // sin nivel del servidor, el nivel se deduce con la tabla DEL SERVIDOR
+  const sinNivel = P.normalizar({ ok: true, membresia: true, niveles: NIVELES_SERVIDOR, xp: { total: 1400 } });
+  assert.equal(sinNivel.nivel.id, 2);
+  assert.equal(sinNivel.nivel.hasta, 1500);
+  assert.equal(sinNivel.nivel.faltan, 100);
+});
+
+test('normalizar: niveles faltantes o mal formados -> se usa la tabla de respaldo', () => {
+  for (const mal of [undefined, null, 'x', [], [{ id: 1 }], [{ id: 1, nombre: 'A', desde: 0, hasta: 10 }], [{ id: 1, nombre: 'A', desde: 0, hasta: 10 }, { id: 3, nombre: 'C', desde: 10, hasta: 20 }], [{ id: 1, nombre: '', desde: 0, hasta: 10 }, { id: 2, nombre: 'B', desde: 'x', hasta: 20 }]]) {
+    const d = P.normalizar({ ok: true, membresia: true, niveles: mal, xp: { total: 10 } });
+    assert.deepEqual(d.niveles.map(n => n.nombre), ['Aprendiz', 'Técnico', 'Profesional', 'Líder', 'Maestro'], JSON.stringify(mal));
+  }
+  // la lista llega desordenada: se ordena por id
+  const desordenados = P.normalizar({ ok: true, membresia: true, niveles: NIVELES_SERVIDOR.slice().reverse() });
+  assert.deepEqual(desordenados.niveles.map(n => n.id), [1, 2, 3, 4, 5]);
+});
+
+test('normalizar: cursos terminados con su XP en orden y sin filas inválidas', () => {
+  const d = P.normalizar(respuestaAdenda());
+  assert.equal(d.cursos.terminados, 2);
+  assert.deepEqual(d.cursos.lista.map(c => [c.courseId, c.n, c.xp]), [['c1', 1, 20], ['c2', 2, 30]]);
+  const sinLista = P.normalizar({ ok: true, membresia: true, cursos: { lista: [{ courseId: 'a', n: 1, xp: 20 }] } });
+  assert.equal(sinLista.cursos.terminados, 1, 'si no dice cuántos, cuenta la lista');
+  assert.deepEqual(P.normalizar({ ok: true, membresia: true, cursos: 'x' }).cursos, { terminados: 0, lista: [] });
+  assert.equal(P.normalizar({ ok: true, membresia: true, cursos: { terminados: -4 } }).cursos.terminados, 0);
+});
+
+test('normalizar: bienvenida (disponible / reclamado) y sin membresía no revela nada más', () => {
+  const nueva = P.normalizar({ ok: true, membresia: false, bienvenida: { disponible: true, xp: 100 }, xp: { total: 0, cursos: 99, bienvenida: 100 }, cursos: { terminados: 5, lista: [] } });
+  assert.deepEqual(nueva.bienvenida, { disponible: true, xp: 100, reclamado: false });
+  assert.deepEqual([nueva.xp.cursos, nueva.xp.bienvenida, nueva.cursos.terminados, nueva.cursos.lista.length], [0, 0, 0, 0], 'sin membresía: nada de cursos ni XP guardado');
+  assert.equal(P.normalizar({ ok: true, membresia: true, bienvenida: { disponible: true, reclamado: true } }).bienvenida.disponible, false, 'reclamado manda sobre disponible');
+  assert.deepEqual(P.normalizar({ ok: true, membresia: true }).bienvenida, { disponible: false, xp: 100, reclamado: false });
+});
+
+test('el código nunca copia niveles propios: club-premios.js solo los usa como respaldo', () => {
+  const fuente = fs.readFileSync(path.join(__dirname, '..', 'assets', 'js', 'club-premios.js'), 'utf8');
+  assert.match(fuente, /normalizarNiveles\(resp\.niveles\)/);
+  assert.doesNotMatch(fuente, /referidos-2/);
 });
