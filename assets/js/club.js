@@ -842,7 +842,7 @@ const ZOORIGEN_CLUB = {
           </div>
         </div>
         <div class="zoo-welcome-benefits">
-          <div class="zoo-welcome-benefit"><span>📚</span><div><strong>Biblioteca completa</strong><small>Todos los cursos desbloqueados</small></div></div>
+          <div class="zoo-welcome-benefit"><span>📚</span><div><strong>Todos los cursos</strong><small>Desbloqueados para ti</small></div></div>
           <div class="zoo-welcome-benefit"><span>🔴</span><div><strong>Sesiones en vivo</strong><small>Masterclasses mensuales con especialistas</small></div></div>
           <div class="zoo-welcome-benefit"><span>💰</span><div><strong>20% OFF permanente</strong><small>En todas las capacitaciones Zoorigen</small></div></div>
         </div>
@@ -1166,7 +1166,7 @@ const ZOORIGEN_CLUB = {
 
     const items = [
       { id: 'inicio', label: 'Inicio', icon: 'home', href: 'club-dashboard.html' },
-      { id: 'biblioteca', label: 'Biblioteca', icon: 'book', href: 'club-biblioteca.html' },
+      { id: 'biblioteca', label: 'Cursos', icon: 'book', href: 'club-biblioteca.html' },
       { id: 'retos', label: 'Retos', icon: 'target', href: 'club-retos.html' },
       { id: 'foro', label: 'Foro VIP', icon: 'messages', href: 'club-foro.html' },
       { id: 'directorio', label: 'Directorio VIP', icon: 'users', href: 'club-directorio.html' },
@@ -1446,12 +1446,12 @@ const ZOORIGEN_CLUB = {
         <div style="font-size:3.8rem;margin-bottom:14px;">🔒</div>
         <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">ACCESO EXCLUSIVO VIP</div>
         <h2 style="font-family:Poppins;color:#fff;font-size:1.6rem;margin:0 0 10px;line-height:1.2;">Necesitas ser Miembro VIP para ${label}</h2>
-        <p style="color:rgba(255,255,255,0.88);font-size:.95rem;margin:0 0 22px;line-height:1.55;">Suscríbete y desbloquea toda la plataforma: cursos, webinars, biblioteca, foro, herramientas profesionales y certificados con validez.</p>
+        <p style="color:rgba(255,255,255,0.88);font-size:.95rem;margin:0 0 22px;line-height:1.55;">Suscríbete y desbloquea toda la plataforma: cursos, webinars, foro, herramientas profesionales y certificados con validez.</p>
 
         <div style="background:rgba(0,0,0,0.25);border-radius:14px;padding:18px;margin-bottom:20px;text-align:left;">
           <div style="color:#E8A317;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">✨ Beneficios VIP</div>
           <div style="color:#fff;font-size:.9rem;line-height:1.85;">
-            ✅ <strong>Biblioteca</strong> completa de cursos<br>
+            ✅ <strong>Todos los cursos</strong> completos<br>
             ✅ <strong>Webinars</strong> en vivo cada mes<br>
             ✅ <strong>Foro VIP</strong> con expertos<br>
             ✅ <strong>Certificados</strong> con validez<br>

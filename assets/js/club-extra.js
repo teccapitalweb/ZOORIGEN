@@ -70,7 +70,7 @@ export function renderSidebar(activeKey = '') {
   const groups = [
     { label: 'Principal', items: [
       { key:'dashboard',    label:'Inicio',                 href:'club-dashboard.html',           icon:'🏠' },
-      { key:'biblioteca',   label:'Biblioteca de cursos',   href:'club-dashboard.html#biblioteca', icon:'📚' },
+      { key:'biblioteca',   label:'Cursos',   href:'club-dashboard.html#biblioteca', icon:'📚' },
       { key:'sesiones',     label:'Sesiones en vivo',       href:'club-dashboard.html#sesiones',   icon:'🔴' },
       { key:'pdfs',         label:'PDFs',                   href:'club-dashboard.html#pdfs',       icon:'📄' },
       { key:'herramientas', label:'Herramientas clínicas',  href:'club-herramientas.html',         icon:'🩺', badge:'NEW', badgeClass:'gold' }

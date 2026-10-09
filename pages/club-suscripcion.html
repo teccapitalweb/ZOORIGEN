@@ -33,7 +33,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261016-comunidad"></script>
+  <script src="../assets/js/club.js?v=20261023-cursos"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -122,7 +122,7 @@
           <div class="card" style="margin-top:20px;border-color:rgba(213,90,40,0.3);">
             <h2 style="color:var(--zoo-orange);font-size:1.1rem;margin-bottom:10px;">${session.planStatus === 'active' ? '⚠️ Zona de peligro' : session.planStatus === 'cancelled_active' ? '🔄 Tu membresía está cancelada' : '🔄 Reactivar con nuevo pago'}</h2>
             <p style="margin-bottom:16px;">${session.planStatus === 'active'
-              ? 'Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado. Después perderás acceso a biblioteca, webinars y descuentos VIP.'
+              ? 'Si cancelas tu membresía, mantienes el acceso hasta el final del período pagado. Después perderás acceso a los cursos, webinars y descuentos VIP.'
               : session.planStatus === 'cancelled_active'
                 ? 'Tu membresía se cancelará cuando venza tu periodo actual. Mientras tanto sigues teniendo acceso completo.'
               : tieneTiempo

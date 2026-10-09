@@ -444,7 +444,7 @@
     }
     return [
       { id: 'biblioteca', selectores: enlace('club-biblioteca.html'), menu: true,
-        titulo: 'Tu biblioteca de cursos', texto: 'Aquí empiezas a aprender. Cada clase trae video, preguntas y un juego al final para repasar.' },
+        titulo: 'Tus cursos', texto: 'Aquí empiezas a aprender. Cada clase trae video, preguntas y un juego al final para repasar.' },
       { id: 'sesiones', selectores: enlace('club-sesiones.html'), menu: true,
         titulo: 'Webinars en vivo', texto: 'Consulta las fechas de las próximas sesiones en vivo con especialistas.' },
       { id: 'certificados', selectores: enlace('club-certificados.html'), menu: true,
