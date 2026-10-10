@@ -73,3 +73,18 @@ test('posicionDesbloqueo ignora índices inválidos', () => {
   for (const i of [-1, 3, 1.5, NaN, undefined]) assert.equal(A.posicionDesbloqueo(l, i), -1);
   assert.equal(A.posicionDesbloqueo(null, 0), -1);
 });
+
+test('msParaDesbloquear: hora exacta con la misma regla de 8 días; el primero ya abierto da 0', () => {
+  const A = require('../assets/js/club-acceso.js');
+  const lista = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+  const ahora = Date.UTC(2026, 9, 9, 12);
+  const desde = ahora - 5 * 86400000;
+  assert.equal(A.msParaDesbloquear(lista, 0, desde, ahora), 0);
+  assert.equal(A.msParaDesbloquear(lista, 1, desde, ahora), 3 * 86400000);
+  assert.equal(A.msParaDesbloquear(lista, 2, desde, ahora), 11 * 86400000);
+  assert.equal(A.msParaDesbloquear(lista, 1, null, ahora), null);
+  assert.equal(A.msParaDesbloquear([{ id: 'x', disponibleSiempre: true }], 0, desde, ahora), null);
+  assert.equal(A.desdeMiembroMs({ createdAt: '2026-10-01T00:00:00Z' }), Date.UTC(2026, 9, 1));
+  assert.equal(A.desdeMiembroMs({ planActivadoEn: '2026-10-02T00:00:00Z', createdAt: '2026-10-01T00:00:00Z' }), Date.UTC(2026, 9, 2));
+  assert.equal(A.desdeMiembroMs({}), null);
+});

@@ -120,3 +120,11 @@ test('panel: aviso "Confirma tu correo" descartable con Reenviar correo, y la ta
   assert.doesNotMatch(tablero, /getProgress\(/);
   assert.doesNotMatch(tablero, /where\('referredBy'/);
 });
+
+test('el modo claro es el predeterminado; quien eligió oscuro lo conserva', () => {
+  const club = fs.readFileSync(path.resolve(__dirname, '../assets/js/club.js'), 'utf8');
+  assert.ok(!club.includes("localStorage.getItem('zoo_theme') || 'dark'"));
+  assert.equal(club.split("localStorage.getItem('zoo_theme') || 'light'").length - 1, 2);
+  const shell = fs.readFileSync(path.resolve(__dirname, '../assets/js/club-shell.js'), 'utf8');
+  assert.ok(shell.includes("=== 'dark' ? 'dark' : 'light'"));
+});

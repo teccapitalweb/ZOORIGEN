@@ -122,3 +122,20 @@ test('columna derecha: clases en vivo, comunidad, descuento, actividad y presenc
   assert.equal(I.textoApertura(0), 'hoy');
   assert.equal(I.textoApertura(1), '1 día');
 });
+
+test('cuenta regresiva con horas: menos de un día muestra horas; después, días', () => {
+  assert.equal(I.textoApertura(1, 19 * 3600000 - 1000), '19 horas');
+  assert.equal(I.textoApertura(1, 30 * 60000), 'menos de 1 hora');
+  assert.equal(I.textoApertura(1, 3600000 + 1), '2 horas');
+  assert.equal(I.textoApertura(1, 24 * 3600000), '1 día');
+  assert.equal(I.textoApertura(3, 2.2 * 86400000), '3 días');
+  assert.equal(I.textoApertura(3, null), '3 días', 'sin hora exacta se queda con los días de siempre');
+  const ahora = Date.UTC(2026, 9, 9, 12, 0, 0);
+  const desde = ahora - 24 * 86400000 + 5 * 3600000;       // el cuarto curso (24 días de espera) se abre dentro de 5 horas
+  const cursos = [curso('1'), curso('2'), curso('3'), curso('4')];
+  const h = I.elegirHero({ cursos, dias: Math.floor((ahora - desde) / 86400000), desdeMs: desde, ahoraMs: ahora, progreso: { 1: { completedLessons: [0, 1, 2, 3], isCompleted: true }, 2: { completedLessons: [0, 1, 2, 3], isCompleted: true }, 3: { completedLessons: [0, 1, 2, 3], isCompleted: true } } });
+  assert.equal(h.tipo, 'proximo');
+  assert.equal(Math.round(h.msFalta / 3600000), 5, 'faltan las horas exactas (no días enteros)');
+  const html = I.widgetHTML(h, { ahora: new Date(ahora) });
+  assert.match(html, /5 horas/);
+});

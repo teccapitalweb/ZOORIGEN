@@ -53,9 +53,11 @@
     if (!cursos.length) return { tipo: 'sin-cursos', resumen: resumen };
     var lista = ACCESO.ordenParaDesbloqueo(cursos);
     var abiertos = [], cerrados = [];
+    var ahoraMs = Number.isFinite(o.ahoraMs) ? o.ahoraMs : Date.now();
     lista.forEach(function (c, i) {
       var r = ACCESO.desbloqueoCurso({ lista: lista, i: i, dias: o.dias, adelantados: o.adelantados });
-      (r.desbloqueado ? abiertos : cerrados).push({ curso: c, diasFalta: r.diasFalta });
+      var ms = r.desbloqueado ? 0 : ACCESO.msParaDesbloquear(lista, i, o.desdeMs, ahoraMs);
+      (r.desbloqueado ? abiertos : cerrados).push({ curso: c, diasFalta: r.diasFalta, msFalta: ms });
     });
     resumen.cursosAbiertos = abiertos.length;
     // 1) el primer curso abierto que aún no termina (el que ya empezó va antes que uno sin tocar)
@@ -68,8 +70,8 @@
     if (elegido) return { tipo: 'continuar', curso: elegido.curso, hechas: elegido.hechas, total: elegido.total, resumen: resumen };
     // 2) si no hay nada por continuar, el próximo curso que se abre (el que menos días falte)
     var conFecha = cerrados.filter(function (x) { return Number.isFinite(Number(x.diasFalta)) && x.diasFalta !== null; })
-      .sort(function (a, b) { return a.diasFalta - b.diasFalta; })[0];
-    if (conFecha) return { tipo: 'proximo', curso: conFecha.curso, diasFalta: Math.max(0, Math.ceil(Number(conFecha.diasFalta))), resumen: resumen };
+      .sort(function (a, b) { return (Number.isFinite(a.msFalta) && Number.isFinite(b.msFalta) ? a.msFalta - b.msFalta : a.diasFalta - b.diasFalta); })[0];
+    if (conFecha) return { tipo: 'proximo', curso: conFecha.curso, diasFalta: Math.max(0, Math.ceil(Number(conFecha.diasFalta))), msFalta: Number.isFinite(conFecha.msFalta) ? conFecha.msFalta : null, resumen: resumen };
     if (cerrados.length) return { tipo: 'proximo', curso: cerrados[0].curso, diasFalta: null, resumen: resumen };
     return { tipo: 'terminado', resumen: resumen };
   }
@@ -149,11 +151,19 @@
   }
 
   /* "sábado, 10 de octubre" */
-  function fechaDiaMes(ahora, dias) {
-    var d = new Date((ahora instanceof Date ? ahora.getTime() : Date.now()) + dias * 86400000);
+  function fechaDiaMes(ahora, dias, ms) {
+    var d = new Date((ahora instanceof Date ? ahora.getTime() : Date.now()) + (Number.isFinite(ms) ? ms : dias * 86400000));
     return DIAS[d.getDay()] + ', ' + d.getDate() + ' de ' + MESES_LARGOS[d.getMonth()];
   }
-  function textoApertura(n) { return n === 0 ? 'hoy' : (n === 1 ? '1 día' : n + ' días'); }
+  function textoApertura(n, ms) {
+    // Con la hora exacta: menos de 1 hora, "19 horas" y, a partir de un día, días.
+    if (Number.isFinite(ms) && ms >= 0) {
+      if (ms < 3600000) return 'menos de 1 hora';
+      if (ms < 86400000) { var h = Math.ceil(ms / 3600000); return h === 1 ? '1 hora' : h + ' horas'; }
+      var d = Math.ceil(ms / 86400000); return d === 1 ? '1 día' : d + ' días';
+    }
+    return n === 0 ? 'hoy' : (n === 1 ? '1 día' : n + ' días');
+  }
 
   /* Tarjeta de la barra superior con el saludo: ícono, saludo con nombre, frase y fecha. */
   function saludoHTML(nombre, ahora) {
@@ -182,7 +192,7 @@
       tarjeta = '<div class="ih-card"><div class="ih-card__etq">¡Al día!</div><div class="ih-card__nombre">Cuando se publique un curso nuevo lo verás aquí</div>' + boton + '</div>';
     } else if (espera) {
       var caja = h.diasFalta === null || h.diasFalta === undefined ? '' :
-        '<div class="ih-card__caja"><small>Se abre en</small><strong>' + esc(textoApertura(h.diasFalta)) + ' · ' + esc(fechaDiaMes(opciones.ahora, h.diasFalta)) + '</strong></div>';
+        '<div class="ih-card__caja"><small>Se abre en</small><strong>' + esc(textoApertura(h.diasFalta, h.msFalta)) + ' · ' + esc(fechaDiaMes(opciones.ahora, h.diasFalta, h.msFalta)) + '</strong></div>';
       tarjeta = '<div class="ih-card"><div class="ih-card__etq">Próximo desbloqueo</div><div class="ih-card__nombre">' + esc(h.curso.title) + '</div>' + caja + boton + '</div>';
     } else {
       var pct = h.total ? Math.round(h.hechas * 100 / h.total) : 0;

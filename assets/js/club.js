@@ -1267,13 +1267,13 @@ const ZOORIGEN_CLUB = {
   // ============== TEMA CLARO/OSCURO ==============
   // Aplica el tema guardado al cargar la página
   initTheme() {
-    const saved = localStorage.getItem('zoo_theme') || 'dark';
+    const saved = localStorage.getItem('zoo_theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
     this._updateThemeIcons(saved);
   },
 
   toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('zoo_theme', next);
@@ -1580,7 +1580,7 @@ const ZOORIGEN_CLUB = {
 // Se ejecuta inmediatamente para evitar "flash" de tema incorrecto
 (function() {
   try {
-    const saved = localStorage.getItem('zoo_theme') || 'dark';
+    const saved = localStorage.getItem('zoo_theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
   } catch {}
 })();

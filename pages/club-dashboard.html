@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261027-panel">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261028-panel">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261027-noticias">
   <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261027-inicio">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261016">
@@ -573,14 +573,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261025-materiales"></script>
-  <script src="../assets/js/club-shell.js?v=20261027-panel"></script>
+  <script src="../assets/js/club.js?v=20261028-claro"></script>
+  <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
-  <script src="../assets/js/club-acceso.js?v=20261020"></script>
+  <script src="../assets/js/club-acceso.js?v=20261028"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261027-noticias"></script>
-  <script src="../assets/js/club-inicio.js?v=20261027-inicio"></script>
+  <script src="../assets/js/club-inicio.js?v=20261028-horas"></script>
   <script src="../assets/js/club-premios.js?v=20261022"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
   <script src="../assets/js/club-onboarding.js?v=20261023"></script>
@@ -1032,7 +1032,7 @@
             const resumen = ZOO_INICIO.elegirHero({ cursos, dias: 0, progreso }).resumen;
             hero = elegido && !av.terminado ? { tipo: 'continuar', curso: elegido, hechas: av.hechas, total: ZOO_INICIO.totalClases(elegido), resumen } : { tipo: 'terminado', resumen };
           } else {
-            hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), adelantados: ZOO_ACCESO.adelantadosDeRespuesta(premios), progreso });
+            hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), adelantados: ZOO_ACCESO.adelantadosDeRespuesta(premios), progreso, desdeMs: ZOO_ACCESO.desdeMiembroMs(session) });
           }
           const lista = mats && Array.isArray(mats.materiales) ? mats.materiales : null;
           window.__zooInicioRetos = mats && Number.isFinite(mats.superados) ? mats.superados : 0;

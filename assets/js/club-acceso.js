@@ -153,6 +153,22 @@
     return Math.floor((t - new Date(desde).getTime()) / (1000 * 60 * 60 * 24));
   }
 
+  // Desde cuándo cuenta el reloj de desbloqueo (ms): la fecha de activación o, si no hay, la de registro.
+  function desdeMiembroMs(session) {
+    const s = session || {};
+    const t = new Date(s.planActivadoEn || s.createdAt || NaN).getTime();
+    return Number.isFinite(t) ? t : null;
+  }
+
+  // Milisegundos que faltan para que se abra el curso i en la fila normal (0 si ya está abierto). Usa la misma regla de
+  // siempre (1 curso cada 8 días desde que se hizo miembro), pero con la hora exacta en lugar de días enteros.
+  function msParaDesbloquear(lista, i, desdeMs, ahoraMs) {
+    const pos = posicionDesbloqueo(lista, i);
+    if (pos < 0 || !Number.isFinite(desdeMs)) return null;
+    const ahora = Number.isFinite(ahoraMs) ? ahoraMs : Date.now();
+    return Math.max(0, desdeMs + pos * DIAS_POR_CURSO * 86400000 - ahora);
+  }
+
   // Orden de la fila de desbloqueo tal como la usa la biblioteca: primero el orden de los cursos de siempre / nuevos
   // (ordenarCursos) y después la clase gratis de siempre arriba (orden estable). Devuelve una lista NUEVA.
   function ordenParaDesbloqueo(cursosDeFirestore) {
@@ -219,6 +235,7 @@
     VIDEO_GRATIS_FIJO, DIAS_POR_CURSO, ordenarCursos, tieneOrdenVip,
     siempreDisponible, esClaseGratis, cursoTieneClaseGratis,
     posicionDesbloqueo, cursosEnFila, maxDesbloqueado, desbloqueadoPorTiempo, diasParaDesbloquear,
-    normalizarAdelantados, esAdelantado, adelantadosDeRespuesta, diasComoMiembro, ordenParaDesbloqueo, resumenDesbloqueo
+    normalizarAdelantados, esAdelantado, adelantadosDeRespuesta, diasComoMiembro, ordenParaDesbloqueo, resumenDesbloqueo,
+    desdeMiembroMs, msParaDesbloquear
   };
 });

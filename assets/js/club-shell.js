@@ -155,7 +155,7 @@
     }).join('');
   }
 
-  function temaActual() { return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
+  function temaActual() { return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
 
   function pintarTema() {
     var oscuro = temaActual() === 'dark';
@@ -352,7 +352,7 @@
     waBtn.addEventListener('click', function (e) { e.stopPropagation(); abrirWa(waMenu.hidden); });
     document.addEventListener('click', function (e) { if (!waMenu.hidden && !document.getElementById('zsWa').contains(e.target)) abrirWa(false); });
 
-    window.addEventListener('storage', function (e) { if (e.key === 'zoo_theme') { document.documentElement.setAttribute('data-theme', e.newValue === 'light' ? 'light' : 'dark'); pintarTema(); } });
+    window.addEventListener('storage', function (e) { if (e.key === 'zoo_theme') { document.documentElement.setAttribute('data-theme', e.newValue === 'dark' ? 'dark' : 'light'); pintarTema(); } });
     window.addEventListener('resize', function () { if (window.innerWidth > BREAKPOINT_MOVIL) abrirCajon(false); });
 
     /* campana: la lógica ya existe en club.js y busca estos mismos ids */
