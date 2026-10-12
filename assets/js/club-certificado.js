@@ -221,7 +221,7 @@
   };
   var AYUDA_VERIFICACION = {
     'verificado': 'Emitido por Zoorigen al terminar tu curso.',
-    'en-validacion': 'Este certificado es anterior a la validación automática. Lo estamos revisando; tu folio sigue guardado.'
+    'en-validacion': 'Este certificado es anterior a la validación automática. Se valida solo al abrir esta pantalla; tu folio y tu certificado siguen guardados.'
   };
 
   // Lista que se muestra en "Mis certificados": uno por curso (si hay dos, gana el verificado y, si empatan, el más

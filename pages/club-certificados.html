@@ -53,6 +53,7 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261031-cert"></script>
+  <script src="../assets/js/club-progreso.js?v=20261031-cert"></script>
   <script src="../assets/js/club-certificado.js?v=20261031-cert"></script>
   <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -70,6 +71,8 @@
 
       try {
         // Los certificados los emite el servidor al terminar cada curso; aquí solo se leen los del propio miembro.
+        // Al pedir el avance, el servidor valida y firma solo los certificados anteriores de esta persona (conservan su folio).
+        try { await ZOORIGEN_CLUB.getCourseProgress(session.uid); } catch (e) { /* si falla, se muestra lo que haya */ }
         const snap = await db.collection('certificados').where('memberUid', '==', session.uid).get();
         // Uno por curso (gana el verificado), del más reciente al más antiguo
         const certs = ZOO_CERT.propiosParaMostrar(snap.docs.map(d => Object.assign({ folio: d.id }, d.data())));
