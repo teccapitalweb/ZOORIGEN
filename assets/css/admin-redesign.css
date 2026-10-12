@@ -817,7 +817,7 @@ textarea.ce-input { min-height: 84px; resize: vertical; line-height: 1.5; }
 .cf-alumno__txt { min-width: 0; }
 .cf-nombre { font: 600 .92rem/1.25 var(--zoo-font-heading); color: var(--c-text); overflow-wrap: anywhere; }
 .cf-correo { margin-top: 2px; font-size: .78rem; color: var(--c-text-2); overflow-wrap: anywhere; }
-.cf-prueba { display: inline-block; margin-left: 6px; padding: 1px 8px; font: 700 .6rem/1.4 var(--zoo-font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--c-warn-ink); background: var(--c-warn-bg); border: 1px solid var(--c-warn-line); border-radius: 999px; vertical-align: 2px; }
+.cf-prueba, .cf-validacion { display: inline-block; margin-left: 6px; padding: 1px 8px; font: 700 .6rem/1.4 var(--zoo-font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--c-warn-ink); background: var(--c-warn-bg); border: 1px solid var(--c-warn-line); border-radius: 999px; vertical-align: 2px; }
 .cf-curso__t { font-weight: 600; font-size: .88rem; color: var(--c-text); overflow-wrap: anywhere; }
 .cf-curso__m { margin-top: 3px; font-size: .76rem; color: var(--c-text-3); }
 .cf-fecha__d { font-weight: 600; font-size: .86rem; color: var(--c-text); font-variant-numeric: tabular-nums; white-space: nowrap; }

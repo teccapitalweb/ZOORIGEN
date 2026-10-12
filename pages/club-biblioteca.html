@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
-  <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261009">
+  <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261031">
   <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261020">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261022">
   <style>
@@ -374,11 +374,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261030-claro"></script>
+  <script src="../assets/js/club.js?v=20261031-cert"></script>
+  <script src="../assets/js/club-progreso.js?v=20261031-cert"></script>
   <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
-  <script src="../assets/js/club-quiz.js?v=20261010"></script>
+  <script src="../assets/js/club-quiz.js?v=20261031"></script>
   <script src="../assets/js/club-acceso.js?v=20261028"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
   <script src="../assets/js/club-cursos-ui.js?v=20261020"></script>
@@ -465,11 +466,12 @@
 
       const isActive = ZOORIGEN_CLUB.hasActiveMembership(session);
 
-      // Cargar progreso de cursos: PRIMERO de Firestore (persistente entre dispositivos),
-      // fallback a localStorage si Firestore falla o está vacío
+      // El avance lo guarda y lo valida el servidor (GET /api/cursos/progreso). Si no responde, se muestra lo último
+      // que se vio (solo para mostrar: guardar clases y certificar siempre pasa por el servidor).
       const progress = await ZOORIGEN_CLUB.getCourseProgress(session.uid);
       window.__zooCourseProgress = progress;
       window.__zooSession = session;
+      if (progress.__desdeCache === true) zcToast('No pudimos conectar con el servidor. Mostramos tu último avance guardado; se actualiza cuando vuelva la conexión.', true);
 
       // Convertir URL de Google Drive a URL directa de imagen
       // Soporta varios formatos:
@@ -776,8 +778,8 @@
     function zcAccion(id) {
       const curso = window.__currentCourse;
       if (id === 'continuar') { if (Number.isInteger(window.__zcSiguiente)) openLessonByIndex(window.__zcSiguiente); }
-      else if (id === 'cert') generarCertificado(curso.id);
-      else if (id === 'vercert') descargarCertificado(curso.id, curso.title);
+      else if (id === 'cert') terminarCurso(curso.id);
+      else if (id === 'vercert') verCertificado(curso.id);
     }
 
     function renderCourseModal() {
@@ -813,9 +815,11 @@
           accionPrincipal = { id: 'continuar', texto: hechas.length ? `Continuar con la clase ${nextAvailable + 1}` : 'Comenzar el curso' };
         }
       }
-      const certificadoHTML = todas && !progress.isCompleted
-        ? '<button type="button" class="zc-cert-btn" data-zc="cert">Obtener certificado</button>'
-        : (progress.isCompleted ? '<button type="button" class="zc-cert-btn" data-zc="vercert">Ver certificado</button>' : '');
+      // El certificado lo emite el servidor al completar la última clase. "Ver certificado" solo abre el que ya existe;
+      // si todas las clases están vistas pero el servidor aún no lo emitió, el botón vuelve a pedirlo al servidor.
+      const certificadoHTML = progress.isCompleted && progress.certificateFolio
+        ? '<button type="button" class="zc-cert-btn" data-zc="vercert">Ver certificado</button>'
+        : (todas ? '<button type="button" class="zc-cert-btn" data-zc="cert">Terminar curso y pedir mi certificado</button>' : '');
 
       const modal = document.getElementById('playerOverlay');
       document.getElementById('playerTitle').textContent = 'Detalle del curso';
@@ -878,147 +882,93 @@
       return `Contenido clave de la clase ${index + 1}: conceptos, ejemplos y aplicación práctica.`;
     }
 
-    async function toggleLessonComplete(courseId, lessonIdx) {
-      const progress = window.__zooCourseProgress;
-      if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
+    // ═══════════════ AVANCE Y CERTIFICADO (los guarda y valida el servidor) ═══════════════
+    // El navegador ya no guarda el avance ni crea certificados. Cada clase vista se manda a
+    // POST /api/cursos/:id/progreso: el servidor revisa el orden de las clases y las preguntas, y emite el
+    // certificado (con su folio) solo cuando se completa la última clase. Una clase vista no se puede des-marcar.
 
-      const idx = progress[courseId].completedLessons.indexOf(lessonIdx);
-      if (idx > -1) {
-        progress[courseId].completedLessons.splice(idx, 1);
-        if (progress[courseId].isCompleted) {
-          progress[courseId].isCompleted = false;
-        }
-      } else {
-        // Una clase con preguntas o juego solo se da por vista al completarlos
-        const leccion = window.__currentLecciones?.[lessonIdx];
-        if (leccion && window.__currentCourse?.id === courseId && leccionTieneActividad(leccion)) {
-          abrirActividadesDeClase(lessonIdx, async () => { await guardarClaseVista(courseId, lessonIdx); renderCourseModal(); }, { obligatorio: true });
-          return;
-        }
-        progress[courseId].completedLessons.push(lessonIdx);
+    const clasesEnProceso = new Set();   // 'curso:indice' que esperan la respuesta del servidor
+    const quizzesValidados = new Set();  // 'curso:indice' cuyas preguntas el servidor ya registró en esta sesión
+
+    // Error del servidor en una ventana propia de la página (no en un cuadro del navegador). Quien no tiene membresía ve además el acceso a los planes.
+    function avisoErrorProgreso(err, titulo) {
+      const esMiembro = tieneMembresiaActiva();
+      const texto = (err && err.mensajeUsuario) || ZOO_PROGRESO.mensajeError(err, { accion: 'clase', esMiembro });
+      const botones = [{ texto: 'Cerrar' }];
+      if (err && err.status === 403 && !esMiembro) {
+        botones.push({ texto: 'Ver planes de membresía', clase: 'zc-btn--main', alPulsar: () => { window.location.href = 'club-suscripcion.html'; } });
       }
-
-      // Guardar en Firestore (persistente, sincronizado entre dispositivos)
-      await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
-      renderCourseModal();
+      ZOO_CURSOS_UI.ventana({ titulo: titulo || 'No se pudo guardar tu avance', cuerpoHTML: '<p>' + escHtml(texto) + '</p>', botones });
     }
-    window.toggleLessonComplete = toggleLessonComplete;
 
-    async function generarCertificado(courseId) {
+    // Manda al servidor que la clase se vio. Devuelve la respuesta ({ entrada, completado, nuevoCompletado, certificado })
+    // o null si falló (el error ya se mostró) o si ya había una petición igual en curso.
+    // Una clase que ya estaba vista no se vuelve a mandar (salvo la última de un curso sin certificado).
+    async function guardarClaseVista(courseId, lessonIdx, opciones) {
+      const o = opciones || {};
       const progress = window.__zooCourseProgress;
-      if (!progress[courseId]) return;
-
-      const btn = event?.target;
-      if (btn) { btn.disabled = true; btn.textContent = 'Verificando...'; }
-
+      const previa = progress[courseId];
+      const total = (window.__currentLecciones || []).length;
+      const esUltima = total > 0 && lessonIdx === total - 1;
+      if (previa && previa.completedLessons.includes(lessonIdx) && (previa.isCompleted === true || !esUltima)) {
+        return { entrada: previa, completado: previa.isCompleted === true, nuevoCompletado: false, certificado: null, repetida: true };
+      }
+      const clave = courseId + ':' + lessonIdx;
+      if (clasesEnProceso.has(clave)) return null;
+      clasesEnProceso.add(clave);
       try {
-        // ═══ ANTI-DUPLICADOS ═══
-        // Buscar si YA existe un certificado para este curso y usuario
-        const existing = await db.collection('certificados')
-          .where('memberUid', '==', window.__zooSession.uid)
-          .where('courseId', '==', String(courseId))
-          .limit(1)
-          .get();
-
-        if (!existing.empty) {
-          // Ya existe, abrir el que ya existe
-          const existingData = existing.docs[0].data();
-          console.log('Ya existe certificado para este curso:', existingData.folio);
-
-          progress[courseId].isCompleted = true;
-          progress[courseId].completedAt = existingData.issuedAt;
-          progress[courseId].certificateFolio = existingData.folio;
-          await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
-
-          closePlayer();
-          setTimeout(() => {
-            window.open(`ver-certificado.html?folio=${existingData.folio}`, '_blank');
-            setTimeout(() => window.location.reload(), 800);
-          }, 300);
-          return;
-        }
-
-        // ═══ NO EXISTE, CREAR NUEVO ═══
-        if (btn) btn.textContent = 'Generando...';
-        const year = new Date().getFullYear();
-        const random = Math.floor(Math.random() * 90000) + 10000;
-        const folio = `ZOO-${year}-${random}`;
-
-        // Nombre que el miembro eligió para su certificado (tarjeta de bienvenida); si no eligió, su nombre de siempre
-        let nombreEnCertificado = '';
-        try {
-          const perfil = await db.collection('miembros').doc(window.__zooSession.uid).get();
-          nombreEnCertificado = String((perfil.exists && perfil.data().nombreCertificado) || '').trim().slice(0, 60);
-        } catch (e) { /* si no se puede leer, se usa el nombre de siempre */ }
-
-        const certData = {
-          folio,
-          courseId: String(courseId),
-          courseTitle: window.__currentCourse.title || 'Curso Zoorigen',
-          courseArea: window.__currentCourse.area || 'General',
-          courseDuration: window.__currentCourse.duration || '',
-          memberUid: window.__zooSession.uid,
-          memberName: nombreEnCertificado || window.__zooSession.name || window.__zooSession.email || 'Miembro VIP',
-          memberEmail: window.__zooSession.email || '',
-          issuedAt: new Date().toISOString(),
-          totalClases: window.__currentLecciones.length
-        };
-
-        console.log('Guardando certificado:', folio, certData);
-        await db.collection('certificados').doc(folio).set(certData);
-        console.log('Certificado guardado en Firestore');
-
-        progress[courseId].isCompleted = true;
-        progress[courseId].completedAt = new Date().toISOString();
-        progress[courseId].certificateFolio = folio;
-        await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
-
-        if (window.ZOORIGEN_CLUB && ZOORIGEN_CLUB.awardAchievement) {
-          ZOORIGEN_CLUB.awardAchievement(window.__zooSession.uid, 'first_course');
-        }
-
-        closePlayer();
-        const abrirCertificado = () => {
-          window.open(`ver-certificado.html?folio=${folio}`, '_blank');
-          setTimeout(() => window.location.reload(), 800);
-        };
-        if (window.ZOO_CURSO_PREMIO && typeof ZOO_CURSO_PREMIO.mostrar === 'function') {
-          // Tarjeta "Curso completado" (XP ganado). Si el servidor no responde, abre el certificado directo.
-          // El botón abre el certificado y luego recarga; si la cierran sin abrirlo, solo se recarga.
-          const res = await ZOO_CURSO_PREMIO.mostrar({ courseId: String(courseId), titulo: certData.courseTitle, alVerCertificado: abrirCertificado });
-          if (res && res.tarjeta && !res.abrio) window.location.reload();
-        } else {
-          setTimeout(abrirCertificado, 300);
-        }
-
+        const r = await ZOORIGEN_CLUB.registrarClaseVista(String(courseId), lessonIdx, { esMiembro: tieneMembresiaActiva() });
+        progress[courseId] = r.entrada;
+        return r;
       } catch (err) {
-        console.error('Error generando certificado:', err);
-        if (btn) { btn.disabled = false; btn.textContent = 'Obtener certificado'; }
-
-        // Mensaje útil según el error real (NO decir "membresía no activa" si no es el caso)
-        let mensaje = 'No se pudo generar el certificado.\n\n';
-        if (err.code === 'permission-denied' || (err.message || '').toLowerCase().includes('permission')) {
-          mensaje += 'Error de permisos en Firestore.\n\nSoluciones:\n';
-          mensaje += '1. Actualiza las reglas de Firestore en Firebase Console\n';
-          mensaje += '2. Usa la herramienta de diagnóstico en /pages/diagnostico.html\n';
-          mensaje += '3. Contacta a soporte por WhatsApp';
-        } else if (err.code === 'unavailable' || (err.message || '').includes('network')) {
-          mensaje += 'Sin conexión a internet. Revisa tu conexión e inténtalo de nuevo.';
-        } else {
-          mensaje += 'Detalles técnicos:\n' + (err.message || err.code || 'Error desconocido');
-          mensaje += '\n\nSi el problema persiste, contacta a soporte.';
-        }
-        alert(mensaje);
+        console.warn('[progreso] no se pudo registrar la clase:', err && err.message);
+        const texto = (err && err.mensajeUsuario) || 'No se pudo guardar tu avance. Inténtalo de nuevo.';
+        if (o.discreto) zcToast(texto, true); else avisoErrorProgreso(err);
+        return null;
+      } finally {
+        clasesEnProceso.delete(clave);
       }
     }
 
-    function descargarCertificado(courseId, courseTitle) {
-      const progress = window.__zooCourseProgress[courseId];
-      if (!progress || !progress.certificateFolio) {
-        alert('No se encontró el folio del certificado. Intenta generar uno nuevo.');
+    // Tarjeta "Curso completado" (XP ganado) y después el certificado, con el folio que emitió el servidor.
+    async function celebrarCursoCompletado(courseId, r) {
+      const folio = r && r.entrada && r.entrada.certificateFolio;
+      const curso = (window.__zooCourseCards || {})[courseId] || window.__currentCourse || {};
+      const titulo = (r && r.certificado && r.certificado.curso) || curso.title || 'Curso Zoorigen';
+      closePlayer();
+      if (!folio) {
+        zcToast('¡Completaste el curso! Tu certificado aparecerá en "Mis certificados".');
+        renderCourseModal();
         return;
       }
-      window.open(`ver-certificado.html?folio=${progress.certificateFolio}`, '_blank');
+      const abrirCertificado = () => {
+        window.open('ver-certificado.html?folio=' + encodeURIComponent(folio), '_blank');
+        setTimeout(() => window.location.reload(), 800);
+      };
+      if (window.ZOO_CURSO_PREMIO && typeof ZOO_CURSO_PREMIO.mostrar === 'function') {
+        // Si el servidor no responde, abre el certificado directo. Si cierran la tarjeta sin abrirlo, solo se recarga.
+        const res = await ZOO_CURSO_PREMIO.mostrar({ courseId: String(courseId), titulo, alVerCertificado: abrirCertificado });
+        if (res && res.tarjeta && !res.abrio) window.location.reload();
+      } else {
+        setTimeout(abrirCertificado, 300);
+      }
+    }
+
+    // Botón "Terminar curso" del detalle: pide al servidor la última clase otra vez (con sus preguntas si aún faltan).
+    function terminarCurso(courseId) {
+      const total = (window.__currentLecciones || []).length;
+      if (!total || !window.__currentCourse || String(window.__currentCourse.id) !== String(courseId)) return;
+      marcarYSiguiente(courseId, total - 1);
+    }
+
+    // "Ver certificado": abre el certificado con el folio que guardó el servidor.
+    function verCertificado(courseId) {
+      const progress = window.__zooCourseProgress[courseId];
+      if (!progress || !progress.certificateFolio) {
+        aviso('Certificado no disponible', '<p>Todavía no encontramos el folio de este certificado. Recarga la página; si el problema sigue, escribe a soporte.</p>');
+        return;
+      }
+      window.open('ver-certificado.html?folio=' + encodeURIComponent(progress.certificateFolio), '_blank');
     }
 
     function openLessonByIndex(lessonIdx) {
@@ -1064,18 +1014,20 @@
       const infoContent = document.createElement('div');
       infoContent.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;';
       const hayLista = courseId !== undefined && window.__currentLecciones?.length > 1;
+      const esUltimaClase = lessonIdx !== undefined && lessonIdx === (window.__currentLecciones?.length || 0) - 1;
+      const puedeCompletar = courseId !== undefined && lessonIdx !== undefined;
       infoContent.innerHTML = `
         <span style="color:var(--zoo-text-muted);font-size:.88rem;">
           ${desc ? '' + desc : ''}
           ${courseId !== undefined && lessonIdx !== undefined ? `${desc ? ' · ' : ''}Clase ${lessonIdx + 1} de ${window.__currentLecciones?.length || 1}` : ''}
         </span>
-        ${hayLista ? `
+        ${hayLista || puedeCompletar ? `
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             ${hayLista ? `<button onclick="renderCourseModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;font-size:.8rem;">
               ← Lista de clases
-            </button>
-            <button onclick="marcarYSiguiente('${courseId}', ${lessonIdx})" style="background:linear-gradient(135deg,#6FBF73,#3d8b42);border:0;color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
-              Completada, siguiente →
+            </button>` : ''}
+            ${puedeCompletar ? `<button id="zooBtnCompletarClase" onclick="marcarYSiguiente('${courseId}', ${lessonIdx})" style="background:linear-gradient(135deg,#6FBF73,#3d8b42);border:0;color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
+              ${esUltimaClase ? 'Terminar curso' : 'Completada, siguiente →'}
             </button>` : ''}
           </div>
         ` : ''}
@@ -1117,25 +1069,13 @@
       }
 
       clearTimeout(window.__autoCompleteTimer);
-      if (courseId !== undefined && lessonIdx !== undefined && !leccionTieneActividad(lesson)) {   // con preguntas/juego NO se marca sola
-        window.__autoCompleteTimer = setTimeout(async () => {
-          const progress = window.__zooCourseProgress;
-          if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
-          if (!progress[courseId].completedLessons.includes(lessonIdx)) {
-            progress[courseId].completedLessons.push(lessonIdx);
-            await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
-          }
+      // Una clase sin preguntas ni juego se registra sola a los 30 s, pero la ÚLTIMA nunca: terminar el curso (y
+      // recibir el certificado) es siempre una acción explícita con el botón "Terminar curso".
+      const totalClases = window.__currentLecciones?.length || 0;
+      if (courseId !== undefined && lessonIdx !== undefined && !leccionTieneActividad(lesson) && lessonIdx < totalClases - 1) {
+        window.__autoCompleteTimer = setTimeout(() => {
+          guardarClaseVista(courseId, lessonIdx, { discreto: true });
         }, 30000);
-      }
-    }
-
-    // Marca la clase como vista y guarda el avance (si ya estaba, no hace nada)
-    async function guardarClaseVista(courseId, lessonIdx) {
-      const progress = window.__zooCourseProgress;
-      if (!progress[courseId]) progress[courseId] = { completedLessons: [], isCompleted: false };
-      if (!progress[courseId].completedLessons.includes(lessonIdx)) {
-        progress[courseId].completedLessons.push(lessonIdx);
-        await ZOORIGEN_CLUB.saveCourseProgress(window.__zooSession.uid, progress);
       }
     }
 
@@ -1147,6 +1087,8 @@
     async function marcarYSiguiente(courseId, lessonIdx) {
       const lecciones = window.__currentLecciones;
       const nextIdx = lessonIdx + 1;
+      const clave = courseId + ':' + lessonIdx;
+      const boton = document.getElementById('zooBtnCompletarClase');
 
       const continuar = () => {
         if (nextIdx < lecciones.length) {
@@ -1154,16 +1096,37 @@
           const l = lecciones[nextIdx];
           openPlayer(l, l.titulo || 'Clase ' + (nextIdx + 1), l.duration || '', courseId, nextIdx);
         } else {
-          // Era la última — volver a lista para mostrar botón de certificado
+          // Era la última: volver a la lista del curso
           renderCourseModal();
         }
       };
 
-      // Como en alintecfood: si la clase trae preguntas o juego, hay que completarlos (no se pueden cerrar)
-      // y SOLO entonces la clase cuenta como vista y se avanza. Sin actividad, se guarda y avanza de inmediato.
-      abrirActividadesDeClase(lessonIdx, async () => {
-        await guardarClaseVista(courseId, lessonIdx);
+      // La clase se registra en el servidor (que revisa el orden y las preguntas). Si falla, el error ya se
+      // mostró y nos quedamos en esta clase para poder reintentar. Si era la última, el servidor emite el certificado.
+      const registrar = async () => {
+        if (boton) { boton.disabled = true; boton.textContent = 'Guardando…'; }
+        let r = null;
+        try { r = await guardarClaseVista(courseId, lessonIdx); }
+        finally {
+          const b = document.getElementById('zooBtnCompletarClase');
+          if (b && !r) { b.disabled = false; b.textContent = lessonIdx === lecciones.length - 1 ? 'Terminar curso' : 'Completada, siguiente →'; }
+        }
+        if (!r) return;
+        if (r.nuevoCompletado) { await celebrarCursoCompletado(courseId, r); return; }
         continuar();
+      };
+
+      // Una clase ya registrada, o cuyas preguntas el servidor ya recibió en esta sesión, no repite preguntas ni juego.
+      // La última clase de un curso que aún no tiene certificado sí pasa por sus preguntas (el servidor las pide).
+      const previa = window.__zooCourseProgress[courseId];
+      const esUltima = lessonIdx === lecciones.length - 1;
+      const yaVista = !!(previa && previa.completedLessons.includes(lessonIdx) && (previa.isCompleted === true || !esUltima));
+      if (yaVista || quizzesValidados.has(clave)) { await registrar(); return; }
+
+      // Como en alintecfood: si la clase trae preguntas o juego, hay que completarlos (no se pueden cerrar)
+      // y SOLO entonces la clase se manda al servidor y se avanza. Sin actividad, se manda de inmediato.
+      abrirActividadesDeClase(lessonIdx, async () => {
+        await registrar();
       }, { obligatorio: true });
     }
 
@@ -1181,7 +1144,15 @@
       const aJuego = () => { if (pasado) return; pasado = true; abrirJuegoDeClase(lessonIdx, despues, { obligatorio }); };
       if (!cantidadPreguntas(lesson)) { aJuego(); return; }
       const curso = window.__currentCourse || {};
+      // Las respuestas se mandan al servidor (POST /api/cursos/:id/quiz): él las califica y registra que la clase
+      // se contestó. El quiz es de práctica (equivocarse no frena), pero sin esa respuesta del servidor la clase
+      // no puede completarse.
       ZOO_QUIZ.abrir(lesson.preguntas, {
+        validar: async (respuestas) => {
+          const r = await ZOORIGEN_CLUB.validarQuizClase(String(curso.id), lessonIdx, respuestas, { esMiembro: tieneMembresiaActiva() });
+          quizzesValidados.add(curso.id + ':' + lessonIdx);
+          return r;
+        },
         subtitulo: (lesson.titulo || 'Clase ' + (lessonIdx + 1)) + (curso.title ? ' · ' + curso.title : ''),
         obligatorio,
         alTerminar: aJuego,

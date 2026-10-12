@@ -80,14 +80,13 @@
 </head>
 <body>
   <h1><svg class="zi" aria-hidden="true"><use href="#zi-wrench"/></svg> Diagnóstico del sistema de certificados</h1>
-  <p class="sub">Detecta automáticamente por qué los certificados no se están guardando.</p>
+  <p class="sub">Revisa tu cuenta, el avance de tus cursos y tus certificados. Los certificados los emite el servidor al terminar cada curso: esta página solo consulta, no crea nada.</p>
 
   <div id="checks"></div>
 
   <div class="actions">
     <button onclick="runDiagnostic()"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Volver a verificar</button>
-    <button class="secondary" onclick="testCreateCert()"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg> Probar crear certificado de prueba</button>
-    <button class="danger" onclick="limpiarLocalStorage()"><svg class="zi" aria-hidden="true"><use href="#zi-trash-2"/></svg> Limpiar folios del navegador</button>
+    <button class="danger" onclick="limpiarAvanceLocal()"><svg class="zi" aria-hidden="true"><use href="#zi-trash-2"/></svg> Limpiar avance guardado en el navegador</button>
   </div>
 
   <div id="log" class="log" style="display:none;"></div>
@@ -99,12 +98,15 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261030-claro"></script>
+  <script src="../assets/js/club.js?v=20261031-cert"></script>
+  <script src="../assets/js/club-progreso.js?v=20261031-cert"></script>
+  <script src="../assets/js/club-certificado.js?v=20261031-cert"></script>
   <script>
     const checks = document.getElementById('checks');
     const logEl = document.getElementById('log');
+    const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-    function log(msg, type='info') {
+    function log(msg, type = 'info') {
       logEl.style.display = 'block';
       const span = document.createElement('span');
       span.className = type === 'error' ? 'log-error' : (type === 'warn' ? 'log-warn' : '');
@@ -114,7 +116,11 @@
     }
 
     function addCheck(status, title, detail) {
-      const icons = { pass: '<svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg>', fail: '<svg class="zi" aria-hidden="true"><use href="#zi-circle-x"/></svg>', warn: '<svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg>' };
+      const icons = {
+        pass: '<svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg>',
+        fail: '<svg class="zi" aria-hidden="true"><use href="#zi-circle-x"/></svg>',
+        warn: '<svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg>'
+      };
       const div = document.createElement('div');
       div.className = `check check--${status}`;
       div.innerHTML = `
@@ -131,196 +137,111 @@
       logEl.innerHTML = '';
       logEl.style.display = 'none';
 
-      // ═══ Check 1: Firebase conectado ═══
-      if (typeof firebase === 'undefined' || !db) {
+      // ═══ 1: Firebase conectado ═══
+      if (typeof firebase === 'undefined' || !window.db) {
         addCheck('fail', 'Firebase NO conectado', 'No se pudo cargar Firebase. Revisa que <code>firebase-config.js</code> esté presente.');
         return;
       }
       addCheck('pass', 'Firebase conectado', 'El SDK de Firebase carga correctamente.');
 
-      // ═══ Check 2: Usuario autenticado ═══
+      // ═══ 2: Usuario autenticado ═══
       const user = await new Promise(resolve => {
         const unsub = auth.onAuthStateChanged(u => { unsub(); resolve(u); });
       });
-
       if (!user) {
-        addCheck('fail', 'NO has iniciado sesión', `Entra primero al club con tu cuenta. <a href="club-login.html" style="color:#E8A317;">Ir al login</a>`);
+        addCheck('fail', 'NO has iniciado sesión', 'Entra primero al club con tu cuenta. <a href="club-login.html" style="color:#E8A317;">Ir al login</a>');
         return;
       }
-      addCheck('pass', 'Usuario autenticado',
-        `Email: <code>${user.email}</code><br>UID: <code>${user.uid}</code>`
-      );
+      addCheck('pass', 'Usuario autenticado', `Email: <code>${esc(user.email)}</code><br>UID: <code>${esc(user.uid)}</code>`);
 
-      // ═══ Check 3: Documento de miembro ═══
+      // ═══ 3: Documento de miembro ═══
       let memberDoc;
       try {
         memberDoc = await db.collection('miembros').doc(user.uid).get();
       } catch (err) {
         addCheck('fail', 'No se puede leer tu documento de miembro',
-          `Error: <code>${err.code || err.message}</code><br>
-           Las reglas de Firestore NO te permiten leer tu propio documento.`);
+          `Error: <code>${esc(err.code || err.message)}</code><br>Las reglas de Firestore NO te permiten leer tu propio documento.`);
         return;
       }
-
       if (!memberDoc.exists) {
         addCheck('fail', 'NO existe tu documento en <code>miembros</code>',
-          `Tu UID <code>${user.uid}</code> no tiene documento en la colección <code>miembros</code>.
-           Registra tu cuenta de nuevo o crea el documento manualmente.`);
+          `Tu UID <code>${esc(user.uid)}</code> no tiene documento en la colección <code>miembros</code>. Registra tu cuenta de nuevo.`);
         return;
       }
-
       const member = memberDoc.data();
-      addCheck('pass', 'Documento de miembro encontrado',
-        `Nombre: <code>${member.name || '(sin nombre)'}</code>`
-      );
+      addCheck('pass', 'Documento de miembro encontrado', `Nombre: <code>${esc(member.name || '(sin nombre)')}</code>`);
 
-      // ═══ Check 4: role ═══
+      // ═══ 4: role ═══
       if (member.role === 'admin') {
         addCheck('pass', 'Eres ADMIN', 'Tu campo <code>role</code> es <code>admin</code>.');
       } else {
         addCheck('warn', 'role = "member"',
-          `Tu campo <code>role</code> es <code>${member.role || '(vacío)'}</code>.
-           Es el rol normal de una cuenta. El acceso premium depende de un pago vigente verificado.`);
+          `Tu campo <code>role</code> es <code>${esc(member.role || '(vacío)')}</code>. Es el rol normal de una cuenta. El acceso premium depende de un pago vigente verificado.`);
       }
 
-      // ═══ Check 5: membresía realmente vigente ═══
-      const planActivoType = typeof member.planActivo;
+      // ═══ 5: membresía realmente vigente ═══
       if (ZOORIGEN_CLUB.hasActiveMembership(member)) {
         addCheck('pass', 'Membresía vigente',
-          `Estado: <code>${ZOORIGEN_CLUB.calculateStatus(member)}</code> · acceso hasta <code>${ZOORIGEN_CLUB.formatShort(member.planVence)}</code>.`);
-      } else if (member.planActivo === "true") {
+          `Estado: <code>${esc(ZOORIGEN_CLUB.calculateStatus(member))}</code> · acceso hasta <code>${esc(ZOORIGEN_CLUB.formatShort(member.planVence))}</code>.`);
+      } else if (member.planActivo === 'true') {
         addCheck('fail', 'planActivo es STRING, debe ser BOOLEAN',
-          `Valor actual: <code>"true"</code> (string). Este dato no concede acceso.<br>
-           Usa el botón de verificar membresía o pide a soporte revisar el pago; no edites el campo manualmente.`);
-      } else if (member.planActivo === false || member.planActivo === "false") {
-        addCheck('warn', 'Cuenta gratuita',
-          `No hay una membresía vigente confirmada. Puedes ver la primera clase gratis; verifica tu membresía si ya realizaste un pago.`);
+          `Valor actual: <code>"true"</code> (string). Este dato no concede acceso.<br>Pide a soporte revisar el pago; no edites el campo manualmente.`);
       } else {
-        addCheck('warn', 'Membresía sin confirmar',
-          `No existe una vigencia de pago válida. Puedes ver la primera clase gratis; si ya pagaste, solicita una verificación.`);
+        addCheck('warn', 'Sin membresía vigente',
+          'No hay una membresía vigente confirmada. Puedes ver tu clase gratuita; si ya pagaste, solicita una verificación.');
       }
 
-      // ═══ Check 6: Reglas de certificados (intentar leer) ═══
+      // ═══ 6: el servidor guarda tu avance ═══
+      let cursos = null;
       try {
-        await db.collection('certificados').limit(1).get();
-        addCheck('pass', 'Colección certificados accesible',
-          'Las reglas permiten leer la colección <code>certificados</code>.');
+        const r = await ZOORIGEN_CLUB.apiFetch('/api/cursos/progreso');
+        cursos = r && r.cursos && typeof r.cursos === 'object' ? r.cursos : {};
+        const ids = Object.keys(cursos);
+        const terminados = ids.filter(id => cursos[id] && cursos[id].completado === true);
+        const conFolio = terminados.filter(id => cursos[id].certificadoFolio);
+        addCheck('pass', 'El servidor responde con tu avance',
+          `Cursos con avance: <code>${ids.length}</code> · terminados: <code>${terminados.length}</code> · con certificado emitido: <code>${conFolio.length}</code>.`);
+        if (terminados.length > conFolio.length) {
+          addCheck('warn', 'Hay cursos terminados sin certificado',
+            `Tienes <code>${terminados.length - conFolio.length}</code> curso(s) terminado(s) sin folio. Entra al curso en la biblioteca y pulsa <strong>Terminar curso</strong> para que el servidor lo emita.`);
+        }
       } catch (err) {
-        addCheck('fail', 'NO puedes leer la colección certificados',
-          `Error: <code>${err.code}</code><br>
-           Tus reglas Firestore NO tienen configurada la colección <code>certificados</code>. Publica las reglas v6.`);
-        return;
+        const texto = ZOO_PROGRESO.mensajeError(err, { accion: 'lista', esMiembro: ZOORIGEN_CLUB.hasActiveMembership(member) });
+        addCheck('fail', 'No se pudo consultar tu avance al servidor',
+          `Estado: <code>${esc(err.status === 0 ? 'sin conexión' : err.status)}</code><br>${esc(texto)}`);
       }
 
-      // ═══ Check 7: Intentar escribir un certificado de prueba ═══
-      const testFolio = 'ZOO-TEST-' + Date.now();
+      // ═══ 7: tus certificados ═══
+      let propios = [];
       try {
-        await db.collection('certificados').doc(testFolio).set({
-          folio: testFolio,
-          courseId: 'test',
-          courseTitle: 'Certificado de prueba',
-          courseArea: 'Diagnóstico',
-          courseDuration: '0 min',
-          memberUid: user.uid,
-          memberName: member.name || user.email,
-          memberEmail: user.email,
-          issuedAt: new Date().toISOString(),
-          totalClases: 0,
-          _test: true
-        });
-        // Limpiar el test
-        await db.collection('certificados').doc(testFolio).delete().catch(()=>{});
-        addCheck('pass', 'PUEDES crear certificados',
-          `Se creó y eliminó el folio de prueba <code>${testFolio}</code> correctamente. <strong>Todo debería funcionar.</strong>`);
+        const snap = await db.collection('certificados').where('memberUid', '==', user.uid).get();
+        propios = snap.docs.map(d => Object.assign({ folio: d.id }, d.data()));
       } catch (err) {
-        addCheck('fail', 'NO puedes crear certificados',
-          `Error: <code>${err.code}</code><br>
-           Mensaje: <code>${err.message}</code><br><br>
-           <strong>Causa más común:</strong> las reglas de Firestore no están publicadas o la membresía no tiene una vigencia confirmada.`);
+        addCheck('fail', 'NO puedes leer tus certificados',
+          `Error: <code>${esc(err.code || err.message)}</code><br>Las reglas de Firestore deben permitir que cada miembro lea sus propios certificados.`);
+      }
+      if (propios.length) {
+        const verificados = propios.filter(c => ZOO_CERT.estadoVerificacion(c) === 'verificado');
+        addCheck(verificados.length === propios.length ? 'pass' : 'warn', 'Tus certificados',
+          `Certificados: <code>${propios.length}</code> · verificados por el servidor: <code>${verificados.length}</code> · en validación: <code>${propios.length - verificados.length}</code>.`);
+        // Prueba de la consulta pública con el primero
+        const r = await ZOO_CERT.consultar(propios[0].folio);
+        if (r.ok) addCheck('pass', 'La verificación pública responde', `El folio <code>${esc(r.folio)}</code> se verifica correctamente.`);
+        else addCheck('warn', 'La verificación pública no confirmó un folio', `Folio <code>${esc(propios[0].folio)}</code>: ${esc(r.titulo)}. ${esc(r.detalle)}`);
+      } else if (cursos) {
+        addCheck('warn', 'Aún no tienes certificados', 'El certificado aparece solo cuando terminas la última clase de un curso.');
       }
 
-      // ═══ Check 8: localStorage ═══
-      const progressKeys = Object.keys(localStorage).filter(k => k.startsWith('zoo_course_progress_'));
-      const foliosInvalidos = [];
-      for (const key of progressKeys) {
-        try {
-          const data = JSON.parse(localStorage.getItem(key));
-          for (const courseId of Object.keys(data)) {
-            if (data[courseId].certificateFolio) {
-              // Verificar si existe en Firestore
-              const existe = await db.collection('certificados').doc(data[courseId].certificateFolio).get();
-              if (!existe.exists) {
-                foliosInvalidos.push(data[courseId].certificateFolio);
-              }
-            }
-          }
-        } catch(e) {}
-      }
-
-      if (foliosInvalidos.length > 0) {
-        addCheck('warn', `Tienes ${foliosInvalidos.length} folio(s) inválido(s) en localStorage`,
-          `Folios: ${foliosInvalidos.map(f => `<code>${f}</code>`).join(', ')}<br>
-           Estos folios están guardados en tu navegador pero no existen en Firebase.<br>
-           Usa el botón <strong>"Limpiar folios del navegador"</strong> abajo.`);
-      } else if (progressKeys.length > 0) {
-        addCheck('pass', 'localStorage limpio', 'No hay folios inválidos en tu navegador.');
-      }
+      // ═══ 8: avance guardado en este navegador (solo para mostrar) ═══
+      const claves = Object.keys(localStorage).filter(k => k.startsWith('zoo_course_progress_'));
+      addCheck('pass', 'Avance guardado en este navegador',
+        `Copias guardadas: <code>${claves.length}</code>. Solo sirven para mostrar tu avance si el servidor no responde; nunca emiten certificados. Puedes limpiarlas con el botón de abajo.`);
     }
 
-    async function testCreateCert() {
-      log('Iniciando prueba de creación de certificado...');
-      const user = auth.currentUser;
-      if (!user) { log('No hay usuario autenticado', 'error'); return; }
-
-      const memberDoc = await db.collection('miembros').doc(user.uid).get();
-      const member = memberDoc.data();
-
-      const folio = 'ZOO-TEST-' + Date.now();
-      log(`Folio generado: ${folio}`);
-      log(`memberUid: ${user.uid}`);
-      log(`memberEmail: ${user.email}`);
-      log(`planActivo: ${member.planActivo} (tipo: ${typeof member.planActivo})`);
-
-      try {
-        await db.collection('certificados').doc(folio).set({
-          folio,
-          courseId: 'test',
-          courseTitle: 'Prueba manual',
-          courseArea: 'Test',
-          memberUid: user.uid,
-          memberName: member.name || 'Test',
-          memberEmail: user.email,
-          issuedAt: new Date().toISOString(),
-          totalClases: 0
-        });
-        log('CERTIFICADO CREADO EXITOSAMENTE');
-        log(`Ver: ${location.origin}/pages/ver-certificado.html?folio=${folio}`);
-        log('Eliminando prueba...');
-        await db.collection('certificados').doc(folio).delete();
-        log('Prueba limpia. Los certificados funcionan correctamente.');
-      } catch (err) {
-        log(`ERROR: ${err.code}`, 'error');
-        log(`Mensaje: ${err.message}`, 'error');
-        log(`\nCausas probables:`, 'warn');
-        log(`  1. Las reglas v6 NO están publicadas en Firebase Console`, 'warn');
-        log(`  2. Tu membresía no tiene una vigencia confirmada`, 'warn');
-        log(`  3. Tu UID no coincide con memberUid en los datos`, 'warn');
-      }
-    }
-
-    function limpiarLocalStorage() {
-      let count = 0;
-      Object.keys(localStorage).filter(k => k.startsWith('zoo_course_progress_')).forEach(k => {
-        const data = JSON.parse(localStorage.getItem(k));
-        Object.keys(data).forEach(id => {
-          if (data[id].certificateFolio) count++;
-          data[id].isCompleted = false;
-          delete data[id].certificateFolio;
-          delete data[id].completedAt;
-        });
-        localStorage.setItem(k, JSON.stringify(data));
-      });
-      log(`${count} folios inválidos eliminados del navegador`);
+    function limpiarAvanceLocal() {
+      const claves = Object.keys(localStorage).filter(k => k.startsWith('zoo_course_progress_'));
+      claves.forEach(k => localStorage.removeItem(k));
+      log(`${claves.length} copia(s) del avance eliminadas de este navegador. El servidor conserva tu avance real.`);
       setTimeout(runDiagnostic, 500);
     }
 

@@ -21,6 +21,15 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
+  <style>
+    /* Estado del certificado: verificado por el servidor o en validación (anterior a la validación automática) */
+    .cert-estado { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; letter-spacing: .02em; margin-bottom: 8px; border: 1px solid transparent; }
+    .cert-estado--verificado { color: #6FBF73; background: rgba(111,191,115,.12); border-color: rgba(111,191,115,.35); }
+    .cert-estado--en-validacion { color: #E8A317; background: rgba(232,163,23,.12); border-color: rgba(232,163,23,.4); }
+    /* El título usaba blanco fijo y desaparecía en el tema claro */
+    .cert-item-card__body h3 { color: var(--zoo-text); }
+    .cert-estado-nota { color: var(--zoo-text-muted); font-size: .8rem; line-height: 1.45; margin: 0 0 12px; }
+  </style>
 </head>
 <body>
   <div class="club-layout">
@@ -43,7 +52,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261030-claro"></script>
+  <script src="../assets/js/club.js?v=20261031-cert"></script>
+  <script src="../assets/js/club-certificado.js?v=20261031-cert"></script>
   <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script>
@@ -59,20 +69,11 @@
       const content = document.getElementById('certsContent');
 
       try {
-        // Buscar todos los certificados del miembro
+        // Los certificados los emite el servidor al terminar cada curso; aquí solo se leen los del propio miembro.
         const snap = await db.collection('certificados').where('memberUid', '==', session.uid).get();
-        const allCerts = snap.docs.map(d => d.data()).sort((a, b) => new Date(b.issuedAt) - new Date(a.issuedAt));
-
-        // ═══ DEDUPLICAR por courseId (conservar el más reciente) ═══
-        const seen = new Set();
-        const certs = [];
-        for (const c of allCerts) {
-          const key = c.courseId || c.folio;
-          if (!seen.has(key)) {
-            seen.add(key);
-            certs.push(c);
-          }
-        }
+        // Uno por curso (gana el verificado), del más reciente al más antiguo
+        const certs = ZOO_CERT.propiosParaMostrar(snap.docs.map(d => Object.assign({ folio: d.id }, d.data())));
+        const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
         if (certs.length === 0) {
           content.innerHTML = `
@@ -97,23 +98,26 @@
           </div>
           <div class="certs-grid">
             ${certs.map(c => {
-              const fecha = new Date(c.issuedAt);
-              const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-              const fechaStr = `${fecha.getDate()} ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
+              const estado = ZOO_CERT.estadoVerificacion(c);
+              const fechaStr = ZOO_CERT.fechaCorta(c.issuedAt) || '—';
+              const folio = esc(c.folio);
+              const folioUrl = encodeURIComponent(c.folio);
               return `
-                <div class="cert-item-card">
+                <div class="cert-item-card" data-estado="${estado}">
                   <div class="cert-item-card__icon"><svg class="zi" aria-hidden="true"><use href="#zi-trophy"/></svg></div>
                   <div class="cert-item-card__body">
                     <div class="cert-item-card__label">CERTIFICADO OFICIAL</div>
-                    <h3>${c.courseTitle}</h3>
+                    <span class="cert-estado cert-estado--${estado}"><svg class="zi" aria-hidden="true"><use href="#zi-${estado === 'verificado' ? 'shield-check' : 'hourglass'}"/></svg> ${esc(ZOO_CERT.ETIQUETAS_VERIFICACION[estado])}</span>
+                    <h3>${esc(c.courseTitle || 'Curso Zoorigen')}</h3>
                     <div class="cert-item-card__meta">
-                      <span><svg class="zi" aria-hidden="true"><use href="#zi-folder"/></svg> ${c.courseArea || 'General'}</span>
-                      <span><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${fechaStr}</span>
-                      <span><svg class="zi" aria-hidden="true"><use href="#zi-hash"/></svg> ${c.folio}</span>
+                      <span><svg class="zi" aria-hidden="true"><use href="#zi-folder"/></svg> ${esc(c.courseArea || 'General')}</span>
+                      <span><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${esc(fechaStr)}</span>
+                      <span><svg class="zi" aria-hidden="true"><use href="#zi-hash"/></svg> ${folio}</span>
                     </div>
+                    ${estado === 'verificado' ? '' : `<p class="cert-estado-nota">${esc(ZOO_CERT.AYUDA_VERIFICACION[estado])}</p>`}
                     <div class="cert-item-card__actions">
-                      <a href="ver-certificado.html?folio=${c.folio}" target="_blank" class="btn-club" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Ver / Descargar</a>
-                      <a href="verificar.html?folio=${c.folio}" target="_blank" class="btn-club-outline" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;"><svg class="zi" aria-hidden="true"><use href="#zi-link"/></svg> Link público</a>
+                      <a href="ver-certificado.html?folio=${folioUrl}" target="_blank" rel="noopener" class="btn-club" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Ver / Descargar</a>
+                      <a href="verificar.html?folio=${folioUrl}" target="_blank" rel="noopener" class="btn-club-outline" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;"><svg class="zi" aria-hidden="true"><use href="#zi-link"/></svg> Link público</a>
                     </div>
                   </div>
                 </div>

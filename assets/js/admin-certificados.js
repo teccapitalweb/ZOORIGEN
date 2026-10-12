@@ -1,8 +1,10 @@
 /* ============================================================ */
 /* PANEL ADMIN · CERTIFICADOS EMITIDOS                           */
 /* Lista, estadísticas, búsqueda, filtro por curso, enlaces de   */
-/* verificación y exportación a CSV. Solo lectura: no emite ni   */
-/* borra certificados. Se prueba en tests/admin-certificados.test.js */
+/* verificación y exportación a CSV. La emisión manual NO escribe */
+/* en Firestore: pide al servidor POST /api/admin/certificados    */
+/* (folio único, validación y nombre del alumno los pone el       */
+/* servidor). Se prueba en tests/admin-certificados.test.js       */
 /* ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'));
@@ -53,10 +55,12 @@
       curso: texto(d.courseTitle || d.curso),
       cursoId: texto(d.courseId),
       area: texto(d.courseArea),
-      duracion: texto(d.courseDuration),
-      clases: Number(d.totalClases) || 0,
+      duracion: texto(d.courseDuration) || (Number(d.horas) > 0 ? Number(d.horas) + ' h' : ''),
+      clases: Number(d.totalClases) || Number(d.sesiones) || 0,
       fecha: aFecha(d.issuedAt || d.emitido),
-      prueba: d._test === true || d.courseId === 'test'
+      prueba: d._test === true || d.courseId === 'test',
+      // true cuando lo emitió/validó el servidor; sin esto es un certificado anterior a la validación
+      verificado: d.verificado === true
     };
   }
 
@@ -133,7 +137,7 @@
       <div class="cf-alumno">
         <span class="cf-av">${esc(iniciales(c.alumno))}</span>
         <div class="cf-alumno__txt">
-          <div class="cf-nombre">${esc(c.alumno || 'Sin nombre')}${c.prueba ? ' <span class="cf-prueba">Prueba</span>' : ''}</div>
+          <div class="cf-nombre">${esc(c.alumno || 'Sin nombre')}${c.prueba ? ' <span class="cf-prueba">Prueba</span>' : ''}${!c.verificado && !c.prueba ? ' <span class="cf-validacion" title="Anterior a la validación del servidor">En validación</span>' : ''}</div>
           <div class="cf-correo">${esc(c.correo || 'Sin correo')}</div>
         </div>
       </div>
@@ -159,6 +163,92 @@
     return `<div class="cf-lista">${lista.map(c => filaHTML(c, ahora)).join('')}</div>`;
   }
 
+  /* ───────── Emisión manual (POST /api/admin/certificados) ───────── */
+
+  // Revisa el formulario y arma el cuerpo que se manda al servidor: { uid, cursoId, nombre?, horas?, sesiones? }.
+  // Devuelve { ok:true, cuerpo } o { ok:false, error } (texto para mostrar).
+  function cuerpoEmision(form) {
+    const f = form || {};
+    const uid = texto(f.uid);
+    const cursoId = texto(f.cursoId);
+    if (!uid) return { ok: false, error: 'Elige al alumno.' };
+    if (uid.length > 128) return { ok: false, error: 'El alumno elegido no es válido.' };
+    if (!cursoId) return { ok: false, error: 'Elige el curso.' };
+    if (cursoId.length > 120) return { ok: false, error: 'El curso elegido no es válido.' };
+    const cuerpo = { uid, cursoId };
+    const nombre = texto(f.nombre).replace(/\s+/g, ' ');
+    if (nombre) {
+      if (nombre.length > 60) return { ok: false, error: 'El nombre del certificado no puede pasar de 60 letras.' };
+      cuerpo.nombre = nombre;
+    }
+    const horasTxt = texto(f.horas).replace(',', '.');
+    if (horasTxt) {
+      const h = Number(horasTxt);
+      if (!Number.isFinite(h) || h <= 0 || h > 1000) return { ok: false, error: 'Las horas deben ser un número mayor que 0 (por ejemplo 6 o 7.5).' };
+      cuerpo.horas = Math.round(h * 10) / 10;
+    }
+    const sesTxt = texto(f.sesiones);
+    if (sesTxt) {
+      const s = Number(sesTxt);
+      if (!Number.isInteger(s) || s < 1 || s > 500) return { ok: false, error: 'Las clases deben ser un número entero entre 1 y 500.' };
+      cuerpo.sesiones = s;
+    }
+    return { ok: true, cuerpo };
+  }
+
+  // Mensaje para el administrador según el error del servidor (err.status, err.message).
+  function mensajeErrorEmision(err) {
+    const e = err || {};
+    const s = Number(e.status);
+    if (s === 0) return 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.';
+    if (s === 401) return 'Tu sesión expiró. Vuelve a entrar al panel.';
+    if (s === 403) return 'El servidor no te reconoce como administrador.';
+    if (s === 404) return 'No se encontró al alumno o el curso en el servidor.';
+    if (s === 409) return texto(e.message) || 'Ese alumno ya tiene un certificado de este curso.';
+    if (s === 503) return 'Los certificados todavía no están configurados en el servidor.';
+    return texto(e.message) || 'No se pudo emitir el certificado. Inténtalo de nuevo.';
+  }
+
+  // miembros: [{ id, name, email }], cursos: [{ id, title }]
+  function modalEmitirHTML(miembros, cursos) {
+    const nombreDe = m => texto(m.name || m.nombre) || texto(m.email) || m.id;
+    const ms = (Array.isArray(miembros) ? miembros : []).slice().sort((a, b) => nombreDe(a).localeCompare(nombreDe(b), 'es', { sensitivity: 'base' }));
+    const cs = (Array.isArray(cursos) ? cursos : []).slice().sort((a, b) => texto(a.title).localeCompare(texto(b.title), 'es', { sensitivity: 'base' }));
+    const opM = ms.map(m => `<option value="${esc(m.id)}">${esc(nombreDe(m))}${m.email && nombreDe(m) !== texto(m.email) ? ' · ' + esc(m.email) : ''}</option>`).join('');
+    const opC = cs.map(c => `<option value="${esc(c.id)}">${esc(texto(c.title) || 'Curso sin nombre')}</option>`).join('');
+    return `
+      <h3>Emitir certificado manualmente</h3>
+      <p style="color:var(--zoo-text-muted);font-size:.9rem;margin-bottom:14px;">
+        El servidor crea el certificado con folio único y lo deja verificado. Úsalo solo para casos especiales
+        (por ejemplo, un alumno que terminó el curso por otra vía).
+      </p>
+      <div class="field">
+        <label for="certEmUid">Alumno</label>
+        <select id="certEmUid"><option value="">Elige un alumno…</option>${opM}</select>
+      </div>
+      <div class="field">
+        <label for="certEmCurso">Curso</label>
+        <select id="certEmCurso"><option value="">Elige un curso…</option>${opC}</select>
+      </div>
+      <div class="field">
+        <label for="certEmNombre">Nombre en el certificado (opcional)</label>
+        <input type="text" id="certEmNombre" maxlength="60" placeholder="Si lo dejas vacío se usa el nombre de la cuenta">
+      </div>
+      <div class="field">
+        <label for="certEmHoras">Horas (opcional)</label>
+        <input type="text" inputmode="decimal" id="certEmHoras" placeholder="Si lo dejas vacío se usa la duración del curso">
+      </div>
+      <div class="field">
+        <label for="certEmSesiones">Clases (opcional)</label>
+        <input type="text" inputmode="numeric" id="certEmSesiones" placeholder="Si lo dejas vacío se usan las clases del curso">
+      </div>
+      <p id="certEmError" class="error-msg" role="alert" style="display:none;"></p>
+      <div class="modal-actions">
+        <button class="btn-cancel" type="button" onclick="closeM()">Cancelar</button>
+        <button class="btn-save" type="button" id="certEmEnviar">Emitir certificado</button>
+      </div>`;
+  }
+
   /* ───────── CSV ───────── */
 
   // Evita que Excel interprete una celda como fórmula (=, +, -, @) si alguien escribió su nombre así.
@@ -176,6 +266,7 @@
 
   return {
     esc, aFecha, formatoFecha, relativo, normalizar, resumen, cursosConConteo, filtrar,
-    urlVer, urlVerificar, iniciales, kpisHTML, opcionesCursoHTML, ordenHTML, filaHTML, listaHTML, celdaCSV, csv
+    urlVer, urlVerificar, iniciales, kpisHTML, opcionesCursoHTML, ordenHTML, filaHTML, listaHTML, celdaCSV, csv,
+    cuerpoEmision, mensajeErrorEmision, modalEmitirHTML
   };
 });

@@ -535,13 +535,15 @@
 </head>
 <body>
 
-  <div id="loading" class="cert-state">
+  <div id="loading" class="cert-state" role="status" aria-live="polite">
     <h2><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cargando certificado...</h2>
   </div>
 
-  <div id="errorState" class="cert-state" style="display:none;max-width:640px;">
-    <h2><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Certificado no encontrado</h2>
-    <p style="margin-bottom:20px;line-height:1.6;text-align:left;">El folio no existe o es inválido.</p>
+  <div id="errorState" class="cert-state" style="display:none;max-width:640px;" role="alert">
+    <h2><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> <span id="errTitulo">Certificado no encontrado</span></h2>
+    <p id="errDetalle" style="margin-bottom:20px;line-height:1.6;text-align:left;">El folio no existe o es inválido.</p>
+    <button type="button" id="btnReintentar" class="cert-btn" style="display:none;" onclick="cargarCertificado()">Reintentar</button>
+    <a href="verificar.html" class="cert-btn cert-btn--ghost">Verificar otro folio</a>
     <a href="club-biblioteca.html" class="cert-btn cert-btn--ghost">← Volver a biblioteca</a>
   </div>
 
@@ -721,68 +723,62 @@
     </div><!-- /.cert-scaler -->
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="../assets/js/firebase-config.js"></script>
+  <!-- El certificado se lee de la API pública del servidor (GET /api/certificados/:folio): no usa Firebase ni sesión -->
+  <script src="../assets/js/club-certificado.js?v=20261031-cert"></script>
   <script>
-    (async () => {
-      const params = new URLSearchParams(window.location.search);
-      const folio = params.get('folio');
+    function mostrarErrorCertificado(estado) {
+      const m = ZOO_CERT.mensajeEstado(estado);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('certWrap').style.display = 'none';
+      document.getElementById('errTitulo').textContent = m.titulo;
+      document.getElementById('errDetalle').textContent = m.detalle;
+      document.getElementById('btnReintentar').style.display = (estado === 'red' || estado === 'limite' || estado === 'error') ? '' : 'none';
+      document.getElementById('errorState').style.display = 'block';
+    }
 
-      function showError(title, detail) {
-        document.getElementById('loading').style.display = 'none';
-        const errorEl = document.getElementById('errorState');
-        errorEl.style.display = 'block';
-        errorEl.querySelector('h2').textContent = title;
-        const p = errorEl.querySelector('p');
-        if (p && detail) p.innerHTML = detail;
-      }
+    async function cargarCertificado() {
+      document.getElementById('errorState').style.display = 'none';
+      document.getElementById('loading').style.display = '';
+      const folio = new URLSearchParams(window.location.search).get('folio');
+      const r = await ZOO_CERT.consultar(folio);
+      if (!r.ok) { mostrarErrorCertificado(r.estado); return; }
 
-      try {
-        if (!folio) { showError('<svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Falta el folio', 'La URL no tiene <code>?folio=XXX</code>'); return; }
-        if (typeof firebase === 'undefined' || !window.db) { showError('Firebase no cargó', ''); return; }
+      const c = r.certificado;
+      document.getElementById('folioDisplay').textContent = c.folio;
+      document.getElementById('certName').textContent = c.nombre || 'Miembro VIP';
+      document.getElementById('certCourse').textContent = '"' + (c.curso || '—') + '"';
 
-        const doc = await db.collection('certificados').doc(folio).get();
-        if (!doc.exists) { showError('<svg class="zi" aria-hidden="true"><use href="#zi-circle-x"/></svg> Folio no existe', `El folio <code style="color:#E8A317;">${folio}</code> no está en la base de datos.`); return; }
+      // Área, clases, horas e instructor, separados por el adorno de siempre
+      const meta = document.getElementById('certMeta');
+      meta.textContent = '';
+      ZOO_CERT.lineaDetalle(c).forEach((parte, i) => {
+        if (i) { const sep = document.createElement('span'); sep.className = 'cert-meta-sep'; sep.textContent = '❋'; meta.appendChild(document.createTextNode(' ')); meta.appendChild(sep); meta.appendChild(document.createTextNode(' ')); }
+        meta.appendChild(document.createTextNode(parte));
+      });
 
-        const c = doc.data();
-        document.getElementById('folioDisplay').textContent = c.folio || folio;
-        document.getElementById('certName').textContent = c.memberName || 'Miembro VIP';
-        document.getElementById('certCourse').textContent = '"' + (c.courseTitle || '—') + '"';
+      document.getElementById('certDate').textContent = c.fechaTexto || '—';
 
-        const metaParts = [];
-        if (c.courseArea) metaParts.push(c.courseArea);
-        if (c.totalClases) metaParts.push(c.totalClases + ' clases');
-        metaParts.push('Modalidad en línea');
-        document.getElementById('certMeta').innerHTML = metaParts.join(' <span class="cert-meta-sep">❋</span> ');
+      // QR y enlaces de compartir apuntan a la verificación pública del folio
+      const verifyUrl = ZOO_CERT.urlVerificacion(c.folio);
+      document.getElementById('qrCode').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(verifyUrl) + '&color=1F5F3A&bgcolor=ffffff&margin=2';
 
-        const fecha = new Date(c.issuedAt || Date.now());
-        const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-        document.getElementById('certDate').textContent = `${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
-
-        const verifyUrl = `https://www.zoorigen.com/pages/verificar.html?folio=${c.folio || folio}`;
-        document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyUrl)}&color=1F5F3A&bgcolor=ffffff&margin=2`;
-
-        window.__cert = c;
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('certWrap').style.display = 'block';
-      } catch (err) {
-        console.error('[CERT]', err);
-        showError('<svg class="zi" aria-hidden="true"><use href="#zi-circle-x"/></svg> Error al leer Firebase', `<code>${err.message || err.code}</code>`);
-      }
-    })();
+      window.__cert = c;
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('certWrap').style.display = 'block';
+    }
+    cargarCertificado();
 
     function compartirWhatsApp() {
       const c = window.__cert;
-      const text = `¡Completé el curso "${c.courseTitle}" certificado por Zoorigen México!\n\nFolio oficial: ${c.folio}\nVerifica en: https://www.zoorigen.com/pages/verificar.html?folio=${c.folio}`;
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+      if (!c) return;
+      const text = '¡Completé el curso "' + c.curso + '" certificado por Zoorigen México!\n\nFolio oficial: ' + c.folio + '\nVerifica en: ' + ZOO_CERT.urlVerificacion(c.folio);
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
     }
 
     function compartirLinkedIn() {
       const c = window.__cert;
-      const url = `https://www.zoorigen.com/pages/verificar.html?folio=${c.folio}`;
-      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+      if (!c) return;
+      window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(ZOO_CERT.urlVerificacion(c.folio)), '_blank');
     }
   </script>
 

@@ -69,7 +69,7 @@ const SHELL = [
   '/assets/css/club.css?v=20260820',
   '/assets/css/club-mobile.css?v=20260820',
   '/assets/css/club-theme.css?v=20260820',
-  '/assets/js/club.js?v=20261030-claro',
+  '/assets/js/club.js?v=20261031-cert',
   '/assets/js/club-shell.js?v=20261030-panel',
   '/assets/css/club-shell.css?v=20261030-panel',
   '/assets/img/icon-192.png',

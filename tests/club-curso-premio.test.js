@@ -273,22 +273,22 @@ test('flujo: si dibujar la tarjeta falla, igual se abre el certificado y no se r
 
 /* ───────────── integración en la biblioteca y archivos ───────────── */
 
-test('biblioteca: la tarjeta solo sale al crear un certificado NUEVO; uno que ya existía se abre directo', () => {
+test('biblioteca: la tarjeta solo sale cuando el servidor reporta un curso NUEVO completado y abre el folio que emitió el servidor', () => {
   const html = leer('pages/club-biblioteca.html').replace(/\r\n/g, '\n');
-  const iExiste = html.indexOf('if (!existing.empty)');
-  const iNuevo = html.indexOf('NO EXISTE, CREAR NUEVO');
-  const iTarjeta = html.indexOf('ZOO_CURSO_PREMIO.mostrar(');
-  assert.ok(iExiste > 0 && iNuevo > iExiste && iTarjeta > iNuevo, 'la tarjeta está después de crear el certificado nuevo');
   assert.equal((html.match(/ZOO_CURSO_PREMIO\.mostrar\(/g) || []).length, 1);
-  const rama = html.slice(iExiste, iNuevo);
-  assert.match(rama, /window\.open\(`ver-certificado\.html\?folio=\$\{existingData\.folio\}`/);
-  assert.doesNotMatch(rama, /ZOO_CURSO_PREMIO/);
-  const nuevo = html.slice(iNuevo, html.indexOf('function descargarCertificado'));
-  assert.match(nuevo, /alVerCertificado: abrirCertificado/);
-  assert.match(nuevo, /courseId: String\(courseId\)/);
-  assert.match(nuevo, /window\.open\(`ver-certificado\.html\?folio=\$\{folio\}`, '_blank'\);\s*setTimeout\(\(\) => window\.location\.reload\(\), 800\)/, 'el botón abre el certificado y luego recarga');
-  assert.match(nuevo, /res\.tarjeta && !res\.abrio\) window\.location\.reload\(\)/, 'si cierran sin abrirlo, solo se recarga');
-  assert.match(nuevo, /else \{\s*setTimeout\(abrirCertificado, 300\)/, 'sin el módulo se conserva el comportamiento de siempre');
+  const iCel = html.indexOf('async function celebrarCursoCompletado');
+  const cel = html.slice(iCel, html.indexOf('function terminarCurso'));
+  assert.ok(iCel > 0 && cel.includes('ZOO_CURSO_PREMIO.mostrar('), 'la tarjeta vive en celebrarCursoCompletado');
+  // solo se celebra con nuevoCompletado (un curso ya completado antes no vuelve a sacar la tarjeta)
+  assert.match(html, /if \(r\.nuevoCompletado\) \{ await celebrarCursoCompletado\(courseId, r\); return; \}/);
+  assert.equal((html.match(/celebrarCursoCompletado\(/g) || []).length, 2, 'una definición y una sola llamada');
+  assert.match(cel, /const folio = r && r\.entrada && r\.entrada\.certificateFolio/, 'el folio es el del servidor');
+  assert.match(cel, /alVerCertificado: abrirCertificado/);
+  assert.match(cel, /courseId: String\(courseId\)/);
+  assert.match(cel, /window\.open\('ver-certificado\.html\?folio=' \+ encodeURIComponent\(folio\), '_blank'\);\s*setTimeout\(\(\) => window\.location\.reload\(\), 800\)/, 'el botón abre el certificado y luego recarga');
+  assert.match(cel, /res\.tarjeta && !res\.abrio\) window\.location\.reload\(\)/, 'si cierran sin abrirlo, solo se recarga');
+  assert.match(cel, /else \{\s*setTimeout\(abrirCertificado, 300\)/, 'sin el módulo se abre el certificado directo');
+  assert.equal(/Math\.random|ZOO-\$\{/.test(html), false, 'el navegador ya no inventa folios');
 });
 
 test('biblioteca: carga el CSS y el JS de la tarjeta, en orden y con la misma versión que las demás páginas', () => {

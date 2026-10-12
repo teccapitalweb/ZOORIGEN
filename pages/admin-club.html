@@ -207,7 +207,7 @@
       .am { padding: 18px; }
     }
   </style>
-  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261008">
+  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261031">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261027-noticias">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261024-noticias">
 </head>
@@ -270,13 +270,13 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261030-claro"></script>
+  <script src="../assets/js/club.js?v=20261031-cert"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
-  <script src="../assets/js/club-quiz.js?v=20261010"></script>
+  <script src="../assets/js/club-quiz.js?v=20261031"></script>
   <script src="../assets/js/admin-miembros.js?v=20261008"></script>
   <script src="../assets/js/admin-cursos.js?v=20261012"></script>
-  <script src="../assets/js/admin-certificados.js?v=20261009"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261031"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261027-noticias"></script>
   <script src="../assets/js/admin-noticias.js?v=20261024-noticias"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20260820"></script>
@@ -1165,9 +1165,10 @@
           <div class="sec-hero__txt">
             <span class="sec-eyebrow">Emisión</span>
             <h1>Certificados emitidos</h1>
-            <p>Consulta los certificados que han obtenido tus alumnos, comparte su enlace de verificación o descarga la lista.</p>
+            <p>Consulta los certificados que han obtenido tus alumnos, comparte su enlace de verificación o descarga la lista. Los certificados los emite el servidor al terminar cada curso; desde aquí solo puedes emitir uno manualmente.</p>
           </div>
           <div class="sec-hero__acc">
+            <button class="btn-add" id="certEmitir">${ZOO_ICONOS.svg('plus', { size: 16 })} Emitir certificado</button>
             <button class="btn-add btn-add--suave" id="certCsv">${ZOO_ICONOS.svg('download', { size: 16 })} Descargar lista (CSV)</button>
           </div>
         </header>
@@ -1189,6 +1190,7 @@
       };
       pintar();
 
+      document.getElementById('certEmitir').addEventListener('click', emitirCertificadoManual);
       document.getElementById('certBuscar').addEventListener('input', ev => { e.texto = ev.target.value; pintar(); });
       document.getElementById('certCurso').addEventListener('change', ev => { e.curso = ev.target.value; pintar(); });
       document.getElementById('certOrden').addEventListener('click', ev => {
@@ -1210,6 +1212,48 @@
         document.body.appendChild(enlace); enlace.click(); enlace.remove();
         setTimeout(() => URL.revokeObjectURL(enlace.href), 1000);
         toast(`Se descargaron ${filtrados.length} certificado${filtrados.length === 1 ? '' : 's'}`);
+      });
+    }
+
+    // Emisión manual: el servidor crea el certificado (POST /api/admin/certificados); aquí no se escribe en Firestore.
+    async function emitirCertificadoManual() {
+      const boton = document.getElementById('certEmitir');
+      if (boton) boton.disabled = true;
+      try {
+        const [ms, cs] = await Promise.all([db.collection('miembros').get(), db.collection('cursos').get()]);
+        const miembros = ms.docs.map(d => ({ id: d.id, name: d.data().name, email: d.data().email }));
+        const cursos = cs.docs.map(d => ({ id: d.id, title: d.data().title }));
+        openModal(CERTS.modalEmitirHTML(miembros, cursos));
+      } catch (err) {
+        toast('No se pudieron cargar alumnos y cursos: ' + err.message, true);
+        return;
+      } finally {
+        if (boton) boton.disabled = false;
+      }
+      const enviar = document.getElementById('certEmEnviar');
+      const errorEl = document.getElementById('certEmError');
+      enviar.addEventListener('click', async () => {
+        const r = CERTS.cuerpoEmision({
+          uid: document.getElementById('certEmUid').value,
+          cursoId: document.getElementById('certEmCurso').value,
+          nombre: document.getElementById('certEmNombre').value,
+          horas: document.getElementById('certEmHoras').value,
+          sesiones: document.getElementById('certEmSesiones').value
+        });
+        if (!r.ok) { errorEl.textContent = r.error; errorEl.style.display = 'block'; return; }
+        errorEl.style.display = 'none';
+        enviar.disabled = true; enviar.textContent = 'Emitiendo…';
+        try {
+          const resp = await ZOORIGEN_CLUB.apiFetch('/api/admin/certificados', { method: 'POST', body: r.cuerpo });
+          const folio = resp && resp.certificado && resp.certificado.folio;
+          closeModal();
+          toast(folio ? 'Certificado emitido: ' + folio : 'Certificado emitido');
+          loadCertificados();
+        } catch (err) {
+          errorEl.textContent = CERTS.mensajeErrorEmision(err);
+          errorEl.style.display = 'block';
+          enviar.disabled = false; enviar.textContent = 'Emitir certificado';
+        }
       });
     }
 

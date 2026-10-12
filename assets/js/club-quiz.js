@@ -9,6 +9,9 @@
 /* (mismo formato que usa alintecfood).                           */
 /*                                                                */
 /* - Es práctica: equivocarse no frena y no afecta el certificado.*/
+/* - Con la opción `validar` las respuestas se mandan al servidor  */
+/*   (POST /api/cursos/:id/quiz) y la pantalla pinta lo que el     */
+/*   servidor responde; sin ella se califica en el navegador.      */
 /* - La lógica no toca la pantalla y se prueba en Node:           */
 /*   tests/club-quiz.test.js                                      */
 /* - La pantalla solo corre en el navegador y usa la ventana de   */
@@ -88,6 +91,26 @@
     return { total: lista.length, correctas: detalle.filter(d => d.acertada).length, detalle };
   }
 
+  // Convierte la respuesta del servidor ({ correctas, total, detalle:[{ correcta, acertada }] }) en la nota
+  // que dibuja la pantalla. Lanza un Error si no corresponde a las preguntas que se están mostrando.
+  function notaDelServidor(preguntas, respuestas, resp) {
+    const lista = Array.isArray(preguntas) ? preguntas : [];
+    const detalleServidor = resp && Array.isArray(resp.detalle) ? resp.detalle : null;
+    if (!detalleServidor || detalleServidor.length !== lista.length) {
+      const e = new Error('Las preguntas de esta clase no coinciden con las del servidor. Recarga la página e inténtalo de nuevo.');
+      e.mensajeUsuario = e.message;
+      throw e;
+    }
+    const resp2 = Array.isArray(respuestas) ? respuestas : [];
+    const detalle = lista.map((p, i) => {
+      const s = detalleServidor[i] || {};
+      const elegida = Number.isInteger(resp2[i]) ? resp2[i] : null;
+      const correcta = Number.isInteger(s.correcta) ? s.correcta : null;
+      return { elegida, correcta, acertada: s.acertada === true };
+    });
+    return { total: lista.length, correctas: detalle.filter(d => d.acertada).length, detalle };
+  }
+
   // Opciones que se muestran de una pregunta
   const opcionesDe = p => p.tipo === 'multiple' ? p.opciones : ['Verdadero', 'Falso'];
 
@@ -106,6 +129,8 @@
    *   alTerminar() se llama al pulsar "Continuar"
    *   alCerrar()   se llama si se cierra con la X
    *   obligatorio  true: sin X ni Esc; hay que terminar para continuar
+   *   validar(respuestas) Promise<{ correctas, total, detalle }>  (opcional) el servidor califica; si falla
+   *                se muestra el error (e.mensajeUsuario) y se puede reintentar
    * Devuelve { cerrar() } o null si no hay preguntas válidas (en ese caso llama a alTerminar).
    */
   function abrir(preguntasCrudas, opciones) {
@@ -118,6 +143,7 @@
     const ventana = juegos.crearVentana('Antes de seguir', o.subtitulo || '', o.obligatorio === true, o.alCerrar);
     const respuestas = new Array(preguntas.length).fill(null);
     let comprobado = false;
+    let enviando = false;
 
     const resumen = el('div', 'qz-resumen', '0 de ' + preguntas.length + ' respondidas');
     const barra = el('div', 'jg-progress');
@@ -144,7 +170,7 @@
         b.appendChild(el('span', 'qz-op__letra', p.tipo === 'multiple' ? LETRAS[oi] : (oi === 0 ? 'V' : 'F')));
         b.appendChild(el('span', 'qz-op__txt', txt));
         b.addEventListener('click', () => {
-          if (comprobado) return;
+          if (comprobado || enviando) return;
           respuestas[i] = oi;
           botones.forEach((x, k) => { x.classList.toggle('is-sel', k === oi); x.setAttribute('aria-checked', String(k === oi)); });
           const hechas = respuestas.filter(r => r !== null).length;
@@ -160,6 +186,10 @@
       return { tarjeta, botones, veredicto };
     });
     ventana.cuerpo.appendChild(resumen);
+    const errorValidar = el('p', 'qz-error');
+    errorValidar.hidden = true;
+    errorValidar.setAttribute('role', 'alert');
+    ventana.cuerpo.appendChild(errorValidar);
 
     const comprobar = juegos.botonContinuar('Comprobar respuestas');
     const seguir = juegos.botonContinuar('Continuar');
@@ -167,10 +197,32 @@
     ventana.pie.appendChild(comprobar);
     ventana.pie.appendChild(seguir);
 
-    comprobar.addEventListener('click', () => {
-      if (comprobar.disabled || comprobado) return;
+    comprobar.addEventListener('click', async () => {
+      if (comprobar.disabled || comprobado || enviando) return;
+      let nota;
+      if (typeof o.validar === 'function') {
+        // El servidor es quien califica y registra que la clase se contestó.
+        const textoBoton = comprobar.textContent;
+        enviando = true;
+        comprobar.disabled = true;
+        comprobar.textContent = 'Comprobando…';
+        errorValidar.hidden = true;
+        try {
+          nota = notaDelServidor(preguntas, respuestas, await o.validar(respuestas.slice()));
+        } catch (e) {
+          enviando = false;
+          comprobar.textContent = textoBoton;
+          comprobar.disabled = false;
+          errorValidar.textContent = (e && (e.mensajeUsuario || e.message)) || 'No se pudieron comprobar tus respuestas. Inténtalo de nuevo.';
+          errorValidar.hidden = false;
+          if (errorValidar.scrollIntoView) errorValidar.scrollIntoView({ block: 'center' });
+          return;
+        }
+        enviando = false;
+      } else {
+        nota = calificar(preguntas, respuestas);
+      }
       comprobado = true;
-      const nota = calificar(preguntas, respuestas);
       nota.detalle.forEach((d, i) => {
         const t = tarjetas[i];
         t.tarjeta.classList.add(d.acertada ? 'is-ok' : 'is-mal');
@@ -199,5 +251,5 @@
     return { cerrar: () => ventana.cerrar() };
   }
 
-  return { REGLAS, validarPregunta, limpiarPreguntas, preguntasDeClase, calificar, opcionesDe, abrir };
+  return { REGLAS, validarPregunta, limpiarPreguntas, preguntasDeClase, calificar, notaDelServidor, opcionesDe, abrir };
 });

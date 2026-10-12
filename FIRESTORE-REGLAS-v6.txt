@@ -1,0 +1,178 @@
+// ============================================================================
+// FIRESTORE-REGLAS-v6  (certificados y avance de cursos los guarda el SERVIDOR)
+//
+// NO PUBLICAR HASTA QUE EL SERVIDOR CON /api/cursos/progreso Y /api/certificados
+// ESTE DESPLEGADO Y EL SITIO NUEVO PUBLICADO.
+//
+// Orden de despliegue:  1) servidor (zoorigen-webhook)  2) sitio nuevo  3) estas reglas v6.
+// Si se publican antes, el sitio actual deja de poder verificar certificados y de
+// guardar el avance de los cursos.
+//
+// Cambios respecto a v5:
+//  - certificados: el get YA NO es publico (la verificacion publica la hace el servidor,
+//    GET /api/certificados/:folio, con el Admin SDK). Solo lee el admin o el titular
+//    (uid o memberUid == request.auth.uid). Crear, editar y borrar: solo admin.
+//    Un miembro ya no puede crear ni modificar sus certificados desde el navegador.
+//  - miembros: el titular ya no puede escribir courseProgress ni progresoLegadoImportado
+//    (el avance de los cursos lo escribe el servidor con el Admin SDK, que se salta las reglas).
+// ============================================================================
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthed()
+        && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isActiveVIP() {
+      return isAuthed()
+        && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planActivo == true
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planVence is timestamp
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planVence > request.time;
+    }
+
+    // Perfiles y estado de membresia. Solo Admin SDK/admin puede cambiar pagos.
+    match /miembros/{uid} {
+      allow get: if isAuthed() && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isAuthed() && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.role == 'member'
+        && request.resource.data.planActivo == false
+        && request.resource.data.planCancelado == false
+        && request.resource.data.planTipo == null
+        && request.resource.data.planInicio == null
+        && request.resource.data.planVence == null
+        && request.resource.data.ultimoPago == null
+        && !request.resource.data.keys().hasAny([
+          'planStatus', 'stripeCustomerId', 'stripeSubscriptionId',
+          'stripeSubscriptionStatus', 'activadoManualmente', 'activadoPor',
+          'metodoPago', 'montoPagado', 'actualizadoDesdeStripe', 'shopifyOrderId',
+          'courseProgress', 'progresoLegadoImportado'
+        ]);
+      // El avance de los cursos (courseProgress) y la marca de importacion del avance anterior
+      // (progresoLegadoImportado) los escribe SOLO el servidor: el titular no puede tocarlos.
+      allow update: if isAdmin() || (
+        isAuthed() && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'planActivo', 'planCancelado', 'planTipo', 'planVence',
+          'planInicio', 'ultimoPago', 'planStatus', 'role',
+          'stripeCustomerId', 'stripeSubscriptionId',
+          'stripeSubscriptionStatus', 'activadoManualmente', 'activadoPor',
+          'metodoPago', 'montoPagado', 'actualizadoDesdeStripe', 'shopifyOrderId',
+          'courseProgress', 'progresoLegadoImportado'
+        ])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Coleccion espejo mantenida exclusivamente por el webhook/Admin SDK.
+    match /usuarios/{uid} {
+      allow read: if isAuthed() && (request.auth.uid == uid || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    // El catalogo se puede mostrar a usuarios registrados. La reproduccion
+    // completa se valida otra vez en el backend con membresia vigente.
+    match /cursos/{cursoId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /videos/{videoId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /pdfs/{pdfId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /sesiones/{sesionId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /noticias/{noticiaId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // Foro exclusivo para membresias con fecha vigente.
+    match /foroPosts/{postId} {
+      allow read: if isActiveVIP() || isAdmin();
+      allow create: if isActiveVIP()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.content is string
+        && request.resource.data.likes is list
+        && request.resource.data.likes.size() == 0
+        && request.resource.data.views == 0
+        && request.resource.data.repliesCount == 0;
+      allow update: if isAdmin()
+        || (isActiveVIP()
+          && resource.data.authorUid == request.auth.uid
+          && request.resource.data.authorUid == resource.data.authorUid
+          && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['authorUid', 'createdAt', 'likes', 'views', 'repliesCount']))
+        || (isActiveVIP()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views'])
+          && request.resource.data.views == resource.data.views + 1)
+        || (isActiveVIP()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['repliesCount'])
+          && request.resource.data.repliesCount == resource.data.repliesCount + 1)
+        || (isActiveVIP()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+          && request.resource.data.likes is list
+          && resource.data.likes is list
+          && (
+            (request.resource.data.likes.size() == resource.data.likes.size() + 1
+              && request.resource.data.likes.hasAll(resource.data.likes)
+              && request.resource.data.likes.hasAny([request.auth.uid]))
+            ||
+            (request.resource.data.likes.size() == resource.data.likes.size() - 1
+              && resource.data.likes.hasAll(request.resource.data.likes)
+              && resource.data.likes.hasAny([request.auth.uid])
+              && !request.resource.data.likes.hasAny([request.auth.uid]))
+          ));
+      allow delete: if isAdmin()
+        || (isActiveVIP() && resource.data.authorUid == request.auth.uid);
+
+      match /replies/{replyId} {
+        allow read: if isActiveVIP() || isAdmin();
+        allow create: if isActiveVIP()
+          && request.resource.data.authorUid == request.auth.uid
+          && request.resource.data.text is string;
+        allow update: if isAdmin()
+          || (isActiveVIP()
+            && resource.data.authorUid == request.auth.uid
+            && request.resource.data.authorUid == resource.data.authorUid
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['authorUid', 'createdAt']));
+        allow delete: if isAdmin()
+          || (isActiveVIP() && resource.data.authorUid == request.auth.uid);
+      }
+    }
+
+    // Los certificados los emite el SERVIDOR (Admin SDK, se salta estas reglas) al completar la ultima
+    // clase de un curso. La verificacion publica por folio tambien la hace el servidor
+    // (GET /api/certificados/:folio), asi que aqui ya NO hay lectura publica: cada documento trae
+    // nombre y correo del alumno. Solo lee el admin o el titular (consulta filtrada por memberUid).
+    // Nadie desde el navegador, salvo el admin, puede crear, editar ni borrar certificados.
+    match /certificados/{certId} {
+      allow get, list: if isAdmin()
+        || (isAuthed() && (
+          resource.data.get('memberUid', '') == request.auth.uid
+          || resource.data.get('uid', '') == request.auth.uid
+        ));
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

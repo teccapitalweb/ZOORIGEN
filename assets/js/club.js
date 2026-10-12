@@ -516,40 +516,63 @@ const ZOORIGEN_CLUB = {
     document.body.style.overflow = '';
   },
 
-  // ============== PROGRESO DE CURSOS (Firestore + localStorage) ==============
-  // Guarda progreso en Firestore para que NO se pierda entre dispositivos/navegadores
-  async getCourseProgress(uid) {
-    if (!uid) return {};
-    try {
-      const doc = await db.collection('miembros').doc(uid).get();
-      const data = doc.data() || {};
-      if (data.courseProgress && typeof data.courseProgress === 'object') {
-        // Sincronizar a localStorage para lectura rápida
-        localStorage.setItem('zoo_course_progress_' + uid, JSON.stringify(data.courseProgress));
-        return data.courseProgress;
+  // ============== PROGRESO DE CURSOS: LO GUARDA Y LO VALIDA EL SERVIDOR ==============
+  // El avance, el orden de las clases, las preguntas y el certificado los valida el servidor
+  // (GET /api/cursos/progreso, POST /api/cursos/:id/progreso y POST /api/cursos/:id/quiz), igual que en alintecfood.
+  // Antes el navegador escribía courseProgress en Firestore y creaba los certificados: eso ya no existe.
+  // Aquí solo se piden y se traducen a la forma que usa la biblioteca:
+  //   { [cursoId]: { completedLessons: [...], isCompleted, certificateFolio } }
+  // La lógica pura vive en club-progreso.js (ZOO_PROGRESO). localStorage guarda lo ÚLTIMO que respondió el servidor
+  // y solo se usa para MOSTRAR si el servidor no responde; nunca para certificar.
+  _clienteProgreso() {
+    if (this.__clienteProgreso) return this.__clienteProgreso;
+    const modulo = typeof window !== 'undefined' ? window.ZOO_PROGRESO : null;
+    if (!modulo || typeof modulo.crear !== 'function') return null;
+    const club = this;
+    const clave = uid => 'zoo_course_progress_' + uid;
+    this.__clienteProgreso = modulo.crear({
+      apiFetch: (ruta, op) => club.apiFetch(ruta, op),
+      uid: () => { try { return (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.uid) || ''; } catch (e) { return ''; } },
+      leerCache: uid => { try { return JSON.parse(localStorage.getItem(clave(uid)) || '{}'); } catch (e) { return {}; } },
+      guardarCache: (uid, obj) => { try { localStorage.setItem(clave(uid), JSON.stringify(obj)); } catch (e) { /* sin almacenamiento */ } },
+      // Fecha en que se terminó cada curso certificado (el servidor no la manda en el avance): la ruta de 8 días la usa.
+      fechasCertificados: async uid => {
+        const snap = await db.collection('certificados').where('memberUid', '==', uid).get();
+        const fechas = {};
+        snap.docs.forEach(doc => {
+          const c = doc.data() || {};
+          const id = String(c.courseId || '');
+          const t = Date.parse(c.issuedAt || '');
+          if (id && Number.isFinite(t) && (!fechas[id] || t < Date.parse(fechas[id]))) fechas[id] = new Date(t).toISOString();
+        });
+        return fechas;
       }
-      // Fallback: localStorage (y migrar a Firestore)
-      const local = JSON.parse(localStorage.getItem('zoo_course_progress_' + uid) || '{}');
-      if (Object.keys(local).length > 0) {
-        await db.collection('miembros').doc(uid).set({ courseProgress: local }, { merge: true }).catch(() => {});
-      }
-      return local;
-    } catch (err) {
-      console.warn('Error cargando progreso de Firestore:', err);
-      return JSON.parse(localStorage.getItem('zoo_course_progress_' + uid) || '{}');
-    }
+    });
+    return this.__clienteProgreso;
   },
 
-  async saveCourseProgress(uid, progress) {
-    if (!uid || !progress) return;
-    // Guardar local primero (rápido)
-    localStorage.setItem('zoo_course_progress_' + uid, JSON.stringify(progress));
-    // Guardar en Firestore (persistente, sincronizado)
-    try {
-      await db.collection('miembros').doc(uid).set({ courseProgress: progress }, { merge: true });
-    } catch (err) {
-      console.warn('Error guardando progreso en Firestore:', err);
-    }
+  // Avance de todos los cursos del miembro. Si el servidor no responde devuelve lo último que se vio
+  // (la propiedad no enumerable __desdeCache vale true): solo sirve para mostrar, nunca para certificar.
+  async getCourseProgress(uid) {
+    if (!uid) return {};
+    const cliente = this._clienteProgreso();
+    if (cliente) return cliente.cargar(uid);
+    try { return JSON.parse(localStorage.getItem('zoo_course_progress_' + uid) || '{}'); } catch (e) { return {}; }
+  },
+
+  // POST /api/cursos/:cursoId/progreso. Devuelve { entrada, completado, nuevoCompletado, certificado, bono }
+  // o lanza un Error con .status y .mensajeUsuario (texto en español).
+  registrarClaseVista(cursoId, indice, ctx) {
+    const cliente = this._clienteProgreso();
+    if (!cliente) return Promise.reject(Object.assign(new Error('Recarga la página para continuar.'), { status: 0, mensajeUsuario: 'Recarga la página para continuar.' }));
+    return cliente.registrarClaseVista(cursoId, indice, ctx);
+  },
+
+  // POST /api/cursos/:cursoId/quiz. Devuelve { aprobado, correctas, total, detalle:[{ correcta, acertada }] }
+  validarQuizClase(cursoId, indice, respuestas, ctx) {
+    const cliente = this._clienteProgreso();
+    if (!cliente) return Promise.reject(Object.assign(new Error('Recarga la página para continuar.'), { status: 0, mensajeUsuario: 'Recarga la página para continuar.' }));
+    return cliente.validarQuiz(cursoId, indice, respuestas, ctx);
   },
 
   // ============== NIVEL, XP Y LOGROS: AHORA VIENEN DEL SERVIDOR ==============

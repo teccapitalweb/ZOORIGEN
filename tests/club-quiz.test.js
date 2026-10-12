@@ -87,3 +87,25 @@ test('abrir(): sin navegador o sin preguntas válidas no revienta y deja continu
   assert.equal(Q.abrir([{ pregunta: 'x', tipo: 'vof' }], { alTerminar: () => n++ }), null, 'en Node no hay pantalla');
   assert.equal(n, 2);
 });
+
+/* ───────── el servidor califica ───────── */
+
+test('notaDelServidor(): usa lo que respondió el servidor y conserva lo que eligió la persona', () => {
+  const preguntas = [{ pregunta: 'a', tipo: 'vof', correcta: 0 }, { pregunta: 'b', tipo: 'multiple', opciones: ['x', 'y', 'z'], correcta: 2 }];
+  const nota = Q.notaDelServidor(preguntas, [1, 2], { aprobado: true, correctas: 1, total: 2, detalle: [{ correcta: 0, acertada: false }, { correcta: 2, acertada: true }] });
+  assert.deepEqual(nota, { total: 2, correctas: 1, detalle: [{ elegida: 1, correcta: 0, acertada: false }, { elegida: 2, correcta: 2, acertada: true }] });
+});
+
+test('notaDelServidor(): si el servidor tiene otras preguntas, avisa en español en vez de pintar algo falso', () => {
+  const preguntas = [{ pregunta: 'a', tipo: 'vof', correcta: 0 }];
+  for (const resp of [null, {}, { detalle: [] }, { detalle: [{ correcta: 0, acertada: true }, { correcta: 1, acertada: true }] }]) {
+    assert.throws(() => Q.notaDelServidor(preguntas, [0], resp), e => /no coinciden con las del servidor/.test(e.mensajeUsuario));
+  }
+});
+
+test('abrir() acepta la opción validar (el servidor califica y registra la clase)', () => {
+  const fuente = fs.readFileSync(require.resolve('../assets/js/club-quiz.js'), 'utf8');
+  assert.match(fuente, /typeof o\.validar === 'function'/);
+  assert.match(fuente, /notaDelServidor\(preguntas, respuestas, await o\.validar\(respuestas\.slice\(\)\)\)/);
+  assert.match(fuente, /errorValidar\.textContent = /);
+});

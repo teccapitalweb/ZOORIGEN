@@ -207,3 +207,57 @@ test('csv(): neutraliza fórmulas (=, +, -, @) para que Excel no las ejecute', (
 test('csv(): lista vacía produce solo el encabezado', () => {
   assert.equal(K.csv([]).split('\r\n').length, 1);
 });
+
+/* ───────── emisión manual por la API del servidor ───────── */
+
+test('cuerpoEmision(): arma { uid, cursoId } y solo agrega nombre, horas y clases si se escribieron', () => {
+  assert.deepEqual(K.cuerpoEmision({ uid: 'u1', cursoId: 'c7' }), { ok: true, cuerpo: { uid: 'u1', cursoId: 'c7' } });
+  const r = K.cuerpoEmision({ uid: ' u1 ', cursoId: 'c7', nombre: '  Ana   López ', horas: '7,5', sesiones: '5' });
+  assert.deepEqual(r, { ok: true, cuerpo: { uid: 'u1', cursoId: 'c7', nombre: 'Ana López', horas: 7.5, sesiones: 5 } });
+});
+
+test('cuerpoEmision(): pide alumno y curso y rechaza horas o clases inválidas con un texto claro', () => {
+  assert.equal(K.cuerpoEmision({}).ok, false);
+  assert.match(K.cuerpoEmision({ cursoId: 'c' }).error, /alumno/i);
+  assert.match(K.cuerpoEmision({ uid: 'u' }).error, /curso/i);
+  assert.match(K.cuerpoEmision({ uid: 'u', cursoId: 'c', horas: 'mucho' }).error, /horas/i);
+  assert.match(K.cuerpoEmision({ uid: 'u', cursoId: 'c', horas: '0' }).error, /horas/i);
+  assert.match(K.cuerpoEmision({ uid: 'u', cursoId: 'c', sesiones: '2.5' }).error, /clases/i);
+  assert.match(K.cuerpoEmision({ uid: 'u', cursoId: 'c', nombre: 'x'.repeat(61) }).error, /60/);
+  assert.equal(K.cuerpoEmision(null).ok, false);
+});
+
+test('mensajeErrorEmision(): un texto en español por cada código del servidor', () => {
+  assert.match(K.mensajeErrorEmision({ status: 0 }), /conexión/);
+  assert.match(K.mensajeErrorEmision({ status: 403 }), /administrador/);
+  assert.match(K.mensajeErrorEmision({ status: 404 }), /alumno o el curso/);
+  assert.equal(K.mensajeErrorEmision({ status: 409, message: 'Ya tiene certificado' }), 'Ya tiene certificado');
+  assert.match(K.mensajeErrorEmision({ status: 503 }), /configurados/);
+  assert.match(K.mensajeErrorEmision({}), /No se pudo emitir/);
+});
+
+test('modalEmitirHTML(): lista alumnos y cursos ordenados y escapa nombres, correos y títulos', () => {
+  const h = K.modalEmitirHTML(
+    [{ id: 'u2', name: 'Beto', email: 'b@x.com' }, { id: 'u1', name: '<img src=x onerror=1>', email: '"><script>1</script>' }, { id: 'u3', name: '', email: 'sin@nombre.com' }],
+    [{ id: 'c2', title: 'Zorros' }, { id: 'c1', title: '<b>Abejas</b>' }]
+  );
+  assert.ok(h.includes('Emitir certificado'));
+  assert.ok(h.indexOf('Beto') < h.indexOf('sin@nombre.com'), 'ordenados por nombre');
+  assert.ok(h.indexOf('Abejas') < h.indexOf('Zorros'));
+  assert.ok(!/<img src=x|<script|<b>Abejas/.test(h), 'quedó HTML vivo');
+  assert.ok(h.includes('id="certEmEnviar"'));
+});
+
+test('filaHTML(): marca "En validación" los certificados anteriores a la validación del servidor', () => {
+  assert.equal(cert().verificado, false);
+  assert.ok(K.filaHTML(cert(), AHORA).includes('En validación'));
+  assert.ok(!K.filaHTML(cert({ verificado: true }), AHORA).includes('En validación'));
+  assert.ok(!K.filaHTML(cert({ courseId: 'test' }), AHORA).includes('En validación'), 'los de prueba solo dicen Prueba');
+});
+
+test('normalizar(): acepta los campos nuevos del servidor (horas y sesiones)', () => {
+  const c = K.normalizar({ folio: 'ZOO-2026-1A2B3C4D', horas: 6, sesiones: 4, verificado: true });
+  assert.equal(c.duracion, '6 h');
+  assert.equal(c.clases, 4);
+  assert.equal(c.verificado, true);
+});

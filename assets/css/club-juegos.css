@@ -230,4 +230,6 @@ body.jg-abierto { overflow: hidden; }
 .qz-op.is-incorrecta .qz-op__letra { color: #fff; background: var(--jg-bad); }
 .qz-resumen { margin-top: 4px; color: var(--jg-dim); font: 700 .8rem var(--zoo-font-heading, 'Poppins', sans-serif); text-align: center; font-variant-numeric: tabular-nums; }
 .qz-resumen.is-final { color: var(--jg-text); font-size: 1rem; }
+.qz-error { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--jg-bad); background: color-mix(in srgb, var(--jg-bad) 12%, transparent); color: var(--jg-text); font-size: .88rem; line-height: 1.45; text-align: center; }
+.qz-error[hidden] { display: none; }
 @media (max-width: 560px) { .qz-card { padding: 14px 12px 12px; } .qz-op { padding: 10px 11px; } }

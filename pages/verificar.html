@@ -243,14 +243,14 @@
   </div>
 
   <div class="verify-card">
-    <p class="verify-hint">Ingresa el folio del certificado (ej. <strong style="color:#E8A317;">ZOO-2026-12345</strong>)</p>
+    <p class="verify-hint">Ingresa el folio del certificado (ej. <strong style="color:#E8A317;">ZOO-2026-1A2B3C4D</strong>)</p>
 
     <div class="verify-search">
-      <input type="text" id="folioInput" placeholder="ZOO-YYYY-XXXXX" autocomplete="off">
-      <button onclick="verificar()">Verificar</button>
+      <input type="text" id="folioInput" placeholder="ZOO-AAAA-XXXXXXXX" autocomplete="off" maxlength="40" aria-label="Folio del certificado">
+      <button id="btnVerificar" onclick="verificar()">Verificar</button>
     </div>
 
-    <div class="verify-loading" id="loading">
+    <div class="verify-loading" id="loading" role="status" aria-live="polite">
       <div class="spinner"></div>
       <p>Verificando folio...</p>
     </div>
@@ -282,6 +282,11 @@
         <div class="verify-value" id="r-duration">—</div>
       </div>
 
+      <div class="verify-field" id="r-instructor-wrap" style="display:none;">
+        <div class="verify-label">Instructor</div>
+        <div class="verify-value" id="r-instructor">—</div>
+      </div>
+
       <div class="verify-field">
         <div class="verify-label">Folio oficial</div>
         <div class="verify-value verify-value--folio" id="r-folio">—</div>
@@ -293,10 +298,10 @@
       </div>
     </div>
 
-    <div class="verify-error" id="resultError">
+    <div class="verify-error" id="resultError" role="alert">
       <div class="verify-error-icon"><svg class="zi" aria-hidden="true"><use href="#zi-circle-x"/></svg></div>
-      <h3>Folio no encontrado</h3>
-      <p>Este folio no corresponde a ningún certificado emitido por Zoorigen, o bien es inválido. Revisa que hayas escrito bien el número.</p>
+      <h3 id="errTitulo">Folio no encontrado</h3>
+      <p id="errDetalle">Este folio no corresponde a ningún certificado emitido por Zoorigen, o bien es inválido. Revisa que hayas escrito bien el número.</p>
     </div>
   </div>
 
@@ -306,10 +311,8 @@
     © 2026 Zoorigen · Tec Capital Group
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="../assets/js/firebase-config.js"></script>
+  <!-- La verificación es pública: la resuelve el servidor (GET /api/certificados/:folio), sin Firebase ni sesión -->
+  <script src="../assets/js/club-certificado.js?v=20261031-cert"></script>
   <script>
     // Auto-verificar si viene con ?folio=XXX
     const params = new URLSearchParams(window.location.search);
@@ -323,40 +326,47 @@
       if (e.key === 'Enter') verificar();
     });
 
-    async function verificar() {
-      const folio = document.getElementById('folioInput').value.trim().toUpperCase();
-      if (!folio) return;
+    let verificando = false;
 
+    function mostrarError(estado) {
+      const m = ZOO_CERT.mensajeEstado(estado);
+      document.getElementById('errTitulo').textContent = m.titulo;
+      document.getElementById('errDetalle').textContent = m.detalle;
+      document.getElementById('resultError').classList.add('is-shown');
+    }
+
+    async function verificar() {
+      if (verificando) return;
+      const entrada = document.getElementById('folioInput');
+      const folio = ZOO_CERT.normalizarFolio(entrada.value);
+      if (!folio) return;
+      entrada.value = folio;
+
+      verificando = true;
+      const boton = document.getElementById('btnVerificar');
+      boton.disabled = true;
       document.getElementById('resultValid').classList.remove('is-valid');
       document.getElementById('resultError').classList.remove('is-shown');
       document.getElementById('loading').classList.add('is-shown');
 
-      try {
-        const doc = await db.collection('certificados').doc(folio).get();
-        document.getElementById('loading').classList.remove('is-shown');
+      // Consulta pública al servidor: no usa sesión ni Firestore
+      const r = await ZOO_CERT.consultar(folio);
+      document.getElementById('loading').classList.remove('is-shown');
+      verificando = false;
+      boton.disabled = false;
 
-        if (!doc.exists) {
-          document.getElementById('resultError').classList.add('is-shown');
-          return;
-        }
+      if (!r.ok) { mostrarError(r.estado); return; }
 
-        const c = doc.data();
-        document.getElementById('r-name').textContent = c.memberName || '—';
-        document.getElementById('r-course').textContent = c.courseTitle || '—';
-        document.getElementById('r-area').textContent = c.courseArea || '—';
-        document.getElementById('r-duration').textContent = `${c.courseDuration || '—'} · ${c.totalClases || 0} clases`;
-        document.getElementById('r-folio').textContent = c.folio;
-
-        const fecha = new Date(c.issuedAt);
-        const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-        document.getElementById('r-date').textContent = `${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
-
-        document.getElementById('resultValid').classList.add('is-valid');
-      } catch (err) {
-        console.error(err);
-        document.getElementById('loading').classList.remove('is-shown');
-        document.getElementById('resultError').classList.add('is-shown');
-      }
+      const c = r.certificado;
+      document.getElementById('r-name').textContent = c.nombre || '—';
+      document.getElementById('r-course').textContent = c.curso || '—';
+      document.getElementById('r-area').textContent = c.area || '—';
+      document.getElementById('r-duration').textContent = c.duracionTexto || '—';
+      document.getElementById('r-folio').textContent = c.folio;
+      document.getElementById('r-date').textContent = c.fechaTexto || '—';
+      document.getElementById('r-instructor').textContent = c.instructor || '—';
+      document.getElementById('r-instructor-wrap').style.display = c.instructor ? '' : 'none';
+      document.getElementById('resultValid').classList.add('is-valid');
     }
   </script>
 <script>

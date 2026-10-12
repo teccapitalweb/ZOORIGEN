@@ -18,13 +18,14 @@ test('la biblioteca carga los estilos y el módulo de juegos, y el módulo va de
   assert.ok(fs.existsSync(path.join(RAIZ, 'assets', 'js', 'club-juegos.js')));
 });
 
-test('como en alintecfood: la clase SOLO cuenta como vista cuando se terminan sus preguntas y su juego', () => {
+test('como en alintecfood: la clase SOLO se manda al servidor cuando se terminan sus preguntas y su juego', () => {
   const cuerpo = entre('async function marcarYSiguiente', 'function cantidadPreguntas');
   const actividades = cuerpo.indexOf('abrirActividadesDeClase(lessonIdx, async () => {');
-  const guardar = cuerpo.indexOf('await guardarClaseVista(courseId, lessonIdx)');
-  assert.ok(actividades > 0 && guardar > actividades, 'el avance se guarda DENTRO del callback de las actividades, después de terminarlas');
+  const registrar = cuerpo.indexOf('await registrar();', actividades);
+  assert.ok(actividades > 0 && registrar > actividades, 'el avance se registra DENTRO del callback de las actividades, después de terminarlas');
   assert.match(cuerpo, /\{ obligatorio: true \}/);
-  assert.equal(/saveCourseProgress/.test(cuerpo), false, 'marcarYSiguiente no guarda el avance por su cuenta antes de las actividades');
+  assert.match(cuerpo, /r = await guardarClaseVista\(courseId, lessonIdx\)/);
+  assert.equal(/saveCourseProgress/.test(pagina), false, 'la página ya no guarda el avance en Firestore');
 });
 
 test('las actividades obligatorias no se pueden cerrar (juego y preguntas) y se pasan al abrirlas', () => {
@@ -49,11 +50,9 @@ test('una clase sin juego, o sin el módulo cargado, continúa igual que antes',
   assert.match(bloque, /!window\.ZOO_JUEGOS \|\| !lesson \|\| !lesson\.juego\) \{ despues\(\); return; \}/);
 });
 
-test('ninguna vía se salta las actividades: ni la marca automática de 30 s ni el botón "Completada" de la lista', () => {
-  assert.match(pagina, /!leccionTieneActividad\(lesson\)\) \{[^\n]*\n\s*window\.__autoCompleteTimer = setTimeout/, 'la marca automática solo corre en clases sin actividad');
-  const toggle = entre('async function toggleLessonComplete', 'window.toggleLessonComplete');
-  assert.match(toggle, /leccionTieneActividad\(leccion\)/);
-  assert.match(toggle, /abrirActividadesDeClase\(lessonIdx, async \(\) => \{ await guardarClaseVista\(courseId, lessonIdx\); renderCourseModal\(\); \}, \{ obligatorio: true \}\)/);
+test('ninguna vía se salta las actividades: la marca automática de 30 s solo corre en clases sin actividad y nunca en la última', () => {
+  assert.match(pagina, /!leccionTieneActividad\(lesson\) && lessonIdx < totalClases - 1\) \{[^\n]*\n\s*window\.__autoCompleteTimer = setTimeout/, 'la marca automática solo corre en clases sin actividad y que no son la última');
+  assert.equal(/toggleLessonComplete/.test(pagina), false, 'ya no se puede des-marcar una clase vista');
 });
 
 test('el módulo de preguntas acepta la opción obligatorio (sin X ni Esc)', () => {
@@ -71,9 +70,10 @@ test('la biblioteca carga las preguntas y las reglas de acceso, y las usa', () =
   assert.match(pagina, /ZOO_ACCESO\.esClaseGratis\(lesson, curso, prueba, idx\)/);
 });
 
-test('el certificado usa el nombre que el miembro eligió en la bienvenida (y su nombre de siempre si no eligió)', () => {
-  assert.match(pagina, /perfil\.data\(\)\.nombreCertificado/);
-  assert.match(pagina, /memberName: nombreEnCertificado \|\| window\.__zooSession\.name/);
+test('el nombre del certificado lo pone el servidor: la página ya no arma ni escribe certificados', () => {
+  assert.equal(/nombreCertificado|memberName|certData/.test(pagina), false, 'la página no arma datos de certificado');
+  assert.equal(/collection\('certificados'\)/.test(pagina), false, 'la página no toca la colección de certificados');
+  assert.equal(/generarCertificado/.test(pagina), false);
 });
 
 test('el paywall del reproductor usa la regla de clases gratis con el curso actual', () => {
