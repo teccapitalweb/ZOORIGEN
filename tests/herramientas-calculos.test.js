@@ -118,6 +118,7 @@ test('datos de dosis: todo rango trae fuente con enlace, sin números inventados
 
 const ZP = require('../assets/js/herramientas-protocolos.js');
 const ZC = require('../assets/js/herramientas-constantes.js');
+const ZH = require('../assets/js/herramientas-hemograma.js');
 
 test('anestesia: mg totales siempre; ml solo si el usuario escribe la concentración', () => {
   const v = { especie: 'X', componentes: [
@@ -285,6 +286,42 @@ test('constantes: cada dato trae su fuente con enlace y no se inventa nada donde
   const jaguar = ZC.ESPECIES.find(e => /^Jaguar \(/.test(e.esp));
   assert.ok(jaguar.datos.every(d => !/^60-90/.test(d.valor)));
   assert.ok(jaguar.datos.some(d => d.nota && /anestesia/.test(d.nota)), 'los valores bajo anestesia se indican');
+});
+
+test('hemograma: solo valores con fuente enlazada; lo no encontrado se declara aparte', () => {
+  assert.ok(ZH.ESPECIES.length >= 15, 'especies con dato: ' + ZH.ESPECIES.length);
+  const nombres = new Set();
+  let n = 0;
+  for (const e of ZH.ESPECIES) {
+    assert.ok(!nombres.has(e.esp), 'especie repetida: ' + e.esp);
+    nombres.add(e.esp);
+    assert.ok(e.datos.length >= 1, e.esp);
+    for (const d of e.datos) {
+      n++;
+      assert.ok(d.campo && d.valor && d.fuente, e.esp + ' ' + d.campo);
+      assert.match(d.url, /^https:\/\//, e.esp + ' ' + d.campo + ' sin enlace');
+      assert.ok(['verificado', 'estudio'].includes(d.estado), e.esp + ' ' + d.campo);
+      assert.doesNotMatch(d.valor, /undefined|NaN/);
+    }
+  }
+  assert.ok(n >= 90, 'datos con fuente: ' + n);
+  for (const sin of ZH.SIN_DATO) assert.ok(!nombres.has(sin), sin + ' no puede estar en ambas listas');
+  // los rangos viejos sin respaldo no deben volver (gato: Hb 8-15, glucosa 70-150, creatinina 0.8-1.8)
+  const gato = ZH.ESPECIES.find(e => /^Gato/.test(e.esp));
+  const val = c => gato.datos.find(d => d.campo === c).valor;
+  assert.match(val('Hemoglobina'), /9\.8-15\.4/);
+  assert.match(val('Glucosa'), /60-120/);
+  assert.match(val('Creatinina'), /0\.9-2\.2/);
+  // las aves no llevan creatinina
+  for (const e of ZH.ESPECIES.filter(x => x.clase === 'Aves')) assert.ok(!e.datos.some(d => d.campo === 'Creatinina'), e.esp);
+});
+
+test('hemograma: la página usa el módulo con fuente y ya no tiene la tabla sin respaldo', () => {
+  assert.match(PAGINA, /herramientas-hemograma\.js\?v=\w+/);
+  assert.match(PAGINA, /ZOO_HEMOGRAMA\.ESPECIES/);
+  assert.doesNotMatch(PAGINA, /hemoTbody|hemoTable/);
+  assert.doesNotMatch(PAGINA, /hto: '35-45'/);
+  assert.doesNotMatch(PAGINA, /Valores de referencia de animales en cautiverio con manejo/);
 });
 
 test('esc y sinAcentos', () => {

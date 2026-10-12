@@ -498,6 +498,9 @@
   .const-dato__nota { font-size: .74rem; color: #B27A06; }
   .const-dato a { font-size: .74rem; color: #1F7A4D; font-weight: 600; }
   .const-vacio { font-size: .82rem; color: var(--zoo-text-muted); font-style: italic; }
+  .const-dato__estado { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: .64rem; font-weight: 700; letter-spacing: .03em; text-transform: none; vertical-align: 1px; }
+  .const-dato__estado--verificado { background: rgba(31,122,77,.14); color: #1F7A4D; }
+  .const-dato__estado--estudio { background: rgba(178,122,6,.14); color: #8A5F05; }
   .anes-variante { margin-top: 12px; }
   .anes-fila { padding: 10px 12px; border-radius: 10px; background: rgba(0,0,0,0.04); margin-top: 8px; }
   .anes-fila__cab { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
@@ -746,40 +749,26 @@
       </div>
     </div>
 
-    <!-- 5. HEMOGRAMA -->
+    <!-- 5. HEMOGRAMA (solo valores con fuente enlazada) -->
     <div class="tool-panel" id="panel-hemograma">
       <div class="tool-header">
         <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg></div>
         <div class="tool-header__text">
           <h2>Valores hematológicos y bioquímicos</h2>
-          <p>Hematocrito · Leucocitos · Proteínas · Glucosa · Creatinina · Química</p>
+          <p>Hematocrito · Hemoglobina · Leucocitos · Proteínas · Glucosa · Creatinina</p>
         </div>
-        <div class="tool-header__count" id="countHemo">30+ especies</div>
+        <div class="tool-header__count" id="countHemo">—</div>
       </div>
 
       <div class="tool-search-filter">
-        <input type="text" id="hemoFilter" placeholder="Buscar especie..." oninput="filtrarHemograma()">
+        <input type="text" id="hemoFilter" placeholder="Buscar por especie o grupo..." oninput="filtrarHemograma()">
       </div>
 
-      <div class="tool-table-wrap">
-        <table class="tool-table" id="hemoTable">
-          <thead>
-            <tr>
-              <th>Especie</th>
-              <th>HTO (%)</th>
-              <th>Hb (g/dl)</th>
-              <th>Leucocitos (×10³/μl)</th>
-              <th>PT (g/dl)</th>
-              <th>Glucosa (mg/dl)</th>
-              <th>Creatinina (mg/dl)</th>
-            </tr>
-          </thead>
-          <tbody id="hemoTbody"></tbody>
-        </table>
-      </div>
+      <div class="const-grid" id="hemoGrid"></div>
+      <p class="const-vacio" id="hemoSinDato"></p>
 
       <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Interpretación:</strong> Valores de referencia de animales en cautiverio con manejo. El estrés del manejo eleva leucocitos (hasta 2-3x), glucosa (estrés) y disminuye linfocitos. En aves los heterófilos reemplazan neutrófilos. En reptiles HTO varía con hibernación/temperatura.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Cómo leerlo:</strong> «Verificado» significa que el valor coincide con la referencia publicada en un manual. «Estudio» es lo que midió un trabajo concreto, casi siempre con pocos animales y en un solo lugar: sirve de orientación, no como rango universal de la especie. El estrés del manejo eleva leucocitos y glucosa. Para interpretar un resultado usa el rango de tu laboratorio y la valoración de un veterinario.
       </div>
     </div>
 
@@ -882,6 +871,7 @@
   <script src="../assets/js/herramientas-dosis.js?v=20261030-dosis"></script>
   <script src="../assets/js/herramientas-protocolos.js?v=20261030-protocolos"></script>
   <script src="../assets/js/herramientas-constantes.js?v=20261030-constantes"></script>
+  <script src="../assets/js/herramientas-hemograma.js?v=20261030-hemograma"></script>
   <script src="../assets/js/herramientas-calculos.js?v=20261030-calculos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
 <script>
@@ -952,7 +942,7 @@
   poner('descReferencias', String(nDosis));
   poner('statEspecies', String(CONSTANTES.length));
   poner('countConst', CONSTANTES.length + ' especies');
-  poner('countHemo', HEMOGRAMA.length + ' especies');
+  poner('countHemo', HEMOGRAMA.length + ' especies con dato');
   poner('statProtocolos', String(Object.keys(PROTO).length));
   poner('countProto', Object.keys(PROTO).length + ' protocolos');
   // Al abrir, el selector de % de deshidratación sigue al tipo elegido
@@ -1151,60 +1141,33 @@ function renderConstantes(filter = '') {
 }
 function filtrarEspecies() { renderConstantes(document.getElementById('speciesFilter').value); }
 
-// ═══════════════ HEMOGRAMA ═══════════════
-const HEMOGRAMA = [
-  // MAMÍFEROS
-  { grupo: 'Mamíferos · Felinos', esp: 'Jaguar (Panthera onca)', hto: '35-45', hb: '12-16', leu: '6-12', pt: '6.5-8.0', glu: '80-130', cre: '1.0-2.5' },
-  { grupo: 'Mamíferos · Felinos', esp: 'Puma (Puma concolor)', hto: '33-45', hb: '11-15', leu: '5-14', pt: '6.0-8.0', glu: '80-140', cre: '1.0-2.5' },
-  { grupo: 'Mamíferos · Felinos', esp: 'Ocelote (Leopardus pardalis)', hto: '35-47', hb: '11-16', leu: '5-12', pt: '6.0-8.5', glu: '90-150', cre: '0.9-2.2' },
-  { grupo: 'Mamíferos · Felinos', esp: 'Gato doméstico (referencia)', hto: '30-45', hb: '8-15', leu: '5.5-19.5', pt: '5.8-8.0', glu: '70-150', cre: '0.8-1.8' },
-  { grupo: 'Mamíferos · Cánidos', esp: 'Coyote', hto: '40-55', hb: '14-19', leu: '6-14', pt: '5.8-7.5', glu: '80-120', cre: '0.6-1.5' },
-  { grupo: 'Mamíferos · Cánidos', esp: 'Lobo mexicano', hto: '40-55', hb: '14-19', leu: '5-13', pt: '5.5-7.5', glu: '80-120', cre: '0.5-1.5' },
-  { grupo: 'Mamíferos · Cánidos', esp: 'Perro doméstico (referencia)', hto: '37-55', hb: '12-18', leu: '6-17', pt: '5.4-7.5', glu: '70-150', cre: '0.5-1.8' },
-  { grupo: 'Mamíferos · Primates', esp: 'Mono araña (Ateles)', hto: '35-48', hb: '12-16', leu: '5-16', pt: '6.0-8.5', glu: '70-110', cre: '0.8-1.6' },
-  { grupo: 'Mamíferos · Primates', esp: 'Mono aullador (Alouatta)', hto: '38-50', hb: '12-17', leu: '5-14', pt: '6.5-8.5', glu: '80-120', cre: '0.8-1.5' },
-  { grupo: 'Mamíferos · Primates', esp: 'Mono capuchino (Cebus)', hto: '35-48', hb: '11-16', leu: '6-18', pt: '6.0-8.0', glu: '70-115', cre: '0.7-1.5' },
-  { grupo: 'Mamíferos · Ungulados', esp: 'Venado cola blanca', hto: '32-46', hb: '10-16', leu: '3-12', pt: '5.8-8.0', glu: '65-115', cre: '1.1-2.5' },
-  { grupo: 'Mamíferos · Ungulados', esp: 'Pecarí de collar', hto: '35-45', hb: '11-15', leu: '8-16', pt: '6.5-8.5', glu: '70-110', cre: '0.8-1.8' },
-  { grupo: 'Mamíferos · Ungulados', esp: 'Tapir centroamericano', hto: '32-42', hb: '10-14', leu: '4-11', pt: '5.5-7.8', glu: '60-100', cre: '1.0-2.0' },
-  { grupo: 'Mamíferos · Procyónidos', esp: 'Mapache (Procyon)', hto: '35-50', hb: '11-16', leu: '5-13', pt: '5.8-7.5', glu: '80-120', cre: '0.5-1.5' },
-  { grupo: 'Mamíferos · Procyónidos', esp: 'Coatí (Nasua)', hto: '35-48', hb: '11-15', leu: '5-14', pt: '5.8-7.5', glu: '80-125', cre: '0.5-1.5' },
-  // AVES
-  { grupo: 'Aves · Rapaces', esp: 'Águila real (Aquila)', hto: '42-52', hb: '13-17', leu: '9-18', pt: '3.5-5.5', glu: '250-350', cre: '—' },
-  { grupo: 'Aves · Rapaces', esp: 'Águila arpía (Harpia)', hto: '42-55', hb: '13-18', leu: '8-18', pt: '3.5-5.5', glu: '240-340', cre: '—' },
-  { grupo: 'Aves · Rapaces', esp: 'Halcón peregrino', hto: '45-58', hb: '14-18', leu: '10-22', pt: '3.0-5.0', glu: '300-400', cre: '—' },
-  { grupo: 'Aves · Rapaces', esp: 'Búho cornudo', hto: '40-52', hb: '12-17', leu: '9-20', pt: '3.2-5.2', glu: '280-380', cre: '—' },
-  { grupo: 'Aves · Psitácidos', esp: 'Guacamaya roja (Ara macao)', hto: '40-55', hb: '12-17', leu: '5-15', pt: '2.5-4.5', glu: '220-350', cre: '—' },
-  { grupo: 'Aves · Psitácidos', esp: 'Loro cabeza amarilla', hto: '40-55', hb: '12-17', leu: '5-15', pt: '2.5-4.5', glu: '220-350', cre: '—' },
-  { grupo: 'Aves · Psitácidos', esp: 'Guacamaya verde', hto: '40-55', hb: '12-17', leu: '5-15', pt: '2.5-4.5', glu: '220-350', cre: '—' },
-  // REPTILES
-  { grupo: 'Reptiles · Escamosos', esp: 'Iguana verde (Iguana)', hto: '25-40', hb: '7-11', leu: '5-15', pt: '4.0-7.0', glu: '120-220', cre: '0.1-0.6' },
-  { grupo: 'Reptiles · Escamosos', esp: 'Boa (Boa constrictor)', hto: '25-38', hb: '6-10', leu: '4-12', pt: '4.5-7.5', glu: '30-80', cre: '0.1-0.5' },
-  { grupo: 'Reptiles · Escamosos', esp: 'Pitón real', hto: '25-40', hb: '7-11', leu: '4-12', pt: '5.0-8.0', glu: '40-90', cre: '0.1-0.5' },
-  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga casquito', hto: '25-40', hb: '6-10', leu: '3-10', pt: '3.5-6.5', glu: '30-90', cre: '0.1-0.6' },
-  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga verde (marina)', hto: '25-40', hb: '7-11', leu: '2-8', pt: '3.0-6.0', glu: '50-100', cre: '0.2-0.8' },
-  { grupo: 'Reptiles · Crocodílidos', esp: 'Cocodrilo de pantano', hto: '22-35', hb: '6-10', leu: '5-15', pt: '4.5-7.0', glu: '80-150', cre: '0.2-0.6' }
-];
+// ═══════════════ HEMOGRAMA (solo datos con fuente · assets/js/herramientas-hemograma.js) ═══════════════
+const HEMOGRAMA = ZOO_HEMOGRAMA.ESPECIES;
 
 function renderHemograma(filter = '') {
-  const tb = document.getElementById('hemoTbody');
-  const f = ZOO_CALCULOS.sinAcentos(filter);
-  const rows = HEMOGRAMA.filter(c => !f || ZOO_CALCULOS.sinAcentos(c.esp).includes(f) || ZOO_CALCULOS.sinAcentos(c.grupo).includes(f));
-  if (rows.length === 0) {
-    tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--zoo-text-muted);">Sin resultados</td></tr>`;
-    return;
+  const C = ZOO_CALCULOS;
+  const f = C.sinAcentos(filter);
+  const lista = HEMOGRAMA.filter(e => !f || C.sinAcentos(e.esp).includes(f) || C.sinAcentos(e.grupo).includes(f) || C.sinAcentos(e.clase).includes(f));
+  const cont = document.getElementById('hemoGrid');
+  if (lista.length === 0) {
+    cont.innerHTML = '<p class="const-vacio">Sin resultados para «' + C.esc(filter) + '».</p>';
+  } else {
+    cont.innerHTML = lista.map(e => `
+    <div class="const-card">
+      <h3>${C.esc(e.esp)}</h3>
+      <div class="const-card__grupo">${C.esc(e.clase)} · ${C.esc(e.grupo)}</div>
+      ${e.datos.map(d => `
+        <div class="const-dato">
+          <div class="const-dato__campo">${C.esc(d.campo)} <span class="const-dato__estado const-dato__estado--${d.estado}">${d.estado === 'verificado' ? 'Verificado' : 'Estudio'}</span></div>
+          <div class="const-dato__valor">${C.esc(d.valor)}</div>
+          <a href="${C.esc(d.url)}" target="_blank" rel="noopener noreferrer">${C.esc(d.fuente)}</a>
+        </div>`).join('')}
+    </div>`).join('');
   }
-  let lastGroup = '';
-  let html = '';
-  rows.forEach(c => {
-    if (c.grupo !== lastGroup) {
-      html += `<tr class="group-row"><td colspan="7">${c.grupo}</td></tr>`;
-      lastGroup = c.grupo;
-    }
-    html += `<tr><td>${c.esp}</td><td><strong>${c.hto}</strong></td><td><strong>${c.hb}</strong></td><td><strong>${c.leu}</strong></td><td><strong>${c.pt}</strong></td><td><strong>${c.glu}</strong></td><td><strong>${c.cre}</strong></td></tr>`;
-  });
-  html += '<tr><td colspan="7" style="padding:10px 12px;font-size:.75rem;color:var(--zoo-text-dim);">HTO=hematocrito · Hb=hemoglobina · PT=proteínas totales · Aves: ácido úrico en lugar de creatinina (3-15 mg/dl).</td></tr>';
-  tb.innerHTML = html;
+  const falta = ZOO_HEMOGRAMA.SIN_DATO.filter(n => !f || C.sinAcentos(n).includes(f));
+  document.getElementById('hemoSinDato').textContent = falta.length
+    ? 'Sin dato publicado que se haya podido verificar: ' + falta.join(', ') + '.'
+    : '';
 }
 function filtrarHemograma() { renderHemograma(document.getElementById('hemoFilter').value); }
 
