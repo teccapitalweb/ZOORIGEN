@@ -482,6 +482,12 @@
   .tool-form { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
   .tool-result__fases { margin-top: 10px; display: grid; gap: 8px; }
   .tool-result__aviso { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; border-left: 4px solid #E8A317; background: rgba(232,163,23,0.12); font-size: .86rem; }
+  .tool-ref { margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--zoo-border-strong, #2a3530); background: rgba(0,0,0,0.03); }
+  .tool-ref__cab { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin-bottom: 8px; color: var(--zoo-text); }
+  .tool-ref__via { font-size: .74rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: rgba(232,163,23,0.16); color: #B27A06; }
+  .tool-ref__fuente { margin-top: 8px; font-size: .78rem; color: var(--zoo-text-muted); }
+  .tool-ref__fuente a, .tool-subsection a { color: #1F7A4D; font-weight: 600; }
+  .tool-result__intro { margin: 0 0 4px; font-size: .84rem; color: var(--zoo-text-muted); }
 </style>
 </head>
 <body>
@@ -523,7 +529,7 @@
         <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg></div>
         <div class="tool-header__text">
           <h2>Calculadora de dosis farmacológicas</h2>
-          <p><span id="descFarmacos">40+</span> fármacos · 9 categorías · Ajustes por grupo · Contraindicaciones</p>
+          <p><span id="descFarmacos">38</span> fármacos · <span id="descReferencias">0</span> rangos con fuente · 9 categorías · Precauciones con fuente</p>
         </div>
         <div class="tool-header__count" id="doseCount">—</div>
       </div>
@@ -559,7 +565,7 @@
         <div class="tool-field">
           <label>Grupo de especie</label>
           <select id="doseEspecie">
-            <option value="mamifero">Mamífero (adulto sano)</option>
+            <option value="mamifero">Mamífero</option>
             <option value="ave">Ave</option>
             <option value="reptil">Reptil</option>
             <option value="pediatrico">Pediátrico / geriátrico</option>
@@ -872,7 +878,8 @@
   <script src="../assets/js/club.js?v=20261030-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/herramientas-calculos.js?v=20261029-calculos"></script>
+  <script src="../assets/js/herramientas-dosis.js?v=20261030-dosis"></script>
+  <script src="../assets/js/herramientas-calculos.js?v=20261030-calculos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
 <script>
 (async () => {
@@ -936,8 +943,10 @@
   renderConstantes();
   renderHemograma();
   const poner = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
-  poner('statFarmacos', String(Object.keys(DROGAS).length));
-  poner('descFarmacos', String(Object.keys(DROGAS).length));
+  const nDosis = Object.values(DOSIS).reduce((s, v) => s + v.entradas.length, 0);
+  poner('statFarmacos', String(Object.keys(DOSIS).length));
+  poner('descFarmacos', String(Object.keys(DOSIS).length));
+  poner('descReferencias', String(nDosis));
   poner('statEspecies', String(CONSTANTES.length));
   poner('countConst', CONSTANTES.length + ' especies');
   poner('countHemo', HEMOGRAMA.length + ' especies');
@@ -945,68 +954,14 @@
   document.getElementById('fluidsTipo').dispatchEvent(new Event('change'));
 })();
 
-// ═══════════════ BASE DE DATOS DE FÁRMACOS (40+) ═══════════════
-const DROGAS = {
-  // ANESTÉSICOS DISOCIATIVOS
-  ketamina: { cat: 'anestesico', nombre: 'Ketamina', dosisRef: { mamifero: [5, 15], ave: [10, 30], reptil: [20, 60], pediatrico: [3, 10] }, max: 25, vias: ['IM', 'IV'], nota: 'Anestésico disociativo. Combinar con α2-agonista (medetomidina/xilacina) o benzodiacepina para relajación muscular. No causa hipotensión significativa. Evitar monoterapia (rigidez).', contraind: 'HTA sistémica, glaucoma, traumatismo craneoencefálico grave.' },
-  tiletamina: { cat: 'anestesico', nombre: 'Tiletamina-Zolazepam (Telazol/Zoletil)', dosisRef: { mamifero: [3, 6], ave: [5, 15], reptil: [5, 20], pediatrico: [2, 4] }, max: 10, vias: ['IM'], nota: 'Combinación fija disociativo+benzodiacepina. Inducción 3-6 min. Evita rigidez muscular. Ideal para fauna silvestre por volumen bajo.', contraind: 'Enfermedad renal, hepática, pancreatitis.' },
-
-  // SEDANTES / TRANQUILIZANTES
-  xilacina: { cat: 'sedante', nombre: 'Xilacina', dosisRef: { mamifero: [0.5, 3], ave: [0.5, 2], reptil: [0.3, 2], pediatrico: [0.2, 1] }, max: 4, vias: ['IM', 'IV'], nota: 'α2-agonista. Sedación + analgesia + relajación. Causa bradicardia y bloqueo AV. Reversión: yohimbina 0.1 mg/kg IV.', contraind: 'Bloqueo AV, ICC, diabetes descompensada, último tercio gestación.' },
-  medetomidina: { cat: 'sedante', nombre: 'Medetomidina', dosisRef: { mamifero: [0.02, 0.08], ave: [0.05, 0.1], reptil: [0.05, 0.15], pediatrico: [0.01, 0.04] }, max: 0.1, vias: ['IM', 'IV'], nota: 'α2-agonista más potente y selectivo que xilacina. Reversión: atipamezol 5x la dosis administrada.', contraind: 'Igual que xilacina.' },
-  dexmedetomidina: { cat: 'sedante', nombre: 'Dexmedetomidina', dosisRef: { mamifero: [0.005, 0.02], ave: [0.01, 0.05], reptil: [0.01, 0.05], pediatrico: [0.003, 0.01] }, max: 0.04, vias: ['IM', 'IV'], nota: 'α2-agonista ultra potente (2x medetomidina). Reversión con atipamezol 10x.', contraind: 'Cardiopatías severas.' },
-  acepromacina: { cat: 'sedante', nombre: 'Acepromacina', dosisRef: { mamifero: [0.02, 0.2], ave: [0.1, 0.5], reptil: [0.1, 0.5], pediatrico: [0.01, 0.1] }, max: 0.5, vias: ['IM', 'IV', 'SC'], nota: 'Fenotiazina. Tranquilizante sin analgesia. Vasodilatación periférica, puede causar hipotensión.', contraind: 'Shock, hipovolemia, epilepsia, Bóxer (sensibilidad racial).' },
-  diazepam: { cat: 'sedante', nombre: 'Diazepam', dosisRef: { mamifero: [0.2, 1], ave: [0.5, 2], reptil: [0.2, 2], pediatrico: [0.2, 0.5] }, max: 2, vias: ['IV', 'IM', 'PO'], nota: 'Benzodiacepina. Relajación muscular + anticonvulsivante. NO administrar IM puro (doloroso, errático). Reversión: flumazenil.', contraind: 'Glaucoma, miastenia.' },
-  midazolam: { cat: 'sedante', nombre: 'Midazolam', dosisRef: { mamifero: [0.1, 0.5], ave: [0.5, 2], reptil: [0.5, 2], pediatrico: [0.1, 0.3] }, max: 1, vias: ['IM', 'IV', 'Intranasal'], nota: 'Benzodiacepina hidrosoluble. Mejor absorción IM que diazepam. Útil en aves y reptiles por vía intranasal.', contraind: 'Igual diazepam.' },
-
-  // ANALGÉSICOS OPIOIDES
-  butorfanol: { cat: 'analgesico', nombre: 'Butorfanol', dosisRef: { mamifero: [0.1, 0.4], ave: [1, 4], reptil: [0.5, 2], pediatrico: [0.1, 0.2] }, max: 0.5, vias: ['IM', 'IV', 'SC'], nota: 'Agonista-antagonista opioide. Analgesia moderada + sedación leve. Ceiling effect. Ideal en aves. Reversión: naloxona.', contraind: 'Trauma craneal, depresión respiratoria severa.' },
-  tramadol: { cat: 'analgesico', nombre: 'Tramadol', dosisRef: { mamifero: [2, 5], ave: [5, 30], reptil: [5, 25], pediatrico: [1, 3] }, max: 10, vias: ['PO', 'IV', 'IM', 'SC'], nota: 'Analgésico central + inhibidor recaptación serotonina/NA. Efecto multimodal. No controlado en MX.', contraind: 'Convulsiones, ISRS concomitantes, hepatopatía severa.' },
-  morfina: { cat: 'analgesico', nombre: 'Morfina', dosisRef: { mamifero: [0.1, 1], ave: [0.1, 3], reptil: [1, 10], pediatrico: [0.05, 0.2] }, max: 2, vias: ['IM', 'IV', 'Epidural'], nota: 'Agonista opioide puro. Potente analgesia visceral. Reversión: naloxona 0.04 mg/kg. Requiere receta controlada en MX.', contraind: 'Trauma craneal, depresión respiratoria.' },
-  buprenorfina: { cat: 'analgesico', nombre: 'Buprenorfina', dosisRef: { mamifero: [0.005, 0.04], ave: [0.01, 0.25], reptil: [0.05, 0.2], pediatrico: [0.005, 0.02] }, max: 0.04, vias: ['IM', 'IV', 'Sublingual'], nota: 'Agonista parcial μ. Analgesia prolongada 6-12h. Ceiling effect. Difícil de revertir con naloxona (baja afinidad).', contraind: 'Hipersensibilidad a opioides.' },
-  fentanilo: { cat: 'analgesico', nombre: 'Fentanilo', dosisRef: { mamifero: [0.002, 0.01], ave: [0.01, 0.03], reptil: [0.01, 0.03], pediatrico: [0.001, 0.005] }, max: 0.02, vias: ['IV', 'Parche transdérmico'], nota: '100x más potente que morfina. Acción corta (20-30 min IV). Depresión respiratoria severa. Parche en gatos 2 mg/kg.', contraind: 'Shock, depresión respiratoria.' },
-
-  // AINEs
-  meloxicam: { cat: 'aine', nombre: 'Meloxicam', dosisRef: { mamifero: [0.1, 0.2], ave: [0.5, 2], reptil: [0.2, 0.5], pediatrico: [0.05, 0.1] }, max: 0.5, vias: ['SC', 'IV', 'PO'], nota: 'COX-2 preferencial. Buena seguridad gástrica. En aves rapaces dosis alta (2 mg/kg). Monitorear riñón en uso prolongado.', contraind: 'Deshidratación, ERC, úlceras GI, gestación.' },
-  carprofeno: { cat: 'aine', nombre: 'Carprofeno', dosisRef: { mamifero: [2, 4], ave: [1, 5], reptil: [1, 4], pediatrico: [1, 2] }, max: 4, vias: ['SC', 'IV', 'PO'], nota: 'AINE con perfil cox-2 en perro. Hepatotoxicidad idiosincrásica (Labrador). Monitorear ALT cada 2-4 semanas uso crónico.', contraind: 'Hepatopatía, ERC, gestación.' },
-  ketoprofeno: { cat: 'aine', nombre: 'Ketoprofeno', dosisRef: { mamifero: [1, 2], ave: [2, 5], reptil: [2, 4], pediatrico: [0.5, 1] }, max: 2, vias: ['IM', 'IV', 'SC', 'PO'], nota: 'AINE potente. Uso máximo 3-5 días. Riesgo GI alto.', contraind: 'Ulcus gastroduodenal, deshidratación.' },
-  flunixin: { cat: 'aine', nombre: 'Flunixin meglumine', dosisRef: { mamifero: [1, 2.2], ave: [1, 2], reptil: [0.5, 1], pediatrico: [0.5, 1] }, max: 2.2, vias: ['IV', 'IM'], nota: 'Potente analgesia visceral en ungulados. Uso restringido 3-5 días. Monitorear función renal.', contraind: 'Deshidratación, perros (nefrotóxico), ERC.' },
-
-  // ANTIBIÓTICOS
-  enrofloxacina: { cat: 'antibiotico', nombre: 'Enrofloxacina', dosisRef: { mamifero: [5, 15], ave: [10, 20], reptil: [5, 10], pediatrico: [2.5, 5] }, max: 20, vias: ['SC', 'IM', 'PO', 'IV'], nota: 'Fluoroquinolona de amplio espectro. En aves puede precipitar IM — usar SC o PO. Evitar en crecimiento (artropatía).', contraind: 'Cachorros en crecimiento, convulsiones, gatos (retinopatía >5 mg/kg).' },
-  amoxicilina: { cat: 'antibiotico', nombre: 'Amoxicilina', dosisRef: { mamifero: [10, 22], ave: [100, 200], reptil: [22, 50], pediatrico: [10, 15] }, max: 22, vias: ['SC', 'IM', 'PO'], nota: 'β-lactámico amplio espectro. En aves dosis altísima (100-200 mg/kg BID-TID). Combinar con clavulánico para β-lactamasas.', contraind: 'Alergia a penicilinas.' },
-  ceftriaxona: { cat: 'antibiotico', nombre: 'Ceftriaxona', dosisRef: { mamifero: [20, 50], ave: [50, 100], reptil: [20, 40], pediatrico: [10, 25] }, max: 50, vias: ['IV', 'IM', 'SC'], nota: 'Cefalosporina 3ª gen. Excelente para infecciones respiratorias, urinarias, sepsis. Dosis única/día.', contraind: 'Alergia β-lactámicos.' },
-  gentamicina: { cat: 'antibiotico', nombre: 'Gentamicina', dosisRef: { mamifero: [2, 6], ave: [5, 10], reptil: [2.5, 5], pediatrico: [1, 3] }, max: 10, vias: ['IM', 'IV', 'SC'], nota: 'Aminoglucósido. Nefrotóxico y ototóxico. Monitorear función renal. Hidratación indispensable. En reptiles intervalo 72h.', contraind: 'ERC, deshidratación, anestesia general.' },
-  metronidazol: { cat: 'antibiotico', nombre: 'Metronidazol', dosisRef: { mamifero: [10, 25], ave: [20, 50], reptil: [20, 100], pediatrico: [5, 15] }, max: 25, vias: ['PO', 'IV'], nota: 'Anti-anaerobios y antiprotozoario (Giardia, Trichomonas). En reptiles dosis alta para amibiasis.', contraind: 'Gestación 1er tercio, hepatopatía severa.' },
-  doxiciclina: { cat: 'antibiotico', nombre: 'Doxiciclina', dosisRef: { mamifero: [5, 10], ave: [25, 50], reptil: [5, 10], pediatrico: [2.5, 5] }, max: 10, vias: ['PO', 'IV'], nota: 'Tetraciclina de amplio espectro. Elección en clamidiosis aviar (25-50 mg/kg SID 45 días).', contraind: 'Gestación, crecimiento, hipocalcemia.' },
-
-  // ANTIPARASITARIOS
-  ivermectina: { cat: 'antiparasitario', nombre: 'Ivermectina', dosisRef: { mamifero: [0.2, 0.4], ave: [0.2, 0.4], reptil: [0, 0], pediatrico: [0.05, 0.2] }, max: 0.6, vias: ['SC', 'PO'], nota: '<svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> CONTRAINDICADO en quelonios, tortugas y algunas serpientes (letal). En perros collies sensibilidad MDR1.', contraind: 'Quelonios, tortugas, colies MDR1, cachorros <6 sem.' },
-  fenbendazol: { cat: 'antiparasitario', nombre: 'Fenbendazol', dosisRef: { mamifero: [10, 50], ave: [20, 100], reptil: [50, 100], pediatrico: [10, 25] }, max: 50, vias: ['PO'], nota: 'Benzimidazol. Amplio espectro. En reptiles 50-100 mg/kg cada 15 días x 3 dosis. Seguro en gestación.' },
-  praziquantel: { cat: 'antiparasitario', nombre: 'Praziquantel', dosisRef: { mamifero: [5, 10], ave: [5, 10], reptil: [5, 8], pediatrico: [2.5, 5] }, max: 10, vias: ['PO', 'SC', 'IM'], nota: 'Antihelmíntico para cestodos y trematodos. Seguro. Dosis única o repetir a 2-3 semanas.' },
-  selamectina: { cat: 'antiparasitario', nombre: 'Selamectina (spot-on)', dosisRef: { mamifero: [6, 12], ave: [0, 0], reptil: [0, 0], pediatrico: [6, 12] }, max: 12, vias: ['Tópico'], nota: 'Endectocida spot-on. Pulgas, garrapatas, ácaros, dirofilaria. Seguro en Collies.' },
-
-  // CORTICOIDES
-  dexametasona: { cat: 'corticoide', nombre: 'Dexametasona', dosisRef: { mamifero: [0.1, 0.5], ave: [0.5, 2], reptil: [0.5, 2], pediatrico: [0.05, 0.2] }, max: 2, vias: ['IV', 'IM', 'SC'], nota: 'Glucocorticoide potente. Uso agudo en shock, edema cerebral, reacciones alérgicas. 30x cortisol. Uso prolongado: Cushing iatrogénico.', contraind: 'Infección sistémica, gestación, úlcera GI, diabetes.' },
-  prednisolona: { cat: 'corticoide', nombre: 'Prednisolona', dosisRef: { mamifero: [0.5, 2], ave: [0.5, 2], reptil: [0.5, 1], pediatrico: [0.25, 1] }, max: 4, vias: ['PO', 'IV', 'IM'], nota: 'Glucocorticoide de acción intermedia. Dosis antiinflamatoria 0.5-1 mg/kg, inmunosupresora 2-4 mg/kg. Reducir gradualmente.', contraind: 'Infección, gestación, DM.' },
-  hidrocortisona: { cat: 'corticoide', nombre: 'Hidrocortisona', dosisRef: { mamifero: [2, 5], ave: [2, 5], reptil: [2, 5], pediatrico: [1, 2] }, max: 5, vias: ['IV', 'IM'], nota: 'Corticoide natural. Shock adrenal, crisis addisoniana. Acción corta.', contraind: 'Infección sistémica sin antibiótico.' },
-
-  // EMERGENCIA
-  atropina: { cat: 'emergencia', nombre: 'Atropina', dosisRef: { mamifero: [0.02, 0.04], ave: [0.5, 1], reptil: [0.01, 0.04], pediatrico: [0.02, 0.04] }, max: 0.1, vias: ['IM', 'IV', 'SC'], nota: 'Anticolinérgico. Pre-anestésica (reduce salivación), bradicardia, bloqueo AV, intoxicación por organofosforados (dosis alta 0.2-0.5 mg/kg). NO usar en conejos (atropinesterasa).', contraind: 'Conejos, glaucoma, taquiarritmias.' },
-  epinefrina: { cat: 'emergencia', nombre: 'Epinefrina (Adrenalina)', dosisRef: { mamifero: [0.01, 0.02], ave: [0.01, 0.1], reptil: [0.05, 0.1], pediatrico: [0.01, 0.02] }, max: 0.1, vias: ['IV', 'IM', 'Intratraqueal'], nota: 'Simpático-mimético. RCP, anafilaxia, shock. IV lento diluido 1:10,000. Intratraqueal dosis 2-3x si no hay acceso IV.', contraind: 'HTA, taquiarritmias severas (relativa en emergencia).' },
-  lidocaina: { cat: 'emergencia', nombre: 'Lidocaína', dosisRef: { mamifero: [1, 4], ave: [0, 0], reptil: [1, 5], pediatrico: [0.5, 2] }, max: 4, vias: ['IV', 'Local'], nota: 'Antiarrítmico (perro 2-4 mg/kg bolo + CRI 25-80 μg/kg/min). Anestésico local. <svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> En gatos usar máx 0.5 mg/kg (toxicidad cardíaca).', contraind: 'Bloqueo AV, bradicardia severa.' },
-  furosemida: { cat: 'emergencia', nombre: 'Furosemida', dosisRef: { mamifero: [1, 4], ave: [1, 5], reptil: [2, 5], pediatrico: [0.5, 2] }, max: 8, vias: ['IV', 'IM', 'PO'], nota: 'Diurético de asa. ICC con edema pulmonar, hipercalcemia, oliguria. Monitorear K+ (hipocalemia), deshidratación.', contraind: 'Deshidratación, anuria, alergia a sulfas.' },
-  naloxona: { cat: 'reversor', nombre: 'Naloxona', dosisRef: { mamifero: [0.04, 0.1], ave: [0.04, 0.1], reptil: [0.04, 0.1], pediatrico: [0.02, 0.04] }, max: 0.1, vias: ['IV', 'IM'], nota: 'Antagonista opioide puro. Revierte morfina, fentanilo, butorfanol. Vida media corta (30-60 min), puede requerir dosis repetidas.', contraind: 'Dolor severo no controlado.' },
-  atipamezol: { cat: 'reversor', nombre: 'Atipamezol', dosisRef: { mamifero: [0.2, 0.4], ave: [0.25, 0.5], reptil: [0.25, 0.5], pediatrico: [0.1, 0.2] }, max: 0.5, vias: ['IM'], nota: 'Antagonista α2 específico. Revierte medetomidina (5x dosis administrada) y dexmedetomidina (10x). IM preferido, IV causa taquicardia e hipertensión.', contraind: 'Uso reciente de α1-agonistas.' },
-  yohimbina: { cat: 'reversor', nombre: 'Yohimbina', dosisRef: { mamifero: [0.1, 0.15], ave: [0.1, 0.2], reptil: [0.1, 0.2], pediatrico: [0.05, 0.1] }, max: 0.2, vias: ['IV', 'IM'], nota: 'Antagonista α2. Revierte xilacina. IV lenta preferida. Puede causar excitación, taquicardia.', contraind: 'Epilepsia, ERC severa.' },
-  flumazenil: { cat: 'reversor', nombre: 'Flumazenil', dosisRef: { mamifero: [0.01, 0.02], ave: [0.02, 0.1], reptil: [0.02, 0.1], pediatrico: [0.005, 0.02] }, max: 0.04, vias: ['IV'], nota: 'Antagonista benzodiacepinas. Revierte diazepam/midazolam. Vida media corta (1h) — monitorear re-sedación.', contraind: 'Epilepsia controlada con BZD, intoxicación ATC.' }
-};
+// ═══════════════ DOSIS (solo rangos con fuente verificada · assets/js/herramientas-dosis.js) ═══════════════
+const DOSIS = ZOO_DOSIS.FARMACOS;
 
 function actualizarDrogas() {
   const cat = document.getElementById('doseCategory').value;
   const sel = document.getElementById('doseDrug');
-  const entries = Object.entries(DROGAS).filter(([k, v]) => cat === 'all' || v.cat === cat);
-  sel.innerHTML = entries.map(([k, v]) => `<option value="${k}">${v.nombre}</option>`).join('');
+  const entries = Object.entries(DOSIS).filter(([k, v]) => cat === 'all' || v.categoria === cat);
+  sel.innerHTML = entries.map(([k, v]) => `<option value="${k}">${ZOO_CALCULOS.esc(v.nombre)}</option>`).join('');
   document.getElementById('doseCount').textContent = entries.length + ' fármacos';
 }
 
@@ -1015,49 +970,38 @@ function calcularDosis() {
   const drug = document.getElementById('doseDrug').value;
   const peso = C.leerNumero(document.getElementById('dosePeso').value);
   const conc = C.leerNumero(document.getElementById('doseConc').value);
-  const especie = document.getElementById('doseEspecie').value;
+  const grupo = document.getElementById('doseEspecie').value;
   const rEl = document.getElementById('doseResult');
-  const info = DROGAS[drug];
-  const r = C.dosis(info, especie, peso, conc);
+  const r = C.dosisVerificadas(DOSIS[drug], grupo, peso, conc);
   if (r.error) { showErr(rEl, C.esc(r.error)); return; }
 
-  const rangoTxt = r.mismoValor ? C.fmt(r.dMin) : C.fmt(r.dMin) + '-' + C.fmt(r.dMax);
-  const rango = (a, b, u) => r.mismoValor ? C.fmt(a) + ' ' + u : C.fmt(a) + ' – ' + C.fmt(b) + ' ' + u;
-  rEl.innerHTML = `
-    <div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> ${C.esc(info.nombre)} · ${C.esc(C.fmt(peso))} kg · ${C.esc(C.etiquetaGrupo(especie))}</div>
-    ${r.superaMaximo ? (r.esMamifero
-      ? `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> <strong>Revisa este rango:</strong> el extremo alto (${C.fmt(r.dMax)} mg/kg) supera el máximo de referencia del fármaco (${C.fmt(r.maximoPorKg)} mg/kg). Confirma la dosis en tu fuente antes de usarla.</div>`
-      : `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> <strong>Rango propio de ${C.esc(C.etiquetaGrupo(especie).toLowerCase())}:</strong> el extremo alto (${C.fmt(r.dMax)} mg/kg) es mayor que el máximo de referencia de mamíferos (${C.fmt(r.maximoPorKg)} mg/kg). Es normal en algunas especies por su metabolismo, pero confirma la dosis en una fuente específica de la especie antes de usarla.</div>`) : ''}
-    ${r.volumenPequeno ? `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> <strong>Volumen muy pequeño</strong> (menos de 0.1 ml): es difícil medirlo con exactitud. Diluye el fármaco con solución estéril (por ejemplo 1:10), recalcula con la nueva concentración o usa jeringa de insulina.</div>` : ''}
-    <div class="tool-result__rows">
-      <div class="tool-result__row">
-        <span class="tool-result__row-label">Rango de dosis (${rangoTxt} mg/kg)</span>
-        <span class="tool-result__row-value">${rango(r.mgMin, r.mgMax, 'mg')}</span>
-      </div>
-      <div class="tool-result__row">
-        <span class="tool-result__row-label">Volumen a administrar (${C.fmt(conc)} mg/ml)</span>
-        <span class="tool-result__row-value">${rango(r.mlMin, r.mlMax, 'ml')}</span>
-      </div>
-      <div class="tool-result__row">
-        <span class="tool-result__row-label">Máximo de referencia (mamíferos)</span>
-        <span class="tool-result__row-value">${C.fmt(r.maximoMg)} mg (${C.fmt(r.maximoPorKg)} mg/kg)</span>
-      </div>
-      <div class="tool-result__row">
-        <span class="tool-result__row-label">Vías de administración</span>
-        <span class="tool-result__row-value">${info.vias.map(C.esc).join(' / ')}</span>
-      </div>
-    </div>
-    <div class="tool-subsection">
-      <div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Notas clínicas</div>
-      <p style="margin:0;color:var(--zoo-text);">${info.nota}</p>
-    </div>
-    ${info.contraind ? `
-    <div class="tool-subsection" style="border-left-color:#D55A28;">
-      <div class="tool-subsection__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Contraindicaciones</div>
-      <p style="margin:0;color:var(--zoo-text);">${info.contraind}</p>
-    </div>` : ''}
-  `;
-  rEl.className = 'tool-result is-visible' + (r.superaMaximo ? ' is-warning' : '');
+  const rango = (a, b, u, mismo) => a == null ? 'hasta ' + C.fmt(b) + ' ' + u : (mismo ? C.fmt(a) + ' ' + u : C.fmt(a) + ' – ' + C.fmt(b) + ' ' + u);
+  const hayPequeno = r.filas.some(x => x.volumenPequeno);
+  let html = `<div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> ${C.esc(r.nombre)} · ${C.esc(C.fmt(peso))} kg · ${C.esc(C.etiquetaGrupo(grupo))}</div>`;
+  if (r.sinDatos) {
+    html += `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> <strong>No hay un rango verificado para este grupo.</strong> No se encontró una fuente abierta confiable con la dosis de ${C.esc(r.nombre)} en este grupo, y no se muestra ningún número para no dar información sin respaldo. Consulta un formulario específico de la especie.</div>`;
+  } else {
+    if (hayPequeno) html += `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> <strong>Hay volúmenes muy pequeños</strong> (menos de 0.1 ml): son difíciles de medir con exactitud. Diluye el fármaco con solución estéril (por ejemplo 1:10), recalcula con la nueva concentración o usa jeringa de insulina.</div>`;
+    html += '<p class="tool-result__intro">Cada renglón es un rango publicado por la fuente indicada. Aplica solo a la especie y la vía que se señalan.</p>';
+    r.filas.forEach(x => {
+      html += `
+      <div class="tool-ref">
+        <div class="tool-ref__cab"><strong>${C.esc(x.aplica)}</strong>${x.via ? ` <span class="tool-ref__via">${C.esc(x.via)}</span>` : ''}</div>
+        <div class="tool-result__rows">
+          <div class="tool-result__row"><span class="tool-result__row-label">Dosis (${x.min == null ? 'hasta ' + C.fmt(x.max) : (x.mismoValor ? C.fmt(x.max) : C.fmt(x.min) + '–' + C.fmt(x.max))} mg/kg)</span><span class="tool-result__row-value">${rango(x.mgMin, x.mgMax, 'mg', x.mismoValor)}</span></div>
+          <div class="tool-result__row"><span class="tool-result__row-label">Volumen (${C.fmt(conc)} mg/ml)</span><span class="tool-result__row-value">${rango(x.mlMin, x.mlMax, 'ml', x.mismoValor)}</span></div>
+        </div>
+        <div class="tool-ref__fuente">Fuente: <a href="${C.esc(x.url)}" target="_blank" rel="noopener noreferrer">${C.esc(x.fuente)}</a></div>
+      </div>`;
+    });
+  }
+  if (r.precauciones.length) {
+    html += `<div class="tool-subsection" style="border-left-color:#D55A28;"><div class="tool-subsection__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Precauciones con fuente</div><ul>${
+      r.precauciones.map(p => `<li>${C.esc(p.texto)} <a href="${C.esc(p.url)}" target="_blank" rel="noopener noreferrer">${C.esc(p.fuente)}</a></li>`).join('')}</ul></div>`;
+  }
+  html += `<div class="tool-result__note">Rangos de referencia publicados, revisados el ${ZOO_DOSIS.FECHA_REVISION}. No sustituyen el criterio del médico veterinario ni la ficha del fabricante: confirma siempre la dosis, la vía y la concentración antes de aplicar.</div>`;
+  rEl.innerHTML = html;
+  rEl.className = 'tool-result is-visible' + (r.sinDatos ? ' is-warning' : '');
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 

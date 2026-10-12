@@ -59,26 +59,29 @@
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function sinAcentos(s) { return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
 
-  /* ───── DOSIS ───── */
-  // info: { nombre, dosisRef:{grupo:[min,max]}, max, ... } · devuelve { ok } o { error }
-  function dosis(info, especie, peso, conc) {
+  /* ───── DOSIS ─────
+     Solo trabaja con rangos que tienen fuente (assets/js/herramientas-dosis.js). Para el fármaco y el grupo elegidos
+     devuelve UNA fila por cada referencia verificada: la fuente puede dar un rango para perro, otro para gato, etc. */
+  // farmaco: { nombre, entradas:[{grupo, aplica, min, max, via, fuente, url}], precauciones:[...] }
+  function dosisVerificadas(farmaco, grupo, peso, conc) {
     var ep = errorPeso(peso); if (ep) return { error: ep };
     var ec = errorConcentracion(conc); if (ec) return { error: ec };
-    if (!info) return { error: 'Selecciona un medicamento.' };
-    var rango = info.dosisRef && info.dosisRef[especie];
-    if (!rango || (rango[0] === 0 && rango[1] === 0)) {
-      return { noRecomendado: true, error: info.nombre + ' NO está recomendado o está contraindicado para el grupo «' + etiquetaGrupo(especie) + '». Revisa las notas del fármaco.' };
-    }
-    var dMin = rango[0], dMax = rango[1];
-    var r = {
-      ok: true, dMin: dMin, dMax: dMax, mgMin: peso * dMin, mgMax: peso * dMax, mlMin: (peso * dMin) / conc, mlMax: (peso * dMax) / conc,
-      maximoMg: peso * info.max, maximoPorKg: info.max,
-      superaMaximo: dMax > info.max,
-      esMamifero: especie === 'mamifero' || especie === 'pediatrico',
-      volumenPequeno: ((peso * dMax) / conc) < 0.1,
-      mismoValor: dMin === dMax
+    if (!farmaco) return { error: 'Selecciona un medicamento.' };
+    var filas = (farmaco.entradas || []).filter(function (e) { return e.grupo === grupo && Number.isFinite(e.max) && e.max > 0; }).map(function (e) {
+      var min = Number.isFinite(e.min) ? e.min : null;
+      var mgMax = peso * e.max, mgMin = min == null ? null : peso * min;
+      return {
+        aplica: e.aplica || '', via: e.via || '', fuente: e.fuente || '', url: e.url || '',
+        min: min, max: e.max, mismoValor: min != null && min === e.max,
+        mgMin: mgMin, mgMax: mgMax,
+        mlMin: mgMin == null ? null : mgMin / conc, mlMax: mgMax / conc,
+        volumenPequeno: (mgMax / conc) < 0.1
+      };
+    });
+    return {
+      ok: true, sinDatos: filas.length === 0, filas: filas,
+      precauciones: farmaco.precauciones || [], nombre: farmaco.nombre || '', grupo: grupo
     };
-    return r;
   }
 
   /* ───── ANESTESIA ───── */
@@ -350,6 +353,6 @@
   return {
     PESO_MIN: PESO_MIN, PESO_MAX: PESO_MAX, MANTENIMIENTO: MANTENIMIENTO, BOLO_SHOCK: BOLO_SHOCK,
     leerNumero: leerNumero, errorPeso: errorPeso, errorConcentracion: errorConcentracion, fmt: fmt, etiquetaGrupo: etiquetaGrupo,
-    esc: esc, sinAcentos: sinAcentos, dosis: dosis, anestesia: anestesia, fluidos: fluidos, bcs: bcs, urgencia: urgencia
+    esc: esc, sinAcentos: sinAcentos, dosisVerificadas: dosisVerificadas, anestesia: anestesia, fluidos: fluidos, bcs: bcs, urgencia: urgencia
   };
 });

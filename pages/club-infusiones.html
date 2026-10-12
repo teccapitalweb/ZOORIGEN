@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
 <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
 <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261028-panel">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
 <style>
   .tools-hero {
     background: linear-gradient(135deg, #D55A28 0%, #1F5F3A 60%, #2AA4D5 110%);
@@ -663,8 +663,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261028-claro"></script>
-  <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
+  <script src="../assets/js/club.js?v=20261030-claro"></script>
+  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/herramientas-infusiones.js?v=20261030-infusiones"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -678,7 +678,7 @@
   if (!isVIP) {
     // Renderizar sidebar para que vea el menú pero bloquear el contenido
     if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
-    document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
+    document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('infusiones', session);
     if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
     // Ocultar contenido principal
     document.querySelectorAll('.tool-panel, .tools-tabs, .tool-aviso-global').forEach(el => el.style.display = 'none');

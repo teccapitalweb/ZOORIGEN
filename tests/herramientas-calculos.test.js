@@ -41,30 +41,79 @@ test('fmt: nunca "0.00" para un número que no es cero', () => {
   assert.equal(C.fmt(NaN), '—');
 });
 
-test('dosis: mg, ml y máximo con las unidades correctas', () => {
-  const info = { nombre: 'X', dosisRef: { mamifero: [5, 15], reptil: [0, 0] }, max: 25 };
-  const r = C.dosis(info, 'mamifero', 10, 100);
-  assert.equal(r.mgMin, 50); assert.equal(r.mgMax, 150);
-  cerca(r.mlMin, 0.5); cerca(r.mlMax, 1.5);
-  assert.equal(r.maximoMg, 250);
-  assert.equal(r.superaMaximo, false);
-  assert.equal(r.volumenPequeno, false);
+const ZD = require('../assets/js/herramientas-dosis.js');
+const FARMACO = {
+  nombre: 'X',
+  entradas: [
+    { grupo: 'mamifero', aplica: 'perro', min: 5, max: 15, via: 'IM', fuente: 'Fuente A', url: 'https://a.example/x' },
+    { grupo: 'mamifero', aplica: 'gato', min: 1, max: 2, via: 'PO', fuente: 'Fuente B', url: 'https://b.example/y' },
+    { grupo: 'ave', aplica: 'loro', min: null, max: 4, via: 'IM', fuente: 'Fuente C', url: 'https://c.example/z' },
+    { grupo: 'reptil', aplica: 'lagarto', min: 2, max: 2, via: 'SC', fuente: 'Fuente D', url: 'https://d.example/w' }
+  ],
+  precauciones: [{ texto: 'Cuidado', fuente: 'F', url: 'https://p.example' }]
+};
+
+test('dosis verificadas: una fila por referencia con mg y ml bien calculados', () => {
+  const r = C.dosisVerificadas(FARMACO, 'mamifero', 10, 100);
+  assert.equal(r.ok, true);
+  assert.equal(r.filas.length, 2);
+  const perro = r.filas[0], gato = r.filas[1];
+  assert.equal(perro.aplica, 'perro');
+  assert.equal(perro.mgMin, 50); assert.equal(perro.mgMax, 150);
+  cerca(perro.mlMin, 0.5); cerca(perro.mlMax, 1.5);
+  assert.equal(gato.mgMin, 10); cerca(gato.mlMax, 0.2);
+  assert.equal(perro.fuente, 'Fuente A');
+  assert.equal(perro.url, 'https://a.example/x');
+  assert.equal(r.precauciones.length, 1);
 });
 
-test('dosis: avisa si el extremo alto pasa el máximo y si el volumen es muy pequeño', () => {
-  const sobre = C.dosis({ nombre: 'X', dosisRef: { ave: [10, 30] }, max: 20 }, 'ave', 1, 10);
-  assert.equal(sobre.superaMaximo, true);
-  const chico = C.dosis({ nombre: 'X', dosisRef: { ave: [1, 2] }, max: 20 }, 'ave', 0.03, 100);
+test('dosis verificadas: "hasta X" no inventa un mínimo y un valor único se marca como tal', () => {
+  const loro = C.dosisVerificadas(FARMACO, 'ave', 2, 10).filas[0];
+  assert.equal(loro.min, null);
+  assert.equal(loro.mgMin, null);
+  assert.equal(loro.mgMax, 8);
+  const lagarto = C.dosisVerificadas(FARMACO, 'reptil', 1, 10).filas[0];
+  assert.equal(lagarto.mismoValor, true);
+});
+
+test('dosis verificadas: sin referencia para ese grupo no devuelve ningún número', () => {
+  const r = C.dosisVerificadas(FARMACO, 'pediatrico', 5, 10);
+  assert.equal(r.ok, true);
+  assert.equal(r.sinDatos, true);
+  assert.equal(r.filas.length, 0);
+});
+
+test('dosis verificadas: avisa del volumen muy pequeño y valida peso y concentración', () => {
+  const chico = C.dosisVerificadas(FARMACO, 'ave', 0.03, 100).filas[0];
   assert.equal(chico.volumenPequeno, true);
   assert.notEqual(C.fmt(chico.mlMax), '0.00');
+  assert.match(C.dosisVerificadas(FARMACO, 'ave', 0, 10).error, /peso/i);
+  assert.match(C.dosisVerificadas(FARMACO, 'ave', 5, 0).error, /concentración/i);
+  assert.match(C.dosisVerificadas(FARMACO, 'ave', 5, NaN).error, /concentración/i);
+  assert.match(C.dosisVerificadas(null, 'ave', 5, 10).error, /medicamento/i);
 });
 
-test('dosis: grupo no recomendado, peso y concentración inválidos', () => {
-  const info = { nombre: 'Ivermectina', dosisRef: { reptil: [0, 0] }, max: 1 };
-  assert.match(C.dosis(info, 'reptil', 5, 10).error, /NO está recomendado/);
-  assert.match(C.dosis({ nombre: 'X', dosisRef: { ave: [1, 2] }, max: 3 }, 'ave', 0, 10).error, /peso/i);
-  assert.match(C.dosis({ nombre: 'X', dosisRef: { ave: [1, 2] }, max: 3 }, 'ave', 5, 0).error, /concentración/i);
-  assert.match(C.dosis({ nombre: 'X', dosisRef: { ave: [1, 2] }, max: 3 }, 'ave', 5, NaN).error, /concentración/i);
+test('datos de dosis: todo rango trae fuente con enlace, sin números inventados ni vacíos', () => {
+  const ids = Object.keys(ZD.FARMACOS);
+  assert.ok(ids.length >= 35);
+  let total = 0;
+  for (const id of ids) {
+    const f = ZD.FARMACOS[id];
+    assert.ok(f.nombre && f.categoria in ZD.CATEGORIAS, id);
+    for (const e of f.entradas) {
+      total++;
+      assert.ok(e.grupo in ZD.GRUPOS, id + ' grupo');
+      assert.ok(Number.isFinite(e.max) && e.max > 0, id + ' max');
+      assert.ok(e.min === null || (Number.isFinite(e.min) && e.min > 0 && e.min <= e.max), id + ' min');
+      assert.ok(e.url.startsWith('https://'), id + ' sin enlace');
+      assert.ok(e.fuente && e.aplica, id + ' sin fuente o a quién aplica');
+    }
+    for (const p of f.precauciones) assert.ok(p.url.startsWith('https://'), id + ' precaución sin enlace');
+  }
+  assert.ok(total >= 120, 'entradas verificadas: ' + total);
+  // los valores que NO se pudieron verificar no deben volver a aparecer
+  assert.equal(ZD.FARMACOS.ceftriaxona.entradas.length, 0);
+  assert.equal(ZD.FARMACOS.hidrocortisona.entradas.length, 0);
 });
 
 test('anestesia: calcula mg y ml; los gases no se calculan por peso', () => {
@@ -233,5 +282,7 @@ test('la página usa el módulo y ya no tiene las cuentas viejas', () => {
   assert.doesNotMatch(PAGINA, /Dosis máxima segura global/);
   // los conteos salen de los datos
   assert.match(PAGINA, /id="statFarmacos"/);
-  assert.match(PAGINA, /Object\.keys\(DROGAS\)\.length/);
+  assert.match(PAGINA, /Object\.keys\(DOSIS\)\.length/);
+  assert.match(PAGINA, /herramientas-dosis\.js\?v=\w+/);
+  assert.doesNotMatch(PAGINA, /const DROGAS\b/, 'ya no queda la tabla de dosis sin fuente');
 });
