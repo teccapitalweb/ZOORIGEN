@@ -1,0 +1,410 @@
+/* ============================================================ */
+/* GUÍA ZOORIGEN · estilos de la burbuja y el panel              */
+/* Lógica: assets/js/chatbot-landing.js (pantalla) y             */
+/* assets/js/chatbot-motor.js (puro).                            */
+/* Colores del sitio: verde #1F5F3A, dorado #E8A317.             */
+/*                                                                */
+/* PENDIENTE DE DISEÑO: mascota y reacciones. El avatar usa un   */
+/* icono de huella (Lucide); cuando haya mascota, basta definir   */
+/*   .zg-av, .zg-launcher__ico { background-image: url(...) }     */
+/* y ocultar el svg interior.                                     */
+/* ============================================================ */
+
+.zg-launcher,
+.zg-panel {
+  --zg-verde: #1F5F3A;
+  --zg-verde-2: #2f7a4f;
+  --zg-verde-claro: #e6f1ea;
+  --zg-dorado: #E8A317;
+  --zg-fondo: #F5F7F6;
+  --zg-texto: #26312b;
+  --zg-suave: #5f6e65;
+  --zg-borde: #d5e2d9;
+  font-family: 'Open Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.zg-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Burbuja: se apila arriba del botón flotante de WhatsApp (la posición la fija el JS) ── */
+.zg-launcher {
+  position: fixed;
+  right: 20px;
+  bottom: var(--zg-abajo, 154px);
+  z-index: 71;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  animation: zg-entra .45s cubic-bezier(.2, .8, .25, 1) both;
+}
+.zg-launcher[hidden] { display: none; }
+.zg-launcher__txt {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--zg-verde);
+  font: 700 13px/1.2 'Poppins', system-ui, sans-serif;
+  white-space: nowrap;
+  box-shadow: 0 8px 22px rgba(20, 57, 38, .2);
+  border: 1.5px solid var(--zg-borde);
+}
+.zg-launcher__ico {
+  position: relative;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--zg-verde);
+  color: #fff;
+  box-shadow: 0 14px 36px rgba(20, 57, 38, .28);
+  transition: background .2s, transform .2s;
+}
+.zg-launcher:hover .zg-launcher__ico { background: var(--zg-verde-2); transform: translateY(-2px); }
+.zg-launcher:focus-visible { outline: none; }
+.zg-launcher:focus-visible .zg-launcher__ico { outline: 3px solid var(--zg-dorado); outline-offset: 3px; }
+.zg-launcher__dot {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--zg-dorado);
+  border: 2px solid #fff;
+}
+.zg-launcher__dot[hidden] { display: none; }
+
+@keyframes zg-entra {
+  from { opacity: 0; transform: translateY(10px) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── Panel ── */
+.zg-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 10000;
+  width: 380px;
+  max-width: calc(100vw - 24px);
+  height: min(620px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--zg-fondo);
+  color: var(--zg-texto);
+  border-radius: 22px;
+  box-shadow: 0 24px 64px rgba(10, 40, 25, .35);
+  animation: zg-entra .25s ease both;
+}
+.zg-panel[hidden] { display: none; }
+.zg-panel:focus { outline: none; }
+
+.zg-hd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px 12px;
+  background: var(--zg-verde);
+  color: #fff;
+}
+.zg-av {
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .16);
+  border: 2px solid rgba(255, 255, 255, .45);
+  color: #fff;
+  background-size: cover;
+  background-position: center;
+}
+.zg-tt { flex: 1; min-width: 0; }
+.zg-tt small {
+  display: block;
+  font: 700 10px/1.2 'Poppins', system-ui, sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--zg-dorado);
+}
+.zg-tt b { display: block; font: 700 17px/1.2 'Poppins', system-ui, sans-serif; }
+.zg-tt span { font-size: 12px; opacity: .88; }
+.zg-ic {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+  cursor: pointer;
+  transition: background .15s;
+}
+.zg-ic:hover { background: rgba(255, 255, 255, .26); }
+.zg-ic:focus-visible { outline: 3px solid var(--zg-dorado); outline-offset: 1px; }
+
+.zg-note {
+  padding: 8px 16px;
+  background: #fff7e0;
+  border-bottom: 1px solid #f1e0a8;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b5200;
+}
+
+.zg-bd {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 14px 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+.zg-bd:focus-visible { outline: 2px solid var(--zg-dorado); outline-offset: -2px; }
+.zg-lbl {
+  font: 700 10px/1.2 'Poppins', system-ui, sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--zg-suave);
+}
+
+.zg-bot,
+.zg-me,
+.zg-wait {
+  box-sizing: border-box;
+  max-width: 92%;
+  font-size: 14px;
+  line-height: 1.5;
+  animation: zg-entra .2s ease both;
+}
+.zg-bot {
+  align-self: flex-start;
+  padding: 12px 14px;
+  background: #fff;
+  border-radius: 16px 16px 16px 5px;
+  box-shadow: 0 4px 14px rgba(20, 57, 38, .08);
+  overflow-wrap: anywhere;
+}
+.zg-bot p { margin: 0; }
+.zg-bot p + p { margin-top: 8px; }
+.zg-bot strong { color: var(--zg-verde); }
+.zg-bot .zg-fuente {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--zg-borde);
+  font-size: 12px;
+  color: var(--zg-suave);
+}
+.zg-bot .zg-fuente b { color: var(--zg-texto); font-weight: 700; }
+.zg-bot .zg-fuente a { color: var(--zg-verde); text-decoration: underline; text-underline-offset: 2px; }
+.zg-bot .zg-fuente a:hover { color: var(--zg-verde-2); }
+.zg-bot .zg-fuente a:focus-visible { outline: 2px solid var(--zg-dorado); outline-offset: 2px; border-radius: 3px; }
+.zg-bot .zg-aviso { margin-top: 8px; font-size: 12px; color: var(--zg-suave); }
+.zg-me {
+  align-self: flex-end;
+  padding: 10px 14px;
+  background: var(--zg-verde);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 16px 16px 5px 16px;
+  overflow-wrap: anywhere;
+}
+.zg-wait {
+  align-self: flex-start;
+  display: flex;
+  gap: 5px;
+  padding: 14px 16px;
+  background: #fff;
+  border-radius: 16px 16px 16px 5px;
+}
+.zg-wait i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9bb7a6;
+  animation: zg-parpadeo 1s infinite ease-in-out;
+}
+.zg-wait i:nth-of-type(2) { animation-delay: .15s; }
+.zg-wait i:nth-of-type(3) { animation-delay: .3s; }
+@keyframes zg-parpadeo {
+  0%, 80%, 100% { opacity: .3; }
+  40% { opacity: 1; }
+}
+
+/* Botones de respuesta rápida */
+.zg-chips { display: flex; flex-wrap: wrap; gap: 8px; animation: zg-entra .2s ease both; }
+.zg-chip {
+  padding: 9px 14px;
+  border: 1.5px solid #b9d0c1;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--zg-verde);
+  font: 600 13px/1.25 'Open Sans', system-ui, sans-serif;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.zg-chip:hover { background: var(--zg-verde-claro); border-color: var(--zg-verde-2); }
+.zg-chip:focus-visible { outline: 3px solid var(--zg-dorado); outline-offset: 1px; }
+.zg-chip.is-main { background: var(--zg-verde); border-color: var(--zg-verde); color: #fff; }
+.zg-chip.is-main:hover { background: var(--zg-verde-2); }
+.zg-chip.is-wa { background: #25D366; border-color: #25D366; color: #fff; }
+.zg-chip.is-wa:hover { background: #1fb858; }
+.zg-chips.is-used .zg-chip { opacity: .5; pointer-events: none; }
+
+/* Tarjeta de curso */
+.zg-curso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1.5px solid var(--zg-borde);
+  border-radius: 14px;
+  background: #fff;
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  animation: zg-entra .2s ease both;
+  transition: border-color .15s, box-shadow .15s;
+}
+.zg-curso:hover { border-color: var(--zg-verde-2); box-shadow: 0 6px 16px rgba(20, 57, 38, .12); }
+.zg-curso:focus-visible { outline: 3px solid var(--zg-dorado); outline-offset: 1px; }
+.zg-curso.is-soon { cursor: default; opacity: .8; }
+.zg-curso__ico {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--zg-verde-claro);
+  color: var(--zg-verde);
+}
+.zg-curso__txt { flex: 1; min-width: 0; }
+.zg-curso__txt b {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--zg-texto);
+}
+.zg-curso__txt small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--zg-suave); }
+.zg-curso__go {
+  flex: 0 0 auto;
+  font: 700 12px/1 'Poppins', system-ui, sans-serif;
+  color: var(--zg-verde);
+  white-space: nowrap;
+}
+.zg-curso.is-soon .zg-curso__go { color: #8a6200; }
+
+/* Oferta al final de la respuesta */
+.zg-oferta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 16px;
+  background: #fff7e0;
+  border: 1.5px solid #f1e0a8;
+}
+.zg-oferta__frase { margin: 0; font-size: 13px; font-weight: 700; color: #6b5200; }
+.zg-oferta .zg-curso { background: #fff; }
+
+/* Pie */
+.zg-ft { padding: 8px 14px 12px; background: #fff; border-top: 1px solid var(--zg-borde); }
+.zg-inp { display: flex; align-items: center; gap: 10px; margin: 0; }
+.zg-inp input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 11px 16px;
+  border: 1.5px solid var(--zg-borde);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--zg-texto);
+  font: 14px 'Open Sans', system-ui, sans-serif;
+}
+.zg-inp input::placeholder { color: #7a8c82; }
+.zg-inp input:focus { outline: none; border-color: var(--zg-verde-2); box-shadow: 0 0 0 3px rgba(47, 122, 79, .2); }
+.zg-inp button {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--zg-verde);
+  color: #fff;
+  cursor: pointer;
+  transition: background .15s;
+}
+.zg-inp button:hover { background: var(--zg-verde-2); }
+.zg-inp button:focus-visible { outline: 3px solid var(--zg-dorado); outline-offset: 2px; }
+.zg-lk { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; }
+.zg-lk button {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--zg-suave);
+  font: 12px 'Open Sans', system-ui, sans-serif;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.zg-lk button:hover { color: var(--zg-verde); }
+.zg-lk button:focus-visible { outline: 2px solid var(--zg-dorado); outline-offset: 2px; border-radius: 3px; }
+
+/* ── Celular: panel casi a pantalla completa ── */
+@media (max-width: 560px) {
+  .zg-launcher { right: 16px; }
+  .zg-launcher__txt { padding: 7px 12px; font-size: 12px; }
+  .zg-panel {
+    left: 8px;
+    right: 8px;
+    top: 8px;
+    bottom: 8px;
+    width: auto;
+    max-width: none;
+    height: auto;
+    border-radius: 18px;
+  }
+  .zg-inp input { font-size: 16px; } /* evita el zoom automático de iOS */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zg-launcher, .zg-panel, .zg-bot, .zg-me, .zg-wait, .zg-chips, .zg-curso { animation: none; }
+  .zg-wait i { animation: none; opacity: .6; }
+  .zg-bd { scroll-behavior: auto; }
+  .zg-launcher__ico, .zg-chip, .zg-curso { transition: none; }
+}
