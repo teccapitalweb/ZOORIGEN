@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libro de registro de ejemplares · Club VIP Zoorigen</title>
+  <!-- ===== PWA ===== -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Zoorigen">
+<meta name="theme-color" content="#1F5F3A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/club.css?v=20260820">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
+<style>
+  /* ── Cabecera de la herramienta (mismos estilos .tools-* y .tool-* de club-herramientas.html) ── */
+  .tools-hero {
+    background: linear-gradient(135deg, #D55A28 0%, #1F5F3A 60%, #2AA4D5 110%);
+    border-radius: 18px; padding: 26px 30px; margin-bottom: 20px; color: #fff; position: relative; overflow: hidden;
+  }
+  .tools-hero::before {
+    content: ''; position: absolute; top: -40%; right: -10%; width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(232,163,23,0.3) 0%, transparent 70%); border-radius: 50%; pointer-events: none;
+  }
+  .tools-hero__badge {
+    display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+    color: #E8A317; padding: 5px 12px; border-radius: 20px; font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+    margin-bottom: 10px; position: relative; z-index: 2;
+  }
+  .tools-hero h1 { font-family: 'Poppins'; font-size: 1.8rem; font-weight: 800; margin: 0 0 6px; position: relative; z-index: 2; }
+  .tools-hero p { color: rgba(255,255,255,0.88); font-size: .96rem; margin: 0; max-width: 640px; line-height: 1.55; position: relative; z-index: 2; }
+  .tools-hero__stats { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 14px; position: relative; z-index: 2; }
+  .tools-hero__stat { display: flex; align-items: baseline; gap: 6px; }
+  .tools-hero__stat-num { font-family: 'Poppins'; font-weight: 800; font-size: 1.2rem; color: #E8A317; }
+  .tools-hero__stat-lbl { font-size: .78rem; color: rgba(255,255,255,0.8); }
+
+  .tools-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 20px; -webkit-overflow-scrolling: touch; }
+  .tools-tabs::-webkit-scrollbar { height: 4px; }
+  .tools-tabs::-webkit-scrollbar-thumb { background: rgba(232,163,23,0.3); border-radius: 2px; }
+  .tool-tab {
+    flex-shrink: 0; background: var(--zoo-bg-card, #131816); border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4); padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: .84rem; white-space: nowrap; transition: all .15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .tool-tab:hover { background: rgba(232,163,23,0.1); border-color: rgba(232,163,23,0.4); color: var(--zoo-text, #fff); }
+  .tool-tab.is-active { background: linear-gradient(135deg, #E8A317, #D68A0A); color: #1f1d17; border-color: transparent; box-shadow: 0 4px 14px rgba(232,163,23,0.3); }
+
+  .tool-panel {
+    display: none; background: var(--zoo-bg-card, #131816); border: 1px solid var(--zoo-border, #1e2522);
+    border-radius: 14px; padding: 24px; animation: toolFadeIn .25s ease-out; min-width: 0;
+  }
+  .tool-panel.is-active { display: block; }
+  @keyframes toolFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .tool-header { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--zoo-border, #1e2522); flex-wrap: wrap; }
+  .tool-header__icon {
+    width: 54px; height: 54px; background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(213,90,40,0.18));
+    border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+  }
+  .tool-header__text { min-width: 0; flex: 1 1 220px; }
+  .tool-header__text h2 { font-family: 'Poppins'; font-size: 1.25rem; color: var(--zoo-text, #fff); margin: 0 0 3px; }
+  .tool-header__text p { color: var(--zoo-text-muted, #a0a8a4); font-size: .85rem; margin: 0; }
+  .tool-header__count { margin-left: auto; background: rgba(232,163,23,0.15); color: #E8A317; padding: 6px 12px; border-radius: 10px; font-size: .78rem; font-weight: 700; }
+
+  .tool-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; margin-bottom: 18px; }
+  .tool-field { display: flex; flex-direction: column; min-width: 0; max-width: 100%; }
+  .tool-field label {
+    color: var(--zoo-text-muted, #a0a8a4); font-size: .78rem; font-weight: 700; margin-bottom: 6px; letter-spacing: .02em; text-transform: uppercase;
+  }
+  .tool-field input, .tool-field select, .tool-field textarea {
+    background: rgba(255,255,255,0.04) !important; border: 1px solid var(--zoo-border-strong, #2a3530) !important;
+    color: var(--zoo-text, #fff) !important; padding: 11px 13px; border-radius: 10px; font-family: inherit; font-size: .95rem;
+    min-width: 0; max-width: 100%; width: 100%; box-sizing: border-box;
+  }
+  .tool-field textarea { min-height: 84px; resize: vertical; }
+  /* iOS hace zoom automatico al enfocar un campo de menos de 16px. Solo en movil. */
+  @media (max-width: 768px) {
+    .tool-field input, .tool-field select, .tool-field textarea, .reg-buscar input, .reg-barra select { font-size: 16px; }
+  }
+  [data-theme="light"] .tool-field input, [data-theme="light"] .tool-field select, [data-theme="light"] .tool-field textarea {
+    background: #ffffff !important; border: 1px solid #d0d4cb !important; color: #1a1d1b !important;
+  }
+  .tool-field input:focus, .tool-field select:focus, .tool-field textarea:focus { outline: 0; border-color: #E8A317 !important; }
+  .tool-field select { text-overflow: ellipsis; }
+  .tool-field select option { background: #131816; color: #fff; }
+  [data-theme="light"] .tool-field select option { background: #fff; color: #1a1d1b; }
+  .tool-field .reg-ayuda { color: var(--zoo-text-muted, #a0a8a4); font-size: .76rem; margin-top: 5px; line-height: 1.4; }
+  .tool-field .reg-error { color: #D55A28; font-size: .8rem; margin-top: 5px; font-weight: 600; display: none; }
+  .tool-field.tiene-error .reg-error { display: block; }
+  .tool-field.tiene-error input, .tool-field.tiene-error select, .tool-field.tiene-error textarea { border-color: #D55A28 !important; }
+  .tool-field--ancho { grid-column: 1 / -1; }
+
+  .tool-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tool-btn-calc {
+    background: linear-gradient(135deg, #E8A317, #D68A0A); color: #1f1d17; border: 0; padding: 12px 22px; border-radius: 10px;
+    font-family: 'Poppins'; font-weight: 700; cursor: pointer; font-size: .95rem; display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
+  }
+  .tool-btn-calc:hover { box-shadow: 0 6px 18px rgba(232,163,23,0.35); transform: translateY(-1px); }
+  .tool-btn-calc[disabled] { opacity: .6; cursor: default; transform: none; box-shadow: none; }
+  .tool-btn-reset {
+    background: transparent; border: 1px solid var(--zoo-border-strong, #2a3530); color: var(--zoo-text-muted, #a0a8a4);
+    padding: 12px 18px; border-radius: 10px; font-family: inherit; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .tool-btn-reset:hover { border-color: rgba(232,163,23,0.5); color: var(--zoo-text, #fff); }
+
+  .tool-result {
+    margin-top: 18px; padding: 20px; background: rgba(111,191,115,0.08); border: 1px solid rgba(111,191,115,0.3);
+    border-radius: 12px; display: none;
+  }
+  .tool-result.is-visible { display: block; }
+  .tool-result.is-warning { background: rgba(232,163,23,0.08); border-color: rgba(232,163,23,0.4); }
+  .tool-result__title { font-family: 'Poppins'; font-weight: 800; color: var(--zoo-text, #fff); margin-bottom: 12px; font-size: 1.05rem; }
+
+  .tool-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .88rem; }
+  .tool-table th {
+    background: rgba(232,163,23,0.12); color: #E8A317; padding: 10px 12px; text-align: left; font-weight: 700; font-size: .76rem;
+    text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--zoo-border-strong, #2a3530);
+  }
+  .tool-table td { padding: 10px 12px; color: var(--zoo-text, #e5e9e7); border-bottom: 1px solid var(--zoo-border, #1e2522); font-size: .85rem; vertical-align: top; overflow-wrap: anywhere; }
+  .tool-table tr:hover td { background: rgba(255,255,255,0.02); }
+  [data-theme="light"] .tool-table td { color: #1a1d1b; }
+  [data-theme="light"] .tool-table tr:hover td { background: rgba(0,0,0,0.03); }
+  .tool-table-wrap { overflow-x: auto; border: 1px solid var(--zoo-border, #1e2522); border-radius: 10px; }
+
+  .tool-disclaimer {
+    margin-top: 20px; padding: 12px 16px; background: rgba(213,90,40,0.08); border-left: 3px solid #D55A28; border-radius: 8px;
+    color: var(--zoo-text-muted, #a0a8a4); font-size: .82rem; line-height: 1.55;
+  }
+  .tool-disclaimer strong { color: #D55A28; }
+  .tool-aviso-global { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(232,163,23,0.45); background: rgba(232,163,23,0.10); color: var(--zoo-text); font-size: .86rem; line-height: 1.5; }
+
+  .zi { width: 1.1em; height: 1.1em; vertical-align: -0.2em; flex: none; display: inline-block; }
+  .tool-header__icon .zi { width: 28px; height: 28px; color: #E8A317; }
+  .tool-tab .zi { width: 16px; height: 16px; }
+
+  /* ── Libro de registro ── */
+  .reg-barra { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; margin-bottom: 16px; }
+  .reg-buscar { position: relative; flex: 1 1 240px; min-width: 0; }
+  .reg-buscar .zi { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--zoo-text-muted, #a0a8a4); pointer-events: none; }
+  .reg-buscar input, .reg-barra select {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--zoo-border-strong, #2a3530); color: var(--zoo-text, #fff);
+    padding: 11px 14px; border-radius: 10px; font-family: inherit; font-size: .95rem; width: 100%; box-sizing: border-box; min-width: 0;
+  }
+  .reg-buscar input { padding-left: 38px; }
+  .reg-barra select { width: auto; max-width: 100%; flex: 0 1 190px; }
+  [data-theme="light"] .reg-buscar input, [data-theme="light"] .reg-barra select { background: #fff; border-color: #d0d4cb; color: #1a1d1b; }
+  .reg-barra select option { background: #131816; color: #fff; }
+  [data-theme="light"] .reg-barra select option { background: #fff; color: #1a1d1b; }
+  .reg-nota { color: var(--zoo-text-muted, #a0a8a4); font-size: .8rem; margin: 0 0 14px; }
+  .reg-grupo { margin-bottom: 20px; }
+  .reg-grupo__cab { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 8px; }
+  .reg-grupo__cab h3 { font-family: 'Poppins'; font-size: 1.05rem; color: var(--zoo-text, #fff); margin: 0; overflow-wrap: anywhere; }
+  .reg-grupo__cab em { color: var(--zoo-text-muted, #a0a8a4); font-size: .85rem; overflow-wrap: anywhere; }
+  .reg-grupo__cuenta { margin-left: auto; color: #E8A317; font-size: .78rem; font-weight: 700; }
+  .reg-tabla td small { display: block; color: var(--zoo-text-muted, #a0a8a4); font-size: .76rem; margin-top: 2px; }
+  .reg-tabla--inv { table-layout: fixed; min-width: 680px; }
+  .reg-tabla--inv th:nth-child(1) { width: 19%; }
+  .reg-tabla--inv th:nth-child(2) { width: 11%; }
+  .reg-tabla--inv th:nth-child(3) { width: 22%; }
+  .reg-tabla--inv th:nth-child(4) { width: 15%; }
+  .reg-tabla--inv th:nth-child(5) { width: 12%; }
+  .reg-tabla--inv th:nth-child(6) { width: 21%; }
+  .reg-tabla .reg-acciones { text-align: right; }
+  .reg-solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .reg-btn {
+    background: transparent; border: 1px solid var(--zoo-border-strong, #2a3530); color: var(--zoo-text, #fff);
+    padding: 6px 10px; border-radius: 8px; font-family: inherit; font-weight: 600; font-size: .78rem; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px; margin-left: 4px;
+  }
+  .reg-btn:hover { border-color: rgba(232,163,23,0.6); background: rgba(232,163,23,0.08); }
+  .reg-btn--peligro { color: #D55A28; }
+  .reg-btn--peligro:hover { border-color: #D55A28; background: rgba(213,90,40,0.1); }
+  [data-theme="light"] .reg-btn { color: #1a1d1b; }
+  [data-theme="light"] .reg-btn--peligro { color: #b8431b; }
+
+  .reg-chip {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: .74rem; font-weight: 700;
+    background: rgba(255,255,255,0.08); color: var(--zoo-text, #fff); white-space: nowrap;
+  }
+  .reg-chip .zi { width: 13px; height: 13px; }
+  .reg-chip--activo, .reg-chip--alta, .reg-chip--nacimiento { background: rgba(111,191,115,0.18); color: #3f9a44; }
+  .reg-chip--baja, .reg-chip--traslado { background: rgba(42,164,213,0.16); color: #2380a6; }
+  .reg-chip--muerte { background: rgba(213,90,40,0.16); color: #c14822; }
+  .reg-chip--nota { background: rgba(232,163,23,0.16); color: #a9740a; }
+  :root:not([data-theme="light"]) .reg-chip--activo, :root:not([data-theme="light"]) .reg-chip--alta, :root:not([data-theme="light"]) .reg-chip--nacimiento { color: #8fd694; }
+  :root:not([data-theme="light"]) .reg-chip--baja, :root:not([data-theme="light"]) .reg-chip--traslado { color: #6cc4e6; }
+  :root:not([data-theme="light"]) .reg-chip--muerte { color: #f08a63; }
+  :root:not([data-theme="light"]) .reg-chip--nota { color: #f0c04e; }
+
+  .reg-bitacora { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .reg-evento {
+    display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 8px 14px; align-items: start;
+    padding: 12px 14px; border: 1px solid var(--zoo-border, #1e2522); border-left: 4px solid #E8A317; border-radius: 10px; background: rgba(255,255,255,0.02);
+  }
+  .reg-evento--muerte { border-left-color: #D55A28; }
+  .reg-evento--alta, .reg-evento--nacimiento { border-left-color: #6FBF73; }
+  .reg-evento--baja, .reg-evento--traslado { border-left-color: #2AA4D5; }
+  .reg-evento__fecha { font-weight: 700; font-size: .82rem; color: var(--zoo-text-muted, #a0a8a4); }
+  .reg-evento__titulo { font-size: .9rem; color: var(--zoo-text, #fff); overflow-wrap: anywhere; }
+  .reg-evento__titulo .reg-chip { margin-right: 6px; }
+  .reg-bitacora__marca { color: var(--zoo-text-muted, #a0a8a4); }
+  .reg-evento__detalle { margin: 6px 0 0; font-size: .84rem; color: var(--zoo-text-muted, #a0a8a4); line-height: 1.5; overflow-wrap: anywhere; white-space: pre-line; }
+  .reg-evento__acciones { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+  .reg-evento__acciones .reg-btn { margin-left: 0; }
+
+  .reg-vacio { text-align: center; padding: 34px 18px; border: 1px dashed var(--zoo-border-strong, #2a3530); border-radius: 12px; color: var(--zoo-text-muted, #a0a8a4); }
+  .reg-vacio .zi { width: 34px; height: 34px; color: #E8A317; margin-bottom: 8px; }
+  .reg-vacio p { margin: 0 auto 16px; max-width: 460px; line-height: 1.55; }
+  .reg-vacio--error .zi { color: #D55A28; }
+  .reg-cargando { display: grid; gap: 10px; }
+  .reg-esqueleto { height: 64px; border-radius: 10px; background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.09), rgba(255,255,255,0.04)); background-size: 200% 100%; animation: regBrillo 1.2s linear infinite; }
+  @keyframes regBrillo { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+  .reg-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .reg-total td { font-weight: 800; background: rgba(232,163,23,0.08); }
+  .reg-recordatorio {
+    display: flex; gap: 10px; align-items: flex-start; padding: 12px 16px; border-radius: 12px; margin-bottom: 18px;
+    background: rgba(42,164,213,0.10); border: 1px solid rgba(42,164,213,0.4); color: var(--zoo-text); font-size: .86rem; line-height: 1.55;
+  }
+  .reg-recordatorio.is-periodo { background: rgba(232,163,23,0.12); border-color: rgba(232,163,23,0.5); }
+  .reg-recordatorio p { margin: 0; }
+  .reg-recordatorio p + p { margin-top: 6px; color: var(--zoo-text-muted, #a0a8a4); }
+  .reg-bloque { margin-top: 22px; }
+  .reg-bloque > h3 { font-family: 'Poppins'; font-size: 1rem; color: var(--zoo-text, #fff); margin: 0 0 10px; }
+  details.reg-detalles { border: 1px solid var(--zoo-border, #1e2522); border-radius: 12px; padding: 0 16px; margin-top: 16px; }
+  details.reg-detalles > summary { cursor: pointer; padding: 14px 0; font-weight: 700; color: var(--zoo-text, #fff); list-style-position: inside; }
+  details.reg-detalles[open] > summary { border-bottom: 1px solid var(--zoo-border, #1e2522); margin-bottom: 14px; }
+  details.reg-detalles .tool-form { margin-bottom: 14px; }
+  .reg-borrador-caja { border: 1px solid var(--zoo-border-strong, #2a3530); border-radius: 12px; overflow-x: auto; background: rgba(0,0,0,0.25); }
+  [data-theme="light"] .reg-borrador-caja { background: #f6f7f3; border-color: #d0d4cb; }
+  .reg-borrador { margin: 0; padding: 16px; font-family: 'Consolas', 'Courier New', monospace; font-size: .78rem; line-height: 1.5; color: var(--zoo-text, #e5e9e7); white-space: pre; }
+  [data-theme="light"] .reg-borrador { color: #1a1d1b; }
+  .reg-plazos { margin: 0; padding-left: 20px; color: var(--zoo-text-muted, #a0a8a4); font-size: .86rem; line-height: 1.7; }
+  .reg-plazos strong { color: var(--zoo-text, #fff); }
+
+  /* Ventanas (formularios y ficha) */
+  .reg-modal { position: fixed; inset: 0; z-index: 9000; background: rgba(8,12,10,0.62); display: flex; align-items: flex-start; justify-content: center; padding: 20px 14px; overflow-y: auto; }
+  .reg-modal__caja {
+    background: var(--zoo-bg-card, #131816); color: var(--zoo-text, #fff); border: 1px solid var(--zoo-border-strong, #2a3530); border-radius: 16px;
+    width: 100%; max-width: 620px; padding: 22px; box-shadow: 0 24px 70px rgba(0,0,0,0.45); margin: auto 0; min-width: 0; box-sizing: border-box;
+  }
+  .reg-modal__caja h2 { font-family: 'Poppins'; font-size: 1.15rem; margin: 0 0 6px; padding-right: 8px; overflow-wrap: anywhere; }
+  .reg-modal__caja > p { color: var(--zoo-text-muted, #a0a8a4); font-size: .86rem; margin: 0 0 16px; line-height: 1.5; }
+  .reg-modal__pie { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; margin-top: 16px; }
+  .reg-modal__general { color: #D55A28; font-weight: 600; font-size: .86rem; margin-bottom: 12px; display: none; }
+  .reg-modal__general.is-visible { display: block; }
+  .reg-ficha { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px 16px; margin: 0 0 16px; }
+  .reg-ficha dt { color: var(--zoo-text-muted, #a0a8a4); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .reg-ficha dd { margin: 2px 0 0; font-size: .92rem; overflow-wrap: anywhere; white-space: pre-line; }
+  .reg-ficha .reg-ficha__ancho { grid-column: 1 / -1; }
+  .reg-confirmar { background: rgba(213,90,40,0.1); border: 1px solid rgba(213,90,40,0.4); border-radius: 12px; padding: 14px; margin-top: 14px; font-size: .9rem; line-height: 1.5; }
+  .reg-toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 9500; background: #1F5F3A; color: #fff;
+    padding: 12px 18px; border-radius: 12px; font-weight: 600; font-size: .9rem; box-shadow: 0 10px 30px rgba(0,0,0,0.35); max-width: calc(100vw - 32px);
+  }
+  .reg-toast--error { background: #b8431b; }
+
+  /* Celular: la tabla se vuelve tarjetas, nada se sale de la pantalla */
+  @media (max-width: 700px) {
+    .reg-tabla--inv { min-width: 0; table-layout: auto; }
+    .reg-tabla thead { display: none; }
+    .reg-tabla, .reg-tabla tbody, .reg-tabla tr, .reg-tabla td { display: block; width: 100%; box-sizing: border-box; }
+    .reg-tabla tr { border: 1px solid var(--zoo-border, #1e2522); border-radius: 12px; margin: 0 0 10px; padding: 6px 12px; background: rgba(255,255,255,0.03); }
+    .reg-tabla td { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border: 0 !important; padding: 6px 0; text-align: right; }
+    .reg-tabla td::before { content: attr(data-label); color: var(--zoo-text-muted, #a0a8a4); font-weight: 700; text-align: left; flex: 0 0 34%; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; padding-top: 2px; }
+    .reg-tabla td > small { text-align: right; }
+    .reg-tabla .reg-acciones { justify-content: flex-start; flex-wrap: wrap; white-space: normal; text-align: left; }
+    .reg-tabla .reg-acciones::before { content: none; }
+    .reg-tabla .reg-acciones .reg-btn { margin: 0 6px 0 0; }
+    .reg-tabla--informe td.reg-num { text-align: right; }
+    .reg-tabla--informe .reg-total { background: rgba(232,163,23,0.10); }
+    .tool-table-wrap { border: 0; overflow: visible; }
+    .reg-evento { grid-template-columns: minmax(0, 1fr); }
+    .reg-evento__acciones { justify-content: flex-start; }
+    .reg-grupo__cuenta { margin-left: 0; width: 100%; }
+    .reg-barra select { flex: 1 1 100%; }
+    .reg-barra .tool-btn-calc, .reg-barra .tool-btn-reset { flex: 1 1 100%; justify-content: center; }
+    .tools-hero { padding: 20px; }
+    .tools-hero h1 { font-size: 1.35rem; }
+    .tool-panel { padding: 16px; }
+    .tool-header__text h2 { font-size: 1.05rem; }
+    .tool-header__count { margin-left: 0; }
+    .reg-modal__caja { padding: 18px; }
+    .reg-modal__pie .tool-btn-calc, .reg-modal__pie .tool-btn-reset { flex: 1 1 100%; justify-content: center; }
+    .tool-actions .tool-btn-calc, .tool-actions .tool-btn-reset { flex: 1 1 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="club-layout">
+  <aside class="club-sidebar" id="sidebar"></aside>
+  <main class="club-main">
+
+    <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
+
+    <div class="tools-hero" id="regHero">
+      <span class="tools-hero__badge"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> PARA UMA Y PIMVS</span>
+      <h1>Libro de registro de ejemplares</h1>
+      <p>Anota tus ejemplares y lo que les pasa (nacimientos, bajas, muertes, traslados y notas). La herramienta arma tu inventario actual y el borrador de tu informe anual.</p>
+      <div class="tools-hero__stats" id="regStats">
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num" id="statActivos">—</span><span class="tools-hero__stat-lbl">ejemplares activos</span></div>
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num" id="statEspecies">—</span><span class="tools-hero__stat-lbl">especies</span></div>
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num" id="statEventos">—</span><span class="tools-hero__stat-lbl">eventos en la bitácora</span></div>
+      </div>
+    </div>
+
+    <div class="tool-aviso-global" role="note" id="regAviso">
+      <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Material de apoyo.</strong> Esta herramienta ordena los datos que tú escribes. <strong>No es un formato oficial, no decide nada legal y no sustituye al responsable técnico ni a la autoridad.</strong> Confirma siempre el formato y los plazos vigentes con tu delegación de SEMARNAT.
+    </div>
+
+    <div id="regBloqueo"></div>
+
+    <div id="regApp">
+      <div class="tools-tabs" id="regTabs" role="tablist" aria-label="Secciones del libro de registro">
+        <button class="tool-tab is-active" role="tab" aria-selected="true" data-tab="inventario"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Inventario</button>
+        <button class="tool-tab" role="tab" aria-selected="false" data-tab="bitacora"><svg class="zi" aria-hidden="true"><use href="#zi-book-open"/></svg> Bitácora</button>
+        <button class="tool-tab" role="tab" aria-selected="false" data-tab="informe"><svg class="zi" aria-hidden="true"><use href="#zi-file-text"/></svg> Informe anual</button>
+      </div>
+
+      <!-- 1. INVENTARIO -->
+      <div class="tool-panel is-active" id="panel-inventario" role="tabpanel">
+        <div class="tool-header">
+          <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg></div>
+          <div class="tool-header__text">
+            <h2>Inventario de ejemplares</h2>
+            <p>Cada ejemplar con su especie, marca, origen y estado, agrupados por especie.</p>
+          </div>
+          <div class="tool-header__count" id="invConteo">—</div>
+        </div>
+        <div class="reg-barra" id="invBarra">
+          <div class="reg-buscar">
+            <svg class="zi" aria-hidden="true"><use href="#zi-search"/></svg>
+            <input type="search" id="invBuscar" placeholder="Buscar especie, marca u origen" autocomplete="off" maxlength="80" aria-label="Buscar ejemplares">
+          </div>
+          <select id="invEstado" aria-label="Filtrar por estado">
+            <option value="activo">Solo activos</option>
+            <option value="todos">Todos</option>
+            <option value="baja">Bajas</option>
+            <option value="muerte">Muertes</option>
+            <option value="traslado">Trasladados</option>
+          </select>
+          <button type="button" class="tool-btn-calc" id="btnAgregar"><svg class="zi" aria-hidden="true"><use href="#zi-plus"/></svg> Agregar ejemplar</button>
+          <button type="button" class="tool-btn-reset" id="btnCsvInventario"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Descargar .csv</button>
+        </div>
+        <div id="invLista" aria-live="polite"></div>
+        <div class="tool-disclaimer">
+          <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Cómo se llena:</strong> un ingreso o un nacimiento siempre es un ejemplar nuevo, con su origen y su fecha. Lo que le pase después (baja, muerte, traslado o nota) se anota como evento. Tus datos se guardan en tu cuenta del Club y solo tú puedes verlos.
+        </div>
+      </div>
+
+      <!-- 2. BITÁCORA -->
+      <div class="tool-panel" id="panel-bitacora" role="tabpanel">
+        <div class="tool-header">
+          <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-book-open"/></svg></div>
+          <div class="tool-header__text">
+            <h2>Bitácora de eventos</h2>
+            <p>Ingresos, nacimientos, bajas, muertes, traslados y notas, del más reciente al más antiguo.</p>
+          </div>
+          <div class="tool-header__count" id="bitConteo">—</div>
+        </div>
+        <div class="reg-barra" id="bitBarra">
+          <div class="reg-buscar">
+            <svg class="zi" aria-hidden="true"><use href="#zi-search"/></svg>
+            <input type="search" id="bitBuscar" placeholder="Buscar por especie, marca o texto" autocomplete="off" maxlength="80" aria-label="Buscar en la bitácora">
+          </div>
+          <select id="bitTipo" aria-label="Filtrar por tipo de evento">
+            <option value="todos">Todos los tipos</option>
+            <option value="alta">Ingresos</option>
+            <option value="nacimiento">Nacimientos</option>
+            <option value="baja">Bajas</option>
+            <option value="muerte">Muertes</option>
+            <option value="traslado">Traslados</option>
+            <option value="nota">Notas</option>
+          </select>
+          <select id="bitAnio" aria-label="Filtrar por año"></select>
+          <button type="button" class="tool-btn-calc" id="btnEvento"><svg class="zi" aria-hidden="true"><use href="#zi-plus"/></svg> Registrar evento</button>
+        </div>
+        <div id="bitLista" aria-live="polite"></div>
+      </div>
+
+      <!-- 3. INFORME ANUAL -->
+      <div class="tool-panel" id="panel-informe" role="tabpanel">
+        <div class="tool-header">
+          <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-file-text"/></svg></div>
+          <div class="tool-header__text">
+            <h2>Informe anual (borrador)</h2>
+            <p>Existencias, altas, nacimientos, bajas, muertes y traslados del año, por especie y en total.</p>
+          </div>
+        </div>
+
+        <div class="reg-recordatorio" id="infRecordatorio" role="note"></div>
+
+        <div class="tool-form">
+          <div class="tool-field">
+            <label for="infAnio">Año del informe</label>
+            <select id="infAnio"></select>
+          </div>
+        </div>
+
+        <details class="reg-detalles" id="infUnidadDetalles">
+          <summary>Datos de la unidad (se escriben una vez)</summary>
+          <p class="reg-nota">Se guardan solo en este navegador y aparecen en el borrador. Los que dejes vacíos salen como [PENDIENTE].</p>
+          <div class="tool-form">
+            <div class="tool-field"><label for="uniNombre">Nombre o razón social</label><input id="uniNombre" type="text" maxlength="300" autocomplete="organization"></div>
+            <div class="tool-field"><label for="uniTipo">Tipo de unidad</label><select id="uniTipo"></select></div>
+            <div class="tool-field"><label for="uniRegistro">Registro SEMARNAT</label><input id="uniRegistro" type="text" maxlength="300" autocomplete="off"></div>
+            <div class="tool-field"><label for="uniUbicacion">Ubicación</label><input id="uniUbicacion" type="text" maxlength="300" autocomplete="off"></div>
+            <div class="tool-field"><label for="uniResponsable">Responsable técnico</label><input id="uniResponsable" type="text" maxlength="300" autocomplete="name"></div>
+            <div class="tool-field"><label for="uniCedula">Cédula profesional</label><input id="uniCedula" type="text" maxlength="300" autocomplete="off"></div>
+            <div class="tool-field tool-field--ancho"><label for="uniObs">Observaciones</label><textarea id="uniObs" maxlength="1000"></textarea></div>
+          </div>
+          <div class="tool-actions" style="margin-bottom:16px;">
+            <button type="button" class="tool-btn-reset" id="btnLimpiarUnidad"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg> Borrar datos de la unidad</button>
+          </div>
+        </details>
+
+        <div id="infContenido" aria-live="polite"></div>
+
+        <div class="tool-disclaimer">
+          <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Borrador, no formato oficial:</strong> el informe ordena tus datos; presenta siempre en el formato y por el medio que indique SEMARNAT. Si el año no ha terminado, las existencias al 31 de diciembre son las de hoy.
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js?v=20261030-claro"></script>
+  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
+  <script src="../assets/js/registro-ejemplares-ui.js?v=20261012-registro"></script>
+  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
+<script>
+(async () => {
+  const R = window.ZOO_REGISTRO;
+  const MENU_ID = 'herramientas'; // el menú propio de esta herramienta se agrega aparte
+  const $ = (id) => document.getElementById(id);
+
+  const session = await ZOORIGEN_CLUB.requireAuth();
+  if (!session) return;
+
+  if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+  $('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar(MENU_ID, session);
+  if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
+  // ═══ SOLO MIEMBROS ═══ Sin membresía vigente: tarjeta fija + paywall (el administrador también entra)
+  function bloquear() {
+    $('regApp').style.display = 'none';
+    $('regAviso').style.display = 'none';
+    $('regStats').style.display = 'none';
+    $('regBloqueo').innerHTML =
+      '<div class="tool-panel is-active" style="text-align:center;">' +
+      '<div class="tool-result__title" style="font-size:1.15rem;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Herramientas exclusivas para miembros</div>' +
+      '<p style="color:var(--zoo-text-muted);margin:0 0 16px;">El libro de registro de ejemplares, la bitácora y el informe anual se abren con una membresía activa.</p>' +
+      '<a class="tool-btn-calc" href="club-suscripcion.html" style="display:inline-flex;">Ver planes</a></div>';
+    ZOORIGEN_CLUB.showPaywall(session, 'usar el libro de registro de ejemplares');
+  }
+  const esMiembro = ZOORIGEN_CLUB.hasActiveMembership(session) || session.role === 'admin';
+  if (!esMiembro) { bloquear(); return; }
+
+  /* ───────── Estado ───────── */
+  let datos = null;             // respuesta normalizada de /api/registro
+  let bitacora = [];            // ingresos + eventos
+  let informe = null;           // respuesta normalizada de /api/registro/informe
+  let informeAnio = null;       // año del informe mostrado
+  let informeSolicitud = 0;     // para ignorar respuestas viejas
+  const filtroInv = { q: '', estado: 'activo' };
+  const filtroBit = { q: '', tipo: 'todos', anio: '' };
+  let tabActual = 'inventario';
+
+  /* ───────── Utilidades ───────── */
+  function aviso(msg, esError) {
+    const t = document.createElement('div');
+    t.className = 'reg-toast' + (esError ? ' reg-toast--error' : '');
+    t.setAttribute('role', 'status');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), esError ? 5200 : 3200);
+  }
+  const errorTexto = (err, porDefecto) => (err && err.message) ? err.message : porDefecto;
+  function esperando(cont, n) {
+    cont.innerHTML = '<div class="reg-cargando" aria-hidden="true">' + '<div class="reg-esqueleto"></div>'.repeat(n || 3) + '</div>';
+  }
+  function descargar(nombre, contenido, tipo) {
+    try {
+      const blob = new Blob([contenido], { type: tipo + ';charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = nombre;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    } catch (e) {
+      aviso('No se pudo descargar. Usa "Copiar".', true);
+    }
+  }
+  async function copiar(texto) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(texto); aviso('Borrador copiado.'); return; }
+    } catch (e) { /* se intenta el método alterno */ }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = texto; ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      aviso(ok ? 'Borrador copiado.' : 'No se pudo copiar. Selecciona el texto y cópialo a mano.', !ok);
+    } catch (e) {
+      aviso('No se pudo copiar. Selecciona el texto y cópialo a mano.', true);
+    }
+  }
+  const almacen = {
+    leer(clave) { try { const v = localStorage.getItem(clave); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+    guardar(clave, valor) { try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* sin almacenamiento: sigue funcionando */ } },
+    borrar(clave) { try { localStorage.removeItem(clave); } catch (e) { /* nada */ } }
+  };
+  const CLAVE_UNIDAD = 'zoo_registro_unidad_v1';
+
+  const hoy = () => (datos && datos.hoy) || R.fechaLocalIso();
+  const ejemplarPorId = (id) => (datos && datos.ejemplares.find((e) => e.id === id)) || null;
+  const nombreEjemplar = (e) => e.nombreComun + (e.marca ? ' · ' + e.marca : e.nombre ? ' · ' + e.nombre : '');
+
+  /* ───────── Ventanas ───────── */
+  let abierto = null;
+  function cerrarModal() {
+    if (!abierto) return;
+    document.removeEventListener('keydown', abierto.teclas);
+    abierto.nodo.remove();
+    document.body.style.overflow = '';
+    const volver = abierto.volverA;
+    abierto = null;
+    if (volver && volver.focus) { try { volver.focus(); } catch (e) { /* nada */ } }
+  }
+  function abrirModal(html, volverA) {
+    cerrarModal();
+    const nodo = document.createElement('div');
+    nodo.className = 'reg-modal';
+    nodo.innerHTML = '<div class="reg-modal__caja" role="dialog" aria-modal="true">' + html + '</div>';
+    document.body.appendChild(nodo);
+    document.body.style.overflow = 'hidden';
+    const teclas = (ev) => { if (ev.key === 'Escape') cerrarModal(); };
+    document.addEventListener('keydown', teclas);
+    nodo.addEventListener('mousedown', (ev) => { if (ev.target === nodo) cerrarModal(); });
+    abierto = { nodo, teclas, volverA: volverA || document.activeElement };
+    const caja = nodo.firstElementChild;
+    const titulo = caja.querySelector('h2');
+    if (titulo) { titulo.id = 'regModalTitulo'; caja.setAttribute('aria-labelledby', 'regModalTitulo'); }
+    return caja;
+  }
+  function confirmar(titulo, texto, botonTexto) {
+    return new Promise((resolver) => {
+      const caja = abrirModal(
+        '<h2>' + R.esc(titulo) + '</h2><p>' + R.esc(texto) + '</p>' +
+        '<div class="reg-modal__pie">' +
+        '<button type="button" class="tool-btn-reset" id="regNo">Cancelar</button>' +
+        '<button type="button" class="tool-btn-calc" id="regSi" style="background:#D55A28;color:#fff;">' + R.esc(botonTexto) + '</button></div>');
+      caja.querySelector('#regNo').addEventListener('click', () => { cerrarModal(); resolver(false); });
+      caja.querySelector('#regSi').addEventListener('click', () => { cerrarModal(); resolver(true); });
+      caja.querySelector('#regNo').focus();
+    });
+  }
+
+  /* ───────── Pintar ───────── */
+  function pintarCabecera() {
+    const c = R.contarPorEstado(datos.ejemplares);
+    $('statActivos').textContent = c.activo;
+    $('statEspecies').textContent = R.agruparPorEspecie(datos.ejemplares.filter((e) => e.estado === 'activo')).length;
+    $('statEventos').textContent = datos.eventos.length + datos.ejemplares.length;
+  }
+
+  function pintarInventario() {
+    const cont = $('invLista');
+    const c = R.contarPorEstado(datos.ejemplares);
+    $('invConteo').textContent = c.activo + (c.activo === 1 ? ' activo' : ' activos') + ' de ' + c.todos;
+    $('invBarra').style.display = c.todos ? '' : 'none';
+    if (!datos.ejemplares.length) {
+      cont.innerHTML = R.htmlVacio(R.TEXTOS.vacioInventario, { accion: 'agregar', texto: 'Agregar mi primer ejemplar' });
+      return;
+    }
+    const lista = R.filtrarEjemplares(datos.ejemplares, filtroInv);
+    if (!lista.length) { cont.innerHTML = R.htmlVacio(R.TEXTOS.vacioFiltro); return; }
+    cont.innerHTML = '<p class="reg-nota">Mostrando ' + lista.length + (lista.length === 1 ? ' ejemplar' : ' ejemplares') +
+      ' · límite de ' + datos.limites.maxEjemplares + ' ejemplares por cuenta.</p>' + R.htmlInventario(lista);
+  }
+
+  function pintarBitacora() {
+    bitacora = R.construirBitacora(datos.ejemplares, datos.eventos);
+    const anios = R.aniosDisponibles(datos.ejemplares, datos.eventos, hoy());
+    const sel = $('bitAnio');
+    const previo = filtroBit.anio;
+    sel.innerHTML = '<option value="">Todos los años</option>' + anios.map((a) => '<option value="' + a + '">' + a + '</option>').join('');
+    sel.value = anios.map(String).indexOf(previo) >= 0 ? previo : '';
+    filtroBit.anio = sel.value;
+    const cont = $('bitLista');
+    $('bitConteo').textContent = bitacora.length + (bitacora.length === 1 ? ' registro' : ' registros');
+    if (!bitacora.length) { cont.innerHTML = R.htmlVacio(R.TEXTOS.vacioBitacora); return; }
+    const lista = R.filtrarBitacora(bitacora, filtroBit);
+    cont.innerHTML = lista.length ? R.htmlBitacora(lista) : R.htmlVacio(R.TEXTOS.vacioBitacoraFiltro);
+  }
+
+  function pintarTodo() {
+    pintarCabecera();
+    pintarInventario();
+    pintarBitacora();
+    pintarOpcionesAnio();
+  }
+
+  /* ───────── Cargar ───────── */
+  async function cargar() {
+    esperando($('invLista'));
+    esperando($('bitLista'));
+    try {
+      const resp = await ZOORIGEN_CLUB.apiFetch('/api/registro');
+      datos = R.normalizarRespuesta(resp);
+      pintarTodo();
+      if (tabActual === 'informe') cargarInforme();
+    } catch (err) {
+      console.warn('registro:', err);
+      if (err && err.status === 403) { bloquear(); return; }
+      const msg = err && err.status === 0 ? R.TEXTOS.error : errorTexto(err, R.TEXTOS.error);
+      $('invLista').innerHTML = R.htmlError(msg);
+      $('bitLista').innerHTML = R.htmlError(msg);
+    }
+  }
+  // Tras guardar o borrar: vuelve a pedir todo al servidor (así el estado siempre es el del servidor)
+  async function recargarSilencioso() {
+    try {
+      const resp = await ZOORIGEN_CLUB.apiFetch('/api/registro');
+      datos = R.normalizarRespuesta(resp);
+      pintarTodo();
+      informe = null;
+      if (tabActual === 'informe') cargarInforme();
+    } catch (err) {
+      aviso('Se guardó, pero no pudimos actualizar la lista. Recarga la página.', true);
+    }
+  }
+
+  /* ───────── Formularios ───────── */
+  function campo(id, etiqueta, control, ayuda, ancho) {
+    return '<div class="tool-field' + (ancho ? ' tool-field--ancho' : '') + '" data-campo="' + id + '"><label for="' + id + '">' + R.esc(etiqueta) + '</label>' + control +
+      (ayuda ? '<div class="reg-ayuda">' + R.esc(ayuda) + '</div>' : '') + '<div class="reg-error" role="alert"></div></div>';
+  }
+  function ponerErrores(caja, errores) {
+    caja.querySelectorAll('.tool-field').forEach((el) => {
+      const msg = errores[el.dataset.campo] || '';
+      el.classList.toggle('tiene-error', !!msg);
+      const e = el.querySelector('.reg-error'); if (e) e.textContent = msg;
+      const inp = el.querySelector('input,select,textarea');
+      if (inp) { if (msg) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid'); }
+    });
+  }
+  function errorGeneral(caja, texto) {
+    const g = caja.querySelector('.reg-modal__general');
+    if (!g) return;
+    g.textContent = texto || '';
+    g.classList.toggle('is-visible', !!texto);
+  }
+  // Mapea el nombre de campo que manda el servidor (campo) a un error en el formulario
+  function errorDelServidor(caja, err, prefijo) {
+    const campoSrv = err && err.data && err.data.campo;
+    const idCampo = !campoSrv ? '' : prefijo ? prefijo + campoSrv.charAt(0).toUpperCase() + campoSrv.slice(1) : campoSrv;
+    if (idCampo && caja.querySelector('[data-campo="' + idCampo + '"]')) {
+      ponerErrores(caja, { [idCampo]: err.message });
+      const inp = caja.querySelector('#' + idCampo);
+      if (inp) inp.focus();
+      return;
+    }
+    errorGeneral(caja, errorTexto(err, 'No se pudo guardar. Inténtalo de nuevo.'));
+  }
+
+  /* — Ejemplar: agregar o corregir — */
+  function abrirFormEjemplar(ejemplar, opciones) {
+    const edita = !!ejemplar;
+    if (!edita && datos.ejemplares.length >= datos.limites.maxEjemplares) {
+      aviso('Llegaste al máximo de ' + datos.limites.maxEjemplares + ' ejemplares.', true);
+      return;
+    }
+    const caja = abrirModal(
+      '<h2>' + (edita ? 'Corregir ejemplar' : 'Agregar ejemplar') + '</h2>' +
+      '<p>' + (edita ? 'Cambia solo lo que haga falta. El estado (baja, muerte, traslado) se cambia con eventos.' : 'Un ingreso o un nacimiento siempre es un ejemplar nuevo. Los datos con * son obligatorios.') + '</p>' +
+      '<form id="regForm" novalidate>' +
+      '<div class="reg-modal__general" id="regGeneral" role="alert"></div>' +
+      '<div class="tool-form">' +
+        campo('nombreComun', 'Especie (nombre común) *', '<input id="nombreComun" type="text" list="regEspecies" maxlength="300" autocomplete="off" placeholder="Ej. Iguana verde">', '', false) +
+        campo('nombreCientifico', 'Nombre científico', '<input id="nombreCientifico" type="text" maxlength="300" autocomplete="off" placeholder="Ej. Iguana iguana">', '', false) +
+        campo('marca', 'Marca de identificación', '<input id="marca" type="text" maxlength="300" autocomplete="off" placeholder="Arete, microchip, anillo...">', 'La marca ayuda a distinguir un ejemplar de otro.', false) +
+        campo('nombre', 'Nombre o apodo', '<input id="nombre" type="text" maxlength="300" autocomplete="off">', '', false) +
+        campo('sexo', 'Sexo', '<select id="sexo"><option value="indeterminado">Indeterminado</option><option value="macho">Macho</option><option value="hembra">Hembra</option></select>', '', false) +
+        campo('tipoIngreso', 'Cómo llegó a la unidad *', '<select id="tipoIngreso"><option value="alta">Ingreso (llegó de otro lugar)</option><option value="nacimiento">Nacimiento en la unidad</option></select>', '', false) +
+        campo('fechaIngreso', 'Fecha de ingreso o nacimiento *', '<input id="fechaIngreso" type="date" max="' + R.esc(hoy()) + '">', 'Si no sabes la fecha exacta, escribe la más cercana que puedas comprobar.', false) +
+        campo('origen', 'Origen *', '<input id="origen" type="text" maxlength="300" autocomplete="off" placeholder="De dónde llegó, o a quién nació">', 'Procedencia: criadero, otra UMA, rescate, decomiso, nacimiento en la unidad...', false) +
+        campo('notas', 'Notas', '<textarea id="notas" maxlength="1000"></textarea>', '', true) +
+      '</div>' +
+      '<div class="reg-modal__pie">' +
+        '<button type="button" class="tool-btn-reset" id="regCancelar">Cancelar</button>' +
+        '<button type="submit" class="tool-btn-calc" id="regGuardar">' + (edita ? 'Guardar cambios' : 'Guardar ejemplar') + '</button>' +
+      '</div></form>' +
+      '<datalist id="regEspecies">' + R.especiesConocidas(datos.ejemplares).map((s) => '<option value="' + R.esc(s.nombreComun) + '"></option>').join('') + '</datalist>');
+    const f = (id) => caja.querySelector('#' + id);
+    // Los datos se ponen como valores (nunca dentro del HTML)
+    const e = ejemplar || {};
+    f('nombreComun').value = e.nombreComun || '';
+    f('nombreCientifico').value = e.nombreCientifico || '';
+    f('marca').value = e.marca || '';
+    f('nombre').value = e.nombre || '';
+    f('sexo').value = e.sexo || 'indeterminado';
+    f('tipoIngreso').value = e.tipoIngreso || (opciones && opciones.tipoIngreso) || 'alta';
+    f('fechaIngreso').value = e.fechaIngreso || '';
+    f('origen').value = e.origen || (f('tipoIngreso').value === 'nacimiento' ? 'Nacimiento en la unidad' : '');
+    f('notas').value = e.notas || '';
+
+    // Al elegir una especie ya registrada, se completa el nombre científico
+    f('nombreComun').addEventListener('change', () => {
+      const clave = R.claveEspecie(f('nombreComun').value);
+      const conocida = R.especiesConocidas(datos.ejemplares).find((s) => R.claveEspecie(s.nombreComun) === clave);
+      if (conocida && conocida.nombreCientifico && !f('nombreCientifico').value.trim()) f('nombreCientifico').value = conocida.nombreCientifico;
+    });
+    f('tipoIngreso').addEventListener('change', () => {
+      const o = f('origen').value.trim();
+      if (f('tipoIngreso').value === 'nacimiento' && !o) f('origen').value = 'Nacimiento en la unidad';
+      else if (f('tipoIngreso').value === 'alta' && o === 'Nacimiento en la unidad') f('origen').value = '';
+    });
+    f('regCancelar').addEventListener('click', cerrarModal);
+    caja.querySelector('#regForm').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      errorGeneral(caja, '');
+      const r = R.validarEjemplarForm({
+        nombreComun: f('nombreComun').value, nombreCientifico: f('nombreCientifico').value, nombre: f('nombre').value, marca: f('marca').value,
+        sexo: f('sexo').value, tipoIngreso: f('tipoIngreso').value, fechaIngreso: f('fechaIngreso').value, origen: f('origen').value, notas: f('notas').value
+      }, { hoy: hoy() });
+      ponerErrores(caja, r.errores);
+      if (!r.ok) {
+        const primero = caja.querySelector('.tiene-error input, .tiene-error select, .tiene-error textarea');
+        if (primero) primero.focus();
+        return;
+      }
+      const guardar = f('regGuardar');
+      guardar.disabled = true; guardar.textContent = 'Guardando...';
+      try {
+        if (edita) await ZOORIGEN_CLUB.apiFetch('/api/registro/ejemplares/' + encodeURIComponent(ejemplar.id), { method: 'PATCH', body: r.valor });
+        else await ZOORIGEN_CLUB.apiFetch('/api/registro/ejemplares', { method: 'POST', body: r.valor });
+        cerrarModal();
+        aviso(edita ? 'Los cambios quedaron guardados.' : 'El ejemplar quedó registrado.');
+        await recargarSilencioso();
+      } catch (err) {
+        errorDelServidor(caja, err);
+        guardar.disabled = false; guardar.textContent = edita ? 'Guardar cambios' : 'Guardar ejemplar';
+      }
+    });
+    f('nombreComun').focus();
+  }
+
+  /* — Evento: baja, muerte, traslado o nota — */
+  function abrirFormEvento(ejemplarId) {
+    if (!datos.ejemplares.length) { aviso('Primero registra un ejemplar.', true); return; }
+    if (datos.eventos.length >= datos.limites.maxEventos) { aviso('Llegaste al máximo de ' + datos.limites.maxEventos + ' eventos.', true); return; }
+    const lista = datos.ejemplares.slice().sort((a, b) => a.nombreComun.localeCompare(b.nombreComun, 'es') || (a.marca || '').localeCompare(b.marca || '', 'es'));
+    const opcionesEj = lista.map((e) => '<option value="' + R.esc(e.id) + '">' + R.esc(nombreEjemplar(e) + (e.estado === 'activo' ? '' : ' (' + R.etiquetaEstado(e.estado).toLowerCase() + ')')) + '</option>').join('');
+    const caja = abrirModal(
+      '<h2>Registrar evento</h2>' +
+      '<p>Anota lo que le pasó al ejemplar. La fecha no puede ser futura. Un ejemplar solo puede tener una salida (baja, muerte o traslado).</p>' +
+      '<form id="regForm" novalidate>' +
+      '<div class="reg-modal__general" id="regGeneral" role="alert"></div>' +
+      '<div class="tool-form">' +
+        campo('evEjemplar', 'Ejemplar *', '<select id="evEjemplar">' + opcionesEj + '</select>', '', true) +
+        campo('evTipo', 'Tipo de evento *', '<select id="evTipo"></select>', '', false) +
+        campo('evFecha', 'Fecha *', '<input id="evFecha" type="date" max="' + R.esc(hoy()) + '">', '', false) +
+        '<div class="tool-field tool-field--ancho" data-campo="evCausa" id="evCausaCaja"><label for="evCausa" id="evCausaEtiqueta">Causa o motivo</label><input id="evCausa" type="text" maxlength="300" autocomplete="off"><div class="reg-error" role="alert"></div></div>' +
+        '<div class="tool-field tool-field--ancho" data-campo="evDestino" id="evDestinoCaja"><label for="evDestino" id="evDestinoEtiqueta">Destino</label><input id="evDestino" type="text" maxlength="300" autocomplete="off" placeholder="A dónde fue trasladado o dado de baja"><div class="reg-error" role="alert"></div></div>' +
+        campo('evNotas', 'Notas', '<textarea id="evNotas" maxlength="1000"></textarea>', '', true) +
+      '</div>' +
+      '<div class="reg-modal__pie">' +
+        '<button type="button" class="tool-btn-reset" id="regCancelar">Cancelar</button>' +
+        '<button type="submit" class="tool-btn-calc" id="regGuardar">Guardar evento</button>' +
+      '</div></form>');
+    const f = (id) => caja.querySelector('#' + id);
+    f('evEjemplar').value = ejemplarId && ejemplarPorId(ejemplarId) ? ejemplarId : lista[0].id;
+    f('evFecha').value = hoy();
+
+    function actualizar() {
+      const ej = ejemplarPorId(f('evEjemplar').value);
+      const activo = ej && ej.estado === 'activo';
+      const previo = f('evTipo').value;
+      const tipos = activo ? R.TIPOS_EVENTO : ['nota'];
+      f('evTipo').innerHTML = tipos.map((t) => '<option value="' + t + '">' + R.esc(R.etiquetaTipo(t)) + '</option>').join('');
+      f('evTipo').value = tipos.indexOf(previo) >= 0 ? previo : (activo ? 'muerte' : 'nota');
+      const c = R.camposEvento(f('evTipo').value);
+      f('evCausaCaja').style.display = c.causa ? '' : 'none';
+      f('evDestinoCaja').style.display = c.destino ? '' : 'none';
+      f('evCausaEtiqueta').textContent = f('evTipo').value === 'baja' ? 'Motivo de la baja *' : f('evTipo').value === 'muerte' ? 'Causa de la muerte' : 'Motivo del traslado';
+      f('evDestinoEtiqueta').textContent = c.destinoObligatorio ? 'Destino *' : 'Destino';
+      f('evNotas').closest('.tool-field').querySelector('label').textContent = f('evTipo').value === 'nota' ? 'Nota *' : 'Notas';
+      if (ej) f('evFecha').min = ej.fechaIngreso || '';
+      const textoAviso = !activo && ej ? 'Este ejemplar ya tiene una salida registrada: solo puedes agregar notas.' : '';
+      errorGeneral(caja, textoAviso);
+    }
+    f('evEjemplar').addEventListener('change', actualizar);
+    f('evTipo').addEventListener('change', actualizar);
+    actualizar();
+    f('regCancelar').addEventListener('click', cerrarModal);
+    caja.querySelector('#regForm').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const ej = ejemplarPorId(f('evEjemplar').value);
+      if (!ej) { errorGeneral(caja, 'Elige un ejemplar.'); return; }
+      const r = R.validarEventoForm({
+        tipo: f('evTipo').value, fecha: f('evFecha').value, causa: f('evCausa').value, destino: f('evDestino').value, notas: f('evNotas').value
+      }, { hoy: hoy(), ejemplar: ej });
+      const errores = {};
+      Object.keys(r.errores).forEach((k) => { errores['ev' + k.charAt(0).toUpperCase() + k.slice(1)] = r.errores[k]; });
+      ponerErrores(caja, errores);
+      if (!r.ok) {
+        const primero = caja.querySelector('.tiene-error input, .tiene-error select, .tiene-error textarea');
+        if (primero) primero.focus();
+        return;
+      }
+      errorGeneral(caja, '');
+      const guardar = f('regGuardar');
+      guardar.disabled = true; guardar.textContent = 'Guardando...';
+      try {
+        await ZOORIGEN_CLUB.apiFetch('/api/registro/ejemplares/' + encodeURIComponent(ej.id) + '/eventos', { method: 'POST', body: r.valor });
+        cerrarModal();
+        aviso('El evento quedó registrado.');
+        await recargarSilencioso();
+      } catch (err) {
+        errorDelServidor(caja, err, 'ev');
+        guardar.disabled = false; guardar.textContent = 'Guardar evento';
+      }
+    });
+    f('evTipo').focus();
+  }
+
+  /* — Ficha del ejemplar — */
+  function abrirFicha(id, volverA) {
+    const e = ejemplarPorId(id);
+    if (!e) return;
+    const historial = R.filtrarBitacora(bitacora, { ejemplarId: e.id });
+    const dato = (t, v, ancho) => '<div' + (ancho ? ' class="reg-ficha__ancho"' : '') + '><dt>' + R.esc(t) + '</dt><dd>' + R.esc(v || '—') + '</dd></div>';
+    const caja = abrirModal(
+      '<h2>' + R.esc(e.nombreComun) + (e.marca ? ' · ' + R.esc(e.marca) : '') + '</h2>' +
+      '<p>' + R.chipEstado(e.estado) + (e.fechaSalida ? ' desde el ' + R.esc(R.formatearFecha(e.fechaSalida, 'larga')) : '') + '</p>' +
+      '<dl class="reg-ficha">' +
+        dato('Nombre científico', e.nombreCientifico) + dato('Nombre o apodo', e.nombre) + dato('Marca', e.marca) + dato('Sexo', R.etiquetaSexo(e.sexo)) +
+        dato('Cómo llegó', R.etiquetaTipo(e.tipoIngreso)) + dato('Fecha de ingreso', R.formatearFecha(e.fechaIngreso, 'larga')) +
+        dato('Origen', e.origen, true) + (e.notas ? dato('Notas', e.notas, true) : '') +
+      '</dl>' +
+      '<div class="reg-bloque" style="margin-top:0;"><h3>Historial</h3>' + R.htmlBitacora(historial.map((x) => Object.assign({}, x, { borrable: false }))) + '</div>' +
+      '<div id="regConfirmar"></div>' +
+      '<div class="reg-modal__pie">' +
+        '<button type="button" class="tool-btn-reset" id="fichaCerrar">Cerrar</button>' +
+        '<button type="button" class="tool-btn-reset" id="fichaBorrar" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-trash-2"/></svg> Eliminar</button>' +
+        '<button type="button" class="tool-btn-reset" id="fichaEditar"><svg class="zi" aria-hidden="true"><use href="#zi-pencil"/></svg> Corregir datos</button>' +
+        '<button type="button" class="tool-btn-calc" id="fichaEvento"><svg class="zi" aria-hidden="true"><use href="#zi-plus"/></svg> Registrar evento</button>' +
+      '</div>', volverA);
+    // En la ficha, los botones del historial (Ficha) no hacen falta
+    caja.querySelectorAll('.reg-bloque [data-accion="ficha"]').forEach((b) => b.remove());
+    caja.querySelector('#fichaCerrar').addEventListener('click', cerrarModal);
+    caja.querySelector('#fichaEditar').addEventListener('click', () => { cerrarModal(); abrirFormEjemplar(e); });
+    caja.querySelector('#fichaEvento').addEventListener('click', () => { cerrarModal(); abrirFormEvento(e.id); });
+    caja.querySelector('#fichaBorrar').addEventListener('click', () => {
+      const n = datos.eventos.filter((v) => v.ejemplarId === e.id).length;
+      const zona = caja.querySelector('#regConfirmar');
+      zona.innerHTML = '<div class="reg-confirmar"><strong>¿Eliminar este ejemplar?</strong> Se borrarán también sus ' + n + (n === 1 ? ' evento' : ' eventos') +
+        ' y no se puede deshacer. Si el ejemplar murió o salió de la unidad, mejor registra la muerte, la baja o el traslado: así queda en tu informe.' +
+        '<div class="reg-modal__pie"><button type="button" class="tool-btn-reset" id="noBorrar">No, conservarlo</button>' +
+        '<button type="button" class="tool-btn-calc" id="siBorrar" style="background:#D55A28;color:#fff;">Sí, eliminar</button></div></div>';
+      zona.querySelector('#noBorrar').addEventListener('click', () => { zona.innerHTML = ''; });
+      zona.querySelector('#siBorrar').addEventListener('click', async () => {
+        const b = zona.querySelector('#siBorrar'); b.disabled = true; b.textContent = 'Eliminando...';
+        try {
+          await ZOORIGEN_CLUB.apiFetch('/api/registro/ejemplares/' + encodeURIComponent(e.id), { method: 'DELETE' });
+          cerrarModal();
+          aviso('El ejemplar se eliminó.');
+          await recargarSilencioso();
+        } catch (err) {
+          b.disabled = false; b.textContent = 'Sí, eliminar';
+          aviso(errorTexto(err, 'No se pudo eliminar. Inténtalo de nuevo.'), true);
+        }
+      });
+    });
+  }
+
+  async function deshacerEvento(id) {
+    const v = datos.eventos.find((x) => x.id === id);
+    if (!v) return;
+    const ok = await confirmar('¿Deshacer este evento?', 'Se borra de la bitácora ("' + R.etiquetaTipo(v.tipo) + '" del ' + R.formatearFecha(v.fecha, 'larga') + ') y el estado del ejemplar se recalcula. Esto no se puede deshacer.', 'Sí, deshacer');
+    if (!ok) return;
+    try {
+      await ZOORIGEN_CLUB.apiFetch('/api/registro/eventos/' + encodeURIComponent(id), { method: 'DELETE' });
+      aviso('El evento se deshizo.');
+      await recargarSilencioso();
+    } catch (err) {
+      aviso(errorTexto(err, 'No se pudo deshacer. Inténtalo de nuevo.'), true);
+    }
+  }
+
+  /* ───────── Informe anual ───────── */
+  const UNIDAD_VACIA = R.unidadLimpia({});
+  function leerUnidad() {
+    return R.unidadLimpia({
+      nombre: $('uniNombre').value, tipo: $('uniTipo').value, registro: $('uniRegistro').value, ubicacion: $('uniUbicacion').value,
+      responsable: $('uniResponsable').value, cedula: $('uniCedula').value, observaciones: $('uniObs').value
+    });
+  }
+  function ponerUnidad(u) {
+    $('uniNombre').value = u.nombre; $('uniTipo').value = u.tipo; $('uniRegistro').value = u.registro; $('uniUbicacion').value = u.ubicacion;
+    $('uniResponsable').value = u.responsable; $('uniCedula').value = u.cedula; $('uniObs').value = u.observaciones;
+  }
+  $('uniTipo').innerHTML = R.TIPOS_UNIDAD.map((t) => '<option value="' + R.esc(t.id) + '">' + R.esc(t.label) + '</option>').join('');
+  ponerUnidad(R.unidadLimpia(almacen.leer(CLAVE_UNIDAD) || UNIDAD_VACIA));
+
+  function pintarOpcionesAnio() {
+    const anios = R.aniosDisponibles(datos.ejemplares, datos.eventos, hoy());
+    const sel = $('infAnio');
+    const previo = sel.value || String(informeAnio || anios[0]);
+    sel.innerHTML = anios.map((a) => '<option value="' + a + '">' + a + '</option>').join('');
+    sel.value = anios.map(String).indexOf(previo) >= 0 ? previo : String(anios[0]);
+  }
+
+  function pintarInforme() {
+    const cont = $('infContenido');
+    if (!informe) return;
+    const rec = R.recordatorioInforme(hoy());
+    const b = R.construirBorrador(informe, leerUnidad(), { hoy: hoy() });
+    let html = '';
+    if (informe.enCurso) {
+      html += '<div class="tool-result is-visible is-warning" style="margin-top:0;margin-bottom:16px;"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> El año ' + informe.anio +
+        ' todavía no termina: las existencias "al 31 de diciembre" son las de hoy (' + R.esc(R.formatearFecha(informe.corte, 'larga')) + ').</div>';
+    }
+    if (R.informeVacio(informe)) {
+      html += R.htmlVacio(R.TEXTOS.vacioInforme);
+    } else {
+      html += '<div class="reg-bloque" style="margin-top:0;"><h3>Resumen por especie · ' + informe.anio + '</h3>' + R.htmlResumenInforme(informe) + '</div>';
+      if (informe.movimientos.length) {
+        html += '<details class="reg-detalles"><summary>Movimientos del año (' + informe.movimientos.length + ')</summary>' + R.htmlMovimientos(informe) + '</details>';
+      }
+    }
+    html += '<div class="reg-bloque"><h3>Borrador del informe</h3>';
+    if (b.faltantes.length) {
+      html += '<div class="tool-result is-visible is-warning" style="margin-top:0;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Faltan datos de la unidad: ' +
+        b.faltantes.map(R.esc).join(', ') + '. El borrador los marca como [PENDIENTE].</div>';
+    }
+    html += '<div class="tool-actions" style="margin-bottom:12px;">' +
+      '<button type="button" class="tool-btn-calc" data-accion="copiar"><svg class="zi" aria-hidden="true"><use href="#zi-copy"/></svg> Copiar borrador</button>' +
+      '<button type="button" class="tool-btn-reset" data-accion="txt"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Descargar .txt</button>' +
+      '<button type="button" class="tool-btn-reset" data-accion="csv-resumen"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Resumen .csv</button>' +
+      '<button type="button" class="tool-btn-reset" data-accion="csv-movimientos"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Movimientos .csv</button>' +
+      '</div>' +
+      '<div class="reg-borrador-caja"><pre class="reg-borrador" id="infBorrador" tabindex="0"></pre></div></div>';
+    html += '<div class="reg-bloque"><h3>Plazos de referencia (' + R.esc(R.FUENTE_PLAZOS) + ')</h3><ul class="reg-plazos">' +
+      R.PLAZOS_REFERENCIA.map((p) => '<li><strong>' + R.esc(p.t) + ':</strong> ' + R.esc(p.d) + '</li>').join('') + '</ul>' +
+      '<p class="reg-nota" style="margin-top:10px;">' + R.esc(R.AVISO_PLAZOS) + '</p></div>';
+    cont.innerHTML = html;
+    const pre = $('infBorrador');
+    if (pre) pre.textContent = b.texto;
+    pintarRecordatorio(rec);
+  }
+  function pintarRecordatorio(rec) {
+    const r = rec || R.recordatorioInforme(hoy());
+    const caja = $('infRecordatorio');
+    caja.className = 'reg-recordatorio' + (r.enPeriodo ? ' is-periodo' : '');
+    caja.innerHTML = '<svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg><div><p><strong>' + R.esc(r.texto) + '</strong></p><p>' + R.esc(r.aparte) + '</p></div>';
+  }
+
+  async function cargarInforme() {
+    if (!datos) return;
+    const anio = $('infAnio').value;
+    if (!anio) return;
+    const cont = $('infContenido');
+    const yo = ++informeSolicitud;
+    esperando(cont, 3);
+    try {
+      const resp = await ZOORIGEN_CLUB.apiFetch('/api/registro/informe?anio=' + encodeURIComponent(anio));
+      if (yo !== informeSolicitud) return;
+      informe = R.normalizarInforme(resp);
+      informeAnio = informe.anio;
+      pintarInforme();
+    } catch (err) {
+      if (yo !== informeSolicitud) return;
+      console.warn('registro informe:', err);
+      informe = null;
+      cont.innerHTML = R.htmlError(err && err.status === 0 ? R.TEXTOS.errorInforme : errorTexto(err, R.TEXTOS.errorInforme));
+    }
+  }
+
+  /* ───────── Eventos de la página ───────── */
+  function seleccionarTab(id) {
+    tabActual = id;
+    document.querySelectorAll('.tool-tab').forEach((t) => {
+      const activa = t.dataset.tab === id;
+      t.classList.toggle('is-active', activa);
+      t.setAttribute('aria-selected', activa ? 'true' : 'false');
+    });
+    document.querySelectorAll('.tool-panel[role="tabpanel"]').forEach((p) => p.classList.toggle('is-active', p.id === 'panel-' + id));
+    if (id === 'informe' && datos && (!informe || String(informeAnio) !== $('infAnio').value)) cargarInforme();
+    try { history.replaceState(null, '', '#' + id); } catch (e) { /* nada */ }
+  }
+  $('regTabs').addEventListener('click', (ev) => {
+    const t = ev.target.closest('.tool-tab');
+    if (t) seleccionarTab(t.dataset.tab);
+  });
+
+  $('invBuscar').addEventListener('input', () => { filtroInv.q = $('invBuscar').value; if (datos) pintarInventario(); });
+  $('invEstado').addEventListener('change', () => { filtroInv.estado = $('invEstado').value; if (datos) pintarInventario(); });
+  $('bitBuscar').addEventListener('input', () => { filtroBit.q = $('bitBuscar').value; if (datos) pintarBitacora(); });
+  $('bitTipo').addEventListener('change', () => { filtroBit.tipo = $('bitTipo').value; if (datos) pintarBitacora(); });
+  $('bitAnio').addEventListener('change', () => { filtroBit.anio = $('bitAnio').value; if (datos) pintarBitacora(); });
+  $('btnAgregar').addEventListener('click', () => { if (datos) abrirFormEjemplar(null); });
+  $('btnEvento').addEventListener('click', () => { if (datos) abrirFormEvento(null); });
+  $('btnCsvInventario').addEventListener('click', () => {
+    if (!datos || !datos.ejemplares.length) { aviso('Todavía no hay ejemplares para descargar.', true); return; }
+    descargar(R.nombreArchivo('inventario', '', 'csv'), R.csvInventario(datos.ejemplares), 'text/csv');
+  });
+  $('infAnio').addEventListener('change', cargarInforme);
+
+  // Datos de la unidad: se guardan al escribir y el borrador se rehace sin pedir nada al servidor
+  ['uniNombre', 'uniTipo', 'uniRegistro', 'uniUbicacion', 'uniResponsable', 'uniCedula', 'uniObs'].forEach((id) => {
+    $(id).addEventListener('input', () => { almacen.guardar(CLAVE_UNIDAD, leerUnidad()); pintarInforme(); });
+    $(id).addEventListener('change', () => { almacen.guardar(CLAVE_UNIDAD, leerUnidad()); pintarInforme(); });
+  });
+  $('btnLimpiarUnidad').addEventListener('click', () => {
+    almacen.borrar(CLAVE_UNIDAD);
+    ponerUnidad(UNIDAD_VACIA);
+    pintarInforme();
+    aviso('Se borraron los datos de la unidad de este navegador.');
+  });
+
+  // Botones dibujados dentro de las listas y del informe
+  document.addEventListener('click', (ev) => {
+    const reintentar = ev.target.closest('[data-reintentar]');
+    if (reintentar) { if (tabActual === 'informe' && datos) cargarInforme(); else cargar(); return; }
+    const b = ev.target.closest('[data-accion]');
+    if (!b || b.closest('.reg-modal')) return;
+    const accion = b.dataset.accion;
+    const id = b.dataset.id;
+    if (accion === 'agregar') { if (datos) abrirFormEjemplar(null); }
+    else if (accion === 'ficha') abrirFicha(id, b);
+    else if (accion === 'evento') abrirFormEvento(id);
+    else if (accion === 'borrar-evento') deshacerEvento(id);
+    else if (informe && accion === 'copiar') copiar(R.construirBorrador(informe, leerUnidad(), { hoy: hoy() }).texto);
+    else if (informe && accion === 'txt') descargar(R.nombreArchivo('informe', informe.anio, 'txt'), R.construirBorrador(informe, leerUnidad(), { hoy: hoy() }).texto, 'text/plain');
+    else if (informe && accion === 'csv-resumen') descargar(R.nombreArchivo('resumen', informe.anio, 'csv'), R.csvResumen(informe), 'text/csv');
+    else if (informe && accion === 'csv-movimientos') descargar(R.nombreArchivo('movimientos', informe.anio, 'csv'), R.csvMovimientos(informe), 'text/csv');
+  });
+
+  /* ───────── Arranque ───────── */
+  pintarRecordatorio();
+  const inicial = (location.hash || '').replace('#', '');
+  if (['inventario', 'bitacora', 'informe'].indexOf(inicial) >= 0) tabActual = inicial;
+  await cargar();
+  if (tabActual !== 'inventario') seleccionarTab(tabActual);
+})();
+</script>
+<script>
+  // ===== PWA: registro del service worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('SW no registrado:', err); });
+    });
+  }
+</script>
+</body>
+</html>
