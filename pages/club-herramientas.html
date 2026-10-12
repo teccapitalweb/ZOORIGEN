@@ -488,6 +488,23 @@
   .tool-ref__fuente { margin-top: 8px; font-size: .78rem; color: var(--zoo-text-muted); }
   .tool-ref__fuente a, .tool-subsection a { color: #1F7A4D; font-weight: 600; }
   .tool-result__intro { margin: 0 0 4px; font-size: .84rem; color: var(--zoo-text-muted); }
+  .const-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 14px; }
+  .const-card { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--zoo-border-strong, #2a3530); background: var(--zoo-bg-card, #fff); }
+  .const-card h3 { margin: 0 0 2px; font-family: 'Poppins', sans-serif; font-size: .95rem; color: var(--zoo-text); }
+  .const-card__grupo { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--zoo-text-dim); margin-bottom: 8px; }
+  .const-dato { padding: 7px 0; border-top: 1px solid var(--zoo-border, rgba(0,0,0,.08)); font-size: .84rem; }
+  .const-dato__campo { font-weight: 700; color: var(--zoo-text-muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; }
+  .const-dato__valor { color: var(--zoo-text); line-height: 1.45; }
+  .const-dato__nota { font-size: .74rem; color: #B27A06; }
+  .const-dato a { font-size: .74rem; color: #1F7A4D; font-weight: 600; }
+  .const-vacio { font-size: .82rem; color: var(--zoo-text-muted); font-style: italic; }
+  .anes-variante { margin-top: 12px; }
+  .anes-fila { padding: 10px 12px; border-radius: 10px; background: rgba(0,0,0,0.04); margin-top: 8px; }
+  .anes-fila__cab { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .anes-fila__conc { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: .8rem; color: var(--zoo-text-muted); }
+  .anes-fila__conc input { width: 110px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--zoo-border-strong, #ccc); background: #fff; color: #1a1d1b; }
+  .gas-tabla { width: 100%; border-collapse: collapse; font-size: .84rem; margin-top: 6px; }
+  .gas-tabla th, .gas-tabla td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--zoo-border, rgba(0,0,0,.1)); }
 </style>
 </head>
 <body>
@@ -500,10 +517,10 @@
     <div class="tools-hero">
       <span class="tools-hero__badge"><svg class="zi" aria-hidden="true"><use href="#zi-dna"/></svg> HERRAMIENTA PROFESIONAL</span>
       <h1>Clínica &amp; Farmacología de Fauna Silvestre</h1>
-      <p>Referencia ultra profesional para médicos veterinarios zoológicos y biólogos de campo. Protocolos basados en literatura especializada (Fowler's Zoo Medicine, West et al., Carpenter's Exotic Formulary).</p>
+      <p>Referencia para médicos veterinarios zoológicos y biólogos de campo. Cada dosis, protocolo y dato trae el enlace a la fuente abierta de donde se tomó (Manual Veterinario Merck, guías AAHA y RECOVER, FDA, artículos de PubMed). Lo que no se pudo verificar no aparece.</p>
       <div class="tools-hero__stats">
         <div class="tools-hero__stat"><span class="tools-hero__stat-num" id="statFarmacos">40+</span><span class="tools-hero__stat-lbl">fármacos</span></div>
-        <div class="tools-hero__stat"><span class="tools-hero__stat-num">12</span><span class="tools-hero__stat-lbl">protocolos anestésicos</span></div>
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num" id="statProtocolos">6</span><span class="tools-hero__stat-lbl">protocolos anestésicos</span></div>
         <div class="tools-hero__stat"><span class="tools-hero__stat-num" id="statEspecies">60+</span><span class="tools-hero__stat-lbl">especies</span></div>
         <div class="tools-hero__stat"><span class="tools-hero__stat-num">8</span><span class="tools-hero__stat-lbl">protocolos de urgencia</span></div>
       </div>
@@ -590,32 +607,39 @@
       <div class="tool-header">
         <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg></div>
         <div class="tool-header__text">
-          <h2>Protocolos anestésicos</h2>
-          <p>12 protocolos · Pre-anestesia · Inducción · Mantenimiento · Reversión</p>
+          <h2>Protocolos anestésicos con fuente</h2>
+          <p>Dosis publicadas por especie · Reversión · Anestesia inhalada</p>
         </div>
-        <div class="tool-header__count">12 protocolos</div>
+        <div class="tool-header__count" id="countProto">6 protocolos</div>
       </div>
 
       <div class="tool-form">
         <div class="tool-field">
           <label>Protocolo</label>
-          <select id="anesProto"></select>
+          <select id="anesProto" onchange="actualizarVariantes()"></select>
+        </div>
+        <div class="tool-field">
+          <label>Especie o variante publicada</label>
+          <select id="anesVariante"></select>
         </div>
         <div class="tool-field">
           <label>Peso (kg)</label>
           <input type="text" inputmode="decimal" autocomplete="off" id="anesPeso" placeholder="25">
         </div>
       </div>
+      <p class="tool-result__intro" id="anesResumen"></p>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularAnestesia()"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> Calcular protocolo completo</button>
+        <button class="tool-btn-calc" onclick="calcularAnestesia()"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> Calcular dosis</button>
         <button class="tool-btn-reset" onclick="resetearForm('anestesia')">Limpiar</button>
       </div>
 
       <div class="tool-result" id="anesResult"></div>
 
+      <div class="tool-subsection" id="anesGases"></div>
+
       <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Seguridad anestésica:</strong> Siempre verificar previamente: oxígeno disponible, antagonistas calculados, vía IV permeable, monitor multiparamétrico (SpO₂, ECG, capnografía, Temp), fluidoterapia de base, tubos endotraqueales varios calibres. Monitorear cada 5 min. Vigilar hipotermia (especialmente en aves/reptiles).
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Seguridad anestésica:</strong> verifica antes oxígeno disponible, antagonistas calculados, acceso venoso y monitoreo. Las dosis son las publicadas para esa especie y esa combinación: no se extrapolan a otras especies. Escribe la concentración real de tu frasco para ver el volumen.
       </div>
     </div>
 
@@ -624,16 +648,17 @@
       <div class="tool-header">
         <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg></div>
         <div class="tool-header__text">
-          <h2>Fluidoterapia avanzada</h2>
-          <p>Cálculo por tipo de paciente · Cristaloides · Coloides · Electrolitos</p>
+          <h2>Fluidoterapia</h2>
+          <p>Guías AAHA 2024 (perro y gato) · Aves · Reptiles · Velocidad en ml/h y gotas por minuto</p>
         </div>
       </div>
 
       <div class="tool-form">
         <div class="tool-field">
-          <label>Grupo zoológico</label>
+          <label>Especie</label>
           <select id="fluidsGroup">
-            <option value="mamiferos">Mamíferos</option>
+            <option value="perro">Perro</option>
+            <option value="gato">Gato</option>
             <option value="aves">Aves</option>
             <option value="reptiles">Reptiles</option>
           </select>
@@ -643,31 +668,33 @@
           <input type="text" inputmode="decimal" autocomplete="off" id="fluidsPeso" placeholder="5">
         </div>
         <div class="tool-field">
-          <label>Tipo de paciente</label>
+          <label>Situación</label>
           <select id="fluidsTipo">
-            <option value="normal">Mantenimiento normal</option>
+            <option value="normal">Mantenimiento</option>
             <option value="desh">Deshidratación</option>
             <option value="shock">Shock hipovolémico</option>
-            <option value="cirugia">Cirugía / intraoperatorio</option>
-            <option value="quemado">Quemaduras (fórmula Parkland)</option>
-            <option value="gastro">Vómito / diarrea activa</option>
+            <option value="cirugia">Cirugía (intraoperatorio)</option>
+            <option value="quemado">Quemaduras (fórmula de Parkland)</option>
+            <option value="gastro">Vómito o diarrea activa</option>
           </select>
         </div>
         <div class="tool-field" id="fluidsDeshWrap" style="display:none;">
-          <label>% Deshidratación</label>
+          <label>% de deshidratación</label>
           <select id="fluidsDesh">
-            <option value="5">5% — leve (mucosas secas)</option>
-            <option value="7">7% — moderada (turgor ↓)</option>
-            <option value="10" selected>10% — severa (ojos hundidos)</option>
-            <option value="12">12% — crítica (shock inminente)</option>
+            <option value="5">5 %</option>
+            <option value="6">6 %</option>
+            <option value="7">7 %</option>
+            <option value="8">8 %</option>
+            <option value="10" selected>10 %</option>
+            <option value="12">12 %</option>
           </select>
         </div>
         <div class="tool-field" id="fluidsQuemWrap" style="display:none;">
-          <label>% Superficie quemada</label>
+          <label>% de superficie quemada</label>
           <input type="text" inputmode="decimal" autocomplete="off" id="fluidsQuem" placeholder="20">
         </div>
         <div class="tool-field">
-          <label>Pérdidas extra ml/día</label>
+          <label>Pérdidas extra (ml/día)</label>
           <input type="text" inputmode="decimal" autocomplete="off" id="fluidsPerd" value="0" placeholder="0">
         </div>
         <div class="tool-field">
@@ -676,19 +703,20 @@
             <option value="20">Normal (20 gtt/ml)</option>
             <option value="60">Microgotero (60 gtt/ml)</option>
             <option value="15">Macrogotero (15 gtt/ml)</option>
+            <option value="10">Macrogotero (10 gtt/ml)</option>
           </select>
         </div>
       </div>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularFluidos()"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> Calcular plan fluidos</button>
+        <button class="tool-btn-calc" onclick="calcularFluidos()"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> Calcular plan de fluidos</button>
         <button class="tool-btn-reset" onclick="resetearForm('fluidos')">Limpiar</button>
       </div>
 
       <div class="tool-result" id="fluidsResult"></div>
 
       <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Selección de fluido:</strong> Ringer Lactato (1ª elección en shock y mantenimiento), Sol. Salina 0.9% (alcalosis metabólica, hipercalemia), Dextrosa 5% (hipoglucemia, NO resuscitación), Coloides/Hetastarch 10-20 ml/kg (shock refractario). En reptiles usar fluidos tibios a 25-28°C para evitar hipotermia.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Alcance:</strong> las cifras de perro y gato son las de las guías AAHA 2024 de fluidoterapia; en aves y reptiles son de memorias de medicina de exóticos y del Manual Merck. Donde no hay un valor verificado (por ejemplo, el bolo de shock en reptiles) la herramienta no calcula nada. El tipo de fluido y los electrolitos los decide el médico según el caso.
       </div>
     </div>
 
@@ -697,34 +725,24 @@
       <div class="tool-header">
         <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-thermometer"/></svg></div>
         <div class="tool-header__text">
-          <h2>Constantes fisiológicas por especie</h2>
-          <p>FC · FR · Temp · PA · Gestación · Esperanza de vida</p>
+          <h2>Constantes fisiológicas y reproductivas</h2>
+          <p>Solo datos con fuente · Frecuencias, temperatura, gestación y longevidad</p>
         </div>
-        <div class="tool-header__count" id="countConst">60+ especies</div>
+        <div class="tool-header__count" id="countConst">50 especies</div>
+      </div>
+
+      <div class="tool-aviso-global" role="note" style="margin-top:0;">
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Léelo así:</strong> casi no existen valores basales publicados para fauna silvestre despierta. Las frecuencias y temperaturas que se encontraron se midieron en pacientes bajo anestesia o restricción química y así se indica. Si una especie no muestra un dato es porque no se halló una fuente abierta confiable.
       </div>
 
       <div class="tool-search-filter">
         <input type="text" id="speciesFilter" placeholder="Buscar por nombre común, científico o grupo..." oninput="filtrarEspecies()">
       </div>
 
-      <div class="tool-table-wrap">
-        <table class="tool-table" id="constTable">
-          <thead>
-            <tr>
-              <th>Especie</th>
-              <th>FC (lpm)</th>
-              <th>FR (rpm)</th>
-              <th>Temp (°C)</th>
-              <th>Gestación</th>
-              <th>Longevidad</th>
-            </tr>
-          </thead>
-          <tbody id="constTbody"></tbody>
-        </table>
-      </div>
+      <div class="const-grid" id="constGrid"></div>
 
       <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Interpretación clínica:</strong> Valores en reposo y animales sanos. En manejo/contención los valores se elevan 20-40% (estrés). Anestesia baja FC 20-40%. Reptiles son ectotermos: su FC depende del ambiente (ºC/min). Valores ±10-15% aceptables por diferencias individuales.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Fuentes:</strong> Animal Diversity Web (gestación y longevidad), Manual Veterinario Merck y artículos publicados; cada dato lleva su enlace. La longevidad distingue vida silvestre y cautiverio cuando la fuente lo hace.
       </div>
     </div>
 
@@ -770,51 +788,33 @@
       <div class="tool-header">
         <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg></div>
         <div class="tool-header__text">
-          <h2>BCS · Body Condition Score</h2>
-          <p>Escala 1-9 · Evaluación anatómica · Peso ideal estimado</p>
+          <h2>Condición corporal (escala de 9 puntos)</h2>
+          <p>Escala 1 a 9 · Equivalencia en grasa corporal por punto</p>
         </div>
       </div>
 
-      <div class="tool-form">
-        <div class="tool-field">
-          <label>Grupo taxonómico</label>
-          <select id="bcsGroup">
-            <option value="felino">Felinos</option>
-            <option value="canido">Cánidos</option>
-            <option value="primate">Primates</option>
-            <option value="ungulado">Ungulados</option>
-            <option value="ave">Aves (rapaces, psitácidos, gallináceas)</option>
-            <option value="reptil">Reptiles</option>
-          </select>
-        </div>
-        <div class="tool-field">
-          <label>Peso actual (kg)</label>
-          <input type="text" inputmode="decimal" autocomplete="off" id="bcsPesoActual" placeholder="15">
-        </div>
-      </div>
-
-      <div style="margin:16px 0 10px;color:var(--zoo-text-muted);font-size:.85rem;font-weight:600;">Selecciona el BCS observado (1-9):</div>
+      <div style="margin:4px 0 10px;color:var(--zoo-text-muted);font-size:.85rem;font-weight:600;">Selecciona la condición corporal observada (1 a 9):</div>
       <div class="bcs-scale">
-        <div class="bcs-item" data-bcs="1"><div class="bcs-item__num">1</div><div class="bcs-item__label">Caquéctico</div></div>
-        <div class="bcs-item" data-bcs="2"><div class="bcs-item__num">2</div><div class="bcs-item__label">Muy delgado</div></div>
-        <div class="bcs-item" data-bcs="3"><div class="bcs-item__num">3</div><div class="bcs-item__label">Delgado</div></div>
-        <div class="bcs-item" data-bcs="4"><div class="bcs-item__num">4</div><div class="bcs-item__label">Bajo ideal</div></div>
-        <div class="bcs-item is-selected" data-bcs="5"><div class="bcs-item__num">5</div><div class="bcs-item__label">Ideal</div></div>
-        <div class="bcs-item" data-bcs="6"><div class="bcs-item__num">6</div><div class="bcs-item__label">Sobre ideal</div></div>
-        <div class="bcs-item" data-bcs="7"><div class="bcs-item__num">7</div><div class="bcs-item__label">Sobrepeso</div></div>
-        <div class="bcs-item" data-bcs="8"><div class="bcs-item__num">8</div><div class="bcs-item__label">Obeso</div></div>
-        <div class="bcs-item" data-bcs="9"><div class="bcs-item__num">9</div><div class="bcs-item__label">Obeso severo</div></div>
+        <div class="bcs-item" data-bcs="1"><div class="bcs-item__num">1</div><div class="bcs-item__label">Muy delgado</div></div>
+        <div class="bcs-item" data-bcs="2"><div class="bcs-item__num">2</div><div class="bcs-item__label"></div></div>
+        <div class="bcs-item" data-bcs="3"><div class="bcs-item__num">3</div><div class="bcs-item__label"></div></div>
+        <div class="bcs-item" data-bcs="4"><div class="bcs-item__num">4</div><div class="bcs-item__label"></div></div>
+        <div class="bcs-item is-selected" data-bcs="5"><div class="bcs-item__num">5</div><div class="bcs-item__label">Referencia ideal</div></div>
+        <div class="bcs-item" data-bcs="6"><div class="bcs-item__num">6</div><div class="bcs-item__label"></div></div>
+        <div class="bcs-item" data-bcs="7"><div class="bcs-item__num">7</div><div class="bcs-item__label"></div></div>
+        <div class="bcs-item" data-bcs="8"><div class="bcs-item__num">8</div><div class="bcs-item__label"></div></div>
+        <div class="bcs-item" data-bcs="9"><div class="bcs-item__num">9</div><div class="bcs-item__label">Obeso</div></div>
       </div>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularBCS()"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg> Evaluar condición</button>
+        <button class="tool-btn-calc" onclick="calcularBCS()"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg> Ver equivalencia</button>
         <button class="tool-btn-reset" onclick="resetearForm('bcs')">Limpiar</button>
       </div>
 
       <div class="tool-result" id="bcsResult"></div>
 
       <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Sobre el BCS:</strong> La escala de 9 puntos está validada en perros y gatos. En otros mamíferos, aves y reptiles es solo una guía; usa también la escala propia de la especie. El peso ideal es una estimación (cada punto por encima o por debajo de 5 equivale a cerca de 10% de peso) y no sustituye la valoración clínica.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Sobre el BCS:</strong> la escala de 9 puntos se validó en perros y gatos. En otras especies es solo una guía y conviene usar la escala propia de la especie. Para describir cada punto usa las tablas de condición corporal de la WSAVA; aquí solo se muestra la equivalencia en grasa que respalda la Universidad de Guelph.
       </div>
     </div>
 
@@ -824,7 +824,7 @@
         <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg></div>
         <div class="tool-header__text">
           <h2>Protocolos de urgencia</h2>
-          <p>RCP · Shock · Convulsiones · Envenenamiento · Hipotermia · Anafilaxia</p>
+          <p>RCP · Shock · Convulsiones · Envenenamiento · Hipotermia · Anafilaxia · con fuentes citadas</p>
         </div>
         <div class="tool-header__count">8 protocolos</div>
       </div>
@@ -844,9 +844,10 @@
           </select>
         </div>
         <div class="tool-field">
-          <label>Grupo zoológico</label>
+          <label>Especie</label>
           <select id="urgGrupo">
-            <option value="mamiferos">Mamíferos</option>
+            <option value="perro">Perro</option>
+            <option value="gato">Gato</option>
             <option value="aves">Aves</option>
             <option value="reptiles">Reptiles</option>
           </select>
@@ -879,6 +880,8 @@
   <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/herramientas-dosis.js?v=20261030-dosis"></script>
+  <script src="../assets/js/herramientas-protocolos.js?v=20261030-protocolos"></script>
+  <script src="../assets/js/herramientas-constantes.js?v=20261030-constantes"></script>
   <script src="../assets/js/herramientas-calculos.js?v=20261030-calculos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
 <script>
@@ -950,6 +953,8 @@
   poner('statEspecies', String(CONSTANTES.length));
   poner('countConst', CONSTANTES.length + ' especies');
   poner('countHemo', HEMOGRAMA.length + ' especies');
+  poner('statProtocolos', String(Object.keys(PROTO).length));
+  poner('countProto', Object.keys(PROTO).length + ' protocolos');
   // Al abrir, el selector de % de deshidratación sigue al tipo elegido
   document.getElementById('fluidsTipo').dispatchEvent(new Event('change'));
 })();
@@ -1005,243 +1010,81 @@ function calcularDosis() {
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ═══════════════ PROTOCOLOS ANESTÉSICOS (12) ═══════════════
-const PROTOCOLOS = {
-  ktm: {
-    nombre: 'Ketamina + Medetomidina (carnívoros)',
-    uso: 'Felinos pequeños-medianos, cánidos silvestres, mustélidos',
-    componentes: [
-      { nombre: 'Atropina (pre-anestesia)', dosis: 0.02, conc: 1, via: 'IM', paso: 1 },
-      { nombre: 'Ketamina', dosis: 5, conc: 100, via: 'IM', paso: 2 },
-      { nombre: 'Medetomidina', dosis: 0.05, conc: 1, via: 'IM', paso: 2 }
-    ],
-    induccion: '8-15 min',
-    duracion: '30-60 min',
-    reversion: 'Atipamezol 0.25 mg/kg IM (5x dosis medetomidina)',
-    monitoreo: 'SpO₂ cada 5 min, Temp cada 10 min, FC continua',
-    complic: 'Bradicardia (responde a atropina), hipotermia en hembras lactantes',
-    nota: 'Protocolo clásico probado en felinos silvestres. Iniciar pre-anestesia atropina 10 min antes.'
-  },
-  bam: {
-    nombre: 'BAM (Butorfanol + Azaperona + Medetomidina)',
-    uso: 'Ungulados silvestres (venados, berrendos, bisonte, antilope)',
-    componentes: [
-      { nombre: 'Butorfanol', dosis: 0.27, conc: 10, via: 'IM dardo', paso: 1 },
-      { nombre: 'Azaperona', dosis: 0.27, conc: 40, via: 'IM dardo', paso: 1 },
-      { nombre: 'Medetomidina', dosis: 0.11, conc: 10, via: 'IM dardo', paso: 1 }
-    ],
-    induccion: '5-10 min',
-    duracion: '45-90 min',
-    reversion: 'Atipamezol 0.55 mg/kg + Naltrexona 0.27 mg/kg IM',
-    monitoreo: 'SpO₂, capnografía, ECG. Riesgo de timpanismo en rumiantes.',
-    complic: 'Regurgitación, timpanismo ruminal, hipoxemia. Mantener decúbito esternal.',
-    nota: 'Patentado para rumiantes silvestres. Volumen reducido, ideal para dardos.'
-  },
-  tkx: {
-    nombre: 'TKX (Telazol + Ketamina + Xilacina)',
-    uso: 'Felinos grandes (puma, jaguar), cánidos grandes, úrsidos pequeños',
-    componentes: [
-      { nombre: 'Telazol (Tiletamina+Zolazepam)', dosis: 3, conc: 100, via: 'IM', paso: 1 },
-      { nombre: 'Ketamina', dosis: 2, conc: 100, via: 'IM', paso: 1 },
-      { nombre: 'Xilacina', dosis: 1, conc: 100, via: 'IM', paso: 1 }
-    ],
-    induccion: '5-12 min',
-    duracion: '60-90 min',
-    reversion: 'Yohimbina 0.1 mg/kg IV para xilacina · Telazol NO tiene antagonista',
-    monitoreo: 'Continuo. Riesgo alto de depresión respiratoria.',
-    complic: 'Depresión respiratoria severa, hipotensión, recuperación prolongada',
-    nota: 'Volumen muy bajo ideal para fauna grande con dardo. Tener O₂ + IPPV disponibles.'
-  },
-  kd: {
-    nombre: 'Ketamina + Diazepam',
-    uso: 'Primates, mustélidos pequeños, carnívoros en santuario',
-    componentes: [
-      { nombre: 'Ketamina', dosis: 10, conc: 100, via: 'IV', paso: 1 },
-      { nombre: 'Diazepam', dosis: 0.25, conc: 5, via: 'IV', paso: 1 }
-    ],
-    induccion: '3-8 min IV',
-    duracion: '20-40 min',
-    reversion: 'Flumazenil 0.02 mg/kg IV (si necesario)',
-    monitoreo: 'SpO₂, Temp, FC cada 5 min',
-    complic: 'Mínima. Apnea transitoria al inducir IV rápida.',
-    nota: 'Ideal para procedimientos cortos. Primates no humanos: excelente estabilidad cardiovascular.'
-  },
-  kdm: {
-    nombre: 'Ketamina + Dexmedetomidina (pequeños)',
-    uso: 'Felinos domésticos/silvestres pequeños, mustélidos',
-    componentes: [
-      { nombre: 'Ketamina', dosis: 3, conc: 100, via: 'IM', paso: 1 },
-      { nombre: 'Dexmedetomidina', dosis: 0.015, conc: 0.5, via: 'IM', paso: 1 }
-    ],
-    induccion: '5-10 min',
-    duracion: '30-45 min',
-    reversion: 'Atipamezol 0.15 mg/kg IM (10x dexmedetomidina)',
-    monitoreo: 'SpO₂, FC (bradicardia esperada), Temp',
-    complic: 'Bradicardia, hipotermia',
-    nota: 'Protocolo moderno, menor volumen, mejor recuperación que KTM clásico.'
-  },
-  iso: {
-    nombre: 'Isoflurano (máscara + tubo)',
-    uso: 'Aves, reptiles pequeños, procedimientos largos',
-    componentes: [
-      { nombre: 'Inducción en cámara/máscara', dosis: 5, conc: 0, via: '% vaporizador', paso: 1 },
-      { nombre: 'Mantenimiento', dosis: 2, conc: 0, via: '% vaporizador', paso: 2 }
-    ],
-    induccion: '3-8 min',
-    duracion: 'Controlable',
-    reversion: 'Suspender vaporizador + O₂ 100% 5-10 min',
-    monitoreo: 'Capnografía (ideal), SpO₂, Temp, ECG',
-    complic: 'Hipotermia (especialmente aves y reptiles), hipotensión dosis-dependiente',
-    nota: 'Gold standard en aves y reptiles. Requiere vaporizador calibrado, O₂ y sistema de rebreathing apropiado (aves: sin válvulas unidireccionales).'
-  },
-  sevo: {
-    nombre: 'Sevoflurano (alternativa isoflurano)',
-    uso: 'Cardiópatas, geriátricos, pediátricos',
-    componentes: [
-      { nombre: 'Inducción', dosis: 6, conc: 0, via: '% vaporizador', paso: 1 },
-      { nombre: 'Mantenimiento', dosis: 2.5, conc: 0, via: '% vaporizador', paso: 2 }
-    ],
-    induccion: '2-5 min (más rápida que iso)',
-    duracion: 'Controlable',
-    reversion: 'Suspender vaporizador + O₂',
-    monitoreo: 'Capnografía, SpO₂',
-    complic: 'Menos depresión cardiovascular que iso. Más caro.',
-    nota: 'Preferible en pacientes comprometidos. Menor irritación vías aéreas.'
-  },
-  propofol: {
-    nombre: 'Propofol (inducción IV)',
-    uso: 'Inducción IV + mantenimiento con inhalatorio, procedimientos cortos',
-    componentes: [
-      { nombre: 'Propofol', dosis: 4, conc: 10, via: 'IV lenta', paso: 1 }
-    ],
-    induccion: '30-60 seg IV',
-    duracion: '5-10 min por bolo · CRI 0.2-0.4 mg/kg/min',
-    reversion: 'No necesita (metabolismo rápido)',
-    monitoreo: 'Apnea post-inducción (esperable), SpO₂, presión arterial',
-    complic: 'Apnea, hipotensión. NO repetir bolos en gatos (Heinz bodies)',
-    nota: 'Ideal para inducción seguida de intubación. CRI estable cardiovascularmente.'
-  },
-  alfaxalona: {
-    nombre: 'Alfaxalona (inducción IV)',
-    uso: 'Alternativa al propofol. Felinos (sin bodies Heinz), aves, reptiles',
-    componentes: [
-      { nombre: 'Alfaxalona', dosis: 2, conc: 10, via: 'IV lenta', paso: 1 }
-    ],
-    induccion: '30-90 seg IV',
-    duracion: '10-15 min',
-    reversion: 'No antagonista',
-    monitoreo: 'SpO₂, Temp',
-    complic: 'Apnea leve, tremores al despertar',
-    nota: 'Excelente seguridad cardiovascular. Segura en múltiples dosis y felinos.'
-  },
-  aves_mmk: {
-    nombre: 'Aves: Midazolam + Medetomidina + Ketamina',
-    uso: 'Psitácidos, rapaces, aves acuáticas',
-    componentes: [
-      { nombre: 'Midazolam', dosis: 1, conc: 5, via: 'IM pectoral', paso: 1 },
-      { nombre: 'Medetomidina', dosis: 0.1, conc: 1, via: 'IM pectoral', paso: 1 },
-      { nombre: 'Ketamina', dosis: 5, conc: 100, via: 'IM pectoral', paso: 1 }
-    ],
-    induccion: '5-10 min',
-    duracion: '30-45 min',
-    reversion: 'Atipamezol 0.5 mg/kg IM + Flumazenil 0.1 mg/kg IM si necesario',
-    monitoreo: 'Capnografía esencial, Temp (calentar activamente), SpO₂',
-    complic: 'Hipotermia severa, regurgitación (ayuno 4-6h previo)',
-    nota: 'Combinación balanceada para intervenciones en aves. Volumen total calculado.'
-  },
-  reptiles_mk: {
-    nombre: 'Reptiles: Medetomidina + Ketamina',
-    uso: 'Iguanas, tortugas, serpientes grandes',
-    componentes: [
-      { nombre: 'Medetomidina', dosis: 0.1, conc: 1, via: 'IM muslo/cola', paso: 1 },
-      { nombre: 'Ketamina', dosis: 10, conc: 100, via: 'IM muslo/cola', paso: 1 }
-    ],
-    induccion: '15-30 min (dependiente de Tº)',
-    duracion: '60-120 min',
-    reversion: 'Atipamezol 0.5 mg/kg IM',
-    monitoreo: 'Reflejo corneal, Doppler, Temp ambiente (28-30°C)',
-    complic: 'Recuperación muy prolongada si Tº baja. IPPV durante procedimiento.',
-    nota: 'Mantener temperatura óptima (POTZ) durante todo el procedimiento y recuperación. IPPV 4-6 resp/min.'
-  },
-  rapaces: {
-    nombre: 'Rapaces: Isoflurano con máscara',
-    uso: 'Halcones, águilas, búhos — exámenes rutinarios',
-    componentes: [
-      { nombre: 'Pre-medicación: Butorfanol', dosis: 2, conc: 10, via: 'IM pectoral', paso: 1 },
-      { nombre: 'Inducción isoflurano máscara', dosis: 4, conc: 0, via: '% vapor', paso: 2 },
-      { nombre: 'Mantenimiento', dosis: 1.8, conc: 0, via: '% vapor', paso: 3 }
-    ],
-    induccion: '2-4 min',
-    duracion: 'Controlable',
-    reversion: 'Suspender vaporizador',
-    monitoreo: 'SpO₂ en lengua o pliegue alar. Temp rectal.',
-    complic: 'Hipotermia rápida, apnea',
-    nota: 'Premedicar con butorfanol reduce requerimiento anestésico y da analgesia multimodal.'
-  }
-};
+// ═══════════════ PROTOCOLOS ANESTÉSICOS (solo dosis publicadas · assets/js/herramientas-protocolos.js) ═══════════════
+const PROTO = ZOO_PROTOCOLOS.PROTOCOLOS;
 
 function renderProtocolos() {
   const sel = document.getElementById('anesProto');
-  sel.innerHTML = Object.entries(PROTOCOLOS).map(([k, v]) => `<option value="${k}">${v.nombre}</option>`).join('');
+  sel.innerHTML = Object.entries(PROTO).map(([k, p]) => `<option value="${k}">${ZOO_CALCULOS.esc(p.nombre)}</option>`).join('');
+  actualizarVariantes();
+  renderGases();
 }
 
+function actualizarVariantes() {
+  const p = PROTO[document.getElementById('anesProto').value];
+  const sel = document.getElementById('anesVariante');
+  sel.innerHTML = p.variantes.map((v, i) => `<option value="${i}">${ZOO_CALCULOS.esc(v.especie)}</option>`).join('');
+  document.getElementById('anesResumen').textContent = p.resumen || '';
+  document.getElementById('anesResult').className = 'tool-result';
+}
+
+function renderGases() {
+  const C = ZOO_CALCULOS, G = ZOO_PROTOCOLOS.GASES;
+  let html = '<div class="tool-subsection__title">' + '<svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Anestesia inhalada: porcentajes publicados</div>';
+  Object.values(G).forEach(g => {
+    html += `<table class="gas-tabla"><thead><tr><th>${C.esc(g.nombre)}</th><th>Inducción</th><th>Mantenimiento</th><th>Fuente</th></tr></thead><tbody>${
+      g.filas.map(x => `<tr><td>${C.esc(x.grupo)}</td><td>${C.esc(x.induccion)}</td><td>${C.esc(x.mantenimiento)}</td><td><a href="${C.esc(x.f.url)}" target="_blank" rel="noopener noreferrer">${C.esc(x.f.fuente)}</a></td></tr>`).join('')}</tbody></table>`;
+  });
+  html += '<p class="tool-result__intro" style="margin-top:8px;">No dependen del peso. El porcentaje real se ajusta según la respuesta del paciente y el vaporizador usado.</p>';
+  document.getElementById('anesGases').innerHTML = html;
+}
+
+let _anesCtx = null;
 function calcularAnestesia() {
   const C = ZOO_CALCULOS;
-  const proto = document.getElementById('anesProto').value;
-  const peso = C.leerNumero(document.getElementById('anesPeso').value);
   const rEl = document.getElementById('anesResult');
-  const p = PROTOCOLOS[proto];
-  const r = C.anestesia(p, peso);
+  const p = PROTO[document.getElementById('anesProto').value];
+  const v = p.variantes[Number(document.getElementById('anesVariante').value)];
+  const peso = C.leerNumero(document.getElementById('anesPeso').value);
+  const r = C.anestesia(v, peso, null);
   if (r.error) { showErr(rEl, C.esc(r.error)); return; }
+  _anesCtx = { v, peso };
 
-  let componentesHtml = '';
-  let hayPequenos = false;
-  r.filas.forEach(c => {
-    if (c.calculada) {
-      if (c.volumenPequeno) hayPequenos = true;
-      componentesHtml += `
-        <div class="tool-result__row">
-          <span class="tool-result__row-label">${C.esc(c.nombre)} (${C.fmt(c.dosisPorKg)} mg/kg, ${C.fmt(c.conc)} mg/ml, ${C.esc(c.via)})</span>
-          <span class="tool-result__row-value">${C.fmt(c.mg)} mg · ${C.fmt(c.ml)} ml</span>
-        </div>`;
-    } else {
-      componentesHtml += `
-        <div class="tool-result__row">
-          <span class="tool-result__row-label">${C.esc(c.nombre)} (${C.esc(c.via)})</span>
-          <span class="tool-result__row-value">${C.esc(c.texto)}${typeof c.texto === 'number' ? '%' : ''}</span>
-        </div>`;
-    }
+  let html = `<div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> ${C.esc(p.nombre)} · ${C.esc(v.especie)} · ${C.fmt(peso)} kg</div>`;
+  html += '<p class="tool-result__intro">Dosis publicadas para esa especie. Escribe la concentración de tu frasco (mg/ml) para ver el volumen.</p>';
+  r.filas.forEach((x, i) => {
+    const dosis = x.mismoValor ? C.fmt(x.max) : C.fmt(x.min) + ' a ' + C.fmt(x.max);
+    const mg = x.mismoValor ? C.fmt(x.mgMax) : C.fmt(x.mgMin) + ' a ' + C.fmt(x.mgMax);
+    html += `
+    <div class="anes-fila">
+      <div class="anes-fila__cab"><strong>${C.esc(x.nombre)}</strong><span>${dosis} mg/kg · ${C.esc(x.via)}</span></div>
+      <div class="tool-result__rows"><div class="tool-result__row"><span class="tool-result__row-label">Cantidad total</span><span class="tool-result__row-value">${mg} mg</span></div></div>
+      <div class="anes-fila__conc"><label for="anesConc${i}">Concentración del frasco</label><input type="text" inputmode="decimal" autocomplete="off" id="anesConc${i}" placeholder="mg/ml" oninput="actualizarMlAnestesia()"> mg/ml <strong id="anesMl${i}" style="margin-left:auto;color:#B27A06;"></strong></div>
+      <div class="tool-ref__fuente">Fuente: <a href="${C.esc(x.url)}" target="_blank" rel="noopener noreferrer">${C.esc(x.fuente)}</a></div>
+    </div>`;
   });
-
-  rEl.innerHTML = `
-    <div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> ${p.nombre} · ${C.fmt(peso)} kg</div>
-    ${hayPequenos ? '<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> <strong>Hay volúmenes menores a 0.1 ml.</strong> Son difíciles de medir con exactitud: diluye el fármaco o usa jeringa de insulina.</div>' : ''}
-    <div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Las concentraciones mostradas son las comerciales más comunes. Si tu frasco tiene otra concentración, recalcula ese fármaco en la calculadora de dosis.</div>
-    <div style="margin-bottom:10px;color:var(--zoo-text-muted);font-size:.85rem;"><strong style="color:#E8A317;">Uso:</strong> ${p.uso}</div>
-    <div class="tool-result__rows">
-      ${componentesHtml}
-      <div class="tool-result__row"><span class="tool-result__row-label">Tiempo de inducción</span><span class="tool-result__row-value">${p.induccion}</span></div>
-      <div class="tool-result__row"><span class="tool-result__row-label">Duración estimada</span><span class="tool-result__row-value">${p.duracion}</span></div>
-    </div>
-    <div class="tool-subsection">
-      <div class="tool-subsection__title" style="color:#6FBF73;"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Reversión</div>
-      <p style="margin:0;color:var(--zoo-text);">${p.reversion}</p>
-    </div>
-    <div class="tool-subsection">
-      <div class="tool-subsection__title" style="color:#2AA4D5;"><svg class="zi" aria-hidden="true"><use href="#zi-chart-column"/></svg> Monitoreo</div>
-      <p style="margin:0;color:var(--zoo-text);">${p.monitoreo}</p>
-    </div>
-    <div class="tool-subsection" style="border-left-color:#D55A28;">
-      <div class="tool-subsection__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Complicaciones comunes</div>
-      <p style="margin:0;color:var(--zoo-text);">${p.complic}</p>
-    </div>
-    <div class="tool-result__note">${p.nota}</div>
-  `;
+  html += `<div class="tool-subsection"><div class="tool-subsection__title" style="color:#6FBF73;"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Reversión</div><p style="margin:0;color:var(--zoo-text);">${C.esc(p.reversion)} <a href="${C.esc(p.reversionFuente.url)}" target="_blank" rel="noopener noreferrer">${C.esc(p.reversionFuente.fuente)}</a></p></div>`;
+  html += `<div class="tool-result__note">Dosis de referencia publicadas, revisadas el ${ZOO_PROTOCOLOS.FECHA_REVISION}. No sustituyen el criterio del médico veterinario: confirma dosis, vía y concentración antes de aplicar.</div>`;
+  rEl.innerHTML = html;
   rEl.className = 'tool-result is-visible';
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ═══════════════ FLUIDOTERAPIA AVANZADA ═══════════════
+// Muestra los ml sin volver a dibujar la lista (así no se pierde el cursor al escribir)
+function actualizarMlAnestesia() {
+  if (!_anesCtx) return;
+  const C = ZOO_CALCULOS;
+  const concs = _anesCtx.v.componentes.map((_, i) => C.leerNumero(document.getElementById('anesConc' + i).value));
+  const r = C.anestesia(_anesCtx.v, _anesCtx.peso, concs);
+  r.filas.forEach((x, i) => {
+    const el = document.getElementById('anesMl' + i);
+    if (!el) return;
+    if (x.mlMax == null) { el.textContent = ''; return; }
+    el.textContent = (x.mismoValor ? C.fmt(x.mlMax) : C.fmt(x.mlMin) + ' a ' + C.fmt(x.mlMax)) + ' ml' + (x.volumenPequeno ? ' · volumen muy pequeño: diluye' : '');
+  });
+}
+
+// ═══════════════ FLUIDOTERAPIA ═══════════════
 function calcularFluidos() {
   const C = ZOO_CALCULOS;
   const rEl = document.getElementById('fluidsResult');
@@ -1260,106 +1103,51 @@ function calcularFluidos() {
   });
   if (r.error) { showErr(rEl, C.esc(r.error)); return; }
 
+  const n = (a, b) => a === b ? C.fmt(a) : C.fmt(a) + ' a ' + C.fmt(b);
   let html = `<div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> ${C.esc(r.titulo)} · ${C.fmt(r.peso)} kg (${C.esc(C.etiquetaGrupo(r.grupo))})</div><div class="tool-result__rows">`;
-  r.filas.forEach(f => {
-    html += `<div class="tool-result__row"${f.alerta ? ' style="background:rgba(213,90,40,0.25);"' : ''}><span class="tool-result__row-label">${C.esc(f.etiqueta)}</span><span class="tool-result__row-value">${C.esc(f.valor)}</span></div>`;
+  r.filas.forEach(x => {
+    html += `<div class="tool-result__row"${x.alerta ? ' style="background:rgba(213,90,40,0.25);"' : ''}><span class="tool-result__row-label">${C.esc(x.etiqueta)}</span><span class="tool-result__row-value">${C.esc(x.valor)}</span></div>`;
   });
   html += '</div><div class="tool-result__fases">';
-  r.fases.forEach(f => {
-    html += `<div class="tool-subsection"><div class="tool-subsection__title">${C.esc(f.titulo)}</div><p style="margin:0;color:var(--zoo-text);"><strong>${C.fmt(f.ml)} ml</strong> en ${f.horas < 1 ? Math.round(f.horas * 60) + ' min' : C.fmt(f.horas) + ' h'} · <strong>${C.fmt(f.mlPorHora)} ml/h</strong> · ${C.fmt(f.gotasMin)} gtt/min (1 gota cada ${C.fmt(f.segPorGota)} s con equipo de ${r.equipo} gtt/ml)</p></div>`;
+  r.fases.forEach(x => {
+    const dur = x.horas < 1 ? Math.round(x.horas * 60) + ' min' : (x.horas === 1 && r.modo === 'cirugia' ? '1 h' : C.fmt(x.horas) + ' h');
+    html += `<div class="tool-subsection"><div class="tool-subsection__title">${C.esc(x.titulo)}${x.alternativa ? ' (alternativa)' : ''}</div><p style="margin:0;color:var(--zoo-text);"><strong>${n(x.ml, x.mlMax)} ml</strong> en ${dur} · <strong>${n(x.mlPorHora, x.mlPorHoraMax)} ml/h</strong> · ${n(x.gotasMin, x.gotasMinMax)} gtt/min (equipo de ${r.equipo} gtt/ml)</p></div>`;
   });
-  html += `</div><div class="tool-result__rows" style="margin-top:10px;"><div class="tool-result__row"><span class="tool-result__row-label">${r.modo === 'cirugia' ? 'VOLUMEN INTRAOPERATORIO' : 'TOTAL DEL PLAN'}</span><span class="tool-result__row-value">${C.fmt(r.total)} ml</span></div></div>`;
-  html += `<div class="tool-subsection"><div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Plan terapéutico</div><p style="margin:0;">${C.esc(r.nota)}</p></div>`;
-  if (r.grupo === 'reptiles') {
-    html += '<div class="tool-subsection" style="border-left-color:#D55A28;"><div class="tool-subsection__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-turtle"/></svg> Reptiles</div><p style="margin:0;">Fluidos TIBIOS a 25-28 °C. Mantenimiento mucho menor (20 ml/kg/día). Vía intracelómica o intraósea si no hay acceso IV.</p></div>';
+  html += '</div>';
+  if (r.modo !== 'cirugia') {
+    html += `<div class="tool-result__rows" style="margin-top:10px;"><div class="tool-result__row"><span class="tool-result__row-label">TOTAL DEL PLAN (24 h)</span><span class="tool-result__row-value">${r.totalMax != null ? n(r.total, r.totalMax) : C.fmt(r.total)} ml</span></div></div>`;
   }
+  html += `<div class="tool-subsection"><div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Nota</div><p style="margin:0;">${C.esc(r.nota)}</p></div>`;
+  html += `<div class="tool-ref__fuente">Fuentes: ${r.fuentes.map(x => `<a href="${C.esc(x.url)}" target="_blank" rel="noopener noreferrer">${C.esc(x.texto)}</a>`).join(' · ')}</div>`;
   rEl.innerHTML = html;
   rEl.className = 'tool-result is-visible' + (r.modo === 'shock' || r.modo === 'quemado' ? ' is-danger' : r.modo === 'cirugia' ? ' is-warning' : '');
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ═══════════════ CONSTANTES FISIOLÓGICAS (60+ especies) ═══════════════
-const CONSTANTES = [
-  // FELINOS
-  { grupo: 'Felinos', esp: 'Jaguar (Panthera onca)', fc: '60-90', fr: '20-30', temp: '38.0-39.0', gest: '93-105 días', long: '12-15 años' },
-  { grupo: 'Felinos', esp: 'Puma (Puma concolor)', fc: '70-110', fr: '20-30', temp: '38.0-39.0', gest: '91-97 días', long: '8-13 años' },
-  { grupo: 'Felinos', esp: 'Ocelote (Leopardus pardalis)', fc: '100-140', fr: '22-35', temp: '38.3-39.2', gest: '79-85 días', long: '10-13 años' },
-  { grupo: 'Felinos', esp: 'Jaguarundi (Herpailurus yagouaroundi)', fc: '120-160', fr: '24-36', temp: '38.2-39.1', gest: '70-75 días', long: '8-10 años' },
-  { grupo: 'Felinos', esp: 'Margay (Leopardus wiedii)', fc: '110-150', fr: '24-36', temp: '38.3-39.2', gest: '76-85 días', long: '10-15 años' },
-  { grupo: 'Felinos', esp: 'Lince (Lynx rufus)', fc: '80-120', fr: '20-30', temp: '38.2-39.0', gest: '60-70 días', long: '7-10 años' },
-  { grupo: 'Felinos', esp: 'Gato doméstico', fc: '140-220', fr: '20-30', temp: '38.0-39.2', gest: '63-65 días', long: '12-18 años' },
-  // CÁNIDOS
-  { grupo: 'Cánidos', esp: 'Coyote (Canis latrans)', fc: '70-120', fr: '15-30', temp: '38.0-39.3', gest: '60-63 días', long: '10-14 años' },
-  { grupo: 'Cánidos', esp: 'Lobo mexicano (Canis lupus baileyi)', fc: '60-100', fr: '10-25', temp: '38.0-39.2', gest: '60-63 días', long: '6-13 años' },
-  { grupo: 'Cánidos', esp: 'Zorra gris (Urocyon cinereoargenteus)', fc: '100-130', fr: '16-28', temp: '38.4-39.2', gest: '53-63 días', long: '6-8 años' },
-  { grupo: 'Cánidos', esp: 'Zorro kit (Vulpes macrotis)', fc: '100-140', fr: '18-30', temp: '38.5-39.5', gest: '49-55 días', long: '5-7 años' },
-  { grupo: 'Cánidos', esp: 'Perro doméstico', fc: '60-140', fr: '10-30', temp: '38.0-39.2', gest: '58-68 días', long: '10-15 años' },
-  // PRIMATES
-  { grupo: 'Primates', esp: 'Mono araña (Ateles geoffroyi)', fc: '90-130', fr: '20-30', temp: '37.5-38.6', gest: '225-232 días', long: '22-27 años' },
-  { grupo: 'Primates', esp: 'Mono aullador (Alouatta palliata)', fc: '80-120', fr: '18-28', temp: '37.3-38.4', gest: '180-194 días', long: '15-20 años' },
-  { grupo: 'Primates', esp: 'Mono aullador negro (Alouatta pigra)', fc: '80-120', fr: '18-28', temp: '37.3-38.4', gest: '180-194 días', long: '15-20 años' },
-  { grupo: 'Primates', esp: 'Mono capuchino (Cebus capucinus)', fc: '100-140', fr: '22-34', temp: '37.8-38.8', gest: '155-167 días', long: '15-25 años' },
-  // MUSTÉLIDOS
-  { grupo: 'Mustélidos', esp: 'Nutria de río (Lontra longicaudis)', fc: '110-150', fr: '20-35', temp: '38.0-39.0', gest: '61-63 días', long: '8-15 años' },
-  { grupo: 'Mustélidos', esp: 'Tejón (Taxidea taxus)', fc: '90-130', fr: '18-28', temp: '38.0-39.0', gest: '210-225 días (diapausa)', long: '9-14 años' },
-  // PROCYÓNIDOS
-  { grupo: 'Procyónidos', esp: 'Mapache (Procyon lotor)', fc: '140-180', fr: '16-30', temp: '37.8-39.3', gest: '63-65 días', long: '12-16 años' },
-  { grupo: 'Procyónidos', esp: 'Coatí (Nasua narica)', fc: '120-160', fr: '18-32', temp: '38.0-39.0', gest: '70-77 días', long: '14-17 años' },
-  { grupo: 'Procyónidos', esp: 'Cacomixtle (Bassariscus astutus)', fc: '130-170', fr: '20-34', temp: '37.5-38.8', gest: '51-54 días', long: '7-9 años' },
-  // UNGULADOS
-  { grupo: 'Ungulados', esp: 'Venado cola blanca (Odocoileus virginianus)', fc: '70-110', fr: '20-35', temp: '38.3-39.2', gest: '200-210 días', long: '6-14 años' },
-  { grupo: 'Ungulados', esp: 'Venado bura (Odocoileus hemionus)', fc: '70-110', fr: '20-35', temp: '38.3-39.2', gest: '200-210 días', long: '9-11 años' },
-  { grupo: 'Ungulados', esp: 'Pecarí de collar (Dicotyles tajacu)', fc: '80-110', fr: '16-28', temp: '38.5-39.2', gest: '141-151 días', long: '16-24 años' },
-  { grupo: 'Ungulados', esp: 'Tapir centroamericano (Tapirus bairdii)', fc: '40-70', fr: '10-20', temp: '36.4-38.0', gest: '395-400 días', long: '25-30 años' },
-  { grupo: 'Ungulados', esp: 'Berrendo (Antilocapra americana)', fc: '60-90', fr: '12-25', temp: '38.0-39.5', gest: '245-255 días', long: '7-10 años' },
-  { grupo: 'Ungulados', esp: 'Borrego cimarrón (Ovis canadensis)', fc: '60-90', fr: '12-25', temp: '38.3-39.7', gest: '170-180 días', long: '10-15 años' },
-  // ROEDORES
-  { grupo: 'Roedores', esp: 'Perrito de la pradera (Cynomys mexicanus)', fc: '180-260', fr: '40-60', temp: '36.5-38.6', gest: '33-38 días', long: '3-5 años' },
-  { grupo: 'Roedores', esp: 'Teporingo (Romerolagus diazi)', fc: '150-250', fr: '30-60', temp: '38.5-40.0', gest: '38-42 días', long: '5-7 años' },
-  // AVES
-  { grupo: 'Aves · Rapaces', esp: 'Águila real (Aquila chrysaetos)', fc: '150-220', fr: '15-40', temp: '40.5-42.0', gest: '42-45 días (incub)', long: '15-25 años' },
-  { grupo: 'Aves · Rapaces', esp: 'Águila arpía (Harpia harpyja)', fc: '150-220', fr: '15-40', temp: '40.0-41.5', gest: '55-58 días (incub)', long: '25-35 años' },
-  { grupo: 'Aves · Rapaces', esp: 'Halcón peregrino (Falco peregrinus)', fc: '180-300', fr: '25-50', temp: '40.8-42.2', gest: '29-33 días', long: '10-17 años' },
-  { grupo: 'Aves · Rapaces', esp: 'Búho cornudo (Bubo virginianus)', fc: '170-280', fr: '20-45', temp: '40.2-41.8', gest: '30-37 días', long: '13-28 años' },
-  { grupo: 'Aves · Rapaces', esp: 'Tecolote llanero (Athene cunicularia)', fc: '200-300', fr: '25-45', temp: '40.2-41.8', gest: '28-30 días', long: '6-10 años' },
-  { grupo: 'Aves · Psitácidos', esp: 'Guacamaya roja (Ara macao)', fc: '150-220', fr: '20-35', temp: '40.5-42.0', gest: '26-28 días', long: '40-50 años' },
-  { grupo: 'Aves · Psitácidos', esp: 'Guacamaya verde (Ara militaris)', fc: '150-220', fr: '20-35', temp: '40.5-42.0', gest: '26-28 días', long: '40-60 años' },
-  { grupo: 'Aves · Psitácidos', esp: 'Loro cabeza amarilla (Amazona oratrix)', fc: '160-240', fr: '22-40', temp: '40.5-42.0', gest: '26-28 días', long: '40-70 años' },
-  { grupo: 'Aves · Psitácidos', esp: 'Loro tamaulipeco (Amazona viridigenalis)', fc: '160-240', fr: '22-40', temp: '40.5-42.0', gest: '26-28 días', long: '40-60 años' },
-  { grupo: 'Aves · Galliformes', esp: 'Pavón cornudo (Oreophasis derbianus)', fc: '140-220', fr: '18-35', temp: '40.5-41.8', gest: '34-36 días', long: '15-20 años' },
-  { grupo: 'Aves · Galliformes', esp: 'Gallina de monte (Crax rubra)', fc: '150-220', fr: '20-35', temp: '40.3-41.5', gest: '30-32 días', long: '20-24 años' },
-  // REPTILES
-  { grupo: 'Reptiles · Escamosos', esp: 'Iguana verde (Iguana iguana)', fc: '30-80*', fr: '8-20', temp: '28-32 amb.', gest: '65-80 días (incub)', long: '10-20 años' },
-  { grupo: 'Reptiles · Escamosos', esp: 'Iguana espinosa (Ctenosaura)', fc: '30-70*', fr: '8-18', temp: '28-32 amb.', gest: '75-90 días (incub)', long: '15-25 años' },
-  { grupo: 'Reptiles · Escamosos', esp: 'Boa (Boa constrictor)', fc: '20-45*', fr: '6-15', temp: '26-30 amb.', gest: '100-180 días', long: '20-30 años' },
-  { grupo: 'Reptiles · Escamosos', esp: 'Pitón real (Python regius)', fc: '20-40*', fr: '6-15', temp: '28-32 amb.', gest: '55-60 días (incub)', long: '20-30 años' },
-  { grupo: 'Reptiles · Escamosos', esp: 'Serpiente cascabel (Crotalus)', fc: '20-45*', fr: '6-15', temp: '25-30 amb.', gest: '140-180 días', long: '15-20 años' },
-  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga casquito (Kinosternon)', fc: '25-45*', fr: '6-14', temp: '22-28 agua', gest: '90-120 días (incub)', long: '30-50 años' },
-  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga verde (Chelonia mydas)', fc: '20-40*', fr: '4-10', temp: '25-29 agua', gest: '45-70 días (incub)', long: '80+ años' },
-  { grupo: 'Reptiles · Quelonios', esp: 'Tortuga carey (Eretmochelys)', fc: '20-40*', fr: '4-10', temp: '26-30 agua', gest: '55-75 días (incub)', long: '30-50 años' },
-  { grupo: 'Reptiles · Crocodílidos', esp: 'Cocodrilo de pantano (C. moreletii)', fc: '15-35*', fr: '2-8', temp: '28-32 agua', gest: '75-85 días (incub)', long: '65-80 años' },
-  { grupo: 'Reptiles · Crocodílidos', esp: 'Cocodrilo de río (C. acutus)', fc: '15-35*', fr: '2-8', temp: '28-32 agua', gest: '75-90 días (incub)', long: '60-75 años' }
-];
+// ═══════════════ CONSTANTES (solo datos con fuente · assets/js/herramientas-constantes.js) ═══════════════
+const CONSTANTES = ZOO_CONSTANTES.ESPECIES;
 
 function renderConstantes(filter = '') {
-  const tb = document.getElementById('constTbody');
-  const f = ZOO_CALCULOS.sinAcentos(filter);
-  const rows = CONSTANTES.filter(c => !f || ZOO_CALCULOS.sinAcentos(c.esp).includes(f) || ZOO_CALCULOS.sinAcentos(c.grupo).includes(f));
-  if (rows.length === 0) {
-    tb.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--zoo-text-muted);">Sin resultados para "${ZOO_CALCULOS.esc(filter)}"</td></tr>`;
+  const C = ZOO_CALCULOS;
+  const f = C.sinAcentos(filter);
+  const lista = CONSTANTES.filter(e => !f || C.sinAcentos(e.esp).includes(f) || C.sinAcentos(e.grupo).includes(f));
+  const cont = document.getElementById('constGrid');
+  if (lista.length === 0) {
+    cont.innerHTML = '<p class="const-vacio">Sin resultados para «' + C.esc(filter) + '».</p>';
     return;
   }
-  let lastGroup = '';
-  let html = '';
-  rows.forEach(c => {
-    if (c.grupo !== lastGroup) {
-      html += `<tr class="group-row"><td colspan="6">${c.grupo}</td></tr>`;
-      lastGroup = c.grupo;
-    }
-    html += `<tr><td>${c.esp}</td><td><strong>${c.fc}</strong></td><td><strong>${c.fr}</strong></td><td><strong>${c.temp}</strong></td><td>${c.gest}</td><td>${c.long}</td></tr>`;
-  });
-  html += '<tr><td colspan="6" style="padding:10px 12px;font-size:.75rem;color:var(--zoo-text-dim);">* FC reptiles varía con Tº ambiente (ectotermos). gest = gestación/incubación. long = longevidad en cautiverio.</td></tr>';
-  tb.innerHTML = html;
+  cont.innerHTML = lista.map(e => `
+    <div class="const-card">
+      <h3>${C.esc(e.esp)}</h3>
+      <div class="const-card__grupo">${C.esc(e.grupo)}</div>
+      ${e.datos.length ? e.datos.map(d => `
+        <div class="const-dato">
+          <div class="const-dato__campo">${C.esc(d.campo)}</div>
+          <div class="const-dato__valor">${C.esc(d.valor)}</div>
+          ${d.nota ? `<div class="const-dato__nota">${C.esc(d.nota)}</div>` : ''}
+          <a href="${C.esc(d.url)}" target="_blank" rel="noopener noreferrer">${C.esc(d.fuente)}</a>
+        </div>`).join('') : '<p class="const-vacio">Sin datos publicados que se hayan podido verificar en fuentes abiertas.</p>'}
+    </div>`).join('');
 }
 function filtrarEspecies() { renderConstantes(document.getElementById('speciesFilter').value); }
 
@@ -1421,52 +1209,27 @@ function renderHemograma(filter = '') {
 function filtrarHemograma() { renderHemograma(document.getElementById('hemoFilter').value); }
 
 // ═══════════════ BCS ═══════════════
-const BCS_DESC = {
-  1: { title: 'Caquéctico', color: '#D55A28', desc: 'Costillas, columna y pelvis muy prominentes y visibles a distancia. Ausencia total de masa muscular palpable. Sin depósito graso. EMERGENCIA nutricional.', ajuste: 40 },
-  2: { title: 'Muy delgado', color: '#D55A28', desc: 'Costillas fácilmente visibles sin palpar. Columna y apófisis transversas prominentes. Pérdida muscular evidente en masas epaxiales. Intervención inmediata.', ajuste: 30 },
-  3: { title: 'Delgado', color: '#E8A317', desc: 'Costillas palpables con ligera cobertura grasa. Cintura muy marcada vista desde arriba. Apófisis espinosas palpables con leve cobertura.', ajuste: 20 },
-  4: { title: 'Bajo del ideal', color: '#F5C62E', desc: 'Costillas palpables con mínima cobertura. Cintura visible desde arriba. Ligero abdomen retraído visto desde lateral.', ajuste: 10 },
-  5: { title: 'Ideal', color: '#6FBF73', desc: 'Costillas palpables sin esfuerzo, con cobertura grasa adecuada. Cintura bien definida vista desde arriba. Abdomen retraído vista lateral. Masa muscular apropiada.', ajuste: 0 },
-  6: { title: 'Sobre ideal', color: '#F5C62E', desc: 'Costillas palpables con leve exceso de cobertura grasa. Cintura apenas visible desde arriba. Ligera cobertura abdominal.', ajuste: -10 },
-  7: { title: 'Sobrepeso', color: '#E8A317', desc: 'Costillas difíciles de palpar bajo cobertura grasa moderada. Cintura ausente. Depósitos grasos en base de cola, columna lumbar.', ajuste: -20 },
-  8: { title: 'Obeso', color: '#D55A28', desc: 'Costillas NO palpables bajo grasa espesa. Depósitos grasos marcados en pecho, columna, base de cola. Abdomen péndulo con grasa abdominal.', ajuste: -30 },
-  9: { title: 'Obeso severo', color: '#D55A28', desc: 'Grandes acúmulos de grasa en todos los depósitos. Distensión abdominal severa con grasa visceral. Riesgo cardiovascular y metabólico grave. Patologías ortopédicas.', ajuste: -40 }
-};
-
 function calcularBCS() {
   const C = ZOO_CALCULOS;
   const selected = document.querySelector('.bcs-item.is-selected');
-  const grupo = document.getElementById('bcsGroup').value;
   const rEl = document.getElementById('bcsResult');
-  const pesoActual = C.leerNumero(document.getElementById('bcsPesoActual').value);
   if (!selected) { showErr(rEl, 'Selecciona un BCS del 1 al 9.'); return; }
-  const bcs = parseInt(selected.dataset.bcs, 10);
-  const r = C.bcs(pesoActual, bcs);
+  const r = C.bcs(parseInt(selected.dataset.bcs, 10));
   if (r.error) { showErr(rEl, C.esc(r.error)); return; }
-  const info = BCS_DESC[bcs];
-  let reco = '';
-  if (bcs <= 2) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg> <strong>EMERGENCIA.</strong> Realimentación cuidadosa (síndrome de realimentación), evaluar hipoproteinemia y electrolitos. Descartar parasitosis, neoplasia, enfermedad renal y hepatopatía. Plan nutricional supervisado.';
-  else if (bcs === 3) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-trending-up"/></svg> <strong>Necesita ganar peso.</strong> Aumentar 15-20% la ración. Evaluar parasitología, coproparasitoscópico, perfil tiroideo y calidad del alimento.';
-  else if (bcs === 4) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Ligero déficit. Incrementar 10% la ración de forma gradual. Monitoreo mensual.';
-  else if (bcs === 5) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Condición ideal.</strong> Mantener el protocolo actual. Evaluación semestral.';
-  else if (bcs === 6) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Ligero exceso. Reducir 10% la ración o aumentar la actividad física y el enriquecimiento ambiental.';
-  else if (bcs === 7) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-trending-down"/></svg> Plan de pérdida de 1-2% del peso por semana. Reducir 20% las calorías. Enriquecimiento y actividad.';
-  else reco = '<svg class="zi" aria-hidden="true"><use href="#zi-trending-down"/></svg><svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg> <strong>Obesidad.</strong> Reducir 30% las calorías y dar ejercicio terapéutico. Descartar hipotiroidismo, Cushing e insulinoma. Monitoreo de glucosa y perfil hepático. Riesgo cardiovascular.';
-  const isDanger = bcs <= 2 || bcs >= 8;
-  const isWarning = bcs === 3 || bcs === 4 || bcs === 6 || bcs === 7;
-  const noValidada = (grupo === 'ave' || grupo === 'reptil');
+  let cuerpo;
+  if (r.puntosSobre5 > 0) {
+    cuerpo = `<div class="tool-result__row"><span class="tool-result__row-label">Puntos por encima de 5</span><span class="tool-result__row-value">${r.puntosSobre5}</span></div>
+      <div class="tool-result__row"><span class="tool-result__row-label">Grasa corporal adicional estimada (10 a 15 % por punto)</span><span class="tool-result__row-value">${r.grasaExtraMin} a ${r.grasaExtraMax} %</span></div>`;
+  } else if (r.puntosSobre5 === 0) {
+    cuerpo = '<p style="margin:0;">El punto 5 es la referencia: no hay grasa adicional que estimar con esta regla.</p>';
+  } else {
+    cuerpo = `<p style="margin:0;">Está ${Math.abs(r.puntosSobre5)} punto(s) por debajo de 5. La fuente no cuantifica la pérdida de grasa por punto por debajo de 5; usa las tablas de la WSAVA y la valoración clínica.</p>`;
+  }
   rEl.innerHTML = `
-    <div class="tool-result__title" style="color:${info.color};"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg> BCS ${bcs}/9 · ${info.title}</div>
-    ${noValidada ? '<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> La escala de 9 puntos no es la estándar para aves y reptiles: tómala solo como orientación y usa la valoración propia de la especie (por ejemplo, la condición muscular de la quilla en aves).</div>' : ''}
-    <div class="tool-result__rows">
-      <div class="tool-result__row"><span class="tool-result__row-label">Peso actual</span><span class="tool-result__row-value">${C.fmt(pesoActual)} kg</span></div>
-      <div class="tool-result__row"><span class="tool-result__row-label">Peso ideal estimado (≈10% por punto de BCS)</span><span class="tool-result__row-value">${C.fmt(r.pesoIdeal)} kg</span></div>
-      <div class="tool-result__row"><span class="tool-result__row-label">Ajuste necesario</span><span class="tool-result__row-value">${r.diferencia >= 0 ? '+' : ''}${C.fmt(r.diferencia)} kg (${r.porcentaje >= 0 ? '+' : ''}${C.fmt(r.porcentaje)}%)</span></div>
-    </div>
-    <div class="tool-subsection"><div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-search"/></svg> Evaluación anatómica</div><p style="margin:0;">${info.desc}</p></div>
-    <div class="tool-subsection" style="border-left-color:#6FBF73;"><div class="tool-subsection__title" style="color:#6FBF73;"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> Plan terapéutico</div><p style="margin:0;">${reco}</p></div>
-  `;
-  rEl.className = 'tool-result is-visible' + (isDanger ? ' is-danger' : isWarning ? ' is-warning' : '');
+    <div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg> Condición corporal ${r.puntaje} de 9</div>
+    <div class="tool-result__rows">${cuerpo}</div>
+    <div class="tool-ref__fuente">Fuente: <a href="https://ovcpetnutrition.uoguelph.ca/2021/10/25/scoring-for-health" target="_blank" rel="noopener noreferrer">Universidad de Guelph (OVC Pet Nutrition)</a>: «cada punto por encima de 5 representa un 10 a 15 % de grasa corporal adicional».</div>`;
+  rEl.className = 'tool-result is-visible' + (r.puntaje >= 7 || r.puntaje <= 2 ? ' is-warning' : '');
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -1489,8 +1252,8 @@ function mostrarUrgencia() {
       <ol class="urg-steps">
         ${r.steps.map(s => '<li>' + s + '</li>').join('')}
       </ol>
-    </div>
-  `;
+      <div class="tool-ref__fuente">Fuentes: Manual Veterinario Merck, guías RECOVER 2024, guías AAHA 2024, Clinician's Brief, VCA, dvm360 y fichas aprobadas. Las dosis de perro y gato no se extrapolan a otras especies.</div>
+    </div>`;
   rEl.className = 'tool-result is-visible is-danger';
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -1502,9 +1265,9 @@ function showErr(el, msg) {
 }
 function resetearForm(which) {
   if (which === 'dosis') { document.getElementById('dosePeso').value = ''; document.getElementById('doseConc').value = ''; document.getElementById('doseResult').className = 'tool-result'; }
-  if (which === 'anestesia') { document.getElementById('anesPeso').value = ''; document.getElementById('anesResult').className = 'tool-result'; }
+  if (which === 'anestesia') { document.getElementById('anesPeso').value = ''; document.getElementById('anesResult').className = 'tool-result'; _anesCtx = null; }
   if (which === 'fluidos') { document.getElementById('fluidsPeso').value = ''; document.getElementById('fluidsPerd').value = '0'; document.getElementById('fluidsResult').className = 'tool-result'; }
-  if (which === 'bcs') { document.getElementById('bcsPesoActual').value = ''; document.querySelectorAll('.bcs-item').forEach(i => i.classList.remove('is-selected')); document.querySelector('[data-bcs="5"]').classList.add('is-selected'); document.getElementById('bcsResult').className = 'tool-result'; }
+  if (which === 'bcs') { document.querySelectorAll('.bcs-item').forEach(i => i.classList.remove('is-selected')); document.querySelector('[data-bcs="5"]').classList.add('is-selected'); document.getElementById('bcsResult').className = 'tool-result'; }
 }
 </script>
 <script>

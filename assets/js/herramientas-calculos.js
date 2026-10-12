@@ -53,7 +53,7 @@
     return t.indexOf('.') >= 0 ? t.replace(/0+$/, '').replace(/\.$/, '') : t;
   }
 
-  var ETIQUETA_GRUPO = { mamifero: 'Mamífero', ave: 'Ave', reptil: 'Reptil', pediatrico: 'Pediátrico / geriátrico', mamiferos: 'Mamíferos', aves: 'Aves', reptiles: 'Reptiles' };
+  var ETIQUETA_GRUPO = { mamifero: 'Mamífero', ave: 'Ave', reptil: 'Reptil', pediatrico: 'Pediátrico / geriátrico', mamiferos: 'Mamíferos', aves: 'Aves', reptiles: 'Reptiles', perro: 'Perro', gato: 'Gato' };
   function etiquetaGrupo(g) { return ETIQUETA_GRUPO[g] || String(g || ''); }
 
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -84,29 +84,48 @@
     };
   }
 
-  /* ───── ANESTESIA ───── */
-  // protocolo: { componentes:[{nombre,dosis,conc,via}] } · devuelve filas con mg y ml
-  function anestesia(protocolo, peso) {
+  /* ───── ANESTESIA ─────
+     Una variante de protocolo trae dosis publicadas (mg/kg) para UNA especie. Las concentraciones de los frascos las
+     escribe el usuario: sin concentración se muestra solo el total en mg. */
+  // variante: { especie, componentes:[{nombre,min,max,via,f:{fuente,url}}] } · concs: lista de mg/ml (misma posición) o null
+  function anestesia(variante, peso, concs) {
     var ep = errorPeso(peso); if (ep) return { error: ep };
-    var filas = (protocolo.componentes || []).map(function (c) {
-      if (c.conc > 0) {
-        var mg = peso * c.dosis, ml = mg / c.conc;
-        return { nombre: c.nombre, via: c.via, dosisPorKg: c.dosis, conc: c.conc, mg: mg, ml: ml, volumenPequeno: ml < 0.1, calculada: true };
-      }
-      return { nombre: c.nombre, via: c.via, texto: c.dosis, calculada: false };
+    if (!variante || !variante.componentes) return { error: 'Selecciona un protocolo y una especie.' };
+    var filas = variante.componentes.map(function (c, i) {
+      var conc = concs && Number.isFinite(concs[i]) && concs[i] > 0 ? concs[i] : null;
+      var mgMin = peso * c.min, mgMax = peso * c.max;
+      return {
+        nombre: c.nombre, via: c.via || '', fuente: c.f ? c.f.fuente : '', url: c.f ? c.f.url : '',
+        min: c.min, max: c.max, mismoValor: c.min === c.max,
+        mgMin: mgMin, mgMax: mgMax, conc: conc,
+        mlMin: conc ? mgMin / conc : null, mlMax: conc ? mgMax / conc : null,
+        volumenPequeno: conc ? (mgMax / conc) < 0.1 : false
+      };
     });
-    return { ok: true, filas: filas };
+    return { ok: true, especie: variante.especie, filas: filas };
   }
 
-  /* ───── FLUIDOTERAPIA ───── */
-  var MANTENIMIENTO = { mamiferos: 50, aves: 50, reptiles: 20 };   // ml/kg/día
-  var BOLO_SHOCK = { mamiferos: 20, aves: 10, reptiles: 5 };       // ml/kg
+  /* ───── FLUIDOTERAPIA ─────
+     Cifras de las guías AAHA 2024 de fluidoterapia para perros y gatos, del Manual Merck/MSD y de memorias de
+     exóticos. Donde no hay un valor verificado (por ejemplo, bolo de shock en reptiles) no se calcula nada. */
+  var MANTENIMIENTO = { perro: 60, gato: 40, aves: 50, reptiles: 20 };           // ml/kg/día (reptiles: punto medio de 10 a 30)
+  var BOLO_SHOCK = { perro: [15, 20], gato: [5, 10], aves: [10, 10], reptiles: null }; // ml/kg en 15 min
+  var INTRAOP = { perro: [5, 5], gato: [3, 5] };                                  // ml/kg/h al empezar
+  var GRUPOS_FLUIDOS = { perro: 'Perro', gato: 'Gato', aves: 'Aves', reptiles: 'Reptiles' };
+  var FUENTES_FLUIDOS = {
+    aaha3: { texto: 'Guías AAHA 2024: reposición y mantenimiento', url: 'https://www.aaha.org/resources/2024-aaha-fluid-therapy-guidelines-for-dogs-and-cats/section-3-fluids-for-replacement-and-maintenance/' },
+    aaha4: { texto: 'Guías AAHA 2024: fluidos y anestesia', url: 'https://www.aaha.org/resources/2024-aaha-fluid-therapy-guidelines-for-dogs-and-cats/section-4-fluid-therapy-and-anesthesia/' },
+    parkland: { texto: 'Manual MSD: fórmula de Parkland', url: 'https://www.msdvetmanual.com/multimedia/table/the-parkland-formula' },
+    aves: { texto: 'Manual Merck: aves de compañía', url: 'https://www.merckvetmanual.com/exotic-and-laboratory-animals/pet-birds/traumatic-injury-of-pet-birds' },
+    avesBolo: { texto: 'dvm360: fluidoterapia en aves', url: 'https://www.dvm360.com/view/avian-fluid-therapy-proceedings' },
+    reptiles: { texto: 'dvm360: fluidoterapia en reptiles', url: 'https://www.dvm360.com/view/fluid-therapy-reptiles-proceedings' }
+  };
 
   // entrada: { grupo, peso, tipo, deshPct, perdidas, quemadoPct, equipo }
-  // salida: { ok, titulo, fases:[{titulo, horas, ml, mlPorHora, gotasMin, segPorGota}], filas:[{etiqueta, valor}], nota, modo }
   function fluidos(e) {
     var ep = errorPeso(e.peso); if (ep) return { error: ep };
-    var grupo = MANTENIMIENTO[e.grupo] ? e.grupo : 'mamiferos';
+    var grupo = GRUPOS_FLUIDOS[e.grupo] ? e.grupo : null;
+    if (!grupo) return { error: 'Elige la especie: perro, gato, aves o reptiles.' };
     var perdidas = Number.isFinite(e.perdidas) ? e.perdidas : 0;
     if (perdidas < 0) return { error: 'Las pérdidas extra no pueden ser negativas.' };
     if (perdidas > 100000) return { error: 'Las pérdidas extra parecen demasiado altas. Revisa que estén en ml por día.' };
@@ -114,230 +133,226 @@
     var peso = e.peso;
     var factor = MANTENIMIENTO[grupo];
     var mant = peso * factor;
-    var fases = [], filas = [], titulo = '', nota = '', modo = 'mant';
+    var fases = [], filas = [], titulo = '', nota = '', modo = 'mant', fuentes = [];
+    var total = 0, totalMax = null;
 
-    var fase = function (t, horas, ml) {
-      var porHora = horas > 0 ? ml / horas : 0, gotas = (porHora * equipo) / 60;
-      fases.push({ titulo: t, horas: horas, ml: ml, mlPorHora: porHora, gotasMin: gotas, segPorGota: gotas > 0 ? 60 / gotas : 0 });
+    var fase = function (t, horas, ml, mlMax, alternativa) {
+      var m2 = mlMax == null ? ml : mlMax;
+      var porHora = horas > 0 ? ml / horas : 0, porHoraMax = horas > 0 ? m2 / horas : 0;
+      var gotas = (porHora * equipo) / 60, gotasMax = (porHoraMax * equipo) / 60;
+      fases.push({
+        titulo: t, horas: horas, ml: ml, mlMax: m2, rango: m2 !== ml, alternativa: !!alternativa,
+        mlPorHora: porHora, mlPorHoraMax: porHoraMax, gotasMin: gotas, gotasMinMax: gotasMax,
+        segPorGota: gotas > 0 ? 60 / gotas : 0
+      });
     };
+    filas.push({ etiqueta: 'Mantenimiento (' + factor + ' ml/kg/día' + (grupo === 'reptiles' ? ', punto medio de 10 a 30' : '') + ')', valor: fmt(mant) + ' ml/día' });
+    fuentes.push(grupo === 'perro' || grupo === 'gato' ? FUENTES_FLUIDOS.aaha3 : (grupo === 'aves' ? FUENTES_FLUIDOS.aves : FUENTES_FLUIDOS.reptiles));
 
     if (e.tipo === 'desh' || e.tipo === 'gastro') {
       var pct = e.deshPct;
       if (!Number.isFinite(pct) || pct <= 0 || pct > 20) return { error: 'Elige el porcentaje de deshidratación.' };
       var deficit = peso * 1000 * (pct / 100);
       var base = mant + perdidas;
-      titulo = 'Deshidratación ' + pct + '% (' + (e.tipo === 'gastro' ? 'vómito/diarrea' : 'pérdidas') + ')';
-      filas.push({ etiqueta: 'Déficit a reponer (' + pct + '% del peso)', valor: fmt(deficit) + ' ml' });
-      fase('Primeras 8 h (la mitad del déficit + su parte del mantenimiento)', 8, deficit / 2 + base * 8 / 24);
-      fase('Siguientes 16 h (la otra mitad + su parte del mantenimiento)', 16, deficit / 2 + base * 16 / 24);
-      nota = 'Reponer la mitad del déficit en las primeras 8 h y el resto en las siguientes 16 h. Reevaluar la hidratación cada 4-6 h (turgor, mucosas, peso). Si hay vómito o diarrea, considerar coloides y suplemento de potasio según el caso.';
+      titulo = 'Deshidratación ' + pct + '% (' + (e.tipo === 'gastro' ? 'vómito o diarrea' : 'pérdidas') + ')';
+      filas.unshift({ etiqueta: 'Déficit a reponer (' + pct + '% del peso)', valor: fmt(deficit) + ' ml' });
+      fase('Reponer el déficit en 24 h (junto con el mantenimiento)', 24, deficit + base);
+      fase('Si prefieres reponerlo en 12 h (el mantenimiento sigue aparte)', 12, deficit + base / 2, null, true);
+      total = deficit + base;
+      nota = 'Las guías AAHA indican reponer el déficit en 12 a 24 horas. Reevalúa la hidratación y el peso durante el tratamiento.';
+      fuentes.push(FUENTES_FLUIDOS.aaha3);
     } else if (e.tipo === 'shock') {
-      var bolo = peso * BOLO_SHOCK[grupo];
+      var bolo = BOLO_SHOCK[grupo];
+      if (!bolo) return { error: 'No hay un bolo de shock verificado para reptiles (la fuente solo indica no pasar de 20 ml/kg por dosis, por vía intracelómica). Consulta un formulario específico de la especie.' };
       titulo = 'Shock hipovolémico';
       modo = 'shock';
-      filas.push({ etiqueta: 'BOLO inicial (' + BOLO_SHOCK[grupo] + ' ml/kg)', valor: fmt(bolo) + ' ml en 15-20 min', alerta: true });
-      fase('Bolo inicial (15 min)', 0.25, bolo);
+      var bMin = peso * bolo[0], bMax = peso * bolo[1];
+      filas.unshift({ etiqueta: 'Bolo de cristaloide isotónico (' + (bolo[0] === bolo[1] ? bolo[0] : bolo[0] + ' a ' + bolo[1]) + ' ml/kg)', valor: (bolo[0] === bolo[1] ? fmt(bMin) : fmt(bMin) + ' a ' + fmt(bMax)) + ' ml en 15 min', alerta: true });
+      fase('Bolo inicial (15 min)', 0.25, bMin, bMax);
       fase('Después del bolo: mantenimiento (24 h)', 24, mant + perdidas);
-      nota = 'Dar el bolo en 15-20 min, reevaluar y repetir hasta 3 bolos si persiste el shock. Después, mantenimiento con cristaloides. Si no responde, valorar coloides y soporte vasopresor con el médico veterinario responsable.';
+      total = bMin + mant + perdidas; totalMax = bMax + mant + perdidas;
+      nota = grupo === 'aves'
+        ? 'En aves el bolo es de cristaloide tibio 10 ml/kg, con coloide (hetastarch) 5 ml/kg en incrementos. Reevalúa después de cada bolo.'
+        : 'Bolo de fluido isotónico tamponado en 15 minutos. Reevalúa después de cada bolo antes de dar otro.';
+      fuentes.push(grupo === 'aves' ? FUENTES_FLUIDOS.avesBolo : FUENTES_FLUIDOS.aaha3);
     } else if (e.tipo === 'cirugia') {
+      var ro = INTRAOP[grupo];
+      if (!ro) return { error: 'No hay una velocidad de fluidos intraoperatoria verificada para ' + GRUPOS_FLUIDOS[grupo].toLowerCase() + '. Consulta un formulario específico de la especie.' };
       titulo = 'Intraoperatorio';
       modo = 'cirugia';
-      filas.push({ etiqueta: 'Velocidad usada (5 ml/kg/h; el rango habitual es 5-10)', valor: fmt(peso * 5) + ' ml/h' });
-      filas.push({ etiqueta: 'Mantenimiento fuera de cirugía (' + factor + ' ml/kg/día)', valor: fmt(mant) + ' ml/día' });
-      fase('Durante la cirugía (3 h estimadas)', 3, peso * 5 * 3);
-      nota = 'Velocidad 5-10 ml/kg/h durante la cirugía (aquí se calcula con 5 ml/kg/h y 3 h; ajusta a la duración real). Ringer lactato de elección. Reducir a 2-3 ml/kg/h si la cirugía pasa de 3 h. Vigilar presión arterial media, temperatura y diuresis.';
+      filas = [{ etiqueta: 'Velocidad inicial (' + (ro[0] === ro[1] ? ro[0] : ro[0] + ' a ' + ro[1]) + ' ml/kg/h)', valor: (ro[0] === ro[1] ? fmt(peso * ro[0]) : fmt(peso * ro[0]) + ' a ' + fmt(peso * ro[1])) + ' ml/h' }];
+      fase('Por cada hora de cirugía', 1, peso * ro[0], peso * ro[1]);
+      total = peso * ro[0]; totalMax = peso * ro[1];
+      nota = 'Es la velocidad con la que se empieza (cristaloide balanceado). Hasta 10 ml/kg/h solo se justifica en una pérdida de sangre aguda; ajusta según presión arterial, temperatura y diuresis.';
+      fuentes = [FUENTES_FLUIDOS.aaha4];
     } else if (e.tipo === 'quemado') {
       var q = e.quemadoPct;
       if (!Number.isFinite(q) || q <= 0) return { error: 'Escribe el % de superficie corporal quemada.' };
       if (q > 100) return { error: 'La superficie quemada no puede pasar de 100%.' };
       var parkland = 4 * peso * q;
-      titulo = 'Quemado ' + q + '% de superficie (fórmula Parkland)';
+      titulo = 'Quemado ' + q + '% de superficie (fórmula de Parkland)';
       modo = 'quemado';
-      filas.push({ etiqueta: 'Parkland (4 ml × kg × %)', valor: fmt(parkland) + ' ml en 24 h' });
-      fase('Primeras 8 h desde la quemadura (la mitad de Parkland + mantenimiento)', 8, parkland / 2 + (mant + perdidas) * 8 / 24);
-      fase('Siguientes 16 h (la otra mitad + mantenimiento)', 16, parkland / 2 + (mant + perdidas) * 16 / 24);
-      nota = 'La mitad del volumen de Parkland en las primeras 8 h desde la quemadura y la otra mitad en las siguientes 16 h. Ringer lactato. Vigilar diuresis (más de 1 ml/kg/h) como señal de buena reposición.';
+      filas = [{ etiqueta: 'Parkland (4 ml × kg × %)', valor: fmt(parkland) + ' ml en 24 h' }];
+      fase('Primeras 8 h desde la quemadura (la mitad)', 8, parkland / 2);
+      fase('Siguientes 16 h (la otra mitad)', 16, parkland / 2);
+      total = parkland;
+      nota = 'Ringer lactato. La fuente la propone para quemaduras de más del 10% de la superficie corporal. Es un cálculo de reanimación: no incluye el mantenimiento.';
+      fuentes = [FUENTES_FLUIDOS.parkland];
     } else {
-      titulo = 'Mantenimiento normal';
+      titulo = 'Mantenimiento';
       fase('Mantenimiento (24 h)', 24, mant + perdidas);
-      nota = 'Ringer lactato o solución salina 0.9% a velocidad constante.';
+      total = mant + perdidas;
+      nota = 'Solución isotónica a velocidad constante.';
     }
 
-    if (modo !== 'cirugia') filas.push({ etiqueta: 'Mantenimiento (' + factor + ' ml/kg/día)', valor: fmt(mant) + ' ml/día' });
-    if (perdidas > 0) filas.push({ etiqueta: 'Pérdidas extra', valor: fmt(perdidas) + ' ml/día' });
-    var total = fases.reduce(function (s, f) { return s + f.ml; }, 0);
-    return { ok: true, titulo: titulo, grupo: grupo, peso: peso, equipo: equipo, fases: fases, filas: filas, total: total, nota: nota, modo: modo, mantenimiento: mant };
+    if (perdidas > 0 && modo !== 'cirugia' && modo !== 'quemado') filas.push({ etiqueta: 'Pérdidas extra', valor: fmt(perdidas) + ' ml/día' });
+    return {
+      ok: true, titulo: titulo, grupo: grupo, peso: peso, equipo: equipo, fases: fases, filas: filas,
+      total: total, totalMax: totalMax, nota: nota, modo: modo, mantenimiento: mant,
+      fuentes: fuentes.filter(function (x, i) { return fuentes.findIndex(function (y) { return y.url === x.url; }) === i; })
+    };
   }
 
-  /* ───── BCS ───── */
-  // Regla habitual: cada punto de BCS por encima (o por debajo) de 5 equivale a ~10% más (o menos) de peso que el ideal.
-  function bcs(peso, puntaje) {
-    var ep = errorPeso(peso); if (ep) return { error: ep };
+  /* ───── BCS ─────
+     Solo se muestra lo que respalda la fuente: cada punto por encima de 5 equivale a un 10 a 15% más de grasa corporal
+     (Universidad de Guelph). La cifra "% de peso por punto" que había antes no tiene fuente y se retiró. */
+  function bcs(puntaje) {
     if (!Number.isInteger(puntaje) || puntaje < 1 || puntaje > 9) return { error: 'Selecciona un BCS del 1 al 9.' };
-    var factor = puntaje > 5 ? 1 + 0.1 * (puntaje - 5) : (puntaje < 5 ? 1 - 0.1 * (5 - puntaje) : 1);
-    var ideal = peso / factor;
-    return { ok: true, pesoIdeal: ideal, diferencia: ideal - peso, porcentaje: (ideal / peso - 1) * 100, puntos: puntaje - 5 };
+    var sobre = puntaje - 5;
+    return {
+      ok: true, puntaje: puntaje, puntosSobre5: sobre,
+      grasaExtraMin: sobre > 0 ? sobre * 10 : null,
+      grasaExtraMax: sobre > 0 ? sobre * 15 : null
+    };
   }
 
-  /* ───── URGENCIAS ───── */
-  // grupo: mamiferos | aves | reptiles. Si no es mamífero, NO se calculan totales de fármacos (solo "por kg"),
-  // porque las dosis de estos protocolos son de referencia para perro y gato. Los volúmenes de fluidos se escalan
-  // con la misma regla del shock (mamíferos 20, aves 10, reptiles 5 ml/kg).
+  /* ───── URGENCIAS ─────
+     Solo hay cifras que se leyeron en la fuente (Manual Merck, guías RECOVER 2024, AAHA, Clinician's Brief, VCA, dvm360...).
+     Las dosis son de perro y gato; en aves y reptiles solo se muestra la dosis por kilo cuando la propia fuente la da. */
+  var GRUPOS_URG = { perro: 1, gato: 1, aves: 1, reptiles: 1 };
   function urgencia(tipo, peso, grupo) {
-    var g = ({ mamiferos: 1, aves: 1, reptiles: 1 })[grupo] ? grupo : 'mamiferos';
-    var mam = g === 'mamiferos';
+    var g = GRUPOS_URG[grupo] ? grupo : 'perro';
+    var canino = g === 'perro' || g === 'gato';
     var conPeso = Number.isFinite(peso) && peso >= PESO_MIN && peso <= PESO_MAX;
-    var factorFluido = g === 'aves' ? 0.5 : (g === 'reptiles' ? 0.25 : 1);
     var resaltar = function (t) { return '<strong style="color:#E8A317;">' + t + '</strong>'; };
+    var rango = function (a, b) { return a === b ? fmt(a) : fmt(a) + ' a ' + fmt(b); };
 
-    // Fármaco: total + (dosis por kg); sin peso o fuera de mamíferos, solo "por kg".
-    var D = function (porKg, unidad, dec) {
-      var por = fmt(porKg) + ' ' + unidad + '/kg';
-      if (conPeso && mam) return resaltar(fmt(peso * porKg) + ' ' + unidad) + ' (' + por + ')';
+    // Fármaco con rango por kilo (mg/kg): total solo en perro y gato con peso escrito
+    var D = function (min, max, unidad) {
+      var por = rango(min, max) + ' ' + unidad + '/kg';
+      if (conPeso && canino) return resaltar(rango(peso * min, peso * max) + ' ' + unidad) + ' (' + por + ')';
       return por;
     };
-    // Fármaco con volumen de la presentación: "X mg (Y ml de C mg/ml)"
-    var DV = function (porKg, unidad, concMgMl) {
-      var por = fmt(porKg) + ' ' + unidad + '/kg';
-      if (conPeso && mam) return resaltar(fmt(peso * porKg) + ' ' + unidad + ' = ' + fmt(peso * porKg / concMgMl) + ' ml de ' + concMgMl + ' mg/ml') + ' (' + por + ')';
+    // Volumen de fluido con rango por kilo (ml/kg)
+    var V = function (min, max) {
+      var por = rango(min, max) + ' ml/kg';
+      if (conPeso) return resaltar(rango(peso * min, peso * max) + ' ml') + ' (' + por + ')';
       return por;
     };
-    // Volumen de fluido (se ajusta por grupo)
-    var F = function (mlPorKgMamifero) {
-      var k = mlPorKgMamifero * factorFluido;
-      var por = fmt(k) + ' ml/kg';
-      if (conPeso) return resaltar(fmt(peso * k) + ' ml') + ' (' + por + ')';
-      return por;
+    var BOLO_G = { perro: [15, 20], gato: [5, 10], aves: [10, 10] };
+    var boloTxt = function () {
+      var b = BOLO_G[g];
+      if (!b) return 'no hay un bolo verificado para reptiles (la fuente solo indica no pasar de 20 ml/kg por dosis, vía intracelómica)';
+      return V(b[0], b[1]);
     };
-    var T = function (v) { return fmt(v); };
 
     var P = {
       rcp: {
-        title: '<svg class="zi" aria-hidden="true"><use href="#zi-heart-pulse"/></svg> RCP · Paro cardiorrespiratorio',
-        priority: 'CRÍTICO · Iniciar en menos de 60 segundos desde la detección',
+        title: 'Paro cardiorrespiratorio (RCP)',
+        priority: 'CRÍTICO · Inicia de inmediato',
         steps: [
-          '<strong>Verificar inconsciencia y ausencia de pulso</strong> (femoral/auricular). Tiempo máximo 10 segundos.',
-          '<strong>Asegurar vía aérea</strong>: extender el cuello, retirar cuerpos extraños, intubar si es posible.',
-          '<strong>Compresiones torácicas</strong>: 100-120 por minuto, a 1/3 del diámetro del tórax. Animal de menos de 10 kg: con la punta de los dedos sobre el corazón; más de 10 kg: con las dos manos sobre las costillas.',
-          '<strong>Ventilación</strong>: 10 respiraciones por minuto con Ambú o ventilación a presión positiva. Relación compresiones:ventilaciones 30:2 si hay un reanimador y 15:2 si hay dos.' + (conPeso ? ' Volumen corriente aproximado: ' + resaltar(T(peso * 10) + ' ml') + ' (10 ml/kg).' : ' Volumen corriente aproximado: 10 ml/kg.'),
-          '<strong>Acceso IV/IO</strong> inmediato (catéter 18-22G; intraóseo en fémur proximal si no hay vena).',
-          '<strong>Epinefrina</strong> IV/IO cada 3-5 min: ' + DV(0.01, 'mg', 1) + ' (presentación 1:1000 = 1 mg/ml). Por vía intratraqueal, 2-3 veces la dosis.',
-          '<strong>Atropina</strong> si hay bradicardia o asistolia: ' + D(0.04, 'mg') + ' IV/IO.',
-          '<strong>Desfibrilación</strong> si hay fibrilación ventricular: 4-6 J/kg con monofásico o 2-4 J/kg con bifásico.',
-          '<strong>Reevaluar el ritmo cada 2 minutos</strong>. Máximo 20-30 min antes de declarar el paro irreversible.',
-          '<strong>Después de la RCP</strong>: oxígeno al 100%, soporte cardiovascular (fluidos + vasopresores) y monitoreo intensivo 24-72 h.'
+          '<strong>Compresiones torácicas</strong> sin demora: 100 a 120 por minuto, con el animal en decúbito lateral, comprimiendo de 1/3 a 1/2 del ancho del tórax.',
+          '<strong>Ventilación</strong>: 10 ventilaciones por minuto; con un solo reanimador, relación 30 compresiones por 2 ventilaciones.',
+          '<strong>Acceso IV o intraóseo</strong> lo antes posible.',
+          '<strong>Epinefrina</strong>: ' + D(0.01, 0.01, 'mg') + ' IV o IO, cada dos ciclos de compresiones (aproximadamente cada 4 minutos) en ritmos no desfibrilables. Por vía intratraqueal se duplica la dosis. Las dosis altas (0.1 mg/kg) ya no se recomiendan.',
+          '<strong>Atropina</strong>: ' + D(0.04, 0.04, 'mg') + ' IV o IO, una sola dosis, en ritmos no desfibrilables.',
+          '<strong>Desfibrilación</strong> (ritmos desfibrilables): se prefiere bifásico; primer choque de 2 J/kg y después 4 J/kg.',
+          '<strong>Reevalúa el ritmo</strong> al terminar cada ciclo de compresiones.'
         ]
       },
       shock: {
-        title: '<svg class="zi" aria-hidden="true"><use href="#zi-heart-crack"/></svg> Shock hipovolémico / séptico',
+        title: 'Shock hipovolémico o séptico',
         priority: 'URGENTE · Actuar en minutos',
         steps: [
-          '<strong>ABC y signos vitales</strong>: frecuencia cardiaca, presión arterial, tiempo de llenado capilar, color de mucosas, estado mental.',
-          '<strong>Triage</strong>: palidez, taquicardia, pulsos débiles y llenado capilar mayor a 2 segundos indican shock descompensado.',
-          '<strong>Doble acceso IV/IO</strong> con el catéter de mayor calibre posible.',
-          '<strong>BOLO de cristaloides</strong> (Ringer lactato): ' + F(20) + ' en 15-20 minutos. Reevaluar y repetir hasta 3 bolos.',
-          '<strong>Si no responde a 3 bolos</strong>: coloides (hetastarch ' + F(10) + ') y vasopresores.',
-          '<strong>Vasopresores</strong>: dobutamina 2.5-10 μg/kg/min en infusión continua, o norepinefrina 0.05-1 μg/kg/min.',
-          '<strong>Oxígeno al 100%</strong> por cánula o máscara.',
-          '<strong>Si hay hipoglucemia</strong>: dextrosa al 50% diluida 1:2, ' + (conPeso && mam ? resaltar(T(peso * 0.5) + ' ml') + ' (0.5 ml/kg)' : '0.5 ml/kg') + ' IV lento.',
-          '<strong>Si se sospecha sepsis</strong>: antibiótico de amplio espectro IV de inmediato (por ejemplo ceftriaxona ' + D(25, 'mg', 0) + ' + metronidazol ' + D(15, 'mg', 0) + ').',
-          '<strong>Monitoreo</strong>: presión arterial cada 15 min, diuresis mayor a 1 ml/kg/h y lactato (objetivo menor a 2 mmol/L).'
+          '<strong>ABC y signos vitales</strong>: frecuencia cardiaca, pulso, color de mucosas, llenado capilar y estado mental.',
+          '<strong>Acceso IV</strong> (o intraóseo) con el catéter de mayor calibre posible.',
+          '<strong>Bolo de cristaloide isotónico tamponado</strong> en 15 minutos: ' + boloTxt() + '. Reevalúa después de cada bolo antes de dar otro.',
+          g === 'aves' ? '<strong>En aves</strong> se añade coloide (hetastarch) 5 ml/kg en incrementos, con los fluidos tibios.' : '<strong>Si no responde</strong>, valora coloides y vasopresores con tu protocolo.',
+          '<strong>Vasopresores</strong> (perro y gato): dobutamina 2 a 20 µg/kg/min IV en infusión continua (inicio 2 a 5); norepinefrina 0.05 a 2 µg/kg/min IV.',
+          '<strong>Si hay hipoglucemia</strong>: dextrosa al 50%, ' + (conPeso && canino ? resaltar(rango(peso * 0.5, peso * 1) + ' ml') + ' (0.5 a 1 ml/kg)' : '0.5 a 1 ml/kg') + ', diluida 1:3 con solución salina 0.9% y aplicada IV lenta en 10 minutos.',
+          '<strong>Si se sospecha sepsis</strong>: antibiótico de amplio espectro IV de inmediato, según tu protocolo y el antibiograma.'
         ]
       },
       convulsion: {
-        title: '<svg class="zi" aria-hidden="true"><use href="#zi-zap"/></svg> Convulsiones / Status epilepticus',
-        priority: 'URGENTE · Riesgo de daño cerebral después de 5 minutos de actividad',
+        title: 'Convulsiones y status epilepticus',
+        priority: 'URGENTE · Controlar la crisis',
         steps: [
-          '<strong>Proteger la vía aérea</strong>. No meter los dedos en la boca. Acolchonar el entorno y evitar caídas.',
-          '<strong>Canalizar IV</strong> con rapidez y dar oxígeno.',
-          '<strong>Primera línea</strong>: diazepam ' + DV(0.5, 'mg', 5) + ' IV lento. Repetir a los 5 min si persiste (máximo 3 dosis).',
-          '<strong>Alternativa</strong>: midazolam ' + D(0.2, 'mg') + ' IV/IM/intranasal.',
-          '<strong>Si no cede en 15 min</strong>: propofol en bolo ' + D(2, 'mg', 1) + ' IV + infusión continua de 0.1-0.6 mg/kg/min.',
-          '<strong>Carga de fenobarbital</strong> en status: 16 mg/kg IV en total, dividido en 4 dosis de 4 mg/kg cada 20 min.',
-          '<strong>Levetiracetam</strong>: 60 mg/kg IV como alternativa segura.',
-          '<strong>Corregir causas</strong>: hipoglucemia (glucosa), hipocalcemia (gluconato de calcio al 10%, 0.5-1.5 ml/kg lento) y toxinas.',
-          '<strong>Después de la crisis</strong>: mantener temperatura, oxígeno, monitoreo neurológico y fluidos de mantenimiento.',
-          '<strong>Estudio de la causa</strong>: química sanguínea, perfil hepático, toxicología e imagen cerebral si se repite.'
+          '<strong>Protege la vía aérea</strong> y evita lesiones: no metas los dedos en la boca. Da oxígeno.',
+          '<strong>Acceso IV</strong> rápido.',
+          '<strong>Diazepam</strong>: ' + D(0.5, 1, 'mg') + ' IV (más de 2 mg/kg si el paciente recibe fenobarbital crónico). <strong>Alternativa:</strong> midazolam ' + D(0.2, 0.2, 'mg') + ' IV, IM o intranasal.',
+          '<strong>Si no cede</strong>: propofol en bolo IV de ' + D(1, 4, 'mg') + ', seguido de infusión de 0.1 a 0.6 mg/kg/min a efecto.',
+          '<strong>Fenobarbital</strong>: ' + D(2, 4, 'mg') + ' IV cada 20 a 30 minutos; máximo 16 mg/kg si ya lo recibía y 24 mg/kg si no.',
+          '<strong>Levetiracetam</strong>: carga de ' + D(60, 60, 'mg') + ' IV, una vez en 24 horas.',
+          '<strong>Si hay hipocalcemia</strong>: gluconato de calcio al 10%, ' + (conPeso && canino ? resaltar(rango(peso * 0.5, peso * 1.5) + ' ml') + ' (0.5 a 1.5 ml/kg)' : '0.5 a 1.5 ml/kg') + ' IV lento en 10 a 30 minutos, con auscultación o ECG.'
         ]
       },
       hipotermia: {
-        title: '<svg class="zi" aria-hidden="true"><use href="#zi-snowflake"/></svg> Hipotermia severa',
-        priority: 'URGENTE · Menos de 32 °C = riesgo cardiaco grave',
+        title: 'Hipotermia',
+        priority: 'URGENTE · Recalentar con control',
         steps: [
-          '<strong>Medir la temperatura central</strong> (rectal). Leve 32-37 °C, moderada 28-32 °C, severa menor a 28 °C.',
-          '<strong>Recalentamiento PASIVO</strong> primero (32-37 °C): ambiente cálido (25 °C), cobertor térmico y evitar manipulación brusca.',
-          '<strong>Recalentamiento ACTIVO EXTERNO</strong> (menos de 32 °C): mantas eléctricas o almohadillas calientes con protección para no quemar, y aire caliente forzado.',
-          '<strong>Recalentamiento ACTIVO INTERNO</strong> (menos de 28 °C): fluidos IV tibios (39-40 °C) y lavados de cavidades con solución salina tibia.',
-          '<strong>Fluidos IV TIBIOS</strong>: bolo de Ringer lactato a 38-40 °C, ' + F(10) + '.',
-          '<strong>Oxígeno tibio y húmedo</strong> por tubo endotraqueal.',
-          '<strong>Monitoreo cardiaco</strong> continuo: riesgo de fibrilación ventricular, sobre todo durante el recalentamiento.',
-          '<strong>Velocidad de recalentamiento</strong>: 1-2 °C por hora. Más rápido favorece arritmias.',
-          '<strong>Evitar</strong>: movilización innecesaria y fricción vigorosa.',
-          '<strong>Vigilar hipoglucemia y acidosis</strong>: glucosa y gasometría.'
+          '<strong>Mide la temperatura central</strong> (rectal).',
+          '<strong>Recalienta de forma activa y controlada</strong>: al menos 1 a 2 °C por hora (puede requerirse más rápido).',
+          '<strong>Fuentes de calor externas</strong> con protección para no quemar la piel y manipulación suave.',
+          '<strong>Fluidos IV</strong> calentados.',
+          '<strong>Monitoreo continuo</strong> del ritmo cardiaco y de la temperatura durante el recalentamiento.'
         ]
       },
       hipertermia: {
-        title: '<svg class="zi" aria-hidden="true"><use href="#zi-flame"/></svg> Golpe de calor / Hipertermia',
-        priority: 'URGENTE · Más de 41 °C = daño en varios órganos',
+        title: 'Golpe de calor',
+        priority: 'URGENTE · Enfriar sin pasarse',
         steps: [
-          '<strong>Medir la temperatura rectal</strong>. Golpe de calor: más de 40.5 °C con signos neurológicos.',
-          '<strong>Enfriamiento ACTIVO inmediato</strong>: agua tibia (NO fría ni hielo) sobre el cuerpo y ventilador potente.',
-          '<strong>Enfriar zonas muy irrigadas</strong>: cuello, axilas e ingle con paños húmedos.',
-          '<strong>Alcohol isopropílico en las almohadillas plantares</strong> (evaporación). Aplica solo en especies con almohadillas.',
-          '<strong>DETENER el enfriamiento a 39.5 °C</strong> para evitar hipotermia de rebote.',
-          '<strong>Fluidos IV frescos</strong>: bolo de Ringer lactato, ' + F(20) + ', y mantenimiento agresivo.',
-          '<strong>Oxígeno al 100%</strong>.',
-          '<strong>Corticoide si hay shock</strong>: dexametasona ' + D(0.25, 'mg') + ' IV.',
-          '<strong>Monitoreo</strong>: coagulación (la CID es frecuente), función renal y hepática, sistema nervioso y arritmias cada 2-4 h.',
-          '<strong>Complicaciones frecuentes</strong>: CID, insuficiencia renal aguda, rabdomiólisis y SDRA. Pronóstico reservado si pasa de 42 °C por más de 30 minutos.'
+          '<strong>Mide la temperatura rectal</strong> y retira al animal del calor.',
+          '<strong>Enfriamiento activo</strong>: agua a temperatura ambiente o tibia sobre el cuerpo y ventilador. El hielo y el alcohol ya no se recomiendan.',
+          '<strong>Detén el enfriamiento activo</strong> a 39.4 °C (algunas guías 39.7 °C) para evitar la hipotermia de rebote.',
+          '<strong>Fluidos IV</strong> (perro): bolos de cristaloide de ' + V(20, 20) + ' en 15 minutos hasta resolver la hipovolemia.',
+          '<strong>No uses corticoides</strong>: no hay beneficio demostrado y están contraindicados en el golpe de calor.',
+          '<strong>Oxígeno y monitoreo</strong> continuo; vigila la coagulación y la función renal.'
         ]
       },
       anafilaxia: {
-        title: '<svg class="zi" aria-hidden="true"><use href="#zi-bug"/></svg> Anafilaxia',
+        title: 'Anafilaxia',
         priority: 'EXTREMA URGENCIA · Cuentan los minutos',
         steps: [
-          '<strong>Identificar signos</strong>: urticaria, angioedema, broncoconstricción, colapso cardiovascular, vómito y diarrea.',
-          '<strong>EPINEFRINA inmediata</strong>: ' + DV(0.01, 'mg', 1) + ' (1:1000) IM en el muslo, o IV con 1:10,000 diluida.',
-          '<strong>Repetir la epinefrina cada 5-15 min</strong> si persisten la hipotensión o el broncoespasmo.',
-          '<strong>Oxígeno al 100%</strong>. Intubar si hay compromiso de la vía aérea.',
-          '<strong>Fluidos IV agresivos</strong>: bolo de cristaloides, ' + F(20) + '.',
-          '<strong>Dexametasona</strong>: ' + D(0.25, 'mg') + ' IV (no reemplaza a la epinefrina).',
-          '<strong>Difenhidramina</strong>: ' + D(2, 'mg', 1) + ' IM profundo o IV lento.',
-          '<strong>Broncodilatador</strong>: salbutamol en aerosol o terbutalina 0.01 mg/kg SC.',
-          '<strong>Monitoreo mínimo 24 h</strong>: puede haber una segunda reacción 4-12 h después.',
-          '<strong>Identificar el alérgeno</strong> (medicamento, veneno, alimento) para evitar nueva exposición.'
+          '<strong>Epinefrina</strong>: ' + D(0.01, 0.01, 'mg') + ' IM (solución 1 mg/ml); puede repetirse cada 5 a 15 minutos.',
+          '<strong>Oxígeno</strong>, acceso IV y fluidos isotónicos para sostener la presión.',
+          '<strong>Dexametasona</strong>: ' + D(0.1, 0.2, 'mg') + ' IM o IV (no reemplaza a la epinefrina).',
+          '<strong>Difenhidramina</strong>: ' + D(1, 2, 'mg') + ' IM o IV.',
+          '<strong>Vigila al paciente</strong> varias horas después de que mejore.'
         ]
       },
       envenenamiento: {
-        title: '<svg class="zi" aria-hidden="true"><use href="#zi-skull"/></svg> Envenenamiento (protocolo general)',
-        priority: 'URGENTE · Es crítico el tiempo desde la exposición',
+        title: 'Envenenamiento (protocolo general)',
+        priority: 'URGENTE · Importa el tiempo desde la exposición',
         steps: [
-          '<strong>Estabilizar ABC</strong> primero: signos vitales y estado neurológico.',
-          '<strong>Identificar el tóxico</strong>: historia, envase, testigos y síntomas. Llamar a un centro de toxicología si hay uno disponible.',
-          '<strong>Descontaminación de la piel</strong> si fue tópico: agua tibia con jabón suave 15-30 min. Proteger al personal.',
-          '<strong>Si fue ingesta de menos de 2 h y el animal está consciente</strong>: inducir el vómito con apomorfina 0.03 mg/kg IV o agua oxigenada al 3% 1-2 ml/kg VO (solo en perros).',
-          '<strong>Contraindicaciones del vómito</strong>: corrosivos, hidrocarburos, animal inconsciente, con convulsiones o gatos.',
-          '<strong>Carbón activado</strong>: 1-3 g/kg VO después de vomitar' + (conPeso && mam ? ' (con 2 g/kg: ' + resaltar(T(peso * 2) + ' g') + ')' : '') + '. Repetir la mitad de la dosis cada 4-6 h si el tóxico tiene circulación enterohepática.',
-          '<strong>Lavado gástrico</strong>: solo con el animal intubado y bajo anestesia, y si el tóxico puede ser mortal.',
-          '<strong>Antídotos específicos</strong>: N-acetilcisteína (acetaminofén), vitamina K1 (anticoagulantes), atropina + pralidoxima (organofosforados) y naloxona (opioides).',
-          '<strong>Soporte sintomático</strong>: fluidos, antieméticos (maropitant 1 mg/kg), protectores gástricos (omeprazol) y anticonvulsivos si convulsiona.',
-          '<strong>Monitoreo 24-48 h</strong>: función hepática, renal y gasometría según el tóxico.'
+          '<strong>Estabiliza ABC</strong> primero: signos vitales y estado neurológico.',
+          '<strong>Identifica el tóxico</strong> (envase, historia, síntomas) y consulta a un centro de toxicología.',
+          '<strong>Si fue en la piel</strong>: lavado con agua y jabón suave, protegiendo al personal.',
+          '<strong>Vómito inducido (solo perros)</strong>: apomorfina ' + D(0.03, 0.03, 'mg') + ' IV, o peróxido de hidrógeno al 3%, ' + (conPeso && canino ? resaltar(rango(peso * 1, Math.min(peso * 2, 45)) + ' ml') + ' (1 a 2 ml/kg, máximo 45 ml)' : '1 a 2 ml/kg, máximo 45 ml') + ' por vía oral, solo cuando no hay otra opción.',
+          '<strong>Carbón activado</strong>: ' + D(1, 2, 'g') + ' por vía oral; puede repetirse cada 4 a 6 horas si hace falta.',
+          '<strong>Antídoto específico</strong>: consulta cuál corresponde al tóxico con un centro de toxicología.',
+          '<strong>Antiemético</strong>: maropitant ' + D(1, 1, 'mg') + ' SC o IV una vez al día, hasta 5 días.'
         ]
       },
       hemorragia: {
-        title: '<svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> Hemorragia masiva',
-        priority: 'URGENTE · Más de 20% de la volemia = shock',
+        title: 'Hemorragia masiva',
+        priority: 'URGENTE · Controlar el sangrado',
         steps: [
-          '<strong>Compresión directa</strong> inmediata con gasa estéril. Elevar el miembro si aplica.',
-          '<strong>Torniquete SOLO como último recurso</strong>: anotar la hora, máximo 2 h.',
+          '<strong>Compresión directa</strong> inmediata con gasa estéril.',
           '<strong>Doble acceso IV</strong> con catéter de calibre grande.',
-          '<strong>Bolo de cristaloides</strong>: Ringer lactato rápido, ' + F(20) + '.',
-          '<strong>Si el sangrado persiste y hay shock</strong>: transfusión de sangre total ' + F(20) + ' o paquete globular ' + F(10) + '.',
-          '<strong>Ácido tranexámico</strong>: 10-20 mg/kg IV lento (carga) + infusión continua si la hemorragia sigue.',
-          '<strong>Identificar la fuente</strong>: visible (externa) u oculta (abdominal o torácica). Ultrasonido abdominal (FAST) y radiografía de tórax.',
-          '<strong>Cirugía urgente</strong> si el sangrado activo no se controla (hemoperitoneo, esplenectomía).',
-          '<strong>Vitamina K1</strong> 1-5 mg/kg SC si se sospecha intoxicación por rodenticidas.',
-          '<strong>Monitoreo</strong>: hematocrito cada 2-4 h (se espera que caiga 4-6 h después), coagulación (TP, TTP, plaquetas) y lactato.'
+          '<strong>Fluidos</strong>: cristaloide isotónico en bolos según el protocolo de shock de la especie (' + boloTxt() + '), reevaluando después de cada bolo.',
+          '<strong>Ácido tranexámico</strong>: ' + D(10, 10, 'mg') + ' IV lento (en perros; en estudios se han usado hasta 20 mg/kg).',
+          '<strong>Transfusión</strong>: valora sangre total o paquete globular según el caso y tu protocolo.',
+          '<strong>Identifica la fuente</strong> del sangrado (visible u oculta) y valora cirugía si no se controla.'
         ]
       }
     };
@@ -345,13 +360,13 @@
     var p = P[tipo];
     if (!p) return { error: 'Elige un protocolo.' };
     var avisos = [];
-    if (!mam) avisos.push('Las dosis de fármacos de este protocolo son de referencia para <strong>perro y gato</strong>. Para ' + etiquetaGrupo(g).toLowerCase() + ' no se calculan totales: consulta la dosis específica de la especie. Los volúmenes de fluidos sí se ajustaron a ' + etiquetaGrupo(g).toLowerCase() + ' (' + fmt(20 * factorFluido) + ' ml/kg en bolo).');
+    if (!canino) avisos.push('Las dosis de este protocolo son de <strong>perro y gato</strong>. Para ' + (g === 'aves' ? 'aves' : 'reptiles') + ' se muestra solo la dosis por kilo cuando existe; consulta la dosis específica de la especie antes de aplicar nada.');
     if (!conPeso) avisos.push('Escribe el peso para ver las cantidades totales; mientras tanto se muestran las dosis por kilo.');
     return { ok: true, title: p.title, priority: p.priority, steps: p.steps, avisos: avisos, grupo: g };
   }
 
   return {
-    PESO_MIN: PESO_MIN, PESO_MAX: PESO_MAX, MANTENIMIENTO: MANTENIMIENTO, BOLO_SHOCK: BOLO_SHOCK,
+    PESO_MIN: PESO_MIN, PESO_MAX: PESO_MAX, MANTENIMIENTO: MANTENIMIENTO, BOLO_SHOCK: BOLO_SHOCK, INTRAOP: INTRAOP, GRUPOS_FLUIDOS: GRUPOS_FLUIDOS,
     leerNumero: leerNumero, errorPeso: errorPeso, errorConcentracion: errorConcentracion, fmt: fmt, etiquetaGrupo: etiquetaGrupo,
     esc: esc, sinAcentos: sinAcentos, dosisVerificadas: dosisVerificadas, anestesia: anestesia, fluidos: fluidos, bcs: bcs, urgencia: urgencia
   };
