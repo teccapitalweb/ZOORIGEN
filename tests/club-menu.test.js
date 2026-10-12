@@ -113,7 +113,7 @@ test('panel: aviso "Confirma tu correo" descartable con Reenviar correo, y la ta
   assert.match(tablero, /id="avisoCorreo"/);
   assert.match(tablero, /Confirma tu correo/);
   assert.match(tablero, /Reenviar correo/);
-  assert.match(tablero, /sendEmailVerification\(\)/);
+  assert.match(tablero, /enviarCorreoVerificacion\(u\)/);
   assert.match(tablero, /necesitaConfirmarCorreo\(u\)/);
   assert.match(tablero, /fetchPremios\(/);
   assert.match(tablero, /reintentarReferidoPendiente/);

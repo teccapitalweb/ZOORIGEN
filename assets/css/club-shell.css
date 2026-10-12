@@ -126,14 +126,28 @@
 .zs-wa__btn:hover { transform: scale(1.06); }
 @keyframes zsPulso { 0%, 100% { box-shadow: 0 10px 26px rgba(37, 211, 102, 0.40); } 50% { box-shadow: 0 10px 34px rgba(37, 211, 102, 0.70); } }
 .zs-wa__menu {
-  position: absolute; left: 0; bottom: 68px; width: 250px;
+  position: absolute; left: 0; bottom: 68px; width: 270px;
   background: var(--zoo-bg-card); border: 1px solid var(--zoo-border-strong);
   border-radius: 16px; box-shadow: var(--zs-shadow); padding: 8px;
 }
 .zs-wa__menu[hidden] { display: none; }
 .zs-wa__title { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--zoo-text-dim); padding: 8px 10px 6px; }
-.zs-wa__item { display: block; padding: 10px 12px; border-radius: 10px; color: var(--zoo-text); font-size: .9rem; font-weight: 600; }
+.zs-wa__item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; color: var(--zoo-text); font-size: .9rem; font-weight: 600; }
 .zs-wa__item:hover { background: rgba(37, 211, 102, 0.12); }
+.zs-wa__ic { width: 34px; height: 34px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; flex: none; background: rgba(37, 211, 102, 0.14); color: #1E9B50; }
+.zs-wa__ic .zi { width: 18px; height: 18px; }
+.zs-wa__tx { display: block; font-size: .85rem; font-weight: 700; line-height: 1.3; }
+/* Ventana "Instalar app" */
+.zs-inst { position: fixed; inset: 0; z-index: 100001; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.zs-inst__velo { position: absolute; inset: 0; background: rgba(10, 20, 14, .55); }
+.zs-inst__caja { position: relative; width: 100%; max-width: 380px; padding: 28px 24px 24px; border-radius: 20px; background: var(--zoo-bg-card); border: 1px solid var(--zoo-border-strong); box-shadow: var(--zs-shadow); text-align: center; }
+.zs-inst__caja h2 { margin: 0 0 8px; font-family: 'Poppins', sans-serif; font-size: 1.2rem; color: var(--zoo-text); }
+.zs-inst__caja p { margin: 0 0 10px; font-size: .9rem; line-height: 1.55; color: var(--zoo-text-muted); }
+.zs-inst__caja ol { margin: 6px 0 4px; padding-left: 20px; text-align: left; font-size: .88rem; line-height: 1.6; color: var(--zoo-text-muted); }
+.zs-inst__icono { width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 50%; display: grid; place-items: center; background: rgba(232, 163, 23, 0.16); color: var(--zoo-amber); }
+.zs-inst__x { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; background: transparent; border: 0; color: var(--zoo-text-muted); cursor: pointer; }
+.zs-inst__btn { display: block; width: 100%; margin-top: 8px; padding: 13px 16px; border: 0; border-radius: 12px; background: var(--zoo-amber); color: #1F1D17; font: 700 .95rem 'Poppins', sans-serif; cursor: pointer; }
+.zs-wa__sub { display: block; font-size: .74rem; font-weight: 500; color: var(--zoo-text-dim); margin-top: 1px; }
 
 /* el menú lateral deja espacio abajo para que el botón de WhatsApp no tape las últimas opciones */
 .club-sidebar { padding-bottom: 96px; }

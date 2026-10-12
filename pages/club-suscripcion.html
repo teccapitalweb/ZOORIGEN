@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261028-panel">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
   <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
@@ -35,8 +35,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261028-claro"></script>
-  <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
+  <script src="../assets/js/club.js?v=20261030-claro"></script>
+  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script>
     (async () => {
@@ -74,34 +74,27 @@
             </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;">
+          <h2 class="sub-titulo">Elige tu plan</h2>
+          <div class="sub-planes" role="group" aria-label="Plan de membresía">
+            <button type="button" class="sub-plan" data-plan="mensual" aria-pressed="false">
+              <span class="sub-plan__nombre">VIP Mensual</span>
+              <span class="sub-plan__sub">Cancela cuando quieras</span>
+              <span class="sub-plan__precio">$199<em>MXN/MES</em></span>
+            </button>
+            <button type="button" class="sub-plan is-activo" data-plan="anual" aria-pressed="true">
+              <span class="sub-plan__nombre">VIP Anual <b class="sub-plan__etq">Recomendado</b></span>
+              <span class="sub-plan__sub">Ahorras $489 al año</span>
+              <span class="sub-plan__precio">$1,899<em>MXN/AÑO</em></span>
+            </button>
+          </div>
 
-            <div class="card" style="border-color:var(--zoo-border-strong);">
-              <div style="color:var(--zoo-green-500);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;">Plan Mensual</div>
-              <div style="color:#fff;font-size:2.2rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;margin-top:8px;">$199<span style="font-size:.9rem;color:var(--zoo-text-muted);font-weight:400;"> /mes</span></div>
-              <p style="color:var(--zoo-text-muted);font-size:.88rem;margin-top:10px;margin-bottom:18px;">Facturación mensual · Cancela cuando quieras</p>
-              <ul style="list-style:none;padding:0;margin:0 0 20px;font-size:.88rem;color:var(--zoo-text-muted);">
-                <li style="padding:6px 0;"><svg class="zi" aria-hidden="true"><use href="#zi-check"/></svg> Acceso completo 30 días</li>
-                <li style="padding:6px 0;"><svg class="zi" aria-hidden="true"><use href="#zi-check"/></svg> Renovación automática</li>
-                <li style="padding:6px 0;"><svg class="zi" aria-hidden="true"><use href="#zi-check"/></svg> 20% OFF en cursos</li>
-              </ul>
-              <button onclick="ZOORIGEN_CLUB.openCheckoutModal('mensual', '${session.email}')" class="btn-club-outline" style="display:block;width:100%;padding:12px;margin:0;border:1px solid var(--zoo-border-strong);font-family:inherit;font-size:1rem;cursor:pointer;">Suscribirme mensual</button>
+          <div class="sub-pago">
+            <div class="sub-pago__cab">
+              <div class="sub-pago__plan" id="subPagoPlan">Suscríbete a Zoorigen VIP · Plan Anual</div>
+              <div class="sub-pago__monto" id="subPagoMonto">MXN 1,899.00 <small>por año</small></div>
+              <div class="sub-pago__detalle" id="subPagoDetalle">MXN 158.25/mes facturado anualmente</div>
             </div>
-
-            <div class="card" style="border:2px solid var(--zoo-amber);background:linear-gradient(135deg,rgba(232,163,23,0.1),rgba(31,95,58,0.2));position:relative;">
-              <span style="position:absolute;top:-10px;right:16px;background:var(--zoo-amber);color:#1f1d17;padding:4px 12px;border-radius:12px;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;">Ahorra 2 meses</span>
-              <div style="color:var(--zoo-amber);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;">Plan Anual · Recomendado</div>
-              <div style="color:#fff;font-size:2.2rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;margin-top:8px;">$1,899<span style="font-size:.9rem;color:var(--zoo-text-muted);font-weight:400;"> /año</span></div>
-              <p style="color:var(--zoo-text-muted);font-size:.88rem;margin-top:10px;margin-bottom:18px;">Equivale a <strong style="color:var(--zoo-green-500);">$158/mes</strong> · Ahorras $489 MXN</p>
-              <ul style="list-style:none;padding:0;margin:0 0 20px;font-size:.88rem;color:var(--zoo-text-muted);">
-                <li style="padding:6px 0;"><svg class="zi" aria-hidden="true"><use href="#zi-check"/></svg> Acceso completo 365 días</li>
-                <li style="padding:6px 0;"><svg class="zi" aria-hidden="true"><use href="#zi-check"/></svg> Sin sorpresas de cobros mensuales</li>
-                <li style="padding:6px 0;"><svg class="zi" aria-hidden="true"><use href="#zi-check"/></svg> 20% OFF en cursos todo el año</li>
-                <li style="padding:6px 0;"><svg class="zi" aria-hidden="true"><use href="#zi-check"/></svg> <strong style="color:var(--zoo-amber);">2 meses gratis</strong></li>
-              </ul>
-              <button onclick="ZOORIGEN_CLUB.openCheckoutModal('anual', '${session.email}')" class="btn-club" style="display:block;width:100%;padding:14px;border:0;font-family:inherit;font-size:1rem;cursor:pointer;">Suscribirme anual</button>
-            </div>
-
+            <div id="checkoutEmbebido" class="sub-pago__form"></div>
           </div>
 
           <p style="text-align:center;color:var(--zoo-text-dim);font-size:.84rem;margin-top:18px;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Pago seguro procesado por Stripe · Tu membresía se activa automáticamente al completar el pago</p>`;
@@ -144,6 +137,32 @@
       }
       content.innerHTML = html;
 
+      // Pago dentro de la página (Stripe Embedded Checkout): se elige el plan arriba y el formulario aparece debajo.
+      const contenedorPago = document.getElementById('checkoutEmbebido');
+      if (contenedorPago) {
+        const PLANES = {
+          mensual: { plan: 'Suscríbete a Zoorigen VIP · Plan Mensual', monto: 'MXN 199.00', cada: 'por mes', detalle: 'Se renueva cada mes · Cancela cuando quieras' },
+          anual: { plan: 'Suscríbete a Zoorigen VIP · Plan Anual', monto: 'MXN 1,899.00', cada: 'por año', detalle: 'MXN 158.25/mes facturado anualmente' }
+        };
+        let planActual = null;
+        const elegirPlan = (plan) => {
+          if (!PLANES[plan] || plan === planActual) return;
+          planActual = plan;
+          document.querySelectorAll('.sub-plan').forEach((b) => {
+            const activo = b.dataset.plan === plan;
+            b.classList.toggle('is-activo', activo);
+            b.setAttribute('aria-pressed', activo ? 'true' : 'false');
+          });
+          const p = PLANES[plan];
+          document.getElementById('subPagoPlan').textContent = p.plan;
+          document.getElementById('subPagoMonto').innerHTML = p.monto + ' <small>' + p.cada + '</small>';
+          document.getElementById('subPagoDetalle').textContent = p.detalle;
+          iniciarPagoEmbedded(plan, session.email, 'checkoutEmbebido');
+        };
+        document.querySelectorAll('.sub-plan').forEach((b) => b.addEventListener('click', () => elegirPlan(b.dataset.plan)));
+        elegirPlan('anual');
+      }
+
       // ═══════════════ AUTO-CHECK: Verifica si el pago ya se procesó ═══════════════
       // Si viene con ?paid=1 en la URL (después de checkout de Stripe), verificar cada 3s por 90s
       const urlParams = new URLSearchParams(window.location.search);
@@ -167,7 +186,24 @@
           <style>
             @keyframes pulseZ { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
             @keyframes bounceZ { 0%,80%,100%{transform:translateY(0);opacity:0.3} 40%{transform:translateY(-8px);opacity:1} }
-          </style>
+          
+    .sub-titulo { font-family: 'Poppins', sans-serif; font-size: 1.2rem; text-align: center; margin: 4px 0 14px; color: var(--zoo-text); }
+    .sub-planes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; max-width: 760px; margin: 0 auto 18px; }
+    .sub-plan { text-align: left; display: grid; gap: 4px; padding: 16px 18px; border-radius: 16px; background: var(--zoo-bg-card); border: 2px solid var(--zoo-border-strong); color: var(--zoo-text); cursor: pointer; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
+    .sub-plan:hover { border-color: rgba(232, 163, 23, 0.6); }
+    .sub-plan.is-activo { border-color: var(--zoo-amber); box-shadow: 0 8px 24px rgba(232, 163, 23, 0.16); }
+    .sub-plan__nombre { font-weight: 800; font-size: 1rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .sub-plan__etq { font-size: .64rem; letter-spacing: .06em; text-transform: uppercase; background: var(--zoo-amber); color: #1F1D17; padding: 2px 8px; border-radius: 10px; }
+    .sub-plan__sub { font-size: .82rem; color: var(--zoo-text-muted); }
+    .sub-plan__precio { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--zoo-green-500, #1F5F3A); }
+    .sub-plan__precio em { font-style: normal; font-size: .66rem; font-weight: 700; letter-spacing: .08em; color: var(--zoo-text-dim); margin-left: 6px; }
+    .sub-pago { max-width: 760px; margin: 0 auto; background: var(--zoo-bg-card); border: 1px solid var(--zoo-border-strong); border-radius: 18px; padding: 22px 20px; }
+    .sub-pago__plan { font-size: .9rem; color: var(--zoo-text-muted); }
+    .sub-pago__monto { font-family: 'Poppins', sans-serif; font-size: 1.9rem; font-weight: 800; color: var(--zoo-text); line-height: 1.2; }
+    .sub-pago__monto small { font-size: .85rem; font-weight: 500; color: var(--zoo-text-muted); }
+    .sub-pago__detalle { font-size: .84rem; color: var(--zoo-text-muted); margin-bottom: 16px; }
+    .sub-pago__form { min-height: 120px; }
+  </style>
         `;
         document.body.appendChild(overlay);
 

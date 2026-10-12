@@ -291,9 +291,10 @@ test('club.js ya no escribe referredBy desde el navegador', () => {
   }
 });
 
-test('el registro con correo envía el correo de confirmación de Firebase', () => {
+test('el registro con correo envía el correo de confirmación (servidor, con respaldo de Firebase)', () => {
   const fuente = fs.readFileSync(path.join(RAIZ, 'assets', 'js', 'club.js'), 'utf8');
-  assert.match(fuente, /cred\.user\.sendEmailVerification\(\)/);
+  assert.match(fuente, /this\.enviarCorreoVerificacion\(cred\.user\)/);
+  assert.match(fuente, /u\.sendEmailVerification\(\)/, 'respaldo de Firebase');
   assert.match(fuente, /registrarReferido\(cred\.user\)/);
   assert.match(fuente, /nuevo \? await this\._conTiempo\(this\.registrarReferido\(user\)/, 'Google: solo cuentas nuevas se registran como invitadas');
 });

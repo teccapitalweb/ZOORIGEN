@@ -100,6 +100,15 @@
     return (partes.map(function (p) { return p.charAt(0); }).join('') || 'M').toUpperCase();
   }
 
+  /* ¿Tiene membresía vigente? (la sesión trae planStatus; el administrador también cuenta) */
+  function esMiembroVip(sesion) {
+    if (!sesion) return false;
+    var cl = null;
+    try { cl = (typeof ZOORIGEN_CLUB !== 'undefined') ? ZOORIGEN_CLUB : null; } catch (e) { cl = null; }
+    if (cl && typeof cl.hasActiveMembership === 'function') { try { if (cl.hasActiveMembership(sesion)) return true; } catch (e) { /* nada */ } }
+    return sesion.planStatus === 'active' || sesion.planStatus === 'cancelled_active' || sesion.role === 'admin';
+  }
+
   function enlaceSoporte(texto) {
     return 'https://wa.me/' + SOPORTE + '?text=' + encodeURIComponent(texto);
   }
@@ -107,7 +116,7 @@
   var API = {
     GRUPOS: GRUPOS, BARRA: BARRA, SOPORTE: SOPORTE, BREAKPOINT_MOVIL: BREAKPOINT_MOVIL,
     planos: planos, normalizar: normalizar, buscarSecciones: buscarSecciones, buscarCursos: buscarCursos,
-    pestanaActiva: pestanaActiva, primerNombre: primerNombre, iniciales: iniciales, enlaceSoporte: enlaceSoporte
+    pestanaActiva: pestanaActiva, primerNombre: primerNombre, iniciales: iniciales, enlaceSoporte: enlaceSoporte, esMiembroVip: esMiembroVip, whatsappHTML: whatsappHTML, modoInstalacion: modoInstalacion
   };
 
   if (typeof document === 'undefined') return API;
@@ -134,6 +143,7 @@
         logout: '<path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M9 12h12l-3 -3"/><path d="M18 15l3 -3"/>',
         tools: '<path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5"/>',
         x: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>',
+        download: '<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/>',
         bulb: '<path d="M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7"/><path d="M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3"/><path d="M9.7 17l4.6 0"/>'
       };
       Object.keys(extra).forEach(function (k) { if (!ZOORIGEN_ICONS[k]) ZOORIGEN_ICONS[k] = extra[k]; });
@@ -150,9 +160,55 @@
 
   /* Menú agrupado (lo usan el menú lateral y el cajón). */
   function menuHTML(activo, clase) {
-    return GRUPOS.map(function (g) {
-      return '<div class="club-sidebar__section">' + esc(g.titulo) + '</div>' + g.items.map(function (i) { return enlaceHTML(i, activo, clase); }).join('');
+    var instalar = '<a href="#instalar" class="' + (clase || '') + ' zs-instalar" data-instalar="1"><span class="icon">' + icono('download') + '</span>Instalar app</a>';
+    return GRUPOS.map(function (g, n) {
+      var cierre = (n === GRUPOS.length - 1) ? instalar : '';
+      return '<div class="club-sidebar__section">' + esc(g.titulo) + '</div>' + g.items.map(function (i) { return enlaceHTML(i, activo, clase); }).join('') + cierre;
     }).join('');
+  }
+
+  /* ───── Instalar la app (PWA): el navegador avisa una sola vez que se puede instalar; se guarda ese aviso ───── */
+  var avisoInstalar = null;
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); avisoInstalar = e; });
+    window.addEventListener('appinstalled', function () { avisoInstalar = null; });
+  }
+  function modoInstalacion(info) {
+    info = info || {};
+    if (info.instalada) return 'instalada';
+    if (info.hayAviso) return 'aviso';
+    if (info.esIOS) return 'ios';
+    return 'manual';
+  }
+  function abrirInstalar() {
+    var ua = (navigator.userAgent || '');
+    var instalada = false;
+    try { instalada = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; } catch (e) { instalada = false; }
+    var modo = modoInstalacion({ instalada: instalada, hayAviso: !!avisoInstalar, esIOS: /iPhone|iPad|iPod/i.test(ua) });
+    var previo = document.getElementById('zsInstalar'); if (previo) previo.remove();
+    var texto = {
+      instalada: '<p>Zoorigen ya está instalada en este dispositivo. Ábrela desde tu pantalla de inicio.</p>',
+      aviso: '<p>Instala Zoorigen para abrirla como una app: acceso directo, pantalla completa y carga más rápida.</p><button type="button" class="zs-inst__btn" id="zsInstalarYa">Instalar ahora</button>',
+      ios: '<p>En iPhone y iPad se instala desde Safari:</p><ol><li>Toca el botón <strong>Compartir</strong> (el cuadro con la flecha hacia arriba).</li><li>Elige <strong>Agregar a pantalla de inicio</strong>.</li><li>Toca <strong>Agregar</strong>.</li></ol>',
+      manual: '<p>Abre el menú de tu navegador (los tres puntos) y elige <strong>Instalar Zoorigen</strong> o <strong>Agregar a pantalla de inicio</strong>.</p><p>Si no aparece la opción, abre esta página en Chrome, Edge o Safari.</p>'
+    }[modo];
+    var c = document.createElement('div');
+    c.id = 'zsInstalar';
+    c.className = 'zs-inst';
+    c.setAttribute('role', 'dialog');
+    c.setAttribute('aria-modal', 'true');
+    c.innerHTML = '<div class="zs-inst__velo" data-cerrar="1"></div><div class="zs-inst__caja"><button type="button" class="zs-inst__x" data-cerrar="1" aria-label="Cerrar">' + icono('x', 18) + '</button>' +
+      '<div class="zs-inst__icono">' + icono('download', 26) + '</div><h2>Instalar app</h2>' + texto + '</div>';
+    document.body.appendChild(c);
+    c.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-cerrar]')) c.remove();
+    });
+    var ya = c.querySelector('#zsInstalarYa');
+    if (ya && avisoInstalar) ya.addEventListener('click', function () {
+      var ev = avisoInstalar;
+      ev.prompt();
+      Promise.resolve(ev.userChoice).then(function () { avisoInstalar = null; c.remove(); }).catch(function () { c.remove(); });
+    });
   }
 
   function temaActual() { return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
@@ -241,15 +297,24 @@
       '<button type="button" class="zs-drawer__btn zs-drawer__btn--salir" id="zsSalirCajon">' + icono('logout', 17) + ' Cerrar sesión</button></div>';
   }
 
-  function whatsappHTML() {
-    var item = function (txt, url, clase) { return '<a class="zs-wa__item" href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(txt) + '</a>'; };
-    return '<div class="zs-wa" id="zsWa">' +
-      '<div class="zs-wa__menu" id="zsWaMenu" hidden>' +
-        '<div class="zs-wa__title">¿En qué te ayudamos?</div>' +
-        item('Soporte del Club VIP', enlaceSoporte('Hola, soy miembro del Club VIP Zoorigen y necesito ayuda')) +
-        item('Mi 20% de descuento', enlaceSoporte('Hola, quiero aplicar mi 20% de descuento VIP')) +
-        '<a class="zs-wa__item" href="club-canal.html">Canal de WhatsApp</a>' +
-      '</div>' +
+  /* Botón flotante de WhatsApp. Quien NO es miembro VIP va directo a WhatsApp (sin menú); el menú con
+     descuento, soporte VIP, dirección y canal es solo para miembros. */
+  var MSG_SIN_MEMBRESIA = 'Hola, quiero información sobre el Club VIP de Zoorigen';
+  function ico(nombre) { return '<svg class="zi" aria-hidden="true"><use href="#zi-' + nombre + '"/></svg>'; }
+  function whatsappHTML(esVip) {
+    var item = function (icon, txt, sub, url, interno) {
+      return '<a class="zs-wa__item" href="' + esc(url) + '"' + (interno ? '' : ' target="_blank" rel="noopener"') + '>' +
+        '<span class="zs-wa__ic">' + ico(icon) + '</span><span><span class="zs-wa__tx">' + esc(txt) + '</span><span class="zs-wa__sub">' + esc(sub) + '</span></span></a>';
+    };
+    var menu = esVip
+      ? '<div class="zs-wa__menu" id="zsWaMenu" hidden>' +
+          item('gift', 'Mi descuento 20%', 'Solicitar por WhatsApp', enlaceSoporte('Hola, quiero aplicar mi 20% de descuento VIP')) +
+          item('message-circle', 'Soporte VIP', 'Ayuda con tu cuenta', enlaceSoporte('Hola, soy miembro del Club VIP Zoorigen y necesito ayuda')) +
+          item('mail', 'Contactar dirección', 'Para temas estratégicos', enlaceSoporte('Hola, quiero hablar con la dirección de Zoorigen')) +
+          item('radio', 'Canal oficial Zoorigen', 'Únete y recibe alertas', 'club-canal.html', true) +
+        '</div>'
+      : '';
+    return '<div class="zs-wa" id="zsWa" data-vip="' + (esVip ? '1' : '0') + '">' + menu +
       '<button type="button" class="zs-wa__btn" id="zsWaBtn" aria-label="Ayuda por WhatsApp" aria-expanded="false">' + icono('brandwhatsapp', 24) + '</button></div>';
   }
 
@@ -318,7 +383,7 @@
       '<nav class="zs-bottom" id="zsBottom" aria-label="Navegación principal">' + barraInferiorHTML(activo) + '</nav>' +
       '<div class="zs-velo" id="zsVelo"></div>' +
       '<aside class="zs-drawer" id="zsDrawer" role="dialog" aria-label="Menú" aria-hidden="true">' + cajonHTML(sesion, activo) + '</aside>' +
-      whatsappHTML();
+      whatsappHTML(esMiembroVip(sesion));
     while (cuerpo.firstChild) document.body.appendChild(cuerpo.firstChild);
 
     pintarTema();
@@ -346,11 +411,24 @@
     document.getElementById('zsDrawer').addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) abrirCajon(false); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { abrirCajon(false); abrirWa(false); } });
 
+    /* Instalar app (menú lateral y cajón) */
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[data-instalar]');
+      if (!a) return;
+      e.preventDefault();
+      abrirInstalar();
+    });
+
     /* WhatsApp flotante */
     var waBtn = document.getElementById('zsWaBtn'), waMenu = document.getElementById('zsWaMenu');
-    function abrirWa(abrir) { waMenu.hidden = !abrir; waBtn.setAttribute('aria-expanded', abrir ? 'true' : 'false'); }
-    waBtn.addEventListener('click', function (e) { e.stopPropagation(); abrirWa(waMenu.hidden); });
-    document.addEventListener('click', function (e) { if (!waMenu.hidden && !document.getElementById('zsWa').contains(e.target)) abrirWa(false); });
+    function abrirWa(abrir) { if (!waMenu) return; waMenu.hidden = !abrir; waBtn.setAttribute('aria-expanded', abrir ? 'true' : 'false'); }
+    waBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      /* sin membresía: directo a WhatsApp, como en el sitio público */
+      if (!waMenu) { window.open(enlaceSoporte(MSG_SIN_MEMBRESIA), '_blank', 'noopener'); return; }
+      abrirWa(waMenu.hidden);
+    });
+    document.addEventListener('click', function (e) { if (waMenu && !waMenu.hidden && !document.getElementById('zsWa').contains(e.target)) abrirWa(false); });
 
     window.addEventListener('storage', function (e) { if (e.key === 'zoo_theme') { document.documentElement.setAttribute('data-theme', e.newValue === 'dark' ? 'dark' : 'light'); pintarTema(); } });
     window.addEventListener('resize', function () { if (window.innerWidth > BREAKPOINT_MOVIL) abrirCajon(false); });

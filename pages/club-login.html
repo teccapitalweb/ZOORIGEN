@@ -133,9 +133,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261028-claro"></script>
+  <script src="../assets/js/club.js?v=20261030-claro"></script>
   <script>
-    auth.onAuthStateChanged((user) => { if (user) window.location.href = 'club-dashboard.html'; });
+    // Mientras se decide si la cuenta de Google ya existía, no se redirige solo.
+    let googleEnCurso = false;
+    auth.onAuthStateChanged((user) => { if (user && !googleEnCurso) window.location.href = 'club-dashboard.html'; });
     const form = document.getElementById('loginForm');
     const errorMsg = document.getElementById('errorMsg');
     const successMsg = document.getElementById('successMsg');
@@ -145,6 +147,14 @@
 
     const showError = (msg) => { errorMsg.textContent = msg; errorMsg.classList.add('show'); successMsg.classList.remove('show'); };
     const showSuccess = (msg) => { successMsg.textContent = msg; successMsg.classList.add('show'); errorMsg.classList.remove('show'); };
+
+    // Llegada desde el enlace del correo de confirmación abierto en otro dispositivo
+    try {
+      const q = new URLSearchParams(location.search);
+      const correo = (q.get('email') || '').slice(0, 120);
+      if (correo) document.getElementById('email').value = correo;
+      if (q.get('verificado') === '1') showSuccess('Tu correo ya quedó confirmado. Inicia sesión para entrar al club.');
+    } catch (e) { /* nada */ }
 
     document.querySelectorAll('[data-password-toggle]').forEach((button) => {
       button.addEventListener('click', () => {
@@ -171,9 +181,16 @@
 
     googleBtn.addEventListener('click', async () => {
       googleBtn.disabled = true;
-      const result = await ZOORIGEN_CLUB.loginWithGoogle();
+      googleEnCurso = true;
+      // Desde "Iniciar sesión" solo entra quien YA tiene cuenta; si no la tiene, se le lleva a crearla.
+      const result = await ZOORIGEN_CLUB.loginWithGoogle({ modo: 'entrar' });
+      googleEnCurso = false;
       if (result.ok) window.location.href = 'club-dashboard.html';
-      else { showError(result.msg); googleBtn.disabled = false; }
+      else {
+        googleBtn.disabled = false;
+        if (result.cancelado) return;
+        showError(result.msg);
+      }
     });
 
     forgotLink.addEventListener('click', (e) => {

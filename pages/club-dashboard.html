@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261028-panel">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261027-noticias">
   <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261027-inicio">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261016">
@@ -574,8 +574,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261028-claro"></script>
-  <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
+  <script src="../assets/js/club.js?v=20261030-claro"></script>
+  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
@@ -963,8 +963,8 @@
         btnReenviar.addEventListener('click', async () => {
           btnReenviar.disabled = true;
           try {
-            try { auth.languageCode = 'es'; } catch (e) { /* nada */ }
-            await u.sendEmailVerification();
+            const envio = await ZOORIGEN_CLUB.enviarCorreoVerificacion(u);
+            if (!envio.ok) throw Object.assign(new Error('envio'), { code: envio.motivo === 'demasiados' ? 'auth/too-many-requests' : 'envio' });
             decir('Listo, te enviamos otro correo. Revisa tu bandeja de entrada y la carpeta de spam.');
             let seg = 60;
             espera = setInterval(() => {
@@ -1051,7 +1051,10 @@
       document.getElementById('asideVivo').innerHTML = ZOO_INICIO.vivoHTML(proximaSesion);
       if (proximaSesion) ZOORIGEN_CLUB.startCountdown('countdown', proximaSesion.date);
       document.getElementById('asideComunidad').innerHTML = ZOO_INICIO.comunidadHTML();
-      document.getElementById('asideDescuento').innerHTML = ZOO_INICIO.descuentoHTML('https://wa.me/5212361113237?text=Hola%2C%20quiero%20aplicar%20mi%2020%25%20VIP');
+      // El descuento del 20% es un beneficio de miembros: quien no tiene membresía vigente no ve esta tarjeta.
+      document.getElementById('asideDescuento').innerHTML = ZOORIGEN_CLUB.hasActiveMembership(session)
+        ? ZOO_INICIO.descuentoHTML('https://wa.me/5212361113237?text=Hola%2C%20quiero%20aplicar%20mi%2020%25%20VIP')
+        : '';
       const pintarActividad = async () => {
         let progreso = {};
         try { progreso = await ZOORIGEN_CLUB.getCourseProgress(session.uid); } catch (e) { progreso = {}; }

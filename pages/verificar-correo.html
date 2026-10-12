@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Confirmar correo · Zoorigen</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
+<meta name="theme-color" content="#1F5F3A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#F5F2EA; --card:#fff; --ink:#16241B; --muted:#5A6A5F; --line:#E3DDCF; --green:#1F5F3A; --amber:#E8A317; --bad:#B3261E; --bad-bg:#FDF4F3; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 24px 16px 40px; font-family: 'Open Sans', system-ui, sans-serif; color: var(--ink);
+    background: radial-gradient(900px 480px at 50% -10%, #E3EFE6, var(--bg)); }
+  .logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+  .card { width: 100%; max-width: 440px; padding: 36px 30px 30px; text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: 26px; box-shadow: 0 24px 60px rgba(21,51,33,.14); animation: up .4s ease both; }
+  @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .icono { width: 84px; height: 84px; margin: 0 auto 20px; display: grid; place-items: center; border-radius: 50%; background: #E4F2E8; color: var(--green); }
+  .icono svg { width: 42px; height: 42px; }
+  .icono.is-bad { background: var(--bad-bg); color: var(--bad); }
+  .icono.is-wait { background: #EEF4EE; }
+  .spinner { width: 34px; height: 34px; border: 3px solid #CFE0D4; border-top-color: var(--green); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .kicker { margin-bottom: 8px; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--green); }
+  h1 { margin-bottom: 10px; font-family: 'Poppins', sans-serif; font-size: 25px; line-height: 1.2; letter-spacing: -.3px; }
+  p { font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+  .btn { display: block; width: 100%; margin-top: 26px; padding: 15px 18px; border: 0; border-radius: 14px; background: var(--amber); color: #1F1D17; font: 700 15px 'Poppins', sans-serif; text-decoration: none; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(232,163,23,.34); }
+  .pasos { margin-top: 22px; padding: 14px 16px; text-align: left; font-size: 13px; line-height: 1.55; color: var(--muted); background: #F4F9F5; border-radius: 14px; }
+  .pasos b { color: var(--green); }
+  [hidden] { display: none !important; }
+  footer { font-size: 12px; color: var(--muted); }
+  footer a { color: var(--green); font-weight: 700; text-decoration: none; }
+</style>
+</head>
+<body>
+  <img class="logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen">
+
+  <main class="card" aria-live="polite">
+    <section id="st-espera">
+      <div class="icono is-wait"><div class="spinner"></div></div>
+      <h1>Confirmando tu correo…</h1>
+      <p>Un momento, estamos activando tu cuenta.</p>
+    </section>
+
+    <section id="st-ok" hidden>
+      <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <div class="kicker">Cuenta activada</div>
+      <h1>¡Correo confirmado!</h1>
+      <p id="ok-texto">Tu cuenta de Zoorigen ya está lista. Entra al club para empezar a aprender.</p>
+      <a class="btn" id="continuar" href="club-dashboard.html">Continuar al club</a>
+    </section>
+
+    <section id="st-error" hidden>
+      <div class="icono is-bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg></div>
+      <div class="kicker" style="color:var(--bad)">No pudimos confirmarlo</div>
+      <h1 id="err-titulo">Este enlace ya no sirve</h1>
+      <p id="err-texto">El enlace venció o ya se usó. Si ya confirmaste tu correo, solo inicia sesión.</p>
+      <div class="pasos">
+        <b>¿Qué hago?</b><br>
+        1. Inicia sesión con tu correo y contraseña.<br>
+        2. Si te pide confirmar, toca «Reenviar correo» y abre el enlace nuevo.
+      </div>
+      <a class="btn" href="club-login.html">Ir a iniciar sesión</a>
+    </section>
+  </main>
+
+  <footer>¿Necesitas ayuda? <a href="https://wa.me/5212361113237" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script>
+(async () => {
+  const $ = id => document.getElementById(id);
+  const mostrar = id => ['st-espera', 'st-ok', 'st-error'].forEach(s => { $(s).hidden = s !== id; });
+  const aviso = nombre => { try { const bc = new BroadcastChannel('zoo_verificacion'); bc.postMessage(nombre); setTimeout(() => bc.close(), 500); } catch (e) { /* sin BroadcastChannel */ } };
+  const code = new URLSearchParams(location.search).get('oobCode');
+  if (!code) {
+    $('err-titulo').textContent = 'Falta el enlace de confirmación';
+    $('err-texto').textContent = 'Abre el enlace desde el correo que te enviamos.';
+    mostrar('st-error');
+    return;
+  }
+  try {
+    aviso('abierta');
+    // El correo al que pertenece el enlace (para recordarlo si hay que iniciar sesión)
+    let correo = '';
+    try { const info = await auth.checkActionCode(code); correo = (info && info.data && info.data.email) || ''; } catch (e) { /* se confirma de todos modos */ }
+    await auth.applyActionCode(code);
+    // Si en este navegador ya hay sesión, se actualiza para entrar al club sin otra pantalla de espera
+    let haySesion = false;
+    try {
+      await new Promise(res => { const off = auth.onAuthStateChanged(() => { off(); res(); }); });
+      if (auth.currentUser) { haySesion = true; await auth.currentUser.reload(); await auth.currentUser.getIdToken(true); }
+    } catch (e) { /* sin sesión */ }
+    if (!haySesion) {
+      // El enlace se abrió en otro navegador o dispositivo: se lleva a iniciar sesión.
+      $('continuar').href = 'club-login.html?verificado=1' + (correo ? '&email=' + encodeURIComponent(correo) : '');
+      $('continuar').textContent = 'Iniciar sesión para continuar';
+      $('ok-texto').textContent = 'Tu cuenta de Zoorigen ya está lista. Inicia sesión con tu correo y contraseña para entrar al club.';
+    }
+    aviso('ok');
+    mostrar('st-ok');
+  } catch (e) {
+    aviso('fallo');
+    const caducado = e && (e.code === 'auth/expired-action-code' || e.code === 'auth/invalid-action-code');
+    if (!caducado) {
+      $('err-titulo').textContent = 'Algo salió mal';
+      $('err-texto').textContent = 'No pudimos confirmar tu correo ahora. Revisa tu conexión e inténtalo de nuevo desde el correo.';
+    }
+    mostrar('st-error');
+  }
+})();
+</script>
+</body>
+</html>

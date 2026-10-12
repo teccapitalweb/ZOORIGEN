@@ -71,6 +71,7 @@ async function iniciarPagoEmbedded(planType, email, containerId) {
   if (!container) return;
 
   container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--zoo-text-muted);">Cargando formulario de pago...</div>';
+  const turno = (window.__zooTurnoPago = (window.__zooTurnoPago || 0) + 1);
 
   try {
     const idToken = await user.getIdToken();
@@ -86,11 +87,16 @@ async function iniciarPagoEmbedded(planType, email, containerId) {
     });
     const data = await response.json();
     if (!data.clientSecret) throw new Error(data.error || 'Error al crear sesión');
+    if (turno !== window.__zooTurnoPago) return;   // se eligió otro plan mientras cargaba este
 
+    // Stripe solo permite un pago embebido a la vez: se destruye el anterior (por ejemplo, al cambiar de plan).
+    try { if (window.__zooCheckoutEmbebido && window.__zooCheckoutEmbebido.destroy) window.__zooCheckoutEmbebido.destroy(); } catch (e) { /* ya no existía */ }
+    window.__zooCheckoutEmbebido = null;
     const stripe = Stripe(STRIPE_CONFIG.PUBLIC_KEY);
     const checkout = await stripe.initEmbeddedCheckout({ clientSecret: data.clientSecret });
     container.innerHTML = '';
     checkout.mount('#' + containerId);
+    window.__zooCheckoutEmbebido = checkout;
   } catch (error) {
     console.error('Error Embedded Checkout:', error);
     container.innerHTML = '<div style="text-align:center;padding:20px;color:#ff6b6b;">Error al cargar el pago. <button onclick="location.reload()" style="color:var(--zoo-amber);background:none;border:1px solid var(--zoo-amber);padding:8px 16px;border-radius:8px;cursor:pointer;margin-top:10px;">Reintentar</button></div>';
@@ -820,6 +826,130 @@ const ZOORIGEN_CLUB = {
     return r;
   },
 
+  // Las cuentas creadas a partir de esta fecha deben confirmar su correo para entrar. Las anteriores (incluidas las de
+  // los miembros que ya pagan) conservan el aviso discreto de siempre.
+  VERIFICACION_OBLIGATORIA_DESDE: '2026-10-13T00:00:00Z',
+
+  // ¿Esta cuenta tiene que confirmar el correo antes de usar el club?
+  verificacionObligatoria(user, sesion) {
+    if (!this.necesitaConfirmarCorreo(user)) return false;
+    if (sesion && (sesion.planStatus === 'active' || sesion.planStatus === 'cancelled_active')) return false;
+    if (sesion && sesion.role === 'admin') return false;
+    let creada = null;
+    try { creada = user.metadata && user.metadata.creationTime ? new Date(user.metadata.creationTime) : null; } catch (e) { creada = null; }
+    if (!creada || isNaN(creada.getTime())) return false;
+    return creada.getTime() >= new Date(this.VERIFICACION_OBLIGATORIA_DESDE).getTime();
+  },
+
+  // Pide al servidor el correo de verificación con la plantilla de Zoorigen; si el servidor no puede (sin configurar,
+  // sin red), usa el correo estándar de Firebase. Devuelve { ok, via, esperar }.
+  async enviarCorreoVerificacion(user) {
+    const u = user || (typeof auth !== 'undefined' ? auth.currentUser : null);
+    if (!u) return { ok: false, motivo: 'sin-sesion' };
+    try {
+      const r = await this.apiFetch('/api/auth/send-verification', { method: 'POST', body: {} });
+      return { ok: true, via: 'zoorigen', yaVerificado: !!(r && r.yaVerificado) };
+    } catch (err) {
+      if (err && err.status === 429) return { ok: false, motivo: 'espera', esperar: true, msg: err.message };
+    }
+    try {
+      try { auth.languageCode = 'es'; } catch (e) { /* nada */ }
+      await u.sendEmailVerification();
+      return { ok: true, via: 'firebase' };
+    } catch (err) {
+      return { ok: false, motivo: err && err.code === 'auth/too-many-requests' ? 'demasiados' : 'error' };
+    }
+  },
+
+  // Pantalla completa "Confirma tu correo": reenviar, "ya lo confirmé" y cerrar sesión. Comprueba sola cada pocos segundos.
+  mostrarPantallaVerificacion(user) {
+    if (document.getElementById('zv-pantalla')) return;
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const caja = document.createElement('div');
+    caja.id = 'zv-pantalla';
+    caja.setAttribute('role', 'dialog');
+    caja.setAttribute('aria-modal', 'true');
+    caja.innerHTML = `
+      <style>
+        #zv-pantalla{position:fixed;inset:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 16px;background:radial-gradient(900px 480px at 50% -10%,#e3efe6,#F5F2EA);font-family:'Open Sans',system-ui,sans-serif;color:#16241B;overflow:auto}
+        #zv-pantalla .zv-logo{width:56px;height:56px;border-radius:50%;object-fit:cover}
+        #zv-pantalla .zv-card{width:100%;max-width:440px;padding:34px 28px 26px;text-align:center;background:#fff;border:1px solid #E3DDCF;border-radius:24px;box-shadow:0 24px 60px rgba(21,51,33,.14)}
+        #zv-pantalla .zv-icono{width:80px;height:80px;margin:0 auto 18px;display:grid;place-items:center;border-radius:50%;background:#FBF1D6;color:#B27A06}
+        #zv-pantalla .zv-icono svg{width:38px;height:38px}
+        #zv-pantalla .zv-k{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#1F5F3A;margin-bottom:8px}
+        #zv-pantalla h1{margin:0 0 10px;font-family:'Poppins',sans-serif;font-size:24px;line-height:1.2}
+        #zv-pantalla p{margin:0;font-size:14.5px;line-height:1.6;color:#4B5A50}
+        #zv-pantalla .zv-correo{display:inline-block;margin:10px 0 2px;padding:6px 12px;border-radius:999px;background:#F1EEE4;font-weight:700;font-size:13.5px;color:#16241B;word-break:break-all}
+        #zv-pantalla .zv-pasos{margin-top:18px;padding:14px 16px;text-align:left;font-size:13px;line-height:1.55;color:#4B5A50;background:#F4F9F5;border-radius:14px}
+        #zv-pantalla .zv-btn{display:block;width:100%;margin-top:12px;padding:14px 16px;border:0;border-radius:12px;font:700 15px 'Poppins',sans-serif;cursor:pointer}
+        #zv-pantalla .zv-btn--p{background:#E8A317;color:#1F1D17}
+        #zv-pantalla .zv-btn--s{background:transparent;color:#1F5F3A;border:1.5px solid #cfe0d4}
+        #zv-pantalla .zv-btn:disabled{opacity:.6;cursor:default}
+        #zv-pantalla .zv-estado{min-height:20px;margin-top:12px;font-size:13px;color:#4B5A50}
+        #zv-pantalla .zv-salir{margin-top:6px;background:none;border:0;color:#5E6A60;font-size:13px;text-decoration:underline;cursor:pointer}
+        #zv-pantalla footer{font-size:12px;color:#5E6A60}
+        #zv-pantalla footer a{color:#1F5F3A;font-weight:700;text-decoration:none}
+      </style>
+      <img class="zv-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen">
+      <main class="zv-card" aria-live="polite">
+        <div class="zv-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg></div>
+        <div class="zv-k">Un paso más</div>
+        <h1>Confirma tu correo</h1>
+        <p>Te enviamos un mensaje a</p>
+        <span class="zv-correo">${esc(user.email)}</span>
+        <p style="margin-top:8px;">Abre el enlace del correo para activar tu cuenta y entrar al club.</p>
+        <div class="zv-pasos"><strong>¿No lo ves?</strong><br>1. Revisa la carpeta de spam o correo no deseado.<br>2. Toca «Reenviar correo» para recibir uno nuevo.</div>
+        <button type="button" class="zv-btn zv-btn--p" id="zv-reenviar">Reenviar correo</button>
+        <button type="button" class="zv-btn zv-btn--s" id="zv-listo">Ya lo confirmé</button>
+        <p class="zv-estado" id="zv-estado" role="status"></p>
+        <button type="button" class="zv-salir" id="zv-salir">Cerrar sesión</button>
+      </main>
+      <footer>¿Necesitas ayuda? <a href="https://wa.me/5212361113237" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></footer>`;
+    document.body.appendChild(caja);
+    document.body.style.overflow = 'hidden';
+
+    const estado = caja.querySelector('#zv-estado');
+    const btnRe = caja.querySelector('#zv-reenviar');
+    const decir = (txt) => { estado.textContent = txt; };
+    const yaVerificado = async () => {
+      try { await user.reload(); } catch (e) { return false; }
+      if (!user.emailVerified) return false;
+      try { await user.getIdToken(true); } catch (e) { /* nada */ }
+      return true;
+    };
+    const continuar = () => { window.location.reload(); };
+    let enfriar = null;
+    const cuentaAtras = (seg) => {
+      clearInterval(enfriar);
+      btnRe.disabled = true;
+      enfriar = setInterval(() => {
+        seg -= 1;
+        if (seg <= 0) { clearInterval(enfriar); btnRe.disabled = false; btnRe.textContent = 'Reenviar correo'; }
+        else btnRe.textContent = 'Reenviar en ' + seg + ' s';
+      }, 1000);
+    };
+    btnRe.addEventListener('click', async () => {
+      btnRe.disabled = true;
+      const r = await this.enviarCorreoVerificacion(user);
+      if (r.ok) { decir('Listo, te enviamos otro correo. Revisa tu bandeja y la carpeta de spam.'); cuentaAtras(60); }
+      else if (r.esperar) { decir(r.msg || 'Espera un minuto antes de pedir otro correo.'); cuentaAtras(60); }
+      else if (r.motivo === 'demasiados') { decir('Ya pediste varios correos. Espera unos minutos antes de intentar de nuevo.'); cuentaAtras(120); }
+      else { decir('No pudimos enviar el correo ahora. Inténtalo en un momento.'); btnRe.disabled = false; }
+    });
+    caja.querySelector('#zv-listo').addEventListener('click', async () => {
+      decir('Comprobando…');
+      if (await yaVerificado()) continuar();
+      else decir('Todavía no aparece como confirmado. Abre el enlace del correo y vuelve a pulsar este botón.');
+    });
+    caja.querySelector('#zv-salir').addEventListener('click', () => this.logout());
+    // Comprueba sola: si abre el enlace en otra pestaña o en el celular, aquí entra sin hacer nada.
+    const sondeo = setInterval(async () => { if (await yaVerificado()) { clearInterval(sondeo); continuar(); } }, 5000);
+    try {
+      const canal = new BroadcastChannel('zoo_verificacion');
+      canal.onmessage = async () => { if (await yaVerificado()) { clearInterval(sondeo); continuar(); } };
+    } catch (e) { /* sin BroadcastChannel */ }
+  },
+
   // ¿Hay que invitar a esta persona a confirmar su correo? (cuentas de correo y contraseña; Google ya viene confirmado)
   necesitaConfirmarCorreo(user) {
     if (!user || user.emailVerified !== false) return false;
@@ -970,7 +1100,7 @@ const ZOORIGEN_CLUB = {
       // Ambas cosas son "de cortesía": si fallan, la cuenta ya quedó creada y el registro NO se bloquea.
       try { auth.languageCode = 'es'; } catch (e) { /* nada */ }
       const [correoEnviado, referido] = await Promise.all([
-        cred.user.sendEmailVerification().then(() => true).catch(() => false),
+        this.enviarCorreoVerificacion(cred.user).then(r => !!(r && r.ok)).catch(() => false),
         this._conTiempo(this.registrarReferido(cred.user), 7000)
       ]);
       return { ok: true, uid: cred.user.uid, correoEnviado, referido };
@@ -1002,11 +1132,26 @@ const ZOORIGEN_CLUB = {
     }
   },
 
-  async loginWithGoogle() {
+  // modo 'entrar' (pantalla de iniciar sesión): solo entra quien YA tiene cuenta; si Google la acaba de crear, se deshace.
+  // modo 'crear' (pantalla de crear cuenta): solo crea cuentas nuevas; si el correo ya existe, no entra y se le pide iniciar sesión.
+  async loginWithGoogle(opciones) {
+    const modo = opciones && opciones.modo === 'crear' ? 'crear' : 'entrar';
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
+      try { provider.setCustomParameters({ prompt: 'select_account' }); } catch (e) { /* nada */ }
       const result = await auth.signInWithPopup(provider);
       const user = result.user;
+      const esNuevaEnAuth = !!(result.additionalUserInfo && result.additionalUserInfo.isNewUser);
+      if (modo === 'entrar' && esNuevaEnAuth) {
+        // La persona solo quería entrar y no tenía cuenta: se deshace la cuenta que Google acaba de crear.
+        try { await user.delete(); }
+        catch (errBorrar) { try { await auth.signOut(); } catch (errSalir) { /* sin sesión de todos modos */ } }
+        return { ok: false, codigo: 'sin-cuenta', msg: 'Ese correo de Google todavía no tiene una cuenta en Zoorigen. Primero crea tu cuenta.' };
+      }
+      if (modo === 'crear' && !esNuevaEnAuth) {
+        try { await auth.signOut(); } catch (errSalir) { /* nada */ }
+        return { ok: false, codigo: 'ya-existe', msg: 'Ya existe una cuenta con ese correo. Inicia sesión.' };
+      }
       const docRef = db.collection('miembros').doc(user.uid);
       const doc = await docRef.get();
       let nuevo = false;
@@ -1038,7 +1183,9 @@ const ZOORIGEN_CLUB = {
       if (err.code === 'auth/popup-blocked') msg = 'Tu navegador bloqueó el popup de Google. Permite popups para zoorigen.com.';
       if (err.code === 'auth/popup-closed-by-user') msg = 'Cerraste la ventana de Google antes de iniciar sesión.';
       if (err.code === 'auth/cancelled-popup-request') msg = 'Solo puede haber un popup de Google a la vez.';
-      return { ok: false, msg };
+      if (err.code === 'auth/unauthorized-domain') msg = 'Este dominio no está autorizado para iniciar sesión con Google. Avisa al administrador.';
+      if (err.code === 'auth/network-request-failed') msg = 'Error de conexión. Revisa tu internet.';
+      return { ok: false, msg, cancelado: err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request' };
     }
   },
 
@@ -1070,7 +1217,7 @@ const ZOORIGEN_CLUB = {
         try {
           const doc = await db.collection('miembros').doc(user.uid).get();
           const data = doc.exists ? doc.data() : {};
-          resolve({
+          const sesion = {
             uid: user.uid,
             email: user.email,
             name: data.name || user.displayName || user.email.split('@')[0],
@@ -1087,7 +1234,14 @@ const ZOORIGEN_CLUB = {
             createdAt: data.createdAt || null,
             streak: data.streak || 0,
             planStatus: this.calculateStatus(data)
-          });
+          };
+          // Cuentas nuevas con correo y contraseña: no entran al club hasta confirmar el correo.
+          // (Google ya viene confirmado; las cuentas anteriores a la fecha de corte y las que ya pagan siguen como siempre.)
+          if (this.verificacionObligatoria(user, sesion)) {
+            this.mostrarPantallaVerificacion(user);
+            return;
+          }
+          resolve(sesion);
         } catch (err) {
           console.error('Error loading profile:', err);
           resolve({ uid: user.uid, email: user.email, name: user.displayName || user.email.split('@')[0], planStatus: 'pending_payment' });

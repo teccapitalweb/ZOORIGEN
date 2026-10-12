@@ -150,7 +150,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261028-claro"></script>
+  <script src="../assets/js/club.js?v=20261030-claro"></script>
   <script>
     const form = document.getElementById('registerForm');
     const errorMsg = document.getElementById('errorMsg');
@@ -205,10 +205,10 @@
 
       const result = await ZOORIGEN_CLUB.register(data);
       if (result.ok) {
-        // Confirmar el correo NO es requisito para entrar; solo para que los amigos que invites cuenten.
+        // Para entrar al club hay que confirmar el correo: la siguiente pantalla lo explica y deja reenviarlo.
         successMsg.textContent = result.correoEnviado
-          ? 'Cuenta creada. Te enviamos un correo para confirmar tu dirección (revisa también la carpeta de spam). Entrando al club...'
-          : 'Cuenta creada. No pudimos enviar el correo de confirmación; podrás pedirlo de nuevo desde tu panel. Entrando al club...';
+          ? 'Cuenta creada. Te enviamos un correo para confirmar tu dirección (revisa también la carpeta de spam).'
+          : 'Cuenta creada. No pudimos enviar el correo de confirmación ahora; en la siguiente pantalla podrás pedirlo de nuevo.';
         successMsg.classList.add('show');
         setTimeout(() => { window.location.href = 'club-dashboard.html?welcome=1'; }, result.correoEnviado ? 3200 : 2200);
       } else {
@@ -221,9 +221,10 @@
     googleBtn.addEventListener('click', async () => {
       googleBtn.disabled = true;
       googleBtn.textContent = 'Conectando con Google...';
-      const result = await ZOORIGEN_CLUB.loginWithGoogle();
+      // Desde "Crear cuenta" solo se crean cuentas nuevas; si el correo ya existe, no se entra: se pide iniciar sesión.
+      const result = await ZOORIGEN_CLUB.loginWithGoogle({ modo: 'crear' });
       if (!result.ok) {
-        showError(result.msg);
+        if (!result.cancelado) showError(result.msg);
         googleBtn.disabled = false;
         googleBtn.textContent = 'Crear cuenta con Google';
         return;
