@@ -34,6 +34,28 @@
   ];
   var FOTO_GENERAL = '../assets/img/areas/fauna-silvestre-conservacion.webp';
 
+  /* Portada propia de cada libro y material (900x1230). Si un id no está aquí, el libro usa su ícono sobre color
+     y el material la foto de su tema. */
+  var CARPETA_PORTADAS = '../assets/img/materiales/';
+  var PORTADAS = {
+    'ley-fauna-mx': 'libro-ley-fauna-mx.jpg',
+    'bienestar-cautiverio': 'libro-bienestar-cautiverio.jpg',
+    'conservacion-mx': 'libro-conservacion-mx.jpg',
+    'checklist-bioseguridad': 'material-checklist-bioseguridad.jpg',
+    'ficha-registro-ejemplar': 'material-ficha-registro-ejemplar.jpg',
+    'fauna-herida': 'material-fauna-herida.jpg',
+    'calendario-colmenas': 'material-calendario-colmenas.jpg',
+    'glosario-vida-silvestre': 'material-glosario-vida-silvestre.jpg',
+    'marco-normativo-uno': 'material-marco-normativo.jpg',
+    'intro-nom-059': 'material-intro-nom-059.jpg',
+    'bienestar-cinco-dominios': 'material-bienestar-cinco-dominios.jpg',
+    'polinizadores-abejas': 'material-polinizadores-abejas.jpg'
+  };
+  function portadaDe(id) {
+    var clave = String(id == null ? '' : id);
+    return Object.prototype.hasOwnProperty.call(PORTADAS, clave) ? CARPETA_PORTADAS + PORTADAS[clave] : '';
+  }
+
   var TIPOS = {
     guia: { nombre: 'Guía', color: '#2F7A4F' },
     plantilla: { nombre: 'Plantilla', color: '#C75402' },
@@ -171,8 +193,9 @@
     }
     return '<article class="mt-libro' + (abierto ? '' : ' is-bloq') + '" data-libro="' + esc(l.id) + '" tabindex="0" role="button" aria-label="' + esc(l.titulo) + (abierto ? '' : ' (bloqueado)') + '">' +
       '<div class="mt-libro__top" style="--mt-c:' + esc(color) + '">' +
+        fotoLibroHTML(l) +
         '<span class="mt-libro__lomo"></span>' +
-        '<span class="mt-libro__icono">' + iconoSVG(l.icono, 54) + '</span>' +
+        (portadaDe(l.id) ? '' : '<span class="mt-libro__icono">' + iconoSVG(l.icono, 54) + '</span>') +
         '<div class="mt-libro__sobre"><small>' + esc(l.categoria || 'Libro') + '</small><strong>' + esc(l.titulo) + '</strong>' + (l.subtitulo ? '<em>' + esc(l.subtitulo) + '</em>' : '') + '</div>' +
         '<span class="mt-libro__ed">Edición Zoorigen</span>' +
         (abierto ? '' : '<span class="mt-libro__lock" aria-hidden="true">' + CANDADO + '</span>') +
@@ -186,7 +209,7 @@
     if (!l) return '';
     var color = colorSeguro(l.color, '#1F5F3A'), abierto = !!l.desbloqueado;
     return '<section class="mt-dest" data-libro="' + esc(l.id) + '" style="--mt-c:' + esc(color) + '">' +
-      '<div class="mt-dest__portada"><div class="mt-libro__top mt-dest__libro" style="--mt-c:' + esc(color) + '"><span class="mt-libro__lomo"></span><span class="mt-libro__icono">' + iconoSVG(l.icono, 72) + '</span>' +
+      '<div class="mt-dest__portada"><div class="mt-libro__top mt-dest__libro" style="--mt-c:' + esc(color) + '">' + fotoLibroHTML(l) + '<span class="mt-libro__lomo"></span>' + (portadaDe(l.id) ? '' : '<span class="mt-libro__icono">' + iconoSVG(l.icono, 72) + '</span>') +
         '<div class="mt-libro__sobre"><small>' + esc(l.categoria || 'Libro') + '</small><strong>' + esc(l.titulo) + '</strong></div></div></div>' +
       '<div class="mt-dest__info"><div class="mt-etq">' + (abierto ? 'Libro destacado' : 'Próximo libro por desbloquear') + '</div>' +
         '<h2>' + esc(l.titulo) + '</h2><div class="mt-dest__autor">' + esc(l.subtitulo || '') + (l.subtitulo ? ' · ' : '') + esc(l.autor || 'Equipo Zoorigen') + '</div>' +
@@ -205,7 +228,14 @@
       '<a class="mt-btn mt-btn--suave" href="' + href + '">Ir a los retos</a></div>';
   }
 
+  function fotoLibroHTML(l) {
+    var src = portadaDe(l && l.id);
+    return src ? '<img class="mt-libro__foto" src="' + esc(src) + '" alt="" loading="lazy" decoding="async">' : '';
+  }
+
   function fotoDeMaterial(m) {
+    var propia = portadaDe(m && m.id);
+    if (propia) return propia;
     var area = String((m && (m.area || '')) + ' ' + (m && m.titulo || ''));
     for (var i = 0; i < FOTOS.length; i++) if (FOTOS[i][0].test(area)) return FOTOS[i][1];
     return FOTO_GENERAL;
@@ -253,7 +283,7 @@
 
   var API = {
     OFICIALES: OFICIALES, TIPOS: TIPOS, PESTANAS: PESTANAS,
-    fotoDeMaterial: function (m) { return fotoDeMaterial(m); }, esc: esc, normalizar: normalizar, urlHttps: urlHttps, siguienteMeta: siguienteMeta, textoBloqueo: textoBloqueo, mensajeBloqueo: mensajeBloqueo,
+    fotoDeMaterial: function (m) { return fotoDeMaterial(m); }, portadaDe: portadaDe, PORTADAS: PORTADAS, esc: esc, normalizar: normalizar, urlHttps: urlHttps, siguienteMeta: siguienteMeta, textoBloqueo: textoBloqueo, mensajeBloqueo: mensajeBloqueo,
     filtrarMateriales: filtrarMateriales, filtrarLibros: filtrarLibros,
     leerGuardados: leerGuardados, alternarGuardado: alternarGuardado, leerPagina: leerPagina, guardarPagina: guardarPagina, claveGuardados: claveGuardados, claveLectura: claveLectura,
     vistaPaginas: vistaPaginas, libroCardHTML: libroCardHTML, libroDestacadoHTML: libroDestacadoHTML, bannerRetosHTML: bannerRetosHTML,

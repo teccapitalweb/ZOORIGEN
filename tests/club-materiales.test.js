@@ -159,3 +159,35 @@ test('las fotos que usan las portadas existen en el sitio', () => {
   assert.ok(lista.length >= 5);
   for (const rel of lista) assert.ok(fs.existsSync(path.resolve(__dirname, '..', rel)), rel + ' no existe');
 });
+
+// ── Portadas propias de libros y materiales ──
+test('portadas propias: cada id mapeado tiene su archivo y se usa en la tarjeta', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const ids = Object.keys(M.PORTADAS);
+  assert.equal(ids.length, 12, '3 libros + 9 materiales');
+  for (const id of ids) {
+    const ruta = M.portadaDe(id);
+    assert.match(ruta, /^\.\.\/assets\/img\/materiales\/[a-z0-9-]+\.jpg$/);
+    const archivo = path.join(__dirname, '..', ruta.replace(/^\.\.\//, ''));
+    assert.ok(fs.existsSync(archivo), 'falta el archivo de ' + id);
+    assert.ok(fs.statSync(archivo).size < 250 * 1024, id + ' pesa demasiado');
+  }
+  // un material con portada propia la usa; sin portada cae a la foto del tema
+  assert.match(M.fotoDeMaterial({ id: 'intro-nom-059', area: 'Normatividad', titulo: 'x' }), /material-intro-nom-059\.jpg/);
+  assert.match(M.fotoDeMaterial({ id: 'otro', area: 'Apicultura', titulo: 'x' }), /apicultura-polinizacion/);
+  assert.equal(M.portadaDe('__proto__'), '');
+  assert.equal(M.portadaDe('constructor'), '');
+});
+
+test('portadas propias: el libro muestra su foto y, sin portada, conserva el ícono', () => {
+  const base = { titulo: 'Fauna silvestre y ley', categoria: 'Normatividad', icono: 'scale', desbloqueado: true, paginasTotal: 10, color: '#1F5F3A' };
+  const con = M.libroCardHTML ? M.libroCardHTML({ ...base, id: 'ley-fauna-mx' }, {}) : null;
+  const sin = M.libroCardHTML ? M.libroCardHTML({ ...base, id: 'libro-nuevo' }, {}) : null;
+  if (con === null) return; // si el módulo no exporta la tarjeta del libro, la prueba de arriba cubre el mapa
+  assert.match(con, /mt-libro__foto/);
+  assert.match(con, /libro-ley-fauna-mx\.jpg/);
+  assert.doesNotMatch(con, /mt-libro__icono/);
+  assert.doesNotMatch(sin, /mt-libro__foto/);
+  assert.match(sin, /mt-libro__icono/);
+});

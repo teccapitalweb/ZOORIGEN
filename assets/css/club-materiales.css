@@ -68,6 +68,7 @@
 .mt-libro:focus-visible { outline: 2px solid var(--zoo-amber); outline-offset: 4px; border-radius: 10px; }
 .mt-libro__top { position: relative; aspect-ratio: 3 / 4.22; border-radius: 4px 10px 10px 4px; overflow: hidden; color: #fff; background: linear-gradient(160deg, color-mix(in srgb, var(--mt-c) 70%, #fff 6%), color-mix(in srgb, var(--mt-c) 70%, #000)); transform: perspective(900px) rotateY(-5deg); transition: transform .3s ease, box-shadow .3s ease; box-shadow: 8px 12px 22px rgba(0, 0, 0, 0.35); }
 .mt-libro:hover .mt-libro__top, .mt-libro:focus-visible .mt-libro__top, .mt-dest__libro { transform: perspective(900px) rotateY(0deg) translateY(-3px); }
+.mt-libro__foto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .mt-libro__lomo { position: absolute; left: 0; top: 0; bottom: 0; width: 9px; background: linear-gradient(90deg, rgba(0, 0, 0, 0.45), rgba(255, 255, 255, 0.12) 60%, rgba(0, 0, 0, 0.2)); }
 .mt-libro__icono { position: absolute; top: 18%; left: 50%; transform: translateX(-50%); opacity: .3; }
 .mt-libro__top::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 38%, rgba(0, 0, 0, 0.7)); pointer-events: none; }
