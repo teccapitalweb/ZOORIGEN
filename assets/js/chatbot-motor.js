@@ -502,13 +502,21 @@
       if (!mejor.fuzzy) {
         // Si lo escrito es solo una parte del nombre de otra ficha ("lobo" y "lobo mexicano"), hay que preguntar cuál.
         var P = T.slice(mejor.inicio, mejor.inicio + mejor.largo);
+        // Si lo escrito es justo el nombre principal de la ficha ("león"), no se pregunta aunque otras fichas lo usen
+        // como parte de un alias ("león marino", "león de montaña").
+        var NP = tokensDe(normalizar(mejor.ficha.nombre));
+        var iguales = function (X, Y) { return X.length === Y.length && X.every(function (w, q) { return w === Y[q]; }); };
+        var plural = NP.slice(0, -1).concat([NP[NP.length - 1] + 's']);
+        var plural2 = NP.slice(0, -1).concat([NP[NP.length - 1] + 'es']);
+        var esNombrePrincipal = iguales(NP, P) || iguales(plural, P) || iguales(plural2, P) ||
+          variantesFrase(NP).some(function (v) { return iguales(v, P); });
         var set = {};
         set[mejor.ficha.id] = true;
         indice.todas.forEach(function (e) {
           if (set[e.ficha.id] || !contieneSecuencia(e.tokens, P)) return;
           set[e.ficha.id] = true;
         });
-        if (Object.keys(set).length > 1) {
+        if (!esNombrePrincipal && Object.keys(set).length > 1) {
           mejor.ambiguas = fichas.filter(function (f) { return set[f.id]; });
         }
       }
