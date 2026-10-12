@@ -172,7 +172,7 @@
       '<div class="hoja__foto hoja__foto--grande"><img src="' + esc(n.imagen || respaldo) + '" data-cat="' + esc(n.categoria.id) + '" alt="" decoding="async" referrerpolicy="no-referrer"></div>' +
       '<div class="lectura__esencial"><div class="lectura__etq">Lo esencial</div>' + cuerpo + '</div>' +
       '<p class="lectura__aviso">Resumen informativo. La nota completa es de ' + esc(n.fuente) + '.</p>' +
-      (n.link ? '<a class="lectura__leer" href="' + esc(n.link) + '" target="_blank" rel="noopener noreferrer">Leer nota completa en ' + esc(n.fuente) + ' ↗</a>'
+      (n.link ? '<a class="lectura__leer" href="' + esc(n.link) + '" target="_blank" rel="noopener noreferrer">Leer nota completa en ' + esc(n.fuente) + ' <svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></a>'
               : '<div class="lectura__leer lectura__leer--sin">Fuente: ' + esc(n.fuente) + '</div>') +
     '</div>';
   }
@@ -223,7 +223,7 @@
     modal = document.createElement('div');
     modal.className = 'nt-modal';
     modal.innerHTML = '<div class="nt-modal__cuerpo" role="dialog" aria-modal="true" aria-label="Noticia">' +
-      '<button type="button" class="nt-modal__x" aria-label="Cerrar">✕</button>' + lecturaHTML(raw, indice, opciones) + '</div>';
+      '<button type="button" class="nt-modal__x" aria-label="Cerrar"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>' + lecturaHTML(raw, indice, opciones) + '</div>';
     document.body.appendChild(modal);
     document.body.classList.add('nt-noscroll');
     vigilarImagenes(modal);

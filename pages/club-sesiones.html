@@ -79,7 +79,7 @@
       color: rgba(255,255,255,0.9); font-size: 1rem;
       margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
     }
-    .webinar-hero__speaker::before { content: '👤'; font-size: 1.1rem; }
+    .webinar-hero__speaker::before { content: '<svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg>'; font-size: 1.1rem; }
     .webinar-hero__info {
       display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px;
     }
@@ -254,9 +254,9 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <button class="mobile-menu-btn mobile-menu-btn--float" id="mobileMenuBtn" aria-label="Menú">☰</button>
+      <button class="mobile-menu-btn mobile-menu-btn--float" id="mobileMenuBtn" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
       <div class="page-header">
-        <h1>🎥 Webinars en vivo</h1>
+        <h1><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg> Webinars en vivo</h1>
         <p>Masterclasses exclusivas con especialistas invitados · Transmitidas por Google Meet</p>
       </div>
       <div id="lockedNotice"></div>
@@ -268,6 +268,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -279,7 +280,7 @@
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
       if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
-        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para recibir el link de Google Meet. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
+        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></span>Activa tu membresía para recibir el link de Google Meet. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
       }
 
       const sesiones = await ZOORIGEN_CLUB.getSesiones();
@@ -290,7 +291,7 @@
       if (!sesiones || sesiones.length === 0) {
         nextBox.innerHTML = `
           <div class="webinars-empty">
-            <div class="webinars-empty__icon">🎥</div>
+            <div class="webinars-empty__icon"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg></div>
             <div class="webinars-empty__title">Próximamente nuevos webinars</div>
             <div class="webinars-empty__text">
               El equipo Zoorigen está preparando webinars con especialistas invitados.
@@ -305,8 +306,8 @@
       const linkBtn = isActive && meetUrl
         ? `<a href="${meetUrl}" target="_blank" class="btn-meet"><span class="btn-meet__icon">M</span>Entrar al webinar</a>`
         : !isActive
-        ? `<a href="club-suscripcion.html" class="btn-meet" style="background:var(--zoo-orange);color:#fff;">🔒 Activar para ver link</a>`
-        : `<span style="color:rgba(255,255,255,0.7);font-size:.9rem;">⏳ Link de Meet disponible 15 min antes</span>`;
+        ? `<a href="club-suscripcion.html" class="btn-meet" style="background:var(--zoo-orange);color:#fff;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar para ver link</a>`
+        : `<span style="color:rgba(255,255,255,0.7);font-size:.9rem;"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Link de Meet disponible 15 min antes</span>`;
 
       const mesesShort = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
 
@@ -320,10 +321,10 @@
             <h2 class="webinar-hero__title">${next.title}</h2>
             <div class="webinar-hero__speaker">${next.speaker || 'Especialista Zoorigen'}</div>
             <div class="webinar-hero__info">
-              <div class="webinar-hero__info-chip">📅 ${ZOORIGEN_CLUB.formatShort(next.date)}</div>
-              <div class="webinar-hero__info-chip">🕐 ${next.time || '19:00'} hrs</div>
-              <div class="webinar-hero__info-chip">💻 Google Meet</div>
-              ${next.duration ? `<div class="webinar-hero__info-chip">⏱️ ${next.duration}</div>` : ''}
+              <div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${ZOORIGEN_CLUB.formatShort(next.date)}</div>
+              <div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-clock"/></svg> ${next.time || '19:00'} hrs</div>
+              <div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-laptop"/></svg> Google Meet</div>
+              ${next.duration ? `<div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> ${next.duration}</div>` : ''}
             </div>
             <div class="webinar-countdown" id="liveCountdown"></div>
             ${linkBtn}
@@ -338,7 +339,7 @@
         if (diff <= 0) {
           el.innerHTML = `
             <div class="webinar-countdown__unit" style="border-color:#ff4a4a;background:rgba(255,74,74,0.15);">
-              <span class="webinar-countdown__num" style="color:#ff4a4a;">🔴</span>
+              <span class="webinar-countdown__num" style="color:#ff4a4a;"><span class="zdot" style="background:#C0392B"></span></span>
               <span class="webinar-countdown__lbl">EN VIVO</span>
             </div>`;
           return;
@@ -360,7 +361,7 @@
       if (sesiones.length > 1) {
         const resto = sesiones.slice(1);
         listWrap.innerHTML = `
-          <div class="section-title-webinars">📅 Próximos webinars</div>
+          <div class="section-title-webinars"><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> Próximos webinars</div>
           ${resto.map(s => {
             const d = new Date(s.date);
             const diffDays = Math.ceil((d - new Date()) / (1000*60*60*24));
@@ -374,11 +375,11 @@
                 </div>
                 <div class="webinar-card__body">
                   <div class="webinar-card__title">${s.title}</div>
-                  <div class="webinar-card__speaker">👤 ${s.speaker || 'Especialista Zoorigen'}</div>
+                  <div class="webinar-card__speaker"><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> ${s.speaker || 'Especialista Zoorigen'}</div>
                   <div class="webinar-card__meta">
-                    <span class="webinar-card__meta-item">🕐 ${s.time || '19:00'} hrs</span>
-                    <span class="webinar-card__meta-item">💻 Google Meet</span>
-                    ${s.duration ? `<span class="webinar-card__meta-item">⏱️ ${s.duration}</span>` : ''}
+                    <span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-clock"/></svg> ${s.time || '19:00'} hrs</span>
+                    <span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-laptop"/></svg> Google Meet</span>
+                    ${s.duration ? `<span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> ${s.duration}</span>` : ''}
                   </div>
                 </div>
                 <span class="${tagClass}">${tagText}</span>

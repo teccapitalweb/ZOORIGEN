@@ -34,8 +34,8 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <button class="mobile-menu-btn mobile-menu-btn--float" id="mobileMenuBtn" aria-label="Menú">☰</button>
-      <div class="page-header"><h1>🎥 Videos prácticos</h1><p>Técnicas de campo explicadas paso a paso por profesionales</p></div>
+      <button class="mobile-menu-btn mobile-menu-btn--float" id="mobileMenuBtn" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
+      <div class="page-header"><h1><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg> Videos prácticos</h1><p>Técnicas de campo explicadas paso a paso por profesionales</p></div>
       <div id="lockedNotice"></div>
       <div class="content-list" id="videosList">Cargando...</div>
     </main>
@@ -53,6 +53,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -63,7 +64,7 @@
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('videos', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
       if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
-        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🔒</span>Activa tu membresía para ver los videos. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
+        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></span>Activa tu membresía para ver los videos. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
       }
       const videos = await ZOORIGEN_CLUB.getVideos();
       const isActive = ZOORIGEN_CLUB.hasActiveMembership(session);
@@ -76,7 +77,7 @@
               PRÓXIMAMENTE
             </div>
 
-            <div class="coming-soon-card__icon">🎬</div>
+            <div class="coming-soon-card__icon"><svg class="zi" aria-hidden="true"><use href="#zi-clapperboard"/></svg></div>
 
             <h2 class="coming-soon-card__title">Videos prácticos en preparación</h2>
             <p class="coming-soon-card__sub">
@@ -88,27 +89,27 @@
               <div class="coming-soon-card__topic-title">Algunos temas que vienen:</div>
               <div class="coming-soon-card__grid">
                 <div class="coming-soon-topic">
-                  <span class="coming-soon-topic__icon">🎥</span>
+                  <span class="coming-soon-topic__icon"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg></span>
                   <span>Fototrampeo profesional de campo</span>
                 </div>
                 <div class="coming-soon-topic">
-                  <span class="coming-soon-topic__icon">🧤</span>
+                  <span class="coming-soon-topic__icon"><svg class="zi" aria-hidden="true"><use href="#zi-hand"/></svg></span>
                   <span>Captura y manejo de fauna silvestre</span>
                 </div>
                 <div class="coming-soon-topic">
-                  <span class="coming-soon-topic__icon">🔬</span>
+                  <span class="coming-soon-topic__icon"><svg class="zi" aria-hidden="true"><use href="#zi-microscope"/></svg></span>
                   <span>Necropsias veterinarias de fauna</span>
                 </div>
                 <div class="coming-soon-topic">
-                  <span class="coming-soon-topic__icon">🦒</span>
+                  <span class="coming-soon-topic__icon"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" width="28" height="28"></span>
                   <span>Identificación morfológica de especies</span>
                 </div>
                 <div class="coming-soon-topic">
-                  <span class="coming-soon-topic__icon">💉</span>
+                  <span class="coming-soon-topic__icon"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg></span>
                   <span>Anestesia en fauna silvestre</span>
                 </div>
                 <div class="coming-soon-topic">
-                  <span class="coming-soon-topic__icon">🚁</span>
+                  <span class="coming-soon-topic__icon"><svg class="zi" aria-hidden="true"><use href="#zi-plane"/></svg></span>
                   <span>Monitoreo con drones y telemetría</span>
                 </div>
               </div>
@@ -128,14 +129,14 @@
       }
       list.innerHTML = videos.map(v => `
         <div class="content-item">
-          <div class="content-item__thumb">🎥</div>
+          <div class="content-item__thumb"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg></div>
           <div class="content-item__info">
             <div class="content-item__title">${v.title}</div>
             <div class="content-item__meta">${v.area || ''} · ${v.duration || '—'}</div>
           </div>
           ${isActive && v.driveId
-            ? `<button class="content-item__tag" style="border:0;cursor:pointer;font-family:inherit;" onclick='openPlayer("${v.driveId}", ${JSON.stringify(v.title)})'>▶ Ver</button>`
-            : !isActive ? `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;">🔒 Activar</a>`
+            ? `<button class="content-item__tag" style="border:0;cursor:pointer;font-family:inherit;" onclick='openPlayer("${v.driveId}", ${JSON.stringify(v.title)})'><svg class="zi" aria-hidden="true"><use href="#zi-play"/></svg> Ver</button>`
+            : !isActive ? `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar</a>`
             : `<span class="content-item__tag" style="opacity:0.6;">Sin link</span>`}
         </div>
       `).join('');

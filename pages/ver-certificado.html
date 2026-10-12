@@ -536,20 +536,20 @@
 <body>
 
   <div id="loading" class="cert-state">
-    <h2>⏳ Cargando certificado...</h2>
+    <h2><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cargando certificado...</h2>
   </div>
 
   <div id="errorState" class="cert-state" style="display:none;max-width:640px;">
-    <h2>⚠️ Certificado no encontrado</h2>
+    <h2><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Certificado no encontrado</h2>
     <p style="margin-bottom:20px;line-height:1.6;text-align:left;">El folio no existe o es inválido.</p>
     <a href="club-biblioteca.html" class="cert-btn cert-btn--ghost">← Volver a biblioteca</a>
   </div>
 
   <div id="certWrap" style="display:none;">
     <div class="cert-actions no-print">
-      <button class="cert-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-      <button class="cert-btn" onclick="compartirWhatsApp()">💬 Compartir en WhatsApp</button>
-      <button class="cert-btn" onclick="compartirLinkedIn()">💼 Compartir en LinkedIn</button>
+      <button class="cert-btn" onclick="window.print()"><svg class="zi" aria-hidden="true"><use href="#zi-printer"/></svg> Imprimir / Guardar PDF</button>
+      <button class="cert-btn" onclick="compartirWhatsApp()"><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg> Compartir en WhatsApp</button>
+      <button class="cert-btn" onclick="compartirLinkedIn()"><svg class="zi" aria-hidden="true"><use href="#zi-briefcase"/></svg> Compartir en LinkedIn</button>
       <a class="cert-btn cert-btn--ghost" href="club-biblioteca.html">← Biblioteca</a>
     </div>
 
@@ -596,13 +596,13 @@
         </g>
       </svg>
 
-      <div class="cert-watermark">🦒</div>
+      <div class="cert-watermark"></div>
 
       <div class="cert-inner">
         <!-- HEADER -->
         <div class="cert-header">
           <div class="cert-logo-wrap">
-            <div class="cert-logo">🦒</div>
+            <div class="cert-logo"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" style="width:100%;height:100%"></div>
             <div class="cert-logo-text">
               <strong>ZOORIGEN</strong>
               <span>México · Capacitación Profesional</span>
@@ -740,11 +740,11 @@
       }
 
       try {
-        if (!folio) { showError('⚠️ Falta el folio', 'La URL no tiene <code>?folio=XXX</code>'); return; }
-        if (typeof firebase === 'undefined' || !window.db) { showError('⚠️ Firebase no cargó', ''); return; }
+        if (!folio) { showError('<svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Falta el folio', 'La URL no tiene <code>?folio=XXX</code>'); return; }
+        if (typeof firebase === 'undefined' || !window.db) { showError('Firebase no cargó', ''); return; }
 
         const doc = await db.collection('certificados').doc(folio).get();
-        if (!doc.exists) { showError('❌ Folio no existe', `El folio <code style="color:#E8A317;">${folio}</code> no está en la base de datos.`); return; }
+        if (!doc.exists) { showError('<svg class="zi" aria-hidden="true"><use href="#zi-circle-x"/></svg> Folio no existe', `El folio <code style="color:#E8A317;">${folio}</code> no está en la base de datos.`); return; }
 
         const c = doc.data();
         document.getElementById('folioDisplay').textContent = c.folio || folio;
@@ -769,13 +769,13 @@
         document.getElementById('certWrap').style.display = 'block';
       } catch (err) {
         console.error('[CERT]', err);
-        showError('❌ Error al leer Firebase', `<code>${err.message || err.code}</code>`);
+        showError('<svg class="zi" aria-hidden="true"><use href="#zi-circle-x"/></svg> Error al leer Firebase', `<code>${err.message || err.code}</code>`);
       }
     })();
 
     function compartirWhatsApp() {
       const c = window.__cert;
-      const text = `🎓 ¡Completé el curso "${c.courseTitle}" certificado por Zoorigen México!\n\nFolio oficial: ${c.folio}\nVerifica en: https://www.zoorigen.com/pages/verificar.html?folio=${c.folio}`;
+      const text = `¡Completé el curso "${c.courseTitle}" certificado por Zoorigen México!\n\nFolio oficial: ${c.folio}\nVerifica en: https://www.zoorigen.com/pages/verificar.html?folio=${c.folio}`;
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
 
@@ -815,5 +815,6 @@
     });
   }
 </script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
 </body>
 </html>

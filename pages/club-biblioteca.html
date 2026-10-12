@@ -90,7 +90,7 @@
       white-space: nowrap;
     }
     .player-box__header h3::before {
-      content: '▶';
+      content: '<svg class="zi" aria-hidden="true"><use href="#zi-play"/></svg>';
       color: var(--zoo-amber, #E8A317);
       font-size: .7rem;
       margin-right: 8px;
@@ -346,9 +346,9 @@
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
       <div class="page-header">
-        <h1>📚 Cursos exclusivos</h1>
+        <h1><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg> Cursos exclusivos</h1>
         <p>Cursos completos seleccionados para miembros VIP · Acceso ilimitado</p>
       </div>
       <div id="lockedNotice"></div>
@@ -373,6 +373,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -411,8 +412,8 @@
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(7,12,9,.94);backdrop-filter:blur(12px);z-index:200000;display:flex;align-items:center;justify-content:center;padding:20px;';
       overlay.innerHTML = `
         <div style="width:min(500px,100%);position:relative;background:linear-gradient(145deg,#1F5F3A,#0F3B22 62%,#173c2a);border:2px solid rgba(232,163,23,.5);border-radius:22px;padding:38px 30px;text-align:center;box-shadow:0 32px 90px rgba(0,0,0,.72);">
-          <button id="zooCoursePaywallClose" aria-label="Cerrar" style="position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.25);color:#fff;cursor:pointer;font-size:1rem;">✕</button>
-          <div style="font-size:3.5rem;margin-bottom:12px;">🔒</div>
+          <button id="zooCoursePaywallClose" aria-label="Cerrar" style="position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.25);color:#fff;cursor:pointer;font-size:1rem;"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
+          <div style="font-size:3.5rem;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
           <div style="display:inline-block;background:rgba(232,163,23,.18);color:#F2BC4A;border-radius:100px;padding:5px 13px;font-size:.72rem;font-weight:800;letter-spacing:.1em;margin-bottom:14px;">CONTENIDO VIP</div>
           <h2 style="font-family:Poppins;color:#fff;font-size:1.55rem;line-height:1.25;margin:0 0 12px;">Continúa aprendiendo con Zoorigen</h2>
           <p style="color:rgba(255,255,255,.88);font-size:.96rem;line-height:1.6;margin:0 0 24px;">Activa tu membresía para continuar con esta clase y acceder a todos los cursos de Zoorigen.</p>
@@ -439,7 +440,7 @@
 
 
       if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
-        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🎁</span>Tienes gratis la clase 1 del primer curso. Desde la clase 2 necesitas una membresía vigente. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
+        document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span><svg class="zi" aria-hidden="true"><use href="#zi-gift"/></svg></span>Tienes gratis la clase 1 del primer curso. Desde la clase 2 necesitas una membresía vigente. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
       }
 
       // Estado de la prueba gratuita y cursos que el miembro ya abrió con un premio (en paralelo; si el servidor no responde, sin adelantados)
@@ -453,7 +454,7 @@
       const grid = document.getElementById('coursesGrid');
 
       if (cursos.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);"><div style="font-size:3rem;margin-bottom:10px;">🦒</div><h3 style="color:#fff;margin-bottom:8px;">Biblioteca en construcción</h3><p>El equipo Zoorigen está preparando los cursos. Muy pronto tendrás acceso ilimitado.</p></div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--zoo-text-dim);background:var(--zoo-bg-card);border-radius:var(--zoo-radius);"><div style="font-size:3rem;margin-bottom:10px;"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" width="64" height="64"></div><h3 style="color:#fff;margin-bottom:8px;">Biblioteca en construcción</h3><p>El equipo Zoorigen está preparando los cursos. Muy pronto tendrás acceso ilimitado.</p></div>`;
         document.getElementById('filterBar').innerHTML = '';
         return;
       }
@@ -533,14 +534,14 @@
           aviso.innerHTML = '';
         } else if (modo === 'prueba') {
           const elegido = cursos.find(c => c.id === p.elegida);
-          aviso.innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span>🎁</span>Tu prueba gratuita: <strong>${escHtml(elegido ? elegido.title : 'curso elegido')}</strong>. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
+          aviso.innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span><svg class="zi" aria-hidden="true"><use href="#zi-gift"/></svg></span>Tu prueba gratuita: <strong>${escHtml(elegido ? elegido.title : 'curso elegido')}</strong>. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
         } else if (modo === 'miembro') {
           const lista = cursos;
           if (p.elegida && lista.some(c => c.id === p.elegida)) {
             const fin = window.ZOO_ACCESO.terminoPruebaEn((window.__zooCourseProgress || {})[p.elegida]);
             caja.innerHTML = fin === null
-              ? `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon">🔓</div><div class="unlock-schedule-banner__text">Termina tu curso de prueba para empezar tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. El conteo empieza cuando lo termines.</div></div>`
-              : `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon">🔓</div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong> desde que terminaste tu curso de prueba.</div></div>`;
+              ? `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon"><svg class="zi" aria-hidden="true"><use href="#zi-lock-open"/></svg></div><div class="unlock-schedule-banner__text">Termina tu curso de prueba para empezar tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. El conteo empieza cuando lo termines.</div></div>`
+              : `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon"><svg class="zi" aria-hidden="true"><use href="#zi-lock-open"/></svg></div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong> desde que terminaste tu curso de prueba.</div></div>`;
           } else {
             const maxIdx = ZOO_ACCESO.maxDesbloqueado(dias);
             const enFila = ZOO_ACCESO.cursosEnFila(lista);
@@ -554,7 +555,7 @@
             }
             if (ruta) {
               const faltan = ruta.faltan;
-              caja.innerHTML = `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon">🔓</div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. Llevas <strong>${dias} día${dias !== 1 ? 's' : ''}</strong> como miembro, tienes <strong>${ruta.disponibles}</strong> de ${lista.length} cursos disponibles.${faltan > 0 ? ` El siguiente se desbloquea en <strong>${faltan} día${faltan !== 1 ? 's' : ''}</strong>.` : ''}</div></div>`;
+              caja.innerHTML = `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon"><svg class="zi" aria-hidden="true"><use href="#zi-lock-open"/></svg></div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. Llevas <strong>${dias} día${dias !== 1 ? 's' : ''}</strong> como miembro, tienes <strong>${ruta.disponibles}</strong> de ${lista.length} cursos disponibles.${faltan > 0 ? ` El siguiente se desbloquea en <strong>${faltan} día${faltan !== 1 ? 's' : ''}</strong>.` : ''}</div></div>`;
             }
           }
         }
@@ -908,7 +909,7 @@
       if (!progress[courseId]) return;
 
       const btn = event?.target;
-      if (btn) { btn.disabled = true; btn.textContent = '⏳ Verificando...'; }
+      if (btn) { btn.disabled = true; btn.textContent = 'Verificando...'; }
 
       try {
         // ═══ ANTI-DUPLICADOS ═══
@@ -922,7 +923,7 @@
         if (!existing.empty) {
           // Ya existe, abrir el que ya existe
           const existingData = existing.docs[0].data();
-          console.log('ℹ️ Ya existe certificado para este curso:', existingData.folio);
+          console.log('Ya existe certificado para este curso:', existingData.folio);
 
           progress[courseId].isCompleted = true;
           progress[courseId].completedAt = existingData.issuedAt;
@@ -938,7 +939,7 @@
         }
 
         // ═══ NO EXISTE, CREAR NUEVO ═══
-        if (btn) btn.textContent = '⏳ Generando...';
+        if (btn) btn.textContent = 'Generando...';
         const year = new Date().getFullYear();
         const random = Math.floor(Math.random() * 90000) + 10000;
         const folio = `ZOO-${year}-${random}`;
@@ -963,9 +964,9 @@
           totalClases: window.__currentLecciones.length
         };
 
-        console.log('💾 Guardando certificado:', folio, certData);
+        console.log('Guardando certificado:', folio, certData);
         await db.collection('certificados').doc(folio).set(certData);
-        console.log('✅ Certificado guardado en Firestore');
+        console.log('Certificado guardado en Firestore');
 
         progress[courseId].isCompleted = true;
         progress[courseId].completedAt = new Date().toISOString();
@@ -991,13 +992,13 @@
         }
 
       } catch (err) {
-        console.error('❌ Error generando certificado:', err);
-        if (btn) { btn.disabled = false; btn.textContent = '🎓 Obtener certificado'; }
+        console.error('Error generando certificado:', err);
+        if (btn) { btn.disabled = false; btn.textContent = 'Obtener certificado'; }
 
         // Mensaje útil según el error real (NO decir "membresía no activa" si no es el caso)
-        let mensaje = '❌ No se pudo generar el certificado.\n\n';
+        let mensaje = 'No se pudo generar el certificado.\n\n';
         if (err.code === 'permission-denied' || (err.message || '').toLowerCase().includes('permission')) {
-          mensaje += '⚠️ Error de permisos en Firestore.\n\nSoluciones:\n';
+          mensaje += 'Error de permisos en Firestore.\n\nSoluciones:\n';
           mensaje += '1. Actualiza las reglas de Firestore en Firebase Console\n';
           mensaje += '2. Usa la herramienta de diagnóstico en /pages/diagnostico.html\n';
           mensaje += '3. Contacta a soporte por WhatsApp';
@@ -1065,7 +1066,7 @@
       const hayLista = courseId !== undefined && window.__currentLecciones?.length > 1;
       infoContent.innerHTML = `
         <span style="color:var(--zoo-text-muted);font-size:.88rem;">
-          ${desc ? '⏱️ ' + desc : ''}
+          ${desc ? '' + desc : ''}
           ${courseId !== undefined && lessonIdx !== undefined ? `${desc ? ' · ' : ''}Clase ${lessonIdx + 1} de ${window.__currentLecciones?.length || 1}` : ''}
         </span>
         ${hayLista ? `
@@ -1074,7 +1075,7 @@
               ← Lista de clases
             </button>
             <button onclick="marcarYSiguiente('${courseId}', ${lessonIdx})" style="background:linear-gradient(135deg,#6FBF73,#3d8b42);border:0;color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
-              ✓ Completada, siguiente →
+              Completada, siguiente →
             </button>` : ''}
           </div>
         ` : ''}
@@ -1082,7 +1083,7 @@
       descDiv.appendChild(infoContent);
 
       const playerVideo = document.getElementById('playerVideo');
-      playerVideo.innerHTML = '<div style="display:grid;place-items:center;min-height:420px;color:#fff;font-weight:700;">⏳ Preparando reproducción segura…</div>';
+      playerVideo.innerHTML = '<div style="display:grid;place-items:center;min-height:420px;color:#fff;font-weight:700;"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Preparando reproducción segura…</div>';
       modal.classList.add('is-open');
 
       try {
@@ -1112,7 +1113,7 @@
         }
       } catch (error) {
         console.error('[Bunny player]', error);
-        playerVideo.innerHTML = `<div style="display:grid;place-items:center;min-height:420px;padding:28px;text-align:center;color:#fff;"><div><div style="font-size:2rem;margin-bottom:12px;">⚠️</div><strong>No se pudo reproducir la clase</strong><p style="color:var(--zoo-text-muted);margin-top:8px;">${String(error.message || error)}</p></div></div>`;
+        playerVideo.innerHTML = `<div style="display:grid;place-items:center;min-height:420px;padding:28px;text-align:center;color:#fff;"><div><div style="font-size:2rem;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg></div><strong>No se pudo reproducir la clase</strong><p style="color:var(--zoo-text-muted);margin-top:8px;">${String(error.message || error)}</p></div></div>`;
       }
 
       clearTimeout(window.__autoCompleteTimer);

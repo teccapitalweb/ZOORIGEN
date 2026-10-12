@@ -44,7 +44,7 @@
     return isNaN(d.getTime()) ? null : d;
   }
 
-  /* El título trae un emoji al inicio ("💡 Dato curioso"); como ya hay un ícono, se quita para no repetir. */
+  /* El título trae un emoji al inicio ("Dato curioso"); como ya hay un ícono, se quita para no repetir. */
   function sinEmojiInicial(t) {
     var s = String(t || '');
     try { s = s.replace(/^[\p{Extended_Pictographic}️‍\s]+/u, ''); } catch (e) { /* motor sin soporte: se deja igual */ }
@@ -211,7 +211,7 @@
       panel.innerHTML =
         '<div class="av-cab"><div class="av-cab__t">' + icono('bell', 16) + '<strong>Notificaciones</strong></div>' +
         '<span class="av-cab__n' + (nuevas ? ' hay' : '') + '">' + esc(resumenEncabezado(nuevas)) + '</span>' +
-        '<button type="button" class="notif-panel__close av-cerrar" id="notifPanelClose" aria-label="Cerrar">✕</button></div>' +
+        '<button type="button" class="notif-panel__close av-cerrar" id="notifPanelClose" aria-label="Cerrar"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button></div>' +
         '<div class="av-lista" id="notifList">' + (vis.length
           ? vis.map(function (a) { return filaHTML(a, estado, ahora); }).join('')
           : '<div class="av-vacio">' + icono('bell', 28) + '<strong>Sin notificaciones</strong><span>Aquí verás datos curiosos, noticias, premios y avisos de tus cursos.</span></div>') + '</div>' +

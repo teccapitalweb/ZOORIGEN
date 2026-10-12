@@ -27,9 +27,9 @@
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
       <div class="club-main__header">
-        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
         <div class="club-main__greeting">
-          <h1>🎓 Mis certificados</h1>
+          <h1><svg class="zi" aria-hidden="true"><use href="#zi-graduation-cap"/></svg> Mis certificados</h1>
           <p class="date">Completa cursos para ganar certificados descargables</p>
         </div>
       </div>
@@ -42,6 +42,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -76,7 +77,7 @@
         if (certs.length === 0) {
           content.innerHTML = `
             <div class="certs-empty">
-              <div style="font-size:4rem;margin-bottom:16px;">🎓</div>
+              <div style="font-size:4rem;margin-bottom:16px;"><svg class="zi" aria-hidden="true"><use href="#zi-graduation-cap"/></svg></div>
               <h2>Aún no tienes certificados</h2>
               <p style="color:var(--zoo-text-muted);margin:10px 0 24px;max-width:460px;margin-left:auto;margin-right:auto;">
                 Completa tus cursos y obtén certificados descargables con folio único y verificación QR.
@@ -101,18 +102,18 @@
               const fechaStr = `${fecha.getDate()} ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
               return `
                 <div class="cert-item-card">
-                  <div class="cert-item-card__icon">🏆</div>
+                  <div class="cert-item-card__icon"><svg class="zi" aria-hidden="true"><use href="#zi-trophy"/></svg></div>
                   <div class="cert-item-card__body">
                     <div class="cert-item-card__label">CERTIFICADO OFICIAL</div>
                     <h3>${c.courseTitle}</h3>
                     <div class="cert-item-card__meta">
-                      <span>📁 ${c.courseArea || 'General'}</span>
-                      <span>📅 ${fechaStr}</span>
-                      <span>🔢 ${c.folio}</span>
+                      <span><svg class="zi" aria-hidden="true"><use href="#zi-folder"/></svg> ${c.courseArea || 'General'}</span>
+                      <span><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${fechaStr}</span>
+                      <span><svg class="zi" aria-hidden="true"><use href="#zi-hash"/></svg> ${c.folio}</span>
                     </div>
                     <div class="cert-item-card__actions">
-                      <a href="ver-certificado.html?folio=${c.folio}" target="_blank" class="btn-club" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;">📥 Ver / Descargar</a>
-                      <a href="verificar.html?folio=${c.folio}" target="_blank" class="btn-club-outline" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;">🔗 Link público</a>
+                      <a href="ver-certificado.html?folio=${c.folio}" target="_blank" class="btn-club" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Ver / Descargar</a>
+                      <a href="verificar.html?folio=${c.folio}" target="_blank" class="btn-club-outline" style="width:auto;padding:10px 20px;text-decoration:none;margin:0;"><svg class="zi" aria-hidden="true"><use href="#zi-link"/></svg> Link público</a>
                     </div>
                   </div>
                 </div>

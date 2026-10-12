@@ -28,7 +28,7 @@ async function iniciarPagoStripe(planType, email) {
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.95);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
   overlay.innerHTML = `
     <div style="max-width:440px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 100%);border:2px solid rgba(232,163,23,0.4);border-radius:18px;padding:36px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-      <div style="font-size:3.5rem;margin-bottom:12px;animation:zooPulse 1.2s ease-in-out infinite;">💳</div>
+      <div style="font-size:3.5rem;margin-bottom:12px;animation:zooPulse 1.2s ease-in-out infinite;"><svg class="zi" aria-hidden="true"><use href="#zi-credit-card"/></svg></div>
       <h2 style="font-family:Poppins;color:#fff;font-size:1.4rem;margin:0 0 6px;">Llevándote al pago seguro</h2>
       <div style="color:#E8A317;font-weight:700;font-size:1rem;margin-bottom:14px;">${planLabel} · ${price}</div>
       <p style="color:rgba(255,255,255,0.85);font-size:.9rem;margin:0 0 10px;line-height:1.5;">Completa tu pago con <strong style="color:#fff;">Stripe (seguro)</strong> y te regresamos automáticamente al club.</p>
@@ -229,7 +229,7 @@ const ZOORIGEN_CLUB = {
           notificaciones.push({
             id: 'webinar_' + w.id,
             type: 'webinar',
-            icon: diasHasta <= 1 ? '🔔' : '🎥',
+            icon: diasHasta <= 1 ? '<svg class="zi" aria-hidden="true"><use href="#zi-bell"/></svg>' : '<svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg>',
             title: diasHasta === 0 ? '¡Hoy en vivo!' :
                    diasHasta === 1 ? '¡Mañana en vivo!' :
                    `Nuevo webinar en ${diasHasta} días`,
@@ -258,7 +258,7 @@ const ZOORIGEN_CLUB = {
             notificaciones.push({
               id: 'curso_' + c.id,
               type: 'curso',
-              icon: '📚',
+              icon: '<svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg>',
               title: 'Nuevo curso disponible',
               message: c.title,
               time: creado,
@@ -279,7 +279,7 @@ const ZOORIGEN_CLUB = {
           notificaciones.push({
             id: 'bienvenida_' + session.uid,
             type: 'welcome',
-            icon: '🎉',
+            icon: '<svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg>',
             title: '¡Bienvenido al Club VIP!',
             message: `Acceso hasta ${this.formatShort(session.planVence)}`,
             time: inicio,
@@ -355,7 +355,7 @@ const ZOORIGEN_CLUB = {
       if (notificaciones.length === 0) {
         list.innerHTML = `
           <div class="notif-empty">
-            <div class="notif-empty__icon">🔔</div>
+            <div class="notif-empty__icon"><svg class="zi" aria-hidden="true"><use href="#zi-bell"/></svg></div>
             <div class="notif-empty__title">Sin notificaciones</div>
             <div class="notif-empty__text">Te avisaremos de webinars, cursos nuevos y logros.</div>
           </div>`;
@@ -448,7 +448,7 @@ const ZOORIGEN_CLUB = {
       <div class="zoo-pay-backdrop"></div>
       <div class="zoo-pay-box">
         <div class="zoo-pay-icon-wrap">
-          <div class="zoo-pay-icon">💳</div>
+          <div class="zoo-pay-icon"><svg class="zi" aria-hidden="true"><use href="#zi-credit-card"/></svg></div>
           <div class="zoo-pay-pulse"></div>
         </div>
         <div class="zoo-pay-eyebrow">${planLabel} · Club VIP Zoorigen</div>
@@ -464,10 +464,10 @@ const ZOORIGEN_CLUB = {
         </ul>
         <div class="zoo-pay-actions">
           <button class="zoo-pay-reopen" onclick="ZOORIGEN_CLUB._reopenCheckoutWindow()">
-            🔄 Abrir ventana de nuevo
+            Abrir ventana de nuevo
           </button>
           <button class="zoo-pay-done" onclick="ZOORIGEN_CLUB._confirmPayment()">
-            ✓ Ya pagué — Entrar al Club
+            Ya pagué — Entrar al Club
           </button>
         </div>
         <button class="zoo-pay-cancel" onclick="ZOORIGEN_CLUB._cancelPayment()">
@@ -490,7 +490,7 @@ const ZOORIGEN_CLUB = {
       `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no,resizable=yes,scrollbars=yes`
     );
     if (!window.__zooPopup) {
-      alert('⚠️ Tu navegador bloqueó la ventana. Permite pop-ups para zoorigen.com.');
+      alert('Tu navegador bloqueó la ventana. Permite pop-ups para zoorigen.com.');
     }
   },
 
@@ -850,27 +850,27 @@ const ZOORIGEN_CLUB = {
       <div class="zoo-welcome-box">
         <button class="zoo-welcome-close" aria-label="Cerrar">×</button>
         <div class="zoo-welcome-emoji-wrap">
-          <div class="zoo-welcome-emoji">🦒</div>
-          <div class="zoo-welcome-sparkle zoo-welcome-sparkle-1">✨</div>
-          <div class="zoo-welcome-sparkle zoo-welcome-sparkle-2">⭐</div>
-          <div class="zoo-welcome-sparkle zoo-welcome-sparkle-3">✨</div>
+          <div class="zoo-welcome-emoji"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" width="64" height="64"></div>
+          <div class="zoo-welcome-sparkle zoo-welcome-sparkle-1"><svg class="zi" aria-hidden="true"><use href="#zi-sparkles"/></svg></div>
+          <div class="zoo-welcome-sparkle zoo-welcome-sparkle-2"><svg class="zi" aria-hidden="true"><use href="#zi-star"/></svg></div>
+          <div class="zoo-welcome-sparkle zoo-welcome-sparkle-3"><svg class="zi" aria-hidden="true"><use href="#zi-sparkles"/></svg></div>
         </div>
-        <div class="zoo-welcome-badge">🎉 ¡BIENVENIDO AL CLUB VIP!</div>
+        <div class="zoo-welcome-badge"><svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg> ¡BIENVENIDO AL CLUB VIP!</div>
         <h1 class="zoo-welcome-title">¡Felicidades <span>${firstName}</span>!</h1>
         <p class="zoo-welcome-desc">Eres parte oficial de <strong>Zoorigen</strong>, la comunidad científica de fauna más completa de México.</p>
         <div class="zoo-welcome-plan">
-          <div class="zoo-welcome-plan-icon">🏆</div>
+          <div class="zoo-welcome-plan-icon"><svg class="zi" aria-hidden="true"><use href="#zi-trophy"/></svg></div>
           <div>
             <div class="zoo-welcome-plan-label">${planLabel} activo</div>
             <div class="zoo-welcome-plan-sub">Acceso hasta ${venceLabel}</div>
           </div>
         </div>
         <div class="zoo-welcome-benefits">
-          <div class="zoo-welcome-benefit"><span>📚</span><div><strong>Todos los cursos</strong><small>Desbloqueados para ti</small></div></div>
-          <div class="zoo-welcome-benefit"><span>🔴</span><div><strong>Sesiones en vivo</strong><small>Masterclasses mensuales con especialistas</small></div></div>
-          <div class="zoo-welcome-benefit"><span>💰</span><div><strong>20% OFF permanente</strong><small>En todas las capacitaciones Zoorigen</small></div></div>
+          <div class="zoo-welcome-benefit"><span><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg></span><div><strong>Todos los cursos</strong><small>Desbloqueados para ti</small></div></div>
+          <div class="zoo-welcome-benefit"><span><span class="zdot" style="background:#C0392B"></span></span><div><strong>Sesiones en vivo</strong><small>Masterclasses mensuales con especialistas</small></div></div>
+          <div class="zoo-welcome-benefit"><span><svg class="zi" aria-hidden="true"><use href="#zi-banknote"/></svg></span><div><strong>20% OFF permanente</strong><small>En todas las capacitaciones Zoorigen</small></div></div>
         </div>
-        <button class="zoo-welcome-cta" id="zoo-welcome-cta-btn">🚀 Empezar a explorar</button>
+        <button class="zoo-welcome-cta" id="zoo-welcome-cta-btn"><svg class="zi" aria-hidden="true"><use href="#zi-rocket"/></svg> Empezar a explorar</button>
         <div class="zoo-welcome-footer">¿Necesitas ayuda? Contáctanos por <a href="https://wa.me/5212361113237" target="_blank">WhatsApp</a></div>
       </div>
     `;
@@ -916,7 +916,7 @@ const ZOORIGEN_CLUB = {
     return `
       <${tag} class="news-card" ${linkAttr}>
         <div class="news-card__img ${hasImage ? '' : 'no-image'}" ${hasImage ? `style="background-image:url('${n.image}');"` : ''}>
-          ${!hasImage ? (n.icon || '📰') : ''}
+          ${!hasImage ? (n.icon || '<svg class="zi" aria-hidden="true"><use href="#zi-newspaper"/></svg>') : ''}
         </div>
         <div class="news-card__body">
           <span class="news-card__source ${sourceColor}">${n.icon || '●'} ${source}</span>
@@ -924,7 +924,7 @@ const ZOORIGEN_CLUB = {
           ${n.summary ? `<p class="news-card__summary">${n.summary}</p>` : ''}
           <div class="news-card__footer">
             ${dateText ? `<span>${dateText}</span>` : ''}
-            ${n.link ? `<span class="read-more">Leer ↗</span>` : ''}
+            ${n.link ? `<span class="read-more">Leer <svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></span>` : ''}
           </div>
         </div>
       </${tag}>`;
@@ -1221,7 +1221,7 @@ const ZOORIGEN_CLUB = {
     }, 150);
 
     return `
-      <button class="club-sidebar__close" id="sidebarCloseBtn" aria-label="Cerrar menú">✕</button>
+      <button class="club-sidebar__close" id="sidebarCloseBtn" aria-label="Cerrar menú"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
       <div class="club-sidebar__brand">
         <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
         <div class="club-sidebar__brand-text">
@@ -1251,7 +1251,7 @@ const ZOORIGEN_CLUB = {
         <div class="plan-meta" style="font-size:.75rem;margin-bottom:8px;opacity:.75;">${renewText}</div>
         ${!isActivePlan ? `
         <a href="club-suscripcion.html" style="display:block;font-size:.78rem;background:rgba(232,163,23,0.12);border:1px solid rgba(232,163,23,0.4);color:var(--zoo-amber,#E8A317);padding:7px 10px;border-radius:8px;margin-bottom:8px;font-weight:700;text-decoration:none;">
-          🔓 Activar membresía
+          Activar membresía
         </a>` : ''}
         <a href="#" class="plan-logout" style="display:inline-block;font-size:.8rem;" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a>
       </div>
@@ -1325,9 +1325,9 @@ const ZOORIGEN_CLUB = {
         @media(max-width:500px) { .zoo-welcome-features{grid-template-columns:1fr;} .zoo-welcome-title{font-size:1.3rem;} .zoo-welcome-name{font-size:1.5rem;} .zoo-welcome-top{padding:30px 20px 16px;} .zoo-welcome-body{padding:20px;} }
       </style>
       <div class="zoo-welcome-box">
-        <button class="zoo-welcome-close" id="zooWelcomeClose" aria-label="Cerrar">✕</button>
+        <button class="zoo-welcome-close" id="zooWelcomeClose" aria-label="Cerrar"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
         <div class="zoo-welcome-top">
-          <div class="zoo-welcome-confetti">🎉</div>
+          <div class="zoo-welcome-confetti"><svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg></div>
           <img src="../assets/img/logo/logo.jpg" class="zoo-welcome-logo" alt="Zoorigen">
           <div class="zoo-welcome-title">¡Bienvenido al Club VIP!</div>
           <div class="zoo-welcome-name">${nombre}</div>
@@ -1335,14 +1335,14 @@ const ZOORIGEN_CLUB = {
         </div>
         <div class="zoo-welcome-body">
           <div class="zoo-welcome-features">
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">📚</div><div class="zoo-welcome-feat-text">Cursos completos</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">🎥</div><div class="zoo-welcome-feat-text">Webinars en vivo</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">🧬</div><div class="zoo-welcome-feat-text">Herramientas clínicas</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">⚖️</div><div class="zoo-welcome-feat-text">Herramientas legales</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">🏆</div><div class="zoo-welcome-feat-text">Logros y recompensas</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon">💬</div><div class="zoo-welcome-feat-text">Foro VIP exclusivo</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg></div><div class="zoo-welcome-feat-text">Cursos completos</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg></div><div class="zoo-welcome-feat-text">Webinars en vivo</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-dna"/></svg></div><div class="zoo-welcome-feat-text">Herramientas clínicas</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-scale"/></svg></div><div class="zoo-welcome-feat-text">Herramientas legales</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-trophy"/></svg></div><div class="zoo-welcome-feat-text">Logros y recompensas</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg></div><div class="zoo-welcome-feat-text">Foro VIP exclusivo</div></div>
           </div>
-          <button class="zoo-welcome-cta" id="zooWelcomeStart">Explorar mi Club VIP 🚀</button>
+          <button class="zoo-welcome-cta" id="zooWelcomeStart">Explorar mi Club VIP <svg class="zi" aria-hidden="true"><use href="#zi-rocket"/></svg></button>
           <button class="zoo-welcome-skip" id="zooWelcomeSkip">Saltar</button>
         </div>
       </div>
@@ -1475,22 +1475,22 @@ const ZOORIGEN_CLUB = {
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooPaywallFade .25s ease-out;';
     overlay.innerHTML = `
       <div style="max-width:500px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 60%,#2AA4D5 120%);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;overflow:hidden;">
-        <button id="zooPaywallClose" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.3);border:0;color:#fff;font-size:1rem;cursor:pointer;">✕</button>
-        <div style="font-size:3.8rem;margin-bottom:14px;">🔒</div>
+        <button id="zooPaywallClose" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.3);border:0;color:#fff;font-size:1rem;cursor:pointer;"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
+        <div style="font-size:3.8rem;margin-bottom:14px;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
         <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">ACCESO EXCLUSIVO VIP</div>
         <h2 style="font-family:Poppins;color:#fff;font-size:1.6rem;margin:0 0 10px;line-height:1.2;">Necesitas ser Miembro VIP para ${label}</h2>
         <p style="color:rgba(255,255,255,0.88);font-size:.95rem;margin:0 0 22px;line-height:1.55;">Suscríbete y desbloquea toda la plataforma: cursos, webinars, foro, herramientas profesionales y certificados con validez.</p>
 
         <div style="background:rgba(0,0,0,0.25);border-radius:14px;padding:18px;margin-bottom:20px;text-align:left;">
-          <div style="color:#E8A317;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">✨ Beneficios VIP</div>
+          <div style="color:#E8A317;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;"><svg class="zi" aria-hidden="true"><use href="#zi-sparkles"/></svg> Beneficios VIP</div>
           <div style="color:#fff;font-size:.9rem;line-height:1.85;">
-            ✅ <strong>Todos los cursos</strong> completos<br>
-            ✅ <strong>Webinars</strong> en vivo cada mes<br>
-            ✅ <strong>Foro VIP</strong> con expertos<br>
-            ✅ <strong>Certificados</strong> con validez<br>
-            ✅ <strong>Herramientas</strong> clínicas y legales<br>
-            ✅ <strong>20% descuento</strong> en cursos Zoorigen<br>
-            ✅ Videos y PDFs descargables
+            <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Todos los cursos</strong> completos<br>
+            <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Webinars</strong> en vivo cada mes<br>
+            <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Foro VIP</strong> con expertos<br>
+            <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Certificados</strong> con validez<br>
+            <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Herramientas</strong> clínicas y legales<br>
+            <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>20% descuento</strong> en cursos Zoorigen<br>
+            Videos y PDFs descargables
           </div>
         </div>
 
@@ -1549,7 +1549,7 @@ const ZOORIGEN_CLUB = {
         const lock = document.createElement('div');
         lock.className = 'zoo-vip-lock';
         lock.style.cssText = 'position:absolute;top:8px;right:8px;background:rgba(232,163,23,0.9);color:#1f1d17;padding:4px 10px;border-radius:14px;font-size:.7rem;font-weight:800;letter-spacing:.06em;pointer-events:none;z-index:5;';
-        lock.textContent = '🔒 VIP';
+        lock.textContent = 'VIP';
         el.appendChild(lock);
       }
     });
@@ -1561,7 +1561,7 @@ const ZOORIGEN_CLUB = {
       banner.id = 'zooPayBanner';
       banner.style.cssText = 'background:linear-gradient(135deg,#E8A317,#D55A28);color:#1f1d17;padding:12px 18px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;box-shadow:0 6px 18px rgba(232,163,23,0.25);';
       banner.innerHTML = `
-        <div style="font-size:1.8rem;line-height:1;">🔒</div>
+        <div style="font-size:1.8rem;line-height:1;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
         <div style="flex:1;min-width:200px;">
           <div style="font-family:Poppins;font-weight:800;font-size:.98rem;margin-bottom:2px;">Acceso gratuito</div>
           <div style="font-size:.82rem;opacity:.88;">Activa tu membresía para abrir todos los cursos.</div>

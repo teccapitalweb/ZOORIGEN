@@ -77,24 +77,24 @@
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;">
-        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú">☰</button>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
         <div style="display:flex;gap:10px;align-items:center;margin-left:auto;">
-          <button class="notif-icon" id="notifBtn" title="Notificaciones" aria-label="Notificaciones">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
-          <button class="theme-toggle" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema" onclick="ZOORIGEN_CLUB.toggleTheme()">☀️</button>
+          <button class="notif-icon" id="notifBtn" title="Notificaciones" aria-label="Notificaciones"><svg class="zi" aria-hidden="true"><use href="#zi-bell"/></svg><span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>
+          <button class="theme-toggle" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema" onclick="ZOORIGEN_CLUB.toggleTheme()"><svg class="zi" aria-hidden="true"><use href="#zi-sun"/></svg></button>
         </div>
       </div>
       <!-- Panel de notificaciones -->
       <div class="notif-panel" id="notifPanel" style="display:none;">
         <div class="notif-panel__header">
-          <h3>🔔 Notificaciones</h3>
-          <button class="notif-panel__close" id="notifPanelClose" aria-label="Cerrar">✕</button>
+          <h3><svg class="zi" aria-hidden="true"><use href="#zi-bell"/></svg> Notificaciones</h3>
+          <button class="notif-panel__close" id="notifPanelClose" aria-label="Cerrar"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
         </div>
         <div class="notif-panel__actions" id="notifPanelActions" style="display:none;">
           <button class="notif-mark-all" id="notifMarkAll">Marcar todas como leídas</button>
         </div>
         <div class="notif-panel__list" id="notifList">Cargando...</div>
       </div>
-      <div class="page-header"><h1>👤 Mi perfil</h1><p>Información de tu cuenta como miembro VIP Zoorigen</p></div>
+      <div class="page-header"><h1><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> Mi perfil</h1><p>Información de tu cuenta como miembro VIP Zoorigen</p></div>
       <div class="card">
         <div class="profile-card">
           <div class="profile-avatar" id="avatar">V</div>
@@ -103,14 +103,14 @@
             <p id="profileEmail">—</p>
             <span class="vip-tag" id="vipTag">Miembro pendiente</span>
           </div>
-          <button class="profile-edit-btn" id="editNameBtn">✏️ Editar nombre</button>
+          <button class="profile-edit-btn" id="editNameBtn"><svg class="zi" aria-hidden="true"><use href="#zi-pencil"/></svg> Editar nombre</button>
         </div>
 
         <div id="editNameFormWrap" style="display:none;">
           <div class="profile-edit-form">
             <label for="editNameInput">Nombre completo (como aparecerá en certificados)</label>
             <input type="text" id="editNameInput" placeholder="Ej. María González López" maxlength="80">
-            <div class="hint-cert">💡 Este nombre se usará para emitir tus certificados PDF. Asegúrate que esté completo y correcto.</div>
+            <div class="hint-cert"><svg class="zi" aria-hidden="true"><use href="#zi-lightbulb"/></svg> Este nombre se usará para emitir tus certificados PDF. Asegúrate que esté completo y correcto.</div>
             <div class="btn-row">
               <button class="btn-club" id="saveNameBtn" style="width:auto;padding:10px 22px;margin:0;border:0;font-family:inherit;cursor:pointer;">Guardar nombre</button>
               <button class="btn-club-outline" id="cancelEditBtn" style="width:auto;padding:10px 22px;margin:0;border:1px solid var(--zoo-border-strong);font-family:inherit;cursor:pointer;">Cancelar</button>
@@ -126,7 +126,7 @@
         <div class="info-row"><div class="info-row__label">Próxima renovación</div><div class="info-row__value" id="profileRenew">—</div></div>
         <div class="info-row"><div class="info-row__label">Último pago</div><div class="info-row__value" id="profileLast">—</div></div>
         <div style="margin-top:24px;">
-          <a href="https://wa.me/5212361113237?text=Hola%2C%20necesito%20ayuda%20con%20mi%20cuenta%20VIP%20Zoorigen" target="_blank" class="btn-club-outline" style="display:inline-block;width:auto;padding:12px 24px;margin:0;">💬 Hablar con soporte</a>
+          <a href="https://wa.me/5212361113237?text=Hola%2C%20necesito%20ayuda%20con%20mi%20cuenta%20VIP%20Zoorigen" target="_blank" class="btn-club-outline" style="display:inline-block;width:auto;padding:12px 24px;margin:0;"><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg> Hablar con soporte</a>
         </div>
       </div>
     </main>
@@ -135,6 +135,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -153,10 +154,10 @@
       document.getElementById('profilePhone').textContent = session.phone || 'No registrado';
       const statusMap = {
         'active': '<span style="color:var(--zoo-green-500);">● Membresía activa</span>',
-        'cancelled_active': '<span style="color:var(--zoo-amber);">⏳ Cancelada · acceso vigente</span>',
+        'cancelled_active': '<span style="color:var(--zoo-amber);"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cancelada · acceso vigente</span>',
         'pending_payment': '<span style="color:var(--zoo-amber);">Cuenta gratuita</span>',
-        'past_due': '<span style="color:var(--zoo-orange);">⚠ Pago no confirmado</span>',
-        'expired': '<span style="color:var(--zoo-orange);">✕ Membresía vencida</span>'
+        'past_due': '<span style="color:var(--zoo-orange);"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Pago no confirmado</span>',
+        'expired': '<span style="color:var(--zoo-orange);"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg> Membresía vencida</span>'
       };
       document.getElementById('profileStatus').innerHTML = statusMap[session.planStatus] || '—';
       document.getElementById('profileSince').textContent = session.createdAt ? ZOORIGEN_CLUB.formatShort(session.createdAt) : '—';
@@ -210,14 +211,14 @@
             nameUpdatedAt: new Date().toISOString()
           });
 
-          msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;">✅ Nombre actualizado. Tus nuevos certificados usarán este nombre.</div>`;
+          msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Nombre actualizado. Tus nuevos certificados usarán este nombre.</div>`;
           document.getElementById('profileName').textContent = newName;
           document.getElementById('avatar').textContent = ZOORIGEN_CLUB.getInitials(newName);
 
           setTimeout(() => window.location.reload(), 1800);
         } catch (err) {
           console.error(err);
-          msgEl.innerHTML = `<div style="color:var(--zoo-orange);font-size:.88rem;">⚠️ Error al guardar: ${err.message || 'Intenta de nuevo'}</div>`;
+          msgEl.innerHTML = `<div style="color:var(--zoo-orange);font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Error al guardar: ${err.message || 'Intenta de nuevo'}</div>`;
           saveBtn.disabled = false;
           saveBtn.textContent = 'Guardar nombre';
         }

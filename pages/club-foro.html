@@ -825,17 +825,17 @@
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
 
-      <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
 
       <!-- MARCA VERSION v2 FIX - si ves este comentario en la consola es el archivo nuevo -->
-      <script>console.log('%c🦒 FORO v2 FIX cargado ' + new Date().toLocaleTimeString(), 'background:#E8A317;color:#1f1d17;padding:4px 8px;font-weight:700;border-radius:4px;');</script>
+      <script>console.log('%cFORO v2 FIX cargado ' + new Date().toLocaleTimeString(), 'background:#E8A317;color:#1f1d17;padding:4px 8px;font-weight:700;border-radius:4px;');</script>
 
       <div class="foro-hero">
         <div class="foro-hero__badge">
           <span class="foro-hero__live-dot"></span>
           COMUNIDAD PRIVADA
         </div>
-        <h1>💬 Foro VIP</h1>
+        <h1><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg> Foro VIP</h1>
         <p>Conecta, pregunta y comparte con profesionales en fauna silvestre de toda Latinoamérica.</p>
         <div class="foro-hero__stats">
           <div class="foro-hero__stat">
@@ -855,7 +855,7 @@
 
       <div class="foro-main-actions">
         <button class="foro-new-btn" id="newPostBtn">
-          ✍️ Iniciar nueva discusión
+          <svg class="zi" aria-hidden="true"><use href="#zi-pen-line"/></svg> Iniciar nueva discusión
         </button>
       </div>
 
@@ -873,7 +873,7 @@
       </div>
 
       <div class="foro-list" id="foroList">
-        <div class="foro-loading">⏳ Cargando discusiones...</div>
+        <div class="foro-loading"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cargando discusiones...</div>
       </div>
     </main>
   </div>
@@ -882,6 +882,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -931,7 +932,7 @@
 
     async function loadPosts() {
       const list = document.getElementById('foroList');
-      list.innerHTML = '<div class="foro-loading">⏳ Cargando discusiones...</div>';
+      list.innerHTML = '<div class="foro-loading"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cargando discusiones...</div>';
 
       try {
         // Intentar con orderBy; si falla por índice/colección vacía, caer a simple .get()
@@ -1001,11 +1002,11 @@
         }
         list.innerHTML = `
           <div class="foro-empty">
-            <div class="foro-empty__icon">⚠️</div>
+            <div class="foro-empty__icon"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg></div>
             <h3>No se pudieron cargar las discusiones</h3>
             <p>Intenta recargar la página. Si persiste, contáctanos por WhatsApp.</p>
             ${detalle}
-            <button class="foro-btn-submit" style="margin-top:18px;" onclick="loadPosts()">🔄 Reintentar</button>
+            <button class="foro-btn-submit" style="margin-top:18px;" onclick="loadPosts()"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Reintentar</button>
           </div>`;
       }
     }
@@ -1019,7 +1020,7 @@
       if (filtered.length === 0) {
         list.innerHTML = `
           <div class="foro-empty">
-            <div class="foro-empty__icon">💭</div>
+            <div class="foro-empty__icon"><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg></div>
             <h3>${currentCategory === 'all' ? '¡Sé el primero en iniciar una discusión!' : 'Sin discusiones en esta categoría'}</h3>
             <p>${currentCategory === 'all' ? 'Comparte un caso, pregunta o experiencia con la comunidad.' : 'Cambia de categoría o inicia la primera aquí.'}</p>
           </div>`;
@@ -1063,15 +1064,15 @@
 
           <div class="foro-post__actions">
             <button class="foro-action ${userLiked ? 'is-liked' : ''}" onclick="toggleLike('${p.id}', this, event)">
-              <span class="foro-action__icon">${userLiked ? '❤️' : '🤍'}</span>
+              <span class="foro-action__icon"><svg class="zi${userLiked ? ' zi--lleno' : ''}" aria-hidden="true"><use href="#zi-heart"/></svg></span>
               <span>${likes.length}</span>
             </button>
             <button class="foro-action" onclick="viewPost('${p.id}')">
-              <span class="foro-action__icon">💬</span>
+              <span class="foro-action__icon"><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg></span>
               <span>${p.repliesCount || 0} respuestas</span>
             </button>
             <button class="foro-action" onclick="sharePost('${p.id}', '${escapeHtml(p.title).replace(/'/g, '&apos;')}', event)">
-              <span class="foro-action__icon">🔗</span>
+              <span class="foro-action__icon"><svg class="zi" aria-hidden="true"><use href="#zi-link"/></svg></span>
               <span>Compartir</span>
             </button>
           </div>
@@ -1085,7 +1086,7 @@
       // Solo VIP puede dar like
       const esVIP = ZOORIGEN_CLUB.hasActiveMembership(currentSession);
       if (!esVIP) {
-        alert('🔒 Solo los miembros VIP pueden dar like. Suscríbete para interactuar en el foro.');
+        alert('Solo los miembros VIP pueden dar like. Suscríbete para interactuar en el foro.');
         return;
       }
       const post = allPosts.find(p => p.id === postId);
@@ -1107,7 +1108,7 @@
           setTimeout(() => btn.classList.remove('just-liked'), 400);
         }
         btn.classList.toggle('is-liked');
-        btn.querySelector('.foro-action__icon').textContent = post.likes.includes(uid) ? '❤️' : '🤍';
+        btn.querySelector('.foro-action__icon').innerHTML = '<svg class="zi' + (post.likes.includes(uid) ? ' zi--lleno' : '') + '" aria-hidden="true"><use href="#zi-heart"/></svg>';
         btn.querySelectorAll('span')[1].textContent = post.likes.length;
       } catch (err) {
         console.error('Error like:', err);
@@ -1123,7 +1124,7 @@
         navigator.share({ title: 'Zoorigen Foro VIP', text, url }).catch(() => {});
       } else {
         navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
-          alert('✓ Link copiado al portapapeles');
+          alert('Link copiado al portapapeles');
         });
       }
     }
@@ -1133,7 +1134,7 @@
       const tieneAcceso = ZOORIGEN_CLUB.hasActiveMembership(currentSession);
 
       if (!tieneAcceso) {
-        alert('⚠️ Necesitas membresía VIP activa para publicar en el foro. Ve a "Suscripción" para activar la tuya.');
+        alert('Necesitas membresía VIP activa para publicar en el foro. Ve a "Suscripción" para activar la tuya.');
         return;
       }
 
@@ -1142,8 +1143,8 @@
       modal.innerHTML = `
         <div class="foro-modal__box">
           <div class="foro-modal__header">
-            <h3>✍️ Iniciar nueva discusión</h3>
-            <button class="foro-modal__close" id="foroModalClose">✕</button>
+            <h3><svg class="zi" aria-hidden="true"><use href="#zi-pen-line"/></svg> Iniciar nueva discusión</h3>
+            <button class="foro-modal__close" id="foroModalClose"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
           </div>
           <div class="foro-modal__body">
             <div class="foro-form-group">
@@ -1177,7 +1178,7 @@
           </div>
           <div class="foro-modal__footer">
             <button class="foro-btn-cancel" id="foroModalCancel">Cancelar</button>
-            <button class="foro-btn-submit" id="foroModalSubmit">📤 Publicar</button>
+            <button class="foro-btn-submit" id="foroModalSubmit"><svg class="zi" aria-hidden="true"><use href="#zi-upload"/></svg> Publicar</button>
           </div>
         </div>
       `;
@@ -1251,13 +1252,13 @@
       const content = (contentEl.value || '').trim();
       const category = categoryEl.value;
 
-      if (!title) { errEl.textContent = '⚠️ Escribe un título.'; errEl.classList.add('show'); return; }
-      if (title.length < 8) { errEl.textContent = '⚠️ El título es muy corto (mín. 8 caracteres).'; errEl.classList.add('show'); return; }
-      if (!content) { errEl.textContent = '⚠️ Escribe el contenido de tu discusión.'; errEl.classList.add('show'); return; }
-      if (content.length < 15) { errEl.textContent = '⚠️ El contenido es muy corto (mín. 15 caracteres).'; errEl.classList.add('show'); return; }
+      if (!title) { errEl.textContent = 'Escribe un título.'; errEl.classList.add('show'); return; }
+      if (title.length < 8) { errEl.textContent = 'El título es muy corto (mín. 8 caracteres).'; errEl.classList.add('show'); return; }
+      if (!content) { errEl.textContent = 'Escribe el contenido de tu discusión.'; errEl.classList.add('show'); return; }
+      if (content.length < 15) { errEl.textContent = 'El contenido es muy corto (mín. 15 caracteres).'; errEl.classList.add('show'); return; }
 
       submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ Publicando...';
+      submitBtn.textContent = 'Publicando...';
 
       try {
         const data = {
@@ -1282,7 +1283,7 @@
         await loadPosts();
       } catch (err) {
         console.error('Error publicando:', err);
-        let msg = '❌ No se pudo publicar: ';
+        let msg = 'No se pudo publicar: ';
         if (err.code === 'permission-denied') {
           msg += 'Sin permisos. Verifica que tu membresía esté activa y que las reglas de Firestore permitan escribir en foroPosts.';
         } else {
@@ -1291,7 +1292,7 @@
         errEl.textContent = msg;
         errEl.classList.add('show');
         submitBtn.disabled = false;
-        submitBtn.textContent = '📤 Publicar';
+        submitBtn.textContent = 'Publicar';
       }
     }
 
@@ -1309,7 +1310,7 @@
         <div class="foro-view-box">
           <div class="foro-modal__header">
             <h3>${CAT_LABELS[post.category] || post.category}</h3>
-            <button class="foro-modal__close" id="viewClose">✕</button>
+            <button class="foro-modal__close" id="viewClose"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
           </div>
           <div class="foro-view-content">
             <h2>${escapeHtml(post.title)}</h2>
@@ -1322,13 +1323,13 @@
             </div>
             <div class="foro-view-body">${escapeHtml(post.content)}</div>
 
-            <h4 class="foro-replies-title" id="repliesTitle">💬 Respuestas (cargando...)</h4>
-            <div id="repliesList"><div class="foro-loading">⏳ Cargando respuestas...</div></div>
+            <h4 class="foro-replies-title" id="repliesTitle"><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg> Respuestas (cargando...)</h4>
+            <div id="repliesList"><div class="foro-loading"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cargando respuestas...</div></div>
           </div>
           <div class="foro-view-reply-form">
             <textarea id="newReplyText" placeholder="Escribe tu respuesta..."></textarea>
             <div class="foro-view-reply-form__actions">
-              <button class="foro-view-reply-form__submit" id="submitReply">📤 Responder</button>
+              <button class="foro-view-reply-form__submit" id="submitReply"><svg class="zi" aria-hidden="true"><use href="#zi-upload"/></svg> Responder</button>
             </div>
           </div>
         </div>
@@ -1349,7 +1350,7 @@
         }
         const replies = rsSnap.docs.map(d => ({ id: d.id, ...(d.data() || {}) }));
 
-        document.getElementById('repliesTitle').textContent = `💬 Respuestas (${replies.length})`;
+        document.getElementById('repliesTitle').textContent = `Respuestas (${replies.length})`;
 
         if (replies.length === 0) {
           document.getElementById('repliesList').innerHTML = '<p style="color:#a0a8a4;text-align:center;padding:20px;">Aún no hay respuestas. ¡Sé el primero!</p>';
@@ -1376,18 +1377,18 @@
         // Solo VIP puede responder
         const esVIP = ZOORIGEN_CLUB.hasActiveMembership(currentSession);
         if (!esVIP) {
-          alert('🔒 Solo los miembros VIP pueden responder. Suscríbete para interactuar en el foro.');
+          alert('Solo los miembros VIP pueden responder. Suscríbete para interactuar en el foro.');
           return;
         }
         const txtEl = document.getElementById('newReplyText');
         const text = (txtEl.value || '').trim();
         if (text.length < 5) {
-          alert('⚠️ Escribe al menos 5 caracteres.');
+          alert('Escribe al menos 5 caracteres.');
           return;
         }
         const btn = document.getElementById('submitReply');
         btn.disabled = true;
-        btn.textContent = '⏳ Enviando...';
+        btn.textContent = 'Enviando...';
         try {
           await db.collection('foroPosts').doc(postId).collection('replies').add({
             authorUid: currentSession.uid,
@@ -1407,9 +1408,9 @@
           await loadPosts();
         } catch (err) {
           console.error('Error respondiendo:', err);
-          alert('❌ No se pudo enviar tu respuesta: ' + (err.message || err.code));
+          alert('No se pudo enviar tu respuesta: ' + (err.message || err.code));
           btn.disabled = false;
-          btn.textContent = '📤 Responder';
+          btn.textContent = 'Responder';
         }
       });
     }

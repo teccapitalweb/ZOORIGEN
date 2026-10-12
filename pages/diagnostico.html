@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔧 Diagnóstico · Zoorigen</title>
+  <title>Diagnóstico · Zoorigen</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -79,15 +79,15 @@
   </style>
 </head>
 <body>
-  <h1>🔧 Diagnóstico del sistema de certificados</h1>
+  <h1><svg class="zi" aria-hidden="true"><use href="#zi-wrench"/></svg> Diagnóstico del sistema de certificados</h1>
   <p class="sub">Detecta automáticamente por qué los certificados no se están guardando.</p>
 
   <div id="checks"></div>
 
   <div class="actions">
-    <button onclick="runDiagnostic()">🔄 Volver a verificar</button>
-    <button class="secondary" onclick="testCreateCert()">🧪 Probar crear certificado de prueba</button>
-    <button class="danger" onclick="limpiarLocalStorage()">🗑️ Limpiar folios del navegador</button>
+    <button onclick="runDiagnostic()"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Volver a verificar</button>
+    <button class="secondary" onclick="testCreateCert()"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg> Probar crear certificado de prueba</button>
+    <button class="danger" onclick="limpiarLocalStorage()"><svg class="zi" aria-hidden="true"><use href="#zi-trash-2"/></svg> Limpiar folios del navegador</button>
   </div>
 
   <div id="log" class="log" style="display:none;"></div>
@@ -98,6 +98,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script>
     const checks = document.getElementById('checks');
@@ -113,7 +114,7 @@
     }
 
     function addCheck(status, title, detail) {
-      const icons = { pass: '✅', fail: '❌', warn: '⚠️' };
+      const icons = { pass: '<svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg>', fail: '<svg class="zi" aria-hidden="true"><use href="#zi-circle-x"/></svg>', warn: '<svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg>' };
       const div = document.createElement('div');
       div.className = `check check--${status}`;
       div.innerHTML = `
@@ -185,7 +186,7 @@
       // ═══ Check 5: membresía realmente vigente ═══
       const planActivoType = typeof member.planActivo;
       if (ZOORIGEN_CLUB.hasActiveMembership(member)) {
-        addCheck('pass', 'Membresía vigente ✨',
+        addCheck('pass', 'Membresía vigente',
           `Estado: <code>${ZOORIGEN_CLUB.calculateStatus(member)}</code> · acceso hasta <code>${ZOORIGEN_CLUB.formatShort(member.planVence)}</code>.`);
       } else if (member.planActivo === "true") {
         addCheck('fail', 'planActivo es STRING, debe ser BOOLEAN',
@@ -229,7 +230,7 @@
         });
         // Limpiar el test
         await db.collection('certificados').doc(testFolio).delete().catch(()=>{});
-        addCheck('pass', 'PUEDES crear certificados ✨',
+        addCheck('pass', 'PUEDES crear certificados',
           `Se creó y eliminó el folio de prueba <code>${testFolio}</code> correctamente. <strong>Todo debería funcionar.</strong>`);
       } catch (err) {
         addCheck('fail', 'NO puedes crear certificados',
@@ -267,18 +268,18 @@
     }
 
     async function testCreateCert() {
-      log('🧪 Iniciando prueba de creación de certificado...');
+      log('Iniciando prueba de creación de certificado...');
       const user = auth.currentUser;
-      if (!user) { log('❌ No hay usuario autenticado', 'error'); return; }
+      if (!user) { log('No hay usuario autenticado', 'error'); return; }
 
       const memberDoc = await db.collection('miembros').doc(user.uid).get();
       const member = memberDoc.data();
 
       const folio = 'ZOO-TEST-' + Date.now();
-      log(`📝 Folio generado: ${folio}`);
-      log(`👤 memberUid: ${user.uid}`);
-      log(`📧 memberEmail: ${user.email}`);
-      log(`🏷️ planActivo: ${member.planActivo} (tipo: ${typeof member.planActivo})`);
+      log(`Folio generado: ${folio}`);
+      log(`memberUid: ${user.uid}`);
+      log(`memberEmail: ${user.email}`);
+      log(`planActivo: ${member.planActivo} (tipo: ${typeof member.planActivo})`);
 
       try {
         await db.collection('certificados').doc(folio).set({
@@ -292,15 +293,15 @@
           issuedAt: new Date().toISOString(),
           totalClases: 0
         });
-        log('✅ CERTIFICADO CREADO EXITOSAMENTE');
-        log(`🔗 Ver: ${location.origin}/pages/ver-certificado.html?folio=${folio}`);
+        log('CERTIFICADO CREADO EXITOSAMENTE');
+        log(`Ver: ${location.origin}/pages/ver-certificado.html?folio=${folio}`);
         log('Eliminando prueba...');
         await db.collection('certificados').doc(folio).delete();
-        log('✅ Prueba limpia. Los certificados funcionan correctamente.');
+        log('Prueba limpia. Los certificados funcionan correctamente.');
       } catch (err) {
-        log(`❌ ERROR: ${err.code}`, 'error');
+        log(`ERROR: ${err.code}`, 'error');
         log(`Mensaje: ${err.message}`, 'error');
-        log(`\n💡 Causas probables:`, 'warn');
+        log(`\nCausas probables:`, 'warn');
         log(`  1. Las reglas v6 NO están publicadas en Firebase Console`, 'warn');
         log(`  2. Tu membresía no tiene una vigencia confirmada`, 'warn');
         log(`  3. Tu UID no coincide con memberUid en los datos`, 'warn');
@@ -319,7 +320,7 @@
         });
         localStorage.setItem(k, JSON.stringify(data));
       });
-      log(`✅ ${count} folios inválidos eliminados del navegador`);
+      log(`${count} folios inválidos eliminados del navegador`);
       setTimeout(runDiagnostic, 500);
     }
 

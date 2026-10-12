@@ -228,7 +228,7 @@
 
   function oficialesHTML() {
     return '<div class="mt-oficiales">' + OFICIALES.map(function (o) {
-      return '<a class="mt-ofi" href="' + esc(o.url) + '" target="_blank" rel="noopener noreferrer"><span class="mt-ofi__tipo">' + esc(o.tipo) + '</span><strong>' + esc(o.titulo) + '</strong><small>' + esc(o.detalle) + '</small><span class="mt-ofi__ir">Abrir fuente oficial ↗</span></a>';
+      return '<a class="mt-ofi" href="' + esc(o.url) + '" target="_blank" rel="noopener noreferrer"><span class="mt-ofi__tipo">' + esc(o.tipo) + '</span><strong>' + esc(o.titulo) + '</strong><small>' + esc(o.detalle) + '</small><span class="mt-ofi__ir">Abrir fuente oficial <svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></span></a>';
     }).join('') + '</div><p class="mt-nota">Estos documentos son textos oficiales. Se abren en el sitio de la autoridad que los publica, así siempre ves la versión vigente.</p>';
   }
 
@@ -238,7 +238,7 @@
       var url = id ? 'https://drive.google.com/file/d/' + id + '/view' : urlHttps(p.url);
       return (url ? '<a class="mt-ofi" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' : '<div class="mt-ofi">') +
         '<span class="mt-ofi__tipo">' + esc(p.category || p.area || 'Material') + '</span><strong>' + esc(p.title || 'Material') + '</strong><small>' + (p.pages ? esc(p.pages) + ' páginas' : 'Material de apoyo') + '</small>' +
-        (url ? '<span class="mt-ofi__ir">Abrir ↗</span></a>' : '<span class="mt-ofi__ir">Sin enlace</span></div>');
+        (url ? '<span class="mt-ofi__ir">Abrir <svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></span></a>' : '<span class="mt-ofi__ir">Sin enlace</span></div>');
     }).join('') + '</div>';
   }
 
@@ -353,7 +353,7 @@
       var nodo = document.createElement('div'); nodo.className = 'rdr'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-label', libro.titulo);
       nodo.innerHTML = '<div class="rdr-cab"><button type="button" class="rdr-volver" id="rdrX">← PDFs y materiales</button>' +
         '<div class="rdr-cab__t"><strong>' + esc(libro.titulo) + '</strong><small>' + esc(String(libro.categoria || '').toUpperCase()) + '</small></div>' +
-        '<div class="rdr-cab__acc"><button type="button" class="rdr-modo" id="rdrModo"></button><button type="button" class="rdr-x" id="rdrX2" aria-label="Cerrar libro">✕</button></div></div>' +
+        '<div class="rdr-cab__acc"><button type="button" class="rdr-modo" id="rdrModo"></button><button type="button" class="rdr-x" id="rdrX2" aria-label="Cerrar libro"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button></div></div>' +
         '<div class="rdr-continuar" id="rdrCont" hidden></div>' +
         '<div class="rdr-cuerpo"><button type="button" class="rdr-nav" id="rdrAnt" aria-label="Página anterior">←</button>' +
         '<div class="rdr-escena"><div class="rdr-libro" id="rdrLibro" tabindex="0"></div></div>' +
@@ -449,7 +449,7 @@
       if (!m.desbloqueado) { toast(mensajeBloqueo(m), true); return; }
       cerrarVisor();
       var nodo = document.createElement('div'); nodo.className = 'mt-visor'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-label', m.titulo);
-      nodo.innerHTML = '<div class="mt-visor__ventana"><div class="mt-visor__cab"><strong>' + esc(m.titulo) + '</strong><div class="mt-visor__acc"><a class="mt-icono" id="mvDescargar" hidden title="Descargar PDF" aria-label="Descargar PDF">⬇</a><a class="mt-icono" id="mvAbrir" hidden target="_blank" rel="noopener" title="Abrir en otra pestaña" aria-label="Abrir en otra pestaña">↗</a><button type="button" class="mt-icono" id="mvX" aria-label="Cerrar">✕</button></div></div>' +
+      nodo.innerHTML = '<div class="mt-visor__ventana"><div class="mt-visor__cab"><strong>' + esc(m.titulo) + '</strong><div class="mt-visor__acc"><a class="mt-icono" id="mvDescargar" hidden title="Descargar PDF" aria-label="Descargar PDF"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg></a><a class="mt-icono" id="mvAbrir" hidden target="_blank" rel="noopener" title="Abrir en otra pestaña" aria-label="Abrir en otra pestaña"><svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></a><button type="button" class="mt-icono" id="mvX" aria-label="Cerrar"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button></div></div>' +
         '<div class="mt-visor__cuerpo" id="mvCuerpo"><div class="mt-vacio">Preparando el documento…</div></div></div>';
       document.body.appendChild(nodo); document.body.classList.add('mt-noscroll');
       visor = { nodo: nodo, url: '' };

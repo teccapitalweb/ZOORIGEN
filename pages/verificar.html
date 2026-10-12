@@ -237,7 +237,7 @@
 <body>
 
   <div class="verify-header">
-    <div class="verify-logo">🦒</div>
+    <div class="verify-logo"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" style="width:100%;height:100%"></div>
     <h1>Verificación de certificados</h1>
     <p>Zoorigen · Tec Capital Group · Tehuacán, Puebla</p>
   </div>
@@ -257,7 +257,7 @@
 
     <div class="verify-result" id="resultValid">
       <div class="verify-valid-badge">
-        <div class="verify-valid-icon">✓</div>
+        <div class="verify-valid-icon"><svg class="zi" aria-hidden="true"><use href="#zi-check"/></svg></div>
         <h2>Certificado auténtico</h2>
         <p>Emitido oficialmente por Zoorigen</p>
       </div>
@@ -294,7 +294,7 @@
     </div>
 
     <div class="verify-error" id="resultError">
-      <div class="verify-error-icon">❌</div>
+      <div class="verify-error-icon"><svg class="zi" aria-hidden="true"><use href="#zi-circle-x"/></svg></div>
       <h3>Folio no encontrado</h3>
       <p>Este folio no corresponde a ningún certificado emitido por Zoorigen, o bien es inválido. Revisa que hayas escrito bien el número.</p>
     </div>
@@ -368,5 +368,6 @@
     });
   }
 </script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
 </body>
 </html>

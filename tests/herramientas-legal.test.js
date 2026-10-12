@@ -35,7 +35,7 @@ test('todos los íconos que se usan existen en el conjunto (Lucide)', () => {
   assert.ok(usados.size > 20);
   for (const u of usados) assert.ok(nombres.has(u), 'falta el ícono ' + u);
   // cada ícono dibuja algo
-  for (const n of nombres) assert.match(I.ICONOS[n], /<(path|circle|rect|line|polyline)/, n);
+  for (const n of nombres) assert.match(I.ICONOS[n], /<(path|circle|rect|line|polyline|polygon)/, n);
   assert.match(I.i('pill'), /#zi-pill/);
   assert.equal(I.i('no-existe'), '');
   assert.match(I.sprite(), /<symbol id="zi-pill"/);
@@ -124,4 +124,45 @@ test('las dos páginas muestran un aviso de material de referencia y no dejan la
     assert.match(t, /club-suscripcion\.html/);
     assert.match(t, /herramientas-iconos\.js\?v=\w+/);
   }
+});
+
+// ── Barrido de emojis en todo el sitio ──
+const archivosVivos = () => {
+  const salida = [];
+  for (const d of ['pages', 'assets/js']) {
+    for (const f of fs.readdirSync(path.join(RAIZ, d))) if (/\.(html|js)$/.test(f)) salida.push(d + '/' + f);
+  }
+  // Código que ninguna página carga (sw.js lo documenta como muerto): no se muestra a nadie.
+  const muertos = new Set(['assets/js/admin.js', 'assets/js/club-extra.js', 'assets/js/especies-data.js', 'assets/js/stripe-config.js']);
+  return salida.filter(f => !muertos.has(f));
+};
+
+test('ninguna pantalla que se muestra usa emojis', () => {
+  const fallas = [];
+  for (const rel of archivosVivos()) {
+    const t = leer(rel).replace(/[©®™]/g, '');
+    const m = t.match(EMOJI);
+    if (m) fallas.push(rel + ' → ' + m[0]);
+  }
+  assert.deepEqual(fallas, []);
+});
+
+test('todos los íconos #zi-* de todas las pantallas existen en el conjunto', () => {
+  const nombres = new Set(I.nombres());
+  const faltan = [];
+  for (const rel of archivosVivos()) {
+    if (rel === 'assets/js/herramientas-iconos.js') continue;
+    for (const m of leer(rel).matchAll(/#zi-([a-z0-9-]+)/g)) if (!nombres.has(m[1])) faltan.push(rel + ' → ' + m[1]);
+  }
+  assert.deepEqual(faltan, []);
+});
+
+test('cada página que usa íconos carga el módulo de íconos', () => {
+  const sin = [];
+  for (const f of fs.readdirSync(path.join(RAIZ, 'pages')).filter(n => n.endsWith('.html'))) {
+    const t = leer('pages/' + f);
+    const usa = /#zi-|zi-logo/.test(t) || /assets\/js\/club\.js/.test(t);
+    if (usa && !/herramientas-iconos\.js/.test(t)) sin.push(f);
+  }
+  assert.deepEqual(sin, ['club-noticias.html'.replace('club-noticias.html', '')].filter(Boolean));
 });

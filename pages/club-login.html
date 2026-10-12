@@ -132,6 +132,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script>
     auth.onAuthStateChanged((user) => { if (user) window.location.href = 'club-dashboard.html'; });
@@ -217,7 +218,7 @@
         if (result.ok) {
           msg.textContent = 'Enlace enviado. Revisa tu bandeja de entrada y la carpeta de spam.';
           msg.style.color = '#23643e';
-          sendBtn.textContent = 'Enviado ✓';
+          sendBtn.textContent = 'Enviado';
           setTimeout(() => modal.remove(), 4000);
         } else {
           msg.textContent = result.msg;

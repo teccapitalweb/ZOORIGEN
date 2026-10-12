@@ -541,7 +541,7 @@
           <div>
             <div class="section-title">Invita amigos y gana cursos antes de tiempo</div>
             <div class="dash-refer-card" data-vip-required data-vip-label="obtener tu código de referido">
-              <div class="dash-refer-icon">🎁</div>
+              <div class="dash-refer-icon"><svg class="zi" aria-hidden="true"><use href="#zi-gift"/></svg></div>
               <div class="dash-refer-body">
                 <h3>Invita a 4 amigos y adelanta un curso</h3>
                 <p>Comparte tu código. Cuando 4 amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha.</p>
@@ -573,6 +573,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -612,9 +613,9 @@
       // Solo mostrar banner si hay problema con el plan
       const pb = document.getElementById('pendingBanner');
       if (session.planStatus === 'cancelled_active') {
-        pb.innerHTML = `<div class="status-banner cancelled"><span>⏳</span>Cancelaste la renovación; conservas acceso hasta ${ZOORIGEN_CLUB.formatShort(session.planVence)}. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Reanudar →</a></div>`;
+        pb.innerHTML = `<div class="status-banner cancelled"><span><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg></span>Cancelaste la renovación; conservas acceso hasta ${ZOORIGEN_CLUB.formatShort(session.planVence)}. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Reanudar →</a></div>`;
       } else if (session.planStatus === 'expired' || session.planStatus === 'past_due') {
-        pb.innerHTML = `<div class="status-banner cancelled"><span>🔒</span>${session.planStatus === 'past_due' ? 'No se confirmó el último pago.' : 'Tu membresía venció.'} Puedes seguir con la primera clase gratis. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
+        pb.innerHTML = `<div class="status-banner cancelled"><span><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></span>${session.planStatus === 'past_due' ? 'No se confirmó el último pago.' : 'Tu membresía venció.'} Puedes seguir con la primera clase gratis. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
       }
       // Para pending_payment, el banner dorado del paywall se muestra automáticamente
 
@@ -639,24 +640,24 @@
           welcomeOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .3s ease-out;';
           welcomeOverlay.innerHTML = `
             <div style="max-width:520px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 60%,#2AA4D5 120%);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);">
-              <div style="font-size:4rem;margin-bottom:14px;">🦒</div>
+              <div style="font-size:4rem;margin-bottom:14px;"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" width="64" height="64"></div>
               <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">¡BIENVENIDO, ${(session.name || 'nuevo miembro').split(' ')[0].toUpperCase()}!</div>
-              <h2 style="font-family:Poppins;color:#fff;font-size:1.7rem;margin:0 0 12px;line-height:1.2;">Ya eres parte de Zoorigen 🎉</h2>
+              <h2 style="font-family:Poppins;color:#fff;font-size:1.7rem;margin:0 0 12px;line-height:1.2;">Ya eres parte de Zoorigen <svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg></h2>
               <p style="color:rgba(255,255,255,0.9);font-size:.98rem;margin:0 0 22px;line-height:1.6;">Tu cuenta gratuita está lista. Elige tu curso de prueba gratuita en Cursos y, cuando quieras, activa una membresía para abrir todos los cursos.</p>
 
               <div style="background:rgba(0,0,0,0.25);border-radius:14px;padding:16px;margin-bottom:20px;text-align:left;">
-                <div style="color:#E8A317;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">🎯 ¿Qué puedes hacer ahora?</div>
+                <div style="color:#E8A317;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;"><svg class="zi" aria-hidden="true"><use href="#zi-target"/></svg> ¿Qué puedes hacer ahora?</div>
                 <div style="color:#fff;font-size:.88rem;line-height:1.85;">
-                  🎁 Elegir tu curso de prueba gratuita<br>
-                  📰 Leer noticias de fauna y conservación<br>
-                  📖 Ver la guía de uso de la plataforma<br>
-                  💳 Suscribirte cuando quieras desbloquear todo
+                  <svg class="zi" aria-hidden="true"><use href="#zi-gift"/></svg> Elegir tu curso de prueba gratuita<br>
+                  <svg class="zi" aria-hidden="true"><use href="#zi-newspaper"/></svg> Leer noticias de fauna y conservación<br>
+                  <svg class="zi" aria-hidden="true"><use href="#zi-book-open"/></svg> Ver la guía de uso de la plataforma<br>
+                  Suscribirte cuando quieras desbloquear todo
                 </div>
               </div>
 
               <div style="display:flex;gap:10px;flex-direction:column;">
-                <button id="zooWelcomeExplore" style="background:linear-gradient(135deg,#E8A317,#D68A0A);border:0;color:#1f1d17;padding:14px 22px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:800;font-size:.98rem;box-shadow:0 6px 18px rgba(232,163,23,0.3);">🌿 Explorar Zoorigen</button>
-                <button id="zooWelcomeSubscribe" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:12px 22px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:700;font-size:.9rem;">💳 Suscribirme ahora (desde $199/mes)</button>
+                <button id="zooWelcomeExplore" style="background:linear-gradient(135deg,#E8A317,#D68A0A);border:0;color:#1f1d17;padding:14px 22px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:800;font-size:.98rem;box-shadow:0 6px 18px rgba(232,163,23,0.3);"><svg class="zi" aria-hidden="true"><use href="#zi-leaf"/></svg> Explorar Zoorigen</button>
+                <button id="zooWelcomeSubscribe" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:12px 22px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:700;font-size:.9rem;"><svg class="zi" aria-hidden="true"><use href="#zi-credit-card"/></svg> Suscribirme ahora (desde $199/mes)</button>
               </div>
             </div>
             <style>@keyframes zooFadeIn { from{opacity:0} to{opacity:1} }</style>
@@ -735,17 +736,17 @@
           // Textos según tipo de aviso
           const textos = tipoAviso === 'manana'
             ? {
-                icono: '🔔',
+                icono: '<svg class="zi" aria-hidden="true"><use href="#zi-bell"/></svg>',
                 badge: diasHasta === 0 ? '¡HOY EN VIVO!' : '¡MAÑANA EN VIVO!',
                 titulo: diasHasta === 0 ? 'Hoy es tu webinar · No faltes' : 'Mañana es tu webinar · No te lo pierdas',
-                cta: '🎯 Ver detalles del webinar',
+                cta: 'Ver detalles del webinar',
                 secondary: 'Cerrar aviso'
               }
             : {
-                icono: '🎉',
+                icono: '<svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg>',
                 badge: '¡NUEVO WEBINAR!',
                 titulo: 'Nuevo webinar agendado · ¡Apártate la fecha!',
-                cta: '📅 Ver detalles del webinar',
+                cta: 'Ver detalles del webinar',
                 secondary: 'Cerrar aviso'
               };
 
@@ -892,7 +893,7 @@
               </style>
               <div class="webinar-popup-bg" id="webinarPopupBg"></div>
               <div class="webinar-popup-box">
-                <button class="webinar-popup-close" id="webinarPopupClose" aria-label="Cerrar">✕</button>
+                <button class="webinar-popup-close" id="webinarPopupClose" aria-label="Cerrar"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
                 <div class="webinar-popup-content">
                   <div class="webinar-popup-icon">${textos.icono}</div>
                   <div class="webinar-popup-badge">
@@ -902,10 +903,10 @@
                   <div class="webinar-popup-title">${textos.titulo}</div>
                   <div class="webinar-popup-name">${webinarInfo.title}</div>
                   <div class="webinar-popup-info-row">
-                    <div class="webinar-popup-chip">👤 ${webinarInfo.speaker || 'Especialista'}</div>
-                    <div class="webinar-popup-chip">📅 ${ZOORIGEN_CLUB.formatShort(webinarInfo.date)}</div>
-                    <div class="webinar-popup-chip">🕐 ${webinarInfo.time || '19:00'} hrs</div>
-                    <div class="webinar-popup-chip">💻 Google Meet</div>
+                    <div class="webinar-popup-chip"><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> ${webinarInfo.speaker || 'Especialista'}</div>
+                    <div class="webinar-popup-chip"><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${ZOORIGEN_CLUB.formatShort(webinarInfo.date)}</div>
+                    <div class="webinar-popup-chip"><svg class="zi" aria-hidden="true"><use href="#zi-clock"/></svg> ${webinarInfo.time || '19:00'} hrs</div>
+                    <div class="webinar-popup-chip"><svg class="zi" aria-hidden="true"><use href="#zi-laptop"/></svg> Google Meet</div>
                   </div>
                   <a href="club-sesiones.html" class="webinar-popup-cta">
                     <span class="webinar-popup-cta__meet-icon">M</span>
@@ -1125,7 +1126,7 @@
       navigator.clipboard.writeText(code).then(() => {
         const btn = event.target;
         const original = btn.textContent;
-        btn.textContent = '✓ Copiado';
+        btn.textContent = 'Copiado';
         setTimeout(() => { btn.textContent = original; }, 1800);
       });
     }

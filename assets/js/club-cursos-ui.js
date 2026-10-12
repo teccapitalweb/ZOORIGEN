@@ -90,7 +90,7 @@
     return `<article class="${clases.join(' ')}" data-id="${esc(c.id)}"${x.abrible !== false ? ' role="button" tabindex="0"' : ''}>
       <div class="zc-cover${img ? '' : ' zc-cover--vacia'}"${img ? ` style="--zc-img:url('${esc(img)}')"` : ''}></div>
       <div class="zc-tags">${c.area ? `<span class="zc-tag zc-tag--area" style="--zc-area:${colorArea(c.area)}">${esc(c.area)}</span>` : ''}${c.level ? `<span class="zc-tag">${esc(c.level)}</span>` : ''}${c.tag ? `<span class="zc-tag zc-tag--tag">${esc(c.tag)}</span>` : ''}</div>
-      <span class="zc-arrow" aria-hidden="true">↗</span>
+      <span class="zc-arrow" aria-hidden="true"><svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></span>
       ${insignia}
       <div class="zc-body">
         <h3 class="zc-title">${esc(c.title)}</h3>
