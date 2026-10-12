@@ -210,6 +210,7 @@
   <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261031">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261027-noticias">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261024-noticias">
+  <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261031-guia">
 </head>
 <body>
 
@@ -247,6 +248,8 @@
       <button class="asb-item" data-sec="sesiones"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" /><path d="M19.075 4.933a10 10 0 0 1 0 14.134" /><path d="M4.925 19.067a10 10 0 0 1 0-14.134" /><path d="M7.753 16.239a6 6 0 0 1 0-8.478" /><circle cx="12" cy="12" r="2" /></svg><span class="asb-label">Sesiones</span> <span class="nbg" id="nb-sesiones">0</span></button>
       <button class="asb-item" data-sec="noticias"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 18h-5" /><path d="M18 14h-8" /><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2" /><rect width="8" height="4" x="10" y="6" rx="1" /></svg><span class="asb-label">Noticias y avisos</span> <span class="nbg" id="nb-noticias">0</span></button>
 
+      <button class="asb-item" data-sec="encuesta"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></svg><span class="asb-label">Encuesta</span> <span class="nbg" id="nb-encuesta">-</span></button>
+
       <div class="asb-ft">
         <a href="club-dashboard.html"><svg class="zi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg><span>Ver como miembro</span></a>
         <a href="#" onclick="adminLogout();return false;"><svg class="zi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg><span>Cerrar sesión</span></a>
@@ -279,6 +282,8 @@
   <script src="../assets/js/admin-certificados.js?v=20261031"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261027-noticias"></script>
   <script src="../assets/js/admin-noticias.js?v=20261024-noticias"></script>
+  <script src="../assets/js/encuesta-motor.js?v=20261031-guia"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261031-guia"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20260820"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -420,6 +425,7 @@
       else if (sec === 'pdfs') loadPdfs();
       else if (sec === 'sesiones') loadSesiones();
       else if (sec === 'noticias') loadNoticias();
+      else if (sec === 'encuesta') loadEncuesta();
     }
 
     // ═══════════ MIEMBROS ═══════════
@@ -1255,6 +1261,21 @@
           enviar.disabled = false; enviar.textContent = 'Emitir certificado';
         }
       });
+    }
+
+    // ═══════════ ENCUESTA DE LA PORTADA ═══════════
+    // Los datos los lee el servidor con el Admin SDK (GET /api/admin/encuesta y /api/admin/chatbot/sin-respuesta);
+    // aquí no se lee Firestore directo. La agregación está en assets/js/admin-encuesta.js.
+    async function loadEncuesta() {
+      const v = document.getElementById('secView');
+      const A = window.ZOO_ADMIN_ENCUESTA;
+      v.innerHTML = A.cargandoHTML();
+      const estado = await A.cargar((ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op));
+      if (currentSec !== 'encuesta') return; // cambió de sección mientras cargaba
+      v.innerHTML = A.vistaHTML(estado);
+      if (estado.encuesta.ok) document.getElementById('nb-encuesta').textContent = A.consolidar(estado.encuesta.docs).length;
+      const recargar = document.getElementById('encRecargar');
+      if (recargar) recargar.addEventListener('click', loadEncuesta);
     }
 
     // ═══════════ ARRANCAR ═══════════

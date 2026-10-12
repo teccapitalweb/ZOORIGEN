@@ -15,6 +15,12 @@
 //    Un miembro ya no puede crear ni modificar sus certificados desde el navegador.
 //  - miembros: el titular ya no puede escribir courseProgress ni progresoLegadoImportado
 //    (el avance de los cursos lo escribe el servidor con el Admin SDK, que se salta las reglas).
+//  - encuestasProspectos y chatbotSinRespuesta (NUEVAS, para la encuesta de la portada y la
+//    guia virtual): las escribe SOLO el servidor (POST /api/encuesta y POST /api/chatbot/sin-respuesta,
+//    Admin SDK). El navegador ya no escribe en Firestore desde la portada. Lectura: solo admin.
+//    Estas dos reglas se publican junto con el servidor de la rama webhook-chatbot; NO estan
+//    publicadas. Sin ellas la regla comodin de abajo ya las niega todo, asi que el panel admin
+//    de Encuesta tampoco las lee directo: usa GET /api/admin/encuesta y /api/admin/chatbot/sin-respuesta.
 // ============================================================================
 rules_version = '2';
 service cloud.firestore {
@@ -169,6 +175,21 @@ service cloud.firestore {
           || resource.data.get('uid', '') == request.auth.uid
         ));
       allow create, update, delete: if isAdmin();
+    }
+
+    // ---- NUEVO (sin publicar): encuesta de la portada y preguntas sin respuesta de la guia ----
+    // Cada envio de la encuesta (parcial o completa) lo guarda el servidor en encuestasProspectos:
+    // { sessionId, respuestas, completada, creado, contacto?, avisoAceptado?, avisoVersion? }.
+    // El WhatsApp es un dato personal: solo el administrador puede leerlo. Nadie escribe desde el navegador.
+    match /encuestasProspectos/{docId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+    // Preguntas que la guia virtual no supo contestar, agrupadas por texto normalizado:
+    // { texto/ejemplo, veces, ultimaVez, tipo }. Las escribe y suma solo el servidor.
+    match /chatbotSinRespuesta/{clave} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     match /{document=**} {

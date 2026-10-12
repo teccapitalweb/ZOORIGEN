@@ -581,11 +581,12 @@
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
   <script src="../assets/js/club-acceso.js?v=20261028"></script>
+  <script src="../assets/js/club-curso-pref.js?v=20261031-guia"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261027-noticias"></script>
   <script src="../assets/js/club-inicio.js?v=20261028-horas"></script>
   <script src="../assets/js/club-premios.js?v=20261022"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
-  <script src="../assets/js/club-onboarding.js?v=20261023"></script>
+  <script src="../assets/js/club-onboarding.js?v=20261031-guia"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -598,6 +599,9 @@
 
       // Inicializar menú móvil (hamburguesa + sidebar responsive)
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
+      // Quien ya tiene membresía no necesita el curso sugerido por la guía de la portada: se borra.
+      try { if (window.ZOO_CURSO_PREF && ZOORIGEN_CLUB.hasActiveMembership(session)) ZOO_CURSO_PREF.borrar(window.localStorage); } catch (e) { /* sin almacenamiento */ }
 
       // Secuencia de bienvenida (miembro nuevo) o prueba gratuita (miembro que vuelve). Nunca a admins.
       // No espera ni bloquea la página: si algo falla, el panel sigue igual.

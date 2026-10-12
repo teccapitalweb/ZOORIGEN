@@ -73,6 +73,11 @@
       elegir: 'Elegir mi curso',
       luego: 'Más tarde'
     },
+    // Curso que la persona eligió en la guía o la encuesta de la portada (solo se destaca; ella confirma)
+    pref: {
+      conTitulo: 'Elegiste «{t}» en la guía. Te lo mostramos destacado para que lo confirmes.',
+      sinTitulo: 'Te mostramos destacado el curso que elegiste en la guía para que lo confirmes.'
+    },
     tour: {
       marca: 'Recorrido guiado',
       omitir: 'Omitir',
@@ -854,6 +859,10 @@
           }).join('') + '</ol>'
         : '<p class="zob__texto" id="zob-prueba-texto">' + esc(T.texto) + '</p>' +
           '<p class="zob__nota">' + esc(T.detalle) + '</p>';
+      if (ctx.cursoPref) {
+        var textoPref = ctx.cursoPref.titulo ? TEXTOS.pref.conTitulo.replace('{t}', ctx.cursoPref.titulo) : TEXTOS.pref.sinTitulo;
+        cuerpo += '<p class="zob__nota zob-prueba__pref">' + esc(textoPref) + '</p>';
+      }
       var terminado = false;
       var modal = abrirModal({
         clase: 'zob-tarjeta zob-prueba' + (retorno ? ' zob-prueba--retorno' : ''), titulo: 'zob-prueba-titulo', desc: 'zob-prueba-texto', enfoque: '[data-zob-elegir]',
@@ -1235,6 +1244,13 @@
         if (plan.tipo === 'retorno' && !carga.remotoOk) plan = { tipo: 'ninguno', pasos: [] };
         if (!plan.pasos.length) return { tipo: plan.tipo, pasos: [], resultados: [] };
         ctx.incluirPrueba = plan.pasos.indexOf('prueba') !== -1;
+        // Curso sugerido por la guía de la portada: solo si el servidor confirma que es elegible (y limpia lo que ya no aplica)
+        ctx.cursoPref = null;
+        try {
+          if (est && typeof window !== 'undefined' && window.ZOO_CURSO_PREF && plan.pasos.some(function (p) { return p === 'prueba' || p === 'retorno'; })) {
+            ctx.cursoPref = window.ZOO_CURSO_PREF.aplicar(est, ls, { tieneMembresia: tienePlanActivo(session) });
+          }
+        } catch (e) { ctx.cursoPref = null; }
         limpiarParametroWelcome();
         var inicioMs = o.inicioMs !== undefined ? o.inicioMs : (tienePlanActivo(session) ? 2600 : 900);
 

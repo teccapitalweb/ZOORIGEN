@@ -260,7 +260,9 @@ test('FIRESTORE-REGLAS-v6: aviso de no publicar antes del servidor, certificados
   assert.equal((miembros.match(/'courseProgress', 'progresoLegadoImportado'/g) || []).length, 2, 'en create y en update');
   assert.match(miembros, /affectedKeys\(\)\.hasAny\(\[/);
   // lo demás de v5 sigue igual: mismas colecciones
-  const colecciones = t => [...t.matchAll(/match \/([\w{}]+)\/\{(\w+)\}/g)].map(m => m[1]).join();
+  // (v6 solo agrega las colecciones de la encuesta de la portada y la guía virtual)
+  const NUEVAS = ['encuestasProspectos', 'chatbotSinRespuesta'];
+  const colecciones = t => [...t.matchAll(/match \/([\w{}]+)\/\{(\w+)\}/g)].map(m => m[1]).filter(c => !NUEVAS.includes(c)).join();
   assert.equal(colecciones(v6), colecciones(v5));
   assert.equal(v6.includes('FIRESTORE-REGLAS-v5.txt'), false);
 });

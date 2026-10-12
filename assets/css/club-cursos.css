@@ -47,6 +47,9 @@
 .zc-badge--free { background: rgba(46, 158, 91, 0.88); border-color: rgba(255, 255, 255, 0.4); }
 .zc-badge--ok { background: rgba(232, 163, 23, 0.92); color: #1f1d17; border-color: transparent; letter-spacing: .08em; }
 .zc-badge--soft { background: rgba(15, 20, 17, 0.5); }
+.zc-badge--pref { background: rgba(232, 163, 23, 0.95); color: #1f1d17; border-color: transparent; font-weight: 700; }
+.zc-card--pref { outline: 3px solid #E8A317; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(232, 163, 23, 0.22); }
+.zc-elegir--pref { margin-top: 10px; }
 .zc-badge--premio { background: rgba(15, 20, 17, 0.55); color: #F7CB62; border-color: rgba(247, 203, 98, 0.55); font-weight: 600; }
 .zc-body { position: relative; z-index: 2; width: 100%; padding: 76px 20px 20px; }
 .zc-title { margin: 0 0 10px; color: #fff; font: 800 1.28rem/1.18 var(--zoo-font-heading, 'Poppins', sans-serif); letter-spacing: -0.015em; text-shadow: 0 2px 14px rgba(0, 0, 0, .45); overflow-wrap: anywhere; }

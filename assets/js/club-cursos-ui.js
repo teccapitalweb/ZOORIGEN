@@ -103,23 +103,34 @@
 
   // Tarjeta "solo título" para elegir la prueba gratuita
   //   elegible: true (se puede elegir) | false ; motivoNo: texto del botón deshabilitado
+  //   destacado: true = es el curso que la persona eligió en la guía o la encuesta de la portada
+  //   (solo se destaca: NUNCA se elige solo)
   function tarjetaPendienteHTML(c, ctx) {
     const x = ctx || {};
+    const pref = x.destacado === true && x.elegible;
     const img = urlSegura(x.imagen);
     const boton = x.elegible
       ? `<button type="button" class="zc-elegir" data-elegir="${esc(c.id)}">Elegir como prueba gratuita</button>`
       : `<button type="button" class="zc-elegir zc-elegir--no" disabled>${esc(x.motivoNo || 'No disponible como prueba')}</button>`;
-    return `<article class="zc-card zc-card--pend${x.elegible ? ' zc-card--click' : ' zc-card--locked'}" data-id="${esc(c.id)}">
+    const marca = pref ? `<span class="zc-badge zc-badge--pref">${ico('check', { size: 13 })}Elegiste este curso en la guía</span>` : '';
+    return `<article class="zc-card zc-card--pend${x.elegible ? ' zc-card--click' : ' zc-card--locked'}${pref ? ' zc-card--pref' : ''}" data-id="${esc(c.id)}">
       <div class="zc-cover${img ? '' : ' zc-cover--vacia'}"${img ? ` style="--zc-img:url('${esc(img)}')"` : ''}></div>
       <div class="zc-tags">${c.area ? `<span class="zc-tag zc-tag--area" style="--zc-area:${colorArea(c.area)}">${esc(c.area)}</span>` : ''}${c.level ? `<span class="zc-tag">${esc(c.level)}</span>` : ''}</div>
+      ${marca}
       <div class="zc-body"><h3 class="zc-title">${esc(c.title)}</h3>${boton}</div>
     </article>`;
   }
 
-  function bannerPruebaHTML() {
+  // pref (opcional): { id, titulo } del curso que la persona eligió en la guía o la encuesta. Se muestra como
+  // sugerencia con un botón; la elección sigue pasando por la ventana de confirmación de la biblioteca.
+  function bannerPruebaHTML(pref) {
+    const extra = pref && pref.id
+      ? `<p>Elegiste <b>${esc(pref.titulo || 'un curso')}</b> en la guía. Lo dejamos destacado para que lo confirmes, o elige otro.</p>
+        <button type="button" class="zc-elegir zc-elegir--pref" data-elegir="${esc(pref.id)}">Elegir este curso</button>`
+      : '';
     return `<div class="zc-banner" id="prueba-card" role="region" aria-label="Prueba gratuita">
       <span class="zc-banner__ico">${ico('gift', { size: 22 })}</span>
-      <div><strong>Selecciona el curso de tu preferencia para obtener tu prueba gratuita</strong></div>
+      <div><strong>Selecciona el curso de tu preferencia para obtener tu prueba gratuita</strong>${extra}</div>
     </div>`;
   }
 

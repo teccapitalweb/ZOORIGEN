@@ -134,7 +134,11 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261031-cert"></script>
+  <script src="../assets/js/club-curso-pref.js?v=20261031-guia"></script>
   <script>
+    // Llegó desde la guía o la encuesta de la portada con ?curso=<id>: queda como curso sugerido para la prueba
+    // gratuita (si ya eligió o ya tiene membresía, la biblioteca lo ignora y lo borra). Nunca elige por la persona.
+    try { if (window.ZOO_CURSO_PREF) ZOO_CURSO_PREF.adoptarDeUrl(window.localStorage, window.location.search); } catch (e) { /* sin almacenamiento */ }
     // Mientras se decide si la cuenta de Google ya existía, no se redirige solo.
     let googleEnCurso = false;
     auth.onAuthStateChanged((user) => { if (user && !googleEnCurso) window.location.href = 'club-dashboard.html'; });

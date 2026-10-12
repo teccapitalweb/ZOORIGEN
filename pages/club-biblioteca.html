@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
   <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261031">
-  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261020">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261031-guia">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261022">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
@@ -381,8 +381,9 @@
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
   <script src="../assets/js/club-quiz.js?v=20261031"></script>
   <script src="../assets/js/club-acceso.js?v=20261028"></script>
+  <script src="../assets/js/club-curso-pref.js?v=20261031-guia"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261020"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261031-guia"></script>
   <script src="../assets/js/club-premios.js?v=20261022"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
   <script>
@@ -448,6 +449,11 @@
       const [estadoPrueba, adelantados] = await Promise.all([cargarEstadoPrueba(), cargarAdelantados(session)]);
       window.__zooPrueba = estadoPrueba;
       window.__zooAdelantados = adelantados;
+      // Curso que la persona eligió en la guía o la encuesta de la portada (localStorage "zoo_curso_pref"):
+      // solo se DESTACA, nunca se elige solo. Si ya eligió, tiene membresía o el curso ya no es elegible, se borra.
+      window.__zooPref = window.ZOO_CURSO_PREF
+        ? ZOO_CURSO_PREF.aplicar(estadoPrueba, window.localStorage, { tieneMembresia: ZOORIGEN_CLUB.hasActiveMembership(session) })
+        : null;
       const cursosDeFirestore = await ZOORIGEN_CLUB.getCursos();
       // Los cursos nuevos (con "ordenVip") van al final de la fila de desbloqueo; los de siempre no se mueven.
       // Además, el curso que contiene la única clase gratuita aparece siempre primero, sin depender de la fecha de Firestore.
@@ -532,7 +538,8 @@
         const p = window.__zooPrueba;
         caja.innerHTML = '';
         if (modo === 'pendiente') {
-          caja.innerHTML = window.ZOO_CURSOS_UI.bannerPruebaHTML();
+          const pref = window.__zooPref && p.cursosElegibles.includes(window.__zooPref.id) ? cursos.find(c => c.id === window.__zooPref.id) : null;
+          caja.innerHTML = window.ZOO_CURSOS_UI.bannerPruebaHTML(pref ? { id: pref.id, titulo: pref.title } : null);
           aviso.innerHTML = '';
         } else if (modo === 'prueba') {
           const elegido = cursos.find(c => c.id === p.elegida);
@@ -575,6 +582,9 @@
         let lista = filter === 'Todas' ? cursos : cursos.filter(c => c.area === filter);
         // El curso de prueba (si lo hay) se muestra primero; no cambia el orden de desbloqueo de los demás.
         if (p.elegida) lista = lista.slice().sort((a, b) => (b.id === p.elegida ? 1 : 0) - (a.id === p.elegida ? 1 : 0));
+        // Pendiente de elegir: el curso que escogió en la guía (si sigue siendo elegible) va primero y destacado.
+        const prefId = modo === 'pendiente' && window.__zooPref && p.cursosElegibles.includes(window.__zooPref.id) ? window.__zooPref.id : null;
+        if (prefId) lista = lista.slice().sort((a, b) => (b.id === prefId ? 1 : 0) - (a.id === prefId ? 1 : 0));
 
         window.__zooCourseCards = {};
         grid.className = 'zc-grid';
@@ -586,7 +596,7 @@
           if (modo === 'pendiente') {
             const esElegible = p.cursosElegibles.includes(c.id);
             // Ningún curso está impuesto como prueba: se puede elegir cualquiera que el servidor marque como elegible
-            return UI.tarjetaPendienteHTML(c, { imagen, elegible: esElegible, motivoNo: 'No disponible como prueba' });
+            return UI.tarjetaPendienteHTML(c, { imagen, elegible: esElegible, motivoNo: 'No disponible como prueba', destacado: c.id === prefId });
           }
           const prog = (window.__zooCourseProgress || {})[c.id] || { completedLessons: [], isCompleted: false };
           const pruebaGratis = isActive ? null : p;
@@ -613,6 +623,12 @@
       grid.addEventListener('keydown', (ev) => {
         const card = ev.target.closest && ev.target.closest('.zc-card');
         if (card && ev.target === card && card.dataset.id) openCourseCard(ev, card.dataset.id);
+      });
+
+      // El botón "Elegir este curso" del aviso (curso sugerido por la guía) abre la MISMA confirmación de siempre
+      document.getElementById('unlockInfo').addEventListener('click', (ev) => {
+        const b = ev.target.closest('[data-elegir]');
+        if (b) confirmarPrueba(b.dataset.elegir);
       });
 
       // Llegó desde "Elegir mi curso" de la bienvenida: lleva a la selección y la resalta
@@ -725,6 +741,9 @@
                 return false;
               }
               window.__zooPrueba = ZOO_ACCESO.estadoPrueba({ elegible: false, elegida: { cursoId } });
+              // Ya eligió: la sugerencia de la guía deja de aplicar
+              window.__zooPref = null;
+              if (window.ZOO_CURSO_PREF) ZOO_CURSO_PREF.borrar(window.localStorage);
               window.__zooRender(window.__zooFiltro);
               zcToast('¡Listo! Tu prueba gratuita está activa. Ya puedes ver las clases de «' + curso.title + '».');
               setTimeout(() => openCourseDetail(window.__zooCourseCards[cursoId]), 150);

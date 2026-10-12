@@ -1,0 +1,362 @@
+/* ============================================================ */
+/* ENCUESTA DE LA PORTADA · estilos funcionales                  */
+/* Sección fija bajo el hero (#encuesta). Pantalla:              */
+/* assets/js/encuesta-landing.js. El diseño final (personaje,    */
+/* imágenes de reacciones, retoques) llega en la fase de diseño. */
+/* Colores del sitio: verde #1F5F3A, dorado #E8A317.             */
+/* ============================================================ */
+
+.zenc {
+  --zenc-verde: #1F5F3A;
+  --zenc-verde-2: #2f7a4f;
+  --zenc-dorado: #E8A317;
+  --zenc-texto: #26312b;
+  --zenc-suave: #5f6e65;
+  --zenc-linea: #dfe7e2;
+  --zenc-fondo: #F5F7F6;
+  background: var(--zenc-fondo);
+  padding: 44px 16px 48px;
+  color: var(--zenc-texto);
+  font-family: 'Open Sans', system-ui, sans-serif;
+  scroll-margin-top: 70px;
+}
+
+.zenc *, .zenc *::before, .zenc *::after { box-sizing: border-box; }
+
+.zenc__inner {
+  width: min(960px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+/* Con imagen del personaje: personaje y nota a la izquierda, tarjeta a la derecha */
+.zenc--con-cara .zenc__inner {
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 18px;
+  align-items: end;
+}
+
+/* ── Guía: recuadro de texto con la reacción (siempre existe) ── */
+.zenc__guia {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.zenc__nota {
+  position: relative;
+  padding: 11px 14px 11px 44px;
+  background: #eef7f1;
+  border: 1px solid #c4dfcd;
+  border-radius: 14px;
+  color: #25573d;
+  font-size: 13px;
+  line-height: 1.45;
+  min-height: 62px;
+}
+.zenc__nota::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 13px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--zenc-verde) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.9 20A9 9 0 1 0 4 16.1L2 22Z'/%3E%3C/svg%3E") center / 12px no-repeat;
+}
+.zenc__nota strong, .zenc__nota span { display: block; }
+.zenc__nota strong { color: #174a37; font-size: 13.5px; font-weight: 700; margin-bottom: 1px; }
+
+.zenc__cara {
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 841 / 706;
+  margin: 14px auto 0;
+  background: var(--zenc-cara) no-repeat center bottom / contain;
+}
+.zenc__cara[hidden] { display: none; }
+
+/* ── Tarjeta ── */
+.zenc__tarjeta {
+  background: #fff;
+  border: 1px solid var(--zenc-linea);
+  border-radius: 22px;
+  box-shadow: 0 14px 36px rgba(20, 57, 38, .10);
+  padding: 26px 30px 26px;
+  min-width: 0;
+}
+.zenc__tarjeta.is-entrando .zenc__q,
+.zenc__tarjeta.is-entrando .zenc__cuerpo { animation: zenc-entra .2s ease-out; }
+@keyframes zenc-entra { from { opacity: .2; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.zenc__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 10px;
+}
+.zenc__paso {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--zenc-verde-2);
+}
+.zenc__acciones { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+
+.zenc__progreso {
+  height: 6px;
+  margin: 0 0 18px;
+  border-radius: 999px;
+  background: #e9efeb;
+  overflow: hidden;
+}
+.zenc__progreso i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--zenc-verde-2);
+  border-radius: inherit;
+  transition: width .25s ease;
+}
+
+.zenc__q {
+  margin: 0 0 18px;
+  font-family: 'Poppins', 'Open Sans', system-ui, sans-serif;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 700;
+  color: #16301f;
+  outline: none;
+}
+.zenc__q.is-resultado { font-size: clamp(22px, 3.2vw, 30px); font-weight: 800; line-height: 1.15; }
+.zenc-resalta { color: var(--zenc-verde-2); background: linear-gradient(180deg, transparent 62%, #ffe3a3 62%); padding: 0 .06em; }
+
+.zenc__cuerpo[aria-busy="true"] { min-height: 90px; }
+
+/* ── Opciones ── */
+.zenc__opciones-lista {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.zenc-opt {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  text-align: left;
+  font: 600 14.5px/1.3 'Open Sans', system-ui, sans-serif;
+  color: #26402f;
+  background: #fafcfa;
+  border: 1.5px solid var(--zenc-linea);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.zenc-opt:hover:not(:disabled) { background: #f1f8ee; border-color: var(--zenc-verde-2); }
+.zenc-opt.is-selected,
+.zenc-opt.is-selected:disabled { background: #e8f4ea; border-color: var(--zenc-verde); color: #174a37; }
+.zenc-opt:disabled { cursor: default; }
+.zenc-opt:disabled:not(.is-selected) { opacity: .55; }
+.zenc-opt:focus-visible,
+.zenc-btn:focus-visible,
+.zenc-curso:focus-visible,
+.zenc-link:focus-visible,
+.zenc-linkbtn:focus-visible,
+.zenc-pais:focus-visible,
+.zenc-input:focus-visible { outline: 3px solid #8fc9a3; outline-offset: 2px; }
+.zenc-opt:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+/* ── Resultado ── */
+.zenc__res { display: grid; gap: 14px; min-width: 0; }
+.zenc__lead { margin: 0; font-size: 15px; line-height: 1.55; color: #3f5a4a; }
+.zenc__lead b { color: #16301f; }
+.zenc__hint { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--zenc-suave); }
+.zenc__ok { margin: 0; padding: 10px 14px; border-radius: 12px; background: #eef7f1; border: 1px solid #c4dfcd; font-size: 13px; font-weight: 600; color: #25573d; }
+
+.zenc-promo { padding: 18px 20px; border-radius: 18px; background: var(--zenc-verde); color: #fff; }
+.zenc-promo__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 4px 11px 4px 9px;
+  border-radius: 999px;
+  background: var(--zenc-dorado);
+  color: #2b2208;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.zenc-promo__t { margin: 0; color: #fff; font-family: 'Poppins', 'Open Sans', sans-serif; font-size: clamp(20px, 3vw, 27px); font-weight: 700; line-height: 1.15; }
+.zenc-promo__t mark { background: none; color: #ffd571; }
+.zenc-promo__s { margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: rgba(255, 255, 255, .88); }
+
+.zenc__cursos { display: grid; gap: 8px; }
+.zenc-curso {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: #fff;
+  border: 1.5px solid var(--zenc-linea);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.zenc-curso:hover { border-color: var(--zenc-verde-2); background: #f6fbf6; }
+.zenc-curso__info { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.zenc-curso__info b { font-size: 14.5px; line-height: 1.3; color: #16301f; }
+.zenc-curso__info small { font-size: 12.5px; color: var(--zenc-suave); }
+.zenc-curso__go { font-size: 13px; font-weight: 700; color: var(--zenc-verde-2); }
+.zenc-curso .zenc-ico { color: var(--zenc-verde-2); flex: none; }
+
+.zenc-sel { padding: 14px 16px; border: 2px solid var(--zenc-verde-2); border-radius: 16px; background: #f2faf3; }
+.zenc-sel__info { display: grid; gap: 4px; min-width: 0; }
+.zenc-sel__tag {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--zenc-dorado);
+  color: #2b2208;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.zenc-sel__info b { font-size: 16px; line-height: 1.3; color: #16301f; }
+.zenc-sel__info small { font-size: 12.5px; color: var(--zenc-suave); }
+
+.zenc__pie { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 20px; padding-top: 10px; border-top: 1px solid #edf2ee; }
+.zenc-link {
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  font: 600 13px 'Open Sans', system-ui, sans-serif;
+  color: #25573d;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.zenc-link:hover { color: var(--zenc-verde-2); }
+
+.zenc-linkbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 2px;
+  border: 0;
+  background: none;
+  font: 700 12.5px 'Open Sans', system-ui, sans-serif;
+  color: var(--zenc-suave);
+  cursor: pointer;
+  border-radius: 6px;
+}
+.zenc-linkbtn:hover { color: #174a37; text-decoration: underline; }
+
+.zenc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 18px;
+  font: 700 15px 'Open Sans', system-ui, sans-serif;
+  border-radius: 14px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.zenc-btn--principal { background: var(--zenc-verde); color: #fff; }
+.zenc-btn--principal:hover:not(:disabled) { background: #174a2c; }
+.zenc-btn--sec { background: #fff; color: #174a37; border-color: var(--zenc-linea); }
+.zenc-btn--sec:hover:not(:disabled) { border-color: var(--zenc-verde-2); }
+.zenc-btn:disabled { opacity: .6; cursor: default; }
+
+/* ── WhatsApp ── */
+.zenc__cuerpo > .zenc-tel, .zenc__cuerpo > .zenc-consent, .zenc__cuerpo > .zenc-btn, .zenc__cuerpo > .zenc__error { margin-bottom: 10px; }
+.zenc-tel { display: flex; gap: 8px; }
+.zenc-pais {
+  flex: 0 0 auto;
+  max-width: 48%;
+  padding: 13px 12px;
+  font: 600 14px 'Open Sans', system-ui, sans-serif;
+  color: #26402f;
+  background: #fafcfa;
+  border: 1.5px solid var(--zenc-linea);
+  border-radius: 14px;
+}
+.zenc-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 13px 14px;
+  font: 600 15px 'Open Sans', system-ui, sans-serif;
+  border: 1.5px solid var(--zenc-linea);
+  border-radius: 14px;
+}
+.zenc__error { margin: 0; font-size: 13px; line-height: 1.4; color: #b3261e; }
+.zenc__error[hidden] { display: none; }
+.zenc-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 14px;
+  background: #fafcfa;
+  border: 1.5px solid var(--zenc-linea);
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #3f5a4a;
+  cursor: pointer;
+}
+.zenc-consent input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--zenc-verde); }
+.zenc-consent a { color: var(--zenc-verde-2); font-weight: 700; }
+.zenc-consent.is-error { border-color: #b3261e; background: #fdf4f3; }
+
+/* ── Espera del resultado ── */
+.zenc__espera { display: flex; justify-content: center; gap: 8px; padding: 26px 0 30px; }
+.zenc__espera i { width: 10px; height: 10px; border-radius: 50%; background: var(--zenc-verde-2); animation: zenc-punto 1s ease-in-out infinite; }
+.zenc__espera i:nth-child(2) { animation-delay: .15s; }
+.zenc__espera i:nth-child(3) { animation-delay: .3s; }
+@keyframes zenc-punto { 0%, 80%, 100% { transform: scale(.55); opacity: .4; } 40% { transform: scale(1); opacity: 1; } }
+
+.zenc .zenc-ico { flex: none; }
+
+/* ── Celular ── */
+@media (max-width: 760px) {
+  .zenc { padding: 28px 14px 32px; }
+  .zenc--con-cara .zenc__inner { grid-template-columns: minmax(0, 1fr); }
+  .zenc--con-cara .zenc__guia { order: 2; flex-direction: row-reverse; align-items: flex-end; gap: 8px; }
+  .zenc--con-cara .zenc__cara { flex: 0 0 110px; width: 110px; margin: 0; }
+  .zenc--con-cara .zenc__nota { flex: 1; }
+  .zenc__tarjeta { padding: 18px 16px 20px; border-radius: 18px; }
+  .zenc__q { font-size: 20px; margin-bottom: 14px; }
+  .zenc__opciones-lista { grid-template-columns: minmax(0, 1fr); }
+  .zenc-tel { flex-direction: column; }
+  .zenc-pais { max-width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zenc__tarjeta.is-entrando .zenc__q,
+  .zenc__tarjeta.is-entrando .zenc__cuerpo,
+  .zenc__espera i { animation: none; }
+  .zenc__progreso i, .zenc-opt, .zenc-curso, .zenc-btn { transition: none; }
+}
+
+/* Curso que no se ofrece como prueba: solo informa */
+.zenc-curso--membresia { cursor: default; background: #f6f8f7; border-style: dashed; }
+.zenc-curso--membresia:hover { border-color: var(--zenc-linea); background: #f6f8f7; }
+.zenc-curso--membresia .zenc-curso__go { color: var(--zenc-suave); font-weight: 600; white-space: nowrap; }
