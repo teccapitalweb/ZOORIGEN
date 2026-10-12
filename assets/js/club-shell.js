@@ -31,6 +31,7 @@
     { id: 'herramientas', titulo: 'Herramientas pro', items: [
       { id: 'herramientas', label: 'Herramientas clínicas', icon: 'flask', href: 'club-herramientas.html' },
       { id: 'infusiones', label: 'Infusiones y diluciones', icon: 'flask', href: 'club-infusiones.html' },
+      { id: 'inventario', label: 'Libro de registro', icon: 'filetext', href: 'club-inventario.html' },
       { id: 'legal', label: 'Herramientas legales', icon: 'scale', href: 'club-legal.html' }
     ] },
     { id: 'comunidad', titulo: 'Comunidad', items: [

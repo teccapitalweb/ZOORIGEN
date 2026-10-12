@@ -411,7 +411,7 @@ test('todos los íconos que se usan existen en herramientas-iconos.js', () => {
 test('la página sigue el patrón de las herramientas: sesión, paywall, aviso de apoyo y estilos .tool-*', () => {
   assert.match(PAGINA, /ZOORIGEN_CLUB\.requireAuth\(\)/);
   assert.match(PAGINA, /renderSidebar\(MENU_ID, session\)/);
-  assert.match(PAGINA, /const MENU_ID = 'herramientas'/);
+  assert.match(PAGINA, /const MENU_ID = 'inventario'/);
   assert.match(PAGINA, /ZOORIGEN_CLUB\.hasActiveMembership\(session\)/);
   assert.match(PAGINA, /Herramientas exclusivas para miembros/);
   assert.match(PAGINA, /href="club-suscripcion\.html"/);
