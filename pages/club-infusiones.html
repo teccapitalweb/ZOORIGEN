@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infusiones y diluciones · Club VIP Zoorigen</title>
+  <!-- ===== PWA ===== -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Zoorigen">
+<meta name="theme-color" content="#1F5F3A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/club.css?v=20260820">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261028-panel">
+<style>
+  .tools-hero {
+    background: linear-gradient(135deg, #D55A28 0%, #1F5F3A 60%, #2AA4D5 110%);
+    border-radius: 18px;
+    padding: 26px 30px;
+    margin-bottom: 20px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .tools-hero::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(232,163,23,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .tools-hero__badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+    color: #E8A317;
+    padding: 5px 12px; border-radius: 20px;
+    font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+    margin-bottom: 10px; position: relative; z-index: 2;
+  }
+  .tools-hero h1 {
+    font-family: 'Poppins';
+    font-size: 1.8rem; font-weight: 800;
+    margin: 0 0 6px;
+    position: relative; z-index: 2;
+  }
+  .tools-hero p {
+    color: rgba(255,255,255,0.88);
+    font-size: .96rem; margin: 0;
+    max-width: 620px; line-height: 1.55;
+    position: relative; z-index: 2;
+  }
+  .tools-hero__stats {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    margin-top: 14px;
+    position: relative; z-index: 2;
+  }
+  .tools-hero__stat {
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .tools-hero__stat-num {
+    font-family: 'Poppins'; font-weight: 800; font-size: 1.2rem;
+    color: #E8A317;
+  }
+  .tools-hero__stat-lbl {
+    font-size: .78rem; color: rgba(255,255,255,0.8);
+  }
+
+  .tools-tabs {
+    display: flex; gap: 8px;
+    overflow-x: auto; padding-bottom: 6px;
+    margin-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tools-tabs::-webkit-scrollbar { height: 4px; }
+  .tools-tabs::-webkit-scrollbar-thumb { background: rgba(232,163,23,0.3); border-radius: 2px; }
+  .tool-tab {
+    flex-shrink: 0;
+    background: var(--zoo-bg-card, #131816);
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4);
+    padding: 10px 14px; border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: .84rem;
+    white-space: nowrap; transition: all .15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .tool-tab:hover {
+    background: rgba(232,163,23,0.1);
+    border-color: rgba(232,163,23,0.4);
+    color: var(--zoo-text, #fff);
+  }
+  .tool-tab.is-active {
+    background: linear-gradient(135deg, #E8A317, #D68A0A);
+    color: #1f1d17;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(232,163,23,0.3);
+  }
+
+  .tool-panel {
+    display: none;
+    background: var(--zoo-bg-card, #131816);
+    border: 1px solid var(--zoo-border, #1e2522);
+    border-radius: 14px;
+    padding: 24px;
+    animation: toolFadeIn .25s ease-out;
+  }
+  .tool-panel.is-active { display: block; }
+  @keyframes toolFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tool-header {
+    display: flex; gap: 14px; align-items: center;
+    margin-bottom: 18px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--zoo-border, #1e2522);
+  }
+  .tool-header__icon {
+    width: 54px; height: 54px; flex: none;
+    background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(213,90,40,0.18));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+  }
+  .tool-header__text h2 {
+    font-family: 'Poppins';
+    font-size: 1.25rem; color: var(--zoo-text, #fff);
+    margin: 0 0 3px;
+  }
+  .tool-header__text p {
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .85rem; margin: 0;
+  }
+
+  .tool-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .tool-field { display: flex; flex-direction: column; }
+  .tool-field label {
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .78rem; font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: .02em; text-transform: uppercase;
+  }
+  .tool-field input, .tool-field select, .tool-field textarea {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid var(--zoo-border-strong, #2a3530) !important;
+    color: var(--zoo-text, #fff) !important;
+    padding: 11px 13px; border-radius: 10px;
+    font-family: inherit; font-size: .95rem;
+  }
+  /* iOS hace zoom automatico al enfocar un campo de menos de 16px.
+     Solo en movil; el valor de escritorio queda intacto. */
+  @media (max-width: 768px) {
+    .tool-field input, .tool-field select, .tool-field textarea { font-size: 16px; }
+  }
+  [data-theme="light"] .tool-field input,
+  [data-theme="light"] .tool-field select,
+  [data-theme="light"] .tool-field textarea {
+    background: #ffffff !important;
+    border: 1px solid #d0d4cb !important;
+    color: #1a1d1b !important;
+  }
+  .tool-field input:focus, .tool-field select:focus, .tool-field textarea:focus {
+    outline: 0; border-color: #E8A317 !important;
+  }
+  .tool-field select option { background: #131816; color: #fff; }
+  [data-theme="light"] .tool-field select option { background: #fff; color: #1a1d1b; }
+
+  .tool-actions {
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .tool-btn-calc {
+    background: linear-gradient(135deg, #E8A317, #D68A0A);
+    color: #1f1d17; border: 0;
+    padding: 12px 22px; border-radius: 10px;
+    font-family: 'Poppins'; font-weight: 700;
+    cursor: pointer; font-size: .95rem;
+  }
+  .tool-btn-calc:hover {
+    box-shadow: 0 6px 18px rgba(232,163,23,0.35);
+    transform: translateY(-1px);
+  }
+  .tool-btn-reset {
+    background: transparent;
+    border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4);
+    padding: 12px 18px; border-radius: 10px;
+    font-family: inherit; font-weight: 600; cursor: pointer;
+  }
+
+  .tool-result {
+    margin-top: 18px; padding: 20px;
+    background: rgba(111,191,115,0.08);
+    border: 1px solid rgba(111,191,115,0.3);
+    border-radius: 12px; display: none;
+  }
+  .tool-result.is-visible { display: block; }
+  .tool-result.is-warning {
+    background: rgba(232,163,23,0.08);
+    border-color: rgba(232,163,23,0.4);
+  }
+  .tool-result.is-danger {
+    background: rgba(213,90,40,0.1);
+    border-color: rgba(213,90,40,0.4);
+  }
+  .tool-result__title {
+    font-family: 'Poppins'; font-weight: 800;
+    color: #fff; margin-bottom: 12px;
+    font-size: 1.05rem;
+  }
+  .tool-result__rows { display: flex; flex-direction: column; gap: 8px; }
+  .tool-result__row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    gap: 6px 10px; flex-wrap: wrap;
+  }
+  .tool-result__row-label {
+    color: rgba(255,255,255,0.78); font-size: .88rem;
+  }
+  .tool-result__row-value {
+    font-family: 'Poppins'; font-weight: 800;
+    color: #E8A317; font-size: 1.05rem;
+    text-align: right; overflow-wrap: anywhere;
+  }
+  .tool-result__note {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.75);
+    font-size: .85rem; line-height: 1.6;
+  }
+  [data-theme="light"] .tool-result__title { color: #1a1d1b; }
+  [data-theme="light"] .tool-result__row { background: rgba(0,0,0,0.05); }
+  [data-theme="light"] .tool-result__row-label { color: #3a403d; }
+  [data-theme="light"] .tool-result__note { color: #5a6360; border-top-color: rgba(0,0,0,0.08); }
+
+  .tool-subsection {
+    margin-top: 16px;
+    padding: 14px;
+    background: rgba(255,255,255,0.02);
+    border-left: 3px solid #2AA4D5;
+    border-radius: 8px;
+  }
+  .tool-subsection__title {
+    color: #2AA4D5; font-weight: 700;
+    font-size: .82rem; text-transform: uppercase;
+    letter-spacing: .04em; margin-bottom: 8px;
+  }
+
+  .tool-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .tool-info-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--zoo-border, #1e2522);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .tool-info-card__title {
+    color: #E8A317;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 6px;
+  }
+  .tool-info-card__value {
+    color: var(--zoo-text, #fff);
+    font-family: 'Poppins';
+    font-weight: 700;
+    font-size: .95rem;
+    overflow-wrap: anywhere;
+  }
+
+  .tool-disclaimer {
+    margin-top: 20px; padding: 12px 16px;
+    background: rgba(213,90,40,0.08);
+    border-left: 3px solid #D55A28;
+    border-radius: 8px;
+    color: var(--zoo-text-muted, #a0a8a4);
+    font-size: .82rem; line-height: 1.55;
+  }
+  .tool-disclaimer strong { color: #D55A28; }
+
+  @media (max-width: 600px) {
+    .tools-hero { padding: 20px; }
+    .tools-hero h1 { font-size: 1.35rem; }
+    .tool-panel { padding: 18px; }
+    .tool-header__text h2 { font-size: 1.05rem; }
+    .tool-form { grid-template-columns: 1fr; }
+  }
+  .zi { width: 1.1em; height: 1.1em; vertical-align: -0.2em; flex: none; display: inline-block; }
+  .zdot { display: inline-block; width: .7em; height: .7em; border-radius: 50%; vertical-align: .02em; }
+  .tool-header__icon .zi { width: 28px; height: 28px; color: #E8A317; }
+  .tool-tab .zi { width: 16px; height: 16px; }
+  .tool-aviso-global { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(232,163,23,0.45); background: rgba(232,163,23,0.10); color: var(--zoo-text); font-size: .86rem; line-height: 1.5; }
+  .tool-field, .tool-field select, .tool-field input { min-width: 0; max-width: 100%; }
+  .tool-field select { text-overflow: ellipsis; }
+  .tool-form { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .tool-result__aviso { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; border-left: 4px solid #E8A317; background: rgba(232,163,23,0.12); font-size: .86rem; line-height: 1.5; overflow-wrap: anywhere; }
+  .tool-result, .tool-panel, .tool-subsection { min-width: 0; max-width: 100%; }
+
+  /* Propios de esta herramienta */
+  .tool-formulas ol { margin: 0; padding-left: 22px; color: var(--zoo-text, #fff); font-size: .86rem; line-height: 1.6; }
+  .tool-formulas li { margin-bottom: 6px; overflow-wrap: anywhere; }
+  .tool-formulas li:last-child { margin-bottom: 0; }
+  .tool-paso { margin: 0 0 10px; padding: 10px 14px; border-radius: 8px; background: rgba(0,0,0,0.2); font-size: .88rem; line-height: 1.55; overflow-wrap: anywhere; }
+  [data-theme="light"] .tool-paso { background: rgba(0,0,0,0.05); }
+  .tool-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .tool-chip {
+    background: transparent; border: 1px solid var(--zoo-border-strong, #2a3530);
+    color: var(--zoo-text-muted, #a0a8a4);
+    padding: 8px 12px; border-radius: 999px; cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: .8rem;
+  }
+  .tool-chip:hover { border-color: rgba(232,163,23,0.5); color: var(--zoo-text, #fff); }
+  /* En mayúsculas la μ de μg se vería como una M: estos títulos llevan unidades y se quedan como están. */
+  .tool-info-card__title { text-transform: none; letter-spacing: .02em; font-size: .78rem; }
+  .tool-hint { color: var(--zoo-text-muted, #a0a8a4); font-size: .8rem; line-height: 1.5; margin: -6px 0 16px; }
+</style>
+</head>
+<body>
+<div class="club-layout">
+  <aside class="club-sidebar" id="sidebar"></aside>
+  <main class="club-main">
+
+    <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
+
+    <div class="tools-hero">
+      <span class="tools-hero__badge"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> HERRAMIENTA PROFESIONAL</span>
+      <h1>Infusiones y diluciones</h1>
+      <p>Velocidad de infusión continua, preparación de bolsas y jeringas, diluciones y conversiones de unidades. Tú escribes la dosis: la herramienta solo hace la aritmética y te muestra la fórmula con tus números para que puedas comprobarla.</p>
+      <div class="tools-hero__stats">
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num">4</span><span class="tools-hero__stat-lbl">calculadoras</span></div>
+        <div class="tools-hero__stat"><span class="tools-hero__stat-num">4</span><span class="tools-hero__stat-lbl">equipos de goteo (10, 15, 20 y 60 gtt/ml)</span></div>
+      </div>
+    </div>
+
+    <div class="tool-aviso-global" role="note">
+      <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Material de referencia para profesionales.</strong> Esta herramienta solo hace cálculos aritméticos con los datos que tú escribes: <strong>no incluye dosis clínicas y no sustituye el criterio del médico veterinario responsable</strong> ni las indicaciones del fabricante. Confirma siempre la dosis con tu fuente y revisa unidades y concentración antes de preparar.
+    </div>
+
+    <div class="tools-tabs" id="toolsTabs">
+      <button class="tool-tab is-active" data-tab="cri"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> Infusión continua (CRI)</button>
+      <button class="tool-tab" data-tab="dilucion"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg> Dilución</button>
+      <button class="tool-tab" data-tab="conversiones"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Conversiones</button>
+      <button class="tool-tab" data-tab="duracion"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> Duración y tasa</button>
+    </div>
+
+    <!-- 1. INFUSIÓN CONTINUA -->
+    <div class="tool-panel is-active" id="panel-cri">
+      <div class="tool-header">
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg></div>
+        <div class="tool-header__text">
+          <h2>Infusión continua (CRI)</h2>
+          <p>Velocidad en ml/h y gotas por minuto, o cómo preparar la bolsa o la jeringa</p>
+        </div>
+      </div>
+
+      <div class="tool-form">
+        <div class="tool-field">
+          <label for="criModo">¿Qué quieres calcular?</label>
+          <select id="criModo">
+            <option value="velocidad">La velocidad (ya tengo la solución)</option>
+            <option value="preparar">Cómo preparar la solución</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label for="criPeso">Peso del paciente (kg)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="criPeso" placeholder="10">
+        </div>
+        <div class="tool-field">
+          <label for="criDosis">Dosis que indicas</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="criDosis" placeholder="5">
+        </div>
+        <div class="tool-field">
+          <label for="criDosisU">Unidad de la dosis</label>
+          <select id="criDosisU">
+            <option value="ug/kg/min">μg/kg/min</option>
+            <option value="ug/kg/h">μg/kg/h</option>
+            <option value="mg/kg/h">mg/kg/h</option>
+            <option value="mg/kg/min">mg/kg/min</option>
+          </select>
+        </div>
+
+        <div class="tool-field" data-cri="velocidad">
+          <label for="criConc">Concentración en la solución final</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="criConc" placeholder="0.5">
+        </div>
+        <div class="tool-field" data-cri="velocidad">
+          <label for="criConcU">Unidad de la concentración</label>
+          <select id="criConcU">
+            <option value="mg/ml">mg/ml</option>
+            <option value="ug/ml">μg/ml</option>
+          </select>
+        </div>
+        <div class="tool-field" data-cri="velocidad">
+          <label for="criVol">Volumen de bolsa o jeringa (ml, opcional)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="criVol" placeholder="100">
+        </div>
+
+        <div class="tool-field" data-cri="preparar">
+          <label for="criTasa">Tasa de infusión (ml/h)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="criTasa" placeholder="5">
+        </div>
+        <div class="tool-field" data-cri="preparar">
+          <label for="criDur">O duración deseada (horas)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="criDur" placeholder="10">
+        </div>
+        <div class="tool-field" data-cri="preparar">
+          <label for="criVolFinal">Volumen final de bolsa o jeringa (ml)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="criVolFinal" placeholder="50">
+        </div>
+        <div class="tool-field" data-cri="preparar">
+          <label for="criFrasco">Concentración del frasco</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="criFrasco" placeholder="10">
+        </div>
+        <div class="tool-field" data-cri="preparar">
+          <label for="criFrascoU">Unidad del frasco</label>
+          <select id="criFrascoU">
+            <option value="mg/ml">mg/ml</option>
+            <option value="ug/ml">μg/ml</option>
+            <option value="%">%</option>
+          </select>
+        </div>
+      </div>
+      <p class="tool-hint" id="criAyuda"></p>
+
+      <div class="tool-actions">
+        <button class="tool-btn-calc" onclick="calcularCRI()"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> Calcular</button>
+        <button class="tool-btn-reset" onclick="limpiar('cri')">Limpiar</button>
+      </div>
+
+      <div class="tool-result" id="criResult" aria-live="polite"></div>
+
+      <div class="tool-disclaimer">
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Uso profesional:</strong> la dosis la escribes tú; esta calculadora no la sugiere ni la valida. Para preparar se supone que el volumen del fármaco y el del diluyente suman el volumen final. Una velocidad menor de 0.1 ml/h no se mide con exactitud en una bomba de jeringa estándar.
+      </div>
+    </div>
+
+    <!-- 2. DILUCIÓN -->
+    <div class="tool-panel" id="panel-dilucion">
+      <div class="tool-header">
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg></div>
+        <div class="tool-header__text">
+          <h2>Dilución</h2>
+          <p>Cuánto fármaco y cuánto diluyente, por concentración deseada o por relación 1:N</p>
+        </div>
+      </div>
+
+      <div class="tool-form">
+        <div class="tool-field">
+          <label for="difModo">¿Qué datos tienes?</label>
+          <select id="difModo">
+            <option value="concentracion">Concentración que quiero (C1 y C2)</option>
+            <option value="relacion">Relación de dilución 1:N</option>
+            <option value="pequeno">Volumen muy pequeño (qué dilución usar)</option>
+          </select>
+        </div>
+
+        <div class="tool-field" data-dif="concentracion">
+          <label for="difC1">C1: concentración del frasco</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="difC1" placeholder="10">
+        </div>
+        <div class="tool-field" data-dif="concentracion">
+          <label for="difC1U">Unidad de C1</label>
+          <select id="difC1U"><option value="mg/ml">mg/ml</option><option value="ug/ml">μg/ml</option><option value="%">%</option></select>
+        </div>
+        <div class="tool-field" data-dif="concentracion">
+          <label for="difC2">C2: concentración que quiero</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="difC2" placeholder="1">
+        </div>
+        <div class="tool-field" data-dif="concentracion">
+          <label for="difC2U">Unidad de C2</label>
+          <select id="difC2U"><option value="mg/ml">mg/ml</option><option value="ug/ml">μg/ml</option><option value="%">%</option></select>
+        </div>
+        <div class="tool-field" data-dif="concentracion">
+          <label for="difV2">V2: volumen final que quiero (ml)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="difV2" placeholder="10">
+        </div>
+
+        <div class="tool-field" data-dif="relacion">
+          <label for="difRC1">C1: concentración del frasco</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="difRC1" placeholder="10">
+        </div>
+        <div class="tool-field" data-dif="relacion">
+          <label for="difRC1U">Unidad de C1</label>
+          <select id="difRC1U"><option value="mg/ml">mg/ml</option><option value="ug/ml">μg/ml</option><option value="%">%</option></select>
+        </div>
+        <div class="tool-field" data-dif="relacion">
+          <label for="difN">N de la relación 1:N</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="difN" placeholder="10">
+        </div>
+        <div class="tool-field" data-dif="relacion">
+          <label for="difRV2">Volumen final que quiero (ml)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="difRV2" placeholder="10">
+        </div>
+
+        <div class="tool-field" data-dif="pequeno">
+          <label for="difPDosis">Dosis total que necesitas</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="difPDosis" placeholder="0.05">
+        </div>
+        <div class="tool-field" data-dif="pequeno">
+          <label for="difPDosisU">Unidad de la dosis total</label>
+          <select id="difPDosisU"><option value="mg">mg</option><option value="ug">μg</option></select>
+        </div>
+        <div class="tool-field" data-dif="pequeno">
+          <label for="difPC1">Concentración del frasco</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="difPC1" placeholder="10">
+        </div>
+        <div class="tool-field" data-dif="pequeno">
+          <label for="difPC1U">Unidad del frasco</label>
+          <select id="difPC1U"><option value="mg/ml">mg/ml</option><option value="ug/ml">μg/ml</option><option value="%">%</option></select>
+        </div>
+        <div class="tool-field" data-dif="pequeno">
+          <label for="difPMin">Volumen mínimo que puedes medir (ml)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="difPMin" value="0.1" placeholder="0.1">
+        </div>
+      </div>
+      <p class="tool-hint" id="difAyuda"></p>
+
+      <div class="tool-actions">
+        <button class="tool-btn-calc" onclick="calcularDilucion()"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg> Calcular dilución</button>
+        <button class="tool-btn-reset" onclick="limpiar('dilucion')">Limpiar</button>
+      </div>
+
+      <div class="tool-result" id="difResult" aria-live="polite"></div>
+
+      <div class="tool-disclaimer">
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Cómo se lee 1:N:</strong> aquí 1:N significa 1 parte de fármaco en N partes en total (N - 1 partes de diluyente), así que el fármaco queda N veces más diluido. Algunas fuentes escriben «1 + N» para decir otra cosa: confirma cuál usa tu protocolo. La mínima medida de 0.1 ml corresponde a una jeringa de insulina; cámbiala si tu jeringa mide otra cosa.
+      </div>
+    </div>
+
+    <!-- 3. CONVERSIONES -->
+    <div class="tool-panel" id="panel-conversiones">
+      <div class="tool-header">
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg></div>
+        <div class="tool-header__text">
+          <h2>Conversiones de unidades</h2>
+          <p>Porcentaje, mg/ml, μg/ml, ppm, gramos, miligramos y microgramos</p>
+        </div>
+      </div>
+
+      <div class="tool-chips" id="convChips" aria-label="Conversiones frecuentes"></div>
+
+      <div class="tool-form">
+        <div class="tool-field">
+          <label for="convValor">Valor</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="convValor" placeholder="2">
+        </div>
+        <div class="tool-field">
+          <label for="convDe">De</label>
+          <select id="convDe"></select>
+        </div>
+        <div class="tool-field">
+          <label for="convA">A</label>
+          <select id="convA"></select>
+        </div>
+      </div>
+
+      <div class="tool-actions">
+        <button class="tool-btn-calc" onclick="calcularConversion()"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Convertir</button>
+        <button class="tool-btn-reset" onclick="limpiar('conversiones')">Limpiar</button>
+      </div>
+
+      <div class="tool-result" id="convResult" aria-live="polite"></div>
+
+      <div class="tool-subsection" style="margin-top:22px;">
+        <div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-hash"/></svg> Relación 1:N como concentración</div>
+        <div class="tool-form" style="margin-bottom:12px;">
+          <div class="tool-field">
+            <label for="convN">N (por ejemplo 1000 para 1:1000)</label>
+            <input type="text" inputmode="decimal" autocomplete="off" id="convN" placeholder="1000">
+          </div>
+        </div>
+        <div class="tool-actions">
+          <button class="tool-btn-calc" onclick="calcularRelacion()">Calcular concentración</button>
+        </div>
+        <div class="tool-result" id="convRelResult" aria-live="polite"></div>
+      </div>
+
+      <div class="tool-subsection">
+        <div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Equivalencias de consulta rápida</div>
+        <div class="tool-info-grid" id="convEquiv"></div>
+      </div>
+
+      <div class="tool-disclaimer">
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Sobre ppm:</strong> aquí 1 ppm se toma como 1 mg por litro, es decir 1 μg/ml, que vale para soluciones diluidas en agua. Un porcentaje (%) es peso/volumen: 1 % = 1 g en 100 ml = 10 mg/ml.
+      </div>
+    </div>
+
+    <!-- 4. DURACIÓN Y TASA -->
+    <div class="tool-panel" id="panel-duracion">
+      <div class="tool-header">
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg></div>
+        <div class="tool-header__text">
+          <h2>Duración y tasa</h2>
+          <p>Cuántas horas dura una bolsa o jeringa, o a qué velocidad pasarla para que dure lo que necesitas</p>
+        </div>
+      </div>
+
+      <div class="tool-form">
+        <div class="tool-field">
+          <label for="durModo">¿Qué quieres calcular?</label>
+          <select id="durModo">
+            <option value="duracion">Cuánto dura (tengo volumen y tasa)</option>
+            <option value="tasa">A qué tasa pasarla (tengo volumen y duración)</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label for="durVol">Volumen de bolsa o jeringa (ml)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="durVol" placeholder="100">
+        </div>
+        <div class="tool-field" data-dur="duracion">
+          <label for="durTasa">Tasa de infusión (ml/h)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="durTasa" placeholder="6">
+        </div>
+        <div class="tool-field" data-dur="tasa">
+          <label for="durTiempo">Duración deseada</label>
+          <input type="text" inputmode="decimal" autocomplete="off" id="durTiempo" placeholder="8">
+        </div>
+        <div class="tool-field" data-dur="tasa">
+          <label for="durTiempoU">Unidad de la duración</label>
+          <select id="durTiempoU"><option value="h">horas</option><option value="min">minutos</option></select>
+        </div>
+      </div>
+
+      <div class="tool-actions">
+        <button class="tool-btn-calc" onclick="calcularDuracion()"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> Calcular</button>
+        <button class="tool-btn-reset" onclick="limpiar('duracion')">Limpiar</button>
+      </div>
+
+      <div class="tool-result" id="durResult" aria-live="polite"></div>
+
+      <div class="tool-disclaimer">
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Uso profesional:</strong> estas cuentas suponen una velocidad constante y un volumen utilizable completo (sin el volumen muerto del equipo). Una velocidad menor de 0.1 ml/h no se mide con exactitud en una bomba de jeringa estándar.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/club.js?v=20261028-claro"></script>
+  <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
+  <script src="../assets/js/herramientas-infusiones.js?v=20261030-infusiones"></script>
+  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
+<script>
+(async () => {
+  const session = await ZOORIGEN_CLUB.requireAuth();
+  if (!session) return;
+
+  // ═══ SOLO VIP ═══ Si no es VIP activo, mostrar paywall bloqueante
+  const isVIP = ZOORIGEN_CLUB.hasActiveMembership(session);
+  if (!isVIP) {
+    // Renderizar sidebar para que vea el menú pero bloquear el contenido
+    if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+    document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
+    if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+    // Ocultar contenido principal
+    document.querySelectorAll('.tool-panel, .tools-tabs, .tool-aviso-global').forEach(el => el.style.display = 'none');
+    // Aviso fijo en la página: si cierra la ventana de planes no se queda en blanco
+    const hero = document.querySelector('.tools-hero');
+    if (hero) {
+      hero.querySelectorAll('.tools-hero__stats').forEach(el => el.style.display = 'none');
+      const bloqueo = document.createElement('div');
+      bloqueo.className = 'tool-panel is-active';
+      bloqueo.style.cssText = 'display:block;text-align:center;';
+      bloqueo.innerHTML = '<div class="tool-result__title" style="font-size:1.15rem;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Herramientas exclusivas para miembros</div>' +
+        '<p style="color:var(--zoo-text-muted);margin:0 0 16px;">Las calculadoras de infusiones, diluciones y conversiones se abren con una membresía activa.</p>' +
+        '<a class="tool-btn-calc" href="club-suscripcion.html" style="display:inline-block;text-decoration:none;">Ver planes</a>';
+      hero.insertAdjacentElement('afterend', bloqueo);
+    }
+    // Mostrar paywall grande
+    ZOORIGEN_CLUB.showPaywall(session, 'acceder a las Herramientas Clínicas');
+    return;
+  }
+  if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
+  document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
+  if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
+  document.querySelectorAll('.tool-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('is-active'));
+      document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('is-active');
+    });
+  });
+
+  // Cada selector de modo muestra solo los campos que le tocan
+  const MODOS = { criModo: ['data-cri', 'criAyuda'], difModo: ['data-dif', 'difAyuda'], durModo: ['data-dur', null] };
+  const AYUDAS = {
+    criModo: {
+      velocidad: 'Escribe la dosis que tú indicas y la concentración del fármaco en la solución que ya tienes. Verás los ml por hora y las gotas por minuto.',
+      preparar: 'Escribe la dosis, la tasa (o la duración) y el volumen final de la bolsa o jeringa. Verás cuánto fármaco del frasco agregar y cuánto diluyente.'
+    },
+    difModo: {
+      concentracion: 'Usa C1 × V1 = C2 × V2: con la concentración del frasco (C1), la que quieres (C2) y el volumen final (V2) obtienes los ml de fármaco y de diluyente.',
+      relacion: 'Escribe N para una dilución 1:N (1 parte de fármaco en N partes en total) y el volumen final que quieres preparar.',
+      pequeno: 'Si la dosis ocupa menos volumen del que puedes medir, esta ayuda te dice qué dilución 1:N preparar y cuánto administrar de ella.'
+    }
+  };
+  const aplicarModo = id => {
+    const sel = document.getElementById(id), attr = MODOS[id][0];
+    document.querySelectorAll('[' + attr + ']').forEach(el => { el.style.display = el.getAttribute(attr) === sel.value ? 'flex' : 'none'; });
+    const ayuda = MODOS[id][1];
+    if (ayuda) document.getElementById(ayuda).textContent = AYUDAS[id][sel.value] || '';
+  };
+  Object.keys(MODOS).forEach(id => {
+    document.getElementById(id).addEventListener('change', () => aplicarModo(id));
+    aplicarModo(id);
+  });
+
+  iniciarConversiones();
+})();
+
+// ═══════════════ Ayudas de la página ═══════════════
+const Z = window.ZOO_INFUSIONES;
+const ico = n => (window.ZOO_ICONOS_HERR ? window.ZOO_ICONOS_HERR.i(n) : '');
+const $ = id => document.getElementById(id);
+const E = s => Z.esc(s);
+// Campo obligatorio: vacío o texto raro da NaN y el módulo explica qué falta.
+const valor = id => { const t = $(id).value.trim(); return t === '' ? NaN : Z.leerNumero(t); };
+// Campo opcional: vacío es "no escribió nada" (null); texto raro sigue dando NaN.
+const opcional = id => { const t = $(id).value.trim(); return t === '' ? null : Z.leerNumero(t); };
+
+const fila = (etiqueta, texto) =>
+  '<div class="tool-result__row"><span class="tool-result__row-label">' + E(etiqueta) + '</span><span class="tool-result__row-value">' + E(texto) + '</span></div>';
+const filasGotas = gotas => gotas.map(g =>
+  fila('Equipo de ' + g.equipo + ' gtt/ml', Z.fmt(g.gotasMin) + ' gtt/min (1 gota cada ' + Z.textoSegundos(g.segPorGota) + ')')).join('');
+const bloqueAvisos = avisos => (avisos || []).map(a =>
+  '<div class="tool-result__aviso">' + ico('triangle-alert') + ' ' + E(a.texto) + '</div>').join('');
+const bloqueFormulas = formulas =>
+  '<div class="tool-subsection tool-formulas"><div class="tool-subsection__title">' + ico('file-text') + ' Fórmula con tus números</div>' +
+  '<ol>' + formulas.map(f => '<li>' + E(f) + '</li>').join('') + '</ol></div>';
+const NOTA = '<div class="tool-result__note">' + ico('info') + ' ' + E(Z.AVISO_GENERAL) + '</div>';
+
+function mostrar(el, titulo, icono, avisos, cuerpo, formulas) {
+  el.innerHTML = '<div class="tool-result__title">' + ico(icono) + ' ' + E(titulo) + '</div>' +
+    bloqueAvisos(avisos) +
+    '<div class="tool-result__rows">' + cuerpo + '</div>' +
+    (formulas && formulas.length ? bloqueFormulas(formulas) : '') + NOTA;
+  el.className = 'tool-result is-visible' + (avisos && avisos.length ? ' is-warning' : '');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function showErr(el, msg) {
+  el.innerHTML = '<div class="tool-result__title" style="color:#D55A28;">' + ico('triangle-alert') + ' ' + E(msg) + '</div>';
+  el.className = 'tool-result is-visible is-danger';
+}
+
+// ═══════════════ 1. Infusión continua ═══════════════
+function calcularCRI() {
+  const el = $('criResult');
+  const peso = valor('criPeso'), dosis = valor('criDosis'), unidadDosis = $('criDosisU').value;
+  if ($('criModo').value === 'velocidad') {
+    const r = Z.cri({ peso, dosis, unidadDosis, conc: valor('criConc'), unidadConc: $('criConcU').value, volumen: opcional('criVol') });
+    if (r.error) { showErr(el, r.error); return; }
+    let cuerpo = fila('Dosis en mg/kg/h', Z.fmt(r.mgKgH) + ' mg/kg/h') +
+      fila('Fármaco por hora', Z.fmt(r.mgH) + ' mg/h') +
+      fila('Velocidad de infusión', Z.fmt(r.mlH) + ' ml/h') +
+      filasGotas(r.gotas);
+    if (r.volumen !== null) {
+      cuerpo += fila('Fármaco en ' + Z.fmt(r.volumen) + ' ml', Z.fmt(r.mgEnVolumen) + ' mg') +
+        fila('Duración de ese volumen', Z.horasTexto(r.duracionH));
+    }
+    mostrar(el, 'Velocidad para ' + Z.fmt(r.peso) + ' kg', 'syringe', r.avisos, cuerpo, r.formulas);
+  } else {
+    const r = Z.preparar({ peso, dosis, unidadDosis, tasaMlH: opcional('criTasa'), duracionH: opcional('criDur'),
+      volumenFinal: valor('criVolFinal'), concFrasco: valor('criFrasco'), unidadFrasco: $('criFrascoU').value });
+    if (r.error) { showErr(el, r.error); return; }
+    const cuerpo = fila('Concentración necesaria en la solución', Z.fmt(r.concNecesaria) + ' mg/ml (' + Z.fmt(r.concNecesaria * 1000) + ' μg/ml)') +
+      fila('Fármaco a agregar', Z.fmt(r.mgAgregar) + ' mg') +
+      fila('Tomar del frasco', Z.fmt(r.mlFrasco) + ' ml') +
+      fila('Completar con diluyente', Z.fmt(r.mlDiluente) + ' ml') +
+      fila('Volumen final', Z.fmt(r.volumenFinal) + ' ml') +
+      fila('Tasa de infusión', Z.fmt(r.tasaMlH) + ' ml/h') +
+      fila('Duración con ese volumen', Z.horasTexto(r.duracionH)) +
+      filasGotas(r.gotas);
+    mostrar(el, 'Preparar ' + Z.fmt(r.volumenFinal) + ' ml para ' + Z.fmt(r.peso) + ' kg', 'syringe', r.avisos, cuerpo, r.formulas);
+  }
+}
+
+// ═══════════════ 2. Dilución ═══════════════
+function calcularDilucion() {
+  const el = $('difResult'), modo = $('difModo').value;
+  if (modo === 'concentracion') {
+    const r = Z.dilucion({ c1: valor('difC1'), unidadC1: $('difC1U').value, c2: valor('difC2'), unidadC2: $('difC2U').value, v2: valor('difV2') });
+    if (r.error) { showErr(el, r.error); return; }
+    const cuerpo = fila('Tomar del frasco (V1)', Z.fmt(r.v1) + ' ml') +
+      fila('Agregar diluyente', Z.fmt(r.diluyente) + ' ml') +
+      fila('Volumen final (V2)', Z.fmt(r.v2) + ' ml') +
+      fila('Relación de dilución', r.relacion + ' (' + Z.fmt(r.factor) + ' veces más diluido)');
+    mostrar(el, 'Dilución a ' + Z.fmt(r.c2MgMl) + ' mg/ml', 'flask-conical', r.avisos, cuerpo, r.formulas);
+  } else if (modo === 'relacion') {
+    const r = Z.dilucionRelacion({ c1: valor('difRC1'), unidadC1: $('difRC1U').value, n: valor('difN'), v2: valor('difRV2') });
+    if (r.error) { showErr(el, r.error); return; }
+    const cuerpo = fila('Tomar del frasco', Z.fmt(r.v1) + ' ml') +
+      fila('Agregar diluyente', Z.fmt(r.diluyente) + ' ml') +
+      fila('Volumen final', Z.fmt(r.v2) + ' ml') +
+      fila('Concentración resultante', Z.fmt(r.c2MgMl) + ' mg/ml (' + Z.fmt(r.c2UgMl) + ' μg/ml)');
+    mostrar(el, 'Dilución 1:' + Z.fmt(r.n), 'flask-conical', r.avisos, cuerpo, r.formulas);
+  } else {
+    const r = Z.volumenPequeno({ dosis: valor('difPDosis'), unidadDosis: $('difPDosisU').value, c1: valor('difPC1'), unidadC1: $('difPC1U').value, vMin: opcional('difPMin') });
+    if (r.error) { showErr(el, r.error); return; }
+    let cuerpo = fila('Dosis total', Z.fmt(r.dosisMg) + ' mg') +
+      fila('Volumen directo del frasco', Z.fmt(r.vDirecto) + ' ml');
+    if (!r.necesitaDilucion) {
+      cuerpo += fila('¿Hace falta diluir?', 'No: ya es medible (mínimo ' + Z.fmt(r.vMin) + ' ml)');
+      mostrar(el, 'Volumen medible sin diluir', 'droplet', r.avisos, cuerpo, r.formulas);
+      return;
+    }
+    cuerpo += fila('Dilución mínima necesaria', '1:' + Z.fmt(r.nMin)) +
+      fila('Dilución sugerida', '1:' + Z.fmt(r.n)) +
+      fila('Concentración de la dilución', Z.fmt(r.cDilucion) + ' mg/ml') +
+      fila('Volumen a administrar', Z.fmt(r.volumenAdministrar) + ' ml');
+    const pasos = '<div class="tool-subsection"><div class="tool-subsection__title">' + ico('flask-conical') + ' Cómo prepararla</div>' +
+      r.pasos.map((p, i) => '<div class="tool-paso">' + (r.pasos.length > 1 ? '<strong>Paso ' + (i + 1) + ' (1:' + Z.fmt(p.n) + '):</strong> ' : '') +
+        'Toma ' + E(Z.fmt(p.mlTomar)) + ' ml ' + (p.de === 'frasco' ? 'del frasco' : 'de la dilución del paso anterior') +
+        ', agrega ' + E(Z.fmt(p.mlDiluente)) + ' ml de diluyente y mezcla (' + E(Z.fmt(p.mlTotal)) + ' ml en total, ' + E(Z.fmt(p.concMgMl)) + ' mg/ml).</div>').join('') +
+      '</div>';
+    mostrar(el, 'Dilución sugerida 1:' + Z.fmt(r.n), 'droplet', r.avisos, cuerpo, r.formulas);
+    el.querySelector('.tool-result__rows').insertAdjacentHTML('afterend', pasos);
+  }
+}
+
+// ═══════════════ 3. Conversiones ═══════════════
+const FAMILIAS = { conc: 'Concentración', masa: 'Cantidad' };
+function opcionesUnidades(familia) {
+  const grupo = f => Object.keys(Z.UNIDADES).filter(k => Z.UNIDADES[k].fam === f)
+    .map(k => '<option value="' + E(k) + '">' + E(Z.UNIDADES[k].etiqueta) + '</option>').join('');
+  if (familia) return grupo(familia);
+  return Object.keys(FAMILIAS).map(f => '<optgroup label="' + E(FAMILIAS[f]) + '">' + grupo(f) + '</optgroup>').join('');
+}
+function refrescarDestino(preferida) {
+  const de = $('convDe').value, fam = Z.UNIDADES[de].fam, sel = $('convA');
+  const previa = preferida || sel.value;
+  sel.innerHTML = opcionesUnidades(fam);
+  const opciones = Array.from(sel.options).map(o => o.value).filter(v => v !== de);
+  sel.value = (previa && previa !== de && Z.UNIDADES[previa] && Z.UNIDADES[previa].fam === fam) ? previa : (opciones[0] || de);
+}
+function iniciarConversiones() {
+  $('convDe').innerHTML = opcionesUnidades();
+  $('convDe').value = '%';
+  refrescarDestino('mg/ml');
+  $('convDe').addEventListener('change', () => refrescarDestino());
+  const pares = Z.equivalencias();
+  $('convChips').innerHTML = pares.map((p, i) =>
+    '<button type="button" class="tool-chip" data-par="' + i + '">' + E(Z.UNIDADES[p.de].etiqueta + ' a ' + Z.UNIDADES[p.a].etiqueta) + '</button>').join('');
+  $('convChips').querySelectorAll('.tool-chip').forEach(b => b.addEventListener('click', () => {
+    const p = pares[Number(b.dataset.par)];
+    $('convDe').value = p.de; refrescarDestino(p.a);
+    if ($('convValor').value.trim() !== '') calcularConversion(); else $('convValor').focus();
+  }));
+  $('convEquiv').innerHTML = pares.map(p =>
+    '<div class="tool-info-card"><div class="tool-info-card__title">' + E(Z.UNIDADES[p.de].etiqueta + ' a ' + Z.UNIDADES[p.a].etiqueta) + '</div>' +
+    '<div class="tool-info-card__value">' + E(p.texto) + '</div></div>').join('');
+}
+function calcularConversion() {
+  const el = $('convResult');
+  const r = Z.convertir(valor('convValor'), $('convDe').value, $('convA').value);
+  if (r.error) { showErr(el, r.error); return; }
+  mostrar(el, 'Resultado de la conversión', 'refresh-cw', r.avisos, fila('Resultado', r.texto), [r.formula]);
+}
+function calcularRelacion() {
+  const el = $('convRelResult');
+  const r = Z.relacionAConc(valor('convN'));
+  if (r.error) { showErr(el, r.error); return; }
+  mostrar(el, 'Relación 1:' + Z.fmt(r.n), 'hash', [],
+    fila('En mg/ml', Z.fmt(r.mgMl) + ' mg/ml') + fila('En μg/ml', Z.fmt(r.ugMl) + ' μg/ml') + fila('En porcentaje', Z.fmt(r.porcentaje) + ' %'), [r.formula]);
+}
+
+// ═══════════════ 4. Duración y tasa ═══════════════
+function calcularDuracion() {
+  const el = $('durResult');
+  if ($('durModo').value === 'duracion') {
+    const r = Z.duracionInfusion({ volumen: valor('durVol'), tasa: valor('durTasa') });
+    if (r.error) { showErr(el, r.error); return; }
+    mostrar(el, 'Duración de ' + Z.fmt(r.volumen) + ' ml', 'timer', r.avisos,
+      fila('Duración', Z.horasTexto(r.horas)) + fila('Tasa', Z.fmt(r.tasaMlH) + ' ml/h') + filasGotas(r.gotas), r.formulas);
+  } else {
+    const r = Z.tasaPorDuracion({ volumen: valor('durVol'), tiempo: valor('durTiempo'), unidadTiempo: $('durTiempoU').value });
+    if (r.error) { showErr(el, r.error); return; }
+    mostrar(el, 'Tasa para ' + Z.fmt(r.volumen) + ' ml', 'timer', r.avisos,
+      fila('Tasa de infusión', Z.fmt(r.tasaMlH) + ' ml/h') + fila('Duración', Z.horasTexto(r.horas)) + filasGotas(r.gotas), r.formulas);
+  }
+}
+
+// ═══════════════ Helpers ═══════════════
+function limpiar(cual) {
+  const vaciar = ids => ids.forEach(id => { $(id).value = ''; });
+  const ocultar = id => { $(id).className = 'tool-result'; $(id).innerHTML = ''; };
+  if (cual === 'cri') { vaciar(['criPeso', 'criDosis', 'criConc', 'criVol', 'criTasa', 'criDur', 'criVolFinal', 'criFrasco']); ocultar('criResult'); }
+  if (cual === 'dilucion') { vaciar(['difC1', 'difC2', 'difV2', 'difRC1', 'difN', 'difRV2', 'difPDosis', 'difPC1']); $('difPMin').value = '0.1'; ocultar('difResult'); }
+  if (cual === 'conversiones') { vaciar(['convValor', 'convN']); ocultar('convResult'); ocultar('convRelResult'); }
+  if (cual === 'duracion') { vaciar(['durVol', 'durTasa', 'durTiempo']); ocultar('durResult'); }
+}
+</script>
+<script>
+  // ===== PWA: registro del service worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('SW no registrado:', err); });
+    });
+  }
+</script>
+</body>
+</html>
