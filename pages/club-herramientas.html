@@ -6,7 +6,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🧬 Herramientas Clínicas Pro · Club VIP Zoorigen</title>
+<title>Herramientas Clínicas Pro · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
@@ -472,6 +472,10 @@
     .tool-header__text h2 { font-size: 1.05rem; }
     .tool-form { grid-template-columns: 1fr; }
   }
+  .zi { width: 1.1em; height: 1.1em; vertical-align: -0.2em; flex: none; display: inline-block; }
+  .zdot { display: inline-block; width: .7em; height: .7em; border-radius: 50%; vertical-align: .02em; }
+  .tool-header__icon .zi { width: 28px; height: 28px; color: #E8A317; }
+  .tool-tab .zi { width: 16px; height: 16px; }
   .tool-aviso-global { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(232,163,23,0.45); background: rgba(232,163,23,0.10); color: var(--zoo-text); font-size: .86rem; line-height: 1.5; }
   .tool-field, .tool-field select, .tool-field input { min-width: 0; max-width: 100%; }
   .tool-field select { text-overflow: ellipsis; }
@@ -485,10 +489,10 @@
   <aside class="club-sidebar" id="sidebar"></aside>
   <main class="club-main">
 
-    <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
 
     <div class="tools-hero">
-      <span class="tools-hero__badge">🧬 HERRAMIENTA PROFESIONAL</span>
+      <span class="tools-hero__badge"><svg class="zi" aria-hidden="true"><use href="#zi-dna"/></svg> HERRAMIENTA PROFESIONAL</span>
       <h1>Clínica &amp; Farmacología de Fauna Silvestre</h1>
       <p>Referencia ultra profesional para médicos veterinarios zoológicos y biólogos de campo. Protocolos basados en literatura especializada (Fowler's Zoo Medicine, West et al., Carpenter's Exotic Formulary).</p>
       <div class="tools-hero__stats">
@@ -500,23 +504,23 @@
     </div>
 
     <div class="tool-aviso-global" role="note">
-      <strong>⚠️ Material de referencia para profesionales.</strong> Las dosis, rangos y protocolos provienen de literatura especializada y <strong>no sustituyen el criterio del médico veterinario responsable</strong> ni las indicaciones del fabricante. Verifica siempre el fármaco, la dosis y la especie antes de aplicar. Contenido en revisión por un especialista (octubre 2026).
+      <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Material de referencia para profesionales.</strong> Las dosis, rangos y protocolos provienen de literatura especializada y <strong>no sustituyen el criterio del médico veterinario responsable</strong> ni las indicaciones del fabricante. Verifica siempre el fármaco, la dosis y la especie antes de aplicar. Contenido en revisión por un especialista (octubre 2026).
     </div>
 
     <div class="tools-tabs" id="toolsTabs">
-      <button class="tool-tab is-active" data-tab="dosis">💊 Dosis</button>
-      <button class="tool-tab" data-tab="anestesia">💉 Anestesia</button>
-      <button class="tool-tab" data-tab="fluidos">💧 Fluidoterapia</button>
-      <button class="tool-tab" data-tab="constantes">🌡️ Constantes</button>
-      <button class="tool-tab" data-tab="hemograma">🧪 Hemograma</button>
-      <button class="tool-tab" data-tab="bcs">📏 BCS</button>
-      <button class="tool-tab" data-tab="urgencias">🚨 Urgencias</button>
+      <button class="tool-tab is-active" data-tab="dosis"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> Dosis</button>
+      <button class="tool-tab" data-tab="anestesia"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> Anestesia</button>
+      <button class="tool-tab" data-tab="fluidos"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> Fluidoterapia</button>
+      <button class="tool-tab" data-tab="constantes"><svg class="zi" aria-hidden="true"><use href="#zi-thermometer"/></svg> Constantes</button>
+      <button class="tool-tab" data-tab="hemograma"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg> Hemograma</button>
+      <button class="tool-tab" data-tab="bcs"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg> BCS</button>
+      <button class="tool-tab" data-tab="urgencias"><svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg> Urgencias</button>
     </div>
 
     <!-- 1. DOSIS -->
     <div class="tool-panel is-active" id="panel-dosis">
       <div class="tool-header">
-        <div class="tool-header__icon">💊</div>
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg></div>
         <div class="tool-header__text">
           <h2>Calculadora de dosis farmacológicas</h2>
           <p><span id="descFarmacos">40+</span> fármacos · 9 categorías · Ajustes por grupo · Contraindicaciones</p>
@@ -529,15 +533,15 @@
           <label>Categoría</label>
           <select id="doseCategory" onchange="actualizarDrogas()">
             <option value="all">Todas las categorías</option>
-            <option value="anestesico">💉 Anestésicos disociativos</option>
-            <option value="sedante">😴 Sedantes/tranquilizantes</option>
-            <option value="analgesico">🩹 Analgésicos opioides</option>
-            <option value="aine">💢 AINEs (anti-inflamatorios)</option>
-            <option value="antibiotico">🦠 Antibióticos</option>
-            <option value="antiparasitario">🪱 Antiparasitarios</option>
-            <option value="corticoide">🧬 Corticoides</option>
-            <option value="emergencia">🚨 Drogas de emergencia</option>
-            <option value="reversor">🔄 Antagonistas/reversores</option>
+            <option value="anestesico">Anestésicos disociativos</option>
+            <option value="sedante">Sedantes/tranquilizantes</option>
+            <option value="analgesico">Analgésicos opioides</option>
+            <option value="aine">AINEs (anti-inflamatorios)</option>
+            <option value="antibiotico">Antibióticos</option>
+            <option value="antiparasitario">Antiparasitarios</option>
+            <option value="corticoide">Corticoides</option>
+            <option value="emergencia">Drogas de emergencia</option>
+            <option value="reversor">Antagonistas/reversores</option>
           </select>
         </div>
         <div class="tool-field">
@@ -564,21 +568,21 @@
       </div>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularDosis()">💊 Calcular dosis</button>
+        <button class="tool-btn-calc" onclick="calcularDosis()"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> Calcular dosis</button>
         <button class="tool-btn-reset" onclick="resetearForm('dosis')">Limpiar</button>
       </div>
 
       <div class="tool-result" id="doseResult"></div>
 
       <div class="tool-disclaimer">
-        <strong>⚠️ Uso profesional:</strong> Rangos basados en literatura veterinaria especializada. La dosificación real debe ajustarse al estado del paciente, comorbilidades, función renal/hepática y respuesta clínica. NO sustituye juicio profesional ni farmacovigilancia. Los rangos en aves y reptiles son aproximaciones por grupos taxonómicos; especies específicas pueden requerir ajustes mayores.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Uso profesional:</strong> Rangos basados en literatura veterinaria especializada. La dosificación real debe ajustarse al estado del paciente, comorbilidades, función renal/hepática y respuesta clínica. NO sustituye juicio profesional ni farmacovigilancia. Los rangos en aves y reptiles son aproximaciones por grupos taxonómicos; especies específicas pueden requerir ajustes mayores.
       </div>
     </div>
 
     <!-- 2. ANESTESIA -->
     <div class="tool-panel" id="panel-anestesia">
       <div class="tool-header">
-        <div class="tool-header__icon">💉</div>
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg></div>
         <div class="tool-header__text">
           <h2>Protocolos anestésicos</h2>
           <p>12 protocolos · Pre-anestesia · Inducción · Mantenimiento · Reversión</p>
@@ -598,21 +602,21 @@
       </div>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularAnestesia()">💉 Calcular protocolo completo</button>
+        <button class="tool-btn-calc" onclick="calcularAnestesia()"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> Calcular protocolo completo</button>
         <button class="tool-btn-reset" onclick="resetearForm('anestesia')">Limpiar</button>
       </div>
 
       <div class="tool-result" id="anesResult"></div>
 
       <div class="tool-disclaimer">
-        <strong>⚠️ Seguridad anestésica:</strong> Siempre verificar previamente: oxígeno disponible, antagonistas calculados, vía IV permeable, monitor multiparamétrico (SpO₂, ECG, capnografía, Temp), fluidoterapia de base, tubos endotraqueales varios calibres. Monitorear cada 5 min. Vigilar hipotermia (especialmente en aves/reptiles).
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Seguridad anestésica:</strong> Siempre verificar previamente: oxígeno disponible, antagonistas calculados, vía IV permeable, monitor multiparamétrico (SpO₂, ECG, capnografía, Temp), fluidoterapia de base, tubos endotraqueales varios calibres. Monitorear cada 5 min. Vigilar hipotermia (especialmente en aves/reptiles).
       </div>
     </div>
 
     <!-- 3. FLUIDOTERAPIA -->
     <div class="tool-panel" id="panel-fluidos">
       <div class="tool-header">
-        <div class="tool-header__icon">💧</div>
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg></div>
         <div class="tool-header__text">
           <h2>Fluidoterapia avanzada</h2>
           <p>Cálculo por tipo de paciente · Cristaloides · Coloides · Electrolitos</p>
@@ -671,21 +675,21 @@
       </div>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularFluidos()">💧 Calcular plan fluidos</button>
+        <button class="tool-btn-calc" onclick="calcularFluidos()"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> Calcular plan fluidos</button>
         <button class="tool-btn-reset" onclick="resetearForm('fluidos')">Limpiar</button>
       </div>
 
       <div class="tool-result" id="fluidsResult"></div>
 
       <div class="tool-disclaimer">
-        <strong>ℹ️ Selección de fluido:</strong> Ringer Lactato (1ª elección en shock y mantenimiento), Sol. Salina 0.9% (alcalosis metabólica, hipercalemia), Dextrosa 5% (hipoglucemia, NO resuscitación), Coloides/Hetastarch 10-20 ml/kg (shock refractario). En reptiles usar fluidos tibios a 25-28°C para evitar hipotermia.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Selección de fluido:</strong> Ringer Lactato (1ª elección en shock y mantenimiento), Sol. Salina 0.9% (alcalosis metabólica, hipercalemia), Dextrosa 5% (hipoglucemia, NO resuscitación), Coloides/Hetastarch 10-20 ml/kg (shock refractario). En reptiles usar fluidos tibios a 25-28°C para evitar hipotermia.
       </div>
     </div>
 
     <!-- 4. CONSTANTES -->
     <div class="tool-panel" id="panel-constantes">
       <div class="tool-header">
-        <div class="tool-header__icon">🌡️</div>
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-thermometer"/></svg></div>
         <div class="tool-header__text">
           <h2>Constantes fisiológicas por especie</h2>
           <p>FC · FR · Temp · PA · Gestación · Esperanza de vida</p>
@@ -694,7 +698,7 @@
       </div>
 
       <div class="tool-search-filter">
-        <input type="text" id="speciesFilter" placeholder="🔍 Buscar por nombre común, científico o grupo..." oninput="filtrarEspecies()">
+        <input type="text" id="speciesFilter" placeholder="Buscar por nombre común, científico o grupo..." oninput="filtrarEspecies()">
       </div>
 
       <div class="tool-table-wrap">
@@ -714,14 +718,14 @@
       </div>
 
       <div class="tool-disclaimer">
-        <strong>ℹ️ Interpretación clínica:</strong> Valores en reposo y animales sanos. En manejo/contención los valores se elevan 20-40% (estrés). Anestesia baja FC 20-40%. Reptiles son ectotermos: su FC depende del ambiente (ºC/min). Valores ±10-15% aceptables por diferencias individuales.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Interpretación clínica:</strong> Valores en reposo y animales sanos. En manejo/contención los valores se elevan 20-40% (estrés). Anestesia baja FC 20-40%. Reptiles son ectotermos: su FC depende del ambiente (ºC/min). Valores ±10-15% aceptables por diferencias individuales.
       </div>
     </div>
 
     <!-- 5. HEMOGRAMA -->
     <div class="tool-panel" id="panel-hemograma">
       <div class="tool-header">
-        <div class="tool-header__icon">🧪</div>
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg></div>
         <div class="tool-header__text">
           <h2>Valores hematológicos y bioquímicos</h2>
           <p>Hematocrito · Leucocitos · Proteínas · Glucosa · Creatinina · Química</p>
@@ -730,7 +734,7 @@
       </div>
 
       <div class="tool-search-filter">
-        <input type="text" id="hemoFilter" placeholder="🔍 Buscar especie..." oninput="filtrarHemograma()">
+        <input type="text" id="hemoFilter" placeholder="Buscar especie..." oninput="filtrarHemograma()">
       </div>
 
       <div class="tool-table-wrap">
@@ -751,14 +755,14 @@
       </div>
 
       <div class="tool-disclaimer">
-        <strong>ℹ️ Interpretación:</strong> Valores de referencia de animales en cautiverio con manejo. El estrés del manejo eleva leucocitos (hasta 2-3x), glucosa (estrés) y disminuye linfocitos. En aves los heterófilos reemplazan neutrófilos. En reptiles HTO varía con hibernación/temperatura.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Interpretación:</strong> Valores de referencia de animales en cautiverio con manejo. El estrés del manejo eleva leucocitos (hasta 2-3x), glucosa (estrés) y disminuye linfocitos. En aves los heterófilos reemplazan neutrófilos. En reptiles HTO varía con hibernación/temperatura.
       </div>
     </div>
 
     <!-- 6. BCS -->
     <div class="tool-panel" id="panel-bcs">
       <div class="tool-header">
-        <div class="tool-header__icon">📏</div>
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg></div>
         <div class="tool-header__text">
           <h2>BCS · Body Condition Score</h2>
           <p>Escala 1-9 · Evaluación anatómica · Peso ideal estimado</p>
@@ -797,21 +801,21 @@
       </div>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularBCS()">📏 Evaluar condición</button>
+        <button class="tool-btn-calc" onclick="calcularBCS()"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg> Evaluar condición</button>
         <button class="tool-btn-reset" onclick="resetearForm('bcs')">Limpiar</button>
       </div>
 
       <div class="tool-result" id="bcsResult"></div>
 
       <div class="tool-disclaimer">
-        <strong>ℹ️ Sobre el BCS:</strong> La escala de 9 puntos está validada en perros y gatos. En otros mamíferos, aves y reptiles es solo una guía; usa también la escala propia de la especie. El peso ideal es una estimación (cada punto por encima o por debajo de 5 equivale a cerca de 10% de peso) y no sustituye la valoración clínica.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Sobre el BCS:</strong> La escala de 9 puntos está validada en perros y gatos. En otros mamíferos, aves y reptiles es solo una guía; usa también la escala propia de la especie. El peso ideal es una estimación (cada punto por encima o por debajo de 5 equivale a cerca de 10% de peso) y no sustituye la valoración clínica.
       </div>
     </div>
 
     <!-- 7. URGENCIAS -->
     <div class="tool-panel" id="panel-urgencias">
       <div class="tool-header">
-        <div class="tool-header__icon">🚨</div>
+        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg></div>
         <div class="tool-header__text">
           <h2>Protocolos de urgencia</h2>
           <p>RCP · Shock · Convulsiones · Envenenamiento · Hipotermia · Anafilaxia</p>
@@ -823,14 +827,14 @@
         <div class="tool-field" style="grid-column: 1/-1;">
           <label>Seleccionar emergencia</label>
           <select id="urgSelect">
-            <option value="rcp">🫀 Paro cardiorrespiratorio (RCP)</option>
-            <option value="shock">💔 Shock (hipovolémico/séptico)</option>
-            <option value="convulsion">⚡ Convulsiones / Status epilepticus</option>
-            <option value="hipotermia">❄️ Hipotermia severa</option>
-            <option value="hipertermia">🔥 Hipertermia / Golpe de calor</option>
-            <option value="anafilaxia">🦟 Anafilaxia</option>
-            <option value="envenenamiento">☠️ Envenenamiento (general)</option>
-            <option value="hemorragia">🩸 Hemorragia masiva</option>
+            <option value="rcp">Paro cardiorrespiratorio (RCP)</option>
+            <option value="shock">Shock (hipovolémico/séptico)</option>
+            <option value="convulsion">Convulsiones / Status epilepticus</option>
+            <option value="hipotermia">Hipotermia severa</option>
+            <option value="hipertermia">Hipertermia / Golpe de calor</option>
+            <option value="anafilaxia">Anafilaxia</option>
+            <option value="envenenamiento">Envenenamiento (general)</option>
+            <option value="hemorragia">Hemorragia masiva</option>
           </select>
         </div>
         <div class="tool-field">
@@ -848,13 +852,13 @@
       </div>
 
       <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="mostrarUrgencia()">🚨 Mostrar protocolo</button>
+        <button class="tool-btn-calc" onclick="mostrarUrgencia()"><svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg> Mostrar protocolo</button>
       </div>
 
       <div class="tool-result" id="urgResult"></div>
 
       <div class="tool-disclaimer">
-        <strong>⚠️ CRÍTICO:</strong> En emergencia real, actuar con base en ABC (Vía aérea · Respiración · Circulación). Las dosis son referenciales — ajustar a protocolos institucionales. Preparar kit de emergencia con antagonistas, epinefrina, atropina, diazepam y fluidos antes de cualquier procedimiento anestésico.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> CRÍTICO:</strong> En emergencia real, actuar con base en ABC (Vía aérea · Respiración · Circulación). Las dosis son referenciales — ajustar a protocolos institucionales. Preparar kit de emergencia con antagonistas, epinefrina, atropina, diazepam y fluidos antes de cualquier procedimiento anestésico.
       </div>
     </div>
 
@@ -867,6 +871,7 @@
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/herramientas-calculos.js?v=20261029-calculos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
 <script>
@@ -890,7 +895,7 @@
       const bloqueo = document.createElement('div');
       bloqueo.className = 'tool-panel is-active';
       bloqueo.style.cssText = 'display:block;text-align:center;';
-      bloqueo.innerHTML = '<div class="tool-result__title" style="font-size:1.15rem;">🔒 Herramientas exclusivas para miembros</div>' +
+      bloqueo.innerHTML = '<div class="tool-result__title" style="font-size:1.15rem;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Herramientas exclusivas para miembros</div>' +
         '<p style="color:var(--zoo-text-muted);margin:0 0 16px;">Las calculadoras clínicas, las constantes y los protocolos de urgencia se abren con una membresía activa.</p>' +
         '<a class="tool-btn-calc" href="club-suscripcion.html" style="display:inline-block;text-decoration:none;">Ver planes</a>';
       hero.insertAdjacentElement('afterend', bloqueo);
@@ -976,7 +981,7 @@ const DROGAS = {
   doxiciclina: { cat: 'antibiotico', nombre: 'Doxiciclina', dosisRef: { mamifero: [5, 10], ave: [25, 50], reptil: [5, 10], pediatrico: [2.5, 5] }, max: 10, vias: ['PO', 'IV'], nota: 'Tetraciclina de amplio espectro. Elección en clamidiosis aviar (25-50 mg/kg SID 45 días).', contraind: 'Gestación, crecimiento, hipocalcemia.' },
 
   // ANTIPARASITARIOS
-  ivermectina: { cat: 'antiparasitario', nombre: 'Ivermectina', dosisRef: { mamifero: [0.2, 0.4], ave: [0.2, 0.4], reptil: [0, 0], pediatrico: [0.05, 0.2] }, max: 0.6, vias: ['SC', 'PO'], nota: '⚠️ CONTRAINDICADO en quelonios, tortugas y algunas serpientes (letal). En perros collies sensibilidad MDR1.', contraind: 'Quelonios, tortugas, colies MDR1, cachorros <6 sem.' },
+  ivermectina: { cat: 'antiparasitario', nombre: 'Ivermectina', dosisRef: { mamifero: [0.2, 0.4], ave: [0.2, 0.4], reptil: [0, 0], pediatrico: [0.05, 0.2] }, max: 0.6, vias: ['SC', 'PO'], nota: '<svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> CONTRAINDICADO en quelonios, tortugas y algunas serpientes (letal). En perros collies sensibilidad MDR1.', contraind: 'Quelonios, tortugas, colies MDR1, cachorros <6 sem.' },
   fenbendazol: { cat: 'antiparasitario', nombre: 'Fenbendazol', dosisRef: { mamifero: [10, 50], ave: [20, 100], reptil: [50, 100], pediatrico: [10, 25] }, max: 50, vias: ['PO'], nota: 'Benzimidazol. Amplio espectro. En reptiles 50-100 mg/kg cada 15 días x 3 dosis. Seguro en gestación.' },
   praziquantel: { cat: 'antiparasitario', nombre: 'Praziquantel', dosisRef: { mamifero: [5, 10], ave: [5, 10], reptil: [5, 8], pediatrico: [2.5, 5] }, max: 10, vias: ['PO', 'SC', 'IM'], nota: 'Antihelmíntico para cestodos y trematodos. Seguro. Dosis única o repetir a 2-3 semanas.' },
   selamectina: { cat: 'antiparasitario', nombre: 'Selamectina (spot-on)', dosisRef: { mamifero: [6, 12], ave: [0, 0], reptil: [0, 0], pediatrico: [6, 12] }, max: 12, vias: ['Tópico'], nota: 'Endectocida spot-on. Pulgas, garrapatas, ácaros, dirofilaria. Seguro en Collies.' },
@@ -989,7 +994,7 @@ const DROGAS = {
   // EMERGENCIA
   atropina: { cat: 'emergencia', nombre: 'Atropina', dosisRef: { mamifero: [0.02, 0.04], ave: [0.5, 1], reptil: [0.01, 0.04], pediatrico: [0.02, 0.04] }, max: 0.1, vias: ['IM', 'IV', 'SC'], nota: 'Anticolinérgico. Pre-anestésica (reduce salivación), bradicardia, bloqueo AV, intoxicación por organofosforados (dosis alta 0.2-0.5 mg/kg). NO usar en conejos (atropinesterasa).', contraind: 'Conejos, glaucoma, taquiarritmias.' },
   epinefrina: { cat: 'emergencia', nombre: 'Epinefrina (Adrenalina)', dosisRef: { mamifero: [0.01, 0.02], ave: [0.01, 0.1], reptil: [0.05, 0.1], pediatrico: [0.01, 0.02] }, max: 0.1, vias: ['IV', 'IM', 'Intratraqueal'], nota: 'Simpático-mimético. RCP, anafilaxia, shock. IV lento diluido 1:10,000. Intratraqueal dosis 2-3x si no hay acceso IV.', contraind: 'HTA, taquiarritmias severas (relativa en emergencia).' },
-  lidocaina: { cat: 'emergencia', nombre: 'Lidocaína', dosisRef: { mamifero: [1, 4], ave: [0, 0], reptil: [1, 5], pediatrico: [0.5, 2] }, max: 4, vias: ['IV', 'Local'], nota: 'Antiarrítmico (perro 2-4 mg/kg bolo + CRI 25-80 μg/kg/min). Anestésico local. ⚠️ En gatos usar máx 0.5 mg/kg (toxicidad cardíaca).', contraind: 'Bloqueo AV, bradicardia severa.' },
+  lidocaina: { cat: 'emergencia', nombre: 'Lidocaína', dosisRef: { mamifero: [1, 4], ave: [0, 0], reptil: [1, 5], pediatrico: [0.5, 2] }, max: 4, vias: ['IV', 'Local'], nota: 'Antiarrítmico (perro 2-4 mg/kg bolo + CRI 25-80 μg/kg/min). Anestésico local. <svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> En gatos usar máx 0.5 mg/kg (toxicidad cardíaca).', contraind: 'Bloqueo AV, bradicardia severa.' },
   furosemida: { cat: 'emergencia', nombre: 'Furosemida', dosisRef: { mamifero: [1, 4], ave: [1, 5], reptil: [2, 5], pediatrico: [0.5, 2] }, max: 8, vias: ['IV', 'IM', 'PO'], nota: 'Diurético de asa. ICC con edema pulmonar, hipercalcemia, oliguria. Monitorear K+ (hipocalemia), deshidratación.', contraind: 'Deshidratación, anuria, alergia a sulfas.' },
   naloxona: { cat: 'reversor', nombre: 'Naloxona', dosisRef: { mamifero: [0.04, 0.1], ave: [0.04, 0.1], reptil: [0.04, 0.1], pediatrico: [0.02, 0.04] }, max: 0.1, vias: ['IV', 'IM'], nota: 'Antagonista opioide puro. Revierte morfina, fentanilo, butorfanol. Vida media corta (30-60 min), puede requerir dosis repetidas.', contraind: 'Dolor severo no controlado.' },
   atipamezol: { cat: 'reversor', nombre: 'Atipamezol', dosisRef: { mamifero: [0.2, 0.4], ave: [0.25, 0.5], reptil: [0.25, 0.5], pediatrico: [0.1, 0.2] }, max: 0.5, vias: ['IM'], nota: 'Antagonista α2 específico. Revierte medetomidina (5x dosis administrada) y dexmedetomidina (10x). IM preferido, IV causa taquicardia e hipertensión.', contraind: 'Uso reciente de α1-agonistas.' },
@@ -1019,11 +1024,11 @@ function calcularDosis() {
   const rangoTxt = r.mismoValor ? C.fmt(r.dMin) : C.fmt(r.dMin) + '-' + C.fmt(r.dMax);
   const rango = (a, b, u) => r.mismoValor ? C.fmt(a) + ' ' + u : C.fmt(a) + ' – ' + C.fmt(b) + ' ' + u;
   rEl.innerHTML = `
-    <div class="tool-result__title">💊 ${C.esc(info.nombre)} · ${C.esc(C.fmt(peso))} kg · ${C.esc(C.etiquetaGrupo(especie))}</div>
+    <div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> ${C.esc(info.nombre)} · ${C.esc(C.fmt(peso))} kg · ${C.esc(C.etiquetaGrupo(especie))}</div>
     ${r.superaMaximo ? (r.esMamifero
-      ? `<div class="tool-result__aviso">⚠️ <strong>Revisa este rango:</strong> el extremo alto (${C.fmt(r.dMax)} mg/kg) supera el máximo de referencia del fármaco (${C.fmt(r.maximoPorKg)} mg/kg). Confirma la dosis en tu fuente antes de usarla.</div>`
-      : `<div class="tool-result__aviso">ℹ️ <strong>Rango propio de ${C.esc(C.etiquetaGrupo(especie).toLowerCase())}:</strong> el extremo alto (${C.fmt(r.dMax)} mg/kg) es mayor que el máximo de referencia de mamíferos (${C.fmt(r.maximoPorKg)} mg/kg). Es normal en algunas especies por su metabolismo, pero confirma la dosis en una fuente específica de la especie antes de usarla.</div>`) : ''}
-    ${r.volumenPequeno ? `<div class="tool-result__aviso">💧 <strong>Volumen muy pequeño</strong> (menos de 0.1 ml): es difícil medirlo con exactitud. Diluye el fármaco con solución estéril (por ejemplo 1:10), recalcula con la nueva concentración o usa jeringa de insulina.</div>` : ''}
+      ? `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> <strong>Revisa este rango:</strong> el extremo alto (${C.fmt(r.dMax)} mg/kg) supera el máximo de referencia del fármaco (${C.fmt(r.maximoPorKg)} mg/kg). Confirma la dosis en tu fuente antes de usarla.</div>`
+      : `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> <strong>Rango propio de ${C.esc(C.etiquetaGrupo(especie).toLowerCase())}:</strong> el extremo alto (${C.fmt(r.dMax)} mg/kg) es mayor que el máximo de referencia de mamíferos (${C.fmt(r.maximoPorKg)} mg/kg). Es normal en algunas especies por su metabolismo, pero confirma la dosis en una fuente específica de la especie antes de usarla.</div>`) : ''}
+    ${r.volumenPequeno ? `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> <strong>Volumen muy pequeño</strong> (menos de 0.1 ml): es difícil medirlo con exactitud. Diluye el fármaco con solución estéril (por ejemplo 1:10), recalcula con la nueva concentración o usa jeringa de insulina.</div>` : ''}
     <div class="tool-result__rows">
       <div class="tool-result__row">
         <span class="tool-result__row-label">Rango de dosis (${rangoTxt} mg/kg)</span>
@@ -1043,12 +1048,12 @@ function calcularDosis() {
       </div>
     </div>
     <div class="tool-subsection">
-      <div class="tool-subsection__title">📋 Notas clínicas</div>
+      <div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Notas clínicas</div>
       <p style="margin:0;color:var(--zoo-text);">${info.nota}</p>
     </div>
     ${info.contraind ? `
     <div class="tool-subsection" style="border-left-color:#D55A28;">
-      <div class="tool-subsection__title" style="color:#D55A28;">⚠️ Contraindicaciones</div>
+      <div class="tool-subsection__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Contraindicaciones</div>
       <p style="margin:0;color:var(--zoo-text);">${info.contraind}</p>
     </div>` : ''}
   `;
@@ -1265,9 +1270,9 @@ function calcularAnestesia() {
   });
 
   rEl.innerHTML = `
-    <div class="tool-result__title">💉 ${p.nombre} · ${C.fmt(peso)} kg</div>
-    ${hayPequenos ? '<div class="tool-result__aviso">💧 <strong>Hay volúmenes menores a 0.1 ml.</strong> Son difíciles de medir con exactitud: diluye el fármaco o usa jeringa de insulina.</div>' : ''}
-    <div class="tool-result__aviso">ℹ️ Las concentraciones mostradas son las comerciales más comunes. Si tu frasco tiene otra concentración, recalcula ese fármaco en la calculadora de dosis.</div>
+    <div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> ${p.nombre} · ${C.fmt(peso)} kg</div>
+    ${hayPequenos ? '<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> <strong>Hay volúmenes menores a 0.1 ml.</strong> Son difíciles de medir con exactitud: diluye el fármaco o usa jeringa de insulina.</div>' : ''}
+    <div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Las concentraciones mostradas son las comerciales más comunes. Si tu frasco tiene otra concentración, recalcula ese fármaco en la calculadora de dosis.</div>
     <div style="margin-bottom:10px;color:var(--zoo-text-muted);font-size:.85rem;"><strong style="color:#E8A317;">Uso:</strong> ${p.uso}</div>
     <div class="tool-result__rows">
       ${componentesHtml}
@@ -1275,15 +1280,15 @@ function calcularAnestesia() {
       <div class="tool-result__row"><span class="tool-result__row-label">Duración estimada</span><span class="tool-result__row-value">${p.duracion}</span></div>
     </div>
     <div class="tool-subsection">
-      <div class="tool-subsection__title" style="color:#6FBF73;">🔄 Reversión</div>
+      <div class="tool-subsection__title" style="color:#6FBF73;"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Reversión</div>
       <p style="margin:0;color:var(--zoo-text);">${p.reversion}</p>
     </div>
     <div class="tool-subsection">
-      <div class="tool-subsection__title" style="color:#2AA4D5;">📊 Monitoreo</div>
+      <div class="tool-subsection__title" style="color:#2AA4D5;"><svg class="zi" aria-hidden="true"><use href="#zi-chart-column"/></svg> Monitoreo</div>
       <p style="margin:0;color:var(--zoo-text);">${p.monitoreo}</p>
     </div>
     <div class="tool-subsection" style="border-left-color:#D55A28;">
-      <div class="tool-subsection__title" style="color:#D55A28;">⚠️ Complicaciones comunes</div>
+      <div class="tool-subsection__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Complicaciones comunes</div>
       <p style="margin:0;color:var(--zoo-text);">${p.complic}</p>
     </div>
     <div class="tool-result__note">${p.nota}</div>
@@ -1311,7 +1316,7 @@ function calcularFluidos() {
   });
   if (r.error) { showErr(rEl, C.esc(r.error)); return; }
 
-  let html = `<div class="tool-result__title">💧 ${C.esc(r.titulo)} · ${C.fmt(r.peso)} kg (${C.esc(C.etiquetaGrupo(r.grupo))})</div><div class="tool-result__rows">`;
+  let html = `<div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> ${C.esc(r.titulo)} · ${C.fmt(r.peso)} kg (${C.esc(C.etiquetaGrupo(r.grupo))})</div><div class="tool-result__rows">`;
   r.filas.forEach(f => {
     html += `<div class="tool-result__row"${f.alerta ? ' style="background:rgba(213,90,40,0.25);"' : ''}><span class="tool-result__row-label">${C.esc(f.etiqueta)}</span><span class="tool-result__row-value">${C.esc(f.valor)}</span></div>`;
   });
@@ -1320,9 +1325,9 @@ function calcularFluidos() {
     html += `<div class="tool-subsection"><div class="tool-subsection__title">${C.esc(f.titulo)}</div><p style="margin:0;color:var(--zoo-text);"><strong>${C.fmt(f.ml)} ml</strong> en ${f.horas < 1 ? Math.round(f.horas * 60) + ' min' : C.fmt(f.horas) + ' h'} · <strong>${C.fmt(f.mlPorHora)} ml/h</strong> · ${C.fmt(f.gotasMin)} gtt/min (1 gota cada ${C.fmt(f.segPorGota)} s con equipo de ${r.equipo} gtt/ml)</p></div>`;
   });
   html += `</div><div class="tool-result__rows" style="margin-top:10px;"><div class="tool-result__row"><span class="tool-result__row-label">${r.modo === 'cirugia' ? 'VOLUMEN INTRAOPERATORIO' : 'TOTAL DEL PLAN'}</span><span class="tool-result__row-value">${C.fmt(r.total)} ml</span></div></div>`;
-  html += `<div class="tool-subsection"><div class="tool-subsection__title">📋 Plan terapéutico</div><p style="margin:0;">${C.esc(r.nota)}</p></div>`;
+  html += `<div class="tool-subsection"><div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Plan terapéutico</div><p style="margin:0;">${C.esc(r.nota)}</p></div>`;
   if (r.grupo === 'reptiles') {
-    html += '<div class="tool-subsection" style="border-left-color:#D55A28;"><div class="tool-subsection__title" style="color:#D55A28;">🦎 Reptiles</div><p style="margin:0;">Fluidos TIBIOS a 25-28 °C. Mantenimiento mucho menor (20 ml/kg/día). Vía intracelómica o intraósea si no hay acceso IV.</p></div>';
+    html += '<div class="tool-subsection" style="border-left-color:#D55A28;"><div class="tool-subsection__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-turtle"/></svg> Reptiles</div><p style="margin:0;">Fluidos TIBIOS a 25-28 °C. Mantenimiento mucho menor (20 ml/kg/día). Vía intracelómica o intraósea si no hay acceso IV.</p></div>';
   }
   rEl.innerHTML = html;
   rEl.className = 'tool-result is-visible' + (r.modo === 'shock' || r.modo === 'quemado' ? ' is-danger' : r.modo === 'cirugia' ? ' is-warning' : '');
@@ -1496,26 +1501,26 @@ function calcularBCS() {
   if (r.error) { showErr(rEl, C.esc(r.error)); return; }
   const info = BCS_DESC[bcs];
   let reco = '';
-  if (bcs <= 2) reco = '🚨 <strong>EMERGENCIA.</strong> Realimentación cuidadosa (síndrome de realimentación), evaluar hipoproteinemia y electrolitos. Descartar parasitosis, neoplasia, enfermedad renal y hepatopatía. Plan nutricional supervisado.';
-  else if (bcs === 3) reco = '📈 <strong>Necesita ganar peso.</strong> Aumentar 15-20% la ración. Evaluar parasitología, coproparasitoscópico, perfil tiroideo y calidad del alimento.';
-  else if (bcs === 4) reco = 'ℹ️ Ligero déficit. Incrementar 10% la ración de forma gradual. Monitoreo mensual.';
-  else if (bcs === 5) reco = '✅ <strong>Condición ideal.</strong> Mantener el protocolo actual. Evaluación semestral.';
-  else if (bcs === 6) reco = 'ℹ️ Ligero exceso. Reducir 10% la ración o aumentar la actividad física y el enriquecimiento ambiental.';
-  else if (bcs === 7) reco = '📉 Plan de pérdida de 1-2% del peso por semana. Reducir 20% las calorías. Enriquecimiento y actividad.';
-  else reco = '📉🚨 <strong>Obesidad.</strong> Reducir 30% las calorías y dar ejercicio terapéutico. Descartar hipotiroidismo, Cushing e insulinoma. Monitoreo de glucosa y perfil hepático. Riesgo cardiovascular.';
+  if (bcs <= 2) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg> <strong>EMERGENCIA.</strong> Realimentación cuidadosa (síndrome de realimentación), evaluar hipoproteinemia y electrolitos. Descartar parasitosis, neoplasia, enfermedad renal y hepatopatía. Plan nutricional supervisado.';
+  else if (bcs === 3) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-trending-up"/></svg> <strong>Necesita ganar peso.</strong> Aumentar 15-20% la ración. Evaluar parasitología, coproparasitoscópico, perfil tiroideo y calidad del alimento.';
+  else if (bcs === 4) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Ligero déficit. Incrementar 10% la ración de forma gradual. Monitoreo mensual.';
+  else if (bcs === 5) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Condición ideal.</strong> Mantener el protocolo actual. Evaluación semestral.';
+  else if (bcs === 6) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Ligero exceso. Reducir 10% la ración o aumentar la actividad física y el enriquecimiento ambiental.';
+  else if (bcs === 7) reco = '<svg class="zi" aria-hidden="true"><use href="#zi-trending-down"/></svg> Plan de pérdida de 1-2% del peso por semana. Reducir 20% las calorías. Enriquecimiento y actividad.';
+  else reco = '<svg class="zi" aria-hidden="true"><use href="#zi-trending-down"/></svg><svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg> <strong>Obesidad.</strong> Reducir 30% las calorías y dar ejercicio terapéutico. Descartar hipotiroidismo, Cushing e insulinoma. Monitoreo de glucosa y perfil hepático. Riesgo cardiovascular.';
   const isDanger = bcs <= 2 || bcs >= 8;
   const isWarning = bcs === 3 || bcs === 4 || bcs === 6 || bcs === 7;
   const noValidada = (grupo === 'ave' || grupo === 'reptil');
   rEl.innerHTML = `
-    <div class="tool-result__title" style="color:${info.color};">📏 BCS ${bcs}/9 · ${info.title}</div>
-    ${noValidada ? '<div class="tool-result__aviso">ℹ️ La escala de 9 puntos no es la estándar para aves y reptiles: tómala solo como orientación y usa la valoración propia de la especie (por ejemplo, la condición muscular de la quilla en aves).</div>' : ''}
+    <div class="tool-result__title" style="color:${info.color};"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg> BCS ${bcs}/9 · ${info.title}</div>
+    ${noValidada ? '<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> La escala de 9 puntos no es la estándar para aves y reptiles: tómala solo como orientación y usa la valoración propia de la especie (por ejemplo, la condición muscular de la quilla en aves).</div>' : ''}
     <div class="tool-result__rows">
       <div class="tool-result__row"><span class="tool-result__row-label">Peso actual</span><span class="tool-result__row-value">${C.fmt(pesoActual)} kg</span></div>
       <div class="tool-result__row"><span class="tool-result__row-label">Peso ideal estimado (≈10% por punto de BCS)</span><span class="tool-result__row-value">${C.fmt(r.pesoIdeal)} kg</span></div>
       <div class="tool-result__row"><span class="tool-result__row-label">Ajuste necesario</span><span class="tool-result__row-value">${r.diferencia >= 0 ? '+' : ''}${C.fmt(r.diferencia)} kg (${r.porcentaje >= 0 ? '+' : ''}${C.fmt(r.porcentaje)}%)</span></div>
     </div>
-    <div class="tool-subsection"><div class="tool-subsection__title">🔍 Evaluación anatómica</div><p style="margin:0;">${info.desc}</p></div>
-    <div class="tool-subsection" style="border-left-color:#6FBF73;"><div class="tool-subsection__title" style="color:#6FBF73;">💊 Plan terapéutico</div><p style="margin:0;">${reco}</p></div>
+    <div class="tool-subsection"><div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-search"/></svg> Evaluación anatómica</div><p style="margin:0;">${info.desc}</p></div>
+    <div class="tool-subsection" style="border-left-color:#6FBF73;"><div class="tool-subsection__title" style="color:#6FBF73;"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> Plan terapéutico</div><p style="margin:0;">${reco}</p></div>
   `;
   rEl.className = 'tool-result is-visible' + (isDanger ? ' is-danger' : isWarning ? ' is-warning' : '');
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1535,7 +1540,7 @@ function mostrarUrgencia() {
   rEl.innerHTML = `
     <div class="urg-protocol">
       <div class="urg-protocol__title">${r.title}</div>
-      <div style="color:#D55A28;font-weight:700;margin-bottom:14px;font-size:.88rem;">⏱️ ${r.priority}</div>
+      <div style="color:#D55A28;font-weight:700;margin-bottom:14px;font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> ${r.priority}</div>
       ${r.avisos.map(a => '<div class="tool-result__aviso">' + a + '</div>').join('')}
       <ol class="urg-steps">
         ${r.steps.map(s => '<li>' + s + '</li>').join('')}
@@ -1548,7 +1553,7 @@ function mostrarUrgencia() {
 
 // ═══════════════ Helpers ═══════════════
 function showErr(el, msg) {
-  el.innerHTML = `<div class="tool-result__title" style="color:#D55A28;">⚠️ ${msg}</div>`;
+  el.innerHTML = `<div class="tool-result__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> ${msg}</div>`;
   el.className = 'tool-result is-visible is-danger';
 }
 function resetearForm(which) {

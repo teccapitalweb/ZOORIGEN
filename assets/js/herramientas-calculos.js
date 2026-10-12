@@ -210,7 +210,7 @@
 
     var P = {
       rcp: {
-        title: '🫀 RCP · Paro cardiorrespiratorio',
+        title: '<svg class="zi" aria-hidden="true"><use href="#zi-heart-pulse"/></svg> RCP · Paro cardiorrespiratorio',
         priority: 'CRÍTICO · Iniciar en menos de 60 segundos desde la detección',
         steps: [
           '<strong>Verificar inconsciencia y ausencia de pulso</strong> (femoral/auricular). Tiempo máximo 10 segundos.',
@@ -226,7 +226,7 @@
         ]
       },
       shock: {
-        title: '💔 Shock hipovolémico / séptico',
+        title: '<svg class="zi" aria-hidden="true"><use href="#zi-heart-crack"/></svg> Shock hipovolémico / séptico',
         priority: 'URGENTE · Actuar en minutos',
         steps: [
           '<strong>ABC y signos vitales</strong>: frecuencia cardiaca, presión arterial, tiempo de llenado capilar, color de mucosas, estado mental.',
@@ -242,7 +242,7 @@
         ]
       },
       convulsion: {
-        title: '⚡ Convulsiones / Status epilepticus',
+        title: '<svg class="zi" aria-hidden="true"><use href="#zi-zap"/></svg> Convulsiones / Status epilepticus',
         priority: 'URGENTE · Riesgo de daño cerebral después de 5 minutos de actividad',
         steps: [
           '<strong>Proteger la vía aérea</strong>. No meter los dedos en la boca. Acolchonar el entorno y evitar caídas.',
@@ -258,7 +258,7 @@
         ]
       },
       hipotermia: {
-        title: '❄️ Hipotermia severa',
+        title: '<svg class="zi" aria-hidden="true"><use href="#zi-snowflake"/></svg> Hipotermia severa',
         priority: 'URGENTE · Menos de 32 °C = riesgo cardiaco grave',
         steps: [
           '<strong>Medir la temperatura central</strong> (rectal). Leve 32-37 °C, moderada 28-32 °C, severa menor a 28 °C.',
@@ -274,7 +274,7 @@
         ]
       },
       hipertermia: {
-        title: '🔥 Golpe de calor / Hipertermia',
+        title: '<svg class="zi" aria-hidden="true"><use href="#zi-flame"/></svg> Golpe de calor / Hipertermia',
         priority: 'URGENTE · Más de 41 °C = daño en varios órganos',
         steps: [
           '<strong>Medir la temperatura rectal</strong>. Golpe de calor: más de 40.5 °C con signos neurológicos.',
@@ -290,7 +290,7 @@
         ]
       },
       anafilaxia: {
-        title: '🦟 Anafilaxia',
+        title: '<svg class="zi" aria-hidden="true"><use href="#zi-bug"/></svg> Anafilaxia',
         priority: 'EXTREMA URGENCIA · Cuentan los minutos',
         steps: [
           '<strong>Identificar signos</strong>: urticaria, angioedema, broncoconstricción, colapso cardiovascular, vómito y diarrea.',
@@ -306,7 +306,7 @@
         ]
       },
       envenenamiento: {
-        title: '☠️ Envenenamiento (protocolo general)',
+        title: '<svg class="zi" aria-hidden="true"><use href="#zi-skull"/></svg> Envenenamiento (protocolo general)',
         priority: 'URGENTE · Es crítico el tiempo desde la exposición',
         steps: [
           '<strong>Estabilizar ABC</strong> primero: signos vitales y estado neurológico.',
@@ -322,7 +322,7 @@
         ]
       },
       hemorragia: {
-        title: '🩸 Hemorragia masiva',
+        title: '<svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> Hemorragia masiva',
         priority: 'URGENTE · Más de 20% de la volemia = shock',
         steps: [
           '<strong>Compresión directa</strong> inmediata con gasa estéril. Elevar el miembro si aplica.',

@@ -6,7 +6,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚖️ Herramientas Legales Pro · Club VIP Zoorigen</title>
+<title>Herramientas Legales Pro · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
@@ -569,6 +569,18 @@
     .legal-panel { padding: 18px; }
     .legal-header__text h2 { font-size: 1.05rem; }
   }
+  .zi { width: 1.1em; height: 1.1em; vertical-align: -0.2em; flex: none; display: inline-block; }
+  .zdot { display: inline-block; width: .7em; height: .7em; border-radius: 50%; vertical-align: .02em; }
+  .legal-header__icon .zi { width: 28px; height: 28px; color: #E8A317; }
+  .legal-tab .zi { width: 16px; height: 16px; }
+  .uma-event__icon .zi { width: 26px; height: 26px; }
+  .legal-aviso-global { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(232,163,23,0.45); background: rgba(232,163,23,0.10); color: var(--zoo-text); font-size: .86rem; line-height: 1.5; }
+  .legal-aviso { margin: 14px 0; padding: 12px 16px; border-radius: 10px; border-left: 4px solid #E8A317; background: rgba(232,163,23,0.12); font-size: .88rem; color: var(--zoo-text); }
+  .legal-aviso.is-error { border-left-color: #D55A28; background: rgba(213,90,40,0.12); }
+  .legal-aviso ul { margin: 6px 0 0; padding-left: 20px; }
+  .zl-toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(20px); background: #1F5F3A; color: #fff; padding: 10px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 9999; max-width: 90vw; text-align: center; }
+  .zl-toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .legal-field, .legal-field select, .legal-field input, .legal-field textarea { min-width: 0; max-width: 100%; }
 </style>
 </head>
 <body>
@@ -576,38 +588,42 @@
   <aside class="club-sidebar" id="sidebar"></aside>
   <main class="club-main">
 
-    <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú">☰</button>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
 
     <div class="legal-hero">
-      <span class="legal-hero__badge">⚖️ HERRAMIENTA PROFESIONAL</span>
+      <span class="legal-hero__badge"><svg class="zi" aria-hidden="true"><use href="#zi-scale"/></svg> HERRAMIENTA PROFESIONAL</span>
       <h1>Compliance Legal para Fauna Silvestre</h1>
-      <p>Base de datos NOM-059 ampliada, generador de informes oficiales UMA/PIMVS, cuotas SEMARNAT 2026, CITES completo, marco legal y checklists de cumplimiento. Todo lo que necesita un biólogo/veterinario mexicano para operar con rigor normativo.</p>
+      <p>Consulta de especies de la NOM-059, borradores de informes UMA/PIMVS, derechos de la Ley Federal de Derechos 2026, CITES, marco legal y listas de revisión. Material de apoyo con artículos y cantidades tomados de los textos vigentes.</p>
       <div class="legal-hero__stats">
-        <div class="legal-hero__stat"><span class="legal-hero__stat-num">100+</span><span class="legal-hero__stat-lbl">especies NOM-059</span></div>
-        <div class="legal-hero__stat"><span class="legal-hero__stat-num">25+</span><span class="legal-hero__stat-lbl">trámites SEMARNAT</span></div>
-        <div class="legal-hero__stat"><span class="legal-hero__stat-num">6</span><span class="legal-hero__stat-lbl">checklists cumplimiento</span></div>
-        <div class="legal-hero__stat"><span class="legal-hero__stat-num">20+</span><span class="legal-hero__stat-lbl">artículos LGVS/LGEEPA</span></div>
+        <div class="legal-hero__stat"><span class="legal-hero__stat-num" id="statNom">0</span><span class="legal-hero__stat-lbl">especies NOM-059</span></div>
+        <div class="legal-hero__stat"><span class="legal-hero__stat-num" id="statCuotas">0</span><span class="legal-hero__stat-lbl">derechos de la LFD</span></div>
+        <div class="legal-hero__stat"><span class="legal-hero__stat-num">6</span><span class="legal-hero__stat-lbl">listas de revisión</span></div>
+        <div class="legal-hero__stat"><span class="legal-hero__stat-num">2026</span><span class="legal-hero__stat-lbl">cantidades de la LFD</span></div>
       </div>
     </div>
 
+    <div class="legal-aviso-global" role="note">
+      <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Material de apoyo, no es asesoría legal.</strong> Los artículos y las cantidades se verificaron contra los textos vigentes de la Cámara de Diputados (leyes, octubre 2026). Las normas, las cantidades y los formatos cambian: confirma en el DOF y en el portal de SEMARNAT, y consulta a un abogado o gestor antes de presentar un trámite.
+    </div>
+
     <div class="legal-tabs">
-      <button class="legal-tab is-active" data-tab="nom">📜 NOM-059</button>
-      <button class="legal-tab" data-tab="uma">📋 UMA/PIMVS</button>
-      <button class="legal-tab" data-tab="cuotas">💰 Cuotas 2026</button>
-      <button class="legal-tab" data-tab="cites">🌐 CITES</button>
-      <button class="legal-tab" data-tab="marco">📚 Marco Legal</button>
-      <button class="legal-tab" data-tab="checklist">✅ Checklists</button>
+      <button class="legal-tab is-active" data-tab="nom"><svg class="zi" aria-hidden="true"><use href="#zi-scroll-text"/></svg> NOM-059</button>
+      <button class="legal-tab" data-tab="uma"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> UMA/PIMVS</button>
+      <button class="legal-tab" data-tab="cuotas"><svg class="zi" aria-hidden="true"><use href="#zi-banknote"/></svg> Derechos 2026</button>
+      <button class="legal-tab" data-tab="cites"><svg class="zi" aria-hidden="true"><use href="#zi-globe"/></svg> CITES</button>
+      <button class="legal-tab" data-tab="marco"><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg> Marco Legal</button>
+      <button class="legal-tab" data-tab="checklist"><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Checklists</button>
     </div>
 
     <!-- 1. NOM-059 -->
     <div class="legal-panel is-active" id="panel-nom">
       <div class="legal-header">
-        <div class="legal-header__icon">📜</div>
+        <div class="legal-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-scroll-text"/></svg></div>
         <div class="legal-header__text">
           <h2>NOM-059-SEMARNAT-2010 (modificación 2019)</h2>
-          <p>Especies mexicanas en riesgo · IUCN · CITES · Distribución · Endemismo · DOF</p>
+          <p>Especies mexicanas en riesgo · Categoría · CITES · Distribución · Endemismo</p>
         </div>
-        <div class="legal-header__count">100+ especies</div>
+        <div class="legal-header__count" id="countNom">0 especies</div>
       </div>
 
       <div class="nom-legend">
@@ -619,33 +635,33 @@
       </div>
 
       <div class="nom-search-wrap">
-        <input type="text" id="nomSearch" placeholder="🔍 Buscar: jaguar, Panthera, guacamaya, Chiapas, endémico..." oninput="buscarNOM()">
+        <input type="text" id="nomSearch" placeholder="Buscar: jaguar, Panthera, guacamaya, Chiapas, endémico..." oninput="buscarNOM()">
       </div>
 
       <div class="nom-filters">
         <button class="nom-filter-chip is-active" data-filter="all">Todas</button>
-        <button class="nom-filter-chip" data-filter="P">🔴 Peligro (P)</button>
-        <button class="nom-filter-chip" data-filter="A">🟡 Amenazada (A)</button>
-        <button class="nom-filter-chip" data-filter="Pr">🔵 Protección especial (Pr)</button>
-        <button class="nom-filter-chip" data-filter="E">⚫ Extinta (E)</button>
-        <button class="nom-filter-chip" data-filter="endemicas">🇲🇽 Sólo endémicas</button>
+        <button class="nom-filter-chip" data-filter="P"><span class="zdot" style="background:#C0392B"></span> Peligro (P)</button>
+        <button class="nom-filter-chip" data-filter="A"><span class="zdot" style="background:#E8A317"></span> Amenazada (A)</button>
+        <button class="nom-filter-chip" data-filter="Pr"><span class="zdot" style="background:#2AA4D5"></span> Protección especial (Pr)</button>
+        <button class="nom-filter-chip" data-filter="E"><span class="zdot" style="background:#4A4F4C"></span> Extinta (E)</button>
+        <button class="nom-filter-chip" data-filter="endemicas">Solo endémicas</button>
       </div>
 
       <div class="nom-stat-bar" id="nomStats"></div>
       <div class="nom-results" id="nomResults"></div>
 
       <div class="legal-disclaimer">
-        <strong>ℹ️ Fuente oficial:</strong> NOM-059-SEMARNAT-2010, publicada en DOF 30-dic-2010, con modificación DOF 14-nov-2019. Lista completa oficial disponible en <a href="https://dof.gob.mx" target="_blank" style="color:#6FBF73;">dof.gob.mx</a>. Esta base incluye las 100+ especies más relevantes para UMA, PIMVS y colecta científica en México.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Fuente y alcance:</strong> NOM-059-SEMARNAT-2010, publicada en el DOF el 30-dic-2010, con modificación del Anexo Normativo III el 14-nov-2019. Esta es una selección de especies frecuentes en UMA, PIMVS y colecta, no la lista completa. La categoría y el Apéndice CITES son de referencia: confírmalos en el Anexo Normativo III (<a href="https://dof.gob.mx" target="_blank" rel="noopener" style="color:#6FBF73;">dof.gob.mx</a>) y en <a href="https://speciesplus.net" target="_blank" rel="noopener" style="color:#6FBF73;">Species+</a> antes de usarlas en un trámite.
       </div>
     </div>
 
     <!-- 2. UMA -->
     <div class="legal-panel" id="panel-uma">
       <div class="legal-header">
-        <div class="legal-header__icon">📋</div>
+        <div class="legal-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg></div>
         <div class="legal-header__text">
-          <h2>Informes UMA/PIMVS · Formato oficial SEMARNAT</h2>
-          <p>Altas · Bajas · Nacimientos · Muertes · Traslados · Informe anual · Inventario</p>
+          <h2>Borradores de informe UMA / PIMVS</h2>
+          <p>Altas · Bajas · Nacimientos · Muertes · Traslados · Informe anual · Documento de apoyo, no es el formato oficial</p>
         </div>
         <div class="legal-header__count">6 tipos de informe</div>
       </div>
@@ -654,27 +670,27 @@
         <div class="uma-section-title">1. Tipo de informe</div>
         <div class="uma-event-type">
           <div class="uma-event is-selected" data-event="alta">
-            <div class="uma-event__icon">➕</div>
+            <div class="uma-event__icon"><svg class="zi" aria-hidden="true"><use href="#zi-plus"/></svg></div>
             <div class="uma-event__label">Alta / Ingreso</div>
           </div>
           <div class="uma-event" data-event="baja">
-            <div class="uma-event__icon">➖</div>
+            <div class="uma-event__icon"><svg class="zi" aria-hidden="true"><use href="#zi-minus"/></svg></div>
             <div class="uma-event__label">Baja / Salida</div>
           </div>
           <div class="uma-event" data-event="nacimiento">
-            <div class="uma-event__icon">🐣</div>
+            <div class="uma-event__icon"><svg class="zi" aria-hidden="true"><use href="#zi-egg"/></svg></div>
             <div class="uma-event__label">Nacimiento</div>
           </div>
           <div class="uma-event" data-event="muerte">
-            <div class="uma-event__icon">💀</div>
+            <div class="uma-event__icon"><svg class="zi" aria-hidden="true"><use href="#zi-skull"/></svg></div>
             <div class="uma-event__label">Muerte</div>
           </div>
           <div class="uma-event" data-event="traslado">
-            <div class="uma-event__icon">🔄</div>
+            <div class="uma-event__icon"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg></div>
             <div class="uma-event__label">Traslado</div>
           </div>
           <div class="uma-event" data-event="anual">
-            <div class="uma-event__icon">📊</div>
+            <div class="uma-event__icon"><svg class="zi" aria-hidden="true"><use href="#zi-chart-column"/></svg></div>
             <div class="uma-event__label">Informe anual</div>
           </div>
         </div>
@@ -807,69 +823,62 @@
       </div>
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="legal-btn-primary" onclick="generarInformeUMA()">📄 Generar informe</button>
-        <button class="legal-btn-secondary" onclick="copiarInformeUMA()">📋 Copiar al portapapeles</button>
-        <button class="legal-btn-secondary" onclick="descargarInformeUMA()">💾 Descargar .txt</button>
+        <button class="legal-btn-primary" onclick="generarInformeUMA()"><svg class="zi" aria-hidden="true"><use href="#zi-file-text"/></svg> Generar informe</button>
+        <button class="legal-btn-secondary" onclick="copiarInformeUMA()"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Copiar al portapapeles</button>
+        <button class="legal-btn-secondary" onclick="descargarInformeUMA()"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Descargar .txt</button>
       </div>
 
+      <div class="legal-aviso" id="umaAviso" style="display:none;" role="alert"></div>
       <div class="uma-preview-box" id="umaPreview"></div>
 
       <div class="legal-disclaimer">
-        <strong>⚠️ Obligaciones legales:</strong> Informe anual UMA obligatorio (marzo-abril) vía SIMEC o Delegación SEMARNAT (Art. 40 LGVS). Conservar respaldo físico y digital por 5 años. Notificar dentro de 30 días naturales muertes, nacimientos y movimientos de ejemplares. Incumplir conlleva sanciones del 20 al 5,000 SMG (Art. 127 LGVS).
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Obligaciones de referencia:</strong> Las UMA presentan informes periódicos (LGVS, Art. 42). Según el Reglamento (Art. 50): informe anual de actividades de abril a junio; contingencias o emergencias en 3 días hábiles; fugas o enfermedades en 5 días naturales. Las multas por incumplir van de 20 a 5,000, de 50 a 50,000 o de 200 a 75,000 veces la Unidad de Medida y Actualización, según la infracción (LGVS, Art. 127). Presenta siempre en el formato y por el medio que indique SEMARNAT.
       </div>
     </div>
 
     <!-- 3. CUOTAS -->
     <div class="legal-panel" id="panel-cuotas">
       <div class="legal-header">
-        <div class="legal-header__icon">💰</div>
+        <div class="legal-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-banknote"/></svg></div>
         <div class="legal-header__text">
-          <h2>Cuotas SEMARNAT 2026</h2>
-          <p>Ley Federal de Derechos · 25+ trámites · Calculadora con IVA · Formato pago</p>
+          <h2>Derechos federales 2026 (LFD)</h2>
+          <p>Ley Federal de Derechos · cantidades 2026 · artículo y fracción de cada concepto</p>
         </div>
-        <div class="legal-header__count">25 trámites</div>
+        <div class="legal-header__count" id="countCuotas">0 conceptos</div>
       </div>
 
       <div class="cuota-categories" id="cuotaCategorias">
         <button class="cuota-cat is-active" data-cat="all">Todos</button>
-        <button class="cuota-cat" data-cat="uma">🦌 UMA</button>
-        <button class="cuota-cat" data-cat="pimvs">🏭 PIMVS</button>
-        <button class="cuota-cat" data-cat="colecta">🧪 Colecta</button>
-        <button class="cuota-cat" data-cat="mia">📝 MIA</button>
-        <button class="cuota-cat" data-cat="cites">🌐 CITES</button>
-        <button class="cuota-cat" data-cat="liberacion">🦅 Liberación</button>
-        <button class="cuota-cat" data-cat="forestal">🌲 Forestal</button>
+        <button class="cuota-cat" data-cat="registro"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Registro</button>
+        <button class="cuota-cat" data-cat="comercio"><svg class="zi" aria-hidden="true"><use href="#zi-globe"/></svg> Comercio / CITES</button>
+        <button class="cuota-cat" data-cat="colecta"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg> Colecta</button>
+        <button class="cuota-cat" data-cat="caza"><svg class="zi" aria-hidden="true"><use href="#zi-bird"/></svg> Caza deportiva</button>
+        <button class="cuota-cat" data-cat="estudios"><svg class="zi" aria-hidden="true"><use href="#zi-trees"/></svg> Estudios por ha</button>
+        <button class="cuota-cat" data-cat="mia"><svg class="zi" aria-hidden="true"><use href="#zi-file-pen"/></svg> Impacto ambiental</button>
+        <button class="cuota-cat" data-cat="forestal"><svg class="zi" aria-hidden="true"><use href="#zi-tree-pine"/></svg> Forestal</button>
       </div>
 
       <div class="cuota-list" id="cuotaList"></div>
 
       <div class="cuota-total" id="cuotaTotal" style="display:none;">
         <div class="cuota-total__row">
-          <span class="cuota-total__label">Subtotal (<span id="cuotaCount">0</span> trámite<span id="cuotaS">s</span>)</span>
-          <span class="cuota-total__amount" id="cuotaSubtotal">$0.00</span>
-        </div>
-        <div class="cuota-total__row">
-          <span class="cuota-total__label">IVA 16%</span>
-          <span class="cuota-total__amount" id="cuotaIva">$0.00</span>
-        </div>
-        <div class="cuota-total__row">
-          <span class="cuota-total__label big">TOTAL a pagar</span>
+          <span class="cuota-total__label big">Total estimado de <span id="cuotaCount">0</span> concepto<span id="cuotaS">s</span></span>
           <span class="cuota-total__amount final" id="cuotaMonto">$0.00 MXN</span>
         </div>
         <div style="color:var(--zoo-text-muted);font-size:.82rem;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);">
-          💡 <strong style="color:var(--zoo-text);">Pago oficial:</strong> vía e5cinco con formato HGI-T clave 7 (SEMARNAT). Disponible en <a href="https://www.sat.gob.mx" target="_blank" style="color:#6FBF73;">portales bancarios autorizados</a>.
+          <svg class="zi" aria-hidden="true"><use href="#zi-lightbulb"/></svg> <strong style="color:var(--zoo-text);">Pago:</strong> los derechos federales se pagan con la hoja de ayuda o el formato e5cinco del SAT, según el trámite. Confirma el medio en el portal oficial del trámite.
         </div>
       </div>
 
       <div class="legal-disclaimer">
-        <strong>ℹ️ Ley Federal de Derechos 2026:</strong> Tarifas basadas en la LFD, Sección II (SEMARNAT). Valores actualizados por INPC anual. Algunos trámites federales NO causan IVA — verifica con tu contador. Siempre confirmar tarifa oficial en <a href="https://www.gob.mx/semarnat" target="_blank" style="color:#6FBF73;">gob.mx/semarnat</a> antes de pagar.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Fuente:</strong> Ley Federal de Derechos, texto vigente (última reforma DOF 07-11-2025), con las cantidades de 2026 actualizadas conforme a la Resolución Miscelánea Fiscal (DOF 28-12-2025). Los montos son los de la Ley; no se les suma IVA. Es una selección de conceptos de vida silvestre, impacto ambiental y forestal: no incluye todos los trámites de SEMARNAT. El registro de una UMA no causa derecho (LFD, Art. 194-F-1, fr. I). Confirma el monto del trámite en el portal oficial antes de pagar.
       </div>
     </div>
 
     <!-- 4. CITES -->
     <div class="legal-panel" id="panel-cites">
       <div class="legal-header">
-        <div class="legal-header__icon">🌐</div>
+        <div class="legal-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-globe"/></svg></div>
         <div class="legal-header__text">
           <h2>CITES · Convención sobre Comercio Internacional</h2>
           <p>Apéndices I, II, III · Procedimientos de exportación/importación</p>
@@ -878,65 +887,65 @@
       </div>
 
       <div class="cites-tabs">
-        <button class="cites-tab is-active" data-cites="general">📖 ¿Qué es CITES?</button>
+        <button class="cites-tab is-active" data-cites="general"><svg class="zi" aria-hidden="true"><use href="#zi-book-open"/></svg> ¿Qué es CITES?</button>
         <button class="cites-tab" data-cites="ap1">Apéndice I</button>
         <button class="cites-tab" data-cites="ap2">Apéndice II</button>
         <button class="cites-tab" data-cites="ap3">Apéndice III</button>
-        <button class="cites-tab" data-cites="proc">📋 Procedimientos MX</button>
+        <button class="cites-tab" data-cites="proc"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Procedimientos MX</button>
       </div>
 
       <div id="citesContent"></div>
 
       <div class="legal-disclaimer">
-        <strong>🌐 Autoridad CITES en México:</strong> DGVS-SEMARNAT (Autoridad Administrativa) y CONABIO (Autoridad Científica). Todo comercio internacional de especies listadas requiere permiso CITES. Incumplir = sanción federal y retención en aduana. Consulta <a href="https://cites.org" target="_blank" style="color:#6FBF73;">cites.org</a>.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-globe"/></svg> Autoridades CITES en México:</strong> la Dirección General de Vida Silvestre de SEMARNAT (autoridad administrativa) y la CONABIO (autoridad científica). Consulta <a href="https://cites.org" target="_blank" rel="noopener" style="color:#6FBF73;">cites.org</a>.
       </div>
     </div>
 
     <!-- 5. MARCO LEGAL -->
     <div class="legal-panel" id="panel-marco">
       <div class="legal-header">
-        <div class="legal-header__icon">📚</div>
+        <div class="legal-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg></div>
         <div class="legal-header__text">
           <h2>Marco Legal Mexicano · Vida Silvestre</h2>
-          <p>LGVS · LGEEPA · NOMs · Reglamentos · Artículos clave</p>
+          <p>LGVS · Reglamento · LGEEPA · Código Penal Federal · NOMs · Artículos clave</p>
         </div>
-        <div class="legal-header__count">20+ artículos</div>
+        <div class="legal-header__count">Textos vigentes</div>
       </div>
 
       <div id="marcoLegal"></div>
 
       <div class="legal-disclaimer">
-        <strong>📚 Consulta oficial:</strong> Textos vigentes disponibles en <a href="https://www.diputados.gob.mx" target="_blank" style="color:#6FBF73;">diputados.gob.mx</a> (leyes) y <a href="https://dof.gob.mx" target="_blank" style="color:#6FBF73;">dof.gob.mx</a> (NOMs). Los artículos citados son referenciales — siempre consultar versión vigente.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg> Consulta oficial:</strong> Textos vigentes disponibles en <a href="https://www.diputados.gob.mx" target="_blank" style="color:#6FBF73;">diputados.gob.mx</a> (leyes) y <a href="https://dof.gob.mx" target="_blank" style="color:#6FBF73;">dof.gob.mx</a> (NOMs). Los artículos citados son referenciales — siempre consultar versión vigente.
       </div>
     </div>
 
     <!-- 6. CHECKLISTS -->
     <div class="legal-panel" id="panel-checklist">
       <div class="legal-header">
-        <div class="legal-header__icon">✅</div>
+        <div class="legal-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg></div>
         <div class="legal-header__text">
-          <h2>Checklists de Cumplimiento</h2>
-          <p>Requisitos UMA · PIMVS · Colecta · Liberación · CITES · Traslados</p>
+          <h2>Listas de revisión</h2>
+          <p>Requisitos UMA · PIMVS · Colecta · Liberación · CITES, con la disposición de donde sale cada punto</p>
         </div>
-        <div class="legal-header__count">6 checklists</div>
+        <div class="legal-header__count">6 listas</div>
       </div>
 
       <div class="legal-field">
         <label>Seleccionar checklist</label>
         <select id="checkSelect" onchange="renderChecklist()">
-          <option value="uma_ex">🦌 UMA Extensiva — Alta inicial</option>
-          <option value="uma_in">🏠 UMA Intensiva — Alta inicial</option>
-          <option value="pimvs">🏭 PIMVS — Alta inicial</option>
-          <option value="colecta">🧪 Permiso de colecta científica</option>
-          <option value="liberacion">🦅 Liberación de fauna</option>
-          <option value="cites">🌐 Trámite CITES</option>
+          <option value="uma_ex">UMA Extensiva — Alta inicial</option>
+          <option value="uma_in">UMA Intensiva — Alta inicial</option>
+          <option value="pimvs">PIMVS — Alta inicial</option>
+          <option value="colecta">Permiso de colecta científica</option>
+          <option value="liberacion">Liberación de fauna</option>
+          <option value="cites">Trámite CITES</option>
         </select>
       </div>
 
       <div id="checklistBox"></div>
 
       <div class="legal-disclaimer">
-        <strong>✅ Uso del checklist:</strong> Marca cada requisito cumplido. El progreso se guarda solo en tu navegador. Usa esto como guía antes de presentar tu trámite. Los requisitos pueden variar por delegación SEMARNAT estatal — siempre confirmar con tu delegación local.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Uso del checklist:</strong> Marca cada requisito cumplido. El progreso se guarda solo en tu navegador. Usa esto como guía antes de presentar tu trámite. Los requisitos pueden variar por delegación SEMARNAT estatal — siempre confirmar con tu delegación local.
       </div>
     </div>
 
@@ -949,6 +958,7 @@
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20261028-claro"></script>
   <script src="../assets/js/club-shell.js?v=20261028-panel"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
 <script>
 (async () => {
@@ -961,7 +971,18 @@
     if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
     document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('legal', session);
     if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
-    document.querySelectorAll('.legal-panel, .legal-tabs, .legal-hero').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.legal-panel, .legal-tabs, .legal-aviso-global').forEach(el => el.style.display = 'none');
+    const hero = document.querySelector('.legal-hero');
+    if (hero) {
+      hero.querySelectorAll('.legal-hero__stats').forEach(el => el.style.display = 'none');
+      const bloqueo = document.createElement('div');
+      bloqueo.className = 'legal-panel is-active';
+      bloqueo.style.cssText = 'display:block;text-align:center;';
+      bloqueo.innerHTML = '<h2 style="margin:0 0 8px;">Herramientas exclusivas para miembros</h2>' +
+        '<p style="color:var(--zoo-text-muted);margin:0 0 16px;">La consulta de NOM-059, los borradores de informes, los derechos de la LFD, CITES y las listas de revisión se abren con una membresía activa.</p>' +
+        '<a class="legal-btn-primary" href="club-suscripcion.html" style="display:inline-block;text-decoration:none;">Ver planes</a>';
+      hero.insertAdjacentElement('afterend', bloqueo);
+    }
     ZOORIGEN_CLUB.showPaywall(session, 'acceder a las Herramientas Legales');
     return;
   }
@@ -1012,213 +1033,246 @@
   });
 
   renderNOM();
+  const poner = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+  poner('statNom', String(NOM059.length));
+  poner('countNom', NOM059.length + ' especies');
+  poner('statCuotas', String(CUOTAS.length));
+  poner('countCuotas', CUOTAS.length + ' conceptos');
   renderCuotas('all');
   renderCITES('general');
   renderMarcoLegal();
   renderChecklist();
 })();
 
-// ═══════════════ NOM-059 EXPANDIDO (100+ especies) ═══════════════
+// ═══════════════ AYUDAS COMUNES ═══════════════
+function zlEsc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function zlSin(s) {
+  return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+}
+function zlAvisar(msg) {
+  let t = document.getElementById('zlToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'zlToast';
+    t.className = 'zl-toast';
+    t.setAttribute('role', 'status');
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('is-visible');
+  clearTimeout(zlAvisar._t);
+  zlAvisar._t = setTimeout(() => t.classList.remove('is-visible'), 2800);
+}
+async function zlCopiar(texto, mensajeOk) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(texto);
+      zlAvisar(mensajeOk);
+      return true;
+    }
+  } catch (e) { /* se intenta el método alterno */ }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    zlAvisar(ok ? mensajeOk : 'No se pudo copiar. Selecciona el texto y cópialo a mano.');
+    return ok;
+  } catch (e) {
+    zlAvisar('No se pudo copiar. Selecciona el texto y cópialo a mano.');
+    return false;
+  }
+}
+const zlAlmacen = {
+  leer(clave, defecto) {
+    try { const v = localStorage.getItem(clave); return v == null ? defecto : JSON.parse(v); } catch (e) { return defecto; }
+  },
+  guardar(clave, valor) { try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* sin almacenamiento: la página sigue funcionando */ } },
+  borrar(clave) { try { localStorage.removeItem(clave); } catch (e) { /* idem */ } }
+};
+function zlNumero(texto) {
+  const s = String(texto == null ? '' : texto).trim().replace(/\s/g, '').replace(',', '.');
+  if (s === '' || !/^\d+(\.\d+)?$/.test(s)) return NaN;
+  return Number(s);
+}
+function zlMoneda(n) {
+  return '$' + n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// ═══════════════ NOM-059-SEMARNAT-2010 (modificación DOF 14-nov-2019) ═══════════════
+// Resumen de referencia: la categoría y el Apéndice CITES deben confirmarse en el Anexo Normativo III
+// y en Species+ antes de cualquier trámite. cites 'verificar' = revisar en Species+.
 const NOM059 = [
-  // MAMÍFEROS
-  { comun: 'Jaguar', cientifico: 'Panthera onca', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'NT', endemica: false, dist: 'Selvas tropicales de Chiapas, Campeche, Quintana Roo, Yucatán, Oaxaca', habitat: 'Selva alta/mediana perennifolia, selva baja caducifolia', amenaza: 'Pérdida de hábitat, cacería ilegal, conflicto ganadero', dof: 'DOF 30-dic-2010' },
-  { comun: 'Ocelote', cientifico: 'Leopardus pardalis', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'LC', endemica: false, dist: 'Sureste y costas de México', habitat: 'Bosques tropicales y subtropicales', amenaza: 'Pérdida de hábitat, comercio ilegal', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tigrillo / Margay', cientifico: 'Leopardus wiedii', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'NT', endemica: false, dist: 'Selvas del sureste', habitat: 'Bosques tropicales densos', amenaza: 'Deforestación, atropellamiento', dof: 'DOF 30-dic-2010' },
-  { comun: 'Jaguarundi', cientifico: 'Herpailurus yagouaroundi', grupo: 'Mamíferos', cat: 'A', cites: 'I', iucn: 'LC', endemica: false, dist: 'Selvas tropicales y subtropicales', habitat: 'Matorrales densos y selvas bajas', amenaza: 'Pérdida de hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Puma', cientifico: 'Puma concolor', grupo: 'Mamíferos', cat: 'Pr', cites: 'II', iucn: 'LC', endemica: false, dist: 'Amplia distribución nacional', habitat: 'Bosques, matorrales, desiertos', amenaza: 'Conflicto ganadero, envenenamiento', dof: 'DOF 30-dic-2010' },
-  { comun: 'Oso negro', cientifico: 'Ursus americanus', grupo: 'Mamíferos', cat: 'P', cites: 'II', iucn: 'LC', endemica: false, dist: 'Sierras de Coahuila, Chihuahua, Nuevo León, Sonora', habitat: 'Bosques templados y montañosos', amenaza: 'Conflicto humano, pérdida de hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Lobo mexicano', cientifico: 'Canis lupus baileyi', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'CR', endemica: false, dist: 'Reintroducido en Chihuahua, Sonora, Durango', habitat: 'Bosques de pino-encino, praderas', amenaza: 'Extinción casi total por envenenamiento histórico', dof: 'DOF 30-dic-2010' },
-  { comun: 'Mono araña', cientifico: 'Ateles geoffroyi', grupo: 'Mamíferos', cat: 'P', cites: 'II', iucn: 'EN', endemica: false, dist: 'Selvas del sureste (Veracruz, Chiapas, Yucatán, Tabasco)', habitat: 'Selva alta perennifolia', amenaza: 'Deforestación, comercio ilegal mascota', dof: 'DOF 30-dic-2010' },
-  { comun: 'Mono aullador', cientifico: 'Alouatta palliata', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'VU', endemica: false, dist: 'Selvas del sureste', habitat: 'Selva alta y mediana perennifolia', amenaza: 'Fragmentación de hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Mono aullador negro', cientifico: 'Alouatta pigra', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'EN', endemica: false, dist: 'Chiapas, Tabasco, Campeche', habitat: 'Selva alta perennifolia, selva mediana', amenaza: 'Pérdida de hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tapir centroamericano', cientifico: 'Tapirus bairdii', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'EN', endemica: false, dist: 'Selvas de Chiapas, Oaxaca, Veracruz, Campeche, QR', habitat: 'Selva alta perennifolia con cuerpos de agua', amenaza: 'Cacería furtiva, enfermedades domésticas', dof: 'DOF 30-dic-2010' },
-  { comun: 'Berrendo', cientifico: 'Antilocapra americana', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'LC', endemica: false, dist: 'Desiertos de Sonora, Chihuahua, Coahuila', habitat: 'Pastizales y matorrales desérticos', amenaza: 'Caza histórica, fragmentación', dof: 'DOF 30-dic-2010' },
-  { comun: 'Borrego cimarrón', cientifico: 'Ovis canadensis', grupo: 'Mamíferos', cat: 'Pr', cites: 'II', iucn: 'LC', endemica: false, dist: 'Sierras de Baja California, Sonora, Coahuila', habitat: 'Montañas áridas con escarpes', amenaza: 'Enfermedades de ganado doméstico, sobrecaza', dof: 'DOF 30-dic-2010' },
-  { comun: 'Armadillo de Davis', cientifico: 'Dasypus mexicanus', grupo: 'Mamíferos', cat: 'A', cites: '—', iucn: 'DD', endemica: true, dist: 'Endémico de Chihuahua y Sonora', habitat: 'Matorrales áridos', amenaza: 'Desconocida, datos deficientes', dof: 'DOF 30-dic-2010' },
-  { comun: 'Perrito de la pradera mexicano', cientifico: 'Cynomys mexicanus', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'EN', endemica: true, dist: 'Endémico Coahuila, Nuevo León, San Luis Potosí', habitat: 'Pastizales halófitos', amenaza: 'Conversión agrícola, envenenamiento', dof: 'DOF 30-dic-2010' },
-  { comun: 'Teporingo (zacatuche)', cientifico: 'Romerolagus diazi', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'EN', endemica: true, dist: 'Endémico Eje Volcánico Transversal (Distrito Federal, México, Morelos, Puebla)', habitat: 'Zacatonales alpinos del Popocatépetl, Iztaccíhuatl', amenaza: 'Pérdida de hábitat, cacería, incendios', dof: 'DOF 30-dic-2010' },
-  { comun: 'Manatí antillano', cientifico: 'Trichechus manatus', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'VU', endemica: false, dist: 'Ríos y costas del Golfo, Caribe mexicano', habitat: 'Aguas cálidas, lagunas costeras', amenaza: 'Colisiones embarcaciones, enredo en redes', dof: 'DOF 30-dic-2010' },
-  { comun: 'Vaquita marina', cientifico: 'Phocoena sinus', grupo: 'Mamíferos', cat: 'P', cites: 'I', iucn: 'CR', endemica: true, dist: 'Endémica Alto Golfo de California', habitat: 'Aguas costeras someras', amenaza: 'Muerte incidental en redes de totoaba (CRÍTICO, <10 individuos)', dof: 'DOF 30-dic-2010' },
-  { comun: 'Nutria de río', cientifico: 'Lontra longicaudis', grupo: 'Mamíferos', cat: 'A', cites: 'I', iucn: 'NT', endemica: false, dist: 'Ríos de todo México', habitat: 'Ríos, lagunas y costas', amenaza: 'Contaminación del agua, sobrepesca', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tlacuache acuático', cientifico: 'Chironectes minimus', grupo: 'Mamíferos', cat: 'P', cites: '—', iucn: 'LC', endemica: false, dist: 'Arroyos del sureste', habitat: 'Ríos de aguas claras', amenaza: 'Contaminación, pérdida de hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Musaraña', cientifico: 'Sorex macrodon', grupo: 'Mamíferos', cat: 'A', cites: '—', iucn: 'VU', endemica: true, dist: 'Endémica de Oaxaca y Veracruz', habitat: 'Bosques nublados', amenaza: 'Deforestación', dof: 'DOF 30-dic-2010' },
-  { comun: 'Zorra norteña', cientifico: 'Vulpes velox', grupo: 'Mamíferos', cat: 'A', cites: 'II', iucn: 'LC', endemica: false, dist: 'Pastizales del norte de México', habitat: 'Pastizales semiáridos', amenaza: 'Cacería, fragmentación', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tejón', cientifico: 'Taxidea taxus', grupo: 'Mamíferos', cat: 'A', cites: '—', iucn: 'LC', endemica: false, dist: 'Norte de México', habitat: 'Pastizales y matorrales', amenaza: 'Cacería, pérdida de hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Guacamaya militar', cientifico: 'Ara militaris', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'VU', endemica: false, dist: 'Sierras del occidente y sureste', habitat: 'Bosques tropicales deciduos', amenaza: 'Captura ilegal, pérdida de hábitat', dof: 'DOF 30-dic-2010' },
-
-  // AVES
-  { comun: 'Águila real', cientifico: 'Aquila chrysaetos', grupo: 'Aves', cat: 'A', cites: 'II', iucn: 'LC', endemica: false, dist: 'Sierras del norte y centro', habitat: 'Bosques de montaña, desiertos', amenaza: 'Electrocución, envenenamiento', dof: 'DOF 30-dic-2010' },
-  { comun: 'Águila arpía', cientifico: 'Harpia harpyja', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'VU', endemica: false, dist: 'Selvas de Chiapas, Oaxaca', habitat: 'Selva alta perennifolia', amenaza: 'Deforestación, cacería', dof: 'DOF 30-dic-2010' },
-  { comun: 'Halcón peregrino', cientifico: 'Falco peregrinus', grupo: 'Aves', cat: 'Pr', cites: 'I', iucn: 'LC', endemica: false, dist: 'Migratoria, todo México', habitat: 'Cantiles, zonas costeras', amenaza: 'Pesticidas (histórico), caza con arco', dof: 'DOF 30-dic-2010' },
-  { comun: 'Guacamaya roja', cientifico: 'Ara macao cyanoptera', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'LC', endemica: false, dist: 'Selvas Lacandonas de Chiapas', habitat: 'Selva alta perennifolia', amenaza: 'Tráfico ilegal, deforestación', dof: 'DOF 30-dic-2010' },
-  { comun: 'Loro cabeza amarilla', cientifico: 'Amazona oratrix', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'EN', endemica: false, dist: 'Costa del Pacífico y Golfo', habitat: 'Selva baja caducifolia', amenaza: 'Tráfico masivo mascota, pérdida hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Loro tamaulipeco', cientifico: 'Amazona viridigenalis', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'EN', endemica: true, dist: 'Endémico noreste (Tamaulipas, Nuevo León, SLP)', habitat: 'Bosque tropical seco', amenaza: 'Tráfico ilegal, pérdida hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Pavón cornudo', cientifico: 'Oreophasis derbianus', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'EN', endemica: false, dist: 'Bosques nublados de Chiapas', habitat: 'Bosque mesófilo >2,000 msnm', amenaza: 'Cacería, deforestación', dof: 'DOF 30-dic-2010' },
-  { comun: 'Quetzal', cientifico: 'Pharomachrus mocinno', grupo: 'Aves', cat: 'P', cites: 'I', iucn: 'NT', endemica: false, dist: 'Bosques nublados de Chiapas, Oaxaca', habitat: 'Bosque mesófilo de montaña', amenaza: 'Pérdida de hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Flamenco americano', cientifico: 'Phoenicopterus ruber', grupo: 'Aves', cat: 'A', cites: 'II', iucn: 'LC', endemica: false, dist: 'Costa del Golfo (Ría Lagartos) y Caribe', habitat: 'Lagunas costeras hipersalinas', amenaza: 'Perturbación turística', dof: 'DOF 30-dic-2010' },
-  { comun: 'Pelícano café', cientifico: 'Pelecanus occidentalis', grupo: 'Aves', cat: 'A', cites: '—', iucn: 'LC', endemica: false, dist: 'Costas Pacífico, Golfo y Caribe', habitat: 'Costas y esteros', amenaza: 'Derrames petroleros, pesticidas', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tecolote llanero', cientifico: 'Athene cunicularia', grupo: 'Aves', cat: 'A', cites: 'II', iucn: 'LC', endemica: false, dist: 'Pastizales del norte y centro', habitat: 'Pastizales abiertos', amenaza: 'Pérdida de hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Cóndor de California', cientifico: 'Gymnogyps californianus', grupo: 'Aves', cat: 'E', cites: 'I', iucn: 'CR', endemica: false, dist: 'Extinto en libertad en México', habitat: 'Sierra de San Pedro Mártir (reintroducción)', amenaza: 'Envenenamiento histórico, plomo en carroña', dof: 'DOF 30-dic-2010' },
-  { comun: 'Ganso blanco', cientifico: 'Anser caerulescens', grupo: 'Aves', cat: 'Pr', cites: '—', iucn: 'LC', endemica: false, dist: 'Migratorio al norte', habitat: 'Humedales costeros', amenaza: 'Drenado humedales', dof: 'DOF 30-dic-2010' },
-  { comun: 'Cisne de tundra', cientifico: 'Cygnus columbianus', grupo: 'Aves', cat: 'Pr', cites: '—', iucn: 'LC', endemica: false, dist: 'Migratorio noroeste', habitat: 'Lagunas costeras', amenaza: 'Pérdida hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Paloma mucuy', cientifico: 'Leptotila plumbeiceps', grupo: 'Aves', cat: 'A', cites: '—', iucn: 'LC', endemica: false, dist: 'Sureste de México', habitat: 'Bosques tropicales', amenaza: 'Pérdida de hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Zopilote rey', cientifico: 'Sarcoramphus papa', grupo: 'Aves', cat: 'P', cites: 'III', iucn: 'LC', endemica: false, dist: 'Selvas del sureste', habitat: 'Bosques tropicales', amenaza: 'Envenenamiento, pérdida hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Gavilán de Cooper', cientifico: 'Accipiter cooperii', grupo: 'Aves', cat: 'Pr', cites: 'II', iucn: 'LC', endemica: false, dist: 'Bosques de todo México', habitat: 'Bosques templados y subtropicales', amenaza: 'Pesticidas, tala', dof: 'DOF 30-dic-2010' },
-  { comun: 'Colibrí gigante', cientifico: 'Patagona gigas', grupo: 'Aves', cat: 'Pr', cites: '—', iucn: 'LC', endemica: false, dist: 'Zonas montañosas del sur', habitat: 'Bosques de montaña', amenaza: 'Fragmentación', dof: 'DOF 30-dic-2010' },
-  { comun: 'Carpintero real', cientifico: 'Campephilus imperialis', grupo: 'Aves', cat: 'E', cites: 'I', iucn: 'CR', endemica: true, dist: 'Sierra Madre Occidental (históricamente)', habitat: 'Bosque de pino maduro', amenaza: 'EXTINTO probablemente, última observación 1956', dof: 'DOF 30-dic-2010' },
-
-  // REPTILES
-  { comun: 'Cocodrilo de río', cientifico: 'Crocodylus acutus', grupo: 'Reptiles', cat: 'Pr', cites: 'II', iucn: 'VU', endemica: false, dist: 'Costas y estuarios del Pacífico y Golfo', habitat: 'Estuarios, lagunas costeras', amenaza: 'Pérdida hábitat, cacería', dof: 'DOF 30-dic-2010' },
-  { comun: 'Cocodrilo de pantano', cientifico: 'Crocodylus moreletii', grupo: 'Reptiles', cat: 'Pr', cites: 'II', iucn: 'LC', endemica: false, dist: 'Humedales del sureste', habitat: 'Pantanos, cenotes', amenaza: 'Pérdida hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Iguana verde', cientifico: 'Iguana iguana', grupo: 'Reptiles', cat: 'Pr', cites: 'II', iucn: 'LC', endemica: false, dist: 'Costas del sur', habitat: 'Bosques tropicales', amenaza: 'Comercio mascota, cacería alimentaria', dof: 'DOF 30-dic-2010' },
-  { comun: 'Iguana negra (garrobo)', cientifico: 'Ctenosaura pectinata', grupo: 'Reptiles', cat: 'A', cites: '—', iucn: 'LC', endemica: true, dist: 'Endémica del Pacífico mexicano', habitat: 'Selva baja caducifolia', amenaza: 'Cacería, pérdida hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tortuga carey', cientifico: 'Eretmochelys imbricata', grupo: 'Reptiles', cat: 'P', cites: 'I', iucn: 'CR', endemica: false, dist: 'Costas del Caribe y Golfo', habitat: 'Arrecifes de coral, pastos marinos', amenaza: 'Caza histórica por caparazón, enmalle', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tortuga lora', cientifico: 'Lepidochelys kempii', grupo: 'Reptiles', cat: 'P', cites: 'I', iucn: 'CR', endemica: false, dist: 'Golfo de México (único sitio reproducción: Rancho Nuevo, Tam)', habitat: 'Aguas costeras', amenaza: 'Pesca incidental, saqueo histórico huevos', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tortuga laúd', cientifico: 'Dermochelys coriacea', grupo: 'Reptiles', cat: 'P', cites: 'I', iucn: 'VU', endemica: false, dist: 'Costas del Pacífico (Oaxaca, Michoacán)', habitat: 'Aguas oceánicas', amenaza: 'Saqueo huevos histórico, pesca incidental', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tortuga verde', cientifico: 'Chelonia mydas', grupo: 'Reptiles', cat: 'P', cites: 'I', iucn: 'EN', endemica: false, dist: 'Costas del Pacífico y Caribe', habitat: 'Pastos marinos, aguas costeras', amenaza: 'Caza alimenticia, enmalle', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tortuga golfina', cientifico: 'Lepidochelys olivacea', grupo: 'Reptiles', cat: 'P', cites: 'I', iucn: 'VU', endemica: false, dist: 'Pacífico (Oaxaca, Guerrero, Jalisco)', habitat: 'Aguas oceánicas tropicales', amenaza: 'Saqueo de huevos', dof: 'DOF 30-dic-2010' },
-  { comun: 'Monstruo de Gila', cientifico: 'Heloderma suspectum', grupo: 'Reptiles', cat: 'A', cites: 'II', iucn: 'LC', endemica: false, dist: 'Desiertos del noroeste', habitat: 'Matorrales desérticos', amenaza: 'Comercio ilegal, cacería', dof: 'DOF 30-dic-2010' },
-  { comun: 'Escorpión yucateco', cientifico: 'Heloderma horridum exasperatum', grupo: 'Reptiles', cat: 'A', cites: 'II', iucn: 'LC', endemica: true, dist: 'Endémico occidente de México', habitat: 'Selva baja caducifolia', amenaza: 'Destrucción hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Víbora de cascabel neotropical', cientifico: 'Crotalus durissus', grupo: 'Reptiles', cat: 'Pr', cites: '—', iucn: 'LC', endemica: false, dist: 'Zonas áridas y bosques secos', habitat: 'Matorrales, bosques tropicales', amenaza: 'Matanza por temor', dof: 'DOF 30-dic-2010' },
-  { comun: 'Nauyaca real', cientifico: 'Bothrops asper', grupo: 'Reptiles', cat: 'Pr', cites: '—', iucn: 'LC', endemica: false, dist: 'Sureste de México', habitat: 'Selvas tropicales', amenaza: 'Matanza por accidentes', dof: 'DOF 30-dic-2010' },
-  { comun: 'Boa mexicana', cientifico: 'Boa imperator', grupo: 'Reptiles', cat: 'A', cites: 'II', iucn: 'LC', endemica: false, dist: 'Centro y sur de México', habitat: 'Diversos ambientes', amenaza: 'Comercio ilegal', dof: 'DOF 30-dic-2010' },
-  { comun: 'Cuija yucateca', cientifico: 'Sphaerodactylus argus', grupo: 'Reptiles', cat: 'A', cites: '—', iucn: 'LC', endemica: false, dist: 'Península de Yucatán', habitat: 'Selvas bajas', amenaza: 'Pérdida hábitat', dof: 'DOF 30-dic-2010' },
-
-  // ANFIBIOS
-  { comun: 'Ajolote mexicano', cientifico: 'Ambystoma mexicanum', grupo: 'Anfibios', cat: 'P', cites: 'II', iucn: 'CR', endemica: true, dist: 'Endémico del Valle de México (Xochimilco)', habitat: 'Canales de Xochimilco', amenaza: 'Contaminación, especies invasoras (tilapia, carpa)', dof: 'DOF 30-dic-2010' },
-  { comun: 'Ajolote de Pátzcuaro', cientifico: 'Ambystoma dumerilii', grupo: 'Anfibios', cat: 'P', cites: 'II', iucn: 'CR', endemica: true, dist: 'Endémico Lago de Pátzcuaro, Michoacán', habitat: 'Lago Pátzcuaro', amenaza: 'Contaminación lacustre, sobrepesca', dof: 'DOF 30-dic-2010' },
-  { comun: 'Rana de Moctezuma', cientifico: 'Lithobates montezumae', grupo: 'Anfibios', cat: 'A', cites: '—', iucn: 'LC', endemica: true, dist: 'Endémica centro de México', habitat: 'Arroyos y lagunas', amenaza: 'Quitridiomicosis, contaminación', dof: 'DOF 30-dic-2010' },
-  { comun: 'Rana toro americana', cientifico: 'Lithobates catesbeianus', grupo: 'Anfibios', cat: 'Pr', cites: '—', iucn: 'LC', endemica: false, dist: 'Norte de México', habitat: 'Humedales', amenaza: 'Quitridiomicosis', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tlaconete pinto', cientifico: 'Pseudoeurycea bellii', grupo: 'Anfibios', cat: 'A', cites: '—', iucn: 'VU', endemica: true, dist: 'Endémica bosques nublados', habitat: 'Bosque mesófilo', amenaza: 'Deforestación, quitridiomicosis', dof: 'DOF 30-dic-2010' },
-
-  // PECES
-  { comun: 'Totoaba', cientifico: 'Totoaba macdonaldi', grupo: 'Peces', cat: 'P', cites: 'I', iucn: 'VU', endemica: true, dist: 'Endémico del Alto Golfo de California', habitat: 'Aguas costeras salobres', amenaza: 'Pesca ilegal (vejiga natatoria a China)', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tiburón ballena', cientifico: 'Rhincodon typus', grupo: 'Peces', cat: 'A', cites: 'II', iucn: 'EN', endemica: false, dist: 'Aguas de Yucatán, Baja California', habitat: 'Aguas oceánicas', amenaza: 'Turismo no regulado, aleteo', dof: 'DOF 30-dic-2010' },
-  { comun: 'Tiburón blanco', cientifico: 'Carcharodon carcharias', grupo: 'Peces', cat: 'A', cites: 'II', iucn: 'VU', endemica: false, dist: 'Pacífico mexicano', habitat: 'Aguas oceánicas', amenaza: 'Aleteo, captura incidental', dof: 'DOF 30-dic-2010' },
-  { comun: 'Cachorrito del desierto', cientifico: 'Cyprinodon macularius', grupo: 'Peces', cat: 'P', cites: '—', iucn: 'EN', endemica: false, dist: 'Manantiales Sonora', habitat: 'Pozas desérticas', amenaza: 'Sobreexplotación acuíferos', dof: 'DOF 30-dic-2010' },
-  { comun: 'Pejelagarto', cientifico: 'Atractosteus tropicus', grupo: 'Peces', cat: 'Pr', cites: '—', iucn: 'LC', endemica: false, dist: 'Sureste de México', habitat: 'Ríos y lagunas', amenaza: 'Sobrepesca', dof: 'DOF 30-dic-2010' },
-
-  // INVERTEBRADOS
-  { comun: 'Cangrejo azul', cientifico: 'Callinectes sapidus', grupo: 'Invertebrados', cat: 'Pr', cites: '—', iucn: 'LC', endemica: false, dist: 'Costas del Golfo', habitat: 'Lagunas costeras', amenaza: 'Sobrepesca', dof: 'DOF 30-dic-2010' },
-  { comun: 'Mariposa monarca', cientifico: 'Danaus plexippus', grupo: 'Invertebrados', cat: 'Pr', cites: '—', iucn: 'VU', endemica: false, dist: 'Migratoria (Michoacán, Edomex, invernada)', habitat: 'Bosque de oyamel', amenaza: 'Pérdida hábitat invernada, cambio climático', dof: 'DOF 30-dic-2010' },
-
-  // FLORA SELECTA
-  { comun: 'Palma de cera', cientifico: 'Ceroxylon alpinum', grupo: 'Flora', cat: 'P', cites: '—', iucn: 'VU', endemica: false, dist: 'Bosques nublados de Chiapas, Oaxaca', habitat: 'Bosque mesófilo', amenaza: 'Tala, pérdida hábitat', dof: 'DOF 30-dic-2010' },
-  { comun: 'Biznaga barril de Coahuila', cientifico: 'Echinocactus grandis', grupo: 'Flora', cat: 'A', cites: 'II', iucn: 'LC', endemica: true, dist: 'Endémica Coahuila', habitat: 'Matorrales áridos', amenaza: 'Saqueo ilegal', dof: 'DOF 30-dic-2010' },
-  { comun: 'Cactus estrella', cientifico: 'Astrophytum asterias', grupo: 'Flora', cat: 'P', cites: 'I', iucn: 'VU', endemica: true, dist: 'Endémico Tamaulipas, Nuevo León', habitat: 'Matorrales espinosos', amenaza: 'Saqueo internacional', dof: 'DOF 30-dic-2010' },
-  { comun: 'Peyote', cientifico: 'Lophophora williamsii', grupo: 'Flora', cat: 'Pr', cites: 'II', iucn: 'VU', endemica: false, dist: 'Desiertos de Chihuahua, Coahuila, SLP', habitat: 'Matorrales desérticos', amenaza: 'Saqueo ritual/recreativo', dof: 'DOF 30-dic-2010' },
-  { comun: 'Orquídea fantasma', cientifico: 'Dendrophylax lindenii', grupo: 'Flora', cat: 'P', cites: 'II', iucn: 'VU', endemica: false, dist: 'Selvas de Quintana Roo, Yucatán', habitat: 'Árboles de selva mediana', amenaza: 'Colecta ilegal', dof: 'DOF 30-dic-2010' },
-  { comun: 'Magnolia mexicana', cientifico: 'Magnolia mexicana', grupo: 'Flora', cat: 'A', cites: '—', iucn: 'EN', endemica: true, dist: 'Bosques nublados del centro', habitat: 'Bosque mesófilo', amenaza: 'Deforestación', dof: 'DOF 30-dic-2010' },
-  { comun: 'Cedro rojo', cientifico: 'Cedrela odorata', grupo: 'Flora', cat: 'Pr', cites: 'III', iucn: 'VU', endemica: false, dist: 'Selvas tropicales', habitat: 'Selva alta y mediana', amenaza: 'Sobreexplotación maderera', dof: 'DOF 30-dic-2010' }
+  {"comun":"Jaguar","cientifico":"Panthera onca","grupo":"Mamíferos","cat":"P","cites":"I","endemica":false,"dist":"Selvas tropicales de Chiapas, Campeche, Quintana Roo, Yucatán, Oaxaca","habitat":"Selva alta/mediana perennifolia, selva baja caducifolia","amenaza":"Pérdida de hábitat, cacería ilegal, conflicto ganadero"},
+  {"comun":"Ocelote","cientifico":"Leopardus pardalis","grupo":"Mamíferos","cat":"P","cites":"I","endemica":false,"dist":"Sureste y costas de México","habitat":"Bosques tropicales y subtropicales","amenaza":"Pérdida de hábitat, comercio ilegal"},
+  {"comun":"Tigrillo / Margay","cientifico":"Leopardus wiedii","grupo":"Mamíferos","cat":"P","cites":"I","endemica":false,"dist":"Selvas del sureste","habitat":"Bosques tropicales densos","amenaza":"Deforestación, atropellamiento"},
+  {"comun":"Jaguarundi","cientifico":"Herpailurus yagouaroundi","grupo":"Mamíferos","cat":"A","cites":"I","endemica":false,"dist":"Selvas tropicales y subtropicales","habitat":"Matorrales densos y selvas bajas","amenaza":"Pérdida de hábitat"},
+  {"comun":"Oso negro","cientifico":"Ursus americanus","grupo":"Mamíferos","cat":"P","cites":"II","endemica":false,"dist":"Sierras de Coahuila, Chihuahua, Nuevo León, Sonora","habitat":"Bosques templados y montañosos","amenaza":"Conflicto humano, pérdida de hábitat"},
+  {"comun":"Lobo mexicano","cientifico":"Canis lupus baileyi","grupo":"Mamíferos","cat":"P","cites":"I","endemica":false,"dist":"Reintroducido en Chihuahua, Sonora, Durango","habitat":"Bosques de pino-encino, praderas","amenaza":"Extinción casi total por envenenamiento histórico"},
+  {"comun":"Mono araña","cientifico":"Ateles geoffroyi","grupo":"Mamíferos","cat":"P","cites":"II","endemica":false,"dist":"Selvas del sureste (Veracruz, Chiapas, Yucatán, Tabasco)","habitat":"Selva alta perennifolia","amenaza":"Deforestación, comercio ilegal mascota"},
+  {"comun":"Mono aullador","cientifico":"Alouatta palliata","grupo":"Mamíferos","cat":"P","cites":"I","endemica":false,"dist":"Selvas del sureste","habitat":"Selva alta y mediana perennifolia","amenaza":"Fragmentación de hábitat"},
+  {"comun":"Mono aullador negro","cientifico":"Alouatta pigra","grupo":"Mamíferos","cat":"P","cites":"I","endemica":false,"dist":"Chiapas, Tabasco, Campeche","habitat":"Selva alta perennifolia, selva mediana","amenaza":"Pérdida de hábitat"},
+  {"comun":"Tapir centroamericano","cientifico":"Tapirus bairdii","grupo":"Mamíferos","cat":"P","cites":"I","endemica":false,"dist":"Selvas de Chiapas, Oaxaca, Veracruz, Campeche, QR","habitat":"Selva alta perennifolia con cuerpos de agua","amenaza":"Cacería furtiva, enfermedades domésticas"},
+  {"comun":"Berrendo","cientifico":"Antilocapra americana","grupo":"Mamíferos","cat":"P","cites":"I","endemica":false,"dist":"Desiertos de Sonora, Chihuahua, Coahuila","habitat":"Pastizales y matorrales desérticos","amenaza":"Caza histórica, fragmentación"},
+  {"comun":"Borrego cimarrón","cientifico":"Ovis canadensis","grupo":"Mamíferos","cat":"Pr","cites":"verificar","endemica":false,"dist":"Sierras de Baja California, Sonora, Coahuila","habitat":"Montañas áridas con escarpes","amenaza":"Enfermedades de ganado doméstico, sobrecaza"},
+  {"comun":"Perrito de la pradera mexicano","cientifico":"Cynomys mexicanus","grupo":"Mamíferos","cat":"P","cites":"I","endemica":true,"dist":"Endémico Coahuila, Nuevo León, San Luis Potosí","habitat":"Pastizales halófitos","amenaza":"Conversión agrícola, envenenamiento"},
+  {"comun":"Teporingo (zacatuche)","cientifico":"Romerolagus diazi","grupo":"Mamíferos","cat":"P","cites":"I","endemica":true,"dist":"Endémico Eje Volcánico Transversal (Distrito Federal, México, Morelos, Puebla)","habitat":"Zacatonales alpinos del Popocatépetl, Iztaccíhuatl","amenaza":"Pérdida de hábitat, cacería, incendios"},
+  {"comun":"Manatí antillano","cientifico":"Trichechus manatus","grupo":"Mamíferos","cat":"P","cites":"I","endemica":false,"dist":"Ríos y costas del Golfo, Caribe mexicano","habitat":"Aguas cálidas, lagunas costeras","amenaza":"Colisiones embarcaciones, enredo en redes"},
+  {"comun":"Vaquita marina","cientifico":"Phocoena sinus","grupo":"Mamíferos","cat":"P","cites":"I","endemica":true,"dist":"Endémica Alto Golfo de California","habitat":"Aguas costeras someras","amenaza":"Muerte incidental en redes de pesca (población críticamente reducida)"},
+  {"comun":"Nutria de río","cientifico":"Lontra longicaudis","grupo":"Mamíferos","cat":"A","cites":"I","endemica":false,"dist":"Ríos de todo México","habitat":"Ríos, lagunas y costas","amenaza":"Contaminación del agua, sobrepesca"},
+  {"comun":"Tejón","cientifico":"Taxidea taxus","grupo":"Mamíferos","cat":"A","cites":"—","endemica":false,"dist":"Norte de México","habitat":"Pastizales y matorrales","amenaza":"Cacería, pérdida de hábitat"},
+  {"comun":"Guacamaya militar","cientifico":"Ara militaris","grupo":"Aves","cat":"P","cites":"I","endemica":false,"dist":"Sierras del occidente y sureste","habitat":"Bosques tropicales deciduos","amenaza":"Captura ilegal, pérdida de hábitat"},
+  {"comun":"Águila real","cientifico":"Aquila chrysaetos","grupo":"Aves","cat":"A","cites":"II","endemica":false,"dist":"Sierras del norte y centro","habitat":"Bosques de montaña, desiertos","amenaza":"Electrocución, envenenamiento"},
+  {"comun":"Águila arpía","cientifico":"Harpia harpyja","grupo":"Aves","cat":"P","cites":"I","endemica":false,"dist":"Selvas de Chiapas, Oaxaca","habitat":"Selva alta perennifolia","amenaza":"Deforestación, cacería"},
+  {"comun":"Halcón peregrino","cientifico":"Falco peregrinus","grupo":"Aves","cat":"Pr","cites":"I","endemica":false,"dist":"Migratoria, todo México","habitat":"Cantiles, zonas costeras","amenaza":"Pesticidas (histórico), caza con arco"},
+  {"comun":"Guacamaya roja","cientifico":"Ara macao cyanoptera","grupo":"Aves","cat":"P","cites":"I","endemica":false,"dist":"Selvas Lacandonas de Chiapas","habitat":"Selva alta perennifolia","amenaza":"Tráfico ilegal, deforestación"},
+  {"comun":"Loro cabeza amarilla","cientifico":"Amazona oratrix","grupo":"Aves","cat":"P","cites":"I","endemica":false,"dist":"Costa del Pacífico y Golfo","habitat":"Selva baja caducifolia","amenaza":"Tráfico masivo mascota, pérdida hábitat"},
+  {"comun":"Loro tamaulipeco","cientifico":"Amazona viridigenalis","grupo":"Aves","cat":"P","cites":"I","endemica":true,"dist":"Endémico noreste (Tamaulipas, Nuevo León, SLP)","habitat":"Bosque tropical seco","amenaza":"Tráfico ilegal, pérdida hábitat"},
+  {"comun":"Pavón cornudo","cientifico":"Oreophasis derbianus","grupo":"Aves","cat":"P","cites":"I","endemica":false,"dist":"Bosques nublados de Chiapas","habitat":"Bosque mesófilo >2,000 msnm","amenaza":"Cacería, deforestación"},
+  {"comun":"Quetzal","cientifico":"Pharomachrus mocinno","grupo":"Aves","cat":"P","cites":"I","endemica":false,"dist":"Bosques nublados de Chiapas, Oaxaca","habitat":"Bosque mesófilo de montaña","amenaza":"Pérdida de hábitat"},
+  {"comun":"Cóndor de California","cientifico":"Gymnogyps californianus","grupo":"Aves","cat":"E","cites":"I","endemica":false,"dist":"Extinto en libertad en México","habitat":"Sierra de San Pedro Mártir (reintroducción)","amenaza":"Envenenamiento histórico, plomo en carroña"},
+  {"comun":"Zopilote rey","cientifico":"Sarcoramphus papa","grupo":"Aves","cat":"P","cites":"III","endemica":false,"dist":"Selvas del sureste","habitat":"Bosques tropicales","amenaza":"Envenenamiento, pérdida hábitat"},
+  {"comun":"Gavilán de Cooper","cientifico":"Accipiter cooperii","grupo":"Aves","cat":"Pr","cites":"II","endemica":false,"dist":"Bosques de todo México","habitat":"Bosques templados y subtropicales","amenaza":"Pesticidas, tala"},
+  {"comun":"Carpintero imperial","cientifico":"Campephilus imperialis","grupo":"Aves","cat":"E","cites":"I","endemica":true,"dist":"Sierra Madre Occidental (históricamente)","habitat":"Bosque de pino maduro","amenaza":"Probablemente extinto; sin registros confirmados recientes"},
+  {"comun":"Cocodrilo de río","cientifico":"Crocodylus acutus","grupo":"Reptiles","cat":"Pr","cites":"I","endemica":false,"dist":"Costas y estuarios del Pacífico y Golfo","habitat":"Estuarios, lagunas costeras","amenaza":"Pérdida hábitat, cacería"},
+  {"comun":"Cocodrilo de pantano","cientifico":"Crocodylus moreletii","grupo":"Reptiles","cat":"Pr","cites":"II","endemica":false,"dist":"Humedales del sureste","habitat":"Pantanos, cenotes","amenaza":"Pérdida hábitat"},
+  {"comun":"Iguana verde","cientifico":"Iguana iguana","grupo":"Reptiles","cat":"Pr","cites":"II","endemica":false,"dist":"Costas del sur","habitat":"Bosques tropicales","amenaza":"Comercio mascota, cacería alimentaria"},
+  {"comun":"Iguana negra (garrobo)","cientifico":"Ctenosaura pectinata","grupo":"Reptiles","cat":"A","cites":"II","endemica":true,"dist":"Endémica del Pacífico mexicano","habitat":"Selva baja caducifolia","amenaza":"Cacería, pérdida hábitat"},
+  {"comun":"Tortuga carey","cientifico":"Eretmochelys imbricata","grupo":"Reptiles","cat":"P","cites":"I","endemica":false,"dist":"Costas del Caribe y Golfo","habitat":"Arrecifes de coral, pastos marinos","amenaza":"Caza histórica por caparazón, enmalle"},
+  {"comun":"Tortuga lora","cientifico":"Lepidochelys kempii","grupo":"Reptiles","cat":"P","cites":"I","endemica":false,"dist":"Golfo de México (único sitio reproducción: Rancho Nuevo, Tam)","habitat":"Aguas costeras","amenaza":"Pesca incidental, saqueo histórico huevos"},
+  {"comun":"Tortuga laúd","cientifico":"Dermochelys coriacea","grupo":"Reptiles","cat":"P","cites":"I","endemica":false,"dist":"Costas del Pacífico (Oaxaca, Michoacán)","habitat":"Aguas oceánicas","amenaza":"Saqueo huevos histórico, pesca incidental"},
+  {"comun":"Tortuga verde","cientifico":"Chelonia mydas","grupo":"Reptiles","cat":"P","cites":"I","endemica":false,"dist":"Costas del Pacífico y Caribe","habitat":"Pastos marinos, aguas costeras","amenaza":"Caza alimenticia, enmalle"},
+  {"comun":"Tortuga golfina","cientifico":"Lepidochelys olivacea","grupo":"Reptiles","cat":"P","cites":"I","endemica":false,"dist":"Pacífico (Oaxaca, Guerrero, Jalisco)","habitat":"Aguas oceánicas tropicales","amenaza":"Saqueo de huevos"},
+  {"comun":"Monstruo de Gila","cientifico":"Heloderma suspectum","grupo":"Reptiles","cat":"A","cites":"II","endemica":false,"dist":"Desiertos del noroeste","habitat":"Matorrales desérticos","amenaza":"Comercio ilegal, cacería"},
+  {"comun":"Escorpión (lagarto enchaquirado)","cientifico":"Heloderma horridum","grupo":"Reptiles","cat":"A","cites":"II","endemica":false,"dist":"Vertiente del Pacífico, de Sonora a Chiapas","habitat":"Selva baja caducifolia","amenaza":"Destrucción hábitat"},
+  {"comun":"Víbora de cascabel neotropical","cientifico":"Crotalus durissus","grupo":"Reptiles","cat":"Pr","cites":"—","endemica":false,"dist":"Zonas áridas y bosques secos","habitat":"Matorrales, bosques tropicales","amenaza":"Matanza por temor"},
+  {"comun":"Boa","cientifico":"Boa constrictor","grupo":"Reptiles","cat":"A","cites":"II","endemica":false,"dist":"Distribución amplia en el país","habitat":"Diversos ambientes","amenaza":"Comercio ilegal"},
+  {"comun":"Ajolote mexicano","cientifico":"Ambystoma mexicanum","grupo":"Anfibios","cat":"P","cites":"II","endemica":true,"dist":"Endémico del Valle de México (Xochimilco)","habitat":"Canales de Xochimilco","amenaza":"Contaminación, especies invasoras (tilapia, carpa)"},
+  {"comun":"Rana de Moctezuma","cientifico":"Lithobates montezumae","grupo":"Anfibios","cat":"Pr","cites":"—","endemica":true,"dist":"Endémica centro de México","habitat":"Arroyos y lagunas","amenaza":"Quitridiomicosis, contaminación"},
+  {"comun":"Tlaconete pinto","cientifico":"Pseudoeurycea bellii","grupo":"Anfibios","cat":"A","cites":"—","endemica":true,"dist":"Endémica bosques nublados","habitat":"Bosque mesófilo","amenaza":"Deforestación, quitridiomicosis"},
+  {"comun":"Totoaba","cientifico":"Totoaba macdonaldi","grupo":"Peces","cat":"P","cites":"I","endemica":true,"dist":"Endémico del Alto Golfo de California","habitat":"Aguas costeras salobres","amenaza":"Pesca ilegal (vejiga natatoria a China)"},
+  {"comun":"Tiburón ballena","cientifico":"Rhincodon typus","grupo":"Peces","cat":"A","cites":"II","endemica":false,"dist":"Aguas de Yucatán, Baja California","habitat":"Aguas oceánicas","amenaza":"Turismo no regulado, aleteo"},
+  {"comun":"Tiburón blanco","cientifico":"Carcharodon carcharias","grupo":"Peces","cat":"A","cites":"II","endemica":false,"dist":"Pacífico mexicano","habitat":"Aguas oceánicas","amenaza":"Aleteo, captura incidental"},
+  {"comun":"Cachorrito del desierto","cientifico":"Cyprinodon macularius","grupo":"Peces","cat":"P","cites":"—","endemica":false,"dist":"Manantiales Sonora","habitat":"Pozas desérticas","amenaza":"Sobreexplotación acuíferos"},
+  {"comun":"Pejelagarto","cientifico":"Atractosteus tropicus","grupo":"Peces","cat":"Pr","cites":"—","endemica":false,"dist":"Sureste de México","habitat":"Ríos y lagunas","amenaza":"Sobrepesca"},
+  {"comun":"Mariposa monarca","cientifico":"Danaus plexippus","grupo":"Invertebrados","cat":"Pr","cites":"—","endemica":false,"dist":"Migratoria (Michoacán, Edomex, invernada)","habitat":"Bosque de oyamel","amenaza":"Pérdida hábitat invernada, cambio climático"},
+  {"comun":"Biznaga barril de Coahuila","cientifico":"Echinocactus grandis","grupo":"Flora","cat":"A","cites":"II","endemica":true,"dist":"Endémica Coahuila","habitat":"Matorrales áridos","amenaza":"Saqueo ilegal"},
+  {"comun":"Cactus estrella","cientifico":"Astrophytum asterias","grupo":"Flora","cat":"P","cites":"I","endemica":true,"dist":"Endémico Tamaulipas, Nuevo León","habitat":"Matorrales espinosos","amenaza":"Saqueo internacional"},
+  {"comun":"Peyote","cientifico":"Lophophora williamsii","grupo":"Flora","cat":"Pr","cites":"II","endemica":false,"dist":"Desiertos de Chihuahua, Coahuila, SLP","habitat":"Matorrales desérticos","amenaza":"Saqueo ritual/recreativo"},
+  {"comun":"Cedro rojo","cientifico":"Cedrela odorata","grupo":"Flora","cat":"Pr","cites":"III","endemica":false,"dist":"Selvas tropicales","habitat":"Selva alta y mediana","amenaza":"Sobreexplotación maderera"}
 ];
 
 const CAT_LABELS = {
-  'P': 'En Peligro de Extinción',
+  'P': 'En peligro de extinción',
   'A': 'Amenazada',
-  'Pr': 'Sujeta a Protección Especial',
-  'E': 'Probablemente Extinta en Libertad'
+  'Pr': 'Sujeta a protección especial',
+  'E': 'Probablemente extinta en libertad'
 };
+const NOM_FUENTE = 'NOM-059-SEMARNAT-2010, modificación del Anexo Normativo III (DOF 14-11-2019)';
 
-function renderNOM(items = NOM059) {
+function citesTexto(c) {
+  if (c === 'verificar') return 'verificar en Species+';
+  return c;
+}
+
+function renderNOM(items) {
+  const lista = items || NOM059;
   const container = document.getElementById('nomResults');
   const stats = document.getElementById('nomStats');
 
-  const total = items.length;
-  const countP = items.filter(x => x.cat === 'P').length;
-  const countA = items.filter(x => x.cat === 'A').length;
-  const countPr = items.filter(x => x.cat === 'Pr').length;
-  const countEnd = items.filter(x => x.endemica).length;
+  const cuenta = f => lista.filter(f).length;
   stats.innerHTML = `
-    <div class="nom-stat"><strong>${total}</strong> especies</div>
-    <div class="nom-stat">🔴 <strong>${countP}</strong> peligro</div>
-    <div class="nom-stat">🟡 <strong>${countA}</strong> amenazada</div>
-    <div class="nom-stat">🔵 <strong>${countPr}</strong> protección</div>
-    <div class="nom-stat">🇲🇽 <strong>${countEnd}</strong> endémicas</div>
+    <div class="nom-stat"><strong>${lista.length}</strong> especies</div>
+    <div class="nom-stat"><span class="zdot" style="background:#C0392B"></span> <strong>${cuenta(x => x.cat === 'P')}</strong> en peligro</div>
+    <div class="nom-stat"><span class="zdot" style="background:#E8A317"></span> <strong>${cuenta(x => x.cat === 'A')}</strong> amenazadas</div>
+    <div class="nom-stat"><span class="zdot" style="background:#2AA4D5"></span> <strong>${cuenta(x => x.cat === 'Pr')}</strong> protección especial</div>
+    <div class="nom-stat"><strong>${cuenta(x => x.endemica)}</strong> endémicas</div>
   `;
 
-  if (items.length === 0) {
-    container.innerHTML = `<div class="nom-empty"><div style="font-size:2.5rem;margin-bottom:10px;">🔍</div><div>Sin resultados. Intenta otros términos.</div></div>`;
+  if (lista.length === 0) {
+    container.innerHTML = `<div class="nom-empty"><div style="margin-bottom:10px;"><svg class="zi" style="width:40px;height:40px" aria-hidden="true"><use href="#zi-search"/></svg></div><div>Sin resultados. Prueba con otro nombre, grupo o estado.</div></div>`;
     return;
   }
 
-  container.innerHTML = items.map(sp => {
+  container.innerHTML = lista.map(sp => {
+    const i = NOM059.indexOf(sp);
     const catClass = sp.cat.toLowerCase();
     return `
     <div class="nom-card">
-      <div class="nom-card__sp">${sp.comun} ${sp.endemica ? '🇲🇽' : ''}</div>
-      <div class="nom-card__sci">${sp.cientifico}</div>
-      <div class="nom-card__meta">📍 ${sp.grupo}</div>
+      <div class="nom-card__sp">${zlEsc(sp.comun)}</div>
+      <div class="nom-card__sci">${zlEsc(sp.cientifico)}</div>
+      <div class="nom-card__meta"><svg class="zi" aria-hidden="true"><use href="#zi-map-pin"/></svg> ${zlEsc(sp.grupo)}</div>
       <div class="nom-badges">
-        <span class="nom-badge ${catClass}">NOM-059: ${sp.cat} · ${CAT_LABELS[sp.cat]}</span>
-        ${sp.cites !== '—' ? `<span class="nom-badge cites">CITES ${sp.cites}</span>` : ''}
-        <span class="nom-badge iucn">IUCN: ${sp.iucn}</span>
-        ${sp.endemica ? '<span class="nom-badge endem">🇲🇽 Endémica de México</span>' : ''}
+        <span class="nom-badge ${catClass}">NOM-059: ${zlEsc(sp.cat)} · ${zlEsc(CAT_LABELS[sp.cat])}</span>
+        ${sp.cites !== '—' ? `<span class="nom-badge cites">CITES: ${zlEsc(citesTexto(sp.cites))}</span>` : ''}
+        ${sp.endemica ? '<span class="nom-badge endem">Endémica de México</span>' : ''}
       </div>
       <div class="nom-card__detail">
         <div class="nom-card__detail-item">
           <div class="nom-card__detail-label">Distribución</div>
-          <div class="nom-card__detail-value">${sp.dist}</div>
+          <div class="nom-card__detail-value">${zlEsc(sp.dist)}</div>
         </div>
         <div class="nom-card__detail-item">
           <div class="nom-card__detail-label">Hábitat</div>
-          <div class="nom-card__detail-value">${sp.habitat}</div>
+          <div class="nom-card__detail-value">${zlEsc(sp.habitat)}</div>
         </div>
         <div class="nom-card__detail-item">
           <div class="nom-card__detail-label">Amenazas</div>
-          <div class="nom-card__detail-value">${sp.amenaza}</div>
-        </div>
-        <div class="nom-card__detail-item">
-          <div class="nom-card__detail-label">Fuente</div>
-          <div class="nom-card__detail-value">${sp.dof}</div>
+          <div class="nom-card__detail-value">${zlEsc(sp.amenaza)}</div>
         </div>
       </div>
       <div class="nom-card__actions">
-        <button class="nom-copy-btn" onclick="copiarNOM(${JSON.stringify(sp).replace(/"/g, '&quot;')})">📋 Copiar cita legal</button>
-        <button class="nom-copy-btn" onclick="copiarFichaNOM(${JSON.stringify(sp).replace(/"/g, '&quot;')})">📄 Copiar ficha completa</button>
+        <button class="nom-copy-btn" onclick="copiarNOM(${i})"><svg class="zi" aria-hidden="true"><use href="#zi-copy"/></svg> Copiar cita legal</button>
+        <button class="nom-copy-btn" onclick="copiarFichaNOM(${i})"><svg class="zi" aria-hidden="true"><use href="#zi-file-text"/></svg> Copiar ficha</button>
       </div>
     </div>`;
   }).join('');
 }
 
 function buscarNOM() {
-  const q = document.getElementById('nomSearch').value.toLowerCase().trim();
+  const q = zlSin(document.getElementById('nomSearch').value);
   const activeChip = document.querySelector('.nom-filter-chip.is-active');
   const filter = activeChip ? activeChip.dataset.filter : 'all';
 
   let results = NOM059;
-  if (filter === 'endemicas') {
-    results = results.filter(x => x.endemica);
-  } else if (filter !== 'all') {
-    results = results.filter(x => x.cat === filter);
-  }
+  if (filter === 'endemicas') results = results.filter(x => x.endemica);
+  else if (filter !== 'all') results = results.filter(x => x.cat === filter);
+
   if (q) {
-    results = results.filter(x =>
-      x.comun.toLowerCase().includes(q) ||
-      x.cientifico.toLowerCase().includes(q) ||
-      x.grupo.toLowerCase().includes(q) ||
-      x.dist.toLowerCase().includes(q) ||
-      x.habitat.toLowerCase().includes(q) ||
-      (q === 'endémica' || q === 'endemica' ? x.endemica : false)
-    );
+    results = results.filter(x => {
+      const pajar = zlSin([x.comun, x.cientifico, x.grupo, x.dist, x.habitat, x.endemica ? 'endemica endemico' : ''].join(' | '));
+      return q.split(/\s+/).every(p => pajar.includes(p));
+    });
   }
   renderNOM(results);
 }
 
-function copiarNOM(sp) {
-  const texto = `${sp.comun} (${sp.cientifico}) está catalogada como "${CAT_LABELS[sp.cat]}" (categoría ${sp.cat}) en la NOM-059-SEMARNAT-2010 (${sp.dof}). Apéndice CITES: ${sp.cites}. Estado IUCN: ${sp.iucn}.${sp.endemica ? ' Especie endémica de México.' : ''}`;
-  navigator.clipboard.writeText(texto).then(() => alert('✓ Cita legal copiada'));
+function copiarNOM(i) {
+  const sp = NOM059[i];
+  if (!sp) return;
+  const texto = `${sp.comun} (${sp.cientifico}) se encuentra en la categoría "${CAT_LABELS[sp.cat]}" (${sp.cat}) de la ${NOM_FUENTE}.` +
+    (sp.cites !== '—' && sp.cites !== 'verificar' ? ` Apéndice CITES: ${sp.cites}.` : '') +
+    (sp.endemica ? ' Especie endémica de México.' : '') +
+    ' Verificar contra el Anexo Normativo III vigente antes de usarla en un trámite.';
+  zlCopiar(texto, 'Cita copiada');
 }
-function copiarFichaNOM(sp) {
-  const ficha = `FICHA TÉCNICA
+function copiarFichaNOM(i) {
+  const sp = NOM059[i];
+  if (!sp) return;
+  const ficha = `FICHA DE REFERENCIA
 ═════════════════════════════════════
 ${sp.comun.toUpperCase()} (${sp.cientifico})
 Grupo: ${sp.grupo}
-${sp.endemica ? '🇲🇽 ESPECIE ENDÉMICA DE MÉXICO' : ''}
-
+${sp.endemica ? 'ESPECIE ENDÉMICA DE MÉXICO\n' : ''}
 CATEGORÍA DE RIESGO
 • NOM-059-SEMARNAT-2010: ${sp.cat} · ${CAT_LABELS[sp.cat]}
-• Apéndice CITES: ${sp.cites}
-• IUCN Red List: ${sp.iucn}
+• Apéndice CITES: ${citesTexto(sp.cites)}
 
 DISTRIBUCIÓN
 ${sp.dist}
@@ -1230,123 +1284,172 @@ PRINCIPALES AMENAZAS
 ${sp.amenaza}
 
 FUENTE
-${sp.dof}`;
-  navigator.clipboard.writeText(ficha).then(() => alert('✓ Ficha técnica copiada'));
+${NOM_FUENTE}
+Resumen de referencia: confirmar en el Anexo Normativo III vigente.`;
+  zlCopiar(ficha, 'Ficha copiada');
 }
 
-// ═══════════════ UMA ULTRA ═══════════════
+// ═══════════════ BORRADOR DE INFORME UMA / PIMVS ═══════════════
+// Es un documento de apoyo para ordenar los datos. NO es el formato oficial: se presenta
+// en el formato y por el medio que indique SEMARNAT.
+function umaValor(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+function umaMostrarAviso(html, tipo) {
+  const caja = document.getElementById('umaAviso');
+  if (!caja) return;
+  if (!html) { caja.style.display = 'none'; caja.innerHTML = ''; return; }
+  caja.className = 'legal-aviso ' + (tipo === 'error' ? 'is-error' : 'is-warning');
+  caja.innerHTML = html;
+  caja.style.display = 'block';
+}
+
 function generarInformeUMA() {
-  const tipo = document.querySelector('.uma-event.is-selected')?.dataset.event || 'alta';
-  const nombre = document.getElementById('umaNombre').value || '[NOMBRE UMA]';
+  const tipo = (document.querySelector('.uma-event.is-selected') || {}).dataset ? document.querySelector('.uma-event.is-selected').dataset.event : 'alta';
   const umaTipo = document.getElementById('umaTipo').value;
-  const registro = document.getElementById('umaRegistro').value || '[REGISTRO SEMARNAT]';
-  const superficie = document.getElementById('umaSuperficie').value || 'N/A';
-  const ubicacion = document.getElementById('umaUbicacion').value || '[UBICACIÓN]';
-  const resp = document.getElementById('umaResponsable').value || '[RESPONSABLE TÉCNICO]';
-  const cedula = document.getElementById('umaCedula').value || '[CÉDULA]';
-  const periodo = document.getElementById('umaPeriodo').value || new Date().getFullYear();
-  const spC = document.getElementById('umaSpComun').value || '[NOMBRE COMÚN]';
-  const spS = document.getElementById('umaSpCientifico').value || '[NOMBRE CIENTÍFICO]';
-  const categoria = document.getElementById('umaCategoria').value;
-  const cites = document.getElementById('umaCites').value;
-  const sexo = document.getElementById('umaSexo').value;
-  const edad = document.getElementById('umaEdad').value || '[EDAD]';
-  const marca = document.getElementById('umaMarca').value || 'Sin marca';
-  const fecha = document.getElementById('umaFecha').value || new Date().toISOString().slice(0, 10);
-  const peso = document.getElementById('umaPeso').value || 'N/A';
-  const condicion = document.getElementById('umaCondicion').value || 'Saludable';
-  const origen = document.getElementById('umaOrigen').value || '[ORIGEN]';
-  const destino = document.getElementById('umaDestino').value || 'N/A';
-  const causa = document.getElementById('umaCausa').value || 'N/A';
-  const necropsia = document.getElementById('umaNecropsia').value || 'N/A';
-  const obs = document.getElementById('umaObs').value || 'Sin observaciones adicionales';
+  const esAnual = tipo === 'anual';
+  const preview = document.getElementById('umaPreview');
+  const errores = [];
+
+  // Fecha del evento: obligatoria y válida
+  const fechaTxt = umaValor('umaFecha');
+  let fechaFmt = '';
+  if (!fechaTxt) {
+    errores.push('Elige la fecha del evento.');
+  } else {
+    const f = new Date(fechaTxt + 'T12:00:00');
+    if (isNaN(f.getTime())) errores.push('La fecha del evento no es válida.');
+    else fechaFmt = f.toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+  // Números opcionales: si se escriben, deben ser números positivos
+  const pesoTxt = umaValor('umaPeso');
+  if (pesoTxt && !(zlNumero(pesoTxt) > 0)) errores.push('El peso debe ser un número mayor a 0 (en kg).');
+  const supTxt = umaValor('umaSuperficie');
+  if (supTxt && !(zlNumero(supTxt) > 0)) errores.push('La superficie debe ser un número mayor a 0 (en hectáreas).');
+
+  if (errores.length) {
+    umaMostrarAviso('<strong>Corrige antes de generar:</strong><ul>' + errores.map(e => '<li>' + zlEsc(e) + '</li>').join('') + '</ul>', 'error');
+    preview.classList.remove('is-visible');
+    window.__umaTexto = '';
+    return;
+  }
+
+  // Datos: lo que falta se marca como PENDIENTE y se avisa, no se inventa
+  const faltantes = [];
+  const dato = (id, etiqueta, requerido) => {
+    const v = umaValor(id);
+    if (v) return v;
+    if (requerido) { faltantes.push(etiqueta); return '[PENDIENTE: ' + etiqueta + ']'; }
+    return 'No especificado';
+  };
+  const nombre = dato('umaNombre', 'Nombre o razón social', true);
+  const registro = dato('umaRegistro', 'Registro SEMARNAT', true);
+  const superficie = supTxt ? supTxt + ' ha' : 'No especificada';
+  const ubicacion = dato('umaUbicacion', 'Ubicación', true);
+  const resp = dato('umaResponsable', 'Responsable técnico', true);
+  const cedula = dato('umaCedula', 'Cédula profesional', true);
+  const periodo = umaValor('umaPeriodo') || String(new Date().getFullYear());
+
+  let bloqueEjemplar = '';
+  if (!esAnual) {
+    const spC = dato('umaSpComun', 'Nombre común', true);
+    const spS = dato('umaSpCientifico', 'Nombre científico', true);
+    const sexoLabel = { M: 'Macho', H: 'Hembra', I: 'Indeterminado' };
+    const sexo = document.getElementById('umaSexo').value;
+    const origen = dato('umaOrigen', 'Origen o procedencia', tipo === 'alta' || tipo === 'nacimiento');
+    const destino = dato('umaDestino', 'Destino', tipo === 'baja' || tipo === 'traslado');
+    bloqueEjemplar = `
+─── II. DATOS DEL EJEMPLAR ───
+Nombre común:             ${spC}
+Nombre científico:        ${spS}
+Categoría NOM-059:        ${document.getElementById('umaCategoria').value}
+Apéndice CITES:           ${document.getElementById('umaCites').value}
+Sexo:                     ${sexoLabel[sexo]} (${sexo})
+Edad estimada:            ${umaValor('umaEdad') || 'No especificada'}
+Peso:                     ${pesoTxt ? pesoTxt + ' kg' : 'No especificado'}
+Condición clínica:        ${umaValor('umaCondicion') || 'No especificada'}
+Marca / arete / microchip: ${umaValor('umaMarca') || 'Sin marca registrada'}
+
+─── III. ORIGEN Y DESTINO ───
+Origen / procedencia:     ${origen}
+Destino:                  ${destino}
+`;
+    if (tipo === 'muerte' || tipo === 'baja') {
+      const causa = dato('umaCausa', 'Causa o motivo', true);
+      const necropsia = umaValor('umaNecropsia');
+      bloqueEjemplar += `
+─── IV. CAUSA / MOTIVO ───
+${causa}
+${necropsia ? '\nHallazgos de necropsia:\n' + necropsia + '\n' : ''}`;
+    }
+  }
+  const obs = umaValor('umaObs') || 'Sin observaciones adicionales';
 
   const tiposLabel = {
-    alta: 'ALTA / INGRESO A LA UMA',
-    baja: 'BAJA / EGRESO DE LA UMA',
+    alta: 'ALTA / INGRESO DE EJEMPLAR',
+    baja: 'BAJA / EGRESO DE EJEMPLAR',
     nacimiento: 'REGISTRO DE NACIMIENTO',
     muerte: 'REGISTRO DE MUERTE',
     traslado: 'TRASLADO DE EJEMPLAR',
     anual: 'INFORME ANUAL DE ACTIVIDADES'
   };
-  const tipoLabel = { extensiva: 'UMA EXTENSIVA (Vida Libre)', intensiva: 'UMA INTENSIVA (Confinamiento)', pimvs: 'PREDIO O INSTALACIÓN QUE MANEJA VIDA SILVESTRE (PIMVS)' };
-  const sexoLabel = { M: 'Macho', H: 'Hembra', I: 'Indeterminado' };
-  const fechaFmt = new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
+  const tipoLabel = { extensiva: 'UMA extensiva (vida libre)', intensiva: 'UMA intensiva (confinamiento)', pimvs: 'Predio o instalación que maneja vida silvestre fuera de su hábitat (PIMVS)' };
+  const hoy = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
 
   const informe = `════════════════════════════════════════════════════════
-INFORME DE ${tiposLabel[tipo]}
+BORRADOR · ${tiposLabel[tipo]}
 ${tipoLabel[umaTipo]}
 ════════════════════════════════════════════════════════
+Documento de apoyo. No es el formato oficial de SEMARNAT.
 
-FECHA DEL EVENTO: ${fechaFmt}
-FECHA DE ELABORACIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
-PERIODO DE REPORTE: ${periodo}
+FECHA DEL EVENTO:      ${fechaFmt}
+FECHA DE ELABORACIÓN:  ${hoy}
+PERIODO QUE SE REPORTA: ${periodo}
 
-─── I. DATOS DE LA UMA ───
+─── I. DATOS DE LA UNIDAD ───
 Nombre o razón social:    ${nombre}
-Tipo de UMA:              ${tipoLabel[umaTipo]}
+Tipo:                     ${tipoLabel[umaTipo]}
 Registro SEMARNAT:        ${registro}
-Superficie total:         ${superficie} ha
+Superficie total:         ${superficie}
 Ubicación:                ${ubicacion}
 Responsable técnico:      ${resp}
 Cédula profesional:       ${cedula}
-
-─── II. DATOS DEL EJEMPLAR ───
-Nombre común:             ${spC}
-Nombre científico:        ${spS}
-Categoría NOM-059:        ${categoria}
-Apéndice CITES:           ${cites}
-Sexo:                     ${sexoLabel[sexo]} (${sexo})
-Edad:                     ${edad}
-Peso:                     ${peso} kg
-Condición clínica:        ${condicion}
-Marca/Arete/Microchip:    ${marca}
-
-─── III. ORIGEN Y DESTINO ───
-Origen / Procedencia:     ${origen}
-Destino:                  ${destino}
-
-${tipo === 'muerte' || tipo === 'baja' ? `─── IV. CAUSA / MOTIVO ───
-${causa}
-
-${necropsia !== 'N/A' ? `HALLAZGOS DE NECROPSIA:
-${necropsia}
-
-` : ''}` : ''}─── ${tipo === 'muerte' || tipo === 'baja' ? 'V' : 'IV'}. OBSERVACIONES ───
+${bloqueEjemplar}
+─── ${esAnual ? 'II' : (tipo === 'muerte' || tipo === 'baja' ? 'V' : 'IV')}. OBSERVACIONES ───
 ${obs}
 
 ════════════════════════════════════════════════════════
-DECLARACIÓN BAJO PROTESTA DE DECIR VERDAD:
-
-Bajo protesta de decir verdad, manifiesto que los datos
-contenidos en el presente informe son verdaderos, exactos
-y se rinden conforme a lo establecido en los Artículos 40,
-41 y 43 de la Ley General de Vida Silvestre (LGVS) y los
-Artículos 30 y 31 del Reglamento de la LGVS.
+DECLARACIÓN
+Bajo protesta de decir verdad, manifiesto que los datos de este
+documento son verdaderos.
 
 _______________________________________________________
 ${resp}
-Responsable Técnico · Cédula profesional: ${cedula}
+Responsable técnico · Cédula profesional: ${cedula}
 
-Fecha: ${new Date().toLocaleDateString('es-MX')}
+FUNDAMENTO DE REFERENCIA
+• Ley General de Vida Silvestre: Art. 42 (informes de las UMA)
+  y Art. 78 (predios e instalaciones que manejan vida silvestre
+  en forma confinada)
+• Reglamento de la Ley General de Vida Silvestre: Art. 50
+  (informes de las UMA)
+• NOM-059-SEMARNAT-2010 (modificación DOF 14-11-2019)
 
-FUNDAMENTO LEGAL APLICABLE:
-• Ley General de Vida Silvestre (LGVS), Arts. 39-49, 78, 87
-• Reglamento de la LGVS, Arts. 26-32, 54-58
-• NOM-059-SEMARNAT-2010
-• Ley General del Equilibrio Ecológico y Protección al
-  Ambiente (LGEEPA), Arts. 28, 79
-• Ley Federal de Derechos 2026, Sección II (SEMARNAT)
-
-PRESENTACIÓN:
-• Vía SIMEC (Sistema de Información de Monitoreo de
-  Especies en categoría de riesgo): simec.conabio.gob.mx
-• Delegación SEMARNAT estatal correspondiente
-• Plazo: 30 días naturales desde el evento (altas/bajas/
-  muertes/nacimientos); informe anual marzo-abril
+PLAZOS DE REFERENCIA (Reglamento de la LGVS, Art. 50)
+• Informe anual de actividades de la UMA: de abril a junio
+• Contingencias o emergencias: dentro de los 3 días hábiles
+  siguientes a que ocurran
+• Fugas o enfermedades: dentro de 5 días naturales
+Confirma el plazo y el formato vigentes con tu delegación de
+SEMARNAT antes de presentar.
 ════════════════════════════════════════════════════════`;
 
-  const preview = document.getElementById('umaPreview');
+  if (faltantes.length) {
+    umaMostrarAviso('<strong>Faltan datos.</strong> El borrador los marca como [PENDIENTE]: ' + faltantes.map(zlEsc).join(', ') + '.', 'warning');
+  } else {
+    umaMostrarAviso('');
+  }
   preview.textContent = informe;
   preview.classList.add('is-visible');
   preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1354,235 +1457,239 @@ PRESENTACIÓN:
 }
 
 function copiarInformeUMA() {
-  if (!window.__umaTexto) { alert('⚠️ Primero genera el informe.'); return; }
-  navigator.clipboard.writeText(window.__umaTexto).then(() => alert('✓ Informe copiado'));
+  if (!window.__umaTexto) { zlAvisar('Primero genera el borrador.'); return; }
+  zlCopiar(window.__umaTexto, 'Borrador copiado');
 }
 function descargarInformeUMA() {
-  if (!window.__umaTexto) { alert('⚠️ Primero genera el informe.'); return; }
-  const blob = new Blob([window.__umaTexto], { type: 'text/plain;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `informe-UMA-${new Date().toISOString().slice(0,10)}.txt`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  if (!window.__umaTexto) { zlAvisar('Primero genera el borrador.'); return; }
+  try {
+    const blob = new Blob([window.__umaTexto], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `borrador-informe-UMA-${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } catch (e) {
+    zlAvisar('No se pudo descargar. Usa "Copiar al portapapeles".');
+  }
 }
 
-// ═══════════════ CUOTAS SEMARNAT 2026 AMPLIADAS ═══════════════
+// ═══════════════ DERECHOS (LEY FEDERAL DE DERECHOS, CANTIDADES 2026) ═══════════════
+// Fuente: Ley Federal de Derechos, texto vigente (última reforma DOF 07-11-2025), con las cantidades de 2026
+// actualizadas conforme a la Resolución Miscelánea Fiscal (DOF 28-12-2025). Cámara de Diputados.
+// Solo se incluyen conceptos que aparecen en la Ley; cada uno trae el artículo y la fracción.
 const CUOTAS = [
-  // UMA
-  { cat: 'uma', code: 'LFD 194-A', title: 'Registro inicial UMA Extensiva', desc: 'Primer registro (vida libre)', price: 2450 },
-  { cat: 'uma', code: 'LFD 194-B', title: 'Registro inicial UMA Intensiva', desc: 'Confinamiento', price: 3200 },
-  { cat: 'uma', code: 'LFD 194-C', title: 'Refrendo anual UMA', desc: 'Obligatorio cada año fiscal', price: 1890 },
-  { cat: 'uma', code: 'LFD 194-D', title: 'Modificación del registro UMA', desc: 'Ampliación o cambio responsable', price: 1650 },
-  { cat: 'uma', code: 'LFD 194-E', title: 'Aviso de cambio plan manejo', desc: 'Por trámite', price: 780 },
-  { cat: 'uma', code: 'LFD 194-F', title: 'Autorización aprovechamiento extractivo UMA', desc: 'Caza deportiva, reproducción', price: 2100 },
-  // PIMVS
-  { cat: 'pimvs', code: 'LFD 194-G', title: 'Registro inicial PIMVS', desc: 'Predio/Instalación vida silvestre', price: 4580 },
-  { cat: 'pimvs', code: 'LFD 194-H', title: 'Refrendo anual PIMVS', desc: 'Obligatorio cada año', price: 2340 },
-  { cat: 'pimvs', code: 'LFD 194-I', title: 'Modificación PIMVS', desc: 'Cambios al registro', price: 1890 },
-  // COLECTA
-  { cat: 'colecta', code: 'LFD 195-A', title: 'Permiso colecta científica', desc: 'Flora y/o fauna silvestre (1 año)', price: 2150 },
-  { cat: 'colecta', code: 'LFD 195-B', title: 'Refrendo colecta científica', desc: 'Renovación anual', price: 1650 },
-  { cat: 'colecta', code: 'LFD 195-C', title: 'Colecta fines enseñanza', desc: 'Instituciones educativas', price: 1250 },
-  { cat: 'colecta', code: 'LFD 195-D', title: 'Colecta científica con ANP', desc: 'En áreas naturales protegidas', price: 3400 },
-  // MIA
-  { cat: 'mia', code: 'LFD 194-X', title: 'MIA Particular', desc: 'Proyecto < 100 ha', price: 22500 },
-  { cat: 'mia', code: 'LFD 194-Y', title: 'MIA Regional', desc: 'Proyecto > 100 ha o multisitio', price: 58000 },
-  { cat: 'mia', code: 'LFD 194-Z', title: 'Informe Preventivo', desc: 'Actividades bajo impacto', price: 11800 },
-  { cat: 'mia', code: 'LFD 194-W', title: 'Modificación MIA aprobada', desc: 'Cambios sustanciales', price: 8900 },
-  { cat: 'mia', code: 'LFD 194-V', title: 'Evaluación MIA sector hídrico', desc: 'Presas, embalses', price: 42000 },
-  // CITES
-  { cat: 'cites', code: 'LFD 194-CI', title: 'Certificado CITES exportación', desc: 'Por certificado individual', price: 3400 },
-  { cat: 'cites', code: 'LFD 194-CR', title: 'Certificado CITES reexportación', desc: 'Por certificado', price: 3400 },
-  { cat: 'cites', code: 'LFD 194-CImp', title: 'Certificado CITES importación', desc: 'Por certificado', price: 3400 },
-  { cat: 'cites', code: 'LFD 194-CP', title: 'Certificado CITES pre-convención', desc: 'Ejemplares previos a 1975', price: 2800 },
-  // LIBERACIÓN
-  { cat: 'liberacion', code: 'LFD 195-L1', title: 'Autorización liberación ordinaria', desc: 'Proyecto único', price: 1450 },
-  { cat: 'liberacion', code: 'LFD 195-L2', title: 'Liberación ejemplares confiscados', desc: 'Rehabilitación y rescate', price: 980 },
-  { cat: 'liberacion', code: 'LFD 195-L3', title: 'Programa reintroducción', desc: 'Multi-anual, especies riesgo', price: 5200 },
-  // FORESTAL
-  { cat: 'forestal', code: 'LFD 194-FO', title: 'Aprovechamiento forestal maderable', desc: 'Permiso anual', price: 3800 },
-  { cat: 'forestal', code: 'LFD 194-FNM', title: 'Aprovechamiento no maderable', desc: 'Resinas, látex, frutos', price: 2150 }
+  // Registro en materia de vida silvestre
+  { id: 'registro-vs', cat: 'registro', title: 'Solicitud de registro en materia de vida silvestre', desc: 'No se paga para registrar UMA, colecciones científicas o museográficas, mascotas y aves de presa, ni prestadores de servicios. Confirma si tu registro (por ejemplo, un PIMVS) lo causa.', price: 685.83, ref: 'LFD art. 194-F-1, fr. I' },
+
+  // Comercio internacional / CITES
+  { id: 'cites-solicitud', cat: 'comercio', title: 'Solicitud de certificado o autorización de importación, exportación o reexportación', desc: 'Por cada solicitud, cualquiera que sea la resolución. Incluye especies de los Apéndices II y III de CITES.', price: 880.20, ref: 'LFD art. 194-F, apartado B, fr. II' },
+
+  // Colecta
+  { id: 'colecta-extranjeros', cat: 'colecta', title: 'Colecta científica realizada en el país por extranjeros', desc: 'Quien colecta con convenio con el Gobierno Federal o con una institución mexicana, y los investigadores mexicanos del SNI, no pagan esta fracción.', price: 24977.08, ref: 'LFD art. 194-F, apartado B, fr. I' },
+  { id: 'colecta-parental', cat: 'colecta', title: 'Colecta de material parental de especies amenazadas, en peligro o de los Apéndices CITES, para reproducción o propagación', desc: 'Para reproducir o propagar.', price: 1047.51, ref: 'LFD art. 194-F, apartado B, fr. III' },
+  { id: 'colecta-biotec', cat: 'colecta', title: 'Colecta de recursos biológicos con fines de utilización en biotecnología', desc: 'Autorización de colecta con fines biotecnológicos.', price: 25309.81, ref: 'LFD art. 194-F, apartado B, fr. IV' },
+
+  // Caza deportiva
+  { id: 'caza-prestador', cat: 'caza', title: 'Licencia de prestador de servicios de aprovechamiento en caza deportiva', desc: 'Trámite y, en su caso, expedición de cada licencia.', price: 1903.77, ref: 'LFD art. 194-F-1, fr. II' },
+  { id: 'caza-cintillo', cat: 'caza', title: 'Cintillo de aprovechamiento cinegético', desc: 'Por cada cintillo expedido.', price: 441.34, ref: 'LFD art. 194-F-1, fr. III' },
+  { id: 'caza-lic-anual', cat: 'caza', title: 'Licencia de caza deportiva, modalidad anual', desc: 'Expedición o reposición.', price: 857.12, ref: 'LFD art. 194-F-1, fr. IV, inciso a)' },
+  { id: 'caza-lic-indef', cat: 'caza', title: 'Licencia de caza deportiva, modalidad indefinida', desc: 'Expedición o reposición.', price: 2665.16, ref: 'LFD art. 194-F-1, fr. IV, inciso b)' },
+
+  // Estudios de flora y fauna (por hectárea)
+  { id: 'estudios-g1', cat: 'estudios', title: 'Estudios de flora y fauna silvestre, por hectárea: CDMX, Edo. de México, Morelos, Puebla, Tlaxcala, Hidalgo y Querétaro', desc: 'Incluye planificación, manejo y dictamen de impacto ambiental. Cantidad por hectárea.', price: 30.67, ref: 'LFD art. 194-G, fr. I', unidad: 'ha', paso: 10 },
+  { id: 'estudios-g2', cat: 'estudios', title: 'Estudios de flora y fauna silvestre, por hectárea: Jalisco, Michoacán, Aguascalientes, Guanajuato, Nuevo León, San Luis Potosí y Zacatecas', desc: 'Cantidad por hectárea.', price: 41.38, ref: 'LFD art. 194-G, fr. II', unidad: 'ha', paso: 10 },
+  { id: 'estudios-g3', cat: 'estudios', title: 'Estudios de flora y fauna silvestre, por hectárea: Baja California, BCS, Colima, Chihuahua, Durango, Coahuila, Sonora, Nayarit, Tamaulipas, Veracruz, Tabasco, Guerrero, Oaxaca, Chiapas, Campeche, Yucatán, Quintana Roo y Sinaloa', desc: 'Cantidad por hectárea.', price: 51.65, ref: 'LFD art. 194-G, fr. III', unidad: 'ha', paso: 10 },
+  { id: 'estudios-sup', cat: 'estudios', title: 'Supervisión anual de estudios de flora y fauna, por hectárea', desc: 'Cantidad por hectárea.', price: 15.15, ref: 'LFD art. 194-G, fr. IV', unidad: 'ha', paso: 10 },
+
+  // Impacto ambiental
+  { id: 'mia-preventivo', cat: 'mia', title: 'Informe preventivo (evaluación y resolución)', desc: 'Obras o actividades de competencia federal.', price: 17975.34, ref: 'LFD art. 194-H, fr. I' },
+  { id: 'mia-part-a', cat: 'mia', title: 'MIA particular, nivel a)', desc: 'El nivel (a, b o c) depende de los criterios de las Tablas A y B del mismo artículo.', price: 48338.98, ref: 'LFD art. 194-H, fr. II, inciso a)' },
+  { id: 'mia-part-b', cat: 'mia', title: 'MIA particular, nivel b)', desc: 'El nivel depende de las Tablas A y B del artículo.', price: 96680.23, ref: 'LFD art. 194-H, fr. II, inciso b)' },
+  { id: 'mia-part-c', cat: 'mia', title: 'MIA particular, nivel c)', desc: 'El nivel depende de las Tablas A y B del artículo.', price: 145021.50, ref: 'LFD art. 194-H, fr. II, inciso c)' },
+  { id: 'mia-reg-a', cat: 'mia', title: 'MIA regional, nivel a)', desc: 'El nivel depende de las Tablas A y B del artículo.', price: 63258.58, ref: 'LFD art. 194-H, fr. III, inciso a)' },
+  { id: 'mia-reg-b', cat: 'mia', title: 'MIA regional, nivel b)', desc: 'El nivel depende de las Tablas A y B del artículo.', price: 126514.87, ref: 'LFD art. 194-H, fr. III, inciso b)' },
+  { id: 'mia-reg-c', cat: 'mia', title: 'MIA regional, nivel c)', desc: 'El nivel depende de las Tablas A y B del artículo.', price: 189771.14, ref: 'LFD art. 194-H, fr. III, inciso c)' },
+  { id: 'mia-modif', cat: 'mia', title: 'Modificación de proyectos autorizados en materia de impacto ambiental', desc: 'Evaluación y resolución de la solicitud.', price: 12952.55, ref: 'LFD art. 194-H, fr. VI' },
+  { id: 'mia-exencion', cat: 'mia', title: 'Evaluación de la solicitud de exención de presentar MIA', desc: 'Obras y actividades del art. 6 del Reglamento de la LGEEPA en materia de evaluación del impacto ambiental.', price: 5941.17, ref: 'LFD art. 194-H, fr. VIII' },
+
+  // Forestal
+  { id: 'forestal-k2', cat: 'forestal', title: 'Programa de manejo forestal maderable (clima templado y frío): más de 500 y hasta 1,000 m³', desc: 'Hasta 500 m³ está exento.', price: 7745.33, ref: 'LFD art. 194-K, fr. II' },
+  { id: 'forestal-k3', cat: 'forestal', title: 'Programa de manejo forestal maderable (clima templado y frío): más de 1,000 y hasta 5,000 m³', desc: 'Volumen autorizado.', price: 10585.30, ref: 'LFD art. 194-K, fr. III' },
+  { id: 'forestal-k4', cat: 'forestal', title: 'Programa de manejo forestal maderable (clima templado y frío): más de 5,000 m³', desc: 'Volumen autorizado.', price: 13554.36, ref: 'LFD art. 194-K, fr. IV' },
+  { id: 'forestal-rfn', cat: 'forestal', title: 'Certificado de inscripción o constancia del Registro Forestal Nacional', desc: 'Por cada certificado o constancia.', price: 645.44, ref: 'LFD art. 194-N-1' }
 ];
 
+const CUOTAS_TOTAL_CATS = { registro: 'Registro', comercio: 'Comercio', colecta: 'Colecta', caza: 'Caza', estudios: 'Estudios', mia: 'MIA', forestal: 'Forestal' };
 let cuotasSel = {};
 
 function renderCuotas(filtro) {
-  const list = document.getElementById('cuotaList');
+  const lista = document.getElementById('cuotaList');
   const items = filtro === 'all' ? CUOTAS : CUOTAS.filter(c => c.cat === filtro);
-  list.innerHTML = items.map(c => {
-    const cantidad = cuotasSel[c.code] || 0;
+  lista.innerHTML = items.map(c => {
+    const cantidad = cuotasSel[c.id] || 0;
+    const paso = c.paso || 1;
     return `
       <div class="cuota-item">
         <div class="cuota-item__info">
-          <div class="cuota-item__title">${c.title}</div>
-          <div class="cuota-item__code">${c.code} · ${c.desc}</div>
+          <div class="cuota-item__title">${zlEsc(c.title)}</div>
+          <div class="cuota-item__code">${zlEsc(c.ref)} · ${zlEsc(c.desc)}</div>
         </div>
-        <div class="cuota-item__price">$${c.price.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN</div>
+        <div class="cuota-item__price">${zlMoneda(c.price)} MXN${c.unidad ? ' / ' + zlEsc(c.unidad) : ''}</div>
         <div class="cuota-selector">
-          <button onclick="cambiarCuota('${c.code}', -1)">−</button>
-          <span>${cantidad}</span>
-          <button onclick="cambiarCuota('${c.code}', 1)">+</button>
+          <button onclick="cambiarCuota('${c.id}', -${paso})" aria-label="Quitar">−</button>
+          <span>${cantidad}${c.unidad ? ' ' + c.unidad : ''}</span>
+          <button onclick="cambiarCuota('${c.id}', ${paso})" aria-label="Agregar">+</button>
         </div>
       </div>`;
   }).join('');
   actualizarTotal();
 }
 
-function cambiarCuota(code, delta) {
-  const actual = cuotasSel[code] || 0;
+function cambiarCuota(id, delta) {
+  const actual = cuotasSel[id] || 0;
   const nuevo = Math.max(0, actual + delta);
-  if (nuevo === 0) delete cuotasSel[code];
-  else cuotasSel[code] = nuevo;
+  if (nuevo === 0) delete cuotasSel[id];
+  else cuotasSel[id] = nuevo;
   const active = document.querySelector('.cuota-cat.is-active');
   renderCuotas(active ? active.dataset.cat : 'all');
 }
 
 function actualizarTotal() {
-  const totalBox = document.getElementById('cuotaTotal');
-  let subtotal = 0, count = 0;
-  for (const code in cuotasSel) {
-    const c = CUOTAS.find(x => x.code === code);
-    if (c) { subtotal += c.price * cuotasSel[code]; count += cuotasSel[code]; }
+  const caja = document.getElementById('cuotaTotal');
+  let total = 0, conceptos = 0;
+  for (const id in cuotasSel) {
+    const c = CUOTAS.find(x => x.id === id);
+    if (c) { total += c.price * cuotasSel[id]; conceptos += 1; }
   }
-  if (count === 0) { totalBox.style.display = 'none'; return; }
-  const iva = subtotal * 0.16;
-  const total = subtotal + iva;
-  totalBox.style.display = 'block';
-  document.getElementById('cuotaCount').textContent = count;
-  document.getElementById('cuotaS').textContent = count === 1 ? '' : 's';
-  document.getElementById('cuotaSubtotal').textContent = `$${subtotal.toLocaleString('es-MX', {minimumFractionDigits:2})}`;
-  document.getElementById('cuotaIva').textContent = `$${iva.toLocaleString('es-MX', {minimumFractionDigits:2})}`;
-  document.getElementById('cuotaMonto').textContent = `$${total.toLocaleString('es-MX', {minimumFractionDigits:2})} MXN`;
+  if (conceptos === 0) { caja.style.display = 'none'; return; }
+  caja.style.display = 'block';
+  document.getElementById('cuotaCount').textContent = conceptos;
+  document.getElementById('cuotaS').textContent = conceptos === 1 ? '' : 's';
+  document.getElementById('cuotaMonto').textContent = zlMoneda(total) + ' MXN';
 }
 
-// ═══════════════ CITES CONTENT ═══════════════
+// ═══════════════ CITES ═══════════════
+const ico = n => `<svg class="zi" aria-hidden="true"><use href="#zi-${n}"/></svg>`;
 const CITES_CONTENT = {
   general: `
     <div class="cites-info">
-      <h3>📖 ¿Qué es CITES?</h3>
+      <h3>${ico('book-open')} ¿Qué es CITES?</h3>
       <p>La <strong style="color:#E8A317;">Convención sobre el Comercio Internacional de Especies Amenazadas de Fauna y Flora Silvestres</strong> (CITES) es un acuerdo internacional firmado en Washington en 1973 y vigente desde 1975. México es parte desde 1991.</p>
-      <p>Su objetivo es <strong style="color:#E8A317;">garantizar que el comercio internacional de especímenes de animales y plantas silvestres no constituya una amenaza para su supervivencia</strong>.</p>
-      <p>Actualmente regula el comercio de más de <strong>38,000 especies</strong> clasificadas en 3 apéndices según su grado de amenaza. En México, la autoridad administrativa es la <strong>DGVS-SEMARNAT</strong> y la autoridad científica es la <strong>CONABIO</strong>.</p>
+      <p>Su objetivo es que el comercio internacional de especímenes de animales y plantas silvestres <strong style="color:#E8A317;">no amenace su supervivencia</strong>. Las especies se agrupan en tres apéndices según su grado de protección.</p>
+      <p>En México, las importaciones, exportaciones y reexportaciones de especies de la Convención se rigen por la Convención, la Ley General de Vida Silvestre (Arts. 53 a 55) y su Reglamento. Los trámites se hacen ante SEMARNAT.</p>
       <div class="cites-proc">
-        <h4>🌐 Apéndices CITES</h4>
+        <h4>${ico('globe')} Los tres apéndices</h4>
         <ol>
-          <li><strong style="color:#D55A28;">Apéndice I:</strong> Especies en peligro de extinción. Comercio internacional PROHIBIDO salvo excepciones científicas estrictas.</li>
-          <li><strong style="color:#E8A317;">Apéndice II:</strong> Especies no necesariamente amenazadas pero cuyo comercio debe regularse para evitarlo.</li>
-          <li><strong style="color:#6FBF73;">Apéndice III:</strong> Especies protegidas al menos en un país miembro que solicita cooperación internacional.</li>
+          <li><strong style="color:#D55A28;">Apéndice I:</strong> especies amenazadas de extinción. El comercio solo se autoriza en circunstancias excepcionales.</li>
+          <li><strong style="color:#E8A317;">Apéndice II:</strong> especies que podrían llegar a estar amenazadas si su comercio no se controla.</li>
+          <li><strong style="color:#6FBF73;">Apéndice III:</strong> especies que un país incluye porque ya las regula y pide cooperación a los demás.</li>
         </ol>
+      </div>
+      <div class="legal-disclaimer" style="margin-top:12px;">
+        <strong>${ico('info')} Verifica siempre:</strong> los apéndices cambian cuando se reúne la Conferencia de las Partes. Consulta la lista vigente en <a href="https://speciesplus.net" target="_blank" rel="noopener" style="color:#6FBF73;">speciesplus.net</a> o en <a href="https://cites.org" target="_blank" rel="noopener" style="color:#6FBF73;">cites.org</a>.
       </div>
     </div>
   `,
   ap1: `
     <div class="cites-info">
-      <h3>🔴 Apéndice I · Especies en peligro de extinción</h3>
-      <p>Incluye especies cuya supervivencia está <strong style="color:#D55A28;">seriamente amenazada</strong>. El comercio internacional de estas especies y sus productos está <strong>estrictamente prohibido</strong>, con pocas excepciones.</p>
-      <p><strong style="color:#E8A317;">Ejemplos mexicanos:</strong> Jaguar, tapir, manatí, vaquita marina, lobo mexicano, mono araña, guacamaya roja, águila arpía, tortuga carey, tortuga laúd, totoaba, lobos marinos.</p>
+      <h3><span class="zdot" style="background:#C0392B"></span> Apéndice I · Especies amenazadas de extinción</h3>
+      <p>Incluye las especies más amenazadas entre las que son o pueden ser afectadas por el comercio. Su comercio internacional <strong>solo se autoriza en circunstancias excepcionales</strong>.</p>
+      <p><strong style="color:#E8A317;">Ejemplos de especies mexicanas:</strong> jaguar, ocelote, tapir centroamericano, manatí antillano, vaquita marina, lobo mexicano, guacamaya roja, águila arpía, halcón peregrino, tortuga carey, tortuga laúd y totoaba.</p>
       <div class="cites-proc">
-        <h4>📋 Requisitos de comercio</h4>
+        <h4>${ico('clipboard-list')} Qué exige la Convención</h4>
         <ol>
-          <li><strong>Permiso de exportación</strong> del país exportador (solo para fines no comerciales: científicos, reproducción en cautiverio, circo).</li>
-          <li><strong>Permiso de importación</strong> del país importador otorgado PREVIAMENTE.</li>
-          <li><strong>Dictamen de autoridad científica</strong> (CONABIO): el comercio no perjudicará la supervivencia.</li>
-          <li><strong>Comprobación de cautividad o cultivo</strong> para ejemplares no silvestres.</li>
-          <li><strong>Dictamen de bienestar animal:</strong> transporte sin daño ni trato cruel.</li>
+          <li><strong>Permiso de exportación</strong> del país exportador.</li>
+          <li><strong>Permiso de importación</strong> del país importador, que debe existir antes de la exportación.</li>
+          <li>Que la autoridad científica determine que el comercio no perjudica la supervivencia de la especie.</li>
+          <li>Que el ejemplar se haya obtenido legalmente y, si está vivo, se transporte con el menor riesgo de lesión, daño a la salud o trato cruel.</li>
         </ol>
       </div>
       <div class="cites-proc">
-        <h4>⚠️ Sanciones</h4>
+        <h4>${ico('triangle-alert')} Consecuencias de incumplir</h4>
         <ol>
-          <li>Retención inmediata del ejemplar en aduana.</li>
-          <li>Multa de 50 a 50,000 SMG vigentes (Art. 127 LGVS).</li>
-          <li>Decomiso definitivo del ejemplar/producto.</li>
-          <li>Posibles sanciones penales (Arts. 420, 420bis Código Penal Federal).</li>
+          <li>Sanciones administrativas de la Ley General de Vida Silvestre (Arts. 122 a 127): multas de 20 a 5,000, de 50 a 50,000 o de 200 a 75,000 veces la Unidad de Medida y Actualización, según la infracción.</li>
+          <li>Aseguramiento y decomiso de los ejemplares.</li>
+          <li>Responsabilidad penal: el Código Penal Federal (Art. 420, fr. IV) sanciona con 1 a 9 años de prisión y 300 a 3,000 días multa el tráfico o posesión ilícita de ejemplares de especies endémicas, amenazadas, en peligro de extinción, sujetas a protección especial o reguladas por un tratado internacional.</li>
         </ol>
       </div>
     </div>
   `,
   ap2: `
     <div class="cites-info">
-      <h3>🟡 Apéndice II · Especies reguladas</h3>
-      <p>Incluye especies <strong style="color:#E8A317;">no necesariamente en peligro</strong> pero cuyo comercio debe controlarse para evitar utilización incompatible con su supervivencia. <strong>Es el apéndice con mayor número de especies.</strong></p>
-      <p><strong style="color:#E8A317;">Ejemplos mexicanos:</strong> Puma, ocelote, oso negro, cocodrilos, iguana verde, boas, halcón peregrino, águila real, tiburones ballena, ajolote mexicano, cactáceas (biznagas, peyote), orquídeas mexicanas.</p>
+      <h3><span class="zdot" style="background:#E8A317"></span> Apéndice II · Comercio controlado</h3>
+      <p>Incluye especies que no están necesariamente en peligro de extinción, pero cuyo comercio debe controlarse para evitar que lo estén. Es el apéndice con más especies.</p>
+      <p><strong style="color:#E8A317;">Ejemplos:</strong> puma, oso negro, cocodrilo de pantano, iguana verde, boas, águila real, tiburón ballena, tiburón blanco, ajolote mexicano, y la familia de las cactáceas y las orquídeas en general.</p>
       <div class="cites-proc">
-        <h4>📋 Requisitos de comercio</h4>
+        <h4>${ico('clipboard-list')} Qué exige la Convención</h4>
         <ol>
-          <li><strong>Permiso de exportación CITES</strong> del país exportador (obligatorio).</li>
-          <li><strong>NO requiere permiso de importación</strong> (por regla general).</li>
-          <li><strong>Dictamen de autoridad científica:</strong> el comercio no será perjudicial.</li>
-          <li><strong>Comprobación de obtención legal</strong> (factura, registro UMA, etc.).</li>
-          <li><strong>Para especímenes vivos:</strong> dictamen de transporte adecuado.</li>
+          <li><strong>Permiso de exportación</strong> del país exportador.</li>
+          <li>La Convención <strong>no exige permiso de importación</strong> para este apéndice, pero <strong>en México la importación sí requiere autorización de SEMARNAT</strong> (Ley General de Vida Silvestre, Art. 54).</li>
+          <li>Que la autoridad científica determine que la exportación no perjudica la supervivencia de la especie.</li>
+          <li>Que el ejemplar se haya obtenido legalmente y, si está vivo, se transporte sin riesgo de lesión, daño a la salud o trato cruel.</li>
         </ol>
       </div>
       <div class="cites-proc">
-        <h4>💰 Costos y tiempos</h4>
+        <h4>${ico('banknote')} Costo</h4>
         <ol>
-          <li>Certificado CITES exportación: <strong>$3,400 MXN</strong> (LFD 194-CI)</li>
-          <li>Tiempo de trámite: 20-40 días hábiles</li>
-          <li>Vigencia: <strong>6 meses</strong> desde emisión</li>
+          <li>Solicitud de certificado o autorización de importación, exportación o reexportación: <strong>$880.20 MXN por solicitud</strong>, cualquiera que sea la resolución (Ley Federal de Derechos, Art. 194-F, apartado B, fr. II).</li>
+          <li>Según la Convención, el permiso de exportación es válido por <strong>6 meses</strong> desde su expedición.</li>
         </ol>
       </div>
     </div>
   `,
   ap3: `
     <div class="cites-info">
-      <h3>🟢 Apéndice III · Cooperación voluntaria</h3>
-      <p>Incluye especies que <strong style="color:#6FBF73;">al menos un país miembro</strong> considera protegidas dentro de su jurisdicción y para las cuales <strong>solicita cooperación</strong> internacional para controlar su comercio.</p>
-      <p><strong style="color:#E8A317;">Ejemplos:</strong> Cedro rojo (Cedrela odorata · listado por Colombia y Perú), morsa (Odobenus · por Canadá), cebra común (Equus burchellii · por Sudáfrica).</p>
+      <h3><span class="zdot" style="background:#3FA45B"></span> Apéndice III · Cooperación entre países</h3>
+      <p>Incluye especies que <strong style="color:#6FBF73;">un país ya protege</strong> dentro de su territorio y para las que pide a los demás cooperar en el control de su comercio.</p>
+      <p><strong style="color:#E8A317;">Ejemplos:</strong> el cedro rojo (<em>Cedrela odorata</em>) y el zopilote rey (<em>Sarcoramphus papa</em>), incluidos a solicitud de algunos países.</p>
       <div class="cites-proc">
-        <h4>📋 Requisitos</h4>
+        <h4>${ico('clipboard-list')} Qué exige la Convención</h4>
         <ol>
-          <li>Si la especie se exporta <strong>DESDE el país que la listó:</strong> Permiso CITES.</li>
-          <li>Si se exporta desde <strong>OTRO país:</strong> Certificado de origen (más sencillo).</li>
-          <li><strong>Dictamen de obtención legal</strong> en todos los casos.</li>
-        </ol>
-      </div>
-      <div class="cites-proc">
-        <h4>💡 Nota para México</h4>
-        <ol>
-          <li>México ha listado en Apéndice III especies como el camarón de río (Palaemonidae) y algunas especies maderables.</li>
-          <li>El control es menor que Apéndices I y II, pero el registro y seguimiento es obligatorio.</li>
+          <li>Si la exportación sale <strong>del país que incluyó la especie</strong>: permiso de exportación.</li>
+          <li>Si sale <strong>de otro país</strong>: certificado de origen (y, si aplica, de reexportación).</li>
+          <li>En todos los casos, comprobar el origen legal del ejemplar.</li>
         </ol>
       </div>
     </div>
   `,
   proc: `
     <div class="cites-info">
-      <h3>📋 Procedimientos CITES en México</h3>
-      <p>La gestión del trámite CITES en México se realiza ante la <strong style="color:#E8A317;">Dirección General de Vida Silvestre (DGVS)</strong> de SEMARNAT, con opinión técnica de CONABIO.</p>
+      <h3>${ico('clipboard-list')} Trámites CITES en México</h3>
+      <p>La importación, exportación y reexportación de ejemplares, partes y derivados requiere autorización de SEMARNAT (Ley General de Vida Silvestre, Arts. 53, 54 y 55). El Reglamento fija los datos y documentos de cada solicitud.</p>
       <div class="cites-proc">
-        <h4>📄 Documentación requerida (trámite completo)</h4>
+        <h4>${ico('file-text')} Importación (Reglamento, Arts. 62 a 64)</h4>
         <ol>
-          <li><strong>Formato SEMARNAT-08-047</strong> (Certificado CITES) debidamente llenado.</li>
-          <li><strong>Identificación oficial</strong> del solicitante (INE, pasaporte).</li>
-          <li><strong>Acta constitutiva</strong> en caso de personas morales.</li>
-          <li><strong>Poder notarial</strong> del representante legal.</li>
-          <li><strong>RFC con sello digital</strong> del solicitante.</li>
-          <li><strong>Comprobante de domicilio</strong> (no mayor a 3 meses).</li>
-          <li><strong>Comprobante de pago de derechos</strong> (formato e5cinco).</li>
-          <li><strong>Acreditación de legal procedencia</strong> (registro UMA, factura, ticket importación).</li>
-          <li><strong>Datos del destinatario en el extranjero</strong> (nombre, dirección, permiso de importación).</li>
-          <li><strong>Descripción detallada del ejemplar</strong> (nombre científico, cantidad, peso, sexo, edad).</li>
-          <li><strong>Plan de transporte</strong> para especímenes vivos (IATA Live Animals Regulations).</li>
+          <li>Indicar si es <strong>definitiva o temporal</strong> y si son ejemplares vivos, partes o derivados.</li>
+          <li>Precisar la <strong>aduana de entrada</strong> y los <strong>datos del destinatario</strong> (nombre o razón social, domicilio, teléfono o correo).</li>
+          <li>Anexar la <strong>relación y descripción</strong> de los ejemplares: nombre científico, nombre común, país de origen, país de procedencia y cantidad.</li>
+          <li>Anexar <strong>copia simple del permiso o certificado CITES de exportación</strong> del país de origen o procedencia, a nombre del solicitante.</li>
+          <li>Sistema de marca, cuando la CITES lo requiera.</li>
+          <li>Después de importar, entregar a SEMARNAT en un máximo de 10 días hábiles el original del permiso de exportación verificado, copia del permiso de importación verificado y, en su caso, la verificación sanitaria (Art. 64).</li>
         </ol>
       </div>
       <div class="cites-proc">
-        <h4>⏱️ Tiempos y costos (2026)</h4>
+        <h4>${ico('file-text')} Exportación y reexportación (Reglamento, Art. 65 y siguientes)</h4>
         <ol>
-          <li>Plazo legal de resolución: <strong>20 días hábiles</strong> (Arts. 8 y 23 LGVS).</li>
-          <li>Certificado CITES exportación: <strong>$3,400 MXN</strong></li>
-          <li>Certificado CITES reexportación: <strong>$3,400 MXN</strong></li>
-          <li>Pre-convención: <strong>$2,800 MXN</strong></li>
-          <li>Vigencia certificado: <strong>6 meses</strong></li>
+          <li>Indicar si es <strong>definitiva o temporal</strong> y, si es temporal, el periodo de permanencia en el extranjero.</li>
+          <li>Indicar si son ejemplares vivos, partes, derivados, flora u otros.</li>
+          <li>Indicar la <strong>aduana de salida</strong> (y, en reexportaciones, la de entrada), el <strong>país de destino</strong> y la <strong>finalidad</strong> del movimiento.</li>
         </ol>
       </div>
       <div class="cites-proc">
-        <h4>🏢 Dónde presentar</h4>
+        <h4>${ico('shield-check')} Legal procedencia (Ley General de Vida Silvestre, Arts. 50 y 51)</h4>
         <ol>
-          <li><strong>Ventanilla única DGVS-SEMARNAT:</strong> Av. Ejército Nacional 223, Anzures, CDMX.</li>
-          <li><strong>Portal web:</strong> gob.mx/semarnat/acciones-y-programas/cites-comercio-internacional</li>
-          <li><strong>Oficinas Representativas de SEMARNAT</strong> en estados (trámites simples).</li>
+          <li>Para registros y autorizaciones de ejemplares fuera de su hábitat, la autoridad verifica su legal procedencia.</li>
+          <li>Se demuestra con la <strong>marca</strong> de aprovechamiento sustentable y la tasa autorizada, o con la <strong>nota de remisión o factura</strong> foliada que indique la autorización de aprovechamiento, el predio, la especie y el titular.</li>
+        </ol>
+      </div>
+      <div class="cites-proc">
+        <h4>${ico('banknote')} Costo y dónde tramitar</h4>
+        <ol>
+          <li><strong>$880.20 MXN por solicitud</strong> (Ley Federal de Derechos, Art. 194-F, apartado B, fr. II).</li>
+          <li>Los formatos, las ventanillas y los medios electrónicos cambian: consulta el trámite vigente en <a href="https://www.gob.mx/semarnat" target="_blank" rel="noopener" style="color:#6FBF73;">gob.mx/semarnat</a>.</li>
         </ol>
       </div>
     </div>
@@ -1594,158 +1701,155 @@ function renderCITES(tipo) {
 }
 
 // ═══════════════ MARCO LEGAL ═══════════════
+// Artículos verificados contra el texto vigente publicado por la Cámara de Diputados.
 function renderMarcoLegal() {
   const html = `
     <div class="marco-card">
-      <div class="marco-card__title">📜 Ley General de Vida Silvestre (LGVS)</div>
-      <div class="marco-card__sub">Última reforma: DOF 20-mayo-2021</div>
-      <p><strong>Art. 3:</strong> Define los conceptos fundamentales: hábitat crítico, especie exótica, aprovechamiento extractivo/no extractivo, ejemplar, legal procedencia.</p>
-      <p><strong>Art. 39-49:</strong> Unidades de Manejo para la Conservación de la Vida Silvestre (UMA): definición, registro, obligaciones del responsable técnico, planes de manejo.</p>
-      <p><strong>Art. 55-60:</strong> Especies exóticas e invasoras: prohibiciones, permisos especiales.</p>
-      <p><strong>Art. 78-80:</strong> Aprovechamiento extractivo y no extractivo: caza deportiva, colecta científica, fotografía.</p>
-      <p><strong>Art. 87:</strong> Obligación de presentar informes anuales.</p>
-      <p><strong>Art. 122-127:</strong> Sanciones: multas de 20 a 50,000 SMG, decomiso, clausura, revocación.</p>
+      <div class="marco-card__title">${ico('scroll-text')} Ley General de Vida Silvestre (LGVS)</div>
+      <div class="marco-card__sub">Última reforma: DOF 16-07-2025</div>
+      <p><strong>Art. 3:</strong> definiciones (ejemplar, hábitat, aprovechamiento, legal procedencia, entre otras).</p>
+      <p><strong>Arts. 27 y 28:</strong> manejo de ejemplares y poblaciones exóticos: solo en confinamiento y con plan de manejo aprobado.</p>
+      <p><strong>Arts. 29 a 35:</strong> trato digno y respetuoso a la fauna silvestre. Está prohibido todo acto de crueldad (Art. 30).</p>
+      <p><strong>Arts. 39 a 47:</strong> Unidades de Manejo para la Conservación de la Vida Silvestre (UMA): registro, plan de manejo y Sistema Nacional de UMA.</p>
+      <p><strong>Art. 40:</strong> expediente de registro de una UMA: datos generales, títulos de propiedad o legítima posesión, ubicación y superficie, y plan de manejo.</p>
+      <p><strong>Art. 42:</strong> los titulares de UMA presentan informes periódicos de actividades, incidencias y contingencias.</p>
+      <p><strong>Arts. 50 a 54:</strong> legal procedencia, traslado, exportación e importación de ejemplares.</p>
+      <p><strong>Arts. 55 y 55 Bis:</strong> comercio internacional de especies CITES; prohibiciones para mamíferos marinos y primates.</p>
+      <p><strong>Arts. 56 a 60:</strong> especies y poblaciones en riesgo (Capítulo I, Título VI) y prohibiciones especiales.</p>
+      <p><strong>Arts. 78 y 78 Bis:</strong> colecciones científicas y museográficas; predios e instalaciones que manejan vida silvestre en forma confinada (zoológicos, colecciones privadas): plan de manejo y registro anual. Se prohíbe el uso de ejemplares de vida silvestre en circos.</p>
+      <p><strong>Arts. 79 a 81:</strong> liberación de ejemplares al hábitat natural: repoblación, reintroducción y translocación.</p>
+      <p><strong>Arts. 122 a 127:</strong> infracciones y sanciones. Multas de 20 a 5,000, de 50 a 50,000 o de 200 a 75,000 veces la Unidad de Medida y Actualización según la infracción (Art. 127); en reincidencia, hasta el doble.</p>
     </div>
     <div class="marco-card">
-      <div class="marco-card__title">🌳 LGEEPA · Ley General del Equilibrio Ecológico</div>
-      <div class="marco-card__sub">Última reforma: DOF 18-enero-2021</div>
-      <p><strong>Art. 28:</strong> Obras y actividades que requieren evaluación de impacto ambiental (MIA).</p>
-      <p><strong>Art. 29-35:</strong> Procedimiento de evaluación de impacto ambiental.</p>
-      <p><strong>Art. 46-56:</strong> Áreas Naturales Protegidas federales: decretos, zonificación, programas de manejo.</p>
-      <p><strong>Art. 79-80:</strong> Flora y fauna silvestre: aprovechamiento sustentable, repoblación.</p>
-      <p><strong>Art. 170-171:</strong> Sanciones administrativas y penales.</p>
+      <div class="marco-card__title">${ico('clipboard-list')} Reglamento de la LGVS</div>
+      <div class="marco-card__sub">Última reforma: DOF 09-05-2014</div>
+      <p><strong>Arts. 24 a 49:</strong> registro y operación de las UMA y de los predios o instalaciones que manejan vida silvestre fuera de su hábitat: documentos, planes de manejo, responsable técnico.</p>
+      <p><strong>Art. 50:</strong> informes de las UMA: informe anual de actividades de abril a junio; informe de contingencias dentro de 3 días hábiles; fugas o enfermedades dentro de 5 días naturales.</p>
+      <p><strong>Arts. 62 a 66:</strong> requisitos para importar, exportar y reexportar con permisos o certificados CITES.</p>
+      <p><strong>Arts. 124 a 127:</strong> licencias de colecta científica: vigencia hasta de un año, prórroga, modificación e informe anual.</p>
     </div>
     <div class="marco-card">
-      <div class="marco-card__title">📋 Reglamento de la LGVS</div>
-      <div class="marco-card__sub">Última reforma: DOF 09-mayo-2014</div>
-      <p><strong>Art. 26-32:</strong> Registro y operación de UMA: tipos, requisitos, plan de manejo.</p>
-      <p><strong>Art. 54-58:</strong> Aprovechamiento sustentable: tasas de aprovechamiento, autorizaciones.</p>
-      <p><strong>Art. 99-103:</strong> Reintroducción, repoblación, traslocación y liberación.</p>
-      <p><strong>Art. 121-134:</strong> Colecta científica, enseñanza y estudios de biodiversidad.</p>
+      <div class="marco-card__title">${ico('trees')} LGEEPA · Ley General del Equilibrio Ecológico y la Protección al Ambiente</div>
+      <div class="marco-card__sub">Última reforma: DOF 19-01-2026</div>
+      <p><strong>Arts. 28 a 35:</strong> evaluación del impacto ambiental (Art. 28) y su procedimiento.</p>
+      <p><strong>Art. 46 y siguientes:</strong> áreas naturales protegidas.</p>
+      <p><strong>Arts. 79 a 87:</strong> preservación y aprovechamiento sustentable de la flora y fauna silvestre.</p>
+      <p><strong>Arts. 170 y 171:</strong> medidas de seguridad y sanciones administrativas.</p>
     </div>
     <div class="marco-card">
-      <div class="marco-card__title">⚖️ Código Penal Federal</div>
-      <div class="marco-card__sub">Delitos contra el ambiente</div>
-      <p><strong>Art. 420:</strong> Prisión de 1 a 9 años y multa a quien ilícitamente capture, dañe o prive de la vida a especies de flora o fauna acuáticas en veda, protegidas o en riesgo.</p>
-      <p><strong>Art. 420 bis:</strong> Prisión de 2 a 10 años y multa a quien ilícitamente dañe, destruya o afecte humedales, manglares, lagunas, esteros o pantanos.</p>
-      <p><strong>Art. 420 ter:</strong> Prisión de 2 a 6 años a quien introduzca al país, transporte o comercialice recursos genéticos sin la autorización correspondiente.</p>
+      <div class="marco-card__title">${ico('scale')} Código Penal Federal</div>
+      <div class="marco-card__sub">Delitos contra el ambiente · Última reforma: DOF 13-03-2026</div>
+      <p><strong>Art. 420:</strong> prisión de 1 a 9 años y 300 a 3,000 días multa a quien ilícitamente capture, dañe o prive de la vida a tortugas o mamíferos marinos, o a especies acuáticas en veda; use un medio de caza no permitido; o realice tráfico, captura, posesión, transporte o acopio de ejemplares de especies en veda, endémicas, amenazadas, en peligro de extinción, sujetas a protección especial o reguladas por tratado internacional. La pena aumenta hasta 3 años si ocurre en un área natural protegida o con fines comerciales.</p>
+      <p><strong>Art. 420 Bis:</strong> prisión de 2 a 10 años y 300 a 3,000 días multa, entre otros casos, por dañar humedales, manglares o arrecifes, o introducir o liberar en el medio natural especies exóticas que perjudiquen un ecosistema.</p>
+      <p><strong>Art. 420 Quáter:</strong> prisión de 1 a 4 años y 300 a 3,000 días multa, entre otros casos, por asentar datos falsos en registros o bitácoras para simular el cumplimiento de la normatividad ambiental, o por destruir u ocultar los registros que deben conservarse.</p>
     </div>
     <div class="marco-card">
-      <div class="marco-card__title">📑 NOMs relevantes en Vida Silvestre</div>
-      <div class="marco-card__sub">Normas Oficiales Mexicanas aplicables</div>
-      <p><strong>NOM-059-SEMARNAT-2010:</strong> Protección ambiental · Especies nativas de flora y fauna silvestres · Categorías de riesgo.</p>
-      <p><strong>NOM-126-SEMARNAT-2000:</strong> Especificaciones para la realización de actividades de colecta científica de material biológico de especies de flora y fauna silvestres.</p>
-      <p><strong>NOM-135-SEMARNAT-2004:</strong> Manejo de aves de presa (cetrería).</p>
-      <p><strong>NOM-029-SEMARNAT-2006:</strong> Especificaciones sanitarias para el aprovechamiento, manejo y procesamiento del tiburón.</p>
-      <p><strong>NOM-062-ZOO-1999:</strong> Especificaciones técnicas para la producción, cuidado y uso de animales de laboratorio.</p>
+      <div class="marco-card__title">${ico('files')} Normas Oficiales Mexicanas relacionadas</div>
+      <div class="marco-card__sub">Confirma siempre el texto y la vigencia en el DOF</div>
+      <p><strong>NOM-059-SEMARNAT-2010:</strong> protección ambiental de especies nativas de México de flora y fauna silvestres, categorías de riesgo y lista de especies en riesgo (Anexo Normativo III, modificado el 14-11-2019).</p>
+      <p><strong>NOM-126-SEMARNAT-2000:</strong> especificaciones para la colecta científica de material biológico de especies de flora y fauna silvestres y otros recursos biológicos.</p>
+      <p><strong>NOM-135-SEMARNAT-2004:</strong> captura para investigación, transporte, exhibición, manejo y manutención de mamíferos marinos en cautiverio.</p>
+      <p><strong>NOM-051-ZOO-1995:</strong> trato humanitario en la movilización de animales.</p>
+      <p><strong>NOM-062-ZOO-1999:</strong> especificaciones técnicas para la producción, cuidado y uso de los animales de laboratorio.</p>
     </div>
     <div class="marco-card">
-      <div class="marco-card__title">🌐 Tratados internacionales</div>
-      <div class="marco-card__sub">Vinculantes para México</div>
-      <p><strong>CITES:</strong> Convención sobre el Comercio Internacional de Especies Amenazadas (1975). México parte desde 1991.</p>
-      <p><strong>CDB:</strong> Convenio sobre la Diversidad Biológica (1992). Protocolo de Nagoya (2010) y Cartagena (2000).</p>
-      <p><strong>Ramsar:</strong> Convención sobre Humedales (1971). México ratifica 1986. 142 sitios Ramsar en MX.</p>
-      <p><strong>CMS / Bonn:</strong> Conservación de Especies Migratorias (1979).</p>
-      <p><strong>Red List IUCN:</strong> Referencia científica internacional del estado de las especies (no vinculante legalmente pero sí referencial).</p>
+      <div class="marco-card__title">${ico('globe')} Referencias internacionales</div>
+      <div class="marco-card__sub">Para consulta</div>
+      <p><strong>CITES:</strong> Convención sobre el Comercio Internacional de Especies Amenazadas de Fauna y Flora Silvestres (1973). México es parte desde 1991.</p>
+      <p><strong>Convenio sobre la Diversidad Biológica (1992)</strong> y sus protocolos de Cartagena (2000) y Nagoya (2010).</p>
+      <p><strong>Ramsar:</strong> Convención relativa a los Humedales de Importancia Internacional (1971).</p>
+      <p><strong>Lista Roja de la UICN:</strong> referencia científica internacional sobre el estado de las especies; no tiene valor legal por sí misma.</p>
     </div>
   `;
   document.getElementById('marcoLegal').innerHTML = html;
 }
 
-// ═══════════════ CHECKLISTS ═══════════════
+// ═══════════════ LISTAS DE REVISIÓN ═══════════════
+// Cada punto cita la disposición de donde sale. Los formatos y ventanillas cambian: confírmalos en el portal del trámite.
 const CHECKLISTS = {
   uma_ex: {
-    title: '🦌 Checklist UMA Extensiva (Vida Libre) · Alta inicial',
+    title: `${ico('trees')} Registro de UMA extensiva (vida libre)`,
     items: [
-      { t: 'Escritura o contrato de propiedad/uso del predio', d: 'Propiedad privada, ejidal, comunal o en arrendamiento >10 años' },
-      { t: 'Plan de Manejo aprobado', d: 'Elaborado por responsable técnico con cédula en biología/veterinaria/zootecnia/ecología' },
-      { t: 'Planos y coordenadas geográficas', d: 'UTM/DATUM WGS84, shapefile del polígono' },
-      { t: 'Estudio de flora y fauna', d: 'Inventario preliminar con listado de especies y estado de conservación' },
-      { t: 'Carta de no adeudo del responsable técnico', d: 'Sin procesos administrativos previos con SEMARNAT' },
-      { t: 'Identificación oficial de propietario y responsable', d: 'INE o pasaporte vigente' },
-      { t: 'Acta constitutiva (personas morales)', d: 'Para sociedades anónimas, asociaciones civiles' },
-      { t: 'RFC con cédula de identificación fiscal', d: 'Actualizado' },
-      { t: 'Comprobante de domicilio del predio', d: 'Menor a 3 meses' },
-      { t: 'Pago de derechos SEMARNAT', d: '$2,450 MXN (LFD 194-A)' },
-      { t: 'Cédula profesional del responsable técnico', d: 'Copia certificada' },
-      { t: 'Formato SEMARNAT-08-049', d: 'Solicitud de inscripción de UMA Extensiva' }
+      { t: 'Datos generales del solicitante', d: 'Parte del expediente de registro (LGVS, Art. 40).' },
+      { t: 'Documentos que acrediten la propiedad o legítima posesión del predio', d: 'LGVS Art. 40; el Reglamento (Arts. 31 y 32) indica qué documentos acreditan los derechos.' },
+      { t: 'Ubicación geográfica, superficie y colindancias', d: 'LGVS Art. 40. Conviene incluir plano con coordenadas.' },
+      { t: 'Plan de manejo', d: 'Objetivos y metas, información biológica de las especies, descripción del área e infraestructura, métodos de muestreo, calendario, medidas de manejo, contingencias y vigilancia (LGVS Art. 40).' },
+      { t: 'Estudio de población congruente con el plan de manejo', d: 'La Secretaría puede negar el registro si el plan no es consistente con el estudio presentado (LGVS Art. 41).' },
+      { t: 'Responsable técnico', d: 'Elabora el plan de manejo y es responsable solidario con el titular (LGVS Art. 40; Reglamento Art. 34).' },
+      { t: 'Si habrá aprovechamiento: medios y formas, y sistema de marca', d: 'LGVS Art. 40, plan de manejo, inciso i); Reglamento Art. 40.' },
+      { t: 'Calendario para el informe anual', d: 'Informe anual de actividades de abril a junio (Reglamento Art. 50).' }
     ]
   },
   uma_in: {
-    title: '🏠 Checklist UMA Intensiva (Confinamiento) · Alta inicial',
+    title: `${ico('house')} Registro de UMA intensiva (confinamiento)`,
     items: [
-      { t: 'Escritura o contrato de propiedad/uso del predio', d: 'Propiedad privada, renta >10 años' },
-      { t: 'Plan de Manejo aprobado', d: 'Con objetivos específicos: reproducción, exhibición, rehabilitación' },
-      { t: 'Diseño de instalaciones con planos', d: 'Encierros, áreas de cuarentena, necropsia, clínica veterinaria' },
-      { t: 'Plan sanitario firmado por MV Zootecnista', d: 'Esquema de vacunación, desparasitación, bioseguridad' },
-      { t: 'Protocolo de bioseguridad', d: 'Manejo de residuos biológicos, limpieza, aislamiento' },
-      { t: 'Acreditación legal de ejemplares fundadores', d: 'Facturas, registro UMA origen, trazabilidad' },
-      { t: 'Responsable técnico con cédula', d: 'MV, biólogo, zootecnista o equivalente' },
-      { t: 'Identificación individual de ejemplares', d: 'Microchips, aretes, bandas numeradas' },
-      { t: 'Pago de derechos SEMARNAT', d: '$3,200 MXN (LFD 194-B)' },
-      { t: 'Formato SEMARNAT-08-049-B', d: 'Solicitud de inscripción UMA Intensiva' },
-      { t: 'Visita de verificación SEMARNAT', d: 'Programar con delegación estatal' }
+      { t: 'Datos generales y documentos de propiedad o legítima posesión', d: 'LGVS Art. 40; Reglamento Arts. 31 y 32.' },
+      { t: 'Ubicación, superficie y colindancias de las instalaciones', d: 'LGVS Art. 40.' },
+      { t: 'Plan de manejo', d: 'Objetivos, información biológica, descripción de infraestructura, medidas de manejo de hábitat, poblaciones y ejemplares, contingencias y vigilancia (LGVS Art. 40).' },
+      { t: 'Sistema de marca de los ejemplares', d: 'LGVS Art. 40, inciso i); Reglamento Art. 40.' },
+      { t: 'Legal procedencia de los ejemplares', d: 'Marca y tasa autorizada, o nota de remisión o factura foliada (LGVS Arts. 50 y 51).' },
+      { t: 'Medidas de trato digno y respetuoso', d: 'Confinamiento, manejo y traslado sin crueldad (LGVS Arts. 29 a 35).' },
+      { t: 'Responsable técnico', d: 'Elabora el plan de manejo y responde de forma solidaria (LGVS Art. 40).' },
+      { t: 'Informe anual y de contingencias', d: 'Anual: abril a junio. Contingencias: 3 días hábiles. Fugas o enfermedades: 5 días naturales (Reglamento Art. 50).' }
     ]
   },
   pimvs: {
-    title: '🏭 Checklist PIMVS · Alta inicial',
+    title: `${ico('factory')} Registro de predio o instalación que maneja vida silvestre en confinamiento (PIMVS)`,
     items: [
-      { t: 'Justificación del predio/instalación', d: 'Refugio, santuario, rescate, exhibición, criadero' },
-      { t: 'Planos arquitectónicos y de instalaciones', d: 'Aprobados por autoridad correspondiente' },
-      { t: 'Plan de manejo específico PIMVS', d: 'Objetivos, especies objetivo, métodos de manejo' },
-      { t: 'Protocolo sanitario y veterinario', d: 'Firmado por MV' },
-      { t: 'Procedencia legal comprobada de todos los ejemplares', d: 'Trazabilidad completa desde origen' },
-      { t: 'Plan de contingencias', d: 'Escapes, enfermedades, desastres naturales' },
-      { t: 'Responsable técnico con cédula profesional', d: 'MV, biólogo, ecólogo' },
-      { t: 'Pago de derechos SEMARNAT', d: '$4,580 MXN (LFD 194-G)' },
-      { t: 'Formato SEMARNAT PIMVS', d: 'Solicitud completa' }
+      { t: 'Plan de manejo autorizado por SEMARNAT', d: 'Sin plan de manejo autorizado no pueden operar (LGVS Art. 78).' },
+      { t: 'Contenido mínimo del plan de manejo', d: 'Especies y número de ejemplares, tipo de confinamiento, descripción del área, dieta, cuidados clínicos, transporte, mantenimiento e higiene, educación ambiental, trato digno, calendario, seguridad y contingencia, vigilancia, métodos de contención y marcaje (LGVS Art. 78 Bis, incisos a a o).' },
+      { t: 'Documentos de legal procedencia de los ejemplares', d: 'Se anexan a la solicitud (Reglamento, capítulo de registro de predios o instalaciones).' },
+      { t: 'Inventario de ejemplares', d: 'Nombre común y científico, descripción, sexo, tipo y número de marca (Reglamento).' },
+      { t: 'Ubicación de predios o instalaciones', d: 'Cuando se trate de zoológicos, espectáculos públicos fijos y colecciones privadas.' },
+      { t: 'Actualización anual en el padrón', d: 'Registrarse y actualizar datos cada año (LGVS Art. 78).' },
+      { t: 'Verificación de instalaciones', d: 'La Secretaría puede constatar físicamente que el área e infraestructura son las necesarias (LGVS Art. 78 Bis).' },
+      { t: 'Derecho por la solicitud', d: 'Confirma si tu registro causa los $685.83 MXN de la LFD Art. 194-F-1, fr. I, o está exento.' },
+      { t: 'No usar ejemplares en circos', d: 'Prohibido por la LGVS (Art. 78).' }
     ]
   },
   colecta: {
-    title: '🧪 Checklist Permiso de Colecta Científica',
+    title: `${ico('flask-conical')} Licencia de colecta científica`,
     items: [
-      { t: 'Proyecto de investigación completo', d: 'Objetivos, justificación, metodología, cronograma, presupuesto' },
-      { t: 'Aval institucional', d: 'Carta de la institución académica o centro de investigación' },
-      { t: 'Currículum del responsable y colaboradores', d: 'Con experiencia en el grupo taxonómico' },
-      { t: 'Lista de especies objetivo', d: 'Con categoría NOM-059 y número de ejemplares a colectar' },
-      { t: 'Técnicas de colecta detalladas', d: 'Redes de niebla, trampas, captura manual, etc.' },
-      { t: 'Justificación del número de ejemplares', d: 'Con sustento estadístico/biológico' },
-      { t: 'Plan de disposición de ejemplares', d: 'Dónde se depositarán (museo, colección científica)' },
-      { t: 'Documentación oficial del solicitante', d: 'INE, CURP, RFC' },
-      { t: 'Pago de derechos', d: '$2,150 MXN (LFD 195-A)' },
-      { t: 'Formato SEMARNAT-08-050', d: 'Solicitud de colecta científica' },
-      { t: 'Si colecta en ANP: autorización específica del área', d: 'Consultar director del ANP' }
+      { t: 'Currículum vitae del responsable', d: 'Se anexa a la solicitud (Reglamento, colecta científica).' },
+      { t: 'Resumen del proyecto o línea de investigación', d: 'Nombre de responsables, colaboradores e instituciones; objetivo y justificación.' },
+      { t: 'Listado de especies, géneros o familias y cantidad aproximada de ejemplares', d: 'Para especies en riesgo, el proyecto lleva información adicional.' },
+      { t: 'Metodología y técnicas de colecta', d: 'Descripción de la metodología y técnicas.' },
+      { t: 'Sitio de colecta y mapa de ubicación', d: 'Localidad o región donde se hará la colecta.' },
+      { t: 'Fechas de inicio y término del trabajo de campo', d: 'Parte del resumen de actividades.' },
+      { t: 'Carta aval de una institución mexicana reconocida', d: 'Respaldo para realizar las actividades de campo.' },
+      { t: 'Depósito de ejemplares', d: 'Instituciones a las que se destinará el material y fichas de depósito (informe, Reglamento Art. 126).' },
+      { t: 'Derecho', d: 'Extranjeros: $24,977.08 MXN (LFD Art. 194-F, apartado B, fr. I). Con convenio con el Gobierno Federal o una institución mexicana, y SNI: no pagan esta fracción.' },
+      { t: 'Vigencia e informe', d: 'Licencia de hasta un año; prórroga con 20 días hábiles de anticipación; informe anual (Reglamento Arts. 124 a 126).' },
+      { t: 'Revisa la NOM-126-SEMARNAT-2000', d: 'Especificaciones de la colecta científica.' }
     ]
   },
   liberacion: {
-    title: '🦅 Checklist Liberación de Fauna Silvestre',
+    title: `${ico('bird')} Liberación de ejemplares al hábitat natural`,
     items: [
-      { t: 'Proyecto de liberación', d: 'Especies, número, sitio, justificación conservacionista' },
-      { t: 'Evaluación pre-liberación de ejemplares', d: 'Salud, conducta, capacidad de supervivencia' },
-      { t: 'Análisis clínicos y sanitarios negativos', d: 'Descarte de enfermedades (tuberculosis, brucelosis, virales)' },
-      { t: 'Acreditación de origen legal', d: 'Confiscados por PROFEPA, rehabilitación autorizada' },
-      { t: 'Estudio del sitio de liberación', d: 'Hábitat adecuado, capacidad de carga, amenazas' },
-      { t: 'Carta de aceptación del predio de liberación', d: 'Propietario o responsable del ANP' },
-      { t: 'Plan de monitoreo post-liberación', d: 'Telemetría, seguimiento de fauna, indicadores de éxito' },
-      { t: 'Responsable técnico veterinario/biólogo', d: 'Con experiencia en reintroducciones' },
-      { t: 'Pago de derechos', d: '$1,450 MXN (LFD 195-L1) o $980 si confiscados (LFD 195-L2)' },
-      { t: 'Formato SEMARNAT específico', d: 'Solicitud de liberación' }
+      { t: 'Proyecto de repoblación, reintroducción o translocación', d: 'La liberación se autoriza dentro de proyectos (LGVS Arts. 80 y 81).' },
+      { t: 'Evaluación previa de los ejemplares y del hábitat', d: 'Debe mostrar que sus características son viables para el proyecto (LGVS Art. 80, inciso a).' },
+      { t: 'Plan de manejo con seguimiento', d: 'Indicadores para valorar los efectos sobre los ejemplares liberados, otras especies y el hábitat, y medidas para disminuir factores que afecten su sobrevivencia (LGVS Art. 80, inciso b).' },
+      { t: 'Control sanitario de los ejemplares a liberar', d: 'En su caso (LGVS Art. 80, inciso c).' },
+      { t: 'Subespecie adecuada en translocaciones', d: 'Los ejemplares deben pertenecer, en lo posible, a la subespecie más cercana genética y fisonómicamente (LGVS Art. 81).' },
+      { t: 'Rehabilitación previa si hace falta', d: 'La Secretaría procura liberar a la brevedad, salvo que se requiera rehabilitación (LGVS Art. 79).' },
+      { t: 'Si no conviene liberar', d: 'La Secretaría determina otro destino de conservación, investigación o educación (LGVS Art. 79).' },
+      { t: 'Procedimiento y requisitos del trámite', d: 'Consulta el Reglamento y el trámite vigente en el portal de SEMARNAT; no se encontró un derecho específico en la LFD para este trámite.' }
     ]
   },
   cites: {
-    title: '🌐 Checklist Trámite CITES',
+    title: `${ico('globe')} Importación, exportación o reexportación (CITES)`,
     items: [
-      { t: 'Identificar apéndice de la especie', d: 'I, II o III (buscar en speciesplus.net)' },
-      { t: 'Permiso de importación del país destino', d: 'OBLIGATORIO previo para Apéndice I' },
-      { t: 'Acreditación legal de procedencia', d: 'Factura, registro UMA, permiso colecta' },
-      { t: 'Dictamen CONABIO (autoridad científica)', d: 'Se tramita dentro del mismo proceso CITES' },
-      { t: 'Formato SEMARNAT-08-047', d: 'Certificado CITES debidamente llenado' },
-      { t: 'Identificación oficial del solicitante', d: 'INE, pasaporte' },
-      { t: 'Datos completos del destinatario', d: 'Nombre legal, dirección, permiso importación' },
-      { t: 'Descripción detallada del ejemplar', d: 'Nombre científico, cantidad, peso, sexo, origen' },
-      { t: 'Plan de transporte IATA (ejemplares vivos)', d: 'Live Animals Regulations compliance' },
-      { t: 'Pago de derechos', d: '$3,400 MXN por certificado (LFD 194-CI)' },
-      { t: 'Ventanilla DGVS-SEMARNAT', d: 'Av. Ejército Nacional 223, Anzures, CDMX' }
+      { t: 'Identificar el apéndice de la especie', d: 'I, II o III. Consulta Species+ (speciesplus.net) o cites.org.' },
+      { t: 'Definir el movimiento', d: 'Importación, exportación o reexportación; definitiva o temporal; ejemplares vivos, partes o derivados.' },
+      { t: 'Acreditar la legal procedencia', d: 'Marca y tasa autorizada, o nota de remisión o factura foliada (LGVS Arts. 50 y 51).' },
+      { t: 'Importación: copia del permiso CITES de exportación del país de origen', d: 'A nombre del solicitante o de la empresa representada (Reglamento Art. 63).' },
+      { t: 'Importación: relación y descripción de los ejemplares', d: 'Nombre científico, nombre común, país de origen, país de procedencia y cantidad (Reglamento Art. 63).' },
+      { t: 'Datos del destinatario y aduana', d: 'Nombre o razón social, domicilio, teléfono o correo; aduana de entrada o de salida (Reglamento Arts. 62 y 65).' },
+      { t: 'Exportación: país de destino, aduana de salida y finalidad', d: 'Y periodo de permanencia en el extranjero si es temporal (Reglamento Art. 65).' },
+      { t: 'Transporte de ejemplares vivos', d: 'Cumplir los requisitos sanitarios y de trato digno (LGVS Art. 52).' },
+      { t: 'Sistema de marca', d: 'Cuando la CITES lo requiera (Reglamento Art. 63, fr. III).' },
+      { t: 'Derecho', d: '$880.20 MXN por solicitud (LFD Art. 194-F, apartado B, fr. II).' },
+      { t: 'Verificación y aviso posterior', d: 'Después de importar: documentos a SEMARNAT en un máximo de 10 días hábiles (Reglamento Art. 64).' }
     ]
   }
 };
@@ -1753,46 +1857,49 @@ const CHECKLISTS = {
 function renderChecklist() {
   const tipo = document.getElementById('checkSelect').value;
   const cl = CHECKLISTS[tipo];
-  const saved = JSON.parse(localStorage.getItem('zooChecklist_' + tipo) || '{}');
+  if (!cl) return;
+  const guardado = zlAlmacen.leer('zooChecklist_' + tipo, {});
   let html = `
     <div class="checklist">
       <div class="checklist__title">${cl.title}</div>
   `;
   cl.items.forEach((item, i) => {
-    const checked = saved[i] ? 'checked' : '';
+    const marcado = guardado[i] ? 'checked' : '';
     html += `
       <div class="checklist-item">
-        <input type="checkbox" id="chk_${tipo}_${i}" ${checked} onchange="toggleCheck('${tipo}', ${i})">
+        <input type="checkbox" id="chk_${tipo}_${i}" ${marcado} onchange="toggleCheck('${tipo}', ${i})">
         <label for="chk_${tipo}_${i}">
-          <strong>${item.t}</strong>
-          ${item.d}
+          <strong>${zlEsc(item.t)}</strong>
+          ${zlEsc(item.d)}
         </label>
       </div>
     `;
   });
-  const marcados = Object.values(saved).filter(v => v).length;
+  const marcados = Object.values(guardado).filter(v => v).length;
   const total = cl.items.length;
   const pct = Math.round((marcados / total) * 100);
   html += `
       <div class="checklist-progress">
-        <span>Progreso: <strong>${marcados}/${total}</strong> (${pct}%)</span>
-        <button class="legal-btn-secondary" onclick="resetChecklist('${tipo}')">🔄 Reiniciar</button>
+        <span>Avance: <strong>${marcados}/${total}</strong> (${pct}%)</span>
+        <button class="legal-btn-secondary" onclick="resetChecklist('${tipo}')">${ico('refresh-cw')} Reiniciar</button>
       </div>
+      <p style="margin:10px 0 0;font-size:.8rem;color:var(--zoo-text-muted);">Lista de apoyo con base en la LGVS, su Reglamento y la LFD. Los formatos y ventanillas cambian: confirma los requisitos vigentes del trámite en el portal de SEMARNAT.</p>
     </div>
   `;
   document.getElementById('checklistBox').innerHTML = html;
 }
 
 function toggleCheck(tipo, i) {
-  const key = 'zooChecklist_' + tipo;
-  const saved = JSON.parse(localStorage.getItem(key) || '{}');
-  saved[i] = document.getElementById(`chk_${tipo}_${i}`).checked;
-  localStorage.setItem(key, JSON.stringify(saved));
+  const clave = 'zooChecklist_' + tipo;
+  const guardado = zlAlmacen.leer(clave, {});
+  const caja = document.getElementById(`chk_${tipo}_${i}`);
+  guardado[i] = !!(caja && caja.checked);
+  zlAlmacen.guardar(clave, guardado);
   renderChecklist();
 }
 function resetChecklist(tipo) {
-  if (!confirm('¿Reiniciar este checklist?')) return;
-  localStorage.removeItem('zooChecklist_' + tipo);
+  if (!confirm('¿Reiniciar esta lista?')) return;
+  zlAlmacen.borrar('zooChecklist_' + tipo);
   renderChecklist();
 }
 </script>
