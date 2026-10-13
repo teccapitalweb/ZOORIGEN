@@ -558,12 +558,13 @@ const HERR = leer('pages/club-herramientas.html');
 
 test('página: mismo patrón que Herramientas (auth, membresía, menú, paywall, versiones)', () => {
   assert.match(PAGINA, /ZOORIGEN_CLUB\.requireAuth\(\)/);
-  assert.match(PAGINA, /ZOORIGEN_CLUB\.hasActiveMembership\(session\)/);
+  // Vista previa: la membresía la decide el módulo compartido; ya no hay pantalla de bloqueo total
+  assert.match(PAGINA, /ZOO_PAYWALL\.iniciar\(\{ sesion: session, club: ZOORIGEN_CLUB \}\)/);
   assert.match(PAGINA, /renderSidebar\('herramientas', session\)/);
-  assert.match(PAGINA, /Herramientas exclusivas para miembros/);
+  assert.doesNotMatch(PAGINA, /Herramientas exclusivas para miembros/);
+  assert.doesNotMatch(PAGINA, /ZOORIGEN_CLUB\.showPaywall\(/);
   assert.match(PAGINA, /href="club-suscripcion\.html"/);
   assert.match(PAGINA, /class="tool-aviso-global"/);
-  assert.match(PAGINA, /ZOORIGEN_CLUB\.showPaywall\(/);
   // mismas versiones de los archivos compartidos que la página de herramientas
   for (const re of [/assets\/js\/club\.js\?v=[\w.-]+/, /assets\/js\/club-shell\.js\?v=[\w.-]+/, /assets\/js\/herramientas-iconos\.js\?v=[\w.-]+/, /assets\/js\/club-avisos\.js\?v=[\w.-]+/, /assets\/css\/club-shell\.css\?v=[\w.-]+/, /assets\/css\/club\.css\?v=[\w.-]+/]) {
     const a = PAGINA.match(re), b = HERR.match(re);

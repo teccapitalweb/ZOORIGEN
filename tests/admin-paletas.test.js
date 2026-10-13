@@ -110,12 +110,12 @@ test('las cuatro claras usan los colores del logo (naranja, azul, verde) como ba
   assert.ok(/#f58220|#c75402/.test(todo), 'naranja de la jirafa');
 });
 
-test('la página del admin usa una paleta que existe (hoy: jirafa, modo claro)', () => {
+test('la página del admin usa una paleta que existe (hoy: selva, verde de la marca, modo oscuro)', () => {
   const pagina = fs.readFileSync(path.join(RAIZ, 'pages', 'admin-club.html'), 'utf8');
   const m = pagina.match(/<html[^>]*data-tema="([a-z]+)"[^>]*data-modo="([a-z]+)"/);
   assert.ok(m, 'la etiqueta <html> debe declarar data-tema y data-modo');
   assert.ok(Object.keys(bloques).includes(m[1]), `la paleta "${m[1]}" no existe en la hoja de estilos`);
-  assert.equal(m[1], 'jirafa');
+  assert.equal(m[1], 'selva');
   assert.equal(m[2], CLARAS.includes(m[1]) ? 'claro' : 'oscuro', 'el modo debe corresponder a la paleta');
 });
 

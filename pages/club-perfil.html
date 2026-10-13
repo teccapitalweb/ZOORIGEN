@@ -70,6 +70,11 @@
       font-style: italic;
     }
     .profile-edit-form .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+    /* Tema claro: el ámbar claro sobre fondo blanco no se leía (contraste 2:1) */
+    [data-theme="light"] .vip-tag,
+    [data-theme="light"] .profile-edit-btn { color: #7A5200; }
+    [data-theme="light"] .pf-ambar { color: #7A5200 !important; }
+    [data-theme="light"] .pf-verde { color: #1F6A3F !important; }
   </style>
 </head>
 <body>
@@ -94,7 +99,7 @@
         </div>
         <div class="notif-panel__list" id="notifList">Cargando...</div>
       </div>
-      <div class="page-header"><h1><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> Mi perfil</h1><p>Información de tu cuenta como miembro VIP Zoorigen</p></div>
+      <div class="page-header"><h1><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> Mi perfil</h1><p id="profileSub">Información de tu cuenta como miembro VIP Zoorigen</p></div>
       <div class="card">
         <div class="profile-card">
           <div class="profile-avatar" id="avatar">V</div>
@@ -119,7 +124,7 @@
           </div>
         </div>
 
-        <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value">Miembro VIP · $199 MXN/mes</div></div>
+        <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value" id="profilePlan">Miembro VIP · $199 MXN/mes</div></div>
         <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value" id="profileStatus">—</div></div>
         <div class="info-row"><div class="info-row__label">WhatsApp</div><div class="info-row__value" id="profilePhone">—</div></div>
         <div class="info-row"><div class="info-row__label">Miembro desde</div><div class="info-row__value" id="profileSince">—</div></div>
@@ -153,9 +158,9 @@
       document.getElementById('profileEmail').textContent = session.email;
       document.getElementById('profilePhone').textContent = session.phone || 'No registrado';
       const statusMap = {
-        'active': '<span style="color:var(--zoo-green-500);">● Membresía activa</span>',
-        'cancelled_active': '<span style="color:var(--zoo-amber);"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cancelada · acceso vigente</span>',
-        'pending_payment': '<span style="color:var(--zoo-amber);">Cuenta gratuita</span>',
+        'active': '<span class="pf-verde" style="color:var(--zoo-green-500);">● Membresía activa</span>',
+        'cancelled_active': '<span class="pf-ambar" style="color:var(--zoo-amber);"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cancelada · acceso vigente</span>',
+        'pending_payment': '<span class="pf-ambar" style="color:var(--zoo-amber);">Cuenta gratuita</span>',
         'past_due': '<span style="color:var(--zoo-orange);"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Pago no confirmado</span>',
         'expired': '<span style="color:var(--zoo-orange);"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg> Membresía vencida</span>'
       };
@@ -168,6 +173,13 @@
       else if (session.planStatus === 'past_due') document.getElementById('vipTag').textContent = 'Pago no confirmado';
       else if (session.planStatus === 'expired') document.getElementById('vipTag').textContent = 'Membresía vencida';
       else document.getElementById('vipTag').textContent = 'Cuenta gratuita';
+
+      // Sin membresía vigente el perfil no promete un plan que la persona no tiene: lo muestra como opción.
+      if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
+        document.getElementById('profileSub').textContent = 'Información de tu cuenta Zoorigen';
+        document.getElementById('profilePlan').innerHTML = 'Sin plan activo · <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;">Ver planes de membresía</a>';
+        if (!session.name) document.getElementById('profileName').textContent = 'Mi cuenta';
+      }
 
       // ═══════════════ EDITAR NOMBRE ═══════════════
       const editBtn = document.getElementById('editNameBtn');

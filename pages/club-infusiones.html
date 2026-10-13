@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
 <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
 <style>
   .tools-hero {
     background: var(--zoo-solid, #1F5F3A);
@@ -336,6 +337,10 @@
   /* En mayúsculas la μ de μg se vería como una M: estos títulos llevan unidades y se quedan como están. */
   .tool-info-card__title { text-transform: none; letter-spacing: .02em; font-size: .78rem; }
   .tool-hint { color: var(--zoo-text-muted, #a0a8a4); font-size: .8rem; line-height: 1.5; margin: -6px 0 16px; }
+  /* Vista previa para quien no es miembro */
+  .tool-result .tool-paywall { margin: 0; }
+  .tool-info-card .pw-vista { min-height: 150px; margin-top: 4px; }
+  .pw-aviso a { color: inherit; font-weight: 700; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -665,6 +670,7 @@
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/herramientas-infusiones.js?v=20261030-infusiones"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -673,34 +679,18 @@
   const session = await ZOORIGEN_CLUB.requireAuth();
   if (!session) return;
 
-  // ═══ SOLO VIP ═══ Si no es VIP activo, mostrar paywall bloqueante
-  const isVIP = ZOORIGEN_CLUB.hasActiveMembership(session);
-  if (!isVIP) {
-    // Renderizar sidebar para que vea el menú pero bloquear el contenido
-    if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
-    document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('infusiones', session);
-    if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
-    // Ocultar contenido principal
-    document.querySelectorAll('.tool-panel, .tools-tabs, .tool-aviso-global').forEach(el => el.style.display = 'none');
-    // Aviso fijo en la página: si cierra la ventana de planes no se queda en blanco
-    const hero = document.querySelector('.tools-hero');
-    if (hero) {
-      hero.querySelectorAll('.tools-hero__stats').forEach(el => el.style.display = 'none');
-      const bloqueo = document.createElement('div');
-      bloqueo.className = 'tool-panel is-active';
-      bloqueo.style.cssText = 'display:block;text-align:center;';
-      bloqueo.innerHTML = '<div class="tool-result__title" style="font-size:1.15rem;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Herramientas exclusivas para miembros</div>' +
-        '<p style="color:var(--zoo-text-muted);margin:0 0 16px;">Las calculadoras de infusiones, diluciones y conversiones se abren con una membresía activa.</p>' +
-        '<a class="tool-btn-calc" href="club-suscripcion.html" style="display:inline-block;text-decoration:none;">Ver planes</a>';
-      hero.insertAdjacentElement('afterend', bloqueo);
-    }
-    // Mostrar paywall grande
-    ZOORIGEN_CLUB.showPaywall(session, 'acceder a las Herramientas Clínicas');
-    return;
-  }
+  // Vista previa: quien no es miembro VE toda la herramienta y puede llenarla, pero al calcular
+  // o convertir se le pide la membresía (ZOO_PAYWALL.requiereMembresia). Para miembros y
+  // administradores todo funciona igual que siempre.
+  const esMiembro = ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
   if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
   document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
   if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+  if (!esMiembro) {
+    const avisoGlobal = document.querySelector('.tool-aviso-global');
+    if (avisoGlobal) avisoGlobal.insertAdjacentHTML('beforebegin', ZOO_PAYWALL.avisoVistaPreviaHTML(
+      '<strong>Vista previa:</strong> puedes recorrer y llenar las calculadoras; para calcular y ver resultados necesitas una membresía activa. <a href="club-suscripcion.html">Ver planes</a>'));
+  }
 
   document.querySelectorAll('.tool-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -775,6 +765,7 @@ function showErr(el, msg) {
 // ═══════════════ 1. Infusión continua ═══════════════
 function calcularCRI() {
   const el = $('criResult');
+  if (usoBloqueado('Calcular la infusión', el)) return;
   const peso = valor('criPeso'), dosis = valor('criDosis'), unidadDosis = $('criDosisU').value;
   if ($('criModo').value === 'velocidad') {
     const r = Z.cri({ peso, dosis, unidadDosis, conc: valor('criConc'), unidadConc: $('criConcU').value, volumen: opcional('criVol') });
@@ -807,6 +798,7 @@ function calcularCRI() {
 // ═══════════════ 2. Dilución ═══════════════
 function calcularDilucion() {
   const el = $('difResult'), modo = $('difModo').value;
+  if (usoBloqueado('Calcular la dilución', el)) return;
   if (modo === 'concentracion') {
     const r = Z.dilucion({ c1: valor('difC1'), unidadC1: $('difC1U').value, c2: valor('difC2'), unidadC2: $('difC2U').value, v2: valor('difV2') });
     if (r.error) { showErr(el, r.error); return; }
@@ -875,18 +867,27 @@ function iniciarConversiones() {
     $('convDe').value = p.de; refrescarDestino(p.a);
     if ($('convValor').value.trim() !== '') calcularConversion(); else $('convValor').focus();
   }));
+  if (!ZOO_PAYWALL.miembro()) {
+    // Vista previa: se ve qué equivalencias hay; el valor va difuminado con un marcador (no lleva el texto real)
+    $('convEquiv').innerHTML = pares.map(p =>
+      '<div class="tool-info-card"><div class="tool-info-card__title">' + E(Z.UNIDADES[p.de].etiqueta + ' a ' + Z.UNIDADES[p.a].etiqueta) + '</div>' +
+      ZOO_PAYWALL.vistaBorrosaHTML(ZOO_PAYWALL.marcadorHTML(2, [80, 55]), { compacta: true, titulo: 'Para miembros', boton: 'Hazte miembro' }) + '</div>').join('');
+    return;
+  }
   $('convEquiv').innerHTML = pares.map(p =>
     '<div class="tool-info-card"><div class="tool-info-card__title">' + E(Z.UNIDADES[p.de].etiqueta + ' a ' + Z.UNIDADES[p.a].etiqueta) + '</div>' +
     '<div class="tool-info-card__value">' + E(p.texto) + '</div></div>').join('');
 }
 function calcularConversion() {
   const el = $('convResult');
+  if (usoBloqueado('Convertir unidades', el)) return;
   const r = Z.convertir(valor('convValor'), $('convDe').value, $('convA').value);
   if (r.error) { showErr(el, r.error); return; }
   mostrar(el, 'Resultado de la conversión', 'refresh-cw', r.avisos, fila('Resultado', r.texto), [r.formula]);
 }
 function calcularRelacion() {
   const el = $('convRelResult');
+  if (usoBloqueado('Calcular la concentración', el)) return;
   const r = Z.relacionAConc(valor('convN'));
   if (r.error) { showErr(el, r.error); return; }
   mostrar(el, 'Relación 1:' + Z.fmt(r.n), 'hash', [],
@@ -896,6 +897,7 @@ function calcularRelacion() {
 // ═══════════════ 4. Duración y tasa ═══════════════
 function calcularDuracion() {
   const el = $('durResult');
+  if (usoBloqueado('Calcular duración y tasa', el)) return;
   if ($('durModo').value === 'duracion') {
     const r = Z.duracionInfusion({ volumen: valor('durVol'), tasa: valor('durTasa') });
     if (r.error) { showErr(el, r.error); return; }
@@ -910,6 +912,18 @@ function calcularDuracion() {
 }
 
 // ═══════════════ Helpers ═══════════════
+// Vista previa: al intentar USAR una calculadora, quien no es miembro recibe el aviso de membresía y, en el
+// lugar del resultado, un bloque con el candado. Devuelve true si hay que detener el cálculo (no es miembro).
+// Para miembros y administradores devuelve false y no cambia nada.
+function usoBloqueado(accion, el) {
+  if (ZOO_PAYWALL.requiereMembresia(accion)) return false;
+  if (el) {
+    el.innerHTML = ZOO_PAYWALL.bloqueoHTML();
+    el.className = 'tool-result is-visible';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  return true;
+}
 function limpiar(cual) {
   const vaciar = ids => ids.forEach(id => { $(id).value = ''; });
   const ocultar = id => { $(id).className = 'tool-result'; $(id).innerHTML = ''; };

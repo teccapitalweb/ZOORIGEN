@@ -412,10 +412,9 @@ test('la página sigue el patrón de las herramientas: sesión, paywall, aviso d
   assert.match(PAGINA, /ZOORIGEN_CLUB\.requireAuth\(\)/);
   assert.match(PAGINA, /renderSidebar\(MENU_ID, session\)/);
   assert.match(PAGINA, /const MENU_ID = 'inventario'/);
-  assert.match(PAGINA, /ZOORIGEN_CLUB\.hasActiveMembership\(session\)/);
-  assert.match(PAGINA, /Herramientas exclusivas para miembros/);
+  // Sin membresía no se reemplaza la pantalla: vista previa con ejemplos (ver tests/vista-previa-legal-registro.test.js)
+  assert.match(PAGINA, /ZOO_PAYWALL\.iniciar\(\{ sesion: session, club: ZOORIGEN_CLUB \}\)/);
   assert.match(PAGINA, /href="club-suscripcion\.html"/);
-  assert.match(PAGINA, /ZOORIGEN_CLUB\.showPaywall\(/);
   assert.match(PAGINA, /Material de apoyo/);
   assert.match(PAGINA, /No es un formato oficial/);
   assert.match(PAGINA, /ZOORIGEN_CLUB\.apiFetch\('\/api\/registro'\)/);

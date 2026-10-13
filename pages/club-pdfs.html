@@ -19,7 +19,8 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-materiales.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-materiales.css?v=20261102-previa">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
 </head>
 <body>
   <div class="club-layout">
@@ -37,28 +38,20 @@
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
-  <script src="../assets/js/club-materiales.js?v=20261031-portadas"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
+  <script src="../assets/js/club-materiales.js?v=20261102-previa"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
       if (!session) return;
 
-      // ═══ SOLO VIP ═══
-      const isVIP = ZOORIGEN_CLUB.hasActiveMembership(session);
-      if (!isVIP) {
-        if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
-        document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('pdfs', session);
-        if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
-        // Ocultar contenido
-        const main = document.querySelector('.club-main');
-        if (main) {
-          Array.from(main.children).forEach(el => {
-            if (el.id !== 'sidebar' && !el.classList.contains('mobile-menu-btn')) el.style.display = 'none';
-          });
-        }
-        ZOORIGEN_CLUB.showPaywall(session, 'descargar los PDFs y material científico');
-        return;
-      }
+      // ═══ VISTA PREVIA PARA QUIEN NO ES MIEMBRO ═══
+      // Quien no es miembro VE todo el catálogo (libros, guías, plantillas y presentaciones con sus portadas) y puede
+      // explorar, buscar y cambiar de pestaña, pero NO puede usarlo: abrir, leer, descargar o guardar muestra el aviso
+      // de membresía y lleva a Suscripción. Miembros y administradores: comportamiento de siempre.
+      // (club-paywall.js: ZOO_PAYWALL; el contenido lo protege el servidor, que responde 403 a quien no es miembro.)
+      ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
+      if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
 
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('pdfs', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();

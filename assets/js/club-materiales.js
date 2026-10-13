@@ -106,6 +106,89 @@
     return t + 'se desbloquea al superar ' + (f === 1 ? '1 reto más' : (f ? f + ' retos más' : 'más retos')) + '.';
   }
 
+  /* ───── vista previa para quien no es miembro ─────
+     El servidor manda el catálogo completo (solo metadatos) con soloMiembros:true; aquí se dibuja igual que a un
+     miembro pero cada tarjeta lleva el candado "Solo miembros" y abrir, leer, descargar o guardar pide membresía.
+     Eso es EXPERIENCIA: el contenido de verdad lo protege el servidor (403 membresia-requerida). */
+  var RUTA_PLANES = 'club-suscripcion.html';
+
+  function esVistaPrevia(item) { return !!item && item.soloMiembros === true; }
+  function hayVistaPrevia(libros, materiales) {
+    return (Array.isArray(libros) ? libros : []).concat(Array.isArray(materiales) ? materiales : []).some(esVistaPrevia);
+  }
+
+  /* Catálogo mínimo de respaldo (solo títulos, tipo y área; las portadas salen de PORTADAS). Se usa SOLO para quien
+     no es miembro cuando el servidor no responde, para no dejar la pantalla en blanco. No lleva ningún contenido. */
+  var RESPALDO_LIBROS = [
+    { id: 'ley-fauna-mx', titulo: 'Fauna silvestre y ley en México', subtitulo: 'Guía de bolsillo para profesionales y estudiantes', categoria: 'Normatividad', color: '#1F5F3A', icono: 'scale', requiereRetos: 5, paginasTotal: 17 },
+    { id: 'bienestar-cautiverio', titulo: 'Bienestar animal en cautiverio', subtitulo: 'Cinco dominios, enriquecimiento y manejo cotidiano', categoria: 'Bienestar animal', color: '#C75402', icono: 'heartpulse', requiereRetos: 15, paginasTotal: 17 },
+    { id: 'conservacion-mx', titulo: 'Conservación de la vida silvestre en México', subtitulo: 'Especies, amenazas y herramientas', categoria: 'Conservación', color: '#2F7A4F', icono: 'leaf', requiereRetos: 30, paginasTotal: 17 }
+  ];
+  var RESPALDO_MATERIALES = [
+    { id: 'checklist-bioseguridad', titulo: 'Checklist de bioseguridad para unidades de manejo de fauna', tipo: 'checklist', area: 'Sanidad y manejo de fauna silvestre', paginas: 3 },
+    { id: 'ficha-registro-ejemplar', titulo: 'Ficha de registro de ejemplar', tipo: 'plantilla', area: 'Registro y trazabilidad de fauna silvestre', paginas: 2 },
+    { id: 'fauna-herida', titulo: 'Qué hacer si encuentras fauna silvestre herida', tipo: 'guia', area: 'Rescate y atención de fauna silvestre', paginas: 3 },
+    { id: 'calendario-colmenas', titulo: 'Calendario anual de manejo de colmenas', tipo: 'guia', area: 'Apicultura y polinizadores', paginas: 3 },
+    { id: 'glosario-vida-silvestre', titulo: 'Glosario de vida silvestre y normatividad', tipo: 'glosario', area: 'Normatividad y conceptos de vida silvestre', paginas: 7 },
+    { id: 'marco-normativo-uno', titulo: 'Marco normativo de la vida silvestre en una página', tipo: 'infografia', area: 'Normatividad y cumplimiento', paginas: 2 },
+    { id: 'intro-nom-059', titulo: 'Introducción a la NOM-059-SEMARNAT-2010', tipo: 'presentacion', area: 'Normatividad y conservación de fauna silvestre', paginas: 10 },
+    { id: 'bienestar-cinco-dominios', titulo: 'Bienestar animal: los cinco dominios', tipo: 'presentacion', area: 'Bienestar animal y manejo de fauna', paginas: 10 },
+    { id: 'polinizadores-abejas', titulo: 'Polinizadores: por qué importan las abejas', tipo: 'presentacion', area: 'Biodiversidad y apicultura', paginas: 10 }
+  ];
+  function respaldoLibros() {
+    return RESPALDO_LIBROS.map(function (l) {
+      return { id: l.id, titulo: l.titulo, subtitulo: l.subtitulo, autor: 'Equipo Zoorigen', categoria: l.categoria, color: l.color, icono: l.icono, resumen: '', paginasTotal: l.paginasTotal, requiereRetos: l.requiereRetos, desbloqueado: false, faltan: l.requiereRetos, soloMiembros: true };
+    });
+  }
+  function respaldoMateriales() {
+    return RESPALDO_MATERIALES.map(function (m) {
+      return { id: m.id, titulo: m.titulo, tipo: m.tipo, area: m.area, descripcion: '', paginas: m.paginas, acceso: 'miembros', requiereRetos: 0, desbloqueado: false, faltan: 0, soloMiembros: true };
+    });
+  }
+
+  /* Contadores del encabezado. Con membresía: abiertos/total y retos. Sin membresía: cuántos hay para explorar. */
+  function resumenCatalogo(libros, materiales, previa, superados) {
+    var l = Array.isArray(libros) ? libros : [], m = Array.isArray(materiales) ? materiales : [];
+    if (previa) return [{ valor: String(l.length), etiqueta: 'Libros' }, { valor: String(m.length), etiqueta: 'Materiales' }, { valor: String(OFICIALES.length), etiqueta: 'Documentos oficiales' }];
+    return [
+      { valor: l.filter(function (x) { return x && x.desbloqueado; }).length + '/' + l.length, etiqueta: 'Libros' },
+      { valor: m.filter(function (x) { return x && x.desbloqueado; }).length + '/' + m.length, etiqueta: 'Materiales' },
+      { valor: String(entero(superados, 0)), etiqueta: 'Retos superados' }
+    ];
+  }
+
+  /* Texto de la ventana al intentar abrir un libro o un material sin membresía. */
+  function textoPaywallRecurso(item, esLibro) {
+    var t = item && item.titulo ? '«' + item.titulo + '» ' : 'Este contenido ';
+    return {
+      titulo: 'Contenido exclusivo para miembros',
+      texto: t + (esLibro
+        ? 'es parte de la membresía. Hazte miembro para leerlo aquí mismo; los libros se desbloquean con retos.'
+        : 'es parte de la membresía. Hazte miembro para abrirlo y descargarlo.')
+    };
+  }
+
+  var CANDADO_PW = '<svg class="pw-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+  function chipMiembrosHTML(texto) { return '<span class="pw-chip mt-chip">' + CANDADO_PW + esc(texto || 'Solo miembros') + '</span>'; }
+
+  /* Aviso de arriba (texto con HTML propio y fijo; nada del servidor entra aquí). */
+  function textoAvisoPrevia() {
+    return '<strong>Vista previa de PDFs y materiales.</strong> Puedes recorrer todo el catálogo, buscar y cambiar de pestaña. ' +
+      'Abrir, leer, descargar o guardar un material se activa con tu membresía.';
+  }
+
+  /* Franja de la sección de libros para quien no es miembro (en lugar del avance de retos). */
+  function bannerVistaPreviaHTML(libros, hrefPlanes) {
+    var href = esc(hrefPlanes || RUTA_PLANES);
+    var umbrales = (Array.isArray(libros) ? libros : []).map(function (l) { return l ? entero(l.requiereRetos, 0) : 0; }).filter(function (n) { return n > 0; }).sort(function (a, b) { return a - b; });
+    var detalle = umbrales.length
+      ? 'Tu primer libro se abre al superar ' + (umbrales[0] === 1 ? '1 reto' : umbrales[0] + ' retos') + ' y los demás, con más retos. Los retos se juegan desde el Club.'
+      : 'Los libros se leen aquí mismo, dentro de la plataforma.';
+    return '<div class="mt-banner mt-banner--previa"><div class="mt-banner__txt"><strong>Con tu membresía se desbloquean con retos</strong>' +
+      '<span>' + esc(detalle) + '</span></div>' +
+      '<a class="mt-btn" href="' + href + '">Ver planes</a></div>';
+  }
+
   /* Qué materiales (no libros) entran en cada pestaña. */
   function esGuia(m) { return m && m.tipo !== 'presentacion'; }
   function filtrarMateriales(lista, opc) {
@@ -182,16 +265,19 @@
     ctx = ctx || {};
     var color = colorSeguro(l.color, '#1F5F3A');
     var abierto = !!l.desbloqueado;
+    var previa = !abierto && esVistaPrevia(l);
     var pag = ctx.pagina || 0, tot = entero(l.paginasTotal, 0);
     var barra;
-    if (abierto) {
+    if (previa) {
+      barra = '<div class="mt-previa">' + chipMiembrosHTML('Solo miembros') + (tot ? '<span class="mt-previa__pag">' + tot + ' páginas</span>' : '') + '</div>';
+    } else if (abierto) {
       var pct = tot ? Math.round((pag + (pag > 0 ? 1 : 0)) * 100 / tot) : 0;
       barra = '<div class="mt-prog"><i style="width:' + Math.min(100, pct) + '%"></i></div><div class="mt-prog__txt">' + (pag > 0 ? 'Página ' + (pag + 1) + ' de ' + tot : (tot ? tot + ' páginas' : 'Libro')) + '</div>';
     } else {
       var req = entero(l.requiereRetos, 0), hechos = Math.max(0, req - entero(l.faltan, req));
       barra = '<div class="mt-prog mt-prog--bloq"><i style="width:' + (req ? Math.min(100, Math.round(hechos * 100 / req)) : 0) + '%"></i></div><div class="mt-prog__txt">' + esc(textoBloqueo(l)) + '</div>';
     }
-    return '<article class="mt-libro' + (abierto ? '' : ' is-bloq') + '" data-libro="' + esc(l.id) + '" tabindex="0" role="button" aria-label="' + esc(l.titulo) + (abierto ? '' : ' (bloqueado)') + '">' +
+    return '<article class="mt-libro' + (abierto ? '' : (previa ? ' is-previa' : ' is-bloq')) + '" data-libro="' + esc(l.id) + '" tabindex="0" role="button" aria-label="' + esc(l.titulo) + (abierto ? '' : (previa ? ' (solo miembros)' : ' (bloqueado)')) + '">' +
       '<div class="mt-libro__top" style="--mt-c:' + esc(color) + '">' +
         fotoLibroHTML(l) +
         '<span class="mt-libro__lomo"></span>' +
@@ -207,14 +293,15 @@
 
   function libroDestacadoHTML(l) {
     if (!l) return '';
-    var color = colorSeguro(l.color, '#1F5F3A'), abierto = !!l.desbloqueado;
+    var color = colorSeguro(l.color, '#1F5F3A'), abierto = !!l.desbloqueado, previa = !abierto && esVistaPrevia(l);
     return '<section class="mt-dest" data-libro="' + esc(l.id) + '" style="--mt-c:' + esc(color) + '">' +
       '<div class="mt-dest__portada"><div class="mt-libro__top mt-dest__libro" style="--mt-c:' + esc(color) + '">' + fotoLibroHTML(l) + '<span class="mt-libro__lomo"></span>' + (portadaDe(l.id) ? '' : '<span class="mt-libro__icono">' + iconoSVG(l.icono, 72) + '</span>') +
         '<div class="mt-libro__sobre"><small>' + esc(l.categoria || 'Libro') + '</small><strong>' + esc(l.titulo) + '</strong></div></div></div>' +
-      '<div class="mt-dest__info"><div class="mt-etq">' + (abierto ? 'Libro destacado' : 'Próximo libro por desbloquear') + '</div>' +
+      '<div class="mt-dest__info"><div class="mt-etq">' + (abierto || previa ? 'Libro destacado' : 'Próximo libro por desbloquear') + '</div>' +
         '<h2>' + esc(l.titulo) + '</h2><div class="mt-dest__autor">' + esc(l.subtitulo || '') + (l.subtitulo ? ' · ' : '') + esc(l.autor || 'Equipo Zoorigen') + '</div>' +
         '<p>' + esc(l.resumen || '') + '</p>' +
-        '<div class="mt-dest__acc"><button type="button" class="mt-btn" data-abrir-libro="' + esc(l.id) + '">' + (abierto ? 'Leer ahora' : esc(textoBloqueo(l)) ) + '</button>' +
+        '<div class="mt-dest__acc"><button type="button" class="mt-btn" data-abrir-libro="' + esc(l.id) + '">' + (abierto || previa ? 'Leer ahora' : esc(textoBloqueo(l)) ) + '</button>' +
+        (previa ? chipMiembrosHTML('Solo miembros') : '') +
         '<span class="mt-dest__meta">Libro · ' + entero(l.paginasTotal, 0) + ' páginas</span></div></div></section>';
   }
 
@@ -245,9 +332,10 @@
     ctx = ctx || {};
     var t = TIPOS[m.tipo] || { nombre: 'Material', color: '#2F7A4F' };
     var abierto = !!m.desbloqueado;
-    var etiq = abierto ? '' : '<span class="mt-doc__lock">' + CANDADO + esc(textoBloqueo(m)) + '</span>';
+    var previa = !abierto && esVistaPrevia(m);
+    var etiq = abierto ? '' : (previa ? '<div class="mt-previa">' + chipMiembrosHTML('Solo miembros') + '</div>' : '<span class="mt-doc__lock">' + CANDADO + esc(textoBloqueo(m)) + '</span>');
     var pags = m.paginas ? entero(m.paginas, 0) + (entero(m.paginas, 0) === 1 ? ' página' : ' páginas') : '';
-    return '<article class="mt-doc' + (abierto ? '' : ' is-bloq') + '" data-doc="' + esc(m.id) + '" tabindex="0" role="button" aria-label="' + esc(m.titulo) + (abierto ? '' : ' (bloqueado)') + '">' +
+    return '<article class="mt-doc' + (abierto ? '' : (previa ? ' is-previa' : ' is-bloq')) + '" data-doc="' + esc(m.id) + '" tabindex="0" role="button" aria-label="' + esc(m.titulo) + (abierto ? '' : (previa ? ' (solo miembros)' : ' (bloqueado)')) + '">' +
       '<div class="mt-doc__portada" style="--mt-c:' + esc(t.color) + '"><img class="mt-doc__foto" src="' + esc(fotoDeMaterial(m)) + '" alt="" loading="lazy" decoding="async">' +
         '<span class="mt-doc__marca">ZOO<b>RIGEN</b></span><span class="mt-doc__pdf">PDF</span>' + pinHTML('doc:' + m.id, !!ctx.guardado) +
         (abierto ? '' : '<span class="mt-doc__candado" aria-hidden="true">' + CANDADO + '</span>') +
@@ -287,7 +375,10 @@
     filtrarMateriales: filtrarMateriales, filtrarLibros: filtrarLibros,
     leerGuardados: leerGuardados, alternarGuardado: alternarGuardado, leerPagina: leerPagina, guardarPagina: guardarPagina, claveGuardados: claveGuardados, claveLectura: claveLectura,
     vistaPaginas: vistaPaginas, libroCardHTML: libroCardHTML, libroDestacadoHTML: libroDestacadoHTML, bannerRetosHTML: bannerRetosHTML,
-    materialCardHTML: materialCardHTML, oficialesHTML: oficialesHTML, driveHTML: driveHTML, paginaHTML: paginaHTML
+    materialCardHTML: materialCardHTML, oficialesHTML: oficialesHTML, driveHTML: driveHTML, paginaHTML: paginaHTML,
+    esVistaPrevia: esVistaPrevia, hayVistaPrevia: hayVistaPrevia, respaldoLibros: respaldoLibros, respaldoMateriales: respaldoMateriales,
+    resumenCatalogo: resumenCatalogo, textoPaywallRecurso: textoPaywallRecurso, chipMiembrosHTML: chipMiembrosHTML,
+    textoAvisoPrevia: textoAvisoPrevia, bannerVistaPreviaHTML: bannerVistaPreviaHTML, RUTA_PLANES: RUTA_PLANES
   };
 
   if (typeof document === 'undefined') return API;
@@ -299,7 +390,16 @@
     var sesion = o.sesion, club = o.club, cont = o.contenedor;
     var uid = sesion.uid;
     var alm = (function () { try { return window.localStorage; } catch (e) { return null; } })() || { getItem: function () { return null; }, setItem: function () {} };
-    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', drive: [], errorServidor: '', cargando: true };
+    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', drive: [], errorServidor: '', cargando: true, previa: false };
+    var hrefPlanes = o.hrefPlanes || RUTA_PLANES;
+    var PW = function () { return (typeof window !== 'undefined' && window.ZOO_PAYWALL && typeof window.ZOO_PAYWALL === 'object') ? window.ZOO_PAYWALL : null; };
+    /* ¿La sesión parece de miembro? Solo para decidir qué pedir al cargar; lo que se muestra lo decide el servidor. */
+    function creeMiembro() {
+      var pw = PW();
+      if (pw && typeof pw.miembro === 'function') return !!pw.miembro();
+      try { return sesion.role === 'admin' || !!(club && typeof club.hasActiveMembership === 'function' && club.hasActiveMembership(sesion)); } catch (e) { return false; }
+    }
+    estado.previa = !creeMiembro();
 
     function toast(msg, malo) {
       var t = document.getElementById('mtToast');
@@ -316,13 +416,19 @@
       var meta = siguienteMeta(estado.libros, estado.superados);
       var verLibros = p === 'todo' || p === 'libros' || p === 'guardados';
       var verDocs = p === 'todo' || p === 'guias' || p === 'presentaciones' || p === 'guardados';
+      var previa = !!estado.previa;
       var html = '';
 
+      if (previa) {
+        var pw = PW();
+        html += pw && typeof pw.avisoVistaPreviaHTML === 'function' ? pw.avisoVistaPreviaHTML(textoAvisoPrevia()) : '<div class="pw-aviso" role="note"><span>' + textoAvisoPrevia() + '</span></div>';
+      }
       html += '<section class="mt-hero"><div><div class="mt-etq">Biblioteca del Club</div><h1>PDFs y materiales</h1>' +
-        '<p>Libros que se desbloquean con tus retos, guías y plantillas para descargar, presentaciones y los textos oficiales de la normatividad.</p></div>' +
-        '<div class="mt-hero__kpis"><div><strong>' + estado.libros.filter(function (l) { return l.desbloqueado; }).length + '/' + estado.libros.length + '</strong><span>Libros</span></div>' +
-        '<div><strong>' + estado.materiales.filter(function (m) { return m.desbloqueado; }).length + '/' + estado.materiales.length + '</strong><span>Materiales</span></div>' +
-        '<div><strong>' + entero(estado.superados, 0) + '</strong><span>Retos superados</span></div></div></section>';
+        (previa
+          ? '<p>Explora los libros, guías y plantillas del Club. Con tu membresía los abres, los descargas y los guardas; los libros se desbloquean con tus retos.</p>'
+          : '<p>Libros que se desbloquean con tus retos, guías y plantillas para descargar, presentaciones y los textos oficiales de la normatividad.</p>') + '</div>' +
+        '<div class="mt-hero__kpis">' + resumenCatalogo(estado.libros, estado.materiales, previa, estado.superados).map(function (k) {
+          return '<div><strong>' + esc(k.valor) + '</strong><span>' + esc(k.etiqueta) + '</span></div>'; }).join('') + '</div></section>';
 
       html += '<div class="mt-barra"><div class="mt-tabs" role="tablist">' + PESTANAS.filter(function (t) { return t[0] !== 'mas' || estado.drive.length; }).map(function (t) {
         return '<button type="button" role="tab" class="mt-tab' + (p === t[0] ? ' is-active' : '') + '" data-pestana="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
@@ -332,9 +438,15 @@
         html += '<div class="mt-aviso">' + esc(estado.errorServidor) + ' <button type="button" class="mt-link" id="mtReintentar">Reintentar</button></div>';
       }
 
+      if (previa && p === 'guardados' && !libros.length && !docs.length) {
+        html += '<section class="mt-bloque"><div class="mt-vacio"><strong>Tus guardados aparecerán aquí</strong>' +
+          '<span>Guardar libros y materiales es una función de membresía.</span><a class="mt-btn" href="' + esc(hrefPlanes) + '">Ver planes</a></div></section>';
+        verLibros = false; verDocs = false;
+      }
+
       if (verLibros) {
         html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Libros</h2></div>';
-        if (p === 'todo' || p === 'libros') html += bannerRetosHTML(meta, o.hrefRetos);
+        if (p === 'todo' || p === 'libros') html += previa ? bannerVistaPreviaHTML(estado.libros, hrefPlanes) : bannerRetosHTML(meta, o.hrefRetos);
         if (libros.length) {
           var dest = meta && !meta.todosAbiertos ? libros.filter(function (l) { return l.id === meta.libro.id; })[0] : (libros.filter(function (l) { return l.desbloqueado; })[0] || libros[0]);
           if ((p === 'todo' || p === 'libros') && !q) html += libroDestacadoHTML(dest || libros[0]);
@@ -355,11 +467,25 @@
       cont.innerHTML = html;
     }
 
+    /* Quien no es miembro NO abre, lee ni descarga: ventana con "Ver planes" / "Seguir explorando".
+       Nada de esto llama al servidor de contenido (/api/libros/:id, /api/materiales/:id/archivo). */
+    function pedirMembresiaRecurso(item, esLibro) {
+      var pw = PW();
+      if (pw && typeof pw.modalPaywall === 'function' && pw.modalPaywall(textoPaywallRecurso(item, esLibro)) === false) return;
+      toast(mensajeBloqueo(item), true);   // sin el módulo, o el módulo cree que es miembro y el servidor no
+    }
+    function pedirMembresiaFuncion(nombre) {
+      var pw = PW();
+      if (pw && typeof pw.requiereMembresia === 'function' && pw.requiereMembresia(nombre) === false) return;
+      toast('Esta función es para miembros. Activa tu membresía para usarla.', true);
+    }
+
     /* ───── lector de libros ───── */
     var lector = null;
     function abrirLibro(id) {
       var meta = estado.libros.filter(function (l) { return l.id === id; })[0];
       if (!meta) return;
+      if (esVistaPrevia(meta)) { pedirMembresiaRecurso(meta, true); return; }
       if (!meta.desbloqueado) { toast(mensajeBloqueo(meta), true); return; }
       toast('Abriendo libro…');
       club.apiFetch('/api/libros/' + encodeURIComponent(id)).then(function (r) {
@@ -476,6 +602,7 @@
     function abrirDoc(id) {
       var m = estado.materiales.filter(function (x) { return x.id === id; })[0];
       if (!m) return;
+      if (esVistaPrevia(m)) { pedirMembresiaRecurso(m, false); return; }
       if (!m.desbloqueado) { toast(mensajeBloqueo(m), true); return; }
       cerrarVisor();
       var nodo = document.createElement('div'); nodo.className = 'mt-visor'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-label', m.titulo);
@@ -504,7 +631,11 @@
     cont.addEventListener('click', function (e) {
       var t = e.target;
       var pin = t.closest && t.closest('[data-guardar]');
-      if (pin) { e.stopPropagation(); alternarGuardado(alm, uid, pin.getAttribute('data-guardar')); pintar(); return; }
+      if (pin) {
+        e.stopPropagation();
+        if (estado.previa) { pedirMembresiaFuncion('Guardar en tus favoritos'); return; }
+        alternarGuardado(alm, uid, pin.getAttribute('data-guardar')); pintar(); return;
+      }
       var tab = t.closest && t.closest('[data-pestana]');
       if (tab) { estado.pestana = tab.getAttribute('data-pestana'); pintar(); return; }
       if (t.closest && t.closest('#mtReintentar')) { cargar(); return; }
@@ -528,15 +659,31 @@
       estado.cargando = true; estado.errorServidor = ''; pintar();
       var libros = Promise.resolve().then(function () { return club.apiFetch('/api/libros'); });
       var mats = Promise.resolve().then(function () { return club.apiFetch('/api/materiales'); });
-      var drive = Promise.resolve().then(function () { return club.getPdfs(); }).then(function (l) { return Array.isArray(l) ? l : []; }).catch(function () { return []; });
+      /* Los materiales sueltos de Drive son solo para miembros: se piden en paralelo solo si la sesión parece de miembro
+         y, en cualquier caso, se descartan si el servidor dice que no lo es. */
+      var pideDrive = function () { return Promise.resolve().then(function () { return club.getPdfs(); }).then(function (l) { return Array.isArray(l) ? l : []; }).catch(function () { return []; }); };
+      var driveAntes = creeMiembro() ? pideDrive() : null;
       return Promise.all([libros.then(function (r) { return { ok: true, r: r }; }, function (e) { return { ok: false, e: e }; }),
-        mats.then(function (r) { return { ok: true, r: r }; }, function (e) { return { ok: false, e: e }; }), drive]).then(function (res) {
+        mats.then(function (r) { return { ok: true, r: r }; }, function (e) { return { ok: false, e: e }; })]).then(function (res) {
         var a = res[0], b = res[1];
         if (a.ok) { estado.libros = Array.isArray(a.r.libros) ? a.r.libros : []; estado.superados = entero(a.r.superados, 0); }
         if (b.ok) { estado.materiales = Array.isArray(b.r.materiales) ? b.r.materiales : []; if (!a.ok) estado.superados = entero(b.r.superados, 0); }
-        estado.drive = res[2];
-        estado.errorServidor = (!a.ok || !b.ok) ? ((a.e || b.e) && (a.e || b.e).message || 'No se pudieron cargar los libros y materiales.') : '';
-        estado.cargando = false; pintar();
+        var previa = hayVistaPrevia(estado.libros, estado.materiales);
+        var usoRespaldo = false;
+        /* Sin membresía y sin respuesta del servidor: catálogo mínimo local (nunca la pantalla en blanco). */
+        if (!creeMiembro() || previa) {
+          if (!a.ok) { estado.libros = respaldoLibros(); usoRespaldo = true; }
+          if (!b.ok) { estado.materiales = respaldoMateriales(); usoRespaldo = true; }
+          if (usoRespaldo) previa = true;
+        }
+        estado.previa = previa;
+        estado.errorServidor = usoRespaldo ? 'No se pudo actualizar el catálogo; te mostramos una versión resumida.'
+          : ((!a.ok || !b.ok) ? ((a.e || b.e) && (a.e || b.e).message || 'No se pudieron cargar los libros y materiales.') : '');
+        var drive = previa ? Promise.resolve([]) : (driveAntes || pideDrive());
+        return drive.then(function (d) {
+          estado.drive = previa ? [] : d;
+          estado.cargando = false; pintar();
+        });
       });
     }
 

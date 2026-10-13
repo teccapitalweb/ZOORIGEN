@@ -19,7 +19,8 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261102-vistaprevia">
 </head>
 <body>
   <div class="club-layout">
@@ -61,6 +62,7 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
@@ -86,6 +88,7 @@
       const I = window.ZOO_ICONOS_COM;
       const R = window.ZOO_REFERIDOS;
       const membresia = ZOORIGEN_CLUB.hasActiveMembership(session);
+      if (window.ZOO_PAYWALL) ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
 
       document.getElementById('zkIcono').innerHTML = I.svg('message-circle', { size: 42, trazo: 1.8 });
       document.getElementById('zkIconoReglas').innerHTML = I.svg('shield-check', { size: 18 });
@@ -98,10 +101,17 @@
 
       const abrir = membresia
         ? `<a class="zc-btn zk-btn-blanco" href="${R.esc(ZOO_CANAL_URL)}" target="_blank" rel="noopener noreferrer">Abrir canal</a>`
-        : `<a class="zc-btn zk-btn-blanco" href="club-suscripcion.html">Suscribirme</a>`;
+        : `<a class="zc-btn zk-btn-blanco" href="club-suscripcion.html" id="zkAbrirBloqueado">${I.svg('lock', { size: 16 })}Abrir canal</a>`;
       document.getElementById('zkBotones').innerHTML = abrir +
         `<a class="zc-btn zk-btn-borde" href="${R.esc(compartir)}" target="_blank" rel="noopener noreferrer">${I.svg('share-2', { size: 16 })}Compartir invitación</a>`;
-      if (!membresia) document.getElementById('zkBloqueo').hidden = false;
+      if (!membresia) {
+        document.getElementById('zkBloqueo').hidden = false;
+        const bloqueado = document.getElementById('zkAbrirBloqueado');
+        if (bloqueado && window.ZOO_PAYWALL) bloqueado.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          ZOO_PAYWALL.requiereMembresia('Abrir el canal de WhatsApp');
+        });
+      }
     })();
   </script>
 <script>

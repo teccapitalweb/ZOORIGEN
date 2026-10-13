@@ -9,7 +9,6 @@
 // Lista blanca (archivos que NO se revisan), con su razón:
 //   - assets/css/club-juegos.css      : juegos, diseño aprobado por el dueño.
 //   - assets/css/club-extra.css       : hoja heredada que ninguna página carga (se comprueba abajo).
-//   - assets/css/club-noticias.css    : portadas de las noticias (las atiende el trabajo de noticias).
 //   - pages/club-certificados.html y pages/ver-certificado.html : certificado, diseño aprobado.
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -22,7 +21,6 @@ const leer = rel => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
 const LISTA_BLANCA = new Set([
   'assets/css/club-juegos.css',
   'assets/css/club-extra.css',
-  'assets/css/club-noticias.css',
   'pages/club-certificados.html',
   'pages/ver-certificado.html'
 ]);

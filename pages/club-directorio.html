@@ -19,7 +19,8 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261102-vistaprevia">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
 </head>
 <body>
   <div class="club-layout">
@@ -56,12 +57,15 @@
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
-  <script src="../assets/js/club-directorio.js?v=20261016"></script>
+  <script src="../assets/js/club-directorio.js?v=20261102-vistaprevia"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
       if (!session) return;
+      // Quién es miembro según la sesión (la respuesta del servidor, más abajo, tiene la última palabra).
+      const esMiembroSesion = ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('directorio', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
@@ -87,40 +91,38 @@
       }
 
       /* ───────── Pintar ───────── */
+      // Vista previa (sin membresía): se ve todo (buscador, sectores, tarjetas de ejemplo difuminadas)
+      // pero nada se usa: cada toque pide membresía y lleva a Suscripción. Sin datos de contacto.
+      function pintarVistaPrevia(tarjetas) {
+        contenido.innerHTML = D.renderVistaPrevia(D.tarjetasDeEjemplo(tarjetas));
+      }
+
       function pintar() {
         if (!datos) return;
-        if (!datos.membresia) {
-          // Sin membresía: vista previa con las tarjetas de ejemplo que manda el servidor (sin contactos).
-          contenido.innerHTML = `
-            <div class="zd-vista">
-              <div class="zd-vista__rejilla" aria-hidden="true">${D.renderLista(datos.tarjetas.slice(0, 3), { sinContacto: true })}</div>
-              <div class="zd-vista__cta"><div class="zd-vista__caja">
-                ${I.svg('crown', { size: 30 })}
-                <strong>Conoce a los profesionales de la comunidad</strong>
-                <p>${D.esc(D.TEXTOS.vistaPrevia)}</p>
-                <a class="zc-btn zc-btn--primario" href="club-suscripcion.html">Suscribirme</a>
-              </div></div>
-            </div>`;
-          return;
-        }
+        if (!datos.membresia) { pintarVistaPrevia(datos.tarjetas); return; }
         const lista = D.filtrar(datos.tarjetas, { sector, q });
         contenido.innerHTML = D.renderLista(lista, { miUid: session.uid, filtrando: sector !== 'Todos' || q.trim() !== '' });
       }
 
-      function prepararBotonMia() {
+      // Modo vista previa o modo miembro del botón de cabecera y del buscador.
+      function aplicarModo(miembro) {
         btnMia.hidden = false;
-        if (!datos.membresia) {
+        if (!miembro) {
           btnMia.innerHTML = 'Suscribirme';
           btnMia.dataset.modo = 'suscribir';
-          $('zdBuscarCaja').style.display = 'none';
-          $('zdChips').style.display = 'none';
+          buscador.readOnly = true;       // se ve y se puede tocar, pero no escribir
+          sector = 'Todos';
+          q = '';
         } else {
-          btnMia.innerHTML = I.svg('pencil', { size: 16 }) + (datos.mia ? 'Editar mi tarjeta' : 'Crear mi tarjeta');
+          btnMia.innerHTML = I.svg('pencil', { size: 16 }) + (datos && datos.mia ? 'Editar mi tarjeta' : 'Crear mi tarjeta');
           btnMia.dataset.modo = 'tarjeta';
-          $('zdBuscarCaja').style.display = '';
-          $('zdChips').style.display = '';
+          buscador.readOnly = false;
         }
+        $('zdBuscarCaja').style.display = '';
+        $('zdChips').style.display = '';
       }
+
+      function prepararBotonMia() { aplicarModo(datos.membresia); }
 
       /* ───────── Cargar ───────── */
       async function cargar() {
@@ -131,11 +133,23 @@
           pintar();
         } catch (err) {
           console.warn('directorio:', err);
+          if (!esMiembroSesion) {
+            // Sin membresía la vista previa no depende del servidor: se queda con las tarjetas propias.
+            datos = { membresia: false, tarjetas: [], mia: null };
+            aplicarModo(false);
+            pintar();
+            return;
+          }
           btnMia.hidden = true;
           contenido.innerHTML = D.renderError(err && err.status === 0 ? D.TEXTOS.error : (err && err.message) || D.TEXTOS.error);
         }
       }
       contenido.addEventListener('click', (ev) => {
+        // Vista previa: tocar una tarjeta de ejemplo (o el fondo difuminado) pide membresía; el botón "Suscribirme" va directo.
+        if (datos && !datos.membresia && ev.target.closest('.zd-vista') && !ev.target.closest('a')) {
+          ZOO_PAYWALL.requiereMembresia('Ver los perfiles de la comunidad');
+          return;
+        }
         if (ev.target.closest('[data-reintentar]')) {
           contenido.innerHTML = '<div class="zd-grid"><div class="zc-esqueleto" style="height:170px"></div><div class="zc-esqueleto" style="height:170px"></div></div>';
           cargar();
@@ -143,9 +157,17 @@
       });
 
       buscador.addEventListener('input', () => { q = buscador.value; pintar(); });
+      // Sin membresía el buscador es de solo lectura: al tocarlo o intentar escribir se avisa (sin atrapar el Tab).
+      const sinMembresia = () => (datos ? !datos.membresia : !esMiembroSesion);
+      buscador.addEventListener('click', () => { if (sinMembresia()) ZOO_PAYWALL.requiereMembresia('Buscar en el directorio'); });
+      buscador.addEventListener('keydown', (ev) => {
+        if (!sinMembresia() || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+        if (ev.key === 'Enter' || ev.key.length === 1) { ev.preventDefault(); ZOO_PAYWALL.requiereMembresia('Buscar en el directorio'); }
+      });
       $('zdChips').addEventListener('click', (ev) => {
         const chip = ev.target.closest('[data-sector]');
         if (!chip) return;
+        if (sinMembresia()) { ZOO_PAYWALL.requiereMembresia('Filtrar por sector'); return; }
         sector = chip.dataset.sector;
         $('zdChips').innerHTML = D.renderChips(sector);
         pintar();
@@ -279,10 +301,20 @@
       }
 
       btnMia.addEventListener('click', () => {
-        if (btnMia.dataset.modo === 'suscribir') { window.location.href = 'club-suscripcion.html'; return; }
+        if (btnMia.dataset.modo === 'suscribir') {
+          ZOO_PAYWALL.requiereMembresia('Crear tu tarjeta', { texto: 'Activa tu membresía para crear tu tarjeta y conocer a la comunidad.' });
+          return;
+        }
+        if (!ZOO_PAYWALL.requiereMembresia('Crear tu tarjeta')) return;
         abrirModal();
       });
 
+      // Sin membresía (según la sesión) la vista previa aparece de inmediato, sin esperar al servidor.
+      if (!esMiembroSesion) {
+        datos = { membresia: false, tarjetas: [], mia: null };
+        aplicarModo(false);
+        pintar();
+      }
       cargar();
     })();
   </script>

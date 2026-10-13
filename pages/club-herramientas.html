@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
 <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
 <style>
   .tools-hero {
     background: var(--zoo-solid, #1F5F3A);
@@ -508,6 +509,13 @@
   .anes-fila__conc input { width: 110px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--zoo-border-strong, #ccc); background: #fff; color: #1a1d1b; }
   .gas-tabla { width: 100%; border-collapse: collapse; font-size: .84rem; margin-top: 6px; }
   .gas-tabla th, .gas-tabla td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--zoo-border, rgba(0,0,0,.1)); }
+  /* Vista previa para quien no es miembro: nombres visibles, detalle difuminado con marcadores */
+  .const-card__campos { margin: 0 0 8px; font-size: .78rem; line-height: 1.5; color: var(--zoo-text-muted); }
+  .const-card .pw-vista { min-height: 168px; }
+  .tool-result .tool-paywall { margin: 0; }
+  .tool-subsection .pw-vista { min-height: 168px; margin-top: 8px; }
+  .gas-tabla--previa td .pw-barra { margin: 3px 0; }
+  .pw-aviso a { color: inherit; font-weight: 700; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -867,6 +875,7 @@
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/herramientas-dosis.js?v=20261030-dosis"></script>
   <script src="../assets/js/herramientas-protocolos.js?v=20261030-protocolos"></script>
@@ -879,34 +888,18 @@
   const session = await ZOORIGEN_CLUB.requireAuth();
   if (!session) return;
 
-  // ═══ SOLO VIP ═══ Si no es VIP activo, mostrar paywall bloqueante
-  const isVIP = ZOORIGEN_CLUB.hasActiveMembership(session);
-  if (!isVIP) {
-    // Renderizar sidebar para que vea el menú pero bloquear el contenido
-    if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
-    document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
-    if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
-    // Ocultar contenido principal
-    document.querySelectorAll('.tool-panel, .tools-tabs, .tool-aviso-global').forEach(el => el.style.display = 'none');
-    // Aviso fijo en la página: si cierra la ventana de planes no se queda en blanco
-    const hero = document.querySelector('.tools-hero');
-    if (hero) {
-      hero.querySelectorAll('.tools-hero__stats').forEach(el => el.style.display = 'none');
-      const bloqueo = document.createElement('div');
-      bloqueo.className = 'tool-panel is-active';
-      bloqueo.style.cssText = 'display:block;text-align:center;';
-      bloqueo.innerHTML = '<div class="tool-result__title" style="font-size:1.15rem;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Herramientas exclusivas para miembros</div>' +
-        '<p style="color:var(--zoo-text-muted);margin:0 0 16px;">Las calculadoras clínicas, las constantes y los protocolos de urgencia se abren con una membresía activa.</p>' +
-        '<a class="tool-btn-calc" href="club-suscripcion.html" style="display:inline-block;text-decoration:none;">Ver planes</a>';
-      hero.insertAdjacentElement('afterend', bloqueo);
-    }
-    // Mostrar paywall grande
-    ZOORIGEN_CLUB.showPaywall(session, 'acceder a las Herramientas Clínicas');
-    return;
-  }
+  // Vista previa: quien no es miembro VE todas las herramientas y puede llenarlas,
+  // pero al calcular o abrir un detalle se le pide la membresía (ZOO_PAYWALL.requiereMembresia).
+  // Para miembros y administradores todo funciona igual que siempre.
+  const esMiembro = ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
   if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
   document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('herramientas', session);
   if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+  if (!esMiembro) {
+    const avisoGlobal = document.querySelector('.tool-aviso-global');
+    if (avisoGlobal) avisoGlobal.insertAdjacentHTML('beforebegin', ZOO_PAYWALL.avisoVistaPreviaHTML(
+      '<strong>Vista previa:</strong> puedes recorrer y llenar las herramientas; para calcular y ver resultados necesitas una membresía activa. <a href="club-suscripcion.html">Ver planes</a>'));
+  }
 
   document.querySelectorAll('.tool-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -935,6 +928,20 @@
   renderProtocolos();
   renderConstantes();
   renderHemograma();
+  if (!esMiembro) {
+    // Tocar el detalle difuminado de una tarjeta (no el botón "Hazte miembro") pide la membresía
+    ['constGrid', 'hemoGrid'].forEach(id => {
+      const g = document.getElementById(id);
+      if (!g) return;
+      g.addEventListener('click', ev => {
+        if (ev.target.closest('a')) return;
+        const v = ev.target.closest('.pw-vista');
+        if (!v) return;
+        const tarjeta = v.closest('.const-card');
+        ZOO_PAYWALL.requiereMembresia('Ver el detalle de ' + ((tarjeta && tarjeta.dataset.esp) || 'la especie'));
+      });
+    });
+  }
   const poner = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
   const nDosis = Object.values(DOSIS).reduce((s, v) => s + v.entradas.length, 0);
   poner('statFarmacos', String(Object.keys(DOSIS).length));
@@ -967,6 +974,7 @@ function calcularDosis() {
   const conc = C.leerNumero(document.getElementById('doseConc').value);
   const grupo = document.getElementById('doseEspecie').value;
   const rEl = document.getElementById('doseResult');
+  if (usoBloqueado('Calcular dosis', rEl)) return;
   const r = C.dosisVerificadas(DOSIS[drug], grupo, peso, conc);
   if (r.error) { showErr(rEl, C.esc(r.error)); return; }
 
@@ -1014,12 +1022,16 @@ function actualizarVariantes() {
   const p = PROTO[document.getElementById('anesProto').value];
   const sel = document.getElementById('anesVariante');
   sel.innerHTML = p.variantes.map((v, i) => `<option value="${i}">${ZOO_CALCULOS.esc(v.especie)}</option>`).join('');
-  document.getElementById('anesResumen').textContent = p.resumen || '';
+  // Vista previa: el resumen trae cifras de dosis, así que solo lo ven los miembros
+  document.getElementById('anesResumen').textContent = ZOO_PAYWALL.miembro()
+    ? (p.resumen || '')
+    : 'Elige el protocolo y la especie. Las dosis publicadas se muestran a los miembros.';
   document.getElementById('anesResult').className = 'tool-result';
 }
 
 function renderGases() {
   const C = ZOO_CALCULOS, G = ZOO_PROTOCOLOS.GASES;
+  if (!ZOO_PAYWALL.miembro()) { renderGasesVistaPrevia(); return; }
   let html = '<div class="tool-subsection__title">' + '<svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Anestesia inhalada: porcentajes publicados</div>';
   Object.values(G).forEach(g => {
     html += `<table class="gas-tabla"><thead><tr><th>${C.esc(g.nombre)}</th><th>Inducción</th><th>Mantenimiento</th><th>Fuente</th></tr></thead><tbody>${
@@ -1029,10 +1041,26 @@ function renderGases() {
   document.getElementById('anesGases').innerHTML = html;
 }
 
+// Vista previa (no miembros): se ven los gases y los grupos; los porcentajes y las fuentes van difuminados
+// con marcadores de relleno (debajo del desenfoque no hay ningún dato real).
+function renderGasesVistaPrevia() {
+  const C = ZOO_CALCULOS, G = ZOO_PROTOCOLOS.GASES;
+  const marca = () => ZOO_PAYWALL.marcadorHTML(1, [70]);
+  let html = '<div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Anestesia inhalada: porcentajes publicados</div>';
+  html += '<p class="tool-result__intro">' + Object.values(G).map(g => '<strong>' + C.esc(g.nombre) + '</strong> (' + g.filas.map(x => C.esc(x.grupo)).join(', ') + ')').join(' · ') + '</p>';
+  const tablas = Object.values(G).map(g =>
+    '<table class="gas-tabla gas-tabla--previa"><thead><tr><th>' + C.esc(g.nombre) + '</th><th>Inducción</th><th>Mantenimiento</th><th>Fuente</th></tr></thead><tbody>' +
+    g.filas.map(x => '<tr><td>' + C.esc(x.grupo) + '</td><td>' + marca() + '</td><td>' + marca() + '</td><td>' + marca() + '</td></tr>').join('') +
+    '</tbody></table>').join('');
+  html += ZOO_PAYWALL.vistaBorrosaHTML(tablas, { compacta: true, titulo: 'Porcentajes para miembros', texto: 'Inducción, mantenimiento y fuente de cada gas inhalado.' });
+  document.getElementById('anesGases').innerHTML = html;
+}
+
 let _anesCtx = null;
 function calcularAnestesia() {
   const C = ZOO_CALCULOS;
   const rEl = document.getElementById('anesResult');
+  if (usoBloqueado('Calcular dosis de anestesia', rEl)) return;
   const p = PROTO[document.getElementById('anesProto').value];
   const v = p.variantes[Number(document.getElementById('anesVariante').value)];
   const peso = C.leerNumero(document.getElementById('anesPeso').value);
@@ -1078,6 +1106,7 @@ function actualizarMlAnestesia() {
 function calcularFluidos() {
   const C = ZOO_CALCULOS;
   const rEl = document.getElementById('fluidsResult');
+  if (usoBloqueado('Calcular plan de fluidos', rEl)) return;
   const tipo = document.getElementById('fluidsTipo').value;
   const crudoPerd = document.getElementById('fluidsPerd').value.trim();
   const perdidas = crudoPerd === '' ? 0 : C.leerNumero(crudoPerd);
@@ -1126,6 +1155,10 @@ function renderConstantes(filter = '') {
     cont.innerHTML = '<p class="const-vacio">Sin resultados para «' + C.esc(filter) + '».</p>';
     return;
   }
+  if (!ZOO_PAYWALL.miembro()) {
+    cont.innerHTML = lista.map(e => tarjetaVistaPrevia(e, C.esc(e.grupo))).join('');
+    return;
+  }
   cont.innerHTML = lista.map(e => `
     <div class="const-card">
       <h3>${C.esc(e.esp)}</h3>
@@ -1141,6 +1174,22 @@ function renderConstantes(filter = '') {
 }
 function filtrarEspecies() { renderConstantes(document.getElementById('speciesFilter').value); }
 
+// Vista previa (no miembros): especie y grupo y el nombre de cada dato se ven; los valores, notas y fuentes
+// van difuminados con marcadores de relleno (el valor real no se carga debajo del desenfoque).
+function tarjetaVistaPrevia(e, subtituloHTML) {
+  const C = ZOO_CALCULOS;
+  if (!e.datos.length) {
+    return '<div class="const-card"><h3>' + C.esc(e.esp) + '</h3><div class="const-card__grupo">' + subtituloHTML + '</div>' +
+      '<p class="const-vacio">Sin datos publicados que se hayan podido verificar en fuentes abiertas.</p></div>';
+  }
+  const campos = e.datos.map(d => C.esc(d.campo)).join(' · ');
+  return '<div class="const-card" data-esp="' + C.esc(e.esp) + '"><h3>' + C.esc(e.esp) + '</h3>' +
+    '<div class="const-card__grupo">' + subtituloHTML + '</div>' +
+    '<p class="const-card__campos">' + campos + '</p>' +
+    ZOO_PAYWALL.vistaBorrosaHTML(ZOO_PAYWALL.marcadorHTML(Math.min(e.datos.length, 5)), { compacta: true, titulo: 'Detalle para miembros', boton: 'Hazte miembro' }) +
+    '</div>';
+}
+
 // ═══════════════ HEMOGRAMA (solo datos con fuente · assets/js/herramientas-hemograma.js) ═══════════════
 const HEMOGRAMA = ZOO_HEMOGRAMA.ESPECIES;
 
@@ -1152,7 +1201,9 @@ function renderHemograma(filter = '') {
   if (lista.length === 0) {
     cont.innerHTML = '<p class="const-vacio">Sin resultados para «' + C.esc(filter) + '».</p>';
   } else {
-    cont.innerHTML = lista.map(e => `
+    if (!ZOO_PAYWALL.miembro()) {
+      cont.innerHTML = lista.map(e => tarjetaVistaPrevia(e, C.esc(e.clase) + ' · ' + C.esc(e.grupo))).join('');
+    } else cont.innerHTML = lista.map(e => `
     <div class="const-card">
       <h3>${C.esc(e.esp)}</h3>
       <div class="const-card__grupo">${C.esc(e.clase)} · ${C.esc(e.grupo)}</div>
@@ -1176,6 +1227,7 @@ function calcularBCS() {
   const C = ZOO_CALCULOS;
   const selected = document.querySelector('.bcs-item.is-selected');
   const rEl = document.getElementById('bcsResult');
+  if (usoBloqueado('Ver equivalencia de condición corporal', rEl)) return;
   if (!selected) { showErr(rEl, 'Selecciona un BCS del 1 al 9.'); return; }
   const r = C.bcs(parseInt(selected.dataset.bcs, 10));
   if (r.error) { showErr(rEl, C.esc(r.error)); return; }
@@ -1203,6 +1255,7 @@ function mostrarUrgencia() {
   const grupo = document.getElementById('urgGrupo').value;
   const crudo = document.getElementById('urgPeso').value.trim();
   const rEl = document.getElementById('urgResult');
+  if (usoBloqueado('Mostrar protocolo de urgencia', rEl)) return;
   const peso = crudo === '' ? NaN : C.leerNumero(crudo);
   if (crudo !== '' && C.errorPeso(peso)) { showErr(rEl, C.esc(C.errorPeso(peso))); return; }
   const r = C.urgencia(tipo, peso, grupo);
@@ -1222,6 +1275,18 @@ function mostrarUrgencia() {
 }
 
 // ═══════════════ Helpers ═══════════════
+// Vista previa: al intentar USAR una herramienta, quien no es miembro recibe el aviso de membresía y, en el
+// lugar del resultado, un bloque con el candado. Devuelve true si hay que detener el cálculo (no es miembro).
+// Para miembros y administradores devuelve false y no cambia nada.
+function usoBloqueado(accion, rEl) {
+  if (ZOO_PAYWALL.requiereMembresia(accion)) return false;
+  if (rEl) {
+    rEl.innerHTML = ZOO_PAYWALL.bloqueoHTML();
+    rEl.className = 'tool-result is-visible';
+    rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  return true;
+}
 function showErr(el, msg) {
   el.innerHTML = `<div class="tool-result__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> ${msg}</div>`;
   el.className = 'tool-result is-visible is-danger';

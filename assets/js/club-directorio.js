@@ -27,8 +27,27 @@
     vacioBusqueda: 'Nadie coincide con tu búsqueda. Prueba con otra palabra o quita el filtro.',
     vacioDirectorio: 'Todavía no hay tarjetas en el directorio. Sé la primera persona en crear la tuya.',
     error: 'No pudimos cargar el directorio. Revisa tu conexión e inténtalo de nuevo.',
-    vistaPrevia: 'Con tu membresía ves los perfiles reales, buscas por sector y contactas a otros miembros.'
+    vistaPrevia: 'Con tu membresía ves los perfiles reales, buscas por sector y contactas a otros miembros.',
+    vistaPreviaTitulo: 'Conoce a los profesionales de la comunidad'
   };
+
+  /* Tarjetas FICTICIAS de la vista previa (quien no es miembro). Son las mismas que manda el servidor
+     (zoorigen-webhook/services/directorio.js EJEMPLOS); el sitio las trae para que la vista previa
+     no dependa del servidor. Sin datos de contacto y con sectores de la lista (SECTORES). */
+  var EJEMPLOS = [
+    { uid: 'ejemplo-1', nombre: 'Mariana Ejemplo', profesion: 'Bióloga de campo (tarjeta de ejemplo)', sector: 'Conservación', ciudad: 'Ciudad de México',
+      bio: 'Tarjeta ficticia para que veas cómo se ve el directorio. Con tu membresía ves los perfiles reales de la comunidad.' },
+    { uid: 'ejemplo-2', nombre: 'Ricardo Muestra', profesion: 'Médico veterinario de fauna silvestre (tarjeta de ejemplo)', sector: 'Veterinaria', ciudad: 'Guadalajara',
+      bio: 'Tarjeta ficticia. Aquí aparecería la presentación de una persona de la comunidad.' },
+    { uid: 'ejemplo-3', nombre: 'Valeria Demo', profesion: 'Educadora ambiental (tarjeta de ejemplo)', sector: 'Educación', ciudad: 'Mérida',
+      bio: 'Tarjeta ficticia. Con la membresía puedes crear la tuya y conocer a otras personas del sector.' },
+    { uid: 'ejemplo-4', nombre: 'Camila Modelo', profesion: 'Responsable de una UMA (tarjeta de ejemplo)', sector: 'Zoológicos/UMA', ciudad: 'Xalapa',
+      bio: 'Tarjeta ficticia. Así se vería la presentación de alguien que trabaja en una UMA o en un zoológico.' },
+    { uid: 'ejemplo-5', nombre: 'Andrés Prueba', profesion: 'Investigador en ecología de fauna (tarjeta de ejemplo)', sector: 'Investigación', ciudad: 'Morelia',
+      bio: 'Tarjeta ficticia. Aquí una persona de la comunidad contaría en qué línea de investigación trabaja.' },
+    { uid: 'ejemplo-6', nombre: 'Lucía Muestra', profesion: 'Zoóloga (tarjeta de ejemplo)', sector: 'Biología', ciudad: 'Monterrey',
+      bio: 'Tarjeta ficticia. Con tu membresía buscas por sector o por ciudad y contactas a quien quieras.' }
+  ];
 
   function esc(v) {
     return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
@@ -144,6 +163,16 @@
     };
   }
 
+  /* Tarjetas de ejemplo para la vista previa. Se usan las del servidor solo si trae al menos tantas como
+     las propias (así una versión vieja del servidor, con 3 y sectores que no existen, no se nota);
+     en cualquier otro caso (sin respuesta, vacía o corta) el sitio pinta las suyas. Nunca llevan contacto. */
+  function tarjetasDeEjemplo(tarjetasServidor) {
+    var propias = EJEMPLOS.map(normalizarTarjeta).filter(Boolean);
+    var delServidor = (Array.isArray(tarjetasServidor) ? tarjetasServidor : []).map(normalizarTarjeta).filter(Boolean);
+    var usar = delServidor.length >= propias.length ? delServidor.slice(0, 12) : propias;
+    return usar.map(function (t) { t.contacto = { whatsapp: '', correo: '', linkedin: '' }; return t; });
+  }
+
   /* ───────────────────────── Buscar y filtrar ───────────────────────── */
 
   // sector: uno de SECTORES, o '' / 'Todos' para no filtrar. q: texto libre (sin importar mayúsculas ni acentos).
@@ -209,13 +238,27 @@
     }).join('');
   }
 
+  /* Vista previa para quien no es miembro: grilla de tarjetas de ejemplo difuminada y caja central con el
+     llamado a la membresía. Las tarjetas no llevan contacto. Devuelve HTML ya escapado. */
+  function renderVistaPrevia(tarjetas) {
+    return '<div class="zd-vista">' +
+      '<div class="zd-vista__rejilla" aria-hidden="true">' + renderLista(tarjetas || [], { sinContacto: true }) + '</div>' +
+      '<div class="zd-vista__cta"><div class="zd-vista__caja" role="note">' +
+        icono('crown', 30) +
+        '<strong>' + esc(TEXTOS.vistaPreviaTitulo) + '</strong>' +
+        '<p>' + esc(TEXTOS.vistaPrevia) + '</p>' +
+        '<a class="zc-btn zc-btn--primario" href="club-suscripcion.html">Suscribirme</a>' +
+      '</div></div></div>';
+  }
+
   function renderError(mensaje) {
     return '<div class="zc-error" role="alert">' + icono('triangle-alert', 28) + '<p>' + esc(mensaje || TEXTOS.error) + '</p>' +
       '<button type="button" class="zc-btn zc-btn--suave" data-reintentar>' + icono('refresh-cw', 15) + 'Reintentar</button></div>';
   }
 
   return {
-    SECTORES: SECTORES, LIMITES: LIMITES, TEXTOS: TEXTOS,
+    SECTORES: SECTORES, LIMITES: LIMITES, TEXTOS: TEXTOS, EJEMPLOS: EJEMPLOS,
+    tarjetasDeEjemplo: tarjetasDeEjemplo, renderVistaPrevia: renderVistaPrevia,
     esc: esc, telefonoLimpio: telefonoLimpio, enlaceWhatsApp: enlaceWhatsApp, correoValido: correoValido, paraServidor: paraServidor, linkedinLimpio: linkedinLimpio,
     validarTarjeta: validarTarjeta, normalizarTarjeta: normalizarTarjeta, normalizarRespuesta: normalizarRespuesta,
     filtrar: filtrar, iniciales: iniciales, colorIndice: colorIndice,

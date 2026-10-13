@@ -21,9 +21,9 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261101-noticias-foto">
-  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261102-verde">
+  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261102-verde">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261102-vistaprevia">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261101-solidos">
   <style>
@@ -517,6 +517,12 @@
       .dash-refer-card { flex-direction: column; padding: 18px; }
       .dash-refer-icon { align-self: center; }
     }
+  </style>
+  <style>
+    /* Cuenta regresiva del próximo webinar: en tema claro las cajas eran grises y las etiquetas (DÍAS, HRS...) no se leían */
+    [data-theme="light"] .countdown div { background: var(--zoo-tint-2, #DCEBE0); }
+    [data-theme="light"] .countdown strong { color: var(--zoo-solid-dark, #174A2D); }
+    [data-theme="light"] .countdown span { color: var(--zoo-text-muted, #5a6360); }
   </style>
 </head>
 <body>

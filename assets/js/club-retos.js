@@ -39,13 +39,13 @@
   // Orden fijo: el reto del día rota entre estos cuatro.
   const TIPOS = [
     { id: 'quiz', titulo: 'Quiz relámpago', desc: 'Preguntas cortas de tres opciones sobre manejo, bioseguridad y legislación. Cada reto se abre al superar el anterior.',
-      icono: 'zap', color: '#C75402', texto: 'var(--rz-naranja-txt)', tiempo: 'Un minuto por reto', imagen: 'assets/img/retos/reto-quiz-relampago.jpg', camino: true },
+      icono: 'zap', color: '#C75402', texto: 'var(--rz-naranja-txt)', tiempo: 'Un minuto por reto', imagen: 'assets/img/landing/area-manejo.webp', camino: true },
     { id: 'detective', titulo: 'Detective de campo', desc: 'Observa la escena y toca los tres errores de seguridad antes de que sea tarde.',
-      icono: 'search', color: '#037BC9', texto: 'var(--rz-azul-txt)', tiempo: 'Tres minutos por escena', imagen: 'assets/img/retos/reto-detective-campo.jpg', camino: true },
+      icono: 'search', color: '#037BC9', texto: 'var(--rz-azul-txt)', tiempo: 'Tres minutos por escena', imagen: 'assets/img/landing/area-monitoreo.webp', camino: true },
     { id: 'orden', titulo: 'Ordena el procedimiento', desc: 'Coloca cada paso en el orden correcto y refuerza los protocolos de campo.',
-      icono: 'list-checks', color: '#95A303', texto: 'var(--rz-verde-txt)', tiempo: 'Dos minutos por reto', imagen: 'assets/img/retos/reto-ordena-procedimiento.jpg', camino: true },
+      icono: 'list-checks', color: '#95A303', texto: 'var(--rz-verde-txt)', tiempo: 'Dos minutos por reto', imagen: 'assets/img/landing/area-conservacion.webp', camino: true },
     { id: 'flashcards', titulo: 'Flashcards', desc: 'Repasa conceptos, normas y herramientas con ocho tarjetas al azar. No da XP.',
-      icono: 'layers', color: '#C75402', texto: 'var(--rz-naranja-txt)', tiempo: 'Tres minutos', imagen: 'assets/img/retos/reto-flashcards.jpg', camino: false }
+      icono: 'layers', color: '#C75402', texto: 'var(--rz-naranja-txt)', tiempo: 'Tres minutos', imagen: 'assets/img/landing/area-etologia.webp', camino: false }
   ];
   const IDS = TIPOS.map(t => t.id);
   const CAMINOS = ['quiz', 'detective', 'orden'];
@@ -346,7 +346,9 @@
     return ICONOS && ICONOS.existe(nombre) ? ICONOS.svg(nombre, { size: t, clase: clase }) : '';
   }
 
-  const MASCOTAS = { jira: 'assets/img/mascotas/mascota-jira.png', buho: 'assets/img/mascotas/mascota-buho.png', jaguarito: 'assets/img/mascotas/mascota-jaguarito.webp' };
+  // Imágenes que ya existen en el sitio. Cuando lleguen mascota-jira.png y mascota-buho.png (ver PROMPTS-IMAGENES-CHATGPT.md),
+  // basta con cambiar estas rutas. Mientras tanto no se pide ningún archivo que falte (sin errores 404).
+  const MASCOTAS = { jira: 'assets/img/guia/guia-feliz.webp', buho: 'assets/img/landing/hero-buho.webp', jaguarito: 'assets/img/mascotas/mascota-jaguarito.webp' };
 
   function iniciar(opts) {
     const o = opts || {};

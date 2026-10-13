@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
   <style>
     .webinar-hero {
       position: relative;
@@ -233,7 +234,7 @@
       50% { transform: translateY(-8px); }
     }
     .webinars-empty__title {
-      color: #fff; font-family: 'Poppins', sans-serif;
+      color: var(--zoo-text); font-family: 'Poppins', sans-serif;
       font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;
     }
     .webinars-empty__text {
@@ -241,6 +242,13 @@
       font-size: .92rem; line-height: 1.5;
       max-width: 400px; margin: 0 auto;
     }
+
+    /* Tema claro: el verde y el naranja claros no se leían sobre blanco */
+    [data-theme="light"] .webinar-card__speaker { color: var(--zoo-solid-mid, #2A7A4E); }
+    [data-theme="light"] .webinar-card__tag { color: #A8431A; background: rgba(213,90,40,0.10); }
+    [data-theme="light"] .webinar-card__tag.is-soon { color: #7A5200; }
+    .webinars-empty__title { color: var(--zoo-text); }
+    .webinar-card__meta .pw-chip { margin-left: auto; }
 
     @media (max-width: 600px) {
       .webinar-hero { padding: 26px 22px; }
@@ -271,6 +279,7 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script>
@@ -279,6 +288,9 @@
       if (!session) return;
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('sesiones', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+      // Vista previa: quien no es miembro ve los webinars completos, pero el enlace de Meet es solo para miembros.
+      const PW = window.ZOO_PAYWALL;
+      if (PW) PW.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
 
       if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></span>Activa tu membresía para recibir el link de Google Meet. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
@@ -307,7 +319,7 @@
       const linkBtn = isActive && meetUrl
         ? `<a href="${meetUrl}" target="_blank" class="btn-meet"><span class="btn-meet__icon">M</span>Entrar al webinar</a>`
         : !isActive
-        ? `<a href="club-suscripcion.html" class="btn-meet" style="background:var(--zoo-amber);color:#1f1d17;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar para ver link</a>`
+        ? `<button type="button" class="btn-meet" id="btnLinkMiembros" style="background:var(--zoo-amber);color:#1f1d17;border:0;cursor:pointer;font-family:inherit;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar para ver link</button>`
         : `<span style="color:rgba(255,255,255,0.7);font-size:.9rem;"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Link de Meet disponible 15 min antes</span>`;
 
       const mesesShort = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
@@ -359,6 +371,13 @@
       renderCountdown();
       setInterval(renderCountdown, 1000);
 
+      // El botón del enlace avisa y lleva a Suscripción (si el módulo no cargó, va directo a Suscripción)
+      const btnLink = document.getElementById('btnLinkMiembros');
+      if (btnLink) btnLink.addEventListener('click', () => {
+        if (PW) PW.requiereMembresia('Entrar al webinar');
+        else window.location.href = 'club-suscripcion.html';
+      });
+
       if (sesiones.length > 1) {
         const resto = sesiones.slice(1);
         listWrap.innerHTML = `
@@ -381,6 +400,7 @@
                     <span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-clock"/></svg> ${s.time || '19:00'} hrs</span>
                     <span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-laptop"/></svg> Google Meet</span>
                     ${s.duration ? `<span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> ${s.duration}</span>` : ''}
+                    ${!isActive && PW ? PW.chipCandadoHTML('Enlace solo para miembros') : ''}
                   </div>
                 </div>
                 <span class="${tagClass}">${tagText}</span>

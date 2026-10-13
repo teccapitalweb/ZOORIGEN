@@ -113,11 +113,15 @@
       ? `<button type="button" class="zc-elegir" data-elegir="${esc(c.id)}">Elegir como prueba gratuita</button>`
       : `<button type="button" class="zc-elegir zc-elegir--no" disabled>${esc(x.motivoNo || 'No disponible como prueba')}</button>`;
     const marca = pref ? `<span class="zc-badge zc-badge--pref">${ico('check', { size: 13 })}Elegiste este curso en la guía</span>` : '';
+    // Insignia dentro del cuerpo (encima del título, sin tapar nada): "Prueba gratuita" si se puede elegir, "Solo miembros" si no entra en la prueba.
+    const insignia = x.elegible
+      ? `<span class="zc-badge zc-badge--free zc-badge--cuerpo">${ico('gift', { size: 13 })}Prueba gratuita</span>`
+      : `<span class="zc-badge zc-badge--soft zc-badge--cuerpo">${ico('lock', { size: 13 })}Solo miembros</span>`;
     return `<article class="zc-card zc-card--pend${x.elegible ? ' zc-card--click' : ' zc-card--locked'}${pref ? ' zc-card--pref' : ''}" data-id="${esc(c.id)}">
       <div class="zc-cover${img ? '' : ' zc-cover--vacia'}"${img ? ` style="--zc-img:url('${esc(img)}')"` : ''}></div>
       <div class="zc-tags">${c.area ? `<span class="zc-tag zc-tag--area" style="--zc-area:${colorArea(c.area)}">${esc(c.area)}</span>` : ''}${c.level ? `<span class="zc-tag">${esc(c.level)}</span>` : ''}</div>
       ${marca}
-      <div class="zc-body"><h3 class="zc-title">${esc(c.title)}</h3>${boton}</div>
+      <div class="zc-body">${insignia}<h3 class="zc-title">${esc(c.title)}</h3>${boton}</div>
     </article>`;
   }
 

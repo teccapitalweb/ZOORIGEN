@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
   <style>
     .foro-hero {
       background: var(--zoo-solid, #1F5F3A);
@@ -809,6 +810,45 @@
       font-size: .88rem;
     }
 
+    /* Vista previa para quien no es miembro: publicaciones de ejemplo y caja de solo lectura */
+    .foro-composer {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: var(--zoo-bg-card, #131816);
+      border: 1px solid var(--zoo-border, #1e2522);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    .foro-composer__campo { flex: 1; min-width: 0; }
+    .foro-composer__lbl {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+    .foro-composer textarea {
+      width: 100%;
+      min-height: 64px;
+      resize: none;
+      background: rgba(127,127,127,.1);
+      color: var(--zoo-text, #fff);
+      border: 1px solid var(--zoo-border-strong, #2a3530);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: .92rem;
+      cursor: pointer;
+    }
+    .foro-composer textarea::placeholder { color: var(--zoo-text-dim, #6b7370); }
+    .foro-composer__pie { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .foro-post--ejemplo .foro-post__replies { border-left-color: var(--zoo-solid-mid, #2A7A4E); }
+    .foro-post--ejemplo .foro-post__view-more { color: var(--zoo-text, #fff); text-decoration: underline; cursor: pointer; }
+    .foro-previa-cta { margin-top: 18px; }
+    @media (max-width: 600px) { .foro-composer { padding: 12px; } .foro-composer textarea { min-height: 84px; } }
+
     @media (max-width: 600px) {
       .foro-hero { padding: 22px 20px; }
       .foro-hero h1 { font-size: 1.45rem; }
@@ -886,6 +926,8 @@
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
+  <script src="../assets/js/club-foro-previa.js?v=20261102-foro"></script>
   <script>
     const CAT_LABELS = {
       'casos': zooIcon('heartpulse', 13) + ' Casos clínicos',
@@ -912,25 +954,88 @@
       if (!session) return;
       currentSession = session;
 
+      // Quién es miembro (plan activo o cancelado con acceso vigente, o administrador).
+      const esMiembro = ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
+
       if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('foro', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
-      document.querySelectorAll('.foro-cat').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.foro-cat').forEach(b => b.classList.remove('is-active'));
-          btn.classList.add('is-active');
-          currentCategory = btn.dataset.cat;
-          renderPosts();
+      if (esMiembro) {
+        document.querySelectorAll('.foro-cat').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.foro-cat').forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            currentCategory = btn.dataset.cat;
+            renderPosts();
+          });
         });
-      });
+      } else {
+        prepararVistaPrevia();
+      }
 
       document.getElementById('newPostBtn').addEventListener('click', openNewPostModal);
 
-      await loadPosts();
+      // Miembros: cargan las discusiones. Sin membresía: vista previa (y loadPosts también lo comprueba).
+      if (esMiembro) await loadPosts(); else pintarVistaPrevia();
     })();
 
+    /* ───────── Vista previa para quien no es miembro ─────────
+       Se ve todo (encabezado, filtros, caja para escribir, publicaciones de ejemplo) pero nada se usa:
+       cada toque pide membresía. NO se consulta Firestore (foroPosts ni replies) en absoluto. */
+    function prepararVistaPrevia() {
+      const P = window.ZOO_FORO_PREVIA;
+      const hero = document.querySelector('.foro-hero');
+      // Las cifras reales (discusiones, miembros, respuestas) son de miembros: no se muestran ceros ni inventos.
+      const stats = document.querySelector('.foro-hero__stats');
+      if (stats) stats.style.display = 'none';
+
+      // Aviso de vista previa, justo debajo del encabezado.
+      hero.insertAdjacentHTML('afterend', ZOO_PAYWALL.avisoVistaPreviaHTML(escapeHtml(P.TEXTOS.aviso)));
+
+      // Caja para escribir en solo lectura, entre el botón de nueva discusión y los filtros.
+      const acciones = document.querySelector('.foro-main-actions');
+      acciones.insertAdjacentHTML('afterend', P.renderComposer(currentSession && (currentSession.name || currentSession.email)));
+      document.getElementById('foroComposer').addEventListener('click', (ev) => {
+        if (ev.target.closest('[data-accion]')) ZOO_PAYWALL.requiereMembresia(P.nombreAccion('publicar'));
+      });
+
+      // Filtros de categoría: se ven, y al tocarlos piden membresía.
+      document.querySelectorAll('.foro-cat').forEach(btn => {
+        btn.addEventListener('click', () => ZOO_PAYWALL.requiereMembresia(P.nombreAccion('filtrar')));
+      });
+
+      // Publicaciones de ejemplo: abrir, reaccionar, comentar y compartir piden membresía.
+      const list = document.getElementById('foroList');
+      list.addEventListener('click', (ev) => {
+        const t = ev.target.closest('[data-accion]');
+        if (!t) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        ZOO_PAYWALL.requiereMembresia(P.nombreAccion(t.dataset.accion));
+      });
+      list.addEventListener('keydown', (ev) => {
+        if (ev.key !== 'Enter' && ev.key !== ' ') return;
+        const t = ev.target.closest('[data-accion]');
+        if (!t || t.tagName === 'BUTTON') return;
+        ev.preventDefault();
+        ZOO_PAYWALL.requiereMembresia(P.nombreAccion(t.dataset.accion));
+      });
+    }
+
+    function pintarVistaPrevia() {
+      const P = window.ZOO_FORO_PREVIA;
+      const list = document.getElementById('foroList');
+      list.innerHTML = P.renderLista(P.EJEMPLOS, {
+        etiquetaCategoria: (cat) => CAT_LABELS[cat] || escapeHtml(P.CATEGORIAS[cat] || cat)
+      }) + '<div class="foro-previa-cta">' + ZOO_PAYWALL.bloqueoHTML(P.TEXTOS.paywallTexto, {
+        titulo: P.TEXTOS.paywallTitulo, boton: P.TEXTOS.paywallBoton
+      }) + '</div>';
+    }
+
     async function loadPosts() {
+      // Defensa: sin membresía no se consulta Firestore; se pinta la vista previa y listo.
+      if (!ZOO_PAYWALL.miembro()) { pintarVistaPrevia(); return; }
       const list = document.getElementById('foroList');
       list.innerHTML = '<div class="foro-loading"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cargando discusiones...</div>';
 
@@ -1083,12 +1188,8 @@
 
     async function toggleLike(postId, btn, ev) {
       if (ev) ev.stopPropagation();
-      // Solo VIP puede dar like
-      const esVIP = ZOORIGEN_CLUB.hasActiveMembership(currentSession);
-      if (!esVIP) {
-        alert('Solo los miembros VIP pueden dar like. Suscríbete para interactuar en el foro.');
-        return;
-      }
+      // Solo los miembros pueden reaccionar (aviso de membresía, sin alert)
+      if (!ZOO_PAYWALL.requiereMembresia('Reaccionar')) return;
       const post = allPosts.find(p => p.id === postId);
       if (!post) return;
       const uid = currentSession.uid;
@@ -1118,6 +1219,7 @@
 
     function sharePost(postId, title, ev) {
       if (ev) ev.stopPropagation();
+      if (!ZOO_PAYWALL.requiereMembresia('Compartir una discusión')) return;
       const url = `${window.location.origin}${window.location.pathname}#${postId}`;
       const text = `Mira esta discusión en el Foro VIP Zoorigen: "${title.replace(/&apos;/g, "'")}"`;
       if (navigator.share) {
@@ -1130,13 +1232,9 @@
     }
 
     function openNewPostModal() {
-      // Permitir publicar si tiene plan activo O cancelado pero aún con acceso vigente
-      const tieneAcceso = ZOORIGEN_CLUB.hasActiveMembership(currentSession);
-
-      if (!tieneAcceso) {
-        alert('Necesitas membresía VIP activa para publicar en el foro. Ve a "Suscripción" para activar la tuya.');
-        return;
-      }
+      // Permitir publicar si tiene plan activo O cancelado pero aún con acceso vigente.
+      // Sin membresía: aviso de membresía y a Suscripción (sin alert).
+      if (!ZOO_PAYWALL.requiereMembresia('Publicar en el foro')) return;
 
       const modal = document.createElement('div');
       modal.className = 'foro-modal';
@@ -1240,6 +1338,7 @@
     }
 
     async function submitNewPost(closeFn) {
+      if (!ZOO_PAYWALL.requiereMembresia('Publicar en el foro')) return;
       const titleEl = document.getElementById('postTitle');
       const categoryEl = document.getElementById('postCategory');
       const contentEl = document.getElementById('postContent');
@@ -1297,6 +1396,7 @@
     }
 
     async function viewPost(postId) {
+      if (!ZOO_PAYWALL.requiereMembresia('Abrir una discusión')) return;
       const post = allPosts.find(p => p.id === postId);
       if (!post) return;
 
@@ -1374,12 +1474,8 @@
       }
 
       document.getElementById('submitReply').addEventListener('click', async () => {
-        // Solo VIP puede responder
-        const esVIP = ZOORIGEN_CLUB.hasActiveMembership(currentSession);
-        if (!esVIP) {
-          alert('Solo los miembros VIP pueden responder. Suscríbete para interactuar en el foro.');
-          return;
-        }
+        // Solo los miembros pueden responder (aviso de membresía, sin alert)
+        if (!ZOO_PAYWALL.requiereMembresia('Comentar')) return;
         const txtEl = document.getElementById('newReplyText');
         const text = (txtEl.value || '').trim();
         if (text.length < 5) {

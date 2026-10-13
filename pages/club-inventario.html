@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
 <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
 <style>
   /* ── Cabecera de la herramienta (mismos estilos .tools-* y .tool-* de club-herramientas.html) ── */
   .tools-hero {
@@ -265,6 +266,14 @@
   }
   .reg-toast--error { background: #b8431b; }
 
+  /* ── Vista previa para quien no es miembro (ejemplares de muestra) ── */
+  .pw-aviso a { color: var(--zoo-solid-mid, #2A7A4E); font-weight: 700; text-decoration: underline; }
+  .reg-tabla td .pw-ejemplo { margin-top: 4px; }
+  .reg-evento__titulo .pw-ejemplo { margin-left: 6px; vertical-align: 1px; }
+  .reg-bloque .pw-vista { margin-bottom: 4px; }
+  .reg-bloque .pw-vista__contenido .pw-barra { height: 12px; }
+  #btnGuardarUnidad { margin-right: 10px; }
+
   /* Celular: la tabla se vuelve tarjetas, nada se sale de la pantalla */
   @media (max-width: 700px) {
     .reg-tabla--inv { min-width: 0; table-layout: auto; }
@@ -441,6 +450,7 @@
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/registro-ejemplares-ui.js?v=20261012-registro"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -457,20 +467,92 @@
   $('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar(MENU_ID, session);
   if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
 
-  // ═══ SOLO MIEMBROS ═══ Sin membresía vigente: tarjeta fija + paywall (el administrador también entra)
-  function bloquear() {
-    $('regApp').style.display = 'none';
-    $('regAviso').style.display = 'none';
-    $('regStats').style.display = 'none';
-    $('regBloqueo').innerHTML =
-      '<div class="tool-panel is-active" style="text-align:center;">' +
-      '<div class="tool-result__title" style="font-size:1.15rem;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Herramientas exclusivas para miembros</div>' +
-      '<p style="color:var(--zoo-text-muted);margin:0 0 16px;">El libro de registro de ejemplares, la bitácora y el informe anual se abren con una membresía activa.</p>' +
-      '<a class="tool-btn-calc" href="club-suscripcion.html" style="display:inline-flex;">Ver planes</a></div>';
-    ZOORIGEN_CLUB.showPaywall(session, 'usar el libro de registro de ejemplares');
+  // ═══ VISTA PREVIA PARA QUIEN NO ES MIEMBRO ═══
+  // Sin membresía vigente se ve la herramienta completa (pestañas, buscador, filtros, campos) con 2 ejemplares
+  // de EJEMPLO armados aquí mismo. No se llama a /api/registro ni a /api/registro/informe y no se escribe
+  // nada en el almacenamiento. Agregar, registrar eventos, ver fichas, corregir, eliminar, copiar, descargar
+  // y guardar los datos de la unidad piden membresía y llevan a Suscripción (ZOO_PAYWALL). Para miembros y
+  // administradores todo funciona igual que siempre.
+  const esMiembro = ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
+  let modoVista = !esMiembro;
+  const puede = (accion) => ZOO_PAYWALL.requiereMembresia(accion);
+  const ACCIONES_DE_USO = {
+    agregar: 'Agregar un ejemplar al libro de registro',
+    ficha: 'Ver la ficha de un ejemplar',
+    evento: 'Registrar un evento en la bitácora',
+    'borrar-evento': 'Deshacer un evento de la bitácora',
+    copiar: 'Copiar el borrador del informe anual',
+    txt: 'Descargar el borrador del informe anual',
+    'csv-resumen': 'Descargar el resumen del informe en .csv',
+    'csv-movimientos': 'Descargar los movimientos del informe en .csv'
+  };
+
+  function mostrarAvisoVista() {
+    $('regBloqueo').innerHTML = ZOO_PAYWALL.avisoVistaPreviaHTML(
+      '<strong>Vista previa del libro de registro.</strong> Estás viendo 2 ejemplares de ejemplo: ' +
+      'puedes recorrer las pestañas, buscar y filtrar. Agregar ejemplares, registrar eventos, ver fichas, descargar y generar el ' +
+      'borrador del informe se abren con una membresía activa. <a href="club-suscripcion.html">Ver planes</a>');
+    const notaUnidad = document.querySelector('#infUnidadDetalles .reg-nota');
+    if (notaUnidad) notaUnidad.textContent = 'Puedes escribir los datos para ver cómo se llenan. Guardarlos y verlos en el borrador es para miembros.';
+    if (!$('btnGuardarUnidad')) {
+      $('btnLimpiarUnidad').insertAdjacentHTML('beforebegin',
+        '<button type="button" class="tool-btn-calc" id="btnGuardarUnidad"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Guardar datos de la unidad</button>');
+      $('btnGuardarUnidad').addEventListener('click', () => { puede('Guardar los datos de la unidad'); });
+    }
   }
-  const esMiembro = ZOORIGEN_CLUB.hasActiveMembership(session) || session.role === 'admin';
-  if (!esMiembro) { bloquear(); return; }
+
+  // Ejemplares de muestra (se arman con las mismas funciones que usa la respuesta real del servidor)
+  function datosEjemplo() {
+    const hoyIso = R.fechaLocalIso();
+    const inicio = hoyIso.slice(0, 4) + '-01-01';
+    const base = { nombreCientifico: '', nombre: '', notas: '', estado: 'activo', fechaSalida: '', tipoIngreso: 'alta', fechaIngreso: inicio, creado: inicio + 'T10:00:00.000Z' };
+    return R.normalizarRespuesta({
+      hoy: hoyIso,
+      ejemplares: [
+        Object.assign({}, base, { id: 'ejemplo-1', nombreComun: 'Iguana verde (ejemplo)', nombreCientifico: 'Iguana iguana', marca: 'Ejemplo 1', sexo: 'hembra', origen: 'Ejemplo: criadero de muestra' }),
+        Object.assign({}, base, { id: 'ejemplo-2', nombreComun: 'Tortuga de ejemplo', marca: 'Ejemplo 2', sexo: 'macho', origen: 'Ejemplo: rescate de muestra' })
+      ],
+      eventos: [
+        { id: 'ejemplo-ev-1', ejemplarId: 'ejemplo-1', tipo: 'nota', fecha: hoyIso, causa: '', destino: '', notas: 'Nota de ejemplo: así se ve un evento en la bitácora.', creado: hoyIso + 'T12:00:00.000Z' }
+      ],
+      resumen: { activos: 2, registrados: 2 },
+      limites: {}
+    });
+  }
+  function informeEjemplo(anio) {
+    const hoyIso = R.fechaLocalIso();
+    const n = Number(anio) || Number(hoyIso.slice(0, 4));
+    const actual = n === Number(hoyIso.slice(0, 4));
+    const fila = (esp, cient, i) => ({ especie: esp, nombreCientifico: cient, existenciasInicio: 0, altas: 1, nacimientos: 0, bajas: 0, muertes: 0, traslados: 0, existenciasFin: 1, _i: i });
+    const filas = actual ? [fila('Iguana verde (ejemplo)', 'Iguana iguana', 1), fila('Tortuga de ejemplo', '', 2)] : [];
+    return R.normalizarInforme({
+      anio: n, desde: n + '-01-01', hasta: n + '-12-31', enCurso: actual, corte: actual ? hoyIso : n + '-12-31',
+      porEspecie: filas,
+      total: { especie: 'TOTAL', existenciasInicio: 0, altas: filas.length, nacimientos: 0, bajas: 0, muertes: 0, traslados: 0, existenciasFin: filas.length },
+      movimientos: filas.map((f) => ({
+        fecha: n + '-01-01', tipo: 'alta', ejemplarId: 'ejemplo-' + f._i, especie: f.especie, nombreCientifico: f.nombreCientifico,
+        marca: 'Ejemplo ' + f._i, sexo: f._i === 1 ? 'hembra' : 'macho', origen: f._i === 1 ? 'Ejemplo: criadero de muestra' : 'Ejemplo: rescate de muestra', causa: '', destino: ''
+      }))
+    });
+  }
+  // Etiqueta "Ejemplo" en cada fila de muestra (inventario y bitácora)
+  function marcarEjemplos(cont) {
+    if (!modoVista || !cont) return;
+    cont.querySelectorAll('.reg-tabla tbody tr[data-id] td:first-child').forEach((td) => td.insertAdjacentHTML('beforeend', ZOO_PAYWALL.etiquetaEjemploHTML('Ejemplo')));
+    cont.querySelectorAll('.reg-evento .reg-evento__titulo').forEach((t) => t.insertAdjacentHTML('beforeend', ZOO_PAYWALL.etiquetaEjemploHTML('Ejemplo')));
+  }
+  // Si el servidor dice 403 a quien la sesión creía miembro (la membresía venció): se pasa a la vista previa
+  function entrarVistaPrevia() {
+    modoVista = true;
+    ZOO_PAYWALL.iniciar({ sesion: { role: 'user', planStatus: 'none' }, club: { hasActiveMembership: () => false } });
+    mostrarAvisoVista();
+    ponerUnidad(UNIDAD_VACIA);
+    datos = datosEjemplo();
+    informe = null;
+    pintarTodo();
+    if (tabActual === 'informe') cargarInforme();
+  }
+  if (modoVista) mostrarAvisoVista();
 
   /* ───────── Estado ───────── */
   let datos = null;             // respuesta normalizada de /api/registro
@@ -595,8 +677,11 @@
     }
     const lista = R.filtrarEjemplares(datos.ejemplares, filtroInv);
     if (!lista.length) { cont.innerHTML = R.htmlVacio(R.TEXTOS.vacioFiltro); return; }
-    cont.innerHTML = '<p class="reg-nota">Mostrando ' + lista.length + (lista.length === 1 ? ' ejemplar' : ' ejemplares') +
-      ' · límite de ' + datos.limites.maxEjemplares + ' ejemplares por cuenta.</p>' + R.htmlInventario(lista);
+    const nota = modoVista
+      ? 'Ejemplos de muestra: ' + lista.length + (lista.length === 1 ? ' ejemplar' : ' ejemplares') + '. Los tuyos aparecen aquí cuando eres miembro.'
+      : 'Mostrando ' + lista.length + (lista.length === 1 ? ' ejemplar' : ' ejemplares') + ' · límite de ' + datos.limites.maxEjemplares + ' ejemplares por cuenta.';
+    cont.innerHTML = '<p class="reg-nota">' + nota + '</p>' + R.htmlInventario(lista);
+    marcarEjemplos(cont);
   }
 
   function pintarBitacora() {
@@ -612,6 +697,7 @@
     if (!bitacora.length) { cont.innerHTML = R.htmlVacio(R.TEXTOS.vacioBitacora); return; }
     const lista = R.filtrarBitacora(bitacora, filtroBit);
     cont.innerHTML = lista.length ? R.htmlBitacora(lista) : R.htmlVacio(R.TEXTOS.vacioBitacoraFiltro);
+    marcarEjemplos(cont);
   }
 
   function pintarTodo() {
@@ -623,6 +709,12 @@
 
   /* ───────── Cargar ───────── */
   async function cargar() {
+    if (modoVista) {
+      datos = datosEjemplo();
+      pintarTodo();
+      if (tabActual === 'informe') cargarInforme();
+      return;
+    }
     esperando($('invLista'));
     esperando($('bitLista'));
     try {
@@ -632,7 +724,7 @@
       if (tabActual === 'informe') cargarInforme();
     } catch (err) {
       console.warn('registro:', err);
-      if (err && err.status === 403) { bloquear(); return; }
+      if (err && err.status === 403) { entrarVistaPrevia(); return; }
       const msg = err && err.status === 0 ? R.TEXTOS.error : errorTexto(err, R.TEXTOS.error);
       $('invLista').innerHTML = R.htmlError(msg);
       $('bitLista').innerHTML = R.htmlError(msg);
@@ -640,6 +732,7 @@
   }
   // Tras guardar o borrar: vuelve a pedir todo al servidor (así el estado siempre es el del servidor)
   async function recargarSilencioso() {
+    if (modoVista) return;
     try {
       const resp = await ZOORIGEN_CLUB.apiFetch('/api/registro');
       datos = R.normalizarRespuesta(resp);
@@ -687,6 +780,7 @@
   /* — Ejemplar: agregar o corregir — */
   function abrirFormEjemplar(ejemplar, opciones) {
     const edita = !!ejemplar;
+    if (!puede(edita ? 'Corregir los datos de un ejemplar' : ACCIONES_DE_USO.agregar)) return;
     if (!edita && datos.ejemplares.length >= datos.limites.maxEjemplares) {
       aviso('Llegaste al máximo de ' + datos.limites.maxEjemplares + ' ejemplares.', true);
       return;
@@ -768,6 +862,7 @@
 
   /* — Evento: baja, muerte, traslado o nota — */
   function abrirFormEvento(ejemplarId) {
+    if (!puede(ACCIONES_DE_USO.evento)) return;
     if (!datos.ejemplares.length) { aviso('Primero registra un ejemplar.', true); return; }
     if (datos.eventos.length >= datos.limites.maxEventos) { aviso('Llegaste al máximo de ' + datos.limites.maxEventos + ' eventos.', true); return; }
     const lista = datos.ejemplares.slice().sort((a, b) => a.nombreComun.localeCompare(b.nombreComun, 'es') || (a.marca || '').localeCompare(b.marca || '', 'es'));
@@ -847,6 +942,7 @@
 
   /* — Ficha del ejemplar — */
   function abrirFicha(id, volverA) {
+    if (!puede(ACCIONES_DE_USO.ficha)) return;
     const e = ejemplarPorId(id);
     if (!e) return;
     const historial = R.filtrarBitacora(bitacora, { ejemplarId: e.id });
@@ -896,6 +992,7 @@
   }
 
   async function deshacerEvento(id) {
+    if (!puede(ACCIONES_DE_USO['borrar-evento'])) return;
     const v = datos.eventos.find((x) => x.id === id);
     if (!v) return;
     const ok = await confirmar('¿Deshacer este evento?', 'Se borra de la bitácora ("' + R.etiquetaTipo(v.tipo) + '" del ' + R.formatearFecha(v.fecha, 'larga') + ') y el estado del ejemplar se recalcula. Esto no se puede deshacer.', 'Sí, deshacer');
@@ -922,7 +1019,7 @@
     $('uniResponsable').value = u.responsable; $('uniCedula').value = u.cedula; $('uniObs').value = u.observaciones;
   }
   $('uniTipo').innerHTML = R.TIPOS_UNIDAD.map((t) => '<option value="' + R.esc(t.id) + '">' + R.esc(t.label) + '</option>').join('');
-  ponerUnidad(R.unidadLimpia(almacen.leer(CLAVE_UNIDAD) || UNIDAD_VACIA));
+  ponerUnidad(modoVista ? UNIDAD_VACIA : R.unidadLimpia(almacen.leer(CLAVE_UNIDAD) || UNIDAD_VACIA));
 
   function pintarOpcionesAnio() {
     const anios = R.aniosDisponibles(datos.ejemplares, datos.eventos, hoy());
@@ -936,7 +1033,8 @@
     const cont = $('infContenido');
     if (!informe) return;
     const rec = R.recordatorioInforme(hoy());
-    const b = R.construirBorrador(informe, leerUnidad(), { hoy: hoy() });
+    // Vista previa: el borrador no se arma (ni siquiera con los datos de muestra): va un marcador difuminado
+    const b = modoVista ? null : R.construirBorrador(informe, leerUnidad(), { hoy: hoy() });
     let html = '';
     if (informe.enCurso) {
       html += '<div class="tool-result is-visible is-warning" style="margin-top:0;margin-bottom:16px;"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> El año ' + informe.anio +
@@ -951,7 +1049,7 @@
       }
     }
     html += '<div class="reg-bloque"><h3>Borrador del informe</h3>';
-    if (b.faltantes.length) {
+    if (b && b.faltantes.length) {
       html += '<div class="tool-result is-visible is-warning" style="margin-top:0;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Faltan datos de la unidad: ' +
         b.faltantes.map(R.esc).join(', ') + '. El borrador los marca como [PENDIENTE].</div>';
     }
@@ -961,13 +1059,19 @@
       '<button type="button" class="tool-btn-reset" data-accion="csv-resumen"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Resumen .csv</button>' +
       '<button type="button" class="tool-btn-reset" data-accion="csv-movimientos"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Movimientos .csv</button>' +
       '</div>' +
-      '<div class="reg-borrador-caja"><pre class="reg-borrador" id="infBorrador" tabindex="0"></pre></div></div>';
+      (modoVista
+        ? ZOO_PAYWALL.vistaBorrosaHTML(ZOO_PAYWALL.marcadorHTML(12, [92, 78, 66, 88, 72, 84]), {
+            titulo: 'El borrador del informe es para miembros',
+            texto: 'Con una membresía activa se arma con los datos de tu unidad y tus ejemplares, y puedes copiarlo y descargarlo.',
+            boton: 'Hazte miembro'
+          }) + '</div>'
+        : '<div class="reg-borrador-caja"><pre class="reg-borrador" id="infBorrador" tabindex="0"></pre></div></div>');
     html += '<div class="reg-bloque"><h3>Plazos de referencia (' + R.esc(R.FUENTE_PLAZOS) + ')</h3><ul class="reg-plazos">' +
       R.PLAZOS_REFERENCIA.map((p) => '<li><strong>' + R.esc(p.t) + ':</strong> ' + R.esc(p.d) + '</li>').join('') + '</ul>' +
       '<p class="reg-nota" style="margin-top:10px;">' + R.esc(R.AVISO_PLAZOS) + '</p></div>';
     cont.innerHTML = html;
     const pre = $('infBorrador');
-    if (pre) pre.textContent = b.texto;
+    if (pre && b) pre.textContent = b.texto;
     pintarRecordatorio(rec);
   }
   function pintarRecordatorio(rec) {
@@ -982,6 +1086,12 @@
     const anio = $('infAnio').value;
     if (!anio) return;
     const cont = $('infContenido');
+    if (modoVista) {
+      informe = R.normalizarInforme(informeEjemplo(anio));
+      informeAnio = informe.anio;
+      pintarInforme();
+      return;
+    }
     const yo = ++informeSolicitud;
     esperando(cont, 3);
     try {
@@ -1023,6 +1133,7 @@
   $('btnAgregar').addEventListener('click', () => { if (datos) abrirFormEjemplar(null); });
   $('btnEvento').addEventListener('click', () => { if (datos) abrirFormEvento(null); });
   $('btnCsvInventario').addEventListener('click', () => {
+    if (!puede('Descargar el inventario en .csv')) return;
     if (!datos || !datos.ejemplares.length) { aviso('Todavía no hay ejemplares para descargar.', true); return; }
     descargar(R.nombreArchivo('inventario', '', 'csv'), R.csvInventario(datos.ejemplares), 'text/csv');
   });
@@ -1030,10 +1141,12 @@
 
   // Datos de la unidad: se guardan al escribir y el borrador se rehace sin pedir nada al servidor
   ['uniNombre', 'uniTipo', 'uniRegistro', 'uniUbicacion', 'uniResponsable', 'uniCedula', 'uniObs'].forEach((id) => {
-    $(id).addEventListener('input', () => { almacen.guardar(CLAVE_UNIDAD, leerUnidad()); pintarInforme(); });
-    $(id).addEventListener('change', () => { almacen.guardar(CLAVE_UNIDAD, leerUnidad()); pintarInforme(); });
+    // En la vista previa se puede escribir, pero no se guarda nada ni se arma el borrador
+    $(id).addEventListener('input', () => { if (modoVista) return; almacen.guardar(CLAVE_UNIDAD, leerUnidad()); pintarInforme(); });
+    $(id).addEventListener('change', () => { if (modoVista) return; almacen.guardar(CLAVE_UNIDAD, leerUnidad()); pintarInforme(); });
   });
   $('btnLimpiarUnidad').addEventListener('click', () => {
+    if (modoVista) { ponerUnidad(UNIDAD_VACIA); aviso('Se limpiaron los campos.'); return; }
     almacen.borrar(CLAVE_UNIDAD);
     ponerUnidad(UNIDAD_VACIA);
     pintarInforme();
@@ -1048,6 +1161,8 @@
     if (!b || b.closest('.reg-modal')) return;
     const accion = b.dataset.accion;
     const id = b.dataset.id;
+    // Vista previa: cualquier acción de uso pide membresía y no llega al servidor
+    if (modoVista) { if (ACCIONES_DE_USO[accion]) puede(ACCIONES_DE_USO[accion]); return; }
     if (accion === 'agregar') { if (datos) abrirFormEjemplar(null); }
     else if (accion === 'ficha') abrirFicha(id, b);
     else if (accion === 'evento') abrirFormEvento(id);

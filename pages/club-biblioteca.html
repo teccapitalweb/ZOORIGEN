@@ -22,8 +22,9 @@
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261031">
-  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261102-vistaprevia">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
     .player-overlay {
@@ -375,6 +376,7 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
   <script src="../assets/js/club-progreso.js?v=20261031-cert"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
@@ -383,7 +385,7 @@
   <script src="../assets/js/club-acceso.js?v=20261028"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261031-guia"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261031-guia"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261102-vistaprevia"></script>
   <script src="../assets/js/club-premios.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
   <script>
@@ -408,6 +410,15 @@
     window.__zooPrueba = window.ZOO_ACCESO ? ZOO_ACCESO.estadoPrueba(null) : { elegible: false, elegida: null, aplica: false, cursosElegibles: [], cursoPorDefectoId: null };
 
     function mostrarPaywallCurso() {
+      // Ventana común de membresía (la misma de PDFs, libros y herramientas): "Ver planes" o "Seguir explorando".
+      // Si el módulo no cargó, se usa la ventana propia de abajo (comportamiento de siempre).
+      if (window.ZOO_PAYWALL && typeof ZOO_PAYWALL.modalPaywall === 'function') {
+        ZOO_PAYWALL.modalPaywall({
+          titulo: 'Esta clase es para miembros',
+          texto: 'Activa tu membresía para continuar con esta clase y acceder a todos los cursos de Zoorigen.'
+        });
+        return;
+      }
       if (document.getElementById('zooCoursePaywall')) return;
       const overlay = document.createElement('div');
       overlay.id = 'zooCoursePaywall';
@@ -439,7 +450,7 @@
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('biblioteca', session);
       if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
-
+      if (window.ZOO_PAYWALL) ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
 
       if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span><svg class="zi" aria-hidden="true"><use href="#zi-gift"/></svg></span>Tienes gratis la clase 1 del primer curso. Desde la clase 2 necesitas una membresía vigente. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;

@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
 <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
 <style>
   .legal-hero {
     background: var(--zoo-solid, #1F5F3A);
@@ -581,6 +582,23 @@
   .zl-toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(20px); background: #1F5F3A; color: #fff; padding: 10px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 9999; max-width: 90vw; text-align: center; }
   .zl-toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   .legal-field, .legal-field select, .legal-field input, .legal-field textarea { min-width: 0; max-width: 100%; }
+
+  /* ══ VISTA PREVIA (quien no es miembro ve todo, pero no puede usarlo) ══ */
+  .pw-aviso a { color: var(--zoo-solid-mid, #2A7A4E); font-weight: 700; text-decoration: underline; }
+  .zl-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .zl-cab > div { min-width: 0; }
+  .zl-cab .pw-chip { flex: none; }
+  .zl-vista-nom { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--zoo-border, #1e2522); }
+  .zl-chipbar { display: inline-block; width: 110px; height: 24px; margin: 0; border-radius: 8px; }
+  .nom-card--vista .nom-card__detail-item .pw-barra:first-child { width: 40%; }
+  .nom-copy-btn.zl-vermas { text-decoration: none; display: inline-flex; align-items: center; color: var(--zoo-solid-mid, #2A7A4E); border-color: var(--zoo-solid-mid, #2A7A4E); }
+  .zl-precio { position: relative; display: inline-block; min-width: 96px; text-align: center; }
+  .zl-precio__num { filter: blur(5px); user-select: none; -webkit-user-select: none; }
+  .zl-precio .zi { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; color: var(--zoo-solid-mid, #2A7A4E); vertical-align: baseline; }
+  .marco-card .pw-vista { margin-top: 6px; }
+  .checklist-item .pw-vista__contenido { flex: 1; min-width: 0; }
+  .checklist-item--vista input[type="checkbox"] { flex: none; }
+  .checklist .pw-aviso { margin: 0 0 14px; }
 </style>
 </head>
 <body>
@@ -828,6 +846,7 @@
         <button class="legal-btn-secondary" onclick="descargarInformeUMA()"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg> Descargar .txt</button>
       </div>
 
+      <div id="umaBloqueo"></div>
       <div class="legal-aviso" id="umaAviso" style="display:none;" role="alert"></div>
       <div class="uma-preview-box" id="umaPreview"></div>
 
@@ -869,6 +888,8 @@
           <svg class="zi" aria-hidden="true"><use href="#zi-lightbulb"/></svg> <strong style="color:var(--zoo-text);">Pago:</strong> los derechos federales se pagan con la hoja de ayuda o el formato e5cinco del SAT, según el trámite. Confirma el medio en el portal oficial del trámite.
         </div>
       </div>
+
+      <div id="cuotaTotalVista"></div>
 
       <div class="legal-disclaimer">
         <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Fuente:</strong> Ley Federal de Derechos, texto vigente (última reforma DOF 07-11-2025), con las cantidades de 2026 actualizadas conforme a la Resolución Miscelánea Fiscal (DOF 28-12-2025). Los montos son los de la Ley; no se les suma IVA. Es una selección de conceptos de vida silvestre, impacto ambiental y forestal: no incluye todos los trámites de SEMARNAT. El registro de una UMA no causa derecho (LFD, Art. 194-F-1, fr. I). Confirma el monto del trámite en el portal oficial antes de pagar.
@@ -958,6 +979,7 @@
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
 <script>
@@ -965,30 +987,31 @@
   const session = await ZOORIGEN_CLUB.requireAuth();
   if (!session) return;
 
-  // ═══ SOLO VIP ═══ Si no es VIP activo, mostrar paywall bloqueante
-  const isVIP = ZOORIGEN_CLUB.hasActiveMembership(session);
-  if (!isVIP) {
-    if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
-    document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('legal', session);
-    if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
-    document.querySelectorAll('.legal-panel, .legal-tabs, .legal-aviso-global').forEach(el => el.style.display = 'none');
-    const hero = document.querySelector('.legal-hero');
-    if (hero) {
-      hero.querySelectorAll('.legal-hero__stats').forEach(el => el.style.display = 'none');
-      const bloqueo = document.createElement('div');
-      bloqueo.className = 'legal-panel is-active';
-      bloqueo.style.cssText = 'display:block;text-align:center;';
-      bloqueo.innerHTML = '<h2 style="margin:0 0 8px;">Herramientas exclusivas para miembros</h2>' +
-        '<p style="color:var(--zoo-text-muted);margin:0 0 16px;">La consulta de NOM-059, los borradores de informes, los derechos de la LFD, CITES y las listas de revisión se abren con una membresía activa.</p>' +
-        '<a class="legal-btn-primary" href="club-suscripcion.html" style="display:inline-block;text-decoration:none;">Ver planes</a>';
-      hero.insertAdjacentElement('afterend', bloqueo);
-    }
-    ZOORIGEN_CLUB.showPaywall(session, 'acceder a las Herramientas Legales');
-    return;
-  }
+  // ═══ VISTA PREVIA PARA QUIEN NO ES MIEMBRO ═══
+  // La persona sin membresía VE todo (pestañas, listas, filtros, campos) y puede explorar y escribir,
+  // pero no puede USAR: el detalle va difuminado con marcadores (sin el dato real debajo) y cualquier
+  // acción que dé un resultado (copiar, generar, calcular, marcar) pide membresía y lleva a Suscripción.
+  // Miembros y administradores: comportamiento de siempre. (club-paywall.js: ZOO_PAYWALL)
+  const esMiembro = ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
   if (ZOORIGEN_CLUB.initTheme) ZOORIGEN_CLUB.initTheme();
   document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('legal', session);
   if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+
+  if (!esMiembro) {
+    const tabs = document.querySelector('.legal-tabs');
+    if (tabs) {
+      tabs.insertAdjacentHTML('beforebegin', ZOO_PAYWALL.avisoVistaPreviaHTML(
+        '<strong>Vista previa de las herramientas.</strong> Puedes recorrer las pestañas, buscar, filtrar y llenar los campos. ' +
+        'El detalle de cada especie, los precios, el borrador del informe y los puntos de las listas se abren con una membresía activa. ' +
+        '<a href="club-suscripcion.html">Ver planes</a>'));
+    }
+    const umaBloqueo = document.getElementById('umaBloqueo');
+    if (umaBloqueo) {
+      umaBloqueo.innerHTML = ZOO_PAYWALL.bloqueoHTML(
+        'Llena los datos con calma: el borrador del informe, copiarlo y descargarlo se abren con una membresía activa.',
+        { titulo: 'El borrador del informe es para miembros', boton: 'Hazte miembro' });
+    }
+  }
 
   document.querySelectorAll('.legal-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -1200,9 +1223,11 @@ function renderNOM(items) {
     return;
   }
 
+  const vista = !ZOO_PAYWALL.miembro();
   container.innerHTML = lista.map(sp => {
     const i = NOM059.indexOf(sp);
     const catClass = sp.cat.toLowerCase();
+    if (vista) return nomTarjetaVista(sp, i);
     return `
     <div class="nom-card">
       <div class="nom-card__sp">${zlEsc(sp.comun)}</div>
@@ -1235,6 +1260,33 @@ function renderNOM(items) {
   }).join('');
 }
 
+// Vista previa: se ve el nombre, el nombre científico y el grupo; categoría, CITES, distribución,
+// hábitat y amenazas van como marcadores difuminados (sin el dato real) y copiar pide membresía.
+function nomTarjetaVista(sp, i) {
+  const PW = ZOO_PAYWALL;
+  const itemDetalle = '<div class="nom-card__detail-item"><span class="pw-barra"></span>' + PW.marcadorHTML(2) + '</div>';
+  return `
+    <div class="nom-card nom-card--vista">
+      <div class="zl-cab">
+        <div>
+          <div class="nom-card__sp">${zlEsc(sp.comun)}</div>
+          <div class="nom-card__sci">${zlEsc(sp.cientifico)}</div>
+          <div class="nom-card__meta"><svg class="zi" aria-hidden="true"><use href="#zi-map-pin"/></svg> ${zlEsc(sp.grupo)}</div>
+        </div>
+        ${PW.chipCandadoHTML('Ficha para miembros')}
+      </div>
+      <div class="pw-vista__contenido zl-vista-nom" aria-hidden="true">
+        <div class="nom-badges"><span class="pw-barra zl-chipbar"></span><span class="pw-barra zl-chipbar"></span><span class="pw-barra zl-chipbar"></span></div>
+        <div class="nom-card__detail">${itemDetalle}${itemDetalle}${itemDetalle}</div>
+      </div>
+      <div class="nom-card__actions">
+        <button class="nom-copy-btn" onclick="copiarNOM(${i})"><svg class="zi" aria-hidden="true"><use href="#zi-copy"/></svg> Copiar cita legal</button>
+        <button class="nom-copy-btn" onclick="copiarFichaNOM(${i})"><svg class="zi" aria-hidden="true"><use href="#zi-file-text"/></svg> Copiar ficha</button>
+        <a class="nom-copy-btn zl-vermas" href="club-suscripcion.html"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg>&nbsp;Hazte miembro</a>
+      </div>
+    </div>`;
+}
+
 function buscarNOM() {
   const q = zlSin(document.getElementById('nomSearch').value);
   const activeChip = document.querySelector('.nom-filter-chip.is-active');
@@ -1254,6 +1306,7 @@ function buscarNOM() {
 }
 
 function copiarNOM(i) {
+  if (!ZOO_PAYWALL.requiereMembresia('Copiar la cita legal de la especie')) return;
   const sp = NOM059[i];
   if (!sp) return;
   const texto = `${sp.comun} (${sp.cientifico}) se encuentra en la categoría "${CAT_LABELS[sp.cat]}" (${sp.cat}) de la ${NOM_FUENTE}.` +
@@ -1263,6 +1316,7 @@ function copiarNOM(i) {
   zlCopiar(texto, 'Cita copiada');
 }
 function copiarFichaNOM(i) {
+  if (!ZOO_PAYWALL.requiereMembresia('Copiar la ficha de la especie')) return;
   const sp = NOM059[i];
   if (!sp) return;
   const ficha = `FICHA DE REFERENCIA
@@ -1306,6 +1360,7 @@ function umaMostrarAviso(html, tipo) {
 }
 
 function generarInformeUMA() {
+  if (!ZOO_PAYWALL.requiereMembresia('Generar el borrador del informe UMA')) return;
   const tipo = (document.querySelector('.uma-event.is-selected') || {}).dataset ? document.querySelector('.uma-event.is-selected').dataset.event : 'alta';
   const umaTipo = document.getElementById('umaTipo').value;
   const esAnual = tipo === 'anual';
@@ -1457,10 +1512,12 @@ SEMARNAT antes de presentar.
 }
 
 function copiarInformeUMA() {
+  if (!ZOO_PAYWALL.requiereMembresia('Copiar el borrador del informe UMA')) return;
   if (!window.__umaTexto) { zlAvisar('Primero genera el borrador.'); return; }
   zlCopiar(window.__umaTexto, 'Borrador copiado');
 }
 function descargarInformeUMA() {
+  if (!ZOO_PAYWALL.requiereMembresia('Descargar el borrador del informe UMA')) return;
   if (!window.__umaTexto) { zlAvisar('Primero genera el borrador.'); return; }
   try {
     const blob = new Blob([window.__umaTexto], { type: 'text/plain;charset=utf-8' });
@@ -1528,16 +1585,21 @@ let cuotasSel = {};
 function renderCuotas(filtro) {
   const lista = document.getElementById('cuotaList');
   const items = filtro === 'all' ? CUOTAS : CUOTAS.filter(c => c.cat === filtro);
+  // Vista previa: el concepto y su descripción se ven; el precio va como un valor de relleno difuminado.
+  const vista = !ZOO_PAYWALL.miembro();
   lista.innerHTML = items.map(c => {
     const cantidad = cuotasSel[c.id] || 0;
     const paso = c.paso || 1;
+    const precio = vista
+      ? `<span class="zl-precio" role="img" aria-label="Precio disponible para miembros"><span class="zl-precio__num" aria-hidden="true">$00,000.00 MXN</span>${ico('lock')}</span>${c.unidad ? ' / ' + zlEsc(c.unidad) : ''}`
+      : `${zlMoneda(c.price)} MXN${c.unidad ? ' / ' + zlEsc(c.unidad) : ''}`;
     return `
       <div class="cuota-item">
         <div class="cuota-item__info">
           <div class="cuota-item__title">${zlEsc(c.title)}</div>
           <div class="cuota-item__code">${zlEsc(c.ref)} · ${zlEsc(c.desc)}</div>
         </div>
-        <div class="cuota-item__price">${zlMoneda(c.price)} MXN${c.unidad ? ' / ' + zlEsc(c.unidad) : ''}</div>
+        <div class="cuota-item__price">${precio}</div>
         <div class="cuota-selector">
           <button onclick="cambiarCuota('${c.id}', -${paso})" aria-label="Quitar">−</button>
           <span>${cantidad}${c.unidad ? ' ' + c.unidad : ''}</span>
@@ -1549,6 +1611,7 @@ function renderCuotas(filtro) {
 }
 
 function cambiarCuota(id, delta) {
+  if (!ZOO_PAYWALL.requiereMembresia('Calcular el total estimado de derechos')) return;
   const actual = cuotasSel[id] || 0;
   const nuevo = Math.max(0, actual + delta);
   if (nuevo === 0) delete cuotasSel[id];
@@ -1559,6 +1622,17 @@ function cambiarCuota(id, delta) {
 
 function actualizarTotal() {
   const caja = document.getElementById('cuotaTotal');
+  // Vista previa: en lugar del total va el bloque de membresía (el cálculo es para miembros)
+  const vistaTotal = document.getElementById('cuotaTotalVista');
+  if (!ZOO_PAYWALL.miembro()) {
+    caja.style.display = 'none';
+    if (vistaTotal && !vistaTotal.firstChild) {
+      vistaTotal.innerHTML = ZOO_PAYWALL.bloqueoHTML(
+        'Elige los conceptos con los botones + y −: la suma y el total estimado se calculan con una membresía activa.',
+        { titulo: 'El total estimado es para miembros', boton: 'Hazte miembro' });
+    }
+    return;
+  }
   let total = 0, conceptos = 0;
   for (const id in cuotasSel) {
     const c = CUOTAS.find(x => x.id === id);
@@ -1696,8 +1770,31 @@ const CITES_CONTENT = {
   `
 };
 
+// Vista previa: quedan los títulos reales (el de la pestaña y el de cada sección) y, en lugar del texto,
+// marcadores difuminados. El texto real se lee en un nodo suelto y nunca llega a la pantalla.
+function citesVista(html) {
+  const PW = ZOO_PAYWALL;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const info = tmp.querySelector('.cites-info');
+  if (!info) return '';
+  const h3 = info.querySelector('h3');
+  const secciones = Array.from(info.querySelectorAll('.cites-proc')).map(proc => {
+    const h4 = proc.querySelector('h4');
+    const n = Math.max(2, Math.min(6, proc.querySelectorAll('li').length));
+    return '<div class="cites-proc">' + (h4 ? h4.outerHTML : '') + '<div class="pw-vista__contenido" aria-hidden="true">' + PW.marcadorHTML(n) + '</div></div>';
+  }).join('');
+  return '<div class="cites-info">' + (h3 ? h3.outerHTML : '') +
+    PW.vistaBorrosaHTML(PW.marcadorHTML(12), {
+      titulo: 'El texto completo es para miembros',
+      texto: 'Los apéndices, lo que exige la Convención, los costos y los trámites se leen completos con una membresía activa.',
+      boton: 'Hazte miembro'
+    }) + secciones + '</div>';
+}
+
 function renderCITES(tipo) {
-  document.getElementById('citesContent').innerHTML = CITES_CONTENT[tipo] || CITES_CONTENT.general;
+  const html = CITES_CONTENT[tipo] || CITES_CONTENT.general;
+  document.getElementById('citesContent').innerHTML = ZOO_PAYWALL.miembro() ? html : citesVista(html);
 }
 
 // ═══════════════ MARCO LEGAL ═══════════════
@@ -1761,7 +1858,28 @@ function renderMarcoLegal() {
       <p><strong>Lista Roja de la UICN:</strong> referencia científica internacional sobre el estado de las especies; no tiene valor legal por sí misma.</p>
     </div>
   `;
-  document.getElementById('marcoLegal').innerHTML = html;
+  document.getElementById('marcoLegal').innerHTML = ZOO_PAYWALL.miembro() ? html : marcoVista(html);
+}
+
+// Vista previa: de cada tarjeta quedan el título y la fecha de la última reforma; el texto se cambia por
+// marcadores difuminados (la primera lleva la caja de membresía). El texto real no llega a la pantalla.
+function marcoVista(html) {
+  const PW = ZOO_PAYWALL;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  tmp.querySelectorAll('.marco-card').forEach((card, idx) => {
+    const n = card.querySelectorAll('p').length;
+    card.querySelectorAll('p').forEach(p => p.remove());
+    const cuerpo = idx === 0
+      ? PW.vistaBorrosaHTML(PW.marcadorHTML(12), {
+          titulo: 'Los artículos son para miembros',
+          texto: 'Cada ley, reglamento y norma se abre con el detalle de sus artículos con una membresía activa.',
+          boton: 'Hazte miembro'
+        })
+      : '<div class="pw-vista__contenido" aria-hidden="true">' + PW.marcadorHTML(Math.max(3, Math.min(8, n))) + '</div>';
+    card.insertAdjacentHTML('beforeend', cuerpo);
+  });
+  return tmp.innerHTML;
 }
 
 // ═══════════════ LISTAS DE REVISIÓN ═══════════════
@@ -1858,13 +1976,28 @@ function renderChecklist() {
   const tipo = document.getElementById('checkSelect').value;
   const cl = CHECKLISTS[tipo];
   if (!cl) return;
-  const guardado = zlAlmacen.leer('zooChecklist_' + tipo, {});
+  // Vista previa: se ven el título y cuántos puntos tiene; los puntos van como marcadores difuminados
+  // (sin el texto real), nada se lee del almacenamiento y marcar o reiniciar pide membresía.
+  const vista = !ZOO_PAYWALL.miembro();
+  const guardado = vista ? {} : zlAlmacen.leer('zooChecklist_' + tipo, {});
   let html = `
     <div class="checklist">
       <div class="checklist__title">${cl.title}</div>
   `;
+  if (vista) {
+    html += ZOO_PAYWALL.avisoVistaPreviaHTML('<strong>' + cl.items.length + ' puntos en esta lista.</strong> El texto de cada punto y su fundamento se abren con una membresía activa. <a href="club-suscripcion.html">Ver planes</a>');
+  }
   cl.items.forEach((item, i) => {
     const marcado = guardado[i] ? 'checked' : '';
+    if (vista) {
+      html += `
+      <div class="checklist-item checklist-item--vista">
+        <input type="checkbox" id="chk_${tipo}_${i}" aria-label="Punto ${i + 1} de ${cl.items.length}" onchange="toggleCheck('${tipo}', ${i})">
+        <div class="pw-vista__contenido" aria-hidden="true">${ZOO_PAYWALL.marcadorHTML(2, [88 - (i % 3) * 8, 62 + (i % 4) * 6])}</div>
+      </div>
+    `;
+      return;
+    }
     html += `
       <div class="checklist-item">
         <input type="checkbox" id="chk_${tipo}_${i}" ${marcado} onchange="toggleCheck('${tipo}', ${i})">
@@ -1890,6 +2023,7 @@ function renderChecklist() {
 }
 
 function toggleCheck(tipo, i) {
+  if (!ZOO_PAYWALL.requiereMembresia('Marcar los puntos de la lista de revisión')) { renderChecklist(); return; }
   const clave = 'zooChecklist_' + tipo;
   const guardado = zlAlmacen.leer(clave, {});
   const caja = document.getElementById(`chk_${tipo}_${i}`);
@@ -1898,6 +2032,7 @@ function toggleCheck(tipo, i) {
   renderChecklist();
 }
 function resetChecklist(tipo) {
+  if (!ZOO_PAYWALL.requiereMembresia('Reiniciar la lista de revisión')) return;
   if (!confirm('¿Reiniciar esta lista?')) return;
   zlAlmacen.borrar('zooChecklist_' + tipo);
   renderChecklist();

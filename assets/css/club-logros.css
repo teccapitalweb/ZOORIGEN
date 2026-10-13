@@ -166,6 +166,7 @@
 [data-theme="light"] .lg-aviso > svg, [data-theme="light"] .lg-ins__xp { color: #8a5a00; }
 [data-theme="light"] .lg-ins.is-ganada .lg-ins__xp, [data-theme="light"] .lg-chip--usado, [data-theme="light"] .lg-chip--ganado { color: #1f6a3f; }
 [data-theme="light"] .lg-tier__txt p b { color: #1f6a3f; }
+[data-theme="light"] .lg-tier__txt > span { color: var(--zoo-text-muted, #5a6360); }
 [data-theme="light"] .lg-kpi__ico { color: #8a5a00; }
 [data-theme="light"] .lg-eyebrow { color: #8a5a00; }
 [data-theme="light"] .lg-hero .lg-eyebrow, [data-theme="light"] .lg-premios__intro .lg-eyebrow { color: #BDE2C5; }

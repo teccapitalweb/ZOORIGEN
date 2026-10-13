@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
   <style>
     .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
     .player-overlay.is-open { display: flex; }
@@ -28,6 +29,8 @@
     .player-box__close { background: transparent; border: 0; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
     .player-box__video { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
     .player-box__video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    /* El texto de "Próximamente" va sobre verde oscuro: no debe heredar el gris del tema claro */
+    .coming-soon-card__sub { color: rgba(255,255,255,0.85); }
   </style>
 </head>
 <body>
@@ -55,6 +58,7 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/club.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
   <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script>
@@ -63,6 +67,9 @@
       if (!session) return;
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('videos', session);
       if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+      // Vista previa: quien no es miembro ve la lista completa, pero reproducir es solo para miembros.
+      const PW = window.ZOO_PAYWALL;
+      if (PW) PW.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
       if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></span>Activa tu membresía para ver los videos. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
       }
@@ -128,7 +135,7 @@
         return;
       }
       list.innerHTML = videos.map(v => `
-        <div class="content-item">
+        <div class="content-item"${!isActive ? ' style="cursor:pointer;"' : ''}>
           <div class="content-item__thumb"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg></div>
           <div class="content-item__info">
             <div class="content-item__title">${v.title}</div>
@@ -136,10 +143,16 @@
           </div>
           ${isActive && v.driveId
             ? `<button class="content-item__tag" style="border:0;cursor:pointer;font-family:inherit;" onclick='openPlayer("${v.driveId}", ${JSON.stringify(v.title)})'><svg class="zi" aria-hidden="true"><use href="#zi-play"/></svg> Ver</button>`
-            : !isActive ? `<a href="club-suscripcion.html" class="content-item__tag" style="background:var(--zoo-orange);color:#fff;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar</a>`
+            : !isActive ? `<button type="button" class="content-item__tag" data-video-bloqueado style="background:var(--zoo-orange);color:#fff;border:0;cursor:pointer;font-family:inherit;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar</button>`
             : `<span class="content-item__tag" style="opacity:0.6;">Sin link</span>`}
         </div>
       `).join('');
+      // Reproducir un video sin membresía: aviso y llevar a Suscripción (si el módulo no cargó, directo a Suscripción)
+      list.addEventListener('click', (ev) => {
+        if (isActive || !ev.target.closest('.content-item')) return;
+        if (PW) PW.requiereMembresia('Reproducir el video');
+        else window.location.href = 'club-suscripcion.html';
+      });
     })();
     function openPlayer(driveId, title) {
       document.getElementById('playerTitle').textContent = title;

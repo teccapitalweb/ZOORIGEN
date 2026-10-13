@@ -219,3 +219,17 @@ body.mt-noscroll { overflow: hidden; }
   .mt-banner .mt-btn { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .mt-libro__top, .mt-doc, .mt-toast, .rdr-barra i { transition: none; } }
+
+/* Vista previa para quien no es miembro: se ve todo y no se usa nada (solo colores sólidos, sin degradados) */
+.mt-previa { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.mt-previa__pag { font-size: .74rem; color: var(--zoo-text-muted); }
+.mt-chip { white-space: nowrap; }
+.mt-banner--previa .mt-btn { background: var(--zoo-solid, #1F5F3A); color: var(--zoo-solid-ink, #fff); }
+.mt-banner--previa .mt-btn:hover { background: var(--zoo-solid-mid, #2A7A4E); filter: none; }
+.mt-dest__acc .mt-chip { margin-left: 2px; }
+.mt-doc.is-previa .mt-previa { margin-top: 0; }
+.mt-vacio .mt-btn { background: var(--zoo-solid, #1F5F3A); color: var(--zoo-solid-ink, #fff); margin-top: 6px; }
+@media (max-width: 640px) {
+  .mt-banner--previa .mt-btn { width: 100%; }
+  .mt-hero__kpis > div span { font-size: .62rem; letter-spacing: .03em; }
+}

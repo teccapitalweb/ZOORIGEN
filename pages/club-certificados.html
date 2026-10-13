@@ -29,6 +29,13 @@
     /* El título usaba blanco fijo y desaparecía en el tema claro */
     .cert-item-card__body h3 { color: var(--zoo-text); }
     .cert-estado-nota { color: var(--zoo-text-muted); font-size: .8rem; line-height: 1.45; margin: 0 0 12px; }
+    /* El título de "sin certificados" era blanco fijo y desaparecía en el tema claro */
+    .certs-empty h2 { color: var(--zoo-text); }
+    /* Tema claro: verde y ámbar claros sobre blanco no llegaban a contraste legible */
+    [data-theme="light"] .cert-estado--verificado { color: #1F6A3F; }
+    [data-theme="light"] .cert-estado--en-validacion,
+    [data-theme="light"] .cert-item-card__label { color: #7A5200; }
+    .certs-empty__acc { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
   </style>
 </head>
 <body>
@@ -79,15 +86,21 @@
         const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
         if (certs.length === 0) {
+          // Sin membresía no hay certificados que mostrar: el mensaje lo explica y ofrece ver los cursos o los planes.
+          const miembro = ZOORIGEN_CLUB.hasActiveMembership(session);
           content.innerHTML = `
             <div class="certs-empty">
               <div style="font-size:4rem;margin-bottom:16px;"><svg class="zi" aria-hidden="true"><use href="#zi-graduation-cap"/></svg></div>
               <h2>Aún no tienes certificados</h2>
               <p style="color:var(--zoo-text-muted);margin:10px 0 24px;max-width:460px;margin-left:auto;margin-right:auto;">
-                Completa tus cursos y obtén certificados descargables con folio único y verificación QR.
-                Perfectos para tu CV o LinkedIn.
+                ${miembro
+                  ? 'Completa tus cursos y obtén certificados descargables con folio único y verificación QR. Perfectos para tu CV o LinkedIn.'
+                  : 'Los certificados se emiten al terminar un curso completo con tu membresía activa, con folio único y verificación QR. Mientras tanto puedes explorar los cursos y empezar tu prueba gratuita.'}
               </p>
-              <a href="club-biblioteca.html" class="btn-club" style="display:inline-block;width:auto;padding:14px 32px;text-decoration:none;">Ir a la biblioteca</a>
+              <div class="certs-empty__acc">
+                <a href="club-biblioteca.html" class="btn-club" style="display:inline-block;width:auto;padding:14px 32px;text-decoration:none;">${miembro ? 'Ir a la biblioteca' : 'Ver los cursos'}</a>
+                ${miembro ? '' : '<a href="club-suscripcion.html" class="btn-club-outline" style="display:inline-block;width:auto;padding:14px 32px;margin:0;text-decoration:none;">Ver planes de membresía</a>'}
+              </div>
             </div>`;
           return;
         }
