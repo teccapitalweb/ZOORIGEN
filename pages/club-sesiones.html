@@ -15,14 +15,14 @@
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
   <style>
     .webinar-hero {
       position: relative;
-      background: linear-gradient(135deg, #1F5F3A 0%, #0F3B22 50%, #D55A28 100%);
+      background: var(--zoo-solid, #1F5F3A);
       border-radius: 20px;
       padding: 36px 32px;
       overflow: hidden;
@@ -34,7 +34,7 @@
       position: absolute;
       top: -50%; right: -10%;
       width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(232,163,23,0.25) 0%, transparent 60%);
+      background: none;
       animation: heroFloat 8s ease-in-out infinite;
     }
     .webinar-hero::after {
@@ -42,7 +42,7 @@
       position: absolute;
       bottom: -40%; left: -10%;
       width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(111,191,115,0.2) 0%, transparent 60%);
+      background: none;
       animation: heroFloat 10s ease-in-out infinite reverse;
     }
     @keyframes heroFloat {
@@ -79,7 +79,7 @@
       color: rgba(255,255,255,0.9); font-size: 1rem;
       margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
     }
-    .webinar-hero__speaker::before { content: '<svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg>'; font-size: 1.1rem; }
+    .webinar-hero__speaker::before { content: none; }
     .webinar-hero__info {
       display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px;
     }
@@ -136,7 +136,7 @@
 
     .section-title-webinars {
       display: flex; align-items: center; gap: 10px;
-      color: #fff; font-family: 'Poppins', sans-serif;
+      color: var(--zoo-text); font-family: 'Poppins', sans-serif;
       font-size: 1.1rem; font-weight: 700;
       margin: 30px 0 16px;
     }
@@ -165,7 +165,7 @@
     }
     .webinar-card__date {
       flex-shrink: 0;
-      background: linear-gradient(135deg, rgba(232,163,23,0.15), rgba(31,95,58,0.2));
+      background: var(--zoo-tint, #EAF2EC);
       border: 1px solid rgba(232,163,23,0.3);
       border-radius: 12px; padding: 14px;
       text-align: center; min-width: 80px;
@@ -173,8 +173,9 @@
     .webinar-card__date-day {
       font-family: 'Poppins', sans-serif;
       font-size: 1.8rem; font-weight: 800;
-      color: var(--zoo-amber); line-height: 1;
+      color: var(--zoo-solid-mid, #2A7A4E); line-height: 1;
     }
+    :root:not([data-theme="light"]) .webinar-card__date-day { color: var(--zoo-amber); }
     .webinar-card__date-month {
       color: var(--zoo-text-muted);
       font-size: .72rem; font-weight: 700;
@@ -183,7 +184,7 @@
     }
     .webinar-card__body { flex: 1; min-width: 0; }
     .webinar-card__title {
-      color: #fff; font-family: 'Poppins', sans-serif;
+      color: var(--zoo-text); font-family: 'Poppins', sans-serif;
       font-size: 1.02rem; font-weight: 700;
       margin: 0 0 4px; line-height: 1.3;
     }
@@ -269,8 +270,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
+  <script src="../assets/js/club.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script>
     (async () => {
@@ -306,7 +307,7 @@
       const linkBtn = isActive && meetUrl
         ? `<a href="${meetUrl}" target="_blank" class="btn-meet"><span class="btn-meet__icon">M</span>Entrar al webinar</a>`
         : !isActive
-        ? `<a href="club-suscripcion.html" class="btn-meet" style="background:var(--zoo-orange);color:#fff;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar para ver link</a>`
+        ? `<a href="club-suscripcion.html" class="btn-meet" style="background:var(--zoo-amber);color:#1f1d17;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar para ver link</a>`
         : `<span style="color:rgba(255,255,255,0.7);font-size:.9rem;"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Link de Meet disponible 15 min antes</span>`;
 
       const mesesShort = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];

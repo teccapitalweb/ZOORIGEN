@@ -106,7 +106,7 @@
 
 .zs-avatar { display: inline-flex; align-items: center; gap: 10px; padding: 3px 14px 3px 3px; border-radius: 999px; border: 1px solid var(--zs-pill-line); background: var(--zs-pill); color: var(--zoo-text); }
 .zs-avatar:hover { border-color: var(--zoo-amber); }
-.zs-avatar__circle { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--zoo-font-heading); font-weight: 700; font-size: .82rem; color: #fff; background: radial-gradient(circle at 30% 25%, var(--zoo-green-700), var(--zoo-green-800)); border: 2px solid var(--zoo-amber); flex-shrink: 0; }
+.zs-avatar__circle { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--zoo-font-heading); font-weight: 700; font-size: .82rem; color: #fff; background: var(--zoo-solid, #1F5F3A); border: 2px solid var(--zoo-amber); flex-shrink: 0; }
 .zs-avatar__name { font-size: .86rem; font-weight: 600; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Campana: el panel ya tenía estilo en club-mobile.css; solo lo anclamos bajo la barra */
@@ -205,7 +205,7 @@
   .zs-tab.is-active {
     flex-grow: 2.2;
     flex-direction: row; gap: 7px;
-    background: linear-gradient(135deg, var(--zoo-green-900), var(--zoo-green-700));
+    background: var(--zoo-solid, #1F5F3A);
     color: #fff;
     font-size: .78rem;
   }
@@ -260,7 +260,7 @@
 [data-theme="light"] .zs-drawer, [data-theme="light"] .zs-drawer__head { background: #ffffff; }
 [data-theme="light"] .zs-drawer { border-left-color: #d0d4cb; }
 [data-theme="light"] .zs-drawer__link { color: #3a403d; }
-[data-theme="light"] .zs-drawer__link.is-active { background: linear-gradient(135deg, rgba(232, 163, 23, 0.18), rgba(111, 191, 115, 0.12)); color: #1a1d1b; border-left: 3px solid #E8A317; }
+[data-theme="light"] .zs-drawer__link.is-active { background: var(--zoo-tint-2, #DCEBE0); color: #1a1d1b; border-left: 3px solid #E8A317; }
 [data-theme="light"] .zs-drawer__who strong { color: #1a1d1b; }
 [data-theme="light"] .zs-tab.is-active { color: #fff; }
 [data-theme="light"] .zs-bottom { border-color: #d0d4cb; }

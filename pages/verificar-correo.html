@@ -16,7 +16,7 @@
   :root { --bg:#F5F2EA; --card:#fff; --ink:#16241B; --muted:#5A6A5F; --line:#E3DDCF; --green:#1F5F3A; --amber:#E8A317; --bad:#B3261E; --bad-bg:#FDF4F3; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 24px 16px 40px; font-family: 'Open Sans', system-ui, sans-serif; color: var(--ink);
-    background: radial-gradient(900px 480px at 50% -10%, #E3EFE6, var(--bg)); }
+    background: var(--bg); }
   .logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
   .card { width: 100%; max-width: 440px; padding: 36px 30px 30px; text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: 26px; box-shadow: 0 24px 60px rgba(21,51,33,.14); animation: up .4s ease both; }
   @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }

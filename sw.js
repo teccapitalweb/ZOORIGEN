@@ -66,12 +66,12 @@ const OFFLINE_URL = '/offline.html';
    club-extra.css) ni de endpoints externos. */
 const SHELL = [
   OFFLINE_URL,
-  '/assets/css/club.css?v=20260820',
-  '/assets/css/club-mobile.css?v=20260820',
-  '/assets/css/club-theme.css?v=20260820',
-  '/assets/js/club.js?v=20261031-cert',
-  '/assets/js/club-shell.js?v=20261030-panel',
-  '/assets/css/club-shell.css?v=20261030-panel',
+  '/assets/css/club.css?v=20261101-solidos',
+  '/assets/css/club-mobile.css?v=20261101-solidos',
+  '/assets/css/club-theme.css?v=20261101-solidos',
+  '/assets/js/club.js?v=20261101-solidos',
+  '/assets/js/club-shell.js?v=20261101-solidos',
+  '/assets/css/club-shell.css?v=20261101-solidos',
   '/assets/img/icon-192.png',
   '/assets/img/icon-512.png',
   '/assets/img/icon-maskable-192.png',

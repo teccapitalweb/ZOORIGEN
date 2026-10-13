@@ -17,13 +17,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
   <style>
     .foro-hero {
-      background: linear-gradient(135deg, #1F5F3A 0%, #0F3B22 60%, #2AA4D5 110%);
+      background: var(--zoo-solid, #1F5F3A);
       border-radius: 18px;
       padding: 28px 32px;
       margin-bottom: 20px;
@@ -38,7 +38,7 @@
       right: -10%;
       width: 300px;
       height: 300px;
-      background: radial-gradient(circle, rgba(232,163,23,0.25) 0%, transparent 70%);
+      background: none;
       border-radius: 50%;
       pointer-events: none;
     }
@@ -117,7 +117,7 @@
     .foro-new-btn {
       flex: 1;
       min-width: 200px;
-      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      background: var(--zoo-amber, #E8A317);
       color: #1f1d17;
       border: 0;
       padding: 16px 24px;
@@ -202,7 +202,7 @@
       color: #1a1d1b !important;
     }
     .foro-cat.is-active {
-      background: linear-gradient(135deg, #E8A317, #D68A0A) !important;
+      background: var(--zoo-amber, #E8A317) !important;
       color: #1f1d17 !important;
       border-color: transparent !important;
       box-shadow: 0 3px 10px rgba(232,163,23,0.4);
@@ -236,7 +236,7 @@
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #E8A317, #D55A28);
+      background: var(--zoo-solid-mid, #2A7A4E);
       color: #fff;
       display: flex;
       align-items: center;
@@ -618,7 +618,7 @@
       color: #1a1d1b !important;
     }
     .foro-custom-opt.is-active {
-      background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(214,138,10,0.15)) !important;
+      background: rgba(232,163,23,0.2) !important;
       color: #E8A317 !important;
       font-weight: 700;
     }
@@ -641,7 +641,7 @@
       cursor: pointer;
     }
     .foro-btn-submit {
-      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      background: var(--zoo-amber, #E8A317);
       color: #1f1d17;
       border: 0;
       padding: 10px 22px;
@@ -740,7 +740,7 @@
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #2AA4D5, #1F5F8A);
+      background: var(--zoo-solid-mid, #2A7A4E);
       color: #fff;
       display: flex;
       align-items: center;
@@ -799,7 +799,7 @@
       margin-top: 10px;
     }
     .foro-view-reply-form__submit {
-      background: linear-gradient(135deg, #2AA4D5, #1F5F8A);
+      background: var(--zoo-solid-mid, #2A7A4E);
       color: #fff;
       border: 0;
       padding: 9px 18px;
@@ -883,8 +883,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
+  <script src="../assets/js/club.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script>
     const CAT_LABELS = {

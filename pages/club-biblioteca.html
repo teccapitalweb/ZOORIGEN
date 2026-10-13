@@ -17,13 +17,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
   <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261031">
-  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261031-guia">
-  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261022">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261101-solidos">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
     .player-overlay {
@@ -71,7 +71,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 14px 18px;
-      background: linear-gradient(135deg, #1F5F3A 0%, #103a22 100%);
+      background: var(--zoo-solid, #1F5F3A);
       border-bottom: 1px solid rgba(232,163,23,0.28);
       flex-shrink: 0;
       gap: 12px;
@@ -219,7 +219,7 @@
     }
     .classes-progress-bar__fill {
       height: 100%;
-      background: linear-gradient(90deg, #3d8b42, #6FBF73);
+      background: var(--zoo-fill, #2A7A4E);
       border-radius: 100px;
       transition: width .6s;
     }
@@ -256,10 +256,10 @@
       font-weight: 800;
       font-size: .9rem;
       flex-shrink: 0;
-      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      background: var(--zoo-amber, #E8A317);
     }
     .class-item.is-done .class-item__num {
-      background: linear-gradient(135deg, #6FBF73, #3d8b42);
+      background: var(--zoo-solid-mid, #2A7A4E);
     }
     .class-item__body {
       flex: 1;
@@ -309,7 +309,7 @@
       color: #D55A28;
     }
     .cert-btn-top {
-      background: linear-gradient(135deg, #E8A317, #D68A0A);
+      background: var(--zoo-amber, #E8A317);
       color: #1f1d17;
       border: 0;
       padding: 8px 16px;
@@ -374,9 +374,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261031-cert"></script>
+  <script src="../assets/js/club.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-progreso.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
+  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script src="../assets/js/club-juegos.js?v=20261009"></script>
   <script src="../assets/js/club-quiz.js?v=20261031"></script>
@@ -384,7 +384,7 @@
   <script src="../assets/js/club-curso-pref.js?v=20261031-guia"></script>
   <script src="../assets/js/admin-iconos.js?v=20261020"></script>
   <script src="../assets/js/club-cursos-ui.js?v=20261031-guia"></script>
-  <script src="../assets/js/club-premios.js?v=20261022"></script>
+  <script src="../assets/js/club-premios.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
@@ -413,13 +413,13 @@
       overlay.id = 'zooCoursePaywall';
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(7,12,9,.94);backdrop-filter:blur(12px);z-index:200000;display:flex;align-items:center;justify-content:center;padding:20px;';
       overlay.innerHTML = `
-        <div style="width:min(500px,100%);position:relative;background:linear-gradient(145deg,#1F5F3A,#0F3B22 62%,#173c2a);border:2px solid rgba(232,163,23,.5);border-radius:22px;padding:38px 30px;text-align:center;box-shadow:0 32px 90px rgba(0,0,0,.72);">
+        <div style="width:min(500px,100%);position:relative;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,.5);border-radius:22px;padding:38px 30px;text-align:center;box-shadow:0 32px 90px rgba(0,0,0,.72);">
           <button id="zooCoursePaywallClose" aria-label="Cerrar" style="position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.25);color:#fff;cursor:pointer;font-size:1rem;"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
           <div style="font-size:3.5rem;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
           <div style="display:inline-block;background:rgba(232,163,23,.18);color:#F2BC4A;border-radius:100px;padding:5px 13px;font-size:.72rem;font-weight:800;letter-spacing:.1em;margin-bottom:14px;">CONTENIDO VIP</div>
           <h2 style="font-family:Poppins;color:#fff;font-size:1.55rem;line-height:1.25;margin:0 0 12px;">Continúa aprendiendo con Zoorigen</h2>
           <p style="color:rgba(255,255,255,.88);font-size:.96rem;line-height:1.6;margin:0 0 24px;">Activa tu membresía para continuar con esta clase y acceder a todos los cursos de Zoorigen.</p>
-          <button id="zooCourseSubscribe" style="width:100%;background:linear-gradient(135deg,#E8A317,#D68A0A);border:0;color:#1f1d17;padding:14px 20px;border-radius:12px;font:800 .95rem Poppins;cursor:pointer;box-shadow:0 8px 24px rgba(232,163,23,.3);">Ver planes de membresía</button>
+          <button id="zooCourseSubscribe" style="width:100%;background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 20px;border-radius:12px;font:800 .95rem Poppins;cursor:pointer;box-shadow:0 8px 24px rgba(232,163,23,.3);">Ver planes de membresía</button>
           <button id="zooCourseContinue" style="margin-top:10px;background:transparent;border:0;color:rgba(255,255,255,.65);padding:8px;cursor:pointer;">Seguir explorando</button>
         </div>`;
       document.body.appendChild(overlay);
@@ -1045,7 +1045,7 @@
             ${hayLista ? `<button onclick="renderCourseModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;font-size:.8rem;">
               ← Lista de clases
             </button>` : ''}
-            ${puedeCompletar ? `<button id="zooBtnCompletarClase" onclick="marcarYSiguiente('${courseId}', ${lessonIdx})" style="background:linear-gradient(135deg,#6FBF73,#3d8b42);border:0;color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
+            ${puedeCompletar ? `<button id="zooBtnCompletarClase" onclick="marcarYSiguiente('${courseId}', ${lessonIdx})" style="background:var(--zoo-solid-mid, #2A7A4E);border:0;color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
               ${esUltimaClase ? 'Terminar curso' : 'Completada, siguiente →'}
             </button>` : ''}
           </div>

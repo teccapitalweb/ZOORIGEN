@@ -319,7 +319,8 @@ test('CSS: tema oscuro por defecto, tema claro, ajustes para celular y movimient
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /zcp__casilla--estrella/);
-  assert.match(css, /linear-gradient\(100deg, #2e7d32/, 'botón verde con degradado');
+  assert.doesNotMatch(css, /linear-gradient\(100deg/, 'el botón principal es de color sólido, sin degradado');
+  assert.match(css, /\.zcp__btn \{[^}]*background: var\(--zoo-amber/, 'botón principal dorado sólido');
 });
 
 test('accesibilidad del código del navegador: role=dialog, aria-modal, foco atrapado, Esc, fondo y X', () => {

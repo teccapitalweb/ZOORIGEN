@@ -41,7 +41,7 @@
   color: #1a1d1b !important;
 }
 [data-theme="light"] .club-sidebar a.is-active {
-  background: linear-gradient(135deg, rgba(232,163,23,0.15), rgba(111,191,115,0.08)) !important;
+  background: var(--zoo-tint-2, #DCEBE0) !important;
   color: #1a1d1b !important;
   border-left: 3px solid #E8A317 !important;
 }
@@ -169,7 +169,7 @@
   background: #f5f6f4 !important;
 }
 [data-theme="light"] .auth-wrapper__brand {
-  background: linear-gradient(135deg, #1F5F3A, #0F3B22) !important;
+  background: var(--zoo-solid, #1F5F3A) !important;
   color: #fff !important;
 }
 [data-theme="light"] .auth-form {
@@ -290,8 +290,12 @@
 
 /* ══ Status banners ══ */
 [data-theme="light"] .status-banner {
-  background: rgba(232,163,23,0.1) !important;
-  color: #3a403d !important;
+  background: var(--zoo-solid, #1F5F3A) !important;
+  color: #fff !important;
+}
+[data-theme="light"] .status-banner.active {
+  background: var(--zoo-tint, #EAF2EC) !important;
+  color: var(--zoo-solid, #1F5F3A) !important;
 }
 [data-theme="light"] .status-banner.cancelled {
   background: rgba(213,90,40,0.08) !important;
@@ -441,7 +445,7 @@
   transition: background .3s;
 }
 [data-theme="light"] .zoo-onboard-dot { background: #e2e5df !important; }
-.zoo-onboard-dot.is-active { background: linear-gradient(90deg, #E8A317, #D68A0A); }
+.zoo-onboard-dot.is-active { background: var(--zoo-amber, #E8A317); }
 .zoo-onboard-dot.is-done { background: #6FBF73; }
 
 .zoo-onboard-content {
@@ -556,7 +560,7 @@
 }
 
 .zoo-onboard-btn-next {
-  background: linear-gradient(135deg, #E8A317, #D68A0A);
+  background: var(--zoo-amber, #E8A317);
   color: #1f1d17;
   border: 0;
   padding: 11px 24px;

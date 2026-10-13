@@ -17,13 +17,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20260820">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
 <style>
   .tools-hero {
-    background: linear-gradient(135deg, #D55A28 0%, #1F5F3A 60%, #2AA4D5 110%);
+    background: var(--zoo-solid, #1F5F3A);
     border-radius: 18px;
     padding: 26px 30px;
     margin-bottom: 20px;
@@ -36,7 +36,7 @@
     position: absolute;
     top: -40%; right: -10%;
     width: 280px; height: 280px;
-    background: radial-gradient(circle, rgba(232,163,23,0.3) 0%, transparent 70%);
+    background: none;
     border-radius: 50%;
     pointer-events: none;
   }
@@ -101,7 +101,7 @@
     color: var(--zoo-text, #fff);
   }
   .tool-tab.is-active {
-    background: linear-gradient(135deg, #E8A317, #D68A0A);
+    background: var(--zoo-amber, #E8A317);
     color: #1f1d17;
     border-color: transparent;
     box-shadow: 0 4px 14px rgba(232,163,23,0.3);
@@ -128,7 +128,7 @@
   }
   .tool-header__icon {
     width: 54px; height: 54px; flex: none;
-    background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(213,90,40,0.18));
+    background: rgba(232,163,23,0.2);
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.6rem;
@@ -185,7 +185,7 @@
     display: flex; gap: 10px; flex-wrap: wrap;
   }
   .tool-btn-calc {
-    background: linear-gradient(135deg, #E8A317, #D68A0A);
+    background: var(--zoo-amber, #E8A317);
     color: #1f1d17; border: 0;
     padding: 12px 22px; border-radius: 10px;
     font-family: 'Poppins'; font-weight: 700;
@@ -663,8 +663,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
+  <script src="../assets/js/club.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/herramientas-infusiones.js?v=20261030-infusiones"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>

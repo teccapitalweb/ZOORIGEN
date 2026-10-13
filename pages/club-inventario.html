@@ -17,19 +17,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20260820">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
 <style>
   /* ── Cabecera de la herramienta (mismos estilos .tools-* y .tool-* de club-herramientas.html) ── */
   .tools-hero {
-    background: linear-gradient(135deg, #D55A28 0%, #1F5F3A 60%, #2AA4D5 110%);
+    background: var(--zoo-solid, #1F5F3A);
     border-radius: 18px; padding: 26px 30px; margin-bottom: 20px; color: #fff; position: relative; overflow: hidden;
   }
   .tools-hero::before {
     content: ''; position: absolute; top: -40%; right: -10%; width: 280px; height: 280px;
-    background: radial-gradient(circle, rgba(232,163,23,0.3) 0%, transparent 70%); border-radius: 50%; pointer-events: none;
+    background: none; border-radius: 50%; pointer-events: none;
   }
   .tools-hero__badge {
     display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
@@ -53,7 +53,7 @@
     display: inline-flex; align-items: center; gap: 6px;
   }
   .tool-tab:hover { background: rgba(232,163,23,0.1); border-color: rgba(232,163,23,0.4); color: var(--zoo-text, #fff); }
-  .tool-tab.is-active { background: linear-gradient(135deg, #E8A317, #D68A0A); color: #1f1d17; border-color: transparent; box-shadow: 0 4px 14px rgba(232,163,23,0.3); }
+  .tool-tab.is-active { background: var(--zoo-amber, #E8A317); color: #1f1d17; border-color: transparent; box-shadow: 0 4px 14px rgba(232,163,23,0.3); }
 
   .tool-panel {
     display: none; background: var(--zoo-bg-card, #131816); border: 1px solid var(--zoo-border, #1e2522);
@@ -64,7 +64,7 @@
 
   .tool-header { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--zoo-border, #1e2522); flex-wrap: wrap; }
   .tool-header__icon {
-    width: 54px; height: 54px; background: linear-gradient(135deg, rgba(232,163,23,0.2), rgba(213,90,40,0.18));
+    width: 54px; height: 54px; background: rgba(232,163,23,0.2);
     border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
   }
   .tool-header__text { min-width: 0; flex: 1 1 220px; }
@@ -102,7 +102,7 @@
 
   .tool-actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .tool-btn-calc {
-    background: linear-gradient(135deg, #E8A317, #D68A0A); color: #1f1d17; border: 0; padding: 12px 22px; border-radius: 10px;
+    background: var(--zoo-amber, #E8A317); color: #1f1d17; border: 0; padding: 12px 22px; border-radius: 10px;
     font-family: 'Poppins'; font-weight: 700; cursor: pointer; font-size: .95rem; display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
   }
   .tool-btn-calc:hover { box-shadow: 0 6px 18px rgba(232,163,23,0.35); transform: translateY(-1px); }
@@ -439,8 +439,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
+  <script src="../assets/js/club.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
   <script src="../assets/js/registro-ejemplares-ui.js?v=20261012-registro"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>

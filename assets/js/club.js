@@ -27,7 +27,7 @@ async function iniciarPagoStripe(planType, email) {
   const planLabel = isAnual ? 'Plan Anual' : 'Plan Mensual';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.95);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
   overlay.innerHTML = `
-    <div style="max-width:440px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 100%);border:2px solid rgba(232,163,23,0.4);border-radius:18px;padding:36px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <div style="max-width:440px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.4);border-radius:18px;padding:36px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
       <div style="font-size:3.5rem;margin-bottom:12px;animation:zooPulse 1.2s ease-in-out infinite;"><svg class="zi" aria-hidden="true"><use href="#zi-credit-card"/></svg></div>
       <h2 style="font-family:Poppins;color:#fff;font-size:1.4rem;margin:0 0 6px;">Llevándote al pago seguro</h2>
       <div style="color:#E8A317;font-weight:700;font-size:1rem;margin-bottom:14px;">${planLabel} · ${price}</div>
@@ -654,7 +654,7 @@ const ZOORIGEN_CLUB = {
     return `
       <div class="gami-level-card">
         <div class="gami-level-card__left">
-          <div class="gami-level-icon" style="background:linear-gradient(135deg, ${r.color}, ${r.color}dd);color:#fff;">
+          <div class="gami-level-icon" style="background:${r.color};color:#fff;">
             ${zooIcon('trophy', 34)}
           </div>
         </div>
@@ -666,7 +666,7 @@ const ZOORIGEN_CLUB = {
             ${r.esMaximo ? '<span class="gami-xp-next">· Nivel máximo</span>' : `<span class="gami-xp-next">· ${r.faltan.toLocaleString('es-MX')} XP para ${zooEsc(r.siguiente.nombre)}</span>`}
           </div>
           <div class="gami-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${r.pct}">
-            <div class="gami-progress-bar__fill" style="width: ${r.pct}%; background:linear-gradient(90deg, ${r.color}, ${(r.siguiente || r).color});"></div>
+            <div class="gami-progress-bar__fill" style="width: ${r.pct}%; background:${r.color};"></div>
           </div>
         </div>
         <div class="gami-level-card__right">
@@ -894,7 +894,7 @@ const ZOORIGEN_CLUB = {
     caja.setAttribute('aria-modal', 'true');
     caja.innerHTML = `
       <style>
-        #zv-pantalla{position:fixed;inset:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 16px;background:radial-gradient(900px 480px at 50% -10%,#e3efe6,#F5F2EA);font-family:'Open Sans',system-ui,sans-serif;color:#16241B;overflow:auto}
+        #zv-pantalla{position:fixed;inset:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 16px;background:#F5F2EA;font-family:'Open Sans',system-ui,sans-serif;color:#16241B;overflow:auto}
         #zv-pantalla .zv-logo{width:56px;height:56px;border-radius:50%;object-fit:cover}
         #zv-pantalla .zv-card{width:100%;max-width:440px;padding:34px 28px 26px;text-align:center;background:#fff;border:1px solid #E3DDCF;border-radius:24px;box-shadow:0 24px 60px rgba(21,51,33,.14)}
         #zv-pantalla .zv-icono{width:80px;height:80px;margin:0 auto 18px;display:grid;place-items:center;border-radius:50%;background:#FBF1D6;color:#B27A06}
@@ -1482,10 +1482,10 @@ const ZOORIGEN_CLUB = {
         @keyframes confettiFall { 0%{transform:translateY(-100vh) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
         .zoo-confetti { position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100000;overflow:hidden; }
         .zoo-confetti-piece { position:absolute;width:10px;height:10px;top:-20px;animation:confettiFall linear forwards; }
-        .zoo-welcome-box { max-width:520px;width:100%;max-height:92vh;overflow-y:auto;background:linear-gradient(160deg,#0F3B22 0%,#1a4a2e 40%,#0d2f1a 100%);border:2px solid rgba(232,163,23,0.3);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;z-index:100001; }
+        .zoo-welcome-box { max-width:520px;width:100%;max-height:92vh;overflow-y:auto;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.3);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;z-index:100001; }
         .zoo-welcome-close { position:absolute;top:14px;right:14px;z-index:5;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s; }
         .zoo-welcome-close:hover { background:rgba(0,0,0,0.55);transform:scale(1.08); }
-        .zoo-welcome-top { background:linear-gradient(135deg,rgba(232,163,23,0.15),rgba(111,191,115,0.1));padding:40px 30px 20px;text-align:center;position:relative; }
+        .zoo-welcome-top { background:rgba(255,255,255,0.06);padding:40px 30px 20px;text-align:center;position:relative; }
         .zoo-welcome-logo { width:80px;height:80px;border-radius:50%;border:3px solid rgba(232,163,23,0.4);margin:0 auto 16px;animation:zooFloat 3s ease-in-out infinite;object-fit:cover; }
         .zoo-welcome-confetti { font-size:2rem;margin-bottom:8px; }
         .zoo-welcome-title { color:#fff;font-family:'Poppins',sans-serif;font-size:1.6rem;font-weight:800;margin:0 0 4px;line-height:1.2; }
@@ -1496,7 +1496,7 @@ const ZOORIGEN_CLUB = {
         .zoo-welcome-feat { background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;text-align:center; }
         .zoo-welcome-feat-icon { font-size:1.5rem;margin-bottom:6px; }
         .zoo-welcome-feat-text { color:rgba(255,255,255,0.85);font-size:.82rem;font-weight:600; }
-        .zoo-welcome-cta { display:block;width:100%;padding:16px;background:linear-gradient(135deg,#E8A317,#D55A28);color:#fff;border:0;border-radius:14px;font-family:'Poppins',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:all .2s; }
+        .zoo-welcome-cta { display:block;width:100%;padding:16px;background:var(--zoo-amber, #E8A317);color:#1f1d17;border:0;border-radius:14px;font-family:'Poppins',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:all .2s; }
         .zoo-welcome-cta:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,163,23,0.4); }
         .zoo-welcome-skip { display:block;text-align:center;margin-top:12px;color:rgba(255,255,255,0.4);font-size:.8rem;cursor:pointer;border:0;background:0; }
         @media(max-width:500px) { .zoo-welcome-features{grid-template-columns:1fr;} .zoo-welcome-title{font-size:1.3rem;} .zoo-welcome-name{font-size:1.5rem;} .zoo-welcome-top{padding:30px 20px 16px;} .zoo-welcome-body{padding:20px;} }
@@ -1651,7 +1651,7 @@ const ZOORIGEN_CLUB = {
     overlay.id = 'zooPaywall';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooPaywallFade .25s ease-out;';
     overlay.innerHTML = `
-      <div style="max-width:500px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 60%,#2AA4D5 120%);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;overflow:hidden;">
+      <div style="max-width:500px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;overflow:hidden;">
         <button id="zooPaywallClose" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.3);border:0;color:#fff;font-size:1rem;cursor:pointer;"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
         <div style="font-size:3.8rem;margin-bottom:14px;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
         <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">ACCESO EXCLUSIVO VIP</div>
@@ -1677,7 +1677,7 @@ const ZOORIGEN_CLUB = {
             <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$199<span style="font-size:.7rem;opacity:.7;">/mes</span></div>
             <div style="font-size:.72rem;opacity:.7;">Cancela cuando quieras</div>
           </button>
-          <button id="zooPaywallAnual" style="background:linear-gradient(135deg,#E8A317,#D68A0A);border:0;color:#1f1d17;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:800;position:relative;box-shadow:0 6px 18px rgba(232,163,23,0.4);">
+          <button id="zooPaywallAnual" style="background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:800;position:relative;box-shadow:0 6px 18px rgba(232,163,23,0.4);">
             <div style="position:absolute;top:-8px;right:6px;background:#D55A28;color:#fff;font-size:.62rem;padding:2px 8px;border-radius:10px;font-weight:800;">-20% OFF</div>
             <div style="font-weight:700;font-size:.78rem;">ANUAL</div>
             <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$1,899<span style="font-size:.7rem;">/año</span></div>
@@ -1736,14 +1736,14 @@ const ZOORIGEN_CLUB = {
     if (main && !document.getElementById('zooPayBanner')) {
       const banner = document.createElement('div');
       banner.id = 'zooPayBanner';
-      banner.style.cssText = 'background:linear-gradient(135deg,#E8A317,#D55A28);color:#1f1d17;padding:12px 18px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;box-shadow:0 6px 18px rgba(232,163,23,0.25);';
+      banner.style.cssText = 'background:var(--zoo-solid, #1F5F3A);color:#fff;padding:12px 18px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;';
       banner.innerHTML = `
         <div style="font-size:1.8rem;line-height:1;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
         <div style="flex:1;min-width:200px;">
           <div style="font-family:Poppins;font-weight:800;font-size:.98rem;margin-bottom:2px;">Acceso gratuito</div>
           <div style="font-size:.82rem;opacity:.88;">Activa tu membresía para abrir todos los cursos.</div>
         </div>
-        <div style="background:#1f1d17;color:#E8A317;padding:8px 18px;border-radius:10px;font-family:Poppins;font-weight:800;font-size:.88rem;">Suscribirme</div>
+        <div class="zoo-pay-banner__btn" style="background:#fff;color:#1F5F3A;padding:8px 18px;border-radius:10px;font-family:Poppins;font-weight:800;font-size:.88rem;white-space:nowrap;">Suscribirme</div>
       `;
       banner.addEventListener('click', () => this.showPaywall(session, 'desbloquear todo el contenido'));
       const barra = document.getElementById('zsTopbar');

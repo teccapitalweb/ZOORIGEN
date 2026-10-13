@@ -65,10 +65,10 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
   box-shadow: var(--zob-sombra);
   animation: zobEntra .5s cubic-bezier(.22, 1.15, .36, 1);
 }
-/* Tira con los tres colores del logo */
+/* Tira superior en verde de marca (sólido) */
 .zob-tarjeta__caja::before {
   content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px;
-  background: linear-gradient(90deg, var(--zob-naranja) 0 34%, var(--zob-azul) 34% 67%, var(--zob-verde) 67% 100%);
+  background: var(--zoo-solid, #1F5F3A);
 }
 
 .zob__icono {
@@ -118,10 +118,9 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zob-btn:disabled { opacity: .65; cursor: progress; }
 .zob-btn--ancho { width: 100%; }
 .zob-btn--primario {
-  color: #fff; background: var(--zob-naranja);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--zob-naranja) 34%, transparent);
+  color: var(--zoo-accent-ink, #1F1D17); background: var(--zoo-amber, #E8A317);
 }
-.zob-btn--primario:hover:not(:disabled) { background: var(--zob-naranja-fuerte); transform: translateY(-1px); }
+.zob-btn--primario:hover:not(:disabled) { background: var(--zoo-amber-hover, #F4B942); transform: translateY(-1px); }
 .zob-btn--suave { color: var(--zob-suave); background: transparent; border-color: var(--zob-borde); font-weight: 500; }
 .zob-btn--suave:hover { color: var(--zob-texto); background: var(--zob-fondo-suave); }
 .zob-btn--texto { color: var(--zob-suave); background: transparent; min-height: 40px; padding: 8px 6px; font-weight: 500; font-size: .88rem; }
@@ -136,8 +135,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zob-splash__barra { position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--zob-fondo-suave); overflow: hidden; border-radius: 22px 22px 0 0; }
 .zob-splash__avance {
   display: block; height: 100%; width: 0;
-  background: linear-gradient(90deg, var(--zob-naranja) 0 34%, var(--zob-azul) 34% 67%, var(--zob-verde) 67% 100%);
-  background-size: 560px 100%; transition: width .5s cubic-bezier(.4, 0, .2, 1);
+  background: var(--zoo-fill, #6FBF73); transition: width .5s cubic-bezier(.4, 0, .2, 1);
 }
 .zob-splash__escena { position: relative; z-index: 1; min-height: 280px; display: flex; align-items: center; justify-content: center; }
 .zob-splash__slide { width: 100%; animation: zobSlide .45s cubic-bezier(.22, 1, .36, 1); }
@@ -187,7 +185,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zob-prueba--retorno .zob__titulo { font-size: 1.8rem; }
 .zob-prueba__brillo {
   position: absolute; left: 50%; top: -60px; width: 320px; height: 220px; transform: translateX(-50%); pointer-events: none;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--zob-naranja) 24%, transparent), transparent);
+  background: none;
 }
 .zob-prueba__pasos { list-style: none; margin: 0 0 22px; padding: 0; display: grid; gap: 10px; text-align: left; }
 .zob-prueba__pasos li {
@@ -243,7 +241,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zob-tour__omitir:hover { color: var(--zob-texto); background: var(--zob-fondo-suave); }
 .zob-tour__progreso { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .zob-tour__pista { flex: 1; height: 5px; overflow: hidden; border-radius: 99px; background: var(--zob-fondo-suave); }
-.zob-tour__barra { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--zob-naranja), var(--zob-azul)); transition: width .22s ease; }
+.zob-tour__barra { height: 100%; width: 0; border-radius: inherit; background: var(--zoo-fill, #6FBF73); transition: width .22s ease; }
 .zob-tour__cuenta { font-size: .72rem; font-weight: 700; white-space: nowrap; color: var(--zob-suave); }
 .zob-tour__titulo { margin: 0 0 8px; font-family: var(--zoo-font-heading, 'Poppins', sans-serif); font-size: 1.2rem; line-height: 1.25; font-weight: 700; color: var(--zob-texto); }
 .zob-tour__texto { margin: 0; font-size: .92rem; line-height: 1.6; color: var(--zob-suave); }
@@ -252,8 +250,8 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zob-tour__boton:active { transform: scale(.97); }
 .zob-tour__boton--atras { margin-right: auto; color: var(--zob-suave); background: transparent; }
 .zob-tour__boton--atras[disabled] { visibility: hidden; }
-.zob-tour__boton--sig { color: #fff; background: var(--zob-naranja); border-color: transparent; box-shadow: 0 8px 22px color-mix(in srgb, var(--zob-naranja) 30%, transparent); }
-.zob-tour__boton--sig:hover { background: var(--zob-naranja-fuerte); }
+.zob-tour__boton--sig { color: var(--zoo-accent-ink, #1F1D17); background: var(--zoo-amber, #E8A317); border-color: transparent; }
+.zob-tour__boton--sig:hover { background: var(--zoo-amber-hover, #F4B942); }
 
 /* ───────────── Animaciones ───────────── */
 @keyframes zobAparece { from { opacity: 0; } to { opacity: 1; } }

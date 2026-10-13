@@ -15,11 +15,31 @@
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20260820">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261030-panel">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
   <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    /* Selector de plan y pago embebido (colores sólidos: verde de marca, dorado solo en la etiqueta) */
+    .sub-titulo { font-family: 'Poppins', sans-serif; font-size: 1.2rem; text-align: center; margin: 4px 0 14px; color: var(--zoo-text); }
+    .sub-planes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; max-width: 760px; margin: 0 auto 18px; }
+    .sub-plan { text-align: left; display: grid; gap: 4px; padding: 16px 18px; border-radius: 16px; background: var(--zoo-bg-card); border: 2px solid var(--zoo-border-strong); color: var(--zoo-text); cursor: pointer; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
+    .sub-plan:hover { border-color: var(--zoo-solid-mid, #2A7A4E); }
+    .sub-plan.is-activo { background: var(--zoo-solid, #1F5F3A); border-color: var(--zoo-solid, #1F5F3A); color: #fff; }
+    .sub-plan.is-activo .sub-plan__sub, .sub-plan.is-activo .sub-plan__precio, .sub-plan.is-activo .sub-plan__precio em { color: #fff; }
+    .sub-plan__nombre { font-weight: 800; font-size: 1rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .sub-plan__etq { font-size: .64rem; letter-spacing: .06em; text-transform: uppercase; background: var(--zoo-amber); color: #1F1D17; padding: 2px 8px; border-radius: 10px; }
+    .sub-plan__sub { font-size: .82rem; color: var(--zoo-text-muted); }
+    .sub-plan__precio { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--zoo-fill, #2A7A4E); }
+    .sub-plan__precio em { font-style: normal; font-size: .66rem; font-weight: 700; letter-spacing: .08em; color: var(--zoo-text-dim); margin-left: 6px; }
+    .sub-pago { max-width: 760px; margin: 0 auto; background: var(--zoo-bg-card); border: 1px solid var(--zoo-border-strong); border-radius: 18px; padding: 22px 20px; }
+    .sub-pago__plan { font-size: .9rem; color: var(--zoo-text-muted); }
+    .sub-pago__monto { font-family: 'Poppins', sans-serif; font-size: 1.9rem; font-weight: 800; color: var(--zoo-text); line-height: 1.2; }
+    .sub-pago__monto small { font-size: .85rem; font-weight: 500; color: var(--zoo-text-muted); }
+    .sub-pago__detalle { font-size: .84rem; color: var(--zoo-text-muted); margin-bottom: 16px; }
+    .sub-pago__form { min-height: 120px; }
+  </style>
 </head>
 <body>
   <div class="club-layout">
@@ -35,8 +55,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261030-panel"></script>
+  <script src="../assets/js/club.js?v=20261101-solidos"></script>
+  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
   <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
   <script>
     (async () => {
@@ -58,16 +78,16 @@
             : 'Tu cuenta gratuita ya está lista. Elige un plan para abrir todos los cursos.';
         // Stripe Checkout Sessions — los botones llaman a openCheckoutModal que usa iniciarPagoStripe
         html += `
-          <div class="card" style="background:linear-gradient(135deg,rgba(232,163,23,0.12),rgba(213,90,40,0.08));border-color:var(--zoo-amber);margin-bottom:20px;">
-            <h2 style="color:var(--zoo-amber);font-size:1.3rem;margin-bottom:10px;">${estadoTitulo}</h2>
+          <div class="card" style="background:var(--zoo-tint, #EAF2EC);border-color:var(--zoo-border-strong);margin-bottom:20px;">
+            <h2 style="color:var(--zoo-text);font-size:1.3rem;margin-bottom:10px;">${estadoTitulo}</h2>
             <p style="margin-bottom:20px;">${estadoMensaje}</p>
 
-            <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(232,163,23,0.3);border-radius:10px;padding:14px 18px;margin-top:16px;">
-              <div style="color:#fff;font-weight:600;font-size:.95rem;margin-bottom:6px;"><svg class="zi" aria-hidden="true"><use href="#zi-banknote"/></svg> ¿Ya realizaste el pago?</div>
+            <div style="background:var(--zoo-tint-2, #DCEBE0);border:1px solid var(--zoo-border-strong);border-radius:10px;padding:14px 18px;margin-top:16px;">
+              <div style="color:var(--zoo-text);font-weight:600;font-size:.95rem;margin-bottom:6px;"><svg class="zi" aria-hidden="true"><use href="#zi-banknote"/></svg> ¿Ya realizaste el pago?</div>
               <p style="color:var(--zoo-text-muted);font-size:.84rem;margin-bottom:12px;line-height:1.5;">
                 Si ya pagaste, consulta el estado directamente con Stripe. La verificación no genera ningún cobro.
               </p>
-              <button id="verifyPaymentBtn" class="btn-club-outline" style="width:auto;padding:10px 22px;border:1px solid var(--zoo-amber);color:var(--zoo-amber);font-family:inherit;font-size:.92rem;cursor:pointer;">
+              <button id="verifyPaymentBtn" class="btn-club-outline" style="width:auto;padding:10px 22px;border:1px solid var(--zoo-solid, #1F5F3A);background:var(--zoo-solid, #1F5F3A);color:#fff;border-radius:10px;font-family:inherit;font-size:.92rem;cursor:pointer;">
                 Verificar mi pago
               </button>
               <div id="verifyMsg" style="margin-top:10px;"></div>
@@ -106,7 +126,7 @@
 
         html += `
           <div class="card">
-            <h2 style="color:#fff;font-size:1.2rem;margin-bottom:14px;">Plan actual</h2>
+            <h2 style="color:var(--zoo-text);font-size:1.2rem;margin-bottom:14px;">Plan actual</h2>
             <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value">Miembro VIP Zoorigen</div></div>
             <div class="info-row"><div class="info-row__label">Precio</div><div class="info-row__value">${session.planTipo === 'anual' ? '$1,899 MXN / año' : '$199 MXN / mes'}</div></div>
             <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-green-500);">● Membresía activa</span>' : '<span style="color:var(--zoo-amber);"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cancelada · acceso vigente</span>'}</div></div>
@@ -172,7 +192,7 @@
         overlay.id = 'payWaitOverlay';
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.95);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
         overlay.innerHTML = `
-          <div style="max-width:480px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 100%);border:2px solid rgba(232,163,23,0.4);border-radius:20px;padding:40px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+          <div style="max-width:480px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.4);border-radius:20px;padding:40px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
             <div style="font-size:4rem;margin-bottom:14px;animation:pulseZ 1.5s ease-in-out infinite;"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" width="64" height="64"></div>
             <h2 style="font-family:Poppins;color:#fff;font-size:1.5rem;margin:0 0 10px;">Procesando tu pago...</h2>
             <p style="color:rgba(255,255,255,0.85);font-size:.95rem;margin:0 0 20px;line-height:1.5;">Estamos activando tu membresía VIP. Esto puede tomar <strong style="color:#E8A317;">hasta 1 minuto</strong>. No cierres esta ventana.</p>
@@ -187,22 +207,7 @@
             @keyframes pulseZ { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
             @keyframes bounceZ { 0%,80%,100%{transform:translateY(0);opacity:0.3} 40%{transform:translateY(-8px);opacity:1} }
           
-    .sub-titulo { font-family: 'Poppins', sans-serif; font-size: 1.2rem; text-align: center; margin: 4px 0 14px; color: var(--zoo-text); }
-    .sub-planes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; max-width: 760px; margin: 0 auto 18px; }
-    .sub-plan { text-align: left; display: grid; gap: 4px; padding: 16px 18px; border-radius: 16px; background: var(--zoo-bg-card); border: 2px solid var(--zoo-border-strong); color: var(--zoo-text); cursor: pointer; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
-    .sub-plan:hover { border-color: rgba(232, 163, 23, 0.6); }
-    .sub-plan.is-activo { border-color: var(--zoo-amber); box-shadow: 0 8px 24px rgba(232, 163, 23, 0.16); }
-    .sub-plan__nombre { font-weight: 800; font-size: 1rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .sub-plan__etq { font-size: .64rem; letter-spacing: .06em; text-transform: uppercase; background: var(--zoo-amber); color: #1F1D17; padding: 2px 8px; border-radius: 10px; }
-    .sub-plan__sub { font-size: .82rem; color: var(--zoo-text-muted); }
-    .sub-plan__precio { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--zoo-green-500, #1F5F3A); }
-    .sub-plan__precio em { font-style: normal; font-size: .66rem; font-weight: 700; letter-spacing: .08em; color: var(--zoo-text-dim); margin-left: 6px; }
-    .sub-pago { max-width: 760px; margin: 0 auto; background: var(--zoo-bg-card); border: 1px solid var(--zoo-border-strong); border-radius: 18px; padding: 22px 20px; }
-    .sub-pago__plan { font-size: .9rem; color: var(--zoo-text-muted); }
-    .sub-pago__monto { font-family: 'Poppins', sans-serif; font-size: 1.9rem; font-weight: 800; color: var(--zoo-text); line-height: 1.2; }
-    .sub-pago__monto small { font-size: .85rem; font-weight: 500; color: var(--zoo-text-muted); }
-    .sub-pago__detalle { font-size: .84rem; color: var(--zoo-text-muted); margin-bottom: 16px; }
-    .sub-pago__form { min-height: 120px; }
+
   </style>
         `;
         document.body.appendChild(overlay);
@@ -222,7 +227,7 @@
               clearInterval(autoCheck);
               // Éxito: cambiar overlay a mensaje de bienvenida + redirect
               overlay.innerHTML = `
-                <div style="max-width:480px;width:100%;background:linear-gradient(135deg,#1F5F3A 0%,#0F3B22 100%);border:2px solid #6FBF73;border-radius:20px;padding:40px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <div style="max-width:480px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid #6FBF73;border-radius:20px;padding:40px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
                   <div style="font-size:4rem;margin-bottom:14px;"><svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg></div>
                   <h2 style="font-family:Poppins;color:#fff;font-size:1.6rem;margin:0 0 10px;">¡Bienvenido al Club VIP!</h2>
                   <p style="color:rgba(255,255,255,0.9);font-size:1rem;margin:0 0 20px;line-height:1.5;">Tu membresía está <strong style="color:#6FBF73;">ACTIVA</strong>. Ya tienes acceso a todo el contenido exclusivo.</p>
@@ -242,7 +247,7 @@
                 <h2 style="font-family:Poppins;color:#fff;font-size:1.4rem;margin:0 0 10px;">El pago aún no se confirma</h2>
                 <p style="color:rgba(255,255,255,0.85);font-size:.92rem;margin:0 0 18px;line-height:1.5;">A veces tarda unos minutos. Si ya pagaste, espera un momento y presiona verificar. Si NO pagaste, puedes hacerlo ahora.</p>
                 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-                  <button onclick="location.reload()" style="background:linear-gradient(135deg,#E8A317,#D68A0A);color:#1f1d17;border:0;padding:12px 22px;border-radius:10px;font-family:Poppins;font-weight:700;cursor:pointer;"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Verificar ahora</button>
+                  <button onclick="location.reload()" style="background:var(--zoo-amber, #E8A317);color:#1f1d17;border:0;padding:12px 22px;border-radius:10px;font-family:Poppins;font-weight:700;cursor:pointer;"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Verificar ahora</button>
                   <button onclick="document.getElementById('payWaitOverlay').remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:12px 22px;border-radius:10px;cursor:pointer;">Cerrar</button>
                 </div>
               </div>
@@ -357,12 +362,12 @@
                 .zoo-confetti-r div{position:absolute;top:-20px;animation:confettiFall linear forwards;}
               </style>
               <div class="zoo-confetti-r" id="confettiReanudar"></div>
-              <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0F3B22,#1a4a2e);border:2px solid rgba(232,163,23,0.3);border-radius:24px;padding:40px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);z-index:100001;position:relative;">
+              <div style="max-width:440px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.3);border-radius:24px;padding:40px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);z-index:100001;position:relative;">
                 <div style="font-size:4rem;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg></div>
                 <h2 style="color:#fff;font-family:Poppins,sans-serif;font-size:1.5rem;margin:0 0 8px;">¡Bienvenido de regreso!</h2>
                 <p style="color:#E8A317;font-size:1.1rem;font-weight:700;margin:0 0 12px;">Tu membresía VIP está activa</p>
                 <p style="color:rgba(255,255,255,0.7);font-size:.9rem;margin:0 0 24px;line-height:1.5;">Nos alegra tenerte de vuelta. Tu suscripción se renovará automáticamente y seguirás disfrutando de todos los beneficios VIP.</p>
-                <button onclick="this.closest('div[style]').parentElement.remove();location.reload();" style="display:block;width:100%;padding:14px;background:linear-gradient(135deg,#E8A317,#D55A28);color:#fff;border:0;border-radius:14px;font-family:Poppins,sans-serif;font-size:1rem;font-weight:700;cursor:pointer;">Explorar mi Club VIP <svg class="zi" aria-hidden="true"><use href="#zi-rocket"/></svg></button>
+                <button onclick="this.closest('div[style]').parentElement.remove();location.reload();" style="display:block;width:100%;padding:14px;background:var(--zoo-amber, #E8A317);color:#1f1d17;border:0;border-radius:14px;font-family:Poppins,sans-serif;font-size:1rem;font-weight:700;cursor:pointer;">Explorar mi Club VIP <svg class="zi" aria-hidden="true"><use href="#zi-rocket"/></svg></button>
               </div>
             `;
             document.body.appendChild(popup);

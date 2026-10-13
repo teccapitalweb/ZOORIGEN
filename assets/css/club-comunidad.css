@@ -38,7 +38,7 @@
 .zc-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
 .zc-btn[hidden] { display: none; }
 .zc-btn[disabled] { opacity: .55; cursor: not-allowed; transform: none; filter: none; }
-.zc-btn--primario { background: linear-gradient(135deg, #E8A317, #D68A0A); color: #1f1d17; }
+.zc-btn--primario { background: var(--zoo-amber, #E8A317); color: #1f1d17; }
 .zc-btn--suave { background: rgba(127,127,127,.12); border-color: var(--zoo-border-strong, var(--zoo-border)); color: var(--zoo-text); }
 .zc-btn--suave:hover { border-color: var(--zoo-amber, #E8A317); }
 .zc-btn--wa { background: #25D366; color: #06361b; }
@@ -65,12 +65,12 @@
 
 /* ── Datos y progreso ── */
 .zc-datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 14px 0; }
-.zc-dato { background: rgba(127,127,127,.09); border: 1px solid var(--zoo-border); border-radius: 12px; padding: 12px; text-align: center; }
-.zc-dato__v { font-family: var(--zoo-font-heading, 'Poppins', sans-serif); font-size: 1.6rem; font-weight: 800; color: var(--zoo-amber, #E8A317); line-height: 1.1; }
+.zc-dato { background: var(--zoo-tint, #EAF2EC); border: 1px solid var(--zoo-border); border-radius: 12px; padding: 12px; text-align: center; }
+.zc-dato__v { font-family: var(--zoo-font-heading, 'Poppins', sans-serif); font-size: 1.6rem; font-weight: 800; color: var(--zoo-fill, #2A7A4E); line-height: 1.1; }
 .zc-dato__l { color: var(--zoo-text-muted); font-size: .78rem; font-weight: 600; margin-top: 3px; }
 
 .zc-barra { position: relative; height: 14px; border-radius: 99px; background: rgba(127,127,127,.2); margin: 16px 0 8px; overflow: visible; }
-.zc-barra__relleno { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--zoo-green-500, #6FBF73), var(--zoo-amber, #E8A317)); transition: width .6s; min-width: 0; }
+.zc-barra__relleno { height: 100%; border-radius: 99px; background: var(--zoo-fill, #6FBF73); transition: width .6s; min-width: 0; }
 .zc-barra__marca { position: absolute; top: -4px; width: 4px; height: 22px; margin-left: -3px; border-radius: 3px; background: var(--zoo-text-dim, #888); opacity: .8; }
 .zc-barra__texto { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--zoo-text-muted); font-size: .82rem; }
 
@@ -91,7 +91,7 @@
 .zc-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .zc-inv { border: 1px solid var(--zoo-border); border-radius: 12px; padding: 12px 14px; background: rgba(127,127,127,.05); }
 .zc-inv__top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.zc-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--zoo-green-700, #2f7a4f), var(--zoo-green-900, #1F5F3A)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.zc-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--zoo-solid, #1F5F3A); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
 .zc-inv__id { flex: 1 1 140px; min-width: 0; }
 .zc-inv__id strong { display: block; color: var(--zoo-text); font-size: .95rem; overflow-wrap: anywhere; }
 .zc-inv__id small { color: var(--zoo-text-muted); font-size: .78rem; }
@@ -159,11 +159,11 @@
 .zd-tarjeta__etiqueta { position: absolute; top: 12px; right: 12px; background: var(--zoo-amber, #E8A317); color: #1f1d17; font-size: .7rem; font-weight: 800; padding: 3px 9px; border-radius: 99px; letter-spacing: .04em; }
 .zd-tarjeta__cab { display: flex; align-items: center; gap: 12px; }
 .zd-avatar { width: 48px; height: 48px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.05rem; flex-shrink: 0; }
-.zd-avatar--0 { background: linear-gradient(135deg, #2f7a4f, #1F5F3A); }
-.zd-avatar--1 { background: linear-gradient(135deg, #2AA4D5, #1b7aa3); }
-.zd-avatar--2 { background: linear-gradient(135deg, #D55A28, #a8431a); }
-.zd-avatar--3 { background: linear-gradient(135deg, #8a63c9, #5e3f9a); }
-.zd-avatar--4 { background: linear-gradient(135deg, #b8860b, #8a6208); }
+.zd-avatar--0 { background: var(--zoo-solid, #1F5F3A); }
+.zd-avatar--1 { background: #1b7aa3; }
+.zd-avatar--2 { background: #a8431a; }
+.zd-avatar--3 { background: #5e3f9a; }
+.zd-avatar--4 { background: #8a6208; }
 .zd-tarjeta__nombre { color: var(--zoo-text); font-weight: 700; font-size: 1rem; overflow-wrap: anywhere; margin: 0; }
 .zd-tarjeta__prof { color: var(--zoo-text-muted); font-size: .86rem; overflow-wrap: anywhere; }
 .zd-tarjeta__linea { display: flex; align-items: center; gap: 6px; color: var(--zoo-text-muted); font-size: .84rem; }
@@ -214,7 +214,7 @@
 /* CANAL DE WHATSAPP                                             */
 /* ============================================================ */
 .zk-hero {
-  background: linear-gradient(135deg, #128C7E 0%, #25D366 100%);
+  background: var(--zoo-solid, #1F5F3A);
   border-radius: 18px; padding: 30px 26px; margin-bottom: 18px; color: #fff;
   display: flex; gap: 22px; align-items: center; flex-wrap: wrap; position: relative; overflow: hidden;
 }

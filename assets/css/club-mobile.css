@@ -156,7 +156,7 @@
   font-size: 1.2rem;
 }
 .notif-item.is-unread .notif-item__icon {
-  background: linear-gradient(135deg, rgba(232,163,23,0.25), rgba(213,90,40,0.25));
+  background: rgba(232,163,23,0.25);
 }
 .notif-item__body { flex: 1; min-width: 0; }
 .notif-item__title { color: #fff; font-size: .92rem; font-weight: 700; margin-bottom: 2px; }
