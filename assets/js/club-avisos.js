@@ -225,7 +225,12 @@
       cargando = true;
       var servidor = o.apiFetch ? Promise.resolve().then(function () { return o.apiFetch('/api/avisos'); }).then(function (r) { return (r && r.avisos) || []; }).catch(function () { return []; }) : Promise.resolve([]);
       var local = o.legado ? Promise.resolve().then(o.legado).then(function (l) { return (l || []).map(deLegado); }).catch(function () { return []; }) : Promise.resolve([]);
-      return Promise.all([servidor, local]).then(function (r) { lista = mezclar(r[0], r[1]); refrescar(); }).then(function () { cargando = false; }, function () { cargando = false; });
+      return Promise.all([servidor, local]).then(function (r) {
+        lista = mezclar(r[0], r[1]);
+        // Clases en vivo en "Próximamente": no se muestran avisos de webinar (ni los del servidor ni los locales).
+        if (typeof ZOO_CONFIG !== 'undefined' && ZOO_CONFIG.clasesEnVivoPronto === true) lista = lista.filter(function (a) { return a.tipo !== 'clase' && a.tipo !== 'webinar'; });
+        refrescar();
+      }).then(function () { cargando = false; }, function () { cargando = false; });
     }
 
     function marcarTodoLeido() {

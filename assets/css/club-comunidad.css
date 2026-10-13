@@ -66,7 +66,7 @@
 /* ── Datos y progreso ── */
 .zc-datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 14px 0; }
 .zc-dato { background: var(--zoo-tint, #EAF2EC); border: 1px solid var(--zoo-border); border-radius: 12px; padding: 12px; text-align: center; }
-.zc-dato__v { font-family: var(--zoo-font-heading, 'Poppins', sans-serif); font-size: 1.6rem; font-weight: 800; color: var(--zoo-fill, #2A7A4E); line-height: 1.1; }
+.zc-dato__v { font-family: var(--zoo-font-display); font-size: 1.6rem; font-weight: 800; color: var(--zoo-fill, #2A7A4E); line-height: 1.1; }
 .zc-dato__l { color: var(--zoo-text-muted); font-size: .78rem; font-weight: 600; margin-top: 3px; }
 
 .zc-barra { position: relative; height: 14px; border-radius: 99px; background: rgba(127,127,127,.2); margin: 16px 0 8px; overflow: visible; }
@@ -127,7 +127,7 @@
 @keyframes zcBrillo { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .zc-esqueleto { animation: none; } .zc-barra__relleno { transition: none; } }
 
-.zc-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 100000; background: #14281B; color: #fff; border: 1px solid rgba(111,191,115,.5); padding: 11px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.35); max-width: calc(100vw - 32px); }
+.zc-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 100000; background: #171B20; color: #fff; border: 1px solid rgba(111,191,115,.5); padding: 11px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.35); max-width: calc(100vw - 32px); }
 
 /* ============================================================ */
 /* DIRECTORIO                                                    */
@@ -191,7 +191,7 @@
 .zd-vista__caja .zi { color: var(--zoo-amber, #E8A317); }
 
 /* Ventana "Mi tarjeta" */
-.zd-modal { position: fixed; inset: 0; z-index: 99990; background: rgba(8,14,10,.78); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+.zd-modal { position: fixed; inset: 0; z-index: 99990; background: rgba(11, 11, 11,.78); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
 .zd-modal__caja { width: 100%; max-width: 520px; max-height: calc(100vh - 32px); overflow-y: auto; background: var(--zoo-bg-card); color: var(--zoo-text); border: 1px solid var(--zoo-border-strong, var(--zoo-border)); border-radius: 16px; padding: 22px; }
 .zd-modal__caja h2 { font-size: 1.15rem; margin: 0 0 4px; color: var(--zoo-text); }
 .zd-modal__caja > p { color: var(--zoo-text-muted); font-size: .86rem; margin: 0 0 14px; }
@@ -217,7 +217,7 @@
 /* CANAL DE WHATSAPP                                             */
 /* ============================================================ */
 .zk-hero {
-  background: var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
   border-radius: 18px; padding: 30px 26px; margin-bottom: 18px; color: #fff;
   display: flex; gap: 22px; align-items: center; flex-wrap: wrap; position: relative; overflow: hidden;
 }

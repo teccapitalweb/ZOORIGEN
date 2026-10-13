@@ -423,12 +423,22 @@
         var pw = PW();
         html += pw && typeof pw.avisoVistaPreviaHTML === 'function' ? pw.avisoVistaPreviaHTML(textoAvisoPrevia()) : '<div class="pw-aviso" role="note"><span>' + textoAvisoPrevia() + '</span></div>';
       }
-      html += '<section class="mt-hero"><div><div class="mt-etq">Biblioteca del Club</div><h1>PDFs y materiales</h1>' +
-        (previa
-          ? '<p>Explora los libros, guías y plantillas del Club. Con tu membresía los abres, los descargas y los guardas; los libros se desbloquean con tus retos.</p>'
-          : '<p>Libros que se desbloquean con tus retos, guías y plantillas para descargar, presentaciones y los textos oficiales de la normatividad.</p>') + '</div>' +
-        '<div class="mt-hero__kpis">' + resumenCatalogo(estado.libros, estado.materiales, previa, estado.superados).map(function (k) {
-          return '<div><strong>' + esc(k.valor) + '</strong><span>' + esc(k.etiqueta) + '</span></div>'; }).join('') + '</div></section>';
+      var subtitulo = previa
+        ? 'Explora los libros, guías y plantillas del Club. Con tu membresía los abres, los descargas y los guardas; los libros se desbloquean con tus retos.'
+        : 'Libros que se desbloquean con tus retos, guías y plantillas para descargar, presentaciones y los textos oficiales de la normatividad.';
+      var cifras = resumenCatalogo(estado.libros, estado.materiales, previa, estado.superados);
+      var SEC = typeof window !== 'undefined' ? window.ZOO_SECCION : null;
+      if (SEC && typeof SEC.html === 'function') {
+        html += SEC.html({
+          id: 'zsSeccionPdfs', seccion: 'pdfs', icono: 'files', eyebrow: 'Biblioteca del Club',
+          titulo: 'PDFs y materiales,', acento: 'para llevar contigo.', sub: subtitulo,
+          cifras: cifras.map(function (k, i) { return { clave: 'mt' + i, valor: k.valor, rotulo: k.etiqueta }; })
+        });
+      } else {
+        html += '<section class="mt-hero"><div><div class="mt-etq">Biblioteca del Club</div><h1>PDFs y materiales</h1><p>' + esc(subtitulo) + '</p></div>' +
+          '<div class="mt-hero__kpis">' + cifras.map(function (k) {
+            return '<div><strong>' + esc(k.valor) + '</strong><span>' + esc(k.etiqueta) + '</span></div>'; }).join('') + '</div></section>';
+      }
 
       html += '<div class="mt-barra"><div class="mt-tabs" role="tablist">' + PESTANAS.filter(function (t) { return t[0] !== 'mas' || estado.drive.length; }).map(function (t) {
         return '<button type="button" role="tab" class="mt-tab' + (p === t[0] ? ' is-active' : '') + '" data-pestana="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +

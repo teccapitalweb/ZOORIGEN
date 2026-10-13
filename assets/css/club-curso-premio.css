@@ -14,7 +14,7 @@
   --zcp-fondo: var(--zoo-solid-dark, #174A2D);
   --zcp-borde: rgba(111, 191, 115, .38);
   --zcp-sombra: 0 34px 90px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .03);
-  --zcp-velo: rgba(4, 12, 8, .78);
+  --zcp-velo: rgba(8, 8, 8, .78);
   --zcp-texto: #f2f7f3;
   --zcp-suave: rgba(235, 244, 237, .78);
   --zcp-kicker: #9ec7a8;
@@ -43,14 +43,14 @@
   background: var(--zcp-velo);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
-  font-family: var(--zoo-font-body, 'Open Sans', system-ui, sans-serif);
+  font-family: var(--zoo-font-body);
   animation: zcp-velo .25s ease both;
 }
 [data-theme="light"] .zcp {
   --zcp-fondo: #f5faf5;
   --zcp-borde: #c9dccb;
-  --zcp-sombra: 0 30px 80px rgba(20, 40, 25, .32);
-  --zcp-velo: rgba(24, 36, 28, .6);
+  --zcp-sombra: 0 30px 80px rgba(28, 28, 28, .32);
+  --zcp-velo: rgba(29, 29, 29, .6);
   --zcp-texto: #14231a;
   --zcp-suave: #4a584f;
   --zcp-kicker: #6b7f72;
@@ -134,7 +134,7 @@
   gap: 5px;
   margin: 0;
   color: var(--zcp-verde);
-  font-family: var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+  font-family: var(--zoo-font-display);
   line-height: 1;
 }
 .zcp__xp-num { font-size: clamp(3rem, 14vw, 3.7rem); font-weight: 800; letter-spacing: -.02em; }
@@ -143,7 +143,7 @@
 .zcp__titulo {
   margin: 8px 0 8px;
   color: var(--zcp-texto);
-  font: 800 1.35rem/1.25 var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+  font: 800 1.35rem/1.25 var(--zoo-font-display);
 }
 .zcp__texto {
   margin: 0 0 18px;
@@ -168,7 +168,7 @@
   aspect-ratio: 1;
   min-width: 0;
   color: var(--zcp-casilla-texto);
-  font: 700 .74rem/1 var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+  font: 700 .74rem/1 var(--zoo-font-display);
   background: var(--zcp-casilla);
   border: 1px solid var(--zcp-casilla-borde);
   border-radius: 9px;
@@ -208,7 +208,7 @@
   margin: 0 0 14px;
   padding: 9px 14px;
   color: var(--zcp-subida-texto);
-  font: 700 .9rem/1.25 var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+  font: 700 .9rem/1.25 var(--zoo-font-display);
   background: var(--zcp-subida-fondo);
   border: 1px solid var(--zcp-subida-borde);
   border-radius: 14px;
@@ -265,7 +265,7 @@
   min-height: 54px;
   padding: 14px 20px;
   color: var(--zoo-accent-ink, #1F1D17);
-  font: 800 1.02rem/1.2 var(--zoo-font-heading, 'Poppins', system-ui, sans-serif);
+  font: 800 1.02rem/1.2 var(--zoo-font-display);
   cursor: pointer;
   background: var(--zoo-amber, #E8A317);
   border: 0;

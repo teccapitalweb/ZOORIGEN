@@ -16,12 +16,12 @@
 <meta name="theme-color" content="#1F5F3A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Open Sans', system-ui, sans-serif;
-    background: linear-gradient(135deg, #0a0e0c 0%, #131816 100%);
+    font-family: var(--zoo-font-body);
+    background: linear-gradient(135deg, #0a0e0c 0%, #171B20 100%);
     min-height: 100vh;
     color: #fff;
     display: flex;
@@ -32,7 +32,7 @@
   .thanks-box {
     max-width: 560px;
     width: 100%;
-    background: var(--zoo-solid, #1F5F3A);
+    background: var(--zoo-panel, #1F5F3A);
     border: 2px solid rgba(232,163,23,0.5);
     border-radius: 24px;
     padding: 48px 36px;
@@ -68,7 +68,7 @@
     100% { transform: scale(1); }
   }
   .thanks-box h1 {
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--zoo-font-display);
     font-size: 2rem;
     font-weight: 800;
     margin-bottom: 8px;
@@ -113,7 +113,7 @@
     border: 0;
     padding: 18px 36px;
     border-radius: 14px;
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--zoo-font-display);
     font-weight: 800;
     font-size: 1.1rem;
     cursor: pointer;
@@ -134,7 +134,7 @@
     position: relative;
     z-index: 2;
   }
-  .countdown strong { color: #E8A317; font-family: 'Poppins'; font-size: 1rem; }
+  .countdown strong { color: #E8A317; font-family: var(--zoo-font-display); font-size: 1rem; }
   .whatsapp-note {
     margin-top: 20px;
     padding: 12px 16px;
@@ -170,7 +170,7 @@
       <div class="benefits__title"><svg class="zi" aria-hidden="true"><use href="#zi-sparkles"/></svg> Ya tienes acceso a</div>
       <div class="benefits__list">
         <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Todos los cursos completos<br>
-        <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Webinars en vivo cada mes<br>
+        <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Clases en vivo con especialistas (próximamente)<br>
         <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Foro VIP con expertos<br>
         <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Certificados con validez<br>
         <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Herramientas clínicas y legales<br>
@@ -216,6 +216,6 @@
     });
   }
 </script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
 </body>
 </html>

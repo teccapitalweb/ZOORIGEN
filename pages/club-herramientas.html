@@ -16,15 +16,16 @@
 <meta name="theme-color" content="#1F5F3A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261103">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261103">
 <style>
   .tools-hero {
-    background: var(--zoo-solid, #1F5F3A);
+    background: var(--zoo-panel, #1F5F3A);
     border-radius: 18px;
     padding: 26px 30px;
     margin-bottom: 20px;
@@ -50,7 +51,7 @@
     margin-bottom: 10px; position: relative; z-index: 2;
   }
   .tools-hero h1 {
-    font-family: 'Poppins';
+    font-family: var(--zoo-font-display);
     font-size: 1.8rem; font-weight: 800;
     margin: 0 0 6px;
     position: relative; z-index: 2;
@@ -70,7 +71,7 @@
     display: flex; align-items: baseline; gap: 6px;
   }
   .tools-hero__stat-num {
-    font-family: 'Poppins'; font-weight: 800; font-size: 1.2rem;
+    font-family: var(--zoo-font-display); font-weight: 800; font-size: 1.2rem;
     color: #E8A317;
   }
   .tools-hero__stat-lbl {
@@ -87,8 +88,8 @@
   .tools-tabs::-webkit-scrollbar-thumb { background: rgba(232,163,23,0.3); border-radius: 2px; }
   .tool-tab {
     flex-shrink: 0;
-    background: var(--zoo-bg-card, #131816);
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    background: var(--zoo-bg-card, #171B20);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text-muted, #a0a8a4);
     padding: 10px 14px; border-radius: 10px;
     cursor: pointer;
@@ -110,8 +111,8 @@
 
   .tool-panel {
     display: none;
-    background: var(--zoo-bg-card, #131816);
-    border: 1px solid var(--zoo-border, #1e2522);
+    background: var(--zoo-bg-card, #171B20);
+    border: 1px solid var(--zoo-border, #2A3038);
     border-radius: 14px;
     padding: 24px;
     animation: toolFadeIn .25s ease-out;
@@ -125,7 +126,7 @@
   .tool-header {
     display: flex; gap: 14px; align-items: center;
     margin-bottom: 18px; padding-bottom: 16px;
-    border-bottom: 1px solid var(--zoo-border, #1e2522);
+    border-bottom: 1px solid var(--zoo-border, #2A3038);
   }
   .tool-header__icon {
     width: 54px; height: 54px;
@@ -135,7 +136,7 @@
     font-size: 1.6rem;
   }
   .tool-header__text h2 {
-    font-family: 'Poppins';
+    font-family: var(--zoo-font-display);
     font-size: 1.25rem; color: var(--zoo-text, #fff);
     margin: 0 0 3px;
   }
@@ -168,7 +169,7 @@
   }
   .tool-field input, .tool-field select, .tool-field textarea {
     background: rgba(255,255,255,0.04) !important;
-    border: 1px solid var(--zoo-border-strong, #2a3530) !important;
+    border: 1px solid var(--zoo-border-strong, #3A424C) !important;
     color: var(--zoo-text, #fff) !important;
     padding: 11px 13px; border-radius: 10px;
     font-family: inherit; font-size: .95rem;
@@ -188,7 +189,7 @@
   .tool-field input:focus, .tool-field select:focus, .tool-field textarea:focus {
     outline: 0; border-color: #E8A317 !important;
   }
-  .tool-field select option { background: #131816; color: #fff; }
+  .tool-field select option { background: #171B20; color: #fff; }
   [data-theme="light"] .tool-field select option { background: #fff; color: #1a1d1b; }
 
   .tool-actions {
@@ -198,7 +199,7 @@
     background: var(--zoo-amber, #E8A317);
     color: #1f1d17; border: 0;
     padding: 12px 22px; border-radius: 10px;
-    font-family: 'Poppins'; font-weight: 700;
+    font-family: var(--zoo-font-display); font-weight: 700;
     cursor: pointer; font-size: .95rem;
   }
   .tool-btn-calc:hover {
@@ -207,7 +208,7 @@
   }
   .tool-btn-reset {
     background: transparent;
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text-muted, #a0a8a4);
     padding: 12px 18px; border-radius: 10px;
     font-family: inherit; font-weight: 600; cursor: pointer;
@@ -229,7 +230,7 @@
     border-color: rgba(213,90,40,0.4);
   }
   .tool-result__title {
-    font-family: 'Poppins'; font-weight: 800;
+    font-family: var(--zoo-font-display); font-weight: 800;
     color: #fff; margin-bottom: 12px;
     font-size: 1.05rem;
   }
@@ -245,7 +246,7 @@
     color: rgba(255,255,255,0.78); font-size: .88rem;
   }
   .tool-result__row-value {
-    font-family: 'Poppins'; font-weight: 800;
+    font-family: var(--zoo-font-display); font-weight: 800;
     color: #E8A317; font-size: 1.05rem;
     text-align: right;
   }
@@ -289,13 +290,13 @@
     padding: 10px 12px; text-align: left;
     font-weight: 700; font-size: .76rem;
     text-transform: uppercase; letter-spacing: .04em;
-    border-bottom: 1px solid var(--zoo-border-strong, #2a3530);
+    border-bottom: 1px solid var(--zoo-border-strong, #3A424C);
     position: sticky; top: 0; z-index: 1;
   }
   .tool-table td {
     padding: 10px 12px;
     color: var(--zoo-text, #e5e9e7);
-    border-bottom: 1px solid var(--zoo-border, #1e2522);
+    border-bottom: 1px solid var(--zoo-border, #2A3038);
     font-size: .85rem;
   }
   .tool-table tr:hover td { background: rgba(255,255,255,0.02); }
@@ -316,7 +317,7 @@
   .tool-search-filter input {
     flex: 1; min-width: 200px;
     background: rgba(255,255,255,0.04);
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text, #fff);
     padding: 11px 14px; border-radius: 10px;
     font-family: inherit; font-size: .95rem;
@@ -334,7 +335,7 @@
   .tool-table-wrap {
     max-height: 520px;
     overflow-y: auto;
-    border: 1px solid var(--zoo-border, #1e2522);
+    border: 1px solid var(--zoo-border, #2A3038);
     border-radius: 10px;
   }
 
@@ -362,7 +363,7 @@
   }
   .tool-info-card {
     background: rgba(255,255,255,0.03);
-    border: 1px solid var(--zoo-border, #1e2522);
+    border: 1px solid var(--zoo-border, #2A3038);
     border-radius: 10px;
     padding: 12px 14px;
   }
@@ -376,7 +377,7 @@
   }
   .tool-info-card__value {
     color: var(--zoo-text, #fff);
-    font-family: 'Poppins';
+    font-family: var(--zoo-font-display);
     font-weight: 700;
     font-size: .95rem;
   }
@@ -396,7 +397,7 @@
   .bcs-item {
     padding: 12px 8px;
     background: rgba(255,255,255,0.04);
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     border-radius: 10px; cursor: pointer; text-align: center;
     transition: all .15s;
   }
@@ -406,7 +407,7 @@
     border-color: #E8A317;
   }
   .bcs-item__num {
-    font-family: 'Poppins'; font-weight: 800;
+    font-family: var(--zoo-font-display); font-weight: 800;
     font-size: 1.5rem; color: #E8A317; line-height: 1;
   }
   .bcs-item__label {
@@ -434,7 +435,7 @@
   }
   .urg-protocol__title {
     color: #D55A28;
-    font-family: 'Poppins';
+    font-family: var(--zoo-font-display);
     font-weight: 800;
     font-size: 1rem;
     margin-bottom: 10px;
@@ -462,7 +463,7 @@
     background: var(--zoo-sem-orange, #C75402);
     color: #fff;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Poppins'; font-weight: 800; font-size: .75rem;
+    font-family: var(--zoo-font-display); font-weight: 800; font-size: .75rem;
   }
   .urg-steps li strong { color: #E8A317; }
 
@@ -483,15 +484,15 @@
   .tool-form { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
   .tool-result__fases { margin-top: 10px; display: grid; gap: 8px; }
   .tool-result__aviso { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; border-left: 4px solid #E8A317; background: rgba(232,163,23,0.12); font-size: .86rem; }
-  .tool-ref { margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--zoo-border-strong, #2a3530); background: rgba(0,0,0,0.03); }
+  .tool-ref { margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--zoo-border-strong, #3A424C); background: rgba(0,0,0,0.03); }
   .tool-ref__cab { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin-bottom: 8px; color: var(--zoo-text); }
   .tool-ref__via { font-size: .74rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: rgba(232,163,23,0.16); color: #B27A06; }
   .tool-ref__fuente { margin-top: 8px; font-size: .78rem; color: var(--zoo-text-muted); }
   .tool-ref__fuente a, .tool-subsection a { color: #1F7A4D; font-weight: 600; }
   .tool-result__intro { margin: 0 0 4px; font-size: .84rem; color: var(--zoo-text-muted); }
   .const-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 14px; }
-  .const-card { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--zoo-border-strong, #2a3530); background: var(--zoo-bg-card, #fff); }
-  .const-card h3 { margin: 0 0 2px; font-family: 'Poppins', sans-serif; font-size: .95rem; color: var(--zoo-text); }
+  .const-card { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--zoo-border-strong, #3A424C); background: var(--zoo-bg-card, #fff); }
+  .const-card h3 { margin: 0 0 2px; font-family: var(--zoo-font-display); font-size: .95rem; color: var(--zoo-text); }
   .const-card__grupo { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--zoo-text-dim); margin-bottom: 8px; }
   .const-dato { padding: 7px 0; border-top: 1px solid var(--zoo-border, rgba(0,0,0,.08)); font-size: .84rem; }
   .const-dato__campo { font-weight: 700; color: var(--zoo-text-muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; }
@@ -525,17 +526,7 @@
 
     <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
 
-    <div class="tools-hero">
-      <span class="tools-hero__badge"><svg class="zi" aria-hidden="true"><use href="#zi-dna"/></svg> HERRAMIENTA PROFESIONAL</span>
-      <h1>Clínica &amp; Farmacología de Fauna Silvestre</h1>
-      <p>Referencia para médicos veterinarios zoológicos y biólogos de campo. Cada dosis, protocolo y dato trae el enlace a la fuente abierta de donde se tomó (Manual Veterinario Merck, guías AAHA y RECOVER, FDA, artículos de PubMed). Lo que no se pudo verificar no aparece.</p>
-      <div class="tools-hero__stats">
-        <div class="tools-hero__stat"><span class="tools-hero__stat-num" id="statFarmacos">40+</span><span class="tools-hero__stat-lbl">fármacos</span></div>
-        <div class="tools-hero__stat"><span class="tools-hero__stat-num" id="statProtocolos">6</span><span class="tools-hero__stat-lbl">protocolos anestésicos</span></div>
-        <div class="tools-hero__stat"><span class="tools-hero__stat-num" id="statEspecies">60+</span><span class="tools-hero__stat-lbl">especies</span></div>
-        <div class="tools-hero__stat"><span class="tools-hero__stat-num">8</span><span class="tools-hero__stat-lbl">protocolos de urgencia</span></div>
-      </div>
-    </div>
+    <div id="zsSeccion"></div>
 
     <div class="tool-aviso-global" role="note">
       <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Material de referencia para profesionales.</strong> Las dosis, rangos y protocolos provienen de literatura especializada y <strong>no sustituyen el criterio del médico veterinario responsable</strong> ni las indicaciones del fabricante. Verifica siempre el fármaco, la dosis y la especie antes de aplicar. Contenido en revisión por un especialista (octubre 2026).
@@ -873,16 +864,20 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/herramientas-dosis.js?v=20261030-dosis"></script>
-  <script src="../assets/js/herramientas-protocolos.js?v=20261030-protocolos"></script>
-  <script src="../assets/js/herramientas-constantes.js?v=20261030-constantes"></script>
-  <script src="../assets/js/herramientas-hemograma.js?v=20261030-hemograma"></script>
-  <script src="../assets/js/herramientas-calculos.js?v=20261030-calculos"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
+  <script src="../assets/js/club-config.js?v=20261103"></script>
+  <script src="../assets/js/club-seccion.js?v=20261103"></script>
+  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionHerramientas","seccion":"herramientas","icono":"dna","eyebrow":"Herramienta profesional","titulo":"Clínica y farmacología","acento":"de fauna silvestre.","sub":"Referencia para médicos veterinarios zoológicos y biólogos de campo. Cada dosis, protocolo y dato trae el enlace a la fuente abierta de donde se tomó (Manual Veterinario Merck, guías AAHA y RECOVER, FDA, artículos de PubMed). Lo que no se pudo verificar no aparece.","cifras":[{"id":"statFarmacos","valor":"40+","rotulo":"fármacos"},{"id":"statProtocolos","valor":"6","rotulo":"protocolos anestésicos"},{"id":"statEspecies","valor":"60+","rotulo":"especies"},{"valor":"8","rotulo":"protocolos de urgencia"}]});</script>
+  <script src="../assets/js/club.js?v=20261103"></script>
+  <script src="../assets/js/club-shell.js?v=20261103"></script>
+  <script src="../assets/js/club-paywall.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-dosis.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-protocolos.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-constantes.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-hemograma.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-calculos.js?v=20261103"></script>
+  <script src="../assets/js/club-avisos.js?v=20261103"></script>
 <script>
 (async () => {
   const session = await ZOORIGEN_CLUB.requireAuth();

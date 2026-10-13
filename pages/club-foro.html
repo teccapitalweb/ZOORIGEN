@@ -16,15 +16,16 @@
   <meta name="theme-color" content="#1F5F3A">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261103">
   <style>
     .foro-hero {
-      background: var(--zoo-solid, #1F5F3A);
+      background: var(--zoo-panel, #1F5F3A);
       border-radius: 18px;
       padding: 28px 32px;
       margin-bottom: 20px;
@@ -71,7 +72,7 @@
       50% { transform: scale(1.5); opacity: 0.6; }
     }
     .foro-hero h1 {
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-size: 1.8rem;
       font-weight: 800;
       margin: 0 0 8px;
@@ -99,7 +100,7 @@
       gap: 8px;
     }
     .foro-hero__stat-num {
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-size: 1.5rem;
       font-weight: 800;
       color: #E8A317;
@@ -123,7 +124,7 @@
       border: 0;
       padding: 16px 24px;
       border-radius: 14px;
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-weight: 700;
       cursor: pointer;
       font-size: 1rem;
@@ -140,8 +141,8 @@
     }
 
     .foro-cats-wrap {
-      background: #131816;
-      border: 1px solid #1e2522;
+      background: #171B20;
+      border: 1px solid #2A3038;
       border-radius: 14px;
       padding: 14px;
       margin-bottom: 20px;
@@ -178,7 +179,7 @@
 
     .foro-cat {
       background: transparent;
-      border: 1px solid #2a3530;
+      border: 1px solid #3A424C;
       color: #c8cec9 !important;
       padding: 9px 16px;
       border-radius: 20px;
@@ -215,8 +216,8 @@
       gap: 12px;
     }
     .foro-post {
-      background: var(--zoo-bg-card, #131816);
-      border: 1px solid var(--zoo-border, #1e2522);
+      background: var(--zoo-bg-card, #171B20);
+      border: 1px solid var(--zoo-border, #2A3038);
       border-radius: 14px;
       padding: 18px 20px;
       transition: all .2s;
@@ -242,7 +243,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-weight: 700;
       font-size: 1.05rem;
     }
@@ -272,7 +273,7 @@
       color: var(--zoo-text-dim, #6b7370);
     }
     .foro-post__title {
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-size: 1.1rem;
       font-weight: 700;
       color: var(--zoo-text, #fff);
@@ -296,7 +297,7 @@
       gap: 18px;
       margin-top: 14px;
       padding-top: 12px;
-      border-top: 1px solid var(--zoo-border, #1e2522);
+      border-top: 1px solid var(--zoo-border, #2A3038);
       align-items: center;
     }
     .foro-action {
@@ -386,8 +387,8 @@
     .foro-empty {
       text-align: center;
       padding: 60px 24px;
-      background: var(--zoo-bg-card, #131816);
-      border: 1px solid var(--zoo-border, #1e2522);
+      background: var(--zoo-bg-card, #171B20);
+      border: 1px solid var(--zoo-border, #2A3038);
       border-radius: 14px;
     }
     .foro-empty__icon { font-size: 3.5rem; margin-bottom: 16px; }
@@ -424,8 +425,8 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .foro-modal__box {
-      background: var(--zoo-bg-card, #131816);
-      border: 1px solid var(--zoo-border-strong, #2a3530);
+      background: var(--zoo-bg-card, #171B20);
+      border: 1px solid var(--zoo-border-strong, #3A424C);
       border-radius: 18px;
       width: 100%;
       max-width: 600px;
@@ -442,7 +443,7 @@
 
     .foro-modal__header {
       padding: 20px 24px;
-      border-bottom: 1px solid var(--zoo-border, #1e2522);
+      border-bottom: 1px solid var(--zoo-border, #2A3038);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -485,8 +486,8 @@
     .foro-form-group select,
     .foro-form-group textarea {
       width: 100%;
-      background: #0f1311 !important;
-      border: 1px solid #2a3530;
+      background: #0F1215 !important;
+      border: 1px solid #3A424C;
       color: #ffffff !important;
       padding: 12px 14px;
       border-radius: 10px;
@@ -502,11 +503,11 @@
     }
     .foro-form-group select {
       /* Para que en modo oscuro las options se vean bien */
-      background-color: #0f1311 !important;
+      background-color: #0F1215 !important;
       color: #ffffff !important;
     }
     .foro-form-group select option {
-      background: #131816 !important;
+      background: #171B20 !important;
       color: #ffffff !important;
       padding: 8px;
     }
@@ -540,8 +541,8 @@
     }
     .foro-custom-select__btn {
       width: 100%;
-      background: #0f1311 !important;
-      border: 1px solid #2a3530;
+      background: #0F1215 !important;
+      border: 1px solid #3A424C;
       color: #ffffff !important;
       padding: 12px 14px;
       border-radius: 10px;
@@ -577,8 +578,8 @@
       top: calc(100% + 6px);
       left: 0;
       right: 0;
-      background: #131816 !important;
-      border: 1px solid #2a3530;
+      background: #171B20 !important;
+      border: 1px solid #3A424C;
       border-radius: 10px;
       overflow: hidden;
       z-index: 100;
@@ -596,7 +597,7 @@
       width: 100%;
       background: transparent;
       border: 0;
-      border-bottom: 1px solid #1e2522;
+      border-bottom: 1px solid #2A3038;
       color: #e5e9e7 !important;
       padding: 12px 16px;
       text-align: left;
@@ -626,14 +627,14 @@
 
     .foro-modal__footer {
       padding: 16px 24px;
-      border-top: 1px solid var(--zoo-border, #1e2522);
+      border-top: 1px solid var(--zoo-border, #2A3038);
       display: flex;
       gap: 10px;
       justify-content: flex-end;
     }
     .foro-btn-cancel {
       background: transparent;
-      border: 1px solid var(--zoo-border-strong, #2a3530);
+      border: 1px solid var(--zoo-border-strong, #3A424C);
       color: var(--zoo-text-muted, #a0a8a4);
       padding: 10px 18px;
       border-radius: 10px;
@@ -647,7 +648,7 @@
       border: 0;
       padding: 10px 22px;
       border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-weight: 700;
       cursor: pointer;
       font-size: .95rem;
@@ -677,8 +678,8 @@
       padding: 16px;
     }
     .foro-view-box {
-      background: var(--zoo-bg-card, #131816);
-      border: 1px solid var(--zoo-border-strong, #2a3530);
+      background: var(--zoo-bg-card, #171B20);
+      border: 1px solid var(--zoo-border-strong, #3A424C);
       border-radius: 18px;
       width: 100%;
       max-width: 700px;
@@ -719,8 +720,8 @@
       font-size: .96rem;
       white-space: pre-wrap;
       padding: 16px 0;
-      border-top: 1px solid var(--zoo-border, #1e2522);
-      border-bottom: 1px solid var(--zoo-border, #1e2522);
+      border-top: 1px solid var(--zoo-border, #2A3038);
+      border-bottom: 1px solid var(--zoo-border, #2A3038);
       margin-bottom: 20px;
     }
     .foro-replies-title {
@@ -733,7 +734,7 @@
       display: flex;
       gap: 12px;
       padding: 14px 0;
-      border-bottom: 1px solid var(--zoo-border, #1e2522);
+      border-bottom: 1px solid var(--zoo-border, #2A3038);
     }
     .foro-reply:last-child { border-bottom: 0; }
     .foro-reply__avatar {
@@ -773,14 +774,14 @@
       margin: 0;
     }
     .foro-view-reply-form {
-      background: var(--zoo-bg-card-2, #1a201d);
-      border-top: 1px solid var(--zoo-border, #1e2522);
+      background: var(--zoo-bg-card-2, #1E2329);
+      border-top: 1px solid var(--zoo-border, #2A3038);
       padding: 16px 20px;
     }
     .foro-view-reply-form textarea {
       width: 100%;
       background: rgba(255,255,255,0.04);
-      border: 1px solid var(--zoo-border-strong, #2a3530);
+      border: 1px solid var(--zoo-border-strong, #3A424C);
       color: var(--zoo-text, #fff);
       padding: 10px 12px;
       border-radius: 10px;
@@ -815,8 +816,8 @@
       display: flex;
       gap: 12px;
       align-items: flex-start;
-      background: var(--zoo-bg-card, #131816);
-      border: 1px solid var(--zoo-border, #1e2522);
+      background: var(--zoo-bg-card, #171B20);
+      border: 1px solid var(--zoo-border, #2A3038);
       border-radius: 14px;
       padding: 14px 16px;
       margin-bottom: 20px;
@@ -835,7 +836,7 @@
       resize: none;
       background: rgba(127,127,127,.1);
       color: var(--zoo-text, #fff);
-      border: 1px solid var(--zoo-border-strong, #2a3530);
+      border: 1px solid var(--zoo-border-strong, #3A424C);
       border-radius: 10px;
       padding: 10px 12px;
       font-family: inherit;
@@ -870,28 +871,7 @@
       <!-- MARCA VERSION v2 FIX - si ves este comentario en la consola es el archivo nuevo -->
       <script>console.log('%cFORO v2 FIX cargado ' + new Date().toLocaleTimeString(), 'background:#E8A317;color:#1f1d17;padding:4px 8px;font-weight:700;border-radius:4px;');</script>
 
-      <div class="foro-hero">
-        <div class="foro-hero__badge">
-          <span class="foro-hero__live-dot"></span>
-          COMUNIDAD PRIVADA
-        </div>
-        <h1><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg> Foro VIP</h1>
-        <p>Conecta, pregunta y comparte con profesionales en fauna silvestre de toda Latinoamérica.</p>
-        <div class="foro-hero__stats">
-          <div class="foro-hero__stat">
-            <span class="foro-hero__stat-num" id="totalPosts">0</span>
-            <span class="foro-hero__stat-lbl">discusiones</span>
-          </div>
-          <div class="foro-hero__stat">
-            <span class="foro-hero__stat-num" id="totalMembers">0</span>
-            <span class="foro-hero__stat-lbl">miembros activos</span>
-          </div>
-          <div class="foro-hero__stat">
-            <span class="foro-hero__stat-num" id="totalReplies">0</span>
-            <span class="foro-hero__stat-lbl">respuestas</span>
-          </div>
-        </div>
-      </div>
+      <div id="zsSeccion"></div>
 
       <div class="foro-main-actions">
         <button class="foro-new-btn" id="newPostBtn">
@@ -922,12 +902,16 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
-  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
-  <script src="../assets/js/club-foro-previa.js?v=20261102-foro"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-config.js?v=20261103"></script>
+  <script src="../assets/js/club-seccion.js?v=20261103"></script>
+  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionForo","seccion":"foro","icono":"message-circle","eyebrow":"Comunidad privada","titulo":"Foro VIP,","acento":"conversa con colegas.","sub":"Conecta, pregunta y comparte con profesionales en fauna silvestre de toda Latinoamérica.","cifras":[{"id":"totalPosts","valor":"0","rotulo":"discusiones"},{"id":"totalMembers","valor":"0","rotulo":"miembros activos"},{"id":"totalReplies","valor":"0","rotulo":"respuestas"}]});</script>
+  <script src="../assets/js/club.js?v=20261103"></script>
+  <script src="../assets/js/club-shell.js?v=20261103"></script>
+  <script src="../assets/js/club-avisos.js?v=20261103"></script>
+  <script src="../assets/js/club-paywall.js?v=20261103"></script>
+  <script src="../assets/js/club-foro-previa.js?v=20261103"></script>
   <script>
     const CAT_LABELS = {
       'casos': zooIcon('heartpulse', 13) + ' Casos clínicos',
@@ -985,9 +969,9 @@
        cada toque pide membresía. NO se consulta Firestore (foroPosts ni replies) en absoluto. */
     function prepararVistaPrevia() {
       const P = window.ZOO_FORO_PREVIA;
-      const hero = document.querySelector('.foro-hero');
+      const hero = document.querySelector('.zs-seccion');
       // Las cifras reales (discusiones, miembros, respuestas) son de miembros: no se muestran ceros ni inventos.
-      const stats = document.querySelector('.foro-hero__stats');
+      const stats = document.querySelector('.zs-seccion__cifras');
       if (stats) stats.style.display = 'none';
 
       // Aviso de vista previa, justo debajo del encabezado.

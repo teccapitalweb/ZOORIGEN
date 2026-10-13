@@ -341,7 +341,7 @@ test('la página usa el módulo y ya no tiene las cuentas viejas', () => {
   // el viejo ajuste de BCS de ±40%
   assert.doesNotMatch(PAGINA, /Dosis máxima segura global/);
   // los conteos salen de los datos
-  assert.match(PAGINA, /id="statFarmacos"/);
+  assert.match(PAGINA, /id="statFarmacos"|"id":"statFarmacos"/);
   assert.match(PAGINA, /Object\.keys\(DOSIS\)\.length/);
   assert.match(PAGINA, /herramientas-dosis\.js\?v=\w+/);
   assert.doesNotMatch(PAGINA, /const DROGAS\b/, 'ya no queda la tabla de dosis sin fuente');

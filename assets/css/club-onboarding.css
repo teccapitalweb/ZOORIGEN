@@ -12,7 +12,7 @@
   --zob-naranja-fuerte: #AE4800;
   --zob-azul: #037BC9;
   --zob-verde: #95A303;
-  --zob-fondo: var(--zoo-bg-card, #14281B);
+  --zob-fondo: var(--zoo-bg-card, #171B20);
   --zob-fondo-suave: rgba(127, 140, 130, .14);
   --zob-texto: var(--zoo-text, #fff);
   --zob-suave: var(--zoo-text-muted, rgba(255, 255, 255, .72));
@@ -21,7 +21,7 @@
   --zob-azul-texto: #66BDF3;
   --zob-verde-texto: #BCCF2C;
   --zob-error: #FF8A80;
-  --zob-velo: rgba(4, 12, 8, .8);
+  --zob-velo: rgba(10, 12, 14, .82);
   --zob-sombra: 0 30px 90px rgba(0, 0, 0, .6);
   --zob-foco: #66BDF3;
 }
@@ -32,8 +32,8 @@
   --zob-azul-texto: #025E9A;
   --zob-verde-texto: #667000;
   --zob-error: #B3261E;
-  --zob-velo: rgba(18, 28, 20, .62);
-  --zob-sombra: 0 30px 80px rgba(20, 32, 22, .3);
+  --zob-velo: rgba(22, 22, 22, .62);
+  --zob-sombra: 0 30px 80px rgba(25, 25, 25, .3);
   --zob-foco: #025E9A;
 }
 
@@ -50,7 +50,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
   position: fixed; inset: 0; z-index: 100500;
   display: flex; align-items: center; justify-content: center;
   padding: 16px;
-  font-family: var(--zoo-font-body, 'Open Sans', system-ui, sans-serif);
+  font-family: var(--zoo-font-body);
   color: var(--zob-texto);
   animation: zobAparece .3s ease;
 }
@@ -87,7 +87,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
   color: var(--zob-acento);
 }
 .zob__titulo {
-  margin: 0 0 10px; font-family: var(--zoo-font-heading, 'Poppins', sans-serif);
+  margin: 0 0 10px; font-family: var(--zoo-font-display);
   font-size: 1.5rem; line-height: 1.2; font-weight: 700; letter-spacing: -.01em; color: var(--zob-texto);
 }
 .zob__titulo em { font-style: normal; color: var(--zob-acento); }
@@ -111,7 +111,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zob-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 46px; padding: 11px 22px; border-radius: 12px; border: 1px solid transparent;
-  font-family: var(--zoo-font-heading, 'Poppins', sans-serif); font-size: .94rem; font-weight: 600; line-height: 1.2;
+  font-family: var(--zoo-font-display); font-size: .94rem; font-weight: 600; line-height: 1.2;
   cursor: pointer; transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 .zob-btn:active { transform: scale(.98); }
@@ -210,13 +210,13 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 /* ───────────── Botón para repetir la guía ───────────── */
 .zob-repetir {
   width: 42px; height: 42px; flex: 0 0 auto; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  color: var(--zoo-text, #fff); background: var(--zoo-bg-card, #14281B); border: 1px solid var(--zoo-border-strong, #2a3530);
+  color: var(--zoo-text, #fff); background: var(--zoo-bg-card, #171B20); border: 1px solid var(--zoo-border-strong, #3A424C);
   cursor: pointer; transition: border-color .15s, color .15s;
 }
 .zob-repetir:hover { border-color: var(--zob-naranja); color: var(--zob-acento); }
 
 /* ───────────── Recorrido con foco ───────────── */
-.zob-tour { position: fixed; inset: 0; z-index: 2147482000; pointer-events: none; font-family: var(--zoo-font-body, 'Open Sans', system-ui, sans-serif); color: var(--zob-texto); }
+.zob-tour { position: fixed; inset: 0; z-index: 2147482000; pointer-events: none; font-family: var(--zoo-font-body); color: var(--zob-texto); }
 .zob-tour[aria-hidden="true"] { display: none; }
 .zob-tour__sombra { position: fixed; background: var(--zob-velo); pointer-events: auto; transition: all .22s ease; }
 .zob-tour__sombra[data-sombra="arriba"] { right: 0; }
@@ -243,7 +243,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zob-tour__pista { flex: 1; height: 5px; overflow: hidden; border-radius: 99px; background: var(--zob-fondo-suave); }
 .zob-tour__barra { height: 100%; width: 0; border-radius: inherit; background: var(--zoo-fill, #6FBF73); transition: width .22s ease; }
 .zob-tour__cuenta { font-size: .72rem; font-weight: 700; white-space: nowrap; color: var(--zob-suave); }
-.zob-tour__titulo { margin: 0 0 8px; font-family: var(--zoo-font-heading, 'Poppins', sans-serif); font-size: 1.2rem; line-height: 1.25; font-weight: 700; color: var(--zob-texto); }
+.zob-tour__titulo { margin: 0 0 8px; font-family: var(--zoo-font-display); font-size: 1.2rem; line-height: 1.25; font-weight: 700; color: var(--zob-texto); }
 .zob-tour__texto { margin: 0; font-size: .92rem; line-height: 1.6; color: var(--zob-suave); }
 .zob-tour__acciones { display: flex; align-items: center; justify-content: flex-end; gap: 9px; margin-top: 18px; }
 .zob-tour__boton { min-height: 42px; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--zob-borde); font: inherit; font-size: .88rem; font-weight: 700; cursor: pointer; transition: transform .15s ease, background .15s ease; }
@@ -297,3 +297,23 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
   .zob, .zob *, .zob-tour, .zob-tour * { animation: none !important; transition: none !important; }
   .zob-splash__confeti { display: none; }
 }
+
+/* ───────────── Bienvenida de miembro (club.js) y aviso de webinar: íconos legibles en ambos temas ───────────── */
+.zoo-welcome-badge .zi { color: #1F1D17; }
+.zoo-welcome-sparkle { color: var(--zoo-amber, #E8A317); }
+.zoo-welcome-plan-icon { color: var(--zoo-amber, #E8A317); }
+.zoo-welcome-benefit span { color: var(--zoo-fill, #6FBF73); }
+.zoo-welcome-confetti .zi { color: var(--zoo-amber, #E8A317); }
+.zoo-welcome-backdrop { background: rgba(10, 12, 14, 0.9); }
+
+/* Día: la bienvenida de miembro es una tarjeta blanca; los textos que eran blancos pasan a tinta oscura (antes no se leían). */
+[data-theme="light"] .zoo-welcome-title { color: #1a1d1b; }
+[data-theme="light"] .zoo-welcome-title span { background: none; -webkit-text-fill-color: #8A5A00; color: #8A5A00; }
+[data-theme="light"] .zoo-welcome-benefit strong { color: #1a1d1b; }
+[data-theme="light"] .zoo-welcome-benefit small, [data-theme="light"] .zoo-welcome-desc, [data-theme="light"] .zoo-welcome-plan-sub { color: #4b5550; }
+[data-theme="light"] .zoo-welcome-desc strong, [data-theme="light"] .zoo-welcome-footer a { color: #1F5F3A; }
+[data-theme="light"] .zoo-welcome-plan-label { color: #7A5200; }
+[data-theme="light"] .zoo-welcome-plan-icon { color: #8A5A00; }
+[data-theme="light"] .zoo-welcome-sparkle { color: #B27A06; }
+[data-theme="light"] .zoo-welcome-benefit span { color: #1F5F3A; }
+[data-theme="light"] .zoo-welcome-close { color: #4b5550; background: #f0f1ee; }

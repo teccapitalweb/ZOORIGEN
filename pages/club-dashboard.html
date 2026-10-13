@@ -16,16 +16,17 @@
   <meta name="theme-color" content="#1F5F3A">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261102-verde">
-  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261102-verde">
-  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261102-vistaprevia">
-  <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261101-solidos">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261103">
   <style>
     /* ═══════════════ NOTIFICACIONES ═══════════════ */
     .notif-icon {
@@ -78,7 +79,7 @@
       width: 380px;
       max-width: calc(100vw - 40px);
       max-height: 70vh;
-      background: #131816;
+      background: #171B20;
       border: 1px solid rgba(232,163,23,0.25);
       border-radius: 14px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.6);
@@ -325,8 +326,8 @@
       display: flex;
       gap: 12px;
       padding: 12px 14px;
-      background: var(--zoo-bg-card, #131816);
-      border: 1px solid var(--zoo-border, #1e2522);
+      background: var(--zoo-bg-card, #171B20);
+      border: 1px solid var(--zoo-border, #2A3038);
       border-radius: 12px;
       text-decoration: none;
       color: inherit;
@@ -350,7 +351,7 @@
     }
     .dash-mini-item__body { flex: 1; min-width: 0; }
     .dash-mini-item__title {
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-weight: 700;
       color: var(--zoo-text, #fff);
       font-size: .95rem;
@@ -378,7 +379,7 @@
       border-radius: 10px;
     }
     .dash-webinar-date .day {
-      font-family: 'Poppins';
+      font-family: var(--zoo-font-display);
       font-weight: 800;
       font-size: 1.2rem;
       line-height: 1;
@@ -393,8 +394,8 @@
     .dash-empty-mini {
       text-align: center;
       padding: 24px;
-      background: var(--zoo-bg-card, #131816);
-      border: 1px dashed var(--zoo-border-strong, #2a3530);
+      background: var(--zoo-bg-card, #171B20);
+      border: 1px dashed var(--zoo-border-strong, #3A424C);
       border-radius: 12px;
       color: var(--zoo-text-muted, #a0a8a4);
       font-size: .88rem;
@@ -402,8 +403,8 @@
 
     /* ═══════════════ INVITAR AMIGOS ═══════════════ */
     .dash-refer-card {
-      background: var(--zoo-solid, #1F5F3A);
-      border: 1px solid var(--zoo-solid-dark, #174A2D);
+      background: var(--zoo-panel, #1F5F3A);
+      border: 1px solid var(--zoo-panel, #1F5F3A);
       border-radius: 16px;
       padding: 22px;
       display: flex;
@@ -438,7 +439,7 @@
     }
     .dash-refer-body h3 {
       color: #fff;
-      font-family: 'Poppins';
+      font-family: var(--zoo-font-display);
       font-weight: 800;
       font-size: 1.1rem;
       margin: 0 0 8px;
@@ -464,7 +465,7 @@
       font-size: .82rem;
     }
     .dash-refer-code-box code {
-      font-family: 'Poppins';
+      font-family: var(--zoo-font-display);
       font-weight: 800;
       color: #E8A317;
       font-size: 1rem;
@@ -494,7 +495,7 @@
     }
     .dash-refer-stats span strong {
       color: #E8A317;
-      font-family: 'Poppins';
+      font-family: var(--zoo-font-display);
       font-size: 1.05rem;
       display: block;
       line-height: 1;
@@ -506,7 +507,7 @@
       padding: 10px 18px;
       border-radius: 10px;
       cursor: pointer;
-      font-family: 'Poppins';
+      font-family: var(--zoo-font-display);
       font-weight: 700;
       font-size: .9rem;
       transition: transform .15s;
@@ -581,20 +582,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-progreso.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261020"></script>
-  <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
-  <script src="../assets/js/club-acceso.js?v=20261028"></script>
-  <script src="../assets/js/club-curso-pref.js?v=20261031-guia"></script>
-  <script src="../assets/js/club-noticias-ui.js?v=20261101-noticias-foto"></script>
-  <script src="../assets/js/club-inicio.js?v=20261028-horas"></script>
-  <script src="../assets/js/club-premios.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
-  <script src="../assets/js/club-onboarding.js?v=20261031-guia"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-config.js?v=20261103"></script>
+  <script src="../assets/js/club-seccion.js?v=20261103"></script>
+  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script src="../assets/js/club.js?v=20261103"></script>
+  <script src="../assets/js/club-progreso.js?v=20261103"></script>
+  <script src="../assets/js/club-shell.js?v=20261103"></script>
+  <script src="../assets/js/club-avisos.js?v=20261103"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-iconos-comunidad.js?v=20261103"></script>
+  <script src="../assets/js/club-acceso.js?v=20261103"></script>
+  <script src="../assets/js/club-curso-pref.js?v=20261103"></script>
+  <script src="../assets/js/club-noticias-ui.js?v=20261103"></script>
+  <script src="../assets/js/club-inicio.js?v=20261103"></script>
+  <script src="../assets/js/club-premios.js?v=20261103"></script>
+  <script src="../assets/js/club-curso-premio.js?v=20261103"></script>
+  <script src="../assets/js/club-onboarding.js?v=20261103"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -602,6 +606,7 @@
 
       // Inicializar tema claro/oscuro (actualiza ícono del botón)
       ZOORIGEN_CLUB.initTheme();
+      window.__zooSession = session;
 
       document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('inicio', session);
 
@@ -615,9 +620,23 @@
       // No espera ni bloquea la página: si algo falla, el panel sigue igual.
       if (window.ZOO_ONBOARDING) { try { ZOO_ONBOARDING.iniciar({ session }); } catch (e) { console.warn('onboarding:', e); } }
 
-      // Mostrar guía de bienvenida la primera vez que entra (solo si es VIP activo)
-      if (ZOORIGEN_CLUB.hasActiveMembership(session)) {
-        setTimeout(() => ZOORIGEN_CLUB.showOnboarding(session), 1500);
+      // Una sola cola de ventanas (club-cola.js): un solo overlay visible a la vez, por prioridad:
+      // bienvenida -> nombre -> premio -> recorrido guiado -> prueba gratuita -> avisos del equipo -> paywall.
+      const COLA = window.ZOO_COLA || null;
+      const encolar = (item, respaldoMs) => {
+        if (COLA) return COLA.encolar(item);
+        return new Promise(r => setTimeout(() => r(item.mostrar()), respaldoMs || 600));
+      };
+
+      // Guía de bienvenida de siempre: solo si el módulo del recorrido guiado no está cargado.
+      if (ZOORIGEN_CLUB.hasActiveMembership(session) && !window.ZOO_ONBOARDING) {
+        encolar({ id: 'guia-vip', tipo: 'recorrido', vigente: () => !localStorage.getItem('zoo_onboard_done_' + session.uid), mostrar: () => new Promise(r => { ZOORIGEN_CLUB.showOnboarding(session); r(); }) }, 1500);
+      }
+
+      // Llegó desde el botón "?" de otra página: se abre el recorrido guiado aquí.
+      if (window.ZOO_ONBOARDING && new URLSearchParams(window.location.search).has('guia')) {
+        try { window.history.replaceState({}, '', 'club-dashboard.html'); } catch (e) { /* sin historial */ }
+        encolar({ id: 'recorrido-pedido', tipo: 'recorrido', mostrar: () => ZOO_ONBOARDING.repetirRecorrido(session) });
       }
 
       const firstName = session.name.split(' ')[0];
@@ -636,9 +655,10 @@
       if (ZOORIGEN_CLUB.hasActiveMembership(session)) {
         const welcomeKey = 'zoo_welcome_shown_' + session.uid;
         if (!localStorage.getItem(welcomeKey)) {
-          setTimeout(() => {
-            ZOORIGEN_CLUB.showWelcomeModal(session);
-            localStorage.setItem(welcomeKey, 'yes');
+          encolar({
+            id: 'bienvenida-vip', tipo: 'bienvenida',
+            vigente: () => !localStorage.getItem(welcomeKey),
+            mostrar: () => { localStorage.setItem(welcomeKey, 'yes'); return ZOORIGEN_CLUB.showWelcomeModal(session); }
           }, 600);
         }
       }
@@ -650,12 +670,12 @@
       if (urlParams.has('welcome') && !ZOORIGEN_CLUB.hasActiveMembership(session) && !window.ZOO_ONBOARDING) {
         setTimeout(() => {
           const welcomeOverlay = document.createElement('div');
-          welcomeOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .3s ease-out;';
+          welcomeOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(12, 12, 12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .3s ease-out;';
           welcomeOverlay.innerHTML = `
             <div style="max-width:520px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);">
               <div style="font-size:4rem;margin-bottom:14px;"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" width="64" height="64"></div>
               <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">¡BIENVENIDO, ${(session.name || 'nuevo miembro').split(' ')[0].toUpperCase()}!</div>
-              <h2 style="font-family:Poppins;color:#fff;font-size:1.7rem;margin:0 0 12px;line-height:1.2;">Ya eres parte de Zoorigen <svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg></h2>
+              <h2 style="font-family:var(--zoo-font-display);color:#fff;font-size:1.7rem;margin:0 0 12px;line-height:1.2;">Ya eres parte de Zoorigen <svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg></h2>
               <p style="color:rgba(255,255,255,0.9);font-size:.98rem;margin:0 0 22px;line-height:1.6;">Tu cuenta gratuita está lista. Elige tu curso de prueba gratuita en Cursos y, cuando quieras, activa una membresía para abrir todos los cursos.</p>
 
               <div style="background:rgba(0,0,0,0.25);border-radius:14px;padding:16px;margin-bottom:20px;text-align:left;">
@@ -669,8 +689,8 @@
               </div>
 
               <div style="display:flex;gap:10px;flex-direction:column;">
-                <button id="zooWelcomeExplore" style="background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 22px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:800;font-size:.98rem;box-shadow:0 6px 18px rgba(232,163,23,0.3);"><svg class="zi" aria-hidden="true"><use href="#zi-leaf"/></svg> Explorar Zoorigen</button>
-                <button id="zooWelcomeSubscribe" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:12px 22px;border-radius:12px;cursor:pointer;font-family:Poppins;font-weight:700;font-size:.9rem;"><svg class="zi" aria-hidden="true"><use href="#zi-credit-card"/></svg> Suscribirme ahora (desde $199/mes)</button>
+                <button id="zooWelcomeExplore" style="background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 22px;border-radius:12px;cursor:pointer;font-family:var(--zoo-font-display);font-weight:800;font-size:.98rem;box-shadow:0 6px 18px rgba(232,163,23,0.3);"><svg class="zi" aria-hidden="true"><use href="#zi-leaf"/></svg> Explorar Zoorigen</button>
+                <button id="zooWelcomeSubscribe" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:12px 22px;border-radius:12px;cursor:pointer;font-family:var(--zoo-font-display);font-weight:700;font-size:.9rem;"><svg class="zi" aria-hidden="true"><use href="#zi-credit-card"/></svg> Suscribirme ahora (desde $199/mes)</button>
               </div>
             </div>
             <style>@keyframes zooFadeIn { from{opacity:0} to{opacity:1} }</style>
@@ -695,13 +715,17 @@
         ZOORIGEN_CLUB.getSesiones().catch(e => { console.warn('getSesiones falló:', e); return []; })
       ]);
 
+      // Cifras de la tarjeta de título: cursos y clases (el avance se completa en pintarActividad)
+      if (window.ZOO_SECCION) ZOO_SECCION.cifras({ cursos: cursos.length, clases: cursos.reduce((n, c) => n + ZOO_INICIO.totalClases(c), 0) });
+
       // ═══════════════ POPUP DE WEBINAR ═══════════════
       // Revisa TODOS los webinars próximos y muestra popup del PRIMERO que el usuario no haya visto.
       // Dos triggers:
       //  1) "MAÑANA" — el webinar es mañana o hoy (prioridad más alta)
       //  2) "NUEVO" — webinar nuevo que el usuario aún no ha visto el aviso
       // Cada aviso se muestra UNA SOLA VEZ por webinar (clave localStorage).
-      if (ZOORIGEN_CLUB.hasActiveMembership(session) && todosLosWebinars && todosLosWebinars.length > 0) {
+      const enVivoPronto = !!(window.ZOO_CONFIG && ZOO_CONFIG.clasesEnVivoPronto);
+      if (!enVivoPronto && ZOORIGEN_CLUB.hasActiveMembership(session) && todosLosWebinars && todosLosWebinars.length > 0) {
         const ahora = new Date();
         let webinarParaMostrar = null;
         let tipoAviso = null;
@@ -766,7 +790,7 @@
           // Variable para el renderizado del popup (reemplaza proximaSesion)
           const webinarInfo = webinarParaMostrar;
 
-          setTimeout(() => {
+          const mostrarPopup = () => new Promise((resolverPopup) => {
             const popup = document.createElement('div');
             popup.innerHTML = `
               <style>
@@ -802,7 +826,7 @@
                   position: fixed; top: 50%; left: 50%;
                   transform: translate(-50%, -50%);
                   width: 90%; max-width: 480px;
-                  background: var(--zoo-solid, #1F5F3A);
+                  background: var(--zoo-panel, #1F5F3A);
                   border: 2px solid #E8A317;
                   border-radius: 24px;
                   padding: 36px 30px 30px;
@@ -833,6 +857,7 @@
                 .webinar-popup-close:hover { background: rgba(0,0,0,0.5); transform: rotate(90deg); }
                 .webinar-popup-content { position: relative; z-index: 2; text-align: center; }
                 .webinar-popup-icon {
+                  color: #F7CB62;
                   font-size: 4rem; line-height: 1; margin-bottom: 8px;
                   animation: webinarWave 2s ease-in-out infinite;
                   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
@@ -853,14 +878,14 @@
                 }
                 .webinar-popup-title {
                   color: #E8A317;
-                  font-family: 'Poppins', sans-serif;
+                  font-family: var(--zoo-font-display);
                   font-size: 1.1rem; font-weight: 700;
                   letter-spacing: .05em;
                   margin-bottom: 6px;
                 }
                 .webinar-popup-name {
                   color: #fff;
-                  font-family: 'Poppins', sans-serif;
+                  font-family: var(--zoo-font-display);
                   font-size: 1.5rem; font-weight: 800;
                   line-height: 1.25; margin-bottom: 14px;
                   text-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -884,7 +909,7 @@
                   display: inline-flex; align-items: center; gap: 10px;
                   background: #fff; color: #1a73e8;
                   padding: 14px 26px; border: 0; border-radius: 12px;
-                  font-family: 'Poppins', sans-serif; font-weight: 700;
+                  font-family: var(--zoo-font-display); font-weight: 700;
                   font-size: 1rem; cursor: pointer; text-decoration: none;
                   box-shadow: 0 8px 24px rgba(0,0,0,0.3);
                   transition: all .2s;
@@ -934,11 +959,17 @@
             const close = () => {
               popup.remove();
               localStorage.setItem(clavePopup, '1');
+              resolverPopup();
             };
             document.getElementById('webinarPopupClose').addEventListener('click', close);
             document.getElementById('webinarPopupDismiss').addEventListener('click', close);
             document.getElementById('webinarPopupBg').addEventListener('click', close);
-          }, 1500);
+            // "Ver detalles" también cuenta como visto: el aviso no vuelve a salir en la siguiente carga.
+            const cta = popup.querySelector('.webinar-popup-cta');
+            if (cta) cta.addEventListener('click', () => { localStorage.setItem(clavePopup, '1'); });
+          });
+          // Pasa por la cola única: espera a la bienvenida, el nombre y el recorrido, y no sale si el aviso ya se vio.
+          encolar({ id: 'webinar-' + clavePopup, tipo: 'avisos', vigente: () => !localStorage.getItem(clavePopup), mostrar: mostrarPopup }, 1500);
         }
       }
       // ═══════════════ FIN POPUP WEBINAR ═══════════════
@@ -1061,8 +1092,10 @@
       pintarTarjetaCursos();
 
       // Columna derecha: clases en vivo, comunidad, descuento, tu actividad y tu presencia
-      document.getElementById('asideVivo').innerHTML = ZOO_INICIO.vivoHTML(proximaSesion);
-      if (proximaSesion) ZOORIGEN_CLUB.startCountdown('countdown', proximaSesion.date);
+      // Con las clases en vivo en "Próximamente" el widget solo lo dice: sin título, fecha ni cuenta regresiva.
+      const sesionVisible = enVivoPronto ? null : proximaSesion;
+      document.getElementById('asideVivo').innerHTML = ZOO_INICIO.vivoHTML(sesionVisible);
+      if (sesionVisible) ZOORIGEN_CLUB.startCountdown('countdown', sesionVisible.date);
       document.getElementById('asideComunidad').innerHTML = ZOO_INICIO.comunidadHTML();
       // El descuento del 20% es un beneficio de miembros: quien no tiene membresía vigente no ve esta tarjeta.
       document.getElementById('asideDescuento').innerHTML = ZOORIGEN_CLUB.hasActiveMembership(session)
@@ -1072,6 +1105,8 @@
         let progreso = {};
         try { progreso = await ZOORIGEN_CLUB.getCourseProgress(session.uid); } catch (e) { progreso = {}; }
         const terminados = cursos.filter(c => progreso[c.id] && progreso[c.id].isCompleted === true).length;
+        const enProgreso = cursos.filter(c => { const av = ZOO_INICIO.avanceDe(progreso, c.id); return av.hechas > 0 && !av.terminado; }).length;
+        if (window.ZOO_SECCION) ZOO_SECCION.cifras({ enProgreso, completados: terminados });
         const prem = window.__zooInicioPremios || null;
         const logros = prem && Array.isArray(prem.logros) ? prem.logros : [];
         document.getElementById('asideActividad').innerHTML = ZOO_INICIO.actividadHTML({

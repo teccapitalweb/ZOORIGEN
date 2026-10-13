@@ -16,15 +16,16 @@
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261031">
-  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261102-vistaprevia">
-  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261103">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
     .player-overlay {
@@ -72,14 +73,14 @@
       justify-content: space-between;
       align-items: center;
       padding: 14px 18px;
-      background: var(--zoo-solid, #1F5F3A);
+      background: var(--zoo-panel, #1F5F3A);
       border-bottom: 1px solid rgba(232,163,23,0.28);
       flex-shrink: 0;
       gap: 12px;
     }
     .player-box__header h3 {
       color: #fff;
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-size: 1.02rem;
       margin: 0;
       font-weight: 700;
@@ -348,10 +349,7 @@
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
       <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
-      <div class="page-header">
-        <h1><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg> Cursos exclusivos</h1>
-        <p>Cursos completos seleccionados para miembros VIP · Acceso ilimitado</p>
-      </div>
+      <div id="zsSeccion"></div>
       <div id="lockedNotice"></div>
       <div id="unlockInfo"></div>
       <div class="filter-bar" id="filterBar"></div>
@@ -374,20 +372,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
-  <script src="../assets/js/club-progreso.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
-  <script src="../assets/js/club-juegos.js?v=20261009"></script>
-  <script src="../assets/js/club-quiz.js?v=20261031"></script>
-  <script src="../assets/js/club-acceso.js?v=20261028"></script>
-  <script src="../assets/js/club-curso-pref.js?v=20261031-guia"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261020"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261102-vistaprevia"></script>
-  <script src="../assets/js/club-premios.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-curso-premio.js?v=20261022"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-config.js?v=20261103"></script>
+  <script src="../assets/js/club-seccion.js?v=20261103"></script>
+  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script src="../assets/js/club.js?v=20261103"></script>
+  <script src="../assets/js/club-paywall.js?v=20261103"></script>
+  <script src="../assets/js/club-progreso.js?v=20261103"></script>
+  <script src="../assets/js/club-shell.js?v=20261103"></script>
+  <script src="../assets/js/club-avisos.js?v=20261103"></script>
+  <script src="../assets/js/club-juegos.js?v=20261103"></script>
+  <script src="../assets/js/club-quiz.js?v=20261103"></script>
+  <script src="../assets/js/club-acceso.js?v=20261103"></script>
+  <script src="../assets/js/club-curso-pref.js?v=20261103"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261103"></script>
+  <script src="../assets/js/club-premios.js?v=20261103"></script>
+  <script src="../assets/js/club-curso-premio.js?v=20261103"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
     const ZOORIGEN_FREE_VIDEO_ID = 'befd1641-850a-4099-88a8-047a1badc703';
@@ -422,15 +423,15 @@
       if (document.getElementById('zooCoursePaywall')) return;
       const overlay = document.createElement('div');
       overlay.id = 'zooCoursePaywall';
-      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(7,12,9,.94);backdrop-filter:blur(12px);z-index:200000;display:flex;align-items:center;justify-content:center;padding:20px;';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(9, 9, 9,.94);backdrop-filter:blur(12px);z-index:200000;display:flex;align-items:center;justify-content:center;padding:20px;';
       overlay.innerHTML = `
         <div style="width:min(500px,100%);position:relative;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,.5);border-radius:22px;padding:38px 30px;text-align:center;box-shadow:0 32px 90px rgba(0,0,0,.72);">
           <button id="zooCoursePaywallClose" aria-label="Cerrar" style="position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.25);color:#fff;cursor:pointer;font-size:1rem;"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
           <div style="font-size:3.5rem;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
           <div style="display:inline-block;background:rgba(232,163,23,.18);color:#F2BC4A;border-radius:100px;padding:5px 13px;font-size:.72rem;font-weight:800;letter-spacing:.1em;margin-bottom:14px;">CONTENIDO VIP</div>
-          <h2 style="font-family:Poppins;color:#fff;font-size:1.55rem;line-height:1.25;margin:0 0 12px;">Continúa aprendiendo con Zoorigen</h2>
+          <h2 style="font-family:var(--zoo-font-display);color:#fff;font-size:1.55rem;line-height:1.25;margin:0 0 12px;">Continúa aprendiendo con Zoorigen</h2>
           <p style="color:rgba(255,255,255,.88);font-size:.96rem;line-height:1.6;margin:0 0 24px;">Activa tu membresía para continuar con esta clase y acceder a todos los cursos de Zoorigen.</p>
-          <button id="zooCourseSubscribe" style="width:100%;background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 20px;border-radius:12px;font:800 .95rem Poppins;cursor:pointer;box-shadow:0 8px 24px rgba(232,163,23,.3);">Ver planes de membresía</button>
+          <button id="zooCourseSubscribe" style="width:100%;background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 20px;border-radius:12px;font:800 .95rem var(--zoo-font-display);cursor:pointer;box-shadow:0 8px 24px rgba(232,163,23,.3);">Ver planes de membresía</button>
           <button id="zooCourseContinue" style="margin-top:10px;background:transparent;border:0;color:rgba(255,255,255,.65);padding:8px;cursor:pointer;">Seguir explorando</button>
         </div>`;
       document.body.appendChild(overlay);
@@ -443,6 +444,20 @@
         window.location.href = 'club-suscripcion.html';
       });
     }
+
+    // Tarjeta de título del apartado (componente único) con el control Todos / En progreso / Completados
+    if (window.ZOO_SECCION) ZOO_SECCION.montar('#zsSeccion', {
+      id: 'zsSeccionCursos', seccion: 'cursos', icono: 'library', eyebrow: 'Catálogo Zoorigen',
+      titulo: 'Cursos grabados,', acento: 'a tu ritmo.',
+      sub: 'Aprende con especialistas de fauna silvestre, con preguntas y un juego al final de cada clase.',
+      cifras: [
+        { clave: 'cursos', valor: '—', rotulo: 'cursos' },
+        { clave: 'clases', valor: '—', rotulo: 'clases' },
+        { clave: 'enProgreso', valor: '—', rotulo: 'en progreso' },
+        { clave: 'completados', valor: '—', rotulo: 'completados' }
+      ],
+      segmentos: { etiqueta: 'Mostrar cursos', activo: 'todos', opciones: [{ id: 'todos', etiqueta: 'Todos' }, { id: 'progreso', etiqueta: 'En progreso' }, { id: 'completados', etiqueta: 'Completados' }] }
+    });
 
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -591,6 +606,15 @@
         avisoSuperior(modo, dias);
 
         let lista = filter === 'Todas' ? cursos : cursos.filter(c => c.area === filter);
+        // Control segmentado de la tarjeta de título: Todos / En progreso / Completados (filtra de verdad, con el avance real)
+        const seg = window.__zooSegmento || 'todos';
+        if (seg !== 'todos') {
+          lista = lista.filter(c => {
+            const pr = (window.__zooCourseProgress || {})[c.id] || {};
+            const hechas = Array.isArray(pr.completedLessons) ? pr.completedLessons.length : 0;
+            return seg === 'completados' ? pr.isCompleted === true : (hechas > 0 && pr.isCompleted !== true);
+          });
+        }
         // El curso de prueba (si lo hay) se muestra primero; no cambia el orden de desbloqueo de los demás.
         if (p.elegida) lista = lista.slice().sort((a, b) => (b.id === p.elegida ? 1 : 0) - (a.id === p.elegida ? 1 : 0));
         // Pendiente de elegir: el curso que escogió en la guía (si sigue siendo elegible) va primero y destacado.
@@ -599,6 +623,11 @@
 
         window.__zooCourseCards = {};
         grid.className = 'zc-grid';
+        if (!lista.length) {
+          grid.className = '';
+          grid.innerHTML = '<div class="zs-vacio"><strong>' + (seg === 'completados' ? 'Aún no has completado ningún curso.' : seg === 'progreso' ? 'Aún no tienes cursos en progreso.' : 'No hay cursos en esta área todavía.') + '</strong><span>' + (seg === 'todos' ? 'Prueba con otra área.' : 'Cuando avances en un curso aparecerá aquí.') + '</span></div>';
+          return;
+        }
         grid.innerHTML = lista.map(c => {
           const lecciones = (c.lecciones && c.lecciones.length) ? c.lecciones : (c.driveId ? [{ titulo: c.title, driveId: c.driveId, duration: c.duration }] : []);
           window.__zooCourseCards[c.id] = { ...c, lecciones };
@@ -622,6 +651,16 @@
       };
 
       window.__zooRender = render;
+      // Cifras reales de la tarjeta de título y control segmentado
+      if (window.ZOO_SECCION) {
+        const totalClasesCurso = (c) => (c.lecciones && c.lecciones.length) ? c.lecciones.length : (c.driveId ? 1 : 0);
+        const prog0 = window.__zooCourseProgress || {};
+        const completados = cursos.filter(c => prog0[c.id] && prog0[c.id].isCompleted === true).length;
+        const enProgreso = cursos.filter(c => { const pr = prog0[c.id]; return pr && pr.isCompleted !== true && Array.isArray(pr.completedLessons) && pr.completedLessons.length > 0; }).length;
+        ZOO_SECCION.cifras({ cursos: cursos.length, clases: cursos.reduce((n, c) => n + totalClasesCurso(c), 0), enProgreso, completados });
+        window.__zooSegmento = 'todos';
+        ZOO_SECCION.segmentos((id) => { window.__zooSegmento = id; render(window.__zooFiltro || 'Todas'); });
+      }
       render();
 
       // Un solo juego de eventos para todas las tarjetas

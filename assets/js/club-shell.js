@@ -154,10 +154,17 @@
 
   completarIconos();
 
+  /* Clases en vivo en "Próximamente" (ZOO_CONFIG.clasesEnVivoPronto): el menú lo marca con una etiqueta "Pronto". */
+  function enVivoPronto() {
+    try { return typeof ZOO_CONFIG !== 'undefined' && ZOO_CONFIG.clasesEnVivoPronto === true; } catch (e) { return false; }
+  }
+
   function enlaceHTML(item, activo, clase) {
+    var pronto = item.id === 'sesiones' && enVivoPronto();
     return '<a href="' + esc(item.href) + '" class="' + (clase || '') + (item.id === activo ? ' is-active' : '') + '">' +
       '<span class="icon">' + icono(item.icon) + '</span>' + esc(item.label) +
-      (item.nuevo ? '<span class="badge badge--nuevo">Nuevo</span>' : '') + '</a>';
+      (item.nuevo ? '<span class="badge badge--nuevo">Nuevo</span>' : '') +
+      (pronto ? '<span class="badge badge--pronto">Pronto</span>' : '') + '</a>';
   }
 
   /* Menú agrupado (lo usan el menú lateral y el cajón). */
@@ -224,7 +231,7 @@
     });
     var meta = document.querySelector('meta[name="theme-color"]');
     if (!meta) { meta = document.createElement('meta'); meta.name = 'theme-color'; document.head.appendChild(meta); }
-    meta.content = oscuro ? '#0A1710' : '#F3F5F1';
+    meta.content = oscuro ? '#0F1215' : '#F3F5F1';
   }
 
   function cambiarTema() {
@@ -281,7 +288,8 @@
     var marcada = pestanaActiva(activo);
     return BARRA.map(function (t) {
       var es = t.id === marcada;
-      var etiqueta = '<span class="zs-tab__ico">' + icono(t.icon, 20) + '</span><span class="zs-tab__txt">' + esc(t.label) + '</span>';
+      var etiqueta = '<span class="zs-tab__ico">' + icono(t.icon, 20) + '</span><span class="zs-tab__txt">' + esc(t.label) + '</span>' +
+        (t.id === 'sesiones' && enVivoPronto() ? '<span class="zs-tab__pronto">Pronto</span>' : '');
       return t.id === 'mas'
         ? '<button type="button" class="zs-tab' + (es ? ' is-active' : '') + '" id="zsMas" aria-label="Más opciones" aria-haspopup="dialog">' + etiqueta + '</button>'
         : '<a class="zs-tab' + (es ? ' is-active' : '') + '" href="' + esc(t.href) + '">' + etiqueta + '</a>';

@@ -1,0 +1,229 @@
+/* ============================================================ */
+/* CLUB VIP ZOORIGEN - TARJETA DE TÍTULO DE SECCIÓN              */
+/* Componente único: píldora con ícono, título grande con la     */
+/* última parte en acento, subtítulo, cifras y acciones/         */
+/* segmentos a la derecha. Todo SÓLIDO (sin degradados).         */
+/* Día: verde de marca #1F5F3A. Noche: #16301F con borde #24472F.*/
+/* Colores y tipografía vienen de los tokens de club.css.        */
+/* ============================================================ */
+
+.zs-seccion {
+  --zs-acento: #9BD9AE;               /* verde claro de acento: 4.7:1 sobre #1F5F3A y 6:1 sobre #16301F */
+  --zs-tinta: #FFFFFF;
+  --zs-tinta-2: rgba(255, 255, 255, 0.88);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2.4vw, 26px);
+  margin: 0 0 clamp(18px, 2.4vw, 28px);
+  padding: clamp(20px, 3.4vw, 40px);
+  background: var(--zoo-hero, #1F5F3A);
+  border: 1px solid var(--zoo-hero-borde, #1F5F3A);
+  border-radius: 24px;
+  color: var(--zs-tinta);
+  font-family: var(--zoo-font-body);
+}
+[data-theme="light"] .zs-seccion { background: #1F5F3A; border-color: #1F5F3A; }
+
+.zs-seccion__cuerpo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px 28px;
+}
+.zs-seccion__texto { flex: 1 1 380px; min-width: 0; max-width: 780px; }
+
+.zs-seccion__pildora {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 7px 14px 7px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--zs-tinta);
+  font: 600 .78rem/1.2 var(--zoo-font-body);
+  letter-spacing: .02em;
+}
+.zs-seccion__pildora .zi { width: 16px; height: 16px; color: var(--zs-acento); flex: none; }
+
+.zs-seccion__titulo {
+  margin: 14px 0 0;
+  font-family: var(--zoo-font-display);
+  font-weight: 800;
+  font-size: clamp(2.125rem, 1.45rem + 2.6vw, 3.5rem);   /* ≈ 34 px en celular, 56 px en escritorio */
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--zs-tinta);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.zs-acento { color: var(--zs-acento); }
+
+.zs-seccion__sub {
+  margin: 12px 0 0;
+  max-width: 62ch;
+  font-size: clamp(.95rem, .9rem + .25vw, 1.06rem);
+  line-height: 1.55;
+  color: var(--zs-tinta-2);
+}
+
+/* Lado derecho: segmentos, botones o una nota corta */
+.zs-seccion__lado { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+/* Control segmentado: opción activa en blanco */
+.zs-segmentos {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.zs-segmentos::-webkit-scrollbar { display: none; }
+.zs-segmento {
+  flex: none;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font: 600 .88rem/1.2 var(--zoo-font-body);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.zs-segmento:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.zs-segmento[aria-pressed="true"] { background: #FFFFFF; color: #14301F; }
+.zs-segmento:focus-visible { outline: 3px solid #F7CB62; outline-offset: 1px; }
+
+/* Botón dentro de la tarjeta (sólido): blanco con texto verde, o dorado */
+.zs-seccion__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #FFFFFF;
+  color: #14301F;
+  font: 700 .92rem/1.2 var(--zoo-font-body);
+  text-decoration: none;
+  cursor: pointer;
+}
+.zs-seccion__btn:hover { background: #E9F4EC; }
+.zs-seccion__btn--oro { background: var(--zoo-amber, #E8A317); color: #1F1D17; }
+.zs-seccion__btn--oro:hover { background: var(--zoo-amber-hover, #F4B942); }
+.zs-seccion__btn:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+.zs-seccion__btn .zi { width: 18px; height: 18px; }
+
+/* Cifras */
+.zs-seccion__cifras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px clamp(22px, 4vw, 44px);
+  margin: 0;
+  padding: 18px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+.zs-cifra { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.zs-cifra__v {
+  font-family: var(--zoo-font-display);
+  font-weight: 800;
+  font-size: clamp(1.55rem, 1.2rem + 1.3vw, 2.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--zs-tinta);
+}
+.zs-cifra__r { font-size: .8125rem; line-height: 1.3; color: rgba(255, 255, 255, 0.8); }
+
+/* Fila de chips bajo la tarjeta (áreas, categorías) */
+.zs-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+.zs-chip {
+  min-height: 38px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--zoo-border-strong, #3A424C);
+  background: var(--zoo-bg-card, #171B20);
+  color: var(--zoo-text-muted, #A3ABB5);
+  font: 600 .85rem/1.2 var(--zoo-font-body);
+  cursor: pointer;
+}
+.zs-chip:hover { color: var(--zoo-text, #E7EAEE); }
+.zs-chip[aria-pressed="true"], .zs-chip.is-active { background: var(--zoo-solid, #1F5F3A); border-color: var(--zoo-solid, #1F5F3A); color: #fff; }
+[data-theme="light"] .zs-chip { background: #fff; border-color: #d0d4cb; color: #3a403d; }
+[data-theme="light"] .zs-chip[aria-pressed="true"], [data-theme="light"] .zs-chip.is-active { background: #1F5F3A; border-color: #1F5F3A; color: #fff; }
+
+/* Bloque "Próximamente" (clases en vivo): sin cuenta regresiva ni enlaces */
+.zs-pronto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: clamp(28px, 5vw, 56px) 20px;
+  text-align: center;
+  background: var(--zoo-bg-card, #171B20);
+  border: 2px dashed var(--zoo-border-strong, #3A424C);
+  border-radius: 20px;
+}
+.zs-pronto__ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--zoo-tint, #1E2329); color: var(--zoo-fill, #6FBF73);
+}
+.zs-pronto__ico .zi { width: 28px; height: 28px; }
+.zs-pronto__chip {
+  display: inline-block; padding: 5px 12px; border-radius: 999px;
+  background: var(--zoo-amber, #E8A317); color: #1F1D17;
+  font: 700 .72rem/1.2 var(--zoo-font-body); letter-spacing: .08em; text-transform: uppercase;
+}
+.zs-pronto__titulo { margin: 4px 0 0; font-family: var(--zoo-font-display); font-weight: 800; font-size: clamp(1.3rem, 1.1rem + 1vw, 1.75rem); letter-spacing: -0.015em; color: var(--zoo-text, #E7EAEE); }
+.zs-pronto__texto { margin: 0; max-width: 54ch; font-size: .98rem; line-height: 1.6; color: var(--zoo-text-muted, #A3ABB5); }
+[data-theme="light"] .zs-pronto { background: #fff; border-color: #d0d4cb; }
+[data-theme="light"] .zs-pronto__ico { background: #EAF2EC; color: #1F5F3A; }
+[data-theme="light"] .zs-pronto__titulo { color: #1a1d1b; }
+[data-theme="light"] .zs-pronto__texto { color: #5a6360; }
+
+/* Etiqueta "Pronto" del menú */
+.badge--pronto { background: transparent !important; color: var(--zoo-amber-soft, #F7CB62) !important; border: 1px solid currentColor; font-weight: 700; font-size: .62rem !important; padding: 1px 6px !important; letter-spacing: .02em; white-space: nowrap; }
+[data-theme="light"] .badge--pronto { color: #7A5200 !important; }
+
+@media (max-width: 640px) {
+  .zs-seccion { border-radius: 20px; }
+  .zs-seccion__lado, .zs-segmentos { width: 100%; }
+  .zs-segmento { flex: 1 0 auto; }
+  .zs-seccion__cifras { gap: 12px 22px; }
+}
+
+/* Mensaje cuando un filtro no deja resultados */
+.zs-vacio {
+  display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center;
+  padding: 36px 20px; border-radius: 18px;
+  background: var(--zoo-bg-card, #171B20); border: 1px dashed var(--zoo-border-strong, #3A424C);
+  color: var(--zoo-text-muted, #A3ABB5);
+}
+.zs-vacio strong { font-family: var(--zoo-font-display); font-size: 1.1rem; color: var(--zoo-text, #E7EAEE); }
+[data-theme="light"] .zs-vacio { background: #fff; border-color: #d0d4cb; color: #5a6360; }
+[data-theme="light"] .zs-vacio strong { color: #1a1d1b; }
+
+/* Etiqueta "Pronto" en la barra inferior del celular */
+.zs-tab { position: relative; }
+.zs-tab__pronto {
+  position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+  padding: 1px 5px; border-radius: 999px;
+  background: var(--zoo-amber, #E8A317); color: #1F1D17;
+  font: 700 .52rem/1.3 var(--zoo-font-body); letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
+}
+
+/* Chips de área del catálogo: en celular van en una sola fila con desplazamiento lateral */
+@media (max-width: 640px) {
+  .filter-bar { flex-wrap: nowrap; overflow-x: auto; margin-inline: -4px; padding: 2px 4px 8px; scrollbar-width: none; }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip-club { flex: none; }
+}

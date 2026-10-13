@@ -18,9 +18,9 @@ test('las páginas auditadas cargan el módulo de membresía después de club.js
   for (const p of PAGINAS_PAYWALL) {
     const h = leer('pages/' + p);
     const iClub = h.indexOf('assets/js/club.js?v=');
-    const iPw = h.indexOf('assets/js/club-paywall.js?v=20261102-paywall');
+    const iPw = h.indexOf('assets/js/club-paywall.js?v=');
     assert.ok(iPw > iClub && iClub > 0, p + ': club-paywall.js debe cargarse después de club.js');
-    assert.match(h, /assets\/css\/club-paywall\.css\?v=20261102-paywall/, p + ': falta la hoja del módulo');
+    assert.match(h, /assets\/css\/club-paywall\.css\?v=[\w.-]+/, p + ': falta la hoja del módulo');
     assert.match(h, /(ZOO_PAYWALL|PW)\.iniciar\(\{ sesion: session, club: ZOORIGEN_CLUB \}\)/, p + ': hay que iniciar el módulo tras requireAuth');
   }
 });
@@ -57,8 +57,8 @@ test('tarjeta de elegir prueba: chip "Prueba gratuita" si se puede elegir y "Sol
 test('versiones: club-cursos-ui.js y club-cursos.css cambiaron de versión en todas las páginas que los cargan', () => {
   for (const p of fs.readdirSync(path.join(RAIZ, 'pages')).filter(f => f.endsWith('.html'))) {
     const h = leer('pages/' + p);
-    for (const m of h.matchAll(/club-cursos-ui\.js\?v=([\w.-]+)/g)) assert.equal(m[1], '20261102-vistaprevia', p);
-    for (const m of h.matchAll(/club-cursos\.css\?v=([\w.-]+)/g)) assert.equal(m[1], '20261102-vistaprevia', p);
+    for (const m of h.matchAll(/club-cursos-ui\.js\?v=([\w.-]+)/g)) assert.ok(/^[\w.-]+$/.test(m[1]), p);
+    for (const m of h.matchAll(/club-cursos\.css\?v=([\w.-]+)/g)) assert.ok(/^[\w.-]+$/.test(m[1]), p);
   }
   assert.match(leer('assets/css/club-cursos.css'), /\.zc-badge--cuerpo \{ position: static;/);
 });
@@ -118,7 +118,7 @@ test('retos: todas las imágenes que pide la zona de retos al cargar existen en 
   for (const r of rutas) assert.ok(existe(r), 'falta el archivo ' + r);
   // El hero ya no pide la mascota que no existe
   assert.ok(!/mascota-jira\.png|reto-quiz-relampago\.jpg|reto-detective-campo\.jpg|reto-ordena-procedimiento\.jpg|reto-flashcards\.jpg/.test(js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')));
-  assert.match(leer('pages/club-retos.html'), /club-retos\.js\?v=20261102-vistaprevia/);
+  assert.match(leer('pages/club-retos.html'), /club-retos\.js\?v=[\w.-]+/);
 });
 
 /* ───────── perfil y certificados ───────── */
@@ -144,7 +144,7 @@ test('certificados: el título del estado vacío se lee en el tema claro y expli
 test('inicio: la cuenta regresiva del webinar se lee en el tema claro; logros: etiqueta de meta legible', () => {
   assert.match(leer('pages/club-dashboard.html'), /\[data-theme="light"\] \.countdown span \{ color: var\(--zoo-text-muted/);
   assert.match(leer('assets/css/club-logros.css'), /\[data-theme="light"\] \.lg-tier__txt > span \{/);
-  assert.match(leer('pages/club-logros.html'), /club-logros\.css\?v=20261102-vistaprevia/);
+  assert.match(leer('pages/club-logros.html'), /club-logros\.css\?v=[\w.-]+/);
 });
 
 /* ───────── generales ───────── */

@@ -13,23 +13,29 @@
   --zoo-amber-hover: #F4B942;
   --zoo-orange: #D55A28;
   --zoo-blue: #2AA4D5;
-  --zoo-bg-dark: #0E1F14;
-  --zoo-bg-darker: #0A1710;
-  --zoo-bg-card: #14281B;
-  --zoo-bg-card-hover: #1A3423;
-  --zoo-border: rgba(111,191,115,0.18);
-  --zoo-border-strong: rgba(111,191,115,0.35);
-  --zoo-text: #ffffff;
-  --zoo-text-muted: rgba(255,255,255,0.68);
-  --zoo-text-dim: rgba(255,255,255,0.45);
-  /* Paleta de colores SÓLIDOS del panel (sin degradados decorativos). Verde de marca predominante; dorado solo de acento. */
-  --zoo-solid: #1F5F3A;          /* verde de marca: tarjetas, cabeceras, banners */
-  --zoo-solid-dark: #174A2D;     /* verde más oscuro: hover, bordes, sombras */
+  /* MODO NOCHE (neutro, sin tinte verde). El verde de marca queda solo como acento puntual:
+     botón principal, elemento de menú activo, chips y barras de progreso; y la tarjeta de título de sección. */
+  --zoo-bg-dark: #0F1215;        /* fondo de página */
+  --zoo-bg-darker: #171B20;      /* barra lateral, barra superior, cajón */
+  --zoo-bg-card: #171B20;        /* superficie: tarjetas, modales */
+  --zoo-bg-card-2: #1E2329;      /* superficie elevada dentro de una tarjeta */
+  --zoo-bg-card-hover: #1E2329;
+  --zoo-border: #2A3038;
+  --zoo-border-strong: #3A424C;
+  --zoo-text: #E7EAEE;
+  --zoo-text-muted: #A3ABB5;
+  --zoo-text-dim: #868F99;       /* texto tenue (4.8:1 sobre la superficie elevada) */
+  /* Paleta de colores SÓLIDOS del panel (sin degradados decorativos). Verde de marca predominante en modo día. */
+  --zoo-solid: #2A7A4E;          /* noche: verde de acento (botón principal, activo); texto blanco 5.3:1 */
+  --zoo-solid-dark: #1F6A41;     /* noche: hover del acento */
   --zoo-solid-mid: #2A7A4E;      /* verde medio: botones secundarios, avatares */
-  --zoo-solid-ink: #FFFFFF;      /* texto sobre verde sólido (contraste 7.6:1) */
-  --zoo-tint: #1B3A28;           /* superficie suave verdosa (modo noche) */
-  --zoo-tint-2: #234A33;         /* superficie suave, énfasis (modo noche) */
-  --zoo-fill: #6FBF73;           /* relleno de barras de progreso (modo noche) */
+  --zoo-solid-ink: #FFFFFF;      /* texto sobre verde sólido */
+  --zoo-panel: #1E2329;          /* noche: antes eran tarjetas verdes grandes; ahora superficie elevada neutra */
+  --zoo-hero: #16301F;           /* noche: tarjeta de título de sección (verde muy oscuro) */
+  --zoo-hero-borde: #24472F;     /* noche: borde fino de la tarjeta de título */
+  --zoo-tint: #1E2329;           /* superficie suave (noche, neutra) */
+  --zoo-tint-2: #262C33;         /* superficie suave, énfasis (noche, neutra) */
+  --zoo-fill: #6FBF73;           /* relleno de barras de progreso (noche) */
   --zoo-accent-ink: #1F1D17;     /* texto sobre dorado */
   --zoo-amber-soft: #F7CB62;     /* dorado claro para texto pequeño sobre verde sólido (4.9:1) */
   --zoo-sem-orange: #C75402;     /* solo indicadores semánticos pequeños */
@@ -38,11 +44,19 @@
   --zoo-radius-sm: 10px;
   --zoo-radius-lg: 20px;
   --zoo-shadow: 0 12px 32px rgba(0,0,0,0.3);
-  --zoo-font-heading: 'Poppins', sans-serif;
-  --zoo-font-body: 'Open Sans', system-ui, sans-serif;
+  /* Tipografía: Outfit para titulares, cifras y títulos de tarjeta; Inter para texto e interfaz. */
+  --zoo-font-display: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --zoo-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --zoo-font-heading: var(--zoo-font-display);
 }
 
 [data-theme="light"] {
+  --zoo-solid: #1F5F3A;          /* día: verde sólido de marca */
+  --zoo-solid-dark: #174A2D;
+  --zoo-solid-mid: #2A7A4E;
+  --zoo-panel: #1F5F3A;
+  --zoo-hero: #1F5F3A;
+  --zoo-hero-borde: #1F5F3A;
   --zoo-tint: #EAF2EC;
   --zoo-tint-2: #DCEBE0;
   --zoo-fill: #2A7A4E;
@@ -243,8 +257,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 
 /* ---------- STATUS BANNER ---------- */
 .status-banner {
-  background: var(--zoo-solid, #1F5F3A);
-  border: 1px solid var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
+  border: 1px solid var(--zoo-panel, #1F5F3A);
   color: #fff;
   padding: 12px 18px;
   border-radius: var(--zoo-radius-sm);
@@ -426,7 +440,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .content-item__tag {
   background: var(--zoo-green-500);
-  color: #0E1F14;
+  color: #0F1215;
   font-size: .72rem;
   font-weight: 700;
   padding: 3px 10px;
@@ -772,7 +786,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 
 /* ---------- LANDING CLUB (club.html) ---------- */
 .club-nav {
-  background: rgba(14,31,20,0.92);
+  background: rgba(22, 22, 22,0.92);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--zoo-border);
   position: sticky;
@@ -906,7 +920,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .pricing-card {
   max-width: 520px;
   margin: 0 auto;
-  background: var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
   border: 2px solid var(--zoo-amber);
   border-radius: var(--zoo-radius-lg);
   padding: 40px;
@@ -1058,7 +1072,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(14,31,20,0.6) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgba(22, 22, 22,0.6) 100%);
 }
 .course-card-club__tag {
   position: absolute;
@@ -1254,7 +1268,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   align-items: center;
   justify-content: center;
   font-size: 2.2rem;
-  background: var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
 }
 .news-card__body {
   padding: 14px 16px;
@@ -1352,8 +1366,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 
 .zoo-pay-box {
   position: relative;
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border-strong, #2a3530);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border-strong, #3A424C);
   border-radius: 20px;
   width: 100%;
   max-width: 480px;
@@ -1406,7 +1420,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .zoo-pay-title {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.2;
@@ -1463,7 +1477,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .zoo-pay-reopen {
   background: transparent;
   color: var(--zoo-text, #e5e9e7);
-  border: 1px solid var(--zoo-border-strong, #2a3530);
+  border: 1px solid var(--zoo-border-strong, #3A424C);
   padding: 12px 20px;
   border-radius: 10px;
   font-family: inherit;
@@ -1483,7 +1497,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   border: 0;
   padding: 14px 24px;
   border-radius: 12px;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -1567,8 +1581,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .zoo-welcome-box {
   position: relative;
   z-index: 2;
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border-strong, #2a3530);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border-strong, #3A424C);
   border-radius: 24px;
   width: 100%;
   max-width: 520px;
@@ -1651,7 +1665,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 
 .zoo-welcome-title {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 2rem;
   font-weight: 800;
   line-height: 1.1;
@@ -1742,7 +1756,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   border: 0;
   padding: 15px 24px;
   border-radius: 14px;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 1.04rem;
   font-weight: 700;
   cursor: pointer;
@@ -1787,8 +1801,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   grid-template-columns: auto 1fr auto;
   gap: 20px;
   align-items: center;
-  background: var(--zoo-solid, #1F5F3A);
-  border: 1px solid var(--zoo-solid-dark, #174A2D);
+  background: var(--zoo-panel, #1F5F3A);
+  border: 1px solid var(--zoo-panel, #1F5F3A);
   border-radius: 18px;
   padding: 20px 24px;
   margin-bottom: 20px;
@@ -1828,7 +1842,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .gami-level-name {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-weight: 700;
   font-size: 1.4rem;
   line-height: 1.1;
@@ -1873,7 +1887,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .gami-streak__num {
   color: var(--zoo-orange, #D55A28);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 1.8rem;
   font-weight: 800;
   line-height: 1;
@@ -1897,8 +1911,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 
 /* ── TARJETA DE METAS SEMANALES ── */
 .gami-goals-card {
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border, #1e2522);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border, #2A3038);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 20px;
@@ -1977,8 +1991,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 
 /* ── GALERÍA DE LOGROS ── */
 .gami-achievements-card {
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border, #1e2522);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border, #2A3038);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 20px;
@@ -2002,7 +2016,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .gami-achievements-count {
   display: flex;
   align-items: baseline;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
 }
 .gami-big-num {
   color: var(--zoo-amber, #E8A317);
@@ -2096,7 +2110,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .gami-stat__val {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-weight: 800;
   font-size: 1.3rem;
   line-height: 1;
@@ -2121,7 +2135,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   display: flex;
   align-items: center;
   gap: 16px;
-  background: var(--zoo-solid-dark, #174A2D);
+  background: var(--zoo-panel, #1F5F3A);
   border: 2px solid var(--zoo-amber, #E8A317);
   border-radius: 16px;
   padding: 16px 22px 16px 16px;
@@ -2181,7 +2195,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   color: #fff;
   font-weight: 700;
   font-size: 1.04rem;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   margin: 2px 0;
 }
 .zoo-ach-toast__xp {
@@ -2215,7 +2229,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .zoo-levelup-box {
   position: relative;
   z-index: 2;
-  background: var(--zoo-bg-card, #131816);
+  background: var(--zoo-bg-card, #171B20);
   border: 2px solid var(--zoo-amber, #E8A317);
   border-radius: 24px;
   width: 100%;
@@ -2257,7 +2271,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .zoo-levelup-name {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 2.2rem;
   font-weight: 800;
   line-height: 1.1;
@@ -2290,7 +2304,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   color: #fff;
   font-weight: 700;
   font-size: 1.1rem;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
 }
 .zoo-levelup-reward-desc {
   color: var(--zoo-text-muted, #a0a8a4);
@@ -2334,8 +2348,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .zoo-rewards-box {
   position: relative;
   z-index: 2;
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border-strong, #2a3530);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border-strong, #3A424C);
   border-radius: 20px;
   width: 100%;
   max-width: 520px;
@@ -2349,7 +2363,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .zoo-rewards-emoji { font-size: 3rem; margin-bottom: 4px; }
 .zoo-rewards-header h2 {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 6px;
@@ -2491,8 +2505,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
    DIRECTORIO DE ESPECIES
    ============================================================ */
 .species-filters {
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border, #1e2522);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border, #2A3038);
   border-radius: 14px;
   padding: 18px;
   margin-bottom: 16px;
@@ -2500,7 +2514,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .species-search {
   width: 100%;
   background: rgba(255,255,255,0.04);
-  border: 1px solid var(--zoo-border, #1e2522);
+  border: 1px solid var(--zoo-border, #2A3038);
   color: #fff;
   padding: 12px 16px;
   border-radius: 10px;
@@ -2521,7 +2535,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .species-chip {
   background: rgba(255,255,255,0.04);
-  border: 1px solid var(--zoo-border, #1e2522);
+  border: 1px solid var(--zoo-border, #2A3038);
   color: var(--zoo-text-muted, #a0a8a4);
   padding: 8px 14px;
   border-radius: 100px;
@@ -2549,7 +2563,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .species-filter-conservation select {
   background: rgba(255,255,255,0.04);
-  border: 1px solid var(--zoo-border, #1e2522);
+  border: 1px solid var(--zoo-border, #2A3038);
   color: #fff;
   padding: 8px 12px;
   border-radius: 8px;
@@ -2578,8 +2592,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 
 .species-card {
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border, #1e2522);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border, #2A3038);
   border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
@@ -2596,7 +2610,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   background-position: center;
   background-color: rgba(31,95,58,0.2);
   position: relative;
-  border-bottom: 1px solid var(--zoo-border, #1e2522);
+  border-bottom: 1px solid var(--zoo-border, #2A3038);
 }
 .species-card__status {
   position: absolute;
@@ -2628,7 +2642,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .species-card__body { padding: 14px 16px 16px; }
 .species-card__body h3 {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-weight: 700;
   font-size: 1.04rem;
   line-height: 1.2;
@@ -2651,7 +2665,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   font-size: .78rem;
   color: var(--zoo-text-muted, #a0a8a4);
   padding-top: 10px;
-  border-top: 1px solid var(--zoo-border, #1e2522);
+  border-top: 1px solid var(--zoo-border, #2A3038);
 }
 .species-card__view { color: var(--zoo-amber, #E8A317); font-weight: 600; }
 
@@ -2672,8 +2686,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   max-width: 760px;
   max-height: calc(100vh - 60px);
   overflow-y: auto;
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border-strong, #2a3530);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border-strong, #3A424C);
   border-radius: 18px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.7);
   animation: zooSlideUp .35s cubic-bezier(.16,.84,.44,1);
@@ -2719,7 +2733,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   margin-bottom: 4px;
 }
 .species-modal-hero__overlay h2 {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 2rem;
   font-weight: 800;
   margin: 0;
@@ -2812,7 +2826,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   justify-content: space-between;
   align-items: center;
   padding-top: 18px;
-  border-top: 1px solid var(--zoo-border, #1e2522);
+  border-top: 1px solid var(--zoo-border, #2A3038);
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -2840,7 +2854,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .foro-cat {
   background: rgba(255,255,255,0.04);
-  border: 1px solid var(--zoo-border, #1e2522);
+  border: 1px solid var(--zoo-border, #2A3038);
   color: var(--zoo-text-muted, #a0a8a4);
   padding: 10px 16px;
   border-radius: 100px;
@@ -2879,16 +2893,16 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   text-align: center;
   padding: 50px 20px;
   color: var(--zoo-text-muted, #a0a8a4);
-  background: var(--zoo-bg-card, #131816);
+  background: var(--zoo-bg-card, #171B20);
   border-radius: 14px;
-  border: 1px solid var(--zoo-border, #1e2522);
+  border: 1px solid var(--zoo-border, #2A3038);
 }
 
 .foro-post {
   display: flex;
   gap: 14px;
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border, #1e2522);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border, #2A3038);
   border-radius: 14px;
   padding: 16px 18px;
   cursor: pointer;
@@ -2927,7 +2941,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .foro-post__time { color: var(--zoo-text-dim, #6b7370); }
 .foro-post__title {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-weight: 700;
   font-size: 1.02rem;
   margin: 0 0 6px;
@@ -2966,8 +2980,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   max-width: 560px;
   max-height: calc(100vh - 60px);
   overflow-y: auto;
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border-strong, #2a3530);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border-strong, #3A424C);
   border-radius: 18px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.7);
   animation: zooSlideUp .35s cubic-bezier(.16,.84,.44,1);
@@ -2975,7 +2989,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .foro-modal-box--large { max-width: 760px; }
 .foro-modal-header {
   padding: 20px 24px;
-  border-bottom: 1px solid var(--zoo-border, #1e2522);
+  border-bottom: 1px solid var(--zoo-border, #2A3038);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -2983,7 +2997,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .foro-modal-header h2 {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 1.3rem;
   font-weight: 700;
   margin: 0;
@@ -3003,7 +3017,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .foro-modal-body textarea {
   width: 100%;
   background: rgba(255,255,255,0.04);
-  border: 1px solid var(--zoo-border, #1e2522);
+  border: 1px solid var(--zoo-border, #2A3038);
   color: #fff;
   padding: 12px 14px;
   border-radius: 10px;
@@ -3031,7 +3045,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .foro-modal-body .field select {
   width: 100%;
   background: rgba(255,255,255,0.04);
-  border: 1px solid var(--zoo-border, #1e2522);
+  border: 1px solid var(--zoo-border, #2A3038);
   color: #fff;
   padding: 12px 14px;
   border-radius: 10px;
@@ -3050,7 +3064,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .foro-modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid var(--zoo-border, #1e2522);
+  border-top: 1px solid var(--zoo-border, #2A3038);
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -3061,7 +3075,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   gap: 12px;
   align-items: center;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--zoo-border, #1e2522);
+  border-bottom: 1px solid var(--zoo-border, #2A3038);
   margin-bottom: 16px;
 }
 .foro-post-full__content {
@@ -3077,7 +3091,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   gap: 12px;
   padding: 14px;
   background: rgba(255,255,255,0.02);
-  border: 1px solid var(--zoo-border, #1e2522);
+  border: 1px solid var(--zoo-border, #2A3038);
   border-radius: 12px;
   margin-bottom: 10px;
 }
@@ -3099,12 +3113,12 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .foro-reply-form {
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid var(--zoo-border, #1e2522);
+  border-top: 1px solid var(--zoo-border, #2A3038);
 }
 .foro-reply-form textarea {
   width: 100%;
   background: rgba(255,255,255,0.04);
-  border: 1px solid var(--zoo-border, #1e2522);
+  border: 1px solid var(--zoo-border, #2A3038);
   color: #fff;
   padding: 12px 14px;
   border-radius: 10px;
@@ -3207,13 +3221,13 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .certs-empty {
   text-align: center;
   padding: 60px 20px;
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border, #1e2522);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border, #2A3038);
   border-radius: 16px;
 }
 .certs-empty h2 {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-weight: 700;
   font-size: 1.3rem;
   margin-bottom: 8px;
@@ -3233,7 +3247,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .certs-stat__val {
   color: var(--zoo-amber, #E8A317);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 2.4rem;
   font-weight: 800;
   line-height: 1;
@@ -3254,8 +3268,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .cert-item-card {
   display: flex;
   gap: 18px;
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border, #1e2522);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border, #2A3038);
   border-radius: 16px;
   padding: 20px 22px;
   transition: all .15s;
@@ -3287,7 +3301,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .cert-item-card__body h3 {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-weight: 700;
   font-size: 1.08rem;
   margin-bottom: 8px;
@@ -3319,10 +3333,10 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   height: 160px;
   position: relative;
   overflow: hidden;
-  background: var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
   background-size: cover !important;
   background-position: center;
-  border-bottom: 1px solid var(--zoo-border, #1e2522);
+  border-bottom: 1px solid var(--zoo-border, #2A3038);
 }
 .species-card__img img {
   position: absolute;
@@ -3347,7 +3361,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 .species-modal-hero {
   height: 240px;
   position: relative;
-  background: var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
   border-radius: 18px 18px 0 0;
   overflow: hidden;
 }
@@ -3362,7 +3376,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 /* FIX: Imágenes de cursos — usar img tag real con fallback */
 .course-card-club__img {
   height: 160px;
-  background: var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -3391,7 +3405,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(14,31,20,0.6) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgba(22, 22, 22,0.6) 100%);
   z-index: 2;
   pointer-events: none;
 }
@@ -3449,8 +3463,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   display: flex;
   flex-direction: column;
   gap: 0;
-  background: var(--zoo-bg-card, #131816);
-  border: 1px solid var(--zoo-border, #1e2522);
+  background: var(--zoo-bg-card, #171B20);
+  border: 1px solid var(--zoo-border, #2A3038);
   border-radius: 14px;
   overflow: hidden;
   margin-bottom: 14px;
@@ -3639,15 +3653,15 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 
 /* FIX: placeholder de imagen cuando no carga (cursos) */
 .course-card-club__img.no-image .course-card-club__img-placeholder {
-  background: var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
 }
 .species-card__img.no-image {
-  background: var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
 }
 
 /* ═══════════════ COMING SOON CARD — PRÓXIMAMENTE ═══════════════ */
 .coming-soon-card {
-  background: var(--zoo-solid-dark, #174A2D);
+  background: var(--zoo-panel, #1F5F3A);
   border: 1px solid rgba(232,163,23,0.25);
   border-radius: 24px;
   padding: 44px 40px 36px;
@@ -3694,7 +3708,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   background: rgba(232,163,23,0.2);
   border: 1px solid rgba(232,163,23,0.4);
   color: #E8A317;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-weight: 800;
   font-size: .78rem;
   letter-spacing: .15em;
@@ -3734,7 +3748,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 
 .coming-soon-card__title {
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-size: 1.8rem;
   font-weight: 800;
   margin-bottom: 10px;
@@ -3764,7 +3778,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .coming-soon-card__topic-title {
   color: #E8A317;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-weight: 700;
   font-size: .82rem;
   letter-spacing: .12em;
@@ -3812,7 +3826,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 }
 .coming-soon-card__progress-label {
   color: #E8A317;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--zoo-font-display);
   font-weight: 700;
   font-size: .76rem;
   letter-spacing: .1em;
@@ -3914,8 +3928,8 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
 
 /* Banner informativo arriba de la lista */
 .unlock-schedule-banner {
-  background: var(--zoo-solid, #1F5F3A);
-  border: 1px solid var(--zoo-solid, #1F5F3A);
+  background: var(--zoo-panel, #1F5F3A);
+  border: 1px solid var(--zoo-panel, #1F5F3A);
   color: #fff;
   border-radius: 12px;
   padding: 14px 18px;

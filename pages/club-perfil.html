@@ -14,11 +14,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
   <style>
     .profile-edit-btn {
       background: rgba(232,163,23,0.1);
@@ -99,7 +100,7 @@
         </div>
         <div class="notif-panel__list" id="notifList">Cargando...</div>
       </div>
-      <div class="page-header"><h1><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> Mi perfil</h1><p id="profileSub">Información de tu cuenta como miembro VIP Zoorigen</p></div>
+      <div id="zsSeccion"></div>
       <div class="card">
         <div class="profile-card">
           <div class="profile-avatar" id="avatar">V</div>
@@ -140,10 +141,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-config.js?v=20261103"></script>
+  <script src="../assets/js/club-seccion.js?v=20261103"></script>
+  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionPerfil","seccion":"perfil","icono":"user","eyebrow":"Mi cuenta","titulo":"Mi perfil,","acento":"tus datos y tu plan.","sub":"Información de tu cuenta Zoorigen.","cifras":[{"clave":"estado","valor":"—","rotulo":"membresía"},{"clave":"desde","valor":"—","rotulo":"miembro desde"},{"clave":"vence","valor":"—","rotulo":"renovación"}]});</script>
+  <script src="../assets/js/club.js?v=20261103"></script>
+  <script src="../assets/js/club-shell.js?v=20261103"></script>
+  <script src="../assets/js/club-avisos.js?v=20261103"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -167,6 +172,10 @@
       document.getElementById('profileStatus').innerHTML = statusMap[session.planStatus] || '—';
       document.getElementById('profileSince').textContent = session.createdAt ? ZOORIGEN_CLUB.formatShort(session.createdAt) : '—';
       document.getElementById('profileRenew').textContent = session.planVence ? ZOORIGEN_CLUB.formatShort(session.planVence) : 'Pendiente';
+      if (window.ZOO_SECCION) {
+        const nombresPlan = { active: 'Activa', cancelled_active: 'Vigente', pending_payment: 'Gratuita', past_due: 'Pago pendiente', expired: 'Vencida' };
+        ZOO_SECCION.cifras({ estado: nombresPlan[session.planStatus] || '—', desde: session.createdAt ? ZOORIGEN_CLUB.formatShort(session.createdAt) : '—', vence: session.planVence ? ZOORIGEN_CLUB.formatShort(session.planVence) : '—' });
+      }
       document.getElementById('profileLast').textContent = session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : 'Sin pagos aún';
       if (session.planStatus === 'active') document.getElementById('vipTag').textContent = 'Membresía activa';
       else if (session.planStatus === 'cancelled_active') document.getElementById('vipTag').textContent = 'Acceso vigente hasta el fin del periodo';
@@ -176,7 +185,7 @@
 
       // Sin membresía vigente el perfil no promete un plan que la persona no tiene: lo muestra como opción.
       if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
-        document.getElementById('profileSub').textContent = 'Información de tu cuenta Zoorigen';
+        { const sp = document.getElementById('profileSub'); if (sp) sp.textContent = 'Información de tu cuenta Zoorigen'; }
         document.getElementById('profilePlan').innerHTML = 'Sin plan activo · <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;">Ver planes de membresía</a>';
         if (!session.name) document.getElementById('profileName').textContent = 'Mi cuenta';
       }

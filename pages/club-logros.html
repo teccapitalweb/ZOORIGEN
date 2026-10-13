@@ -16,25 +16,21 @@
   <meta name="theme-color" content="#1F5F3A">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261102-vistaprevia">
-  <link rel="stylesheet" href="../assets/css/club-logros.css?v=20261102-vistaprevia">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-logros.css?v=20261103">
 </head>
 <body>
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
-      <div class="club-main__header">
-        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-        <div class="club-main__greeting">
-          <h1>Mis logros</h1>
-          <p class="date">Sube de nivel, gana insignias y abre cursos antes de tiempo con tus premios</p>
-        </div>
-      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
+      <div id="zsSeccion"></div>
 
       <div id="logrosContent" aria-live="polite"></div>
     </main>
@@ -44,16 +40,20 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-progreso.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261020"></script>
-  <script src="../assets/js/club-acceso.js?v=20261028"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261102-vistaprevia"></script>
-  <script src="../assets/js/club-premios.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-logros-ui.js?v=20261022"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-config.js?v=20261103"></script>
+  <script src="../assets/js/club-seccion.js?v=20261103"></script>
+  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionLogros","seccion":"logros","icono":"trophy","eyebrow":"Mis logros","titulo":"Sube de nivel,","acento":"gana insignias y premios.","sub":"Gana XP con tus cursos, retos e invitados y abre cursos antes de tiempo con tus premios.","cifras":[{"clave":"nivel","valor":"—","rotulo":"nivel"},{"clave":"xp","valor":"—","rotulo":"XP total"},{"clave":"logros","valor":"—","rotulo":"logros ganados"},{"clave":"dias","valor":"—","rotulo":"días activos"}]});</script>
+  <script src="../assets/js/club.js?v=20261103"></script>
+  <script src="../assets/js/club-progreso.js?v=20261103"></script>
+  <script src="../assets/js/club-shell.js?v=20261103"></script>
+  <script src="../assets/js/club-avisos.js?v=20261103"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-acceso.js?v=20261103"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261103"></script>
+  <script src="../assets/js/club-premios.js?v=20261103"></script>
+  <script src="../assets/js/club-logros-ui.js?v=20261103"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -104,6 +104,7 @@
             ctx.titulosCursos = t; ctx.faltanInvitados = f;
           }
           cont.innerHTML = '<div class="lg-wrap">' + UI.paginaHTML(d, ctx) + '</div>';
+          if (window.ZOO_SECCION && d && d.membresia) ZOO_SECCION.cifras({ nivel: d.nivel && d.nivel.nombre ? d.nivel.nombre : '—', xp: UI.fmt(d.xp.total), logros: UI.fmt(d.logros.filter(l => l.ganado).length) + '/' + UI.fmt(d.logros.length), dias: UI.fmt(d.diasActivos) });
         } catch (e) {
           console.error('[logros]', e);
           cont.innerHTML = UI.errorHTML();

@@ -6,9 +6,9 @@
 /* La parte pura se prueba en Node.                               */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./club-acceso.js'));
-  else root.ZOO_INICIO = factory(root.ZOO_ACCESO);
-})(typeof self !== 'undefined' ? self : this, function (ACCESO) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./club-acceso.js'), require('./club-seccion.js'));
+  else root.ZOO_INICIO = factory(root.ZOO_ACCESO, root.ZOO_SECCION);
+})(typeof self !== 'undefined' ? self : this, function (ACCESO, SECCION) {
   'use strict';
 
   var MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -165,14 +165,24 @@
     return n === 0 ? 'hoy' : (n === 1 ? '1 día' : n + ' días');
   }
 
-  /* Tarjeta de la barra superior con el saludo: ícono, saludo con nombre, frase y fecha. */
-  function saludoHTML(nombre, ahora) {
+  /* Tarjeta de título del Inicio (el mismo componente de todos los apartados): saludo con nombre en acento,
+     frase y cifras. datos (opcional): { cursos, clases, enProgreso, completados } */
+  function saludoHTML(nombre, ahora, datos) {
     var d = ahora instanceof Date ? ahora : new Date();
     var fecha = fechaLarga(d); fecha = fecha.charAt(0).toUpperCase() + fecha.slice(1);
-    return '<section class="ih-saludo"><span class="ih-saludo__ico" aria-hidden="true">' + svg('sol', 28) + '</span>' +
-      '<div class="ih-saludo__txt"><div class="ih-eyebrow"><i></i>Tu espacio de aprendizaje</div><h1 id="greeting">' + esc(saludoHora(d.getHours())) + ', <span>' + esc(nombre) + '</span></h1>' +
-      '<p>Tu acceso a cursos, herramientas pro y la comunidad de fauna silvestre más activa de México.</p></div>' +
-      '<div class="ih-fecha"><small>Hoy</small><strong id="date">' + svg('calendario', 15) + esc(fecha) + '</strong></div></section>';
+    var x = datos || {};
+    var v = function (n) { return Number.isFinite(Number(n)) ? String(n) : '—'; };
+    return SECCION.html({
+      id: 'zsSeccionInicio', seccion: 'inicio', icono: 'house', eyebrow: 'Tu espacio de aprendizaje',
+      titulo: saludoHora(d.getHours()) + ',', acento: String(nombre || '') + '.',
+      sub: fecha + '. Tu acceso a cursos, herramientas pro y la comunidad de fauna silvestre más activa de México.',
+      cifras: [
+        { clave: 'cursos', valor: v(x.cursos), rotulo: 'cursos' },
+        { clave: 'clases', valor: v(x.clases), rotulo: 'clases' },
+        { clave: 'enProgreso', valor: v(x.enProgreso), rotulo: 'en progreso' },
+        { clave: 'completados', valor: v(x.completados), rotulo: 'completados' }
+      ]
+    });
   }
 
   /* HTML de la tarjeta principal + "Tu siguiente meta" + accesos. opciones: { ahora, pdfsAbiertos, pdfsTotal, hrefCursos } */
@@ -213,7 +223,7 @@
 
   /* ───── Columna derecha ───── */
   function vivoHTML(sesion, ahora) {
-    if (!sesion) return '<div class="ih-aside ih-aside--vivo"><div class="ih-aside__etq">Clases en vivo</div><div class="ih-aside__centro"><span class="ih-pildora">Próximamente</span><p>Estamos preparando los webinars con especialistas.</p></div></div>';
+    if (!sesion) return '<div class="ih-aside ih-aside--vivo"><div class="ih-aside__etq">Clases en vivo</div><div class="ih-aside__centro"><span class="ih-pildora">Próximamente</span><p>Estamos preparando las clases en vivo con especialistas.</p></div></div>';
     var fecha = String(sesion.date || '');
     return '<div class="ih-aside ih-aside--vivo"><div class="ih-aside__etq">Próximo webinar</div><h3>' + esc(sesion.title || 'Webinar') + '</h3>' +
       '<p>' + esc([sesion.speaker, fecha, sesion.time || '19:00'].filter(Boolean).join(' · ')) + '</p><div class="countdown" id="countdown"></div><a class="ih-btn-verde" href="club-sesiones.html">Ver webinar →</a></div>';

@@ -110,6 +110,12 @@
     return d && !isNaN(d.getTime()) ? d : null;
   }
 
+  /* Clases en vivo en "Próximamente" (ZOO_CONFIG.clasesEnVivoPronto): los textos no prometen webinars con fecha. */
+  function enVivoPronto(o) {
+    if (o && o.enVivoPronto !== undefined) return !!o.enVivoPronto;
+    try { return typeof ZOO_CONFIG !== 'undefined' && ZOO_CONFIG.clasesEnVivoPronto === true; } catch (e) { return false; }
+  }
+
   function esAdmin(session) { return !!session && session.role === 'admin'; }
 
   function tienePlanActivo(session) {
@@ -435,34 +441,61 @@
     lista.push(
       { tipo: 'beneficio', icono: 'graduation-cap', color: 'azul', titulo: 'Cursos de especialistas', texto: 'Fauna silvestre, apicultura, etología y más, con clases hechas por quienes trabajan en el campo.' },
       { tipo: 'beneficio', icono: 'award', color: 'verde', titulo: 'Certificados con folio verificable', texto: 'Al terminar un curso obtienes un certificado con un folio que cualquiera puede verificar.' },
-      { tipo: 'beneficio', icono: 'radio', color: 'azul', titulo: 'Comunidad y sesiones en vivo', texto: 'Webinars con especialistas y una comunidad que comparte tu pasión por la fauna.' }
+      enVivoPronto(o)
+        ? { tipo: 'beneficio', icono: 'radio', color: 'azul', titulo: 'Comunidad y clases en vivo', texto: 'Una comunidad que comparte tu pasión por la fauna y, muy pronto, clases en vivo con especialistas.' }
+        : { tipo: 'beneficio', icono: 'radio', color: 'azul', titulo: 'Comunidad y sesiones en vivo', texto: 'Webinars con especialistas y una comunidad que comparte tu pasión por la fauna.' }
     );
     return lista;
   }
 
-  // Pasos del recorrido sobre el menú lateral REAL de club.js (renderSidebar) y la cabecera del panel.
+  // Pasos del recorrido sobre el menú lateral REAL de club.js (renderSidebar) y la barra superior del panel.
+  // El texto cambia según quién mira: quien está en su prueba gratuita ve qué puede hacer hoy y qué abre la membresía;
+  // el miembro ve qué tiene a su alcance. o: { planActivo, enVivoPronto }
   function pasosTour(o) {
     o = o || {};
     var activo = !!o.planActivo;
+    var pronto = enVivoPronto(o);
     function enlace(archivo) {
-      return ['#sidebar a[href="' + archivo + '"]', '.club-sidebar a[href$="' + archivo + '"]'];
+      return ['#sidebar a[href="' + archivo + '"]', '.club-sidebar a[href$="' + archivo + '"]', '.zs-drawer a[href$="' + archivo + '"]'];
     }
     return [
       { id: 'biblioteca', selectores: enlace('club-biblioteca.html'), menu: true,
-        titulo: 'Tus cursos', texto: 'Aquí empiezas a aprender. Cada clase trae video, preguntas y un juego al final para repasar.' },
+        titulo: 'Tus cursos',
+        texto: activo
+          ? 'Aquí están todos tus cursos. Se abren de forma escalonada y cada clase trae video, preguntas y un juego al final para repasar.'
+          : 'Aquí empiezas: elige un curso como prueba gratuita y aprende con video, preguntas y un juego al final de cada clase. Con la membresía se abren todos.' },
+      { id: 'retos', selectores: enlace('club-retos.html'), menu: true,
+        titulo: 'Retos',
+        texto: activo
+          ? 'Practica con retos cortos, gana XP y abre libros. Cada reto superado suma a tu nivel.'
+          : 'Puedes ver cómo son los retos y tu nivel. Para jugar y ganar XP necesitas la membresía.' },
+      { id: 'pdfs', selectores: enlace('club-pdfs.html'), menu: true,
+        titulo: 'PDFs y materiales',
+        texto: activo
+          ? 'Libros que se abren con tus retos, guías y plantillas. Ábrelos, descárgalos y guárdalos.'
+          : 'Mira todo el catálogo de libros, guías y plantillas. Con la membresía los abres, los descargas y los guardas.' },
       { id: 'sesiones', selectores: enlace('club-sesiones.html'), menu: true,
-        titulo: 'Webinars en vivo', texto: 'Consulta las fechas de las próximas sesiones en vivo con especialistas.' },
-      { id: 'certificados', selectores: enlace('club-certificados.html'), menu: true,
-        titulo: 'Mis certificados', texto: 'Al terminar un curso, tu certificado aparece aquí con un folio que cualquiera puede verificar.' },
-      { id: 'logros', selectores: enlace('club-logros.html'), menu: true,
-        titulo: 'Mis logros', texto: 'Gana logros y recompensas conforme avanzas en tus cursos.' },
+        titulo: pronto ? 'Clases en vivo, muy pronto' : 'Webinars en vivo',
+        texto: pronto
+          ? 'Estamos preparando las clases en vivo con especialistas. Cuando estén listas, aquí verás las fechas.'
+          : 'Consulta las fechas de las próximas sesiones en vivo con especialistas.' },
+      { id: 'herramientas', selectores: enlace('club-herramientas.html'), menu: true,
+        titulo: 'Herramientas pro',
+        texto: activo
+          ? 'Calculadoras clínicas, infusiones, herramientas legales y libro de registro para tu trabajo con fauna. Úsalas cuando quieras.'
+          : 'Calculadoras clínicas, infusiones, herramientas legales y libro de registro. Puedes explorarlas; calcular y guardar se abre con la membresía.' },
       { id: 'foro', selectores: enlace('club-foro.html'), menu: true,
-        titulo: 'Foro VIP', texto: 'La comunidad donde se comparten dudas y experiencias. Se abre con la membresía.' },
-      { id: 'perfil', selectores: enlace('club-perfil.html'), menu: true,
-        titulo: 'Mi perfil', texto: 'Revisa y actualiza tus datos personales.' },
+        titulo: 'Foro y comunidad',
+        texto: activo
+          ? 'Pregunta, comparte casos y conoce colegas en el foro y el directorio de la comunidad.'
+          : 'El foro y el directorio de la comunidad se ven completos; participar se abre con la membresía.' },
+      { id: 'certificados', selectores: enlace('club-certificados.html'), menu: true,
+        titulo: 'Mis certificados',
+        texto: 'Al terminar un curso, tu certificado aparece aquí con un folio que cualquiera puede verificar.' },
       { id: 'suscripcion', selectores: enlace('club-suscripcion.html'), menu: true,
-        titulo: 'Suscripción', texto: activo ? 'Aquí consultas el estado de tu plan y tus fechas.' : 'Aquí ves tu plan y puedes activar la membresía cuando quieras.' },
-      { id: 'repetir', selectores: ['[data-tour-restart]'], menu: false,
+        titulo: 'Suscripción',
+        texto: activo ? 'Aquí consultas el estado de tu plan y tus fechas.' : 'Aquí ves tu plan y puedes activar la membresía cuando quieras.' },
+      { id: 'repetir', selectores: ['#zsHelp', '#zsAyudaCajon', '[data-tour-restart]'], menu: false,
         titulo: 'Repite esta guía', texto: 'Cuando quieras volver a ver este recorrido, toca este botón.' }
     ];
   }
@@ -552,7 +585,7 @@
     '[role="dialog"],[aria-modal="true"],.course-detail-modal,#zoo-pay-waiting';
   function hayModalAjeno() {
     return Array.prototype.some.call(document.querySelectorAll(SELECTOR_AJENO), function (el) {
-      return !el.closest('.zob,.zob-tour') && visible(el);
+      return !el.closest('.zob,.zob-tour,.zs-drawer') && visible(el);
     });
   }
 
@@ -954,6 +987,21 @@
 
   ZooTour.prototype.fijarMenu = function (abrir) {
     if (!this.esMovil()) return Promise.resolve();
+    var cajon = document.getElementById('zsDrawer');
+    if (cajon) {
+      var abiertoCajon = cajon.classList.contains('is-open');
+      if (abrir && !abiertoCajon) {
+        var mas = document.getElementById('zsMas');
+        if (mas) mas.click();
+        return pausa(reducirMovimiento() ? 60 : 380);
+      }
+      if (!abrir && abiertoCajon) {
+        var cerrar = document.getElementById('zsCerrarCajon');
+        if (cerrar) cerrar.click();
+        return pausa(reducirMovimiento() ? 40 : 260);
+      }
+      return Promise.resolve();
+    }
     var barra = document.getElementById('sidebar');
     if (!barra) return Promise.resolve();
     var abierto = barra.classList.contains('is-open');
@@ -1030,7 +1078,14 @@
       if (i < 0 || i >= self.pasos.length) return Promise.resolve({ i: i, ancla: null });
       return self.fijarMenu(!!self.pasos[i].menu).then(function () {
         var ancla = self.buscarAncla(self.pasos[i]);
-        return ancla ? { i: i, ancla: ancla } : buscar(i + direccion);
+        if (ancla) return { i: i, ancla: ancla };
+        if (!self.pasos[i].menu && self.esMovil() && document.getElementById('zsDrawer')) {
+          return self.fijarMenu(true).then(function () {
+            var otra = self.buscarAncla(self.pasos[i]);
+            return otra ? { i: i, ancla: otra } : buscar(i + direccion);
+          });
+        }
+        return buscar(i + direccion);
       });
     }
     return buscar(indice).then(function (r) {
@@ -1134,7 +1189,7 @@
 
   function correrRecorrido(ctx) {
     if (estado.tourActivo && estado.tourActivo.activo) return Promise.resolve({ como: 'en-curso' });
-    var tour = new ZooTour({ pasos: pasosTour({ planActivo: tienePlanActivo(ctx.session) }), puntoMovil: 900 });
+    var tour = new ZooTour({ pasos: pasosTour({ planActivo: tienePlanActivo(ctx.session) }), puntoMovil: 980 });
     estado.tourActivo = tour;
     return tour.iniciar();
   }
@@ -1190,7 +1245,22 @@
 
   // iniciar({ session, uid, estadoPrueba, db, welcome, ... })
   //   estadoPrueba: objeto del servidor, promesa, función, o undefined (entonces lo pide solo).
+  function colaDe(o) {
+    if (o && o.cola !== undefined) return o.cola;
+    return (typeof window !== 'undefined' && window.ZOO_COLA && typeof window.ZOO_COLA.encolar === 'function') ? window.ZOO_COLA : null;
+  }
+
+  // iniciar() retiene la cola única mientras decide qué mostrará (así un aviso de menor prioridad no se adelanta)
+  // y la libera en cuanto sus pantallas quedan encoladas, o si no hay nada que mostrar.
   function iniciar(o) {
+    o = o || {};
+    var cola = colaDe(o);
+    if (cola) { try { cola.retener('onboarding', 15000); } catch (e) { /* sin cola */ } }
+    function soltar() { if (cola) { try { cola.liberar('onboarding'); } catch (e) { /* sin cola */ } } }
+    return iniciarInterno(o, cola, soltar).then(function (r) { soltar(); return r; }, function (e) { soltar(); throw e; });
+  }
+
+  function iniciarInterno(o, cola, soltar) {
     o = o || {};
     var session = o.session;
     if (!session || esAdmin(session)) return Promise.resolve({ tipo: session ? 'admin' : 'ninguno', pasos: [], resultados: [] });
@@ -1268,6 +1338,18 @@
             return mostrarTarjetaPrueba(ctx, 'retorno').then(function (r) { return almacen.marcar('retornoVisto').then(function () { return r; }); });
           }
         };
+        if (cola) {
+          // Cola única: cada pantalla entra con su prioridad (bienvenida, nombre, premio, recorrido, prueba) y se muestra
+          // sola, una a la vez, sin encimarse con avisos del equipo ni con el aviso de webinar.
+          var TIPO = { bienvenida: 'bienvenida', nombre: 'nombre', premio: 'premio', tour: 'recorrido', prueba: 'prueba', retorno: 'prueba' };
+          var tareas = plan.pasos.map(function (id) {
+            return cola.encolar({ id: 'onb-' + id, tipo: TIPO[id] || 'otro', grupo: 'onboarding', mostrar: function () { return mostrar[id](); } });
+          });
+          soltar();
+          return Promise.all(tareas).then(function (rs) {
+            return { tipo: plan.tipo, pasos: plan.pasos, resultados: rs.map(function (r, i) { return { id: plan.pasos[i], estado: r.estado === 'mostrado' ? 'hecho' : r.estado, resultado: r.resultado }; }) };
+          });
+        }
         return pausa(inicioMs).then(function () { return esperarAvisosVip(session, uid, ls); }).then(function () {
           return ejecutarSecuencia(plan.pasos, mostrar, {
             esperarLibre: function () { return esperarLibre(o.esperaMaxMs); },
@@ -1281,9 +1363,14 @@
     });
   }
 
-  function repetirRecorrido() {
-    if (!estado.contexto) return Promise.resolve({ como: 'sin-contexto' });
-    return correrRecorrido(estado.contexto);
+  function repetirRecorrido(session) {
+    var ctx = estado.contexto;
+    if (!ctx) {
+      var s = session || (typeof window !== 'undefined' ? window.__zooSession : null);
+      if (!s) return Promise.resolve({ como: 'sin-contexto' });
+      ctx = { session: s };
+    }
+    return correrRecorrido(ctx);
   }
 
   return {

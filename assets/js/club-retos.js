@@ -433,6 +433,7 @@
       const r = resumenNivel(estado);
       const nota = r.maximo ? 'Llegaste al nivel más alto. Felicidades.'
         : 'Te faltan ' + fmt(r.faltan) + ' XP para ser ' + r.siguiente + '. Cada reto superado suma.';
+      if (typeof window !== 'undefined' && window.ZOO_SECCION) window.ZOO_SECCION.cifras({ nivel: r.nombre, xp: fmt(r.xp), superados: fmt(estado.superados || 0) });
       q('rzHero').innerHTML =
         '<section class="rz-hero" aria-labelledby="rzNivelTitulo">' +
           '<div class="rz-hero__insignia" aria-hidden="true">' + ic('crown', 30) + '<b>' + r.id + '</b></div>' +

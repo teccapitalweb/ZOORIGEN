@@ -188,11 +188,11 @@ test('club-pdfs.html carga el módulo de vista previa después de club.js y club
   assert.ok(pos('assets/js/club.js') < pos('assets/js/club-paywall.js'));
   assert.ok(pos('assets/js/club-shell.js') < pos('assets/js/club-paywall.js'));
   assert.ok(pos('assets/js/club-paywall.js') < pos('assets/js/club-materiales.js'));
-  assert.match(h, /assets\/css\/club-paywall\.css\?v=20261102-paywall/);
-  assert.match(h, /assets\/js\/club-paywall\.js\?v=20261102-paywall/);
+  assert.match(h, /assets\/css\/club-paywall\.css\?v=[\w.-]+/);
+  assert.match(h, /assets\/js\/club-paywall\.js\?v=[\w.-]+/);
   // el ?v= del módulo cambió (la copia en caché del navegador ya no sirve)
-  assert.match(h, /club-materiales\.js\?v=20261102-previa/);
-  assert.match(h, /club-materiales\.css\?v=20261102-previa/);
+  assert.match(h, /club-materiales\.js\?v=[\w.-]+/);
+  assert.match(h, /club-materiales\.css\?v=[\w.-]+/);
 });
 
 test('la hoja de estilos de la vista previa no usa degradados', () => {

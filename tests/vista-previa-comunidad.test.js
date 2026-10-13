@@ -31,9 +31,9 @@ function cuerpoDe(html, nombre) {
 
 test('foro: carga el módulo compartido de membresía, el de la vista previa y sus estilos con ?v=', () => {
   const html = leer('pages/club-foro.html');
-  assert.match(html, /assets\/css\/club-paywall\.css\?v=\d{8}-\w+/);
-  assert.match(html, /assets\/js\/club-paywall\.js\?v=\d{8}-\w+/);
-  assert.match(html, /assets\/js\/club-foro-previa\.js\?v=\d{8}-\w+/);
+  assert.match(html, /assets\/css\/club-paywall\.css\?v=[\w.-]+/);
+  assert.match(html, /assets\/js\/club-paywall\.js\?v=[\w.-]+/);
+  assert.match(html, /assets\/js\/club-foro-previa\.js\?v=[\w.-]+/);
   // el módulo compartido va después de club.js y club-shell.js
   assert.ok(html.indexOf('club-paywall.js') > html.indexOf('club-shell.js'));
   assert.ok(html.indexOf('club-paywall.js') > html.indexOf('assets/js/club.js'));
@@ -83,7 +83,7 @@ test('foro: la vista previa pide membresía en acciones, filtros y caja de escri
   assert.match(c, /requiereMembresia\(P\.nombreAccion\(t\.dataset\.accion\)\)/);
   assert.match(c, /avisoVistaPreviaHTML/);
   // las cifras reales no se muestran (ni ceros) a quien no es miembro
-  assert.match(c, /\.foro-hero__stats[\s\S]*style\.display = 'none'/);
+  assert.match(c, /\.zs-seccion__cifras[\s\S]*style\.display = 'none'/);
 });
 
 test('foro: miembros conservan los filtros y la carga de siempre (solo se enganchan si es miembro)', () => {
@@ -210,8 +210,8 @@ test('directorio: la vista previa difumina la grilla (aria-hidden), trae la caja
 
 test('directorio: la página deja ver buscador y sectores, en solo lectura, y todo toque pide membresía', () => {
   const html = leer('pages/club-directorio.html');
-  assert.match(html, /assets\/css\/club-paywall\.css\?v=\d{8}-\w+/);
-  assert.match(html, /assets\/js\/club-paywall\.js\?v=\d{8}-\w+/);
+  assert.match(html, /assets\/css\/club-paywall\.css\?v=[\w.-]+/);
+  assert.match(html, /assets\/js\/club-paywall\.js\?v=[\w.-]+/);
   assert.ok(html.indexOf('club-paywall.js') > html.indexOf('club-shell.js'));
   assert.match(html, /ZOO_PAYWALL\.iniciar\(\{ sesion: session, club: ZOORIGEN_CLUB \}\)/);
   // ya no se ocultan buscador ni sectores a quien no es miembro

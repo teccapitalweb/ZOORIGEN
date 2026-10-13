@@ -304,7 +304,7 @@
 .zp-fila__txt span { display: inline-flex; align-items: center; gap: 5px; color: var(--zoo-text-dim, rgba(255,255,255,.6)); font-size: .76rem; line-height: 1.35; }
 .zp-abrir { flex: none; padding: 9px 16px; }
 [data-theme="light"] .zp .zc-btn:not(.zc-btn--main) { border-color: #c4cabf; }
-[data-theme="light"] .zp .zc-modal { border-color: #d0d4cb; box-shadow: 0 30px 80px rgba(20, 30, 20, .28); }
+[data-theme="light"] .zp .zc-modal { border-color: #d0d4cb; box-shadow: 0 30px 80px rgba(23, 23, 23, .28); }
 @media (max-width: 480px) { .zp-fila { flex-direction: column; align-items: stretch; } .zp-abrir { width: 100%; } }
 `;
   function inyectarEstilos() {

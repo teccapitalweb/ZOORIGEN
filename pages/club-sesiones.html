@@ -14,16 +14,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261103">
   <style>
     .webinar-hero {
       position: relative;
-      background: var(--zoo-solid, #1F5F3A);
+      background: var(--zoo-panel, #1F5F3A);
       border-radius: 20px;
       padding: 36px 32px;
       overflow: hidden;
@@ -71,7 +72,7 @@
       50% { opacity: 0.4; transform: scale(1.4); }
     }
     .webinar-hero__title {
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-size: 2rem; font-weight: 800; color: #fff;
       line-height: 1.15; margin: 0 0 10px;
       text-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -104,7 +105,7 @@
       backdrop-filter: blur(10px);
     }
     .webinar-countdown__num {
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-size: 2rem; font-weight: 800; color: #E8A317;
       line-height: 1; display: block;
     }
@@ -119,7 +120,7 @@
       display: inline-flex; align-items: center; gap: 10px;
       background: #ffffff; color: #1a73e8;
       border: 0; padding: 14px 26px; border-radius: 12px;
-      font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1rem;
+      font-family: var(--zoo-font-display); font-weight: 700; font-size: 1rem;
       cursor: pointer; text-decoration: none;
       box-shadow: 0 8px 20px rgba(0,0,0,0.25);
       transition: all .2s;
@@ -137,7 +138,7 @@
 
     .section-title-webinars {
       display: flex; align-items: center; gap: 10px;
-      color: var(--zoo-text); font-family: 'Poppins', sans-serif;
+      color: var(--zoo-text); font-family: var(--zoo-font-display);
       font-size: 1.1rem; font-weight: 700;
       margin: 30px 0 16px;
     }
@@ -172,7 +173,7 @@
       text-align: center; min-width: 80px;
     }
     .webinar-card__date-day {
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--zoo-font-display);
       font-size: 1.8rem; font-weight: 800;
       color: var(--zoo-solid-mid, #2A7A4E); line-height: 1;
     }
@@ -185,7 +186,7 @@
     }
     .webinar-card__body { flex: 1; min-width: 0; }
     .webinar-card__title {
-      color: var(--zoo-text); font-family: 'Poppins', sans-serif;
+      color: var(--zoo-text); font-family: var(--zoo-font-display);
       font-size: 1.02rem; font-weight: 700;
       margin: 0 0 4px; line-height: 1.3;
     }
@@ -234,7 +235,7 @@
       50% { transform: translateY(-8px); }
     }
     .webinars-empty__title {
-      color: var(--zoo-text); font-family: 'Poppins', sans-serif;
+      color: var(--zoo-text); font-family: var(--zoo-font-display);
       font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;
     }
     .webinars-empty__text {
@@ -264,10 +265,7 @@
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
       <button class="mobile-menu-btn mobile-menu-btn--float" id="mobileMenuBtn" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
-      <div class="page-header">
-        <h1><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg> Webinars en vivo</h1>
-        <p>Masterclasses exclusivas con especialistas invitados · Transmitidas por Google Meet</p>
-      </div>
+      <div id="zsSeccion"></div>
       <div id="lockedNotice"></div>
       <div id="nextSession">Cargando...</div>
       <div id="sessionsWrap"></div>
@@ -277,11 +275,28 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
-  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-config.js?v=20261103"></script>
+  <script src="../assets/js/club-seccion.js?v=20261103"></script>
+  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script>
+    (function () {
+      var pronto = !!(window.ZOO_CONFIG && ZOO_CONFIG.clasesEnVivoPronto);
+      ZOO_SECCION.montar('#zsSeccion', pronto ? {
+        id: 'zsSeccionSesiones', seccion: 'sesiones', icono: 'radio', eyebrow: 'Webinars en vivo', titulo: 'Clases en vivo,', acento: 'con especialistas.',
+        sub: "Estamos preparando las transmisiones en vivo con especialistas de fauna silvestre. Muy pronto podrás conectarte desde aquí.",
+        cifras: [{ clave: 'proximos', valor: 'Pronto', rotulo: 'próximo webinar' }, { clave: 'clases', valor: 'Pronto', rotulo: 'clases en vivo' }]
+      } : {
+        id: 'zsSeccionSesiones', seccion: 'sesiones', icono: 'radio', eyebrow: 'Webinars en vivo', titulo: 'Masterclasses en vivo,', acento: 'con especialistas.',
+        sub: 'Masterclasses exclusivas con especialistas invitados, transmitidas por Google Meet.',
+        cifras: [{ clave: 'proximos', valor: '—', rotulo: 'webinars próximos' }]
+      });
+    })();
+  </script>
+  <script src="../assets/js/club.js?v=20261103"></script>
+  <script src="../assets/js/club-paywall.js?v=20261103"></script>
+  <script src="../assets/js/club-shell.js?v=20261103"></script>
+  <script src="../assets/js/club-avisos.js?v=20261103"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -292,11 +307,22 @@
       const PW = window.ZOO_PAYWALL;
       if (PW) PW.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
 
+      // Clases en vivo = PRÓXIMAMENTE (interruptor único: ZOO_CONFIG.clasesEnVivoPronto en club-config.js).
+      // No se consultan webinars, no hay cuenta regresiva ni enlaces. La lógica de abajo queda intacta para activarla después.
+      if (window.ZOO_CONFIG && ZOO_CONFIG.clasesEnVivoPronto) {
+        document.getElementById('nextSession').innerHTML = ZOO_SECCION.prontoHTML({
+          icono: 'radio', titulo: 'Muy pronto tendrás clases en vivo',
+          texto: 'Estamos preparando las transmisiones con especialistas en fauna silvestre. Cuando estén listas, aparecerán aquí.'
+        });
+        return;
+      }
+
       if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
         document.getElementById('lockedNotice').innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></span>Activa tu membresía para recibir el link de Google Meet. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Activar →</a></div>`;
       }
 
       const sesiones = await ZOORIGEN_CLUB.getSesiones();
+      if (window.ZOO_SECCION) ZOO_SECCION.cifras({ proximos: (sesiones || []).length });
       const isActive = ZOORIGEN_CLUB.hasActiveMembership(session);
       const nextBox = document.getElementById('nextSession');
       const listWrap = document.getElementById('sessionsWrap');

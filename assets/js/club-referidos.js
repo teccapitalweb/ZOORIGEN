@@ -66,7 +66,7 @@
   function enlaceLocal(codigo) { return URL_REGISTRO + '?ref=' + encodeURIComponent(codigo); }
 
   function textoInvitacion(enlace) {
-    return 'Te invito al Club VIP Zoorigen: cursos de fauna silvestre, retos, webinars en vivo y certificados. Regístrate con mi enlace: ' + enlace;
+    return 'Te invito al Club VIP Zoorigen: cursos de fauna silvestre, retos y certificados. Regístrate con mi enlace: ' + enlace;
   }
   function enlacesCompartir(enlace) {
     var msg = textoInvitacion(enlace);

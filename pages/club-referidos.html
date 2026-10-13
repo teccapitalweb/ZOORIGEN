@@ -14,12 +14,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261102-vistaprevia">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261103">
 </head>
 <body>
   <div class="club-layout">
@@ -27,10 +28,7 @@
     <main class="club-main">
       <button class="mobile-menu-btn mobile-menu-btn--float" id="mobileMenuBtn" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
       <div class="zc-wrap">
-        <div class="page-header">
-          <h1>Invita a tus amigos</h1>
-          <p>Comparte tu enlace. Cuando tus amigos se unan y confirmen su correo, tú ganas cursos antes de tiempo y puntos para tu nivel.</p>
-        </div>
+        <div id="zsSeccion"></div>
 
         <!-- Tu enlace -->
         <section class="zc-card" aria-labelledby="zcEnlaceTitulo">
@@ -67,14 +65,18 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-progreso.js?v=20261031-cert"></script>
-  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
-  <script src="../assets/js/club-iconos-comunidad.js?v=20261016"></script>
-  <script src="../assets/js/club-referidos.js?v=20261022"></script>
-  <script src="../assets/js/club-premios.js?v=20261101-solidos"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-config.js?v=20261103"></script>
+  <script src="../assets/js/club-seccion.js?v=20261103"></script>
+  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionReferidos","seccion":"referidos","icono":"gift","eyebrow":"Invitar amigos","titulo":"Invita a tus amigos,","acento":"gana cursos antes.","sub":"Comparte tu enlace. Cuando tus amigos se unan y confirmen su correo, tú ganas cursos antes de tiempo y puntos para tu nivel.","cifras":[{"clave":"validos","valor":"—","rotulo":"invitados válidos"},{"clave":"pendientes","valor":"—","rotulo":"por confirmar"},{"clave":"puntos","valor":"—","rotulo":"puntos ganados"}]});</script>
+  <script src="../assets/js/club.js?v=20261103"></script>
+  <script src="../assets/js/club-progreso.js?v=20261103"></script>
+  <script src="../assets/js/club-shell.js?v=20261103"></script>
+  <script src="../assets/js/club-avisos.js?v=20261103"></script>
+  <script src="../assets/js/club-iconos-comunidad.js?v=20261103"></script>
+  <script src="../assets/js/club-referidos.js?v=20261103"></script>
+  <script src="../assets/js/club-premios.js?v=20261103"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -134,6 +136,7 @@
 
       function pintar(est) {
         ponerEnlace(est.codigo, est.enlace);
+        if (window.ZOO_SECCION) ZOO_SECCION.cifras({ validos: est.validos, pendientes: est.pendientes, puntos: est.puntosTotales });
         const listo = R.hayPremioDisponible(est);
         panel.innerHTML = `
           <section class="zc-card" aria-labelledby="zcPremiosTitulo">

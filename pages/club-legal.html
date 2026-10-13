@@ -16,15 +16,16 @@
 <meta name="theme-color" content="#1F5F3A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20261101-solidos">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261101-solidos">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261101-solidos">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261102-paywall">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261103">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261103">
 <style>
   .legal-hero {
-    background: var(--zoo-solid, #1F5F3A);
+    background: var(--zoo-panel, #1F5F3A);
     border-radius: 18px; padding: 26px 30px; margin-bottom: 20px;
     color: #fff; position: relative; overflow: hidden;
   }
@@ -43,7 +44,7 @@
     margin-bottom: 10px; position: relative; z-index: 2;
   }
   .legal-hero h1 {
-    font-family: 'Poppins'; font-size: 1.8rem; font-weight: 800;
+    font-family: var(--zoo-font-display); font-size: 1.8rem; font-weight: 800;
     margin: 0 0 6px; position: relative; z-index: 2;
   }
   .legal-hero p {
@@ -57,7 +58,7 @@
   }
   .legal-hero__stat { display: flex; align-items: baseline; gap: 6px; }
   .legal-hero__stat-num {
-    font-family: 'Poppins'; font-weight: 800;
+    font-family: var(--zoo-font-display); font-weight: 800;
     font-size: 1.2rem; color: #E8A317;
   }
   .legal-hero__stat-lbl { font-size: .78rem; color: rgba(255,255,255,0.8); }
@@ -71,8 +72,8 @@
   .legal-tabs::-webkit-scrollbar-thumb { background: rgba(232,163,23,0.3); border-radius: 2px; }
   .legal-tab {
     flex-shrink: 0;
-    background: var(--zoo-bg-card, #131816);
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    background: var(--zoo-bg-card, #171B20);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text-muted, #a0a8a4);
     padding: 10px 14px; border-radius: 10px;
     cursor: pointer;
@@ -92,8 +93,8 @@
 
   .legal-panel {
     display: none;
-    background: var(--zoo-bg-card, #131816);
-    border: 1px solid var(--zoo-border, #1e2522);
+    background: var(--zoo-bg-card, #171B20);
+    border: 1px solid var(--zoo-border, #2A3038);
     border-radius: 14px; padding: 24px;
     animation: legalFadeIn .25s ease-out;
   }
@@ -106,7 +107,7 @@
   .legal-header {
     display: flex; gap: 14px; align-items: center;
     margin-bottom: 18px; padding-bottom: 16px;
-    border-bottom: 1px solid var(--zoo-border, #1e2522);
+    border-bottom: 1px solid var(--zoo-border, #2A3038);
   }
   .legal-header__icon {
     width: 54px; height: 54px;
@@ -116,7 +117,7 @@
     font-size: 1.6rem;
   }
   .legal-header__text h2 {
-    font-family: 'Poppins'; font-size: 1.25rem;
+    font-family: var(--zoo-font-display); font-size: 1.25rem;
     color: var(--zoo-text, #fff); margin: 0 0 3px;
   }
   .legal-header__text p {
@@ -139,7 +140,7 @@
   }
   .legal-field input, .legal-field select, .legal-field textarea {
     background: rgba(255,255,255,0.04) !important;
-    border: 1px solid var(--zoo-border-strong, #2a3530) !important;
+    border: 1px solid var(--zoo-border-strong, #3A424C) !important;
     color: var(--zoo-text, #fff) !important;
     padding: 11px 13px; border-radius: 10px;
     font-family: inherit; font-size: .95rem;
@@ -159,7 +160,7 @@
   .legal-field input:focus, .legal-field select:focus, .legal-field textarea:focus {
     outline: 0; border-color: #E8A317 !important;
   }
-  .legal-field select option { background: #131816; color: #fff; }
+  .legal-field select option { background: #171B20; color: #fff; }
   [data-theme="light"] .legal-field select option { background: #fff; color: #1a1d1b; }
 
   .legal-grid2 {
@@ -172,7 +173,7 @@
     background: var(--zoo-amber, #E8A317);
     color: #1f1d17; border: 0;
     padding: 12px 22px; border-radius: 10px;
-    font-family: 'Poppins'; font-weight: 700;
+    font-family: var(--zoo-font-display); font-weight: 700;
     cursor: pointer; font-size: .95rem;
   }
   .legal-btn-primary:hover {
@@ -181,7 +182,7 @@
   }
   .legal-btn-secondary {
     background: transparent;
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text-muted, #a0a8a4);
     padding: 12px 18px; border-radius: 10px;
     font-family: inherit; font-weight: 600; cursor: pointer;
@@ -192,7 +193,7 @@
   .nom-search-wrap input {
     width: 100%;
     background: rgba(255,255,255,0.04);
-    border: 2px solid var(--zoo-border-strong, #2a3530);
+    border: 2px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text, #fff);
     padding: 14px 16px; border-radius: 12px;
     font-family: inherit; font-size: 1rem;
@@ -207,7 +208,7 @@
   }
   .nom-filter-chip {
     padding: 6px 12px; border-radius: 16px;
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     background: transparent;
     color: var(--zoo-text-muted, #a0a8a4);
     font-size: .78rem; font-weight: 700; cursor: pointer;
@@ -225,7 +226,7 @@
   }
   .nom-card {
     background: rgba(255,255,255,0.03);
-    border: 1px solid var(--zoo-border, #1e2522);
+    border: 1px solid var(--zoo-border, #2A3038);
     border-radius: 12px; padding: 16px;
     transition: all .2s;
   }
@@ -234,7 +235,7 @@
     background: rgba(255,255,255,0.05);
   }
   .nom-card__sp {
-    font-family: 'Poppins'; color: var(--zoo-text, #fff);
+    font-family: var(--zoo-font-display); color: var(--zoo-text, #fff);
     font-weight: 700; font-size: 1.05rem;
   }
   .nom-card__sci {
@@ -247,7 +248,7 @@
   }
   .nom-card__detail {
     margin-top: 10px; padding-top: 10px;
-    border-top: 1px solid var(--zoo-border, #1e2522);
+    border-top: 1px solid var(--zoo-border, #2A3038);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 10px;
@@ -276,18 +277,18 @@
   .nom-badge.a { background: rgba(232,163,23,0.2); color: #E8A317; border: 1px solid rgba(232,163,23,0.4); }
   .nom-badge.pr { background: rgba(42,164,213,0.2); color: #2AA4D5; border: 1px solid rgba(42,164,213,0.4); }
   .nom-badge.cites { background: rgba(111,191,115,0.15); color: #6FBF73; border: 1px solid rgba(111,191,115,0.3); }
-  .nom-badge.iucn { background: rgba(255,255,255,0.08); color: var(--zoo-text, #e5e9e7); border: 1px solid var(--zoo-border-strong, #2a3530); }
+  .nom-badge.iucn { background: rgba(255,255,255,0.08); color: var(--zoo-text, #e5e9e7); border: 1px solid var(--zoo-border-strong, #3A424C); }
   .nom-badge.endem { background: rgba(232,163,23,0.1); color: #E8A317; border: 1px solid rgba(232,163,23,0.2); }
 
   .nom-card__actions {
     display: flex; gap: 8px; margin-top: 10px;
     padding-top: 10px;
-    border-top: 1px solid var(--zoo-border, #1e2522);
+    border-top: 1px solid var(--zoo-border, #2A3038);
     flex-wrap: wrap;
   }
   .nom-copy-btn {
     background: transparent;
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text-muted, #a0a8a4);
     padding: 5px 10px; border-radius: 7px;
     cursor: pointer; font-size: .78rem; font-weight: 600;
@@ -324,11 +325,11 @@
   /* ══ UMA ══ */
   .uma-form-section {
     margin-bottom: 18px; padding-bottom: 18px;
-    border-bottom: 1px solid var(--zoo-border, #1e2522);
+    border-bottom: 1px solid var(--zoo-border, #2A3038);
   }
   .uma-form-section:last-of-type { border-bottom: 0; }
   .uma-section-title {
-    color: #E8A317; font-family: 'Poppins';
+    color: #E8A317; font-family: var(--zoo-font-display);
     font-weight: 700; font-size: .92rem;
     margin-bottom: 12px; letter-spacing: .02em;
     text-transform: uppercase;
@@ -341,7 +342,7 @@
   .uma-event {
     padding: 14px 10px;
     background: rgba(255,255,255,0.04);
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     border-radius: 10px; cursor: pointer;
     text-align: center; transition: all .15s;
   }
@@ -358,7 +359,7 @@
   .uma-preview-box {
     margin-top: 18px; padding: 20px;
     background: rgba(0,0,0,0.25);
-    border: 1px solid var(--zoo-border, #1e2522);
+    border: 1px solid var(--zoo-border, #2A3038);
     border-radius: 12px;
     font-family: 'Courier New', monospace;
     font-size: .86rem; line-height: 1.6;
@@ -377,7 +378,7 @@
   .cuota-cat {
     padding: 8px 14px;
     background: transparent;
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text-muted, #a0a8a4);
     border-radius: 20px; cursor: pointer;
     font-size: .82rem; font-weight: 700;
@@ -389,14 +390,14 @@
   }
   .cuota-item {
     background: rgba(255,255,255,0.03);
-    border: 1px solid var(--zoo-border, #1e2522);
+    border: 1px solid var(--zoo-border, #2A3038);
     border-radius: 10px; padding: 14px 16px; margin-bottom: 8px;
     display: flex; justify-content: space-between; align-items: center;
     gap: 12px; flex-wrap: wrap;
   }
   .cuota-item__info { flex: 1; min-width: 180px; }
   .cuota-item__title {
-    font-family: 'Poppins'; color: var(--zoo-text, #fff);
+    font-family: var(--zoo-font-display); color: var(--zoo-text, #fff);
     font-weight: 700; font-size: .95rem; margin-bottom: 3px;
   }
   .cuota-item__code {
@@ -404,7 +405,7 @@
     font-size: .74rem; font-family: 'Courier New', monospace;
   }
   .cuota-item__price {
-    font-family: 'Poppins'; font-weight: 800;
+    font-family: var(--zoo-font-display); font-weight: 800;
     color: #6FBF73; font-size: 1.15rem; white-space: nowrap;
   }
   .cuota-total {
@@ -421,7 +422,7 @@
   .cuota-total__label { color: var(--zoo-text, #fff); font-weight: 600; }
   .cuota-total__label.big { font-size: 1.05rem; font-weight: 800; }
   .cuota-total__amount {
-    font-family: 'Poppins'; font-weight: 700;
+    font-family: var(--zoo-font-display); font-weight: 700;
     color: var(--zoo-text, #fff); font-size: 1rem;
   }
   .cuota-total__amount.final {
@@ -433,7 +434,7 @@
   .cuota-selector button {
     width: 28px; height: 28px;
     background: rgba(255,255,255,0.08);
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text, #fff);
     border-radius: 6px; cursor: pointer; font-weight: 700;
   }
@@ -450,7 +451,7 @@
   .cites-tab {
     padding: 10px 16px; border-radius: 10px;
     background: rgba(255,255,255,0.04);
-    border: 1px solid var(--zoo-border-strong, #2a3530);
+    border: 1px solid var(--zoo-border-strong, #3A424C);
     color: var(--zoo-text-muted, #a0a8a4);
     cursor: pointer; font-weight: 700; font-size: .85rem;
   }
@@ -464,7 +465,7 @@
     border-radius: 12px; padding: 20px;
   }
   .cites-info h3 {
-    font-family: 'Poppins';
+    font-family: var(--zoo-font-display);
     color: #2AA4D5; margin: 0 0 12px;
     font-size: 1.1rem;
   }
@@ -497,7 +498,7 @@
     border-radius: 10px; margin-bottom: 12px;
   }
   .marco-card__title {
-    color: #6FBF73; font-family: 'Poppins';
+    color: #6FBF73; font-family: var(--zoo-font-display);
     font-weight: 700; font-size: 1rem;
     margin-bottom: 6px;
   }
@@ -520,7 +521,7 @@
     margin-bottom: 16px;
   }
   .checklist__title {
-    color: #6FBF73; font-family: 'Poppins';
+    color: #6FBF73; font-family: var(--zoo-font-display);
     font-weight: 800; font-size: 1.05rem;
     margin-bottom: 14px;
   }
@@ -546,7 +547,7 @@
   }
   .checklist-progress {
     margin-top: 14px; padding-top: 14px;
-    border-top: 1px solid var(--zoo-border, #1e2522);
+    border-top: 1px solid var(--zoo-border, #2A3038);
     display: flex; justify-content: space-between;
     align-items: center;
     color: var(--zoo-text-muted, #a0a8a4);
@@ -588,7 +589,7 @@
   .zl-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
   .zl-cab > div { min-width: 0; }
   .zl-cab .pw-chip { flex: none; }
-  .zl-vista-nom { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--zoo-border, #1e2522); }
+  .zl-vista-nom { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--zoo-border, #2A3038); }
   .zl-chipbar { display: inline-block; width: 110px; height: 24px; margin: 0; border-radius: 8px; }
   .nom-card--vista .nom-card__detail-item .pw-barra:first-child { width: 40%; }
   .nom-copy-btn.zl-vermas { text-decoration: none; display: inline-flex; align-items: center; color: var(--zoo-solid-mid, #2A7A4E); border-color: var(--zoo-solid-mid, #2A7A4E); }
@@ -608,17 +609,7 @@
 
     <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
 
-    <div class="legal-hero">
-      <span class="legal-hero__badge"><svg class="zi" aria-hidden="true"><use href="#zi-scale"/></svg> HERRAMIENTA PROFESIONAL</span>
-      <h1>Compliance Legal para Fauna Silvestre</h1>
-      <p>Consulta de especies de la NOM-059, borradores de informes UMA/PIMVS, derechos de la Ley Federal de Derechos 2026, CITES, marco legal y listas de revisión. Material de apoyo con artículos y cantidades tomados de los textos vigentes.</p>
-      <div class="legal-hero__stats">
-        <div class="legal-hero__stat"><span class="legal-hero__stat-num" id="statNom">0</span><span class="legal-hero__stat-lbl">especies NOM-059</span></div>
-        <div class="legal-hero__stat"><span class="legal-hero__stat-num" id="statCuotas">0</span><span class="legal-hero__stat-lbl">derechos de la LFD</span></div>
-        <div class="legal-hero__stat"><span class="legal-hero__stat-num">6</span><span class="legal-hero__stat-lbl">listas de revisión</span></div>
-        <div class="legal-hero__stat"><span class="legal-hero__stat-num">2026</span><span class="legal-hero__stat-lbl">cantidades de la LFD</span></div>
-      </div>
-    </div>
+    <div id="zsSeccion"></div>
 
     <div class="legal-aviso-global" role="note">
       <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Material de apoyo, no es asesoría legal.</strong> Los artículos y las cantidades se verificaron contra los textos vigentes de la Cámara de Diputados (leyes, octubre 2026). Las normas, las cantidades y los formatos cambian: confirma en el DOF y en el portal de SEMARNAT, y consulta a un abogado o gestor antes de presentar un trámite.
@@ -977,11 +968,15 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-shell.js?v=20261101-solidos"></script>
-  <script src="../assets/js/club-paywall.js?v=20261102-paywall"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261029-iconos"></script>
-  <script src="../assets/js/club-avisos.js?v=20261024-avisos"></script>
+  <script src="../assets/js/club-config.js?v=20261103"></script>
+  <script src="../assets/js/club-seccion.js?v=20261103"></script>
+  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionLegal","seccion":"legal","icono":"scale","eyebrow":"Herramienta profesional","titulo":"Compliance legal","acento":"para fauna silvestre.","sub":"Consulta de especies de la NOM-059, borradores de informes UMA/PIMVS, derechos de la Ley Federal de Derechos 2026, CITES, marco legal y listas de revisión. Material de apoyo con artículos y cantidades tomados de los textos vigentes.","cifras":[{"id":"statNom","valor":"0","rotulo":"especies NOM-059"},{"id":"statCuotas","valor":"0","rotulo":"derechos de la LFD"},{"valor":"6","rotulo":"listas de revisión"},{"valor":"2026","rotulo":"cantidades de la LFD"}]});</script>
+  <script src="../assets/js/club.js?v=20261103"></script>
+  <script src="../assets/js/club-shell.js?v=20261103"></script>
+  <script src="../assets/js/club-paywall.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
+  <script src="../assets/js/club-avisos.js?v=20261103"></script>
 <script>
 (async () => {
   const session = await ZOORIGEN_CLUB.requireAuth();

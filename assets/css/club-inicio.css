@@ -30,11 +30,11 @@
 .ih-widget { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, .85fr); gap: 20px; align-items: stretch; }
 .ih-hero { position: relative; min-height: 470px; border-radius: 28px; overflow: hidden; display: flex; align-items: flex-end; color: #fff; isolation: isolate; border: 1px solid rgba(255, 255, 255, 0.1); background: #12301f; box-shadow: 0 16px 38px rgba(0, 0, 0, 0.25); }
 .ih-hero__foto { position: absolute; inset: 0; z-index: -2; background-position: center; background-size: cover; background-repeat: no-repeat; transform: scale(1.02); }
-.ih-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(6, 22, 14, 0.78) 0%, rgba(6, 22, 14, 0.5) 50%, rgba(6, 22, 14, 0.12) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.55)); }
+.ih-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(14, 14, 14, 0.78) 0%, rgba(14, 14, 14, 0.5) 50%, rgba(14, 14, 14, 0.12) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.55)); }
 .ih-hero--espera .ih-hero__foto { filter: saturate(.85); }
 .ih-hero__cuerpo { width: 100%; padding: 30px; display: flex; flex-direction: column; gap: 18px; align-items: flex-start; }
-.ih-hero h2 { font-family: var(--zoo-font-heading, 'Poppins', sans-serif); font-size: clamp(1.9rem, 3.4vw, 2.7rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.04; color: #fff; margin: 0; max-width: 460px; text-shadow: 0 4px 18px rgba(0, 0, 0, 0.35); }
-.ih-card { width: min(100%, 460px); padding: 18px 20px; border-radius: 22px; background: rgba(14, 50, 32, 0.62); border: 1px solid rgba(255, 255, 255, 0.2); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.ih-hero h2 { font-family: var(--zoo-font-display); font-size: clamp(1.9rem, 3.4vw, 2.7rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.04; color: #fff; margin: 0; max-width: 460px; text-shadow: 0 4px 18px rgba(0, 0, 0, 0.35); }
+.ih-card { width: min(100%, 460px); padding: 18px 20px; border-radius: 22px; background: rgba(32, 32, 32, 0.62); border: 1px solid rgba(255, 255, 255, 0.2); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
 .ih-card__etq { font: 700 .66rem/1 'JetBrains Mono', ui-monospace, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.78); }
 .ih-card__nombre { font-family: var(--zoo-font-heading); font-size: 1.28rem; line-height: 1.22; color: #fff; font-weight: 800; letter-spacing: -.01em; }
 .ih-card__caja { width: 100%; padding: 11px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.2); display: flex; flex-direction: column; gap: 4px; }
