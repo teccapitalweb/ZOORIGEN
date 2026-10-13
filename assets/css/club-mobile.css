@@ -81,7 +81,7 @@
   right: -4px;
   background: #D55A28;
   color: #fff;
-  font-size: .68rem;
+  font-size: .75rem;
   font-weight: 800;
   min-width: 18px;
   height: 18px;
@@ -165,7 +165,7 @@
   overflow: hidden; text-overflow: ellipsis;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
 }
-.notif-item__time { color: #6b7370; font-size: .74rem; margin-top: 4px; }
+.notif-item__time { color: #6b7370; font-size: .75rem; margin-top: 4px; }
 .notif-item__dot {
   position: absolute; right: 14px; top: 50%;
   transform: translateY(-50%);

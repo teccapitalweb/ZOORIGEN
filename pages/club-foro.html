@@ -5,7 +5,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Foro VIP · Club Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -17,12 +17,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
   <style>
     .foro-hero {
       background: var(--zoo-panel, #1F5F3A);
@@ -53,7 +53,7 @@
       color: #E8A317;
       padding: 6px 12px;
       border-radius: 20px;
-      font-size: .72rem;
+      font-size: .75rem;
       font-weight: 700;
       letter-spacing: .1em;
       margin-bottom: 12px;
@@ -260,7 +260,7 @@
       color: #6FBF73;
       padding: 3px 10px;
       border-radius: 10px;
-      font-size: .72rem;
+      font-size: .75rem;
       font-weight: 700;
     }
     .foro-post__author {
@@ -860,6 +860,7 @@
       .foro-view-content h2 { font-size: 1.15rem; }
     }
   </style>
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
 </head>
 <body>
   <div class="club-layout">
@@ -902,16 +903,16 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
-  <script src="../assets/js/club-config.js?v=20261103"></script>
-  <script src="../assets/js/club-seccion.js?v=20261103"></script>
-  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
+  <script src="../assets/js/club-config.js?v=20261104"></script>
+  <script src="../assets/js/club-seccion.js?v=20261104"></script>
+  <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionForo","seccion":"foro","icono":"message-circle","eyebrow":"Comunidad privada","titulo":"Foro VIP,","acento":"conversa con colegas.","sub":"Conecta, pregunta y comparte con profesionales en fauna silvestre de toda Latinoamérica.","cifras":[{"id":"totalPosts","valor":"0","rotulo":"discusiones"},{"id":"totalMembers","valor":"0","rotulo":"miembros activos"},{"id":"totalReplies","valor":"0","rotulo":"respuestas"}]});</script>
-  <script src="../assets/js/club.js?v=20261103"></script>
-  <script src="../assets/js/club-shell.js?v=20261103"></script>
-  <script src="../assets/js/club-avisos.js?v=20261103"></script>
-  <script src="../assets/js/club-paywall.js?v=20261103"></script>
-  <script src="../assets/js/club-foro-previa.js?v=20261103"></script>
+  <script src="../assets/js/club.js?v=20261104"></script>
+  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club-avisos.js?v=20261104"></script>
+  <script src="../assets/js/club-paywall.js?v=20261104"></script>
+  <script src="../assets/js/club-foro-previa.js?v=20261104"></script>
   <script>
     const CAT_LABELS = {
       'casos': zooIcon('heartpulse', 13) + ' Casos clínicos',

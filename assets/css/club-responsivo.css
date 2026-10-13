@@ -1,0 +1,384 @@
+/* ============================================================ */
+/* CLUB VIP ZOORIGEN · SISTEMA RESPONSIVO FLUIDO                 */
+/* Se carga AL FINAL de todas las hojas del Club (después de     */
+/* club.css, club-mobile.css, club-shell.css, club-seccion.css…).*/
+/*                                                              */
+/*  1. Tokens fluidos: margen lateral y escala de letra.         */
+/*  2. Piezas base: nada se sale de la pantalla.                 */
+/*  3. Barra superior, barra inferior, botón flotante y cajón.   */
+/*  4. Objetivos táctiles de 44 px y campos a 16 px en móvil.    */
+/*  5. Ventanas (modales) que caben y se desplazan por dentro.   */
+/*  6. Arreglos puntuales por componente.                        */
+/*                                                              */
+/* Sin degradados. Respeta prefers-reduced-motion.               */
+/* ============================================================ */
+
+/* ─────────────── 1. TOKENS FLUIDOS ─────────────── */
+:root {
+  --zoo-gutter: clamp(14px, 4vw, 32px);               /* margen lateral del contenido */
+  --zoo-gap: clamp(12px, 2.4vw, 20px);                /* separación entre bloques */
+
+  /* Escala de letra: el piso es 12 px (nada por debajo); el cuerpo arranca en 16 px */
+  --zoo-fs-xs: .75rem;                                 /* 12 px: etiquetas */
+  --zoo-fs-sm: clamp(.8125rem, .79rem + .12vw, .875rem);   /* 13 a 14 px: texto secundario */
+  --zoo-fs-base: clamp(1rem, .96rem + .2vw, 1.0625rem);    /* 16 a 17 px: cuerpo */
+  --zoo-fs-h3: clamp(1.0625rem, .98rem + .45vw, 1.25rem);  /* 17 a 20 px */
+  --zoo-fs-h2: clamp(1.25rem, 1.02rem + 1.1vw, 1.75rem);   /* 20 a 28 px */
+  --zoo-fs-h1: clamp(1.5rem, 1.1rem + 1.9vw, 2.375rem);   /* 24 a 38 px */
+
+  --zoo-tap: 44px;                                     /* objetivo táctil cómodo */
+  --zoo-safe-b: env(safe-area-inset-bottom, 0px);
+  --zoo-safe-t: env(safe-area-inset-top, 0px);
+  --zoo-safe-l: env(safe-area-inset-left, 0px);
+  --zoo-safe-r: env(safe-area-inset-right, 0px);
+  --zoo-vh: 100vh;
+}
+@supports (height: 100dvh) { :root { --zoo-vh: 100dvh; } }
+
+/* ─────────────── 2. BASE: NADA SE SALE ─────────────── */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { font-size: var(--zoo-fs-base); overflow-wrap: break-word; }
+img, svg, video, canvas, iframe, embed, object { max-width: 100%; }
+img, video { height: auto; }
+
+/* La rejilla principal no se ensancha con el contenido (1fr = minmax(auto, 1fr)) */
+@media (min-width: 981px) { .club-layout { grid-template-columns: 240px minmax(0, 1fr); } }
+.club-main { min-width: 0; }
+.club-main > * { min-width: 0; }
+
+/* Texto de cuerpo: el body ya trae --zoo-fs-base (16 a 17 px) y los párrafos lo heredan; los componentes con clase
+   propia conservan su tamaño (piso de 12 px). Titulares sueltos directos de <main>: escala fluida con tope. */
+.club-main > h1 { font-size: var(--zoo-fs-h1); }
+.club-main > h2 { font-size: var(--zoo-fs-h2); }
+.club-main > h3 { font-size: var(--zoo-fs-h3); }
+
+/* Palabras largas (correos, folios, enlaces, códigos) se parten en vez de salirse */
+.club-main :is(h1, h2, h3, h4, p, li, dd, dt, td, th, label, blockquote, figcaption, summary) { overflow-wrap: break-word; }
+.club-main :is(code, kbd, samp, pre, .zc-enlace__caja, .info-row__valor, [class*="folio"], [class*="email"], [class*="correo"]) { overflow-wrap: anywhere; }
+.club-main pre { max-width: 100%; overflow-x: auto; }
+
+/* Hijos de flex y de rejilla que contienen texto pueden encogerse */
+.club-main :is([class*="__body"], [class*="__cuerpo"], [class*="__texto"], [class*="__text"], [class*="__info"], [class*="-body"], [class*="-info"], [class*="-text"], [class*="-content"]) { min-width: 0; }
+.club-main :is([class*="grid"], [class*="rejilla"], [class*="lista"], [class*="-list"]) > * { min-width: 0; }
+
+/* Tablas: dentro de un contenedor con desplazamiento horizontal controlado */
+.club-main table { max-width: 100%; }
+.zr-scroll { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+
+/* ─────────────── 3. ESTRUCTURA DEL PANEL ─────────────── */
+/* Margen lateral fluido del contenido y de la barra superior (siguen sincronizados) */
+.club-main { padding-inline: var(--zoo-gutter); }
+@media (min-width: 981px) {
+  .club-main { padding-top: clamp(16px, 2.4vw, 28px); }
+}
+@media (max-width: 980px) {
+  /* Deja espacio abajo para la barra inferior Y para el botón de WhatsApp: nada queda tapado al llegar al final */
+  body .club-layout > .club-main {
+    padding: 0 var(--zoo-gutter) calc(var(--zs-bar-h, 64px) + 104px + var(--zoo-safe-b)) !important;
+  }
+  .zs-topbar { margin: 0 calc(-1 * var(--zoo-gutter)) 16px; padding: 10px var(--zoo-gutter); }
+  .zs-bottom { left: max(10px, var(--zoo-safe-l)); right: max(10px, var(--zoo-safe-r)); }
+  .zs-wa { left: max(12px, var(--zoo-safe-l)); }
+  .zs-drawer { padding-right: calc(14px + var(--zoo-safe-r)); max-width: 100%; }
+  .zs-drawer { height: var(--zoo-vh); }
+  .zs-tab { min-width: 40px; }
+  .zs-tab__txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+}
+
+/* Barra superior: botones de 44 px (40 px en pantallas muy angostas) */
+.zs-btn, .zs-actions .notif-icon, .zs-avatar { min-height: var(--zoo-tap); min-width: var(--zoo-tap); }
+.zs-avatar { height: var(--zoo-tap); }
+.zs-avatar__circle { flex-shrink: 0; }
+@media (max-width: 980px) {
+  .zs-btn, .zs-actions .notif-icon { height: var(--zoo-tap); min-width: var(--zoo-tap); }
+  .zs-avatar { min-width: var(--zoo-tap); height: var(--zoo-tap); justify-content: center; }
+  .zs-avatar__circle { width: 32px; height: 32px; }
+  .zs-search input { height: var(--zoo-tap); }
+  .zs-actions { gap: 6px; }
+  .zs-search { flex: 1 1 0; }
+}
+@media (max-width: 420px) {
+  /* "Cerrar sesión" ya vive en el cajón Más: aquí no cabe sin apretar el buscador */
+  .zs-actions .zs-salir { display: none; }
+  .zs-btn, .zs-actions .notif-icon, .zs-avatar { min-height: 40px; min-width: 40px; height: 40px; }
+  .zs-btn, .zs-actions .notif-icon { width: 40px; }
+  .zs-avatar__circle { width: 30px; height: 30px; }
+  .zs-search input { height: 40px; }
+}
+
+/* Barra inferior: pestañas de 44 px de alto y texto legible (nunca menos de 12 px) */
+@media (max-width: 980px) {
+  .zs-bottom { height: calc(var(--zs-bar-h, 64px)); }
+  .zs-tab { min-height: 44px; font-size: 12px; }
+  .zs-tab__txt, .zs-tab.is-active .zs-tab__txt, .zs-tab__pronto { font-size: 12px; }
+  .zs-tab.is-active { font-size: 12px; gap: 5px; padding-inline: 4px; }
+}
+
+/* Pantallas de 380 px o menos: las seis pestañas iguales (ícono arriba, texto abajo) para que el texto no se corte */
+@media (max-width: 380px) {
+  .zs-bottom { gap: 0; padding: 4px; }
+  .zs-tab { padding-inline: 0; letter-spacing: 0; }
+  .zs-tab.is-active { flex-grow: 1; flex-direction: column; gap: 3px; padding-inline: 0; }
+  .zs-tab__txt, .zs-tab.is-active .zs-tab__txt { overflow: visible; text-overflow: clip; }
+}
+
+/* Teléfono en horizontal (poco alto): barra y botón flotante más bajos para dejar ver el contenido */
+@media (max-height: 480px) and (orientation: landscape) {
+  :root { --zs-bar-h: 52px; }
+  .zs-bottom { height: var(--zs-bar-h); bottom: calc(6px + var(--zoo-safe-b)); padding: 4px; }
+  .zs-tab { flex-direction: row; gap: 6px; }
+  .zs-tab__txt { display: none; }
+  .zs-tab.is-active .zs-tab__txt { display: inline; }
+  .zs-wa { bottom: calc(var(--zs-bar-h) + 14px + var(--zoo-safe-b)); }
+  .zs-wa__btn { width: 44px; height: 44px; }
+  body .club-layout > .club-main { padding-bottom: calc(var(--zs-bar-h) + 76px + var(--zoo-safe-b)) !important; }
+  .zs-topbar { position: static; }
+}
+
+/* Tableta (981 a 1180): el panel conserva la barra lateral sin apretar el contenido */
+@media (min-width: 981px) and (max-width: 1180px) {
+  .club-layout { grid-template-columns: 220px minmax(0, 1fr); }
+  .club-sidebar { padding-inline: 12px; }
+  .club-main { padding-inline: clamp(16px, 2.6vw, 28px); }
+}
+
+/* El menú lateral no queda más alto que la pantalla (zoom del 200 % o pantalla baja) */
+.club-sidebar { max-height: var(--zoo-vh); }
+
+/* Avisos emergentes (toasts): arriba de la barra inferior y del botón de WhatsApp, no encima de ellos */
+@media (max-width: 980px) {
+  .pw-toast, .zc-toast, .mt-toast { bottom: calc(var(--zs-bar-h, 64px) + 86px + var(--zoo-safe-b)) !important; }
+  #zoo-ach-toast { bottom: calc(var(--zs-bar-h, 64px) + 86px + var(--zoo-safe-b)) !important; }
+  .rz-toasts { bottom: calc(var(--zs-bar-h, 64px) + 86px + var(--zoo-safe-b)); right: var(--zoo-gutter); width: min(360px, calc(100vw - 2 * var(--zoo-gutter))); }
+}
+
+/* Panel de avisos (campana): cabe en pantalla y se desplaza por dentro */
+.notif-panel, .notif-panel.zs-notif { max-width: calc(100vw - 2 * var(--zoo-gutter)); max-height: min(74vh, calc(var(--zoo-vh) - 90px)); }
+@media (max-width: 980px) {
+  .notif-panel.zs-notif { left: var(--zoo-gutter); right: var(--zoo-gutter); width: auto; max-width: none; }
+}
+
+/* ─────────────── 4. TÁCTIL Y FORMULARIOS ─────────────── */
+/* Base (todos los anchos, también escritorio): ningún botón o filtro baja de 40 px de alto */
+.tool-tab, .legal-tab, .nom-filter-chip, .foro-cat, .mt-tab, .filter-chip-club, .zd-chip, .zoo-chip, .zs-segmento,
+.reg-btn, .nom-copy-btn, .mt-btn, .zc-elegir, .lg-btn, .foro-action, .foro-btn-submit, .profile-edit-btn,
+.dash-refer-copy, .dash-refer-share, .btn-small, .content-item__tag, .mt-pin, .password-toggle, .zc-btn,
+.zoo-welcome-close, .zoo-welcome-cta, .ih-btn, .ih-btn-verde, .ih-btn-oscuro, .btn-danger,
+.av-cerrar, .notif-panel__close, .av-borrar, .av-todo, .player-box__close, .pw-modal__seguir, .rdr-nav, .rdr-x, .rdr-volver, .rdr-modo,
+.mt-icono, .cuota-cat, .cites-tab, .tool-chip, .cuota-selector button, .zc-cert-btn, .zs-drawer__close, .zs-inst__x, .zs-wa__item {
+  min-height: 40px; min-width: 40px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.ih-meta li a, .ih-hero__todos, .dash-refer-body > a, .gami-streak, .auth-back, .auth-form__meta a, a.back,
+.status-banner > a, .asb-ft > a, .lg-btn, .nom-copy-btn {
+  min-height: 40px; display: inline-flex; align-items: center;
+}
+.mt-pin, .zoo-welcome-close, .password-toggle { flex-shrink: 0; width: 40px; height: 40px; padding: 0; }
+.club-sidebar > * { flex-shrink: 0; }
+.club-sidebar a { min-height: 40px; }
+/* Controles de formulario y botones: alto mínimo cómodo (min-height gana a cualquier height menor) */
+@media (max-width: 980px), (pointer: coarse) {
+  :where(.club-main, .club-layout, .auth-page, .zs-drawer) :where(button, [role="button"], summary, select, input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"])) { min-height: var(--zoo-tap); }
+  :where(.club-main, .auth-page) :where(button, [role="button"]) { min-width: 40px; }
+
+  /* Pestañas, chips y filtros */
+  .tool-tab, .legal-tab, .nom-filter-chip, .foro-cat, .mt-tab, .filter-chip-club, .zd-chip, .zoo-chip, .zs-segmento,
+  .reg-btn, .nom-copy-btn, .mt-btn, .zc-elegir, .lg-btn, .foro-action, .foro-btn-submit, .profile-edit-btn,
+  .dash-refer-copy, .dash-refer-share, .btn-small, .content-item__tag, .mt-pin, .password-toggle, .zc-btn,
+  .zoo-welcome-close, .zoo-welcome-cta, .ih-btn, .ih-btn-verde, .ih-btn-oscuro, .btn-club, .btn-club-outline, .btn-danger {
+    min-height: var(--zoo-tap); min-width: 44px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-club, .btn-club-outline { display: flex; }
+  /* Enlaces que funcionan como botón o como fila tocable */
+  .ih-hero__todos, .dash-refer-body > a, .gami-streak, .auth-back, .auth-form__meta a, a.back,
+  .status-banner > a, .asb-ft > a, .ih-meta li a, .zs-drawer__link, .zs-res {
+    min-height: var(--zoo-tap); display: inline-flex; align-items: center;
+  }
+  .ih-meta li a { display: grid; align-items: center; }
+  .dash-refer-body > a, .ih-hero__todos { padding-block: 10px; }
+  .club-sidebar a { min-height: var(--zoo-tap); }
+  .mt-pin { width: 44px; height: 44px; }
+  .zoo-welcome-close { width: 44px; height: 44px; }
+  .password-toggle { width: 44px; height: 44px; }
+  .foro-action { min-width: 44px; }
+  .content-item__tag { padding-inline: 12px; }
+}
+
+/* iOS hace zoom al enfocar un campo de menos de 16 px: en móvil y tableta todos a 16 px */
+@media (max-width: 980px), (pointer: coarse) {
+  :where(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]) { font-size: 16px; }
+  .zs-search input, .mt-buscar input, .reg-buscar input, .zd-buscar input, .foro-composer__campo textarea,
+  .reg-barra select, .tool-field :is(input, select), .auth-input-wrap input { font-size: 16px; }
+}
+
+/* Casillas de verificación: más grandes, para tocarlas bien */
+.checklist-item input[type="checkbox"] { width: 24px; height: 24px; margin-top: 0; flex: none; }
+.checklist-item { align-items: center; }
+select, .rdr-ir select { min-height: 40px; }
+@media (max-width: 520px) {
+  /* títulos de barras de lector y reproductor: se parten en 2 líneas en vez de cortarse */
+  .rdr-cab__t strong, .mt-visor__cab strong, .player-box__header h3, #playerTitle {
+    white-space: normal; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow-wrap: anywhere;
+  }
+  .rdr-volver { white-space: normal; text-align: left; }
+}
+
+/* ─────────────── 5. VENTANAS (MODALES) ─────────────── */
+/* Todas caben en la altura visible, se desplazan por dentro y respetan la zona segura del teléfono */
+:is(.zoo-welcome-box, .zoo-levelup-box, .zoo-rewards-box, .course-detail-box, .player-box, .reg-modal__caja, .zd-modal__caja, .zc-modal,
+    .pw-modal, .nt-modal__cuerpo, .password-modal__card, .species-modal-box, .foro-modal-box, .modal-form, .webinar-popup-box, .zob-tour__dialogo, .zs-inst__caja) {
+  max-height: calc(var(--zoo-vh) - 2 * var(--zoo-gutter));
+  max-width: calc(100vw - 2 * var(--zoo-gutter));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.mt-visor__ventana { height: min(calc(var(--zoo-vh) - 2 * var(--zoo-gutter)), 900px); }
+:is(#zoo-welcome-modal, #zoo-levelup-modal, #zoo-rewards-modal, #speciesModal, .zs-inst, .zc-ov, .zd-modal, .nt-modal, .mt-visor, .pw-modal__fondo, .modal-overlay, .course-detail-modal, .player-overlay, .reg-modal, .password-modal, .foro-modal, .webinar-popup-bg) {
+  padding: max(var(--zoo-gutter), var(--zoo-safe-t)) max(var(--zoo-gutter), var(--zoo-safe-r)) max(var(--zoo-gutter), var(--zoo-safe-b)) max(var(--zoo-gutter), var(--zoo-safe-l));
+}
+.zoo-welcome-box { max-width: min(520px, 100%); }
+.player-box { max-height: calc(var(--zoo-vh) - 2 * var(--zoo-gutter)); overflow-y: auto; }
+
+/* ─────────────── 6. COMPONENTES ─────────────── */
+/* Tarjeta de título único (club-seccion): sin cortes de palabra a 320 px, y subtítulo legible */
+.zs-seccion { padding: clamp(18px, 3.4vw, 40px); }
+.zs-seccion__titulo { font-size: clamp(1.75rem, 1.2rem + 2.8vw, 3.5rem); overflow-wrap: break-word; hyphens: manual; }
+.zs-seccion__sub { font-size: clamp(1rem, .95rem + .25vw, 1.0625rem); }
+.zs-seccion__texto { flex: 1 1 min(100%, 380px); }
+.zs-seccion__lado { max-width: 100%; }
+.zs-seccion__lado > * { max-width: 100%; }
+.zs-seccion__pildora { font-size: var(--zoo-fs-xs); }
+.zs-segmentos { max-width: 100%; }
+.zs-cifra { min-width: 0; }
+
+/* Inicio */
+.ih-widget > *, .ih-lado > *, .ih-saludo > * { min-width: 0; }
+.ih-hero h2 { font-size: clamp(1.625rem, 1.2rem + 2.2vw, 2.7rem); overflow-wrap: break-word; }
+.ih-card__nombre { overflow-wrap: break-word; }
+.ih-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ih-kpi strong { font-size: clamp(1.75rem, 1.5rem + .8vw, 1.9rem); }
+.ih-meta li a { grid-template-columns: 38px minmax(0, 1fr); }
+.ih-aside { min-width: 0; }
+.dashboard-aside > * { min-width: 0; }
+
+/* Invitar amigos */
+.dash-refer-card { min-width: 0; }
+.dash-refer-body { min-width: 0; }
+.dash-refer-stats { flex-wrap: wrap; row-gap: 8px; }
+.dash-refer-code-box code { min-width: 0; overflow-wrap: anywhere; }
+.dash-refer-share { max-width: 100%; white-space: normal; }
+
+/* Noticias: la foto llena su marco 16:9 sin dejar un recorte raro */
+.hoja__foto { aspect-ratio: 16 / 9; }
+.club-main .hoja__img { height: 100%; width: 100%; object-fit: cover; }
+.club-main .hoja__foto--vacia .hoja__img { visibility: hidden; }
+
+/* Nivel y racha */
+.gami-level-card > * { min-width: 0; }
+.gami-streak { flex-wrap: wrap; }
+
+/* Cursos y tarjetas: etiquetas e insignia en el flujo normal, el título siempre abajo (no se pisan en 320 px) */
+.zc-card { flex-direction: column; align-items: stretch; justify-content: flex-start; }
+.zc-card > .zc-tags { position: static; margin: 14px 58px 0 14px; }
+.zc-card > .zc-badge { position: static; align-self: center; margin: 10px 14px 0; }
+.zc-card > .zc-body { margin-top: auto; padding-top: 18px; }
+.zc-card--pend > .zc-body { padding-top: 18px; }
+.zc-card > .zc-body > .zc-tags { position: static; }
+.zc-card { min-width: 0; }
+.zc-body { min-width: 0; }
+.zc-title { overflow-wrap: break-word; }
+.zc-tags { flex-wrap: wrap; }
+.course-grid-club, .zc-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
+
+/* Directorio */
+.zd-tarjeta, .zd-tarjeta__cab > div { min-width: 0; }
+.zd-tarjeta__nombre, .zd-tarjeta__prof, .zd-tarjeta__bio { overflow-wrap: break-word; }
+.zd-vista__caja { max-width: min(400px, 100%); }
+.zd-chips, .foro-cats, .filter-bar, .tools-tabs, .legal-tabs, .nom-filters, .mt-tabs, .zoo-chips { flex-wrap: wrap; row-gap: 8px; }
+
+/* Perfil y suscripción */
+.info-row { flex-wrap: wrap; gap: 4px 12px; }
+.info-row > * { min-width: 0; overflow-wrap: anywhere; }
+.profile-info { min-width: 0; }
+.profile-info h2 { overflow-wrap: anywhere; }
+.sub-planes { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.pricing-card .price { font-size: clamp(2.25rem, 1.6rem + 3vw, 3.5rem); }
+
+/* Videos, PDFs y materiales: el título de la clase se parte en líneas en vez de cortarse con puntos suspensivos */
+.content-item { min-width: 0; }
+.content-item__info { min-width: 0; }
+.content-item__title { white-space: normal; overflow-wrap: break-word; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; }
+.content-item__tag { flex-shrink: 0; }
+.hoja__etq { max-width: calc(100% - 24px); white-space: normal; line-height: 1.25; }
+.zoo-welcome-emoji img, .zoo-welcome-emoji .zi-logo { width: 64px; height: 64px; max-width: 100%; }
+
+/* Portadas de libros: textos de la cubierta en px (no se encimen con letra grande) */
+.mt-libro__sobre small, .mt-libro__sobre em, .mt-libro__ed { font-size: 12px; }
+.mt-libro__sobre strong { font-size: 1rem; }
+.mt-libro__sobre { bottom: 34px; }
+
+/* Directorio: la etiqueta "Mi tarjeta" entra al flujo (antes se encimaba con el nombre) */
+.zd-tarjeta__etiqueta { position: static; align-self: flex-start; margin-bottom: 8px; }
+.mt-libro__top, .mt-doc__portada { min-width: 0; }
+.mt-libro__foto, .mt-doc__foto { max-width: 100%; height: auto; }
+.mt-estante { min-width: 0; }
+.mt-estante > .mt-libro { min-width: min(100%, 160px); }
+
+/* Administración: la lista de miembros se desplaza dentro de su caja en vez de recortarse */
+.mtable { overflow-x: auto; max-width: 100%; }
+.gas-tabla { max-width: 100%; }
+
+/* Administración: fechas y estados no empujan la tabla */
+@media (max-width: 640px) { .mb-date, .status-pill, .mcell-actions { white-space: normal; } .mb { flex-wrap: wrap; } }
+
+/* Referidos / canal: el enlace largo se parte */
+.zc-enlace__caja { overflow-wrap: anywhere; white-space: normal; text-overflow: clip; }
+.zk-reglas { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.zk-regla > span { min-width: 0; overflow-wrap: break-word; }
+
+/* Logros y retos */
+.lg-cat header { flex-wrap: wrap; row-gap: 6px; }
+.lg-cat h3 { min-width: 0; flex: 1 1 8ch; overflow-wrap: break-word; }
+.lg-cat__cuenta { flex: none; }
+.lg-hero > *, .lg-premios__cab > *, .rz-hero > * { min-width: 0; }
+.lg-hero__tit { min-width: 0; }
+.lg-chip > span, .lg-nodo small { overflow: visible; text-overflow: clip; white-space: normal; }
+.lg-aviso > div, .rz-aviso > div { min-width: 0; flex-basis: min(100%, 200px); }
+
+/* Herramientas, legal y libro de registro */
+.tool-field, .tool-field > * { min-width: 0; }
+.tool-field input, .tool-field select { max-width: 100%; }
+.tool-header, .tool-header__text { min-width: 0; }
+.tool-header { flex-wrap: wrap; }
+.legal-aviso-global, .tool-aviso-global, .pw-aviso { min-width: 0; overflow-wrap: break-word; }
+.pw-aviso > span { min-width: 0; overflow-wrap: break-word; }
+.zoo-pay-banner { max-width: 100%; }
+.zoo-pay-banner__btn { white-space: normal; }
+.reg-barra, .reg-buscar { min-width: 0; max-width: 100%; }
+td.reg-acciones { white-space: normal; }
+
+/* Tablas anchas: se desplazan dentro de su propia caja (no mueven la página) */
+.club-main .mtable, .club-main .reg-tabla, .club-main .enc-tabla, .club-main .table-wrap, .club-main [class*="tabla"], .club-main [class*="table-wrap"] {
+  max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+
+/* Pantallas muy angostas (320 px) */
+@media (max-width: 360px) {
+  .zs-seccion__cifras { gap: 12px 18px; }
+  .club-main :is(.btn-club, .btn-club-outline) { padding-inline: 14px; }
+  .auth-card { padding-inline: 16px; }
+}
+
+/* Pantallas grandes: contenido centrado y con tope de lectura */
+@media (min-width: 1700px) {
+  .club-main { padding-inline: clamp(32px, 3vw, 64px); }
+  .club-main > * { max-width: 1480px; margin-inline: auto; }
+}
+
+/* ─────────────── ACCESIBILIDAD ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .zs-wa__btn { animation: none; }
+}

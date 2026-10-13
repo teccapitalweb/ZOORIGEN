@@ -5,7 +5,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mis logros · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -17,13 +17,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-logros.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-logros.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
 </head>
 <body>
   <div class="club-layout">
@@ -40,20 +41,20 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
-  <script src="../assets/js/club-config.js?v=20261103"></script>
-  <script src="../assets/js/club-seccion.js?v=20261103"></script>
-  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
+  <script src="../assets/js/club-config.js?v=20261104"></script>
+  <script src="../assets/js/club-seccion.js?v=20261104"></script>
+  <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionLogros","seccion":"logros","icono":"trophy","eyebrow":"Mis logros","titulo":"Sube de nivel,","acento":"gana insignias y premios.","sub":"Gana XP con tus cursos, retos e invitados y abre cursos antes de tiempo con tus premios.","cifras":[{"clave":"nivel","valor":"—","rotulo":"nivel"},{"clave":"xp","valor":"—","rotulo":"XP total"},{"clave":"logros","valor":"—","rotulo":"logros ganados"},{"clave":"dias","valor":"—","rotulo":"días activos"}]});</script>
-  <script src="../assets/js/club.js?v=20261103"></script>
-  <script src="../assets/js/club-progreso.js?v=20261103"></script>
-  <script src="../assets/js/club-shell.js?v=20261103"></script>
-  <script src="../assets/js/club-avisos.js?v=20261103"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261103"></script>
-  <script src="../assets/js/club-acceso.js?v=20261103"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261103"></script>
-  <script src="../assets/js/club-premios.js?v=20261103"></script>
-  <script src="../assets/js/club-logros-ui.js?v=20261103"></script>
+  <script src="../assets/js/club.js?v=20261104"></script>
+  <script src="../assets/js/club-progreso.js?v=20261104"></script>
+  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club-avisos.js?v=20261104"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261104"></script>
+  <script src="../assets/js/club-acceso.js?v=20261104"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261104"></script>
+  <script src="../assets/js/club-premios.js?v=20261104"></script>
+  <script src="../assets/js/club-logros-ui.js?v=20261104"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();

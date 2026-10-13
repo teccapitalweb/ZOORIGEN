@@ -4,7 +4,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mi suscripción · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -15,25 +15,25 @@
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261104">
   <script src="https://js.stripe.com/v3/"></script>
   <style>
     /* Selector de plan y pago embebido (colores sólidos: verde de marca, dorado solo en la etiqueta) */
     .sub-titulo { font-family: var(--zoo-font-display); font-size: 1.2rem; text-align: center; margin: 4px 0 14px; color: var(--zoo-text); }
-    .sub-planes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; max-width: 760px; margin: 0 auto 18px; }
+    .sub-planes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; max-width: 760px; margin: 0 auto 18px; }
     .sub-plan { text-align: left; display: grid; gap: 4px; padding: 16px 18px; border-radius: 16px; background: var(--zoo-bg-card); border: 2px solid var(--zoo-border-strong); color: var(--zoo-text); cursor: pointer; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
     .sub-plan:hover { border-color: var(--zoo-solid-mid, #2A7A4E); }
     .sub-plan.is-activo { background: var(--zoo-panel, #1F5F3A); border-color: var(--zoo-panel, #1F5F3A); color: #fff; }
     .sub-plan.is-activo .sub-plan__sub, .sub-plan.is-activo .sub-plan__precio, .sub-plan.is-activo .sub-plan__precio em { color: #fff; }
     .sub-plan__nombre { font-weight: 800; font-size: 1rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .sub-plan__etq { font-size: .64rem; letter-spacing: .06em; text-transform: uppercase; background: var(--zoo-amber); color: #1F1D17; padding: 2px 8px; border-radius: 10px; }
+    .sub-plan__etq { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; background: var(--zoo-amber); color: #1F1D17; padding: 2px 8px; border-radius: 10px; }
     .sub-plan__sub { font-size: .82rem; color: var(--zoo-text-muted); }
     .sub-plan__precio { font-family: var(--zoo-font-display); font-weight: 800; font-size: 1.5rem; color: var(--zoo-fill, #2A7A4E); }
-    .sub-plan__precio em { font-style: normal; font-size: .66rem; font-weight: 700; letter-spacing: .08em; color: var(--zoo-text-dim); margin-left: 6px; }
+    .sub-plan__precio em { font-style: normal; font-size: .75rem; font-weight: 700; letter-spacing: .08em; color: var(--zoo-text-dim); margin-left: 6px; }
     .sub-pago { max-width: 760px; margin: 0 auto; background: var(--zoo-bg-card); border: 1px solid var(--zoo-border-strong); border-radius: 18px; padding: 22px 20px; }
     .sub-pago__plan { font-size: .9rem; color: var(--zoo-text-muted); }
     .sub-pago__monto { font-family: var(--zoo-font-display); font-size: 1.9rem; font-weight: 800; color: var(--zoo-text); line-height: 1.2; }
@@ -41,6 +41,7 @@
     .sub-pago__detalle { font-size: .84rem; color: var(--zoo-text-muted); margin-bottom: 16px; }
     .sub-pago__form { min-height: 120px; }
   </style>
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
 </head>
 <body>
   <div class="club-layout">
@@ -55,14 +56,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
-  <script src="../assets/js/club-config.js?v=20261103"></script>
-  <script src="../assets/js/club-seccion.js?v=20261103"></script>
-  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
+  <script src="../assets/js/club-config.js?v=20261104"></script>
+  <script src="../assets/js/club-seccion.js?v=20261104"></script>
+  <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionSuscripcion","seccion":"suscripcion","icono":"credit-card","eyebrow":"Mi suscripción","titulo":"Tu membresía,","acento":"a tu manera.","sub":"Elige el plan que prefieras, consulta tu estado y gestiona tu renovación.","cifras":[{"clave":"plan","valor":"—","rotulo":"plan"},{"clave":"estado","valor":"—","rotulo":"estado"},{"clave":"vence","valor":"—","rotulo":"próxima renovación"}]});</script>
-  <script src="../assets/js/club.js?v=20261103"></script>
-  <script src="../assets/js/club-shell.js?v=20261103"></script>
-  <script src="../assets/js/club-avisos.js?v=20261103"></script>
+  <script src="../assets/js/club.js?v=20261104"></script>
+  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();

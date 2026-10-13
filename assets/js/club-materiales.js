@@ -317,7 +317,7 @@
 
   function fotoLibroHTML(l) {
     var src = portadaDe(l && l.id);
-    return src ? '<img class="mt-libro__foto" src="' + esc(src) + '" alt="" loading="lazy" decoding="async">' : '';
+    return src ? '<img class="mt-libro__foto" src="' + esc(src) + '" alt="" width="168" height="237" loading="lazy" decoding="async">' : '';
   }
 
   function fotoDeMaterial(m) {
@@ -336,7 +336,7 @@
     var etiq = abierto ? '' : (previa ? '<div class="mt-previa">' + chipMiembrosHTML('Solo miembros') + '</div>' : '<span class="mt-doc__lock">' + CANDADO + esc(textoBloqueo(m)) + '</span>');
     var pags = m.paginas ? entero(m.paginas, 0) + (entero(m.paginas, 0) === 1 ? ' página' : ' páginas') : '';
     return '<article class="mt-doc' + (abierto ? '' : (previa ? ' is-previa' : ' is-bloq')) + '" data-doc="' + esc(m.id) + '" tabindex="0" role="button" aria-label="' + esc(m.titulo) + (abierto ? '' : (previa ? ' (solo miembros)' : ' (bloqueado)')) + '">' +
-      '<div class="mt-doc__portada" style="--mt-c:' + esc(t.color) + '"><img class="mt-doc__foto" src="' + esc(fotoDeMaterial(m)) + '" alt="" loading="lazy" decoding="async">' +
+      '<div class="mt-doc__portada" style="--mt-c:' + esc(t.color) + '"><img class="mt-doc__foto" src="' + esc(fotoDeMaterial(m)) + '" alt="" width="300" height="411" loading="lazy" decoding="async">' +
         '<span class="mt-doc__marca">ZOO<b>RIGEN</b></span><span class="mt-doc__pdf">PDF</span>' + pinHTML('doc:' + m.id, !!ctx.guardado) +
         (abierto ? '' : '<span class="mt-doc__candado" aria-hidden="true">' + CANDADO + '</span>') +
         '<div class="mt-doc__tarjeta"><small>' + esc(m.area || t.nombre) + '</small><strong>' + esc(m.titulo) + '</strong><em>' + esc(t.nombre) + (pags ? ' · ' + pags : '') + '</em></div></div>' +

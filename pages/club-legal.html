@@ -5,7 +5,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Herramientas Legales Pro · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -17,12 +17,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20261103">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261103">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261104">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
 <style>
   .legal-hero {
     background: var(--zoo-panel, #1F5F3A);
@@ -40,7 +40,7 @@
     display: inline-flex; align-items: center; gap: 6px;
     background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
     color: #E8A317; padding: 5px 12px; border-radius: 20px;
-    font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+    font-size: .75rem; font-weight: 700; letter-spacing: .1em;
     margin-bottom: 10px; position: relative; z-index: 2;
   }
   .legal-hero h1 {
@@ -165,7 +165,7 @@
 
   .legal-grid2 {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
     gap: 14px;
   }
 
@@ -250,7 +250,7 @@
     margin-top: 10px; padding-top: 10px;
     border-top: 1px solid var(--zoo-border, #2A3038);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
     gap: 10px;
   }
   .nom-card__detail-item {
@@ -258,7 +258,7 @@
   }
   .nom-card__detail-label {
     color: var(--zoo-text-muted, #a0a8a4);
-    font-size: .7rem;
+    font-size: .75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .04em;
@@ -270,7 +270,7 @@
   }
   .nom-badge {
     padding: 4px 10px; border-radius: 8px;
-    font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+    font-size: .75rem; font-weight: 700; letter-spacing: .04em;
   }
   .nom-badge.p { background: rgba(213,90,40,0.2); color: #D55A28; border: 1px solid rgba(213,90,40,0.4); }
   .nom-badge.e { background: rgba(213,90,40,0.15); color: #E07856; border: 1px solid rgba(213,90,40,0.3); }
@@ -336,7 +336,7 @@
   }
   .uma-event-type {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
     gap: 8px; margin-bottom: 14px;
   }
   .uma-event {
@@ -402,7 +402,7 @@
   }
   .cuota-item__code {
     color: var(--zoo-text-dim, #6b7370);
-    font-size: .74rem; font-family: 'Courier New', monospace;
+    font-size: .75rem; font-family: 'Courier New', monospace;
   }
   .cuota-item__price {
     font-family: var(--zoo-font-display); font-weight: 800;
@@ -601,6 +601,7 @@
   .checklist-item--vista input[type="checkbox"] { flex: none; }
   .checklist .pw-aviso { margin: 0 0 14px; }
 </style>
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
 </head>
 <body>
 <div class="club-layout">
@@ -968,15 +969,15 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club-config.js?v=20261103"></script>
-  <script src="../assets/js/club-seccion.js?v=20261103"></script>
-  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script src="../assets/js/club-config.js?v=20261104"></script>
+  <script src="../assets/js/club-seccion.js?v=20261104"></script>
+  <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionLegal","seccion":"legal","icono":"scale","eyebrow":"Herramienta profesional","titulo":"Compliance legal","acento":"para fauna silvestre.","sub":"Consulta de especies de la NOM-059, borradores de informes UMA/PIMVS, derechos de la Ley Federal de Derechos 2026, CITES, marco legal y listas de revisión. Material de apoyo con artículos y cantidades tomados de los textos vigentes.","cifras":[{"id":"statNom","valor":"0","rotulo":"especies NOM-059"},{"id":"statCuotas","valor":"0","rotulo":"derechos de la LFD"},{"valor":"6","rotulo":"listas de revisión"},{"valor":"2026","rotulo":"cantidades de la LFD"}]});</script>
-  <script src="../assets/js/club.js?v=20261103"></script>
-  <script src="../assets/js/club-shell.js?v=20261103"></script>
-  <script src="../assets/js/club-paywall.js?v=20261103"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
-  <script src="../assets/js/club-avisos.js?v=20261103"></script>
+  <script src="../assets/js/club.js?v=20261104"></script>
+  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club-paywall.js?v=20261104"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
+  <script src="../assets/js/club-avisos.js?v=20261104"></script>
 <script>
 (async () => {
   const session = await ZOORIGEN_CLUB.requireAuth();

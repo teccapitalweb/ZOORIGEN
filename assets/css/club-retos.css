@@ -44,7 +44,7 @@
 .rz img { max-width: 100%; }
 .rz-img-rota { display: none !important; }
 
-.rz-eyebrow { display: inline-block; font: 700 .7rem/1 var(--zoo-font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--rz-naranja-txt); }
+.rz-eyebrow { display: inline-block; font: 700 .75rem/1 var(--zoo-font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--rz-naranja-txt); }
 .rz-h2 { margin: 28px 0 14px !important; font-size: 1.15rem !important; }
 
 /* ───────── Botones ───────── */
@@ -130,7 +130,7 @@
 .rz-dia__ir { flex: none; color: var(--rz-azul-txt); }
 
 /* ───────── Tarjetas de retos ───────── */
-.rz-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+.rz-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 16px; }
 .rz-card {
   position: relative; display: flex; flex-direction: column; overflow: hidden; padding: 0; text-align: left; background: var(--rz-card);
   border: 1px solid var(--rz-line); border-radius: 20px; transition: transform .2s, box-shadow .2s, border-color .2s;
@@ -143,7 +143,7 @@
 .rz-card__tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .rz-card__icono { position: relative; display: grid; place-items: center; }
 .rz-card__mision, .rz-card__hecho {
-  position: absolute; z-index: 1; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; font: 700 .7rem/1 var(--zoo-font-body);
+  position: absolute; z-index: 1; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; font: 700 .75rem/1 var(--zoo-font-body);
   letter-spacing: .06em; text-transform: uppercase; color: #fff; background: rgba(0, 0, 0, 0.55); border-radius: 100px;
 }
 .rz-card__mision { top: 10px; left: 10px; }
@@ -192,7 +192,7 @@
 .rz-nodo__txt { min-width: 0; }
 .rz-nodo__txt strong { display: block; font-size: .92rem; line-height: 1.4; overflow-wrap: anywhere; }
 .rz-nodo__txt small { display: block; margin-top: 2px; font-size: .76rem; color: var(--rz-dim); }
-.rz-etiqueta { flex: none; padding: 5px 10px; font: 700 .68rem/1 var(--zoo-font-body); letter-spacing: .05em; text-transform: uppercase; border-radius: 100px; }
+.rz-etiqueta { flex: none; padding: 5px 10px; font: 700 .75rem/1 var(--zoo-font-body); letter-spacing: .05em; text-transform: uppercase; border-radius: 100px; }
 .rz-etiqueta--hecho { color: var(--rz-ok); background: rgba(46, 158, 91, 0.16); }
 .rz-etiqueta--siguiente { color: #fff; background: var(--rz-naranja); }
 .rz-etiqueta--bloqueado { color: var(--rz-dim); background: var(--rz-surface); }
@@ -263,13 +263,13 @@
 }
 .rz-flash:hover { border-color: var(--rz-naranja); }
 .rz-flash.is-volteada { background: var(--zoo-tint-2, #DCEBE0); border-color: var(--rz-azul); }
-.rz-flash__tag { font: 700 .72rem/1 var(--zoo-font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--rz-muted); }
+.rz-flash__tag { font: 700 .75rem/1 var(--zoo-font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--rz-muted); }
 .rz-flash__term { font: 700 1.15rem/1.3 var(--zoo-font-display); color: var(--rz-azul-txt); }
 .rz-flash strong { font: 700 1.5rem/1.3 var(--zoo-font-display); overflow-wrap: anywhere; }
 .rz-flash strong.rz-flash__back { font: 600 1.05rem/1.65 var(--zoo-font-body); max-width: 60ch; }
 
 /* ───────── Mapa de mundos ───────── */
-.rz-mundos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.rz-mundos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; }
 .rz-mundo { display: flex; flex-direction: column; overflow: hidden; background: var(--rz-surface); border: 1px solid var(--rz-line); border-radius: 18px; }
 .rz-mundo__img { position: relative; display: block; aspect-ratio: 16 / 7; overflow: hidden; background: var(--zoo-panel, #1F5F3A); }
 .rz-mundo__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -309,7 +309,7 @@
 .rz-podio__pos { display: grid; place-items: center; min-height: 24px; font: 800 .95rem/1 var(--zoo-font-display); color: var(--rz-muted); }
 .rz-podio__c[data-pos="1"] .rz-podio__pos { color: #E8A317; }
 .rz-podio__c strong { font-size: .92rem; line-height: 1.3; overflow-wrap: anywhere; }
-.rz-podio__c small { font-size: .74rem; color: var(--rz-dim); }
+.rz-podio__c small { font-size: .75rem; color: var(--rz-dim); }
 .rz-podio__c b { font: 800 1rem/1 var(--zoo-font-display); color: var(--rz-naranja-txt); }
 .rz-av { display: grid; place-items: center; flex: none; width: 38px; height: 38px; font: 700 .82rem/1 var(--zoo-font-display); color: #fff; background: var(--zoo-solid-mid, #2A7A4E); border-radius: 50%; }
 .rz-av--grande { width: 54px; height: 54px; font-size: 1.05rem; }
@@ -318,8 +318,8 @@
 .rz-fila__pos { flex: none; width: 26px; text-align: center; color: var(--rz-muted); }
 .rz-fila__nom { flex: 1; min-width: 0; }
 .rz-fila__nom strong { display: block; font-size: .9rem; overflow-wrap: anywhere; }
-.rz-fila__nom em { margin-left: 6px; padding: 2px 8px; font-style: normal; font-size: .68rem; font-weight: 700; color: #fff; background: var(--rz-azul); border-radius: 100px; }
-.rz-fila__nom small { font-size: .74rem; color: var(--rz-dim); }
+.rz-fila__nom em { margin-left: 6px; padding: 2px 8px; font-style: normal; font-size: .75rem; font-weight: 700; color: #fff; background: var(--rz-azul); border-radius: 100px; }
+.rz-fila__nom small { font-size: .75rem; color: var(--rz-dim); }
 .rz-fila__xp { flex: none; font-weight: 700; font-size: .88rem; }
 .rz-tuposicion { margin-top: 12px !important; font-size: .9rem; text-align: center; }
 .rz-vacio { display: grid; justify-items: center; gap: 8px; margin-top: 16px; padding: 28px 16px; text-align: center; color: var(--rz-muted); background: var(--rz-surface); border: 1px dashed var(--rz-line); border-radius: 16px; }

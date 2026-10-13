@@ -43,23 +43,23 @@
 .hoja__etq {
   position: absolute; top: 10px; left: 10px; max-width: calc(100% - 20px);
   padding: 4px 9px; border-radius: 6px; background: #1f5f3a; color: #fff;
-  font-size: .64rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: 1.2;
+  font-size: .75rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: 1.2;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 /* Etiqueta de la fuente: solo se ve cuando la portada es la foto de respaldo del sitio */
 .hoja__fuente {
   display: none; position: absolute; right: 10px; bottom: 10px; max-width: calc(100% - 20px);
   padding: 3px 8px; border-radius: 6px; background: rgba(15, 15, 15, 0.74); color: #fff;
-  font-size: .68rem; font-weight: 600; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: .75rem; font-weight: 600; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .hoja--respaldo .hoja__fuente { display: block; }
 .hoja__foto--vacia .hoja__img { visibility: hidden; }
 
 .hoja__cuerpo { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 12px; flex: 1; min-width: 0; }
-.hoja__meta { font-size: .7rem; color: var(--h-suave); letter-spacing: .02em; }
+.hoja__meta { font-size: .75rem; color: var(--h-suave); letter-spacing: .02em; }
 .hoja__titulo { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 1.02rem; line-height: 1.24; color: var(--h-tinta); margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .hoja__texto { font-size: .8rem; line-height: 1.5; color: #34423a; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; hyphens: auto; }
-.hoja__pie { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--h-linea); display: flex; justify-content: space-between; align-items: center; font-size: .72rem; font-weight: 700; color: var(--h-a); }
+.hoja__pie { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--h-linea); display: flex; justify-content: space-between; align-items: center; font-size: .75rem; font-weight: 700; color: var(--h-a); }
 
 /* Rejilla (la usan el inicio y la página de noticias) */
 .hojas { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
@@ -67,7 +67,7 @@
 /* Encabezado de sección con la etiqueta "Hoy" */
 .nt-encabezado { display: flex; align-items: center; gap: 10px; margin: 6px 0 14px; }
 .nt-encabezado h2 { font-size: 1.15rem; margin: 0; }
-.nt-hoy { font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: rgba(232, 163, 23, 0.16); color: var(--zoo-amber); border: 1px solid rgba(232, 163, 23, 0.35); }
+.nt-hoy { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: rgba(232, 163, 23, 0.16); color: var(--zoo-amber); border: 1px solid rgba(232, 163, 23, 0.35); }
 .nt-ver-todas { margin-left: auto; font-size: .84rem; font-weight: 700; color: var(--zoo-green-500); }
 .nt-ver-todas:hover { color: var(--zoo-amber); }
 
@@ -92,10 +92,10 @@ body.nt-noscroll { overflow: hidden; }
 .hoja__foto--grande { aspect-ratio: 16 / 9; }
 .hoja__titulo--grande { font-size: 1.6rem; line-height: 1.18; display: block; -webkit-line-clamp: unset; }
 .lectura__esencial { background: rgba(35, 35, 35, 0.05); border-left: 4px solid var(--h-acento); border-radius: 4px 10px 10px 4px; padding: 12px 16px; }
-.lectura__etq { font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--h-a); margin-bottom: 6px; }
+.lectura__etq { font-size: .75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--h-a); margin-bottom: 6px; }
 .lectura__esencial p, .lectura__lista { margin: 0; font-size: .96rem; line-height: 1.6; color: #2c3a32; }
 .lectura__lista { padding-left: 1.1rem; display: grid; gap: 6px; }
-.lectura__aviso { font-size: .74rem; color: var(--h-suave); margin: 0; }
+.lectura__aviso { font-size: .75rem; color: var(--h-suave); margin: 0; }
 .lectura__leer { align-self: flex-start; display: inline-flex; padding: 11px 20px; border-radius: 999px; background: var(--h-a); color: #fff; font-weight: 700; font-size: .9rem; }
 .lectura__leer:hover { filter: brightness(1.1); }
 .lectura__leer--sin { background: transparent; color: var(--h-suave); padding-left: 0; }
@@ -124,14 +124,14 @@ body.nt-noscroll { overflow: hidden; }
 .ini-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(7, 7, 7, 0.88) 0%, rgba(7, 7, 7, 0.62) 55%, rgba(7, 7, 7, 0.25) 100%); }
 .ini-hero--vacio { min-height: 150px; }
 .ini-hero__cuerpo { padding: 26px 28px; max-width: 620px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
-.ini-hero__etq { font-size: .7rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--zoo-amber, #E8A317); }
+.ini-hero__etq { font-size: .75rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--zoo-amber, #E8A317); }
 .ini-hero__titulo { font-family: var(--zoo-font-display); font-size: clamp(1.3rem, 2.6vw, 1.9rem); line-height: 1.15; color: #fff; margin: 0; }
 .ini-hero__meta { font-size: .86rem; color: rgba(255, 255, 255, 0.78); margin: 0; }
 .ini-hero__barra { width: min(380px, 100%); height: 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.22); overflow: hidden; margin-top: 6px; }
 .ini-hero__barra i { display: block; height: 100%; border-radius: 99px; background: var(--zoo-amber, #E8A317); }
 .ini-hero__avance { font-size: .8rem; color: rgba(255, 255, 255, 0.85); }
 .ini-hero__cuenta { display: inline-flex; align-items: baseline; gap: 8px; margin-top: 4px; padding: 8px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.22); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-.ini-hero__cuenta span { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+.ini-hero__cuenta span { font-size: .75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
 .ini-hero__cuenta strong { font-size: 1.15rem; color: #F5C62E; }
 .ini-hero__cuenta small { font-size: .78rem; opacity: .8; }
 .ini-hero__btn { margin-top: 8px; display: inline-flex; padding: 11px 22px; border-radius: 999px; background: var(--zoo-amber, #E8A317); color: #1f1d17; font-weight: 800; font-size: .9rem; }

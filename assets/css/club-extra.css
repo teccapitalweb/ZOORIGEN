@@ -95,7 +95,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
 .tnav-badge {
   background: linear-gradient(135deg, var(--gv-gold) 0%, var(--gv-gold-deep) 100%);
   color: #1a0f04;
-  font-size: 0.68rem; font-weight: 800;
+  font-size: .75rem; font-weight: 800;
   padding: 0.25rem 0.7rem;
   border-radius: 50px;
   letter-spacing: 0.1em;
@@ -139,7 +139,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
 .sidebar::-webkit-scrollbar-thumb { background: var(--gv-border); border-radius: 3px; }
 
 .slabel {
-  font-size: 0.65rem; font-weight: 700;
+  font-size: .75rem; font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--gv-text-dim);
   padding: 0.9rem 0.75rem 0.3rem;
@@ -182,7 +182,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
   margin-left: auto;
   background: var(--gv-purple);
   color: #fff;
-  font-size: 0.62rem; font-weight: 800;
+  font-size: .75rem; font-weight: 800;
   padding: 0.15rem 0.48rem;
   border-radius: 50px;
   letter-spacing: 0.03em;
@@ -248,7 +248,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
   color: var(--gv-gold-hover);
   padding: 0.3rem 0.8rem;
   border-radius: 50px;
-  font-size: 0.7rem; font-weight: 800;
+  font-size: .75rem; font-weight: 800;
   letter-spacing: 0.1em; text-transform: uppercase;
   margin-bottom: 0.8rem;
   position: relative; z-index: 2;
@@ -281,7 +281,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
   line-height: 1;
 }
 .hero-stat-l {
-  font-size: 0.72rem; font-weight: 600;
+  font-size: .75rem; font-weight: 600;
   color: var(--gv-text-muted);
   text-transform: uppercase; letter-spacing: 0.06em;
   margin-top: 0.3rem;
@@ -316,7 +316,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
   gap: 1.2rem;
 }
 
@@ -378,7 +378,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
 .field label {
   display: block;
   font-family: var(--gv-ff);
-  font-size: 0.72rem; font-weight: 700;
+  font-size: .75rem; font-weight: 700;
   color: var(--gv-text-muted);
   margin-bottom: 0.4rem;
   text-transform: uppercase;
@@ -427,7 +427,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
   padding: 0.75rem 1rem;
   text-align: left;
   font-family: var(--gv-ff);
-  font-size: 0.72rem; font-weight: 700;
+  font-size: .75rem; font-weight: 700;
   color: var(--gv-text-dim);
   text-transform: uppercase; letter-spacing: 0.06em;
   background: rgba(255, 255, 255, 0.03);
@@ -472,7 +472,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
 .res-card h4 {
   font-family: var(--gv-ff);
   color: var(--gv-emerald-hover);
-  font-size: 0.72rem;
+  font-size: .75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 0.5rem;
@@ -727,7 +727,7 @@ input, textarea, select { font-family: var(--gv-ffb); }
   display: inline-flex; align-items: center;
   padding: 0.25rem 0.7rem;
   border-radius: 50px;
-  font-size: 0.72rem;
+  font-size: .75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
 }

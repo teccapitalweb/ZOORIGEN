@@ -140,7 +140,7 @@
                     <div style="display:flex;align-items:center;gap:10px;">
                       <div style="width:32px;height:32px;border-radius:50%;background:var(--zoo-green-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;color:var(--zoo-green-500);">${ZOORIGEN_CLUB.getInitials(m.name)}</div>
                       <div><div style="font-weight:600;">${m.name || '—'}</div>
-                      <div style="font-size:.74rem;color:var(--zoo-text-dim);">${m.role === 'admin' ? '⚙️ Admin' : 'Miembro'}</div></div>
+                      <div style="font-size:.75rem;color:var(--zoo-text-dim);">${m.role === 'admin' ? '⚙️ Admin' : 'Miembro'}</div></div>
                     </div>
                   </td>
                   <td style="font-size:.82rem;">${m.email || '—'}</td>

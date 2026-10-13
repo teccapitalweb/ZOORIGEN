@@ -444,7 +444,7 @@
             '<div class="rz-hero__datos"><span><strong>' + fmt(r.xp) + '</strong> XP' + (r.maximo ? ' · nivel máximo' : ' de ' + fmt(r.hasta)) + '</span><span>' + (estado.superados ? fmt(estado.superados) + ' retos superados' : '') + '</span></div>' +
             '<p class="rz-hero__nota">' + nota + '</p>' +
           '</div>' +
-          '<div class="rz-hero__mascota"><img src="' + esc(img(MASCOTAS.jira)) + '" alt="" loading="lazy"></div>' +
+          '<div class="rz-hero__mascota"><img src="' + esc(img(MASCOTAS.jira)) + '" alt="" width="108" height="108" loading="lazy"></div>' +
         '</section>';
     }
 
@@ -473,7 +473,7 @@
         else if (t.camino && estado.cargado) meta = Math.min(estado.camino[t.id] || 0, totalModo(t.id)) + ' de ' + totalModo(t.id) + ' superados' + (t.id === 'detective' && pendientes ? ' · ' + pendientes + ' por llegar' : '');
         else meta = t.tiempo;
         return '<button type="button" class="rz-card' + (miembro ? '' : ' is-previa') + (pronto ? ' is-pronto' : '') + '" data-reto="' + t.id + '" style="--rz-acc:' + t.color + ';--rz-acc-txt:' + t.texto + '"' + (pronto ? ' aria-disabled="true"' : '') + '>' +
-          '<span class="rz-card__tile"><span class="rz-card__icono">' + ic(t.icono, 54) + '</span><img src="' + esc(img(t.imagen)) + '" alt="" loading="lazy">' +
+          '<span class="rz-card__tile"><span class="rz-card__icono">' + ic(t.icono, 54) + '</span><img src="' + esc(img(t.imagen)) + '" alt="" width="1000" height="667" loading="lazy">' +
             '<span class="rz-card__mision">Misión ' + String(n + 1).padStart(2, '0') + '</span>' +
             (hecho ? '<span class="rz-card__hecho">' + ic('circle-check', 14) + 'Hecho hoy</span>' : '') +
           '</span>' +
@@ -500,7 +500,7 @@
           '<span class="rz-historia__txt"><span class="rz-eyebrow">Modo historia</span><strong>Recorre seis mundos de la fauna de México</strong>' +
           '<small>Toma decisiones en cada caso. Con 3 aciertos de 4 abres el siguiente mundo.</small>' +
           '<span class="rz-historia__btn">' + (miembro ? 'Abrir el mapa' : 'Solo miembros') + ic('arrow-right', 16) + '</span></span>' +
-          '<span class="rz-historia__img"><img src="' + esc(img(MASCOTAS.jaguarito)) + '" alt="" loading="lazy"></span></button>';
+          '<span class="rz-historia__img"><img src="' + esc(img(MASCOTAS.jaguarito)) + '" alt="" width="384" height="504" loading="lazy"></span></button>';
     }
 
     /* ── Escenario ── */

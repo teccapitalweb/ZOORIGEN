@@ -905,7 +905,7 @@ const ZOORIGEN_CLUB = {
         #zv-pantalla .zv-card{width:100%;max-width:440px;padding:34px 28px 26px;text-align:center;background:#fff;border:1px solid #E3DDCF;border-radius:24px;box-shadow:0 24px 60px rgba(35, 35, 35,.14)}
         #zv-pantalla .zv-icono{width:80px;height:80px;margin:0 auto 18px;display:grid;place-items:center;border-radius:50%;background:#FBF1D6;color:#B27A06}
         #zv-pantalla .zv-icono svg{width:38px;height:38px}
-        #zv-pantalla .zv-k{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#1F5F3A;margin-bottom:8px}
+        #zv-pantalla .zv-k{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#1F5F3A;margin-bottom:8px}
         #zv-pantalla h1{margin:0 0 10px;font-family:var(--zoo-font-display);font-size:24px;line-height:1.2;color:#16241B}
         #zv-pantalla p{margin:0;font-size:14.5px;line-height:1.6;color:#4B5A50}
         #zv-pantalla .zv-correo{display:inline-block;margin:10px 0 2px;padding:6px 12px;border-radius:999px;background:#F1EEE4;font-weight:700;font-size:13.5px;color:#16241B;word-break:break-all}
@@ -1438,7 +1438,7 @@ const ZOORIGEN_CLUB = {
       <div class="club-sidebar__plan" style="padding:10px 12px;text-align:center;">
         <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:4px;">
           <span style="width:7px;height:7px;border-radius:50%;background:${planDotColor};"></span>
-          <span class="plan-label" style="margin:0;font-size:.72rem;letter-spacing:.06em;color:${planLabelColor};">${planLabel.toUpperCase()}</span>
+          <span class="plan-label" style="margin:0;font-size:.75rem;letter-spacing:.06em;color:${planLabelColor};">${planLabel.toUpperCase()}</span>
         </div>
         <div class="plan-meta" style="font-size:.75rem;margin-bottom:8px;opacity:.75;">${renewText}</div>
         ${!isActivePlan ? `
@@ -1676,7 +1676,7 @@ const ZOORIGEN_CLUB = {
       <div style="max-width:500px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;overflow:hidden;">
         <button id="zooPaywallClose" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.3);border:0;color:#fff;font-size:1rem;cursor:pointer;"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
         <div style="font-size:3.8rem;margin-bottom:14px;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
-        <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">ACCESO EXCLUSIVO VIP</div>
+        <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">ACCESO EXCLUSIVO VIP</div>
         <h2 style="font-family:var(--zoo-font-display);color:#fff;font-size:1.6rem;margin:0 0 10px;line-height:1.2;">Necesitas ser Miembro VIP para ${label}</h2>
         <p style="color:rgba(255,255,255,0.88);font-size:.95rem;margin:0 0 22px;line-height:1.55;">Suscríbete y desbloquea toda la plataforma: cursos, ${zooEnVivoPronto() ? 'foro' : 'webinars, foro'}, herramientas profesionales y certificados con validez.</p>
 
@@ -1696,14 +1696,14 @@ const ZOORIGEN_CLUB = {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
           <button id="zooPaywallMens" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:var(--zoo-font-display);transition:all .15s;">
             <div style="font-weight:700;font-size:.78rem;opacity:.8;">MENSUAL</div>
-            <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$199<span style="font-size:.7rem;opacity:.7;">/mes</span></div>
-            <div style="font-size:.72rem;opacity:.7;">Cancela cuando quieras</div>
+            <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$199<span style="font-size:.75rem;opacity:.7;">/mes</span></div>
+            <div style="font-size:.75rem;opacity:.7;">Cancela cuando quieras</div>
           </button>
           <button id="zooPaywallAnual" style="background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:var(--zoo-font-display);font-weight:800;position:relative;box-shadow:0 6px 18px rgba(232,163,23,0.4);">
-            <div style="position:absolute;top:-8px;right:6px;background:#D55A28;color:#fff;font-size:.62rem;padding:2px 8px;border-radius:10px;font-weight:800;">-20% OFF</div>
+            <div style="position:absolute;top:-8px;right:6px;background:#D55A28;color:#fff;font-size:.75rem;padding:2px 8px;border-radius:10px;font-weight:800;">-20% OFF</div>
             <div style="font-weight:700;font-size:.78rem;">ANUAL</div>
-            <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$1,899<span style="font-size:.7rem;">/año</span></div>
-            <div style="font-size:.72rem;">Ahorra $489</div>
+            <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$1,899<span style="font-size:.75rem;">/año</span></div>
+            <div style="font-size:.75rem;">Ahorra $489</div>
           </button>
         </div>
 
@@ -1747,7 +1747,7 @@ const ZOORIGEN_CLUB = {
       if (!el.querySelector('.zoo-vip-lock')) {
         const lock = document.createElement('div');
         lock.className = 'zoo-vip-lock';
-        lock.style.cssText = 'position:absolute;top:8px;right:8px;background:rgba(232,163,23,0.9);color:#1f1d17;padding:4px 10px;border-radius:14px;font-size:.7rem;font-weight:800;letter-spacing:.06em;pointer-events:none;z-index:5;';
+        lock.style.cssText = 'position:absolute;top:8px;right:8px;background:rgba(232,163,23,0.9);color:#1f1d17;padding:4px 10px;border-radius:14px;font-size:.75rem;font-weight:800;letter-spacing:.06em;pointer-events:none;z-index:5;';
         lock.textContent = 'VIP';
         el.appendChild(lock);
       }

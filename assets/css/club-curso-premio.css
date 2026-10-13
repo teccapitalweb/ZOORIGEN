@@ -122,7 +122,7 @@
 .zcp__kicker {
   margin: 0 0 4px;
   color: var(--zcp-kicker);
-  font: 700 .72rem/1.2 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  font: 700 .75rem/1.2 'JetBrains Mono', ui-monospace, Consolas, monospace;
   letter-spacing: .24em;
   text-transform: uppercase;
 }
@@ -168,7 +168,7 @@
   aspect-ratio: 1;
   min-width: 0;
   color: var(--zcp-casilla-texto);
-  font: 700 .74rem/1 var(--zoo-font-display);
+  font: 700 .75rem/1 var(--zoo-font-display);
   background: var(--zcp-casilla);
   border: 1px solid var(--zcp-casilla-borde);
   border-radius: 9px;
@@ -290,10 +290,10 @@ html.zcp-lock, html.zcp-lock body { overflow: hidden; }
   .zcp { padding: 12px; }
   .zcp__tarjeta { padding: 26px 18px 20px; border-radius: 26px; }
   .zcp__casillas { gap: 4px; }
-  .zcp__casilla { border-radius: 7px; font-size: .64rem; }
+  .zcp__casilla { border-radius: 7px; font-size: .75rem; }
   .zcp__titulo { font-size: 1.2rem; }
   .zcp__texto { font-size: .9rem; }
-  .zcp__nivel-fila { font-size: .74rem; }
+  .zcp__nivel-fila { font-size: .75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

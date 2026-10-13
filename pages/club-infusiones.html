@@ -5,7 +5,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Infusiones y diluciones · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -17,12 +17,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20261103">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261103">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261104">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
 <style>
   .tools-hero {
     background: var(--zoo-panel, #1F5F3A);
@@ -47,7 +47,7 @@
     background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
     color: #E8A317;
     padding: 5px 12px; border-radius: 20px;
-    font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+    font-size: .75rem; font-weight: 700; letter-spacing: .1em;
     margin-bottom: 10px; position: relative; z-index: 2;
   }
   .tools-hero h1 {
@@ -147,7 +147,7 @@
 
   .tool-form {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
     gap: 14px;
     margin-bottom: 18px;
   }
@@ -279,7 +279,7 @@
   }
   .tool-info-card__title {
     color: #E8A317;
-    font-size: .72rem;
+    font-size: .75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .06em;
@@ -343,6 +343,7 @@
   .tool-info-card .pw-vista { min-height: 150px; margin-top: 4px; }
   .pw-aviso a { color: inherit; font-weight: 700; text-decoration: underline; }
 </style>
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
 </head>
 <body>
 <div class="club-layout">
@@ -661,16 +662,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/club-config.js?v=20261103"></script>
-  <script src="../assets/js/club-seccion.js?v=20261103"></script>
-  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script src="../assets/js/club-config.js?v=20261104"></script>
+  <script src="../assets/js/club-seccion.js?v=20261104"></script>
+  <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionInfusiones","seccion":"infusiones","icono":"syringe","eyebrow":"Herramienta profesional","titulo":"Infusiones","acento":"y diluciones.","sub":"Velocidad de infusión continua, preparación de bolsas y jeringas, diluciones y conversiones de unidades. Tú escribes la dosis: la herramienta solo hace la aritmética y te muestra la fórmula con tus números para que puedas comprobarla.","cifras":[{"valor":"4","rotulo":"calculadoras"},{"valor":"4","rotulo":"equipos de goteo (10, 15, 20 y 60 gtt/ml)"}]});</script>
-  <script src="../assets/js/club.js?v=20261103"></script>
-  <script src="../assets/js/club-shell.js?v=20261103"></script>
-  <script src="../assets/js/club-paywall.js?v=20261103"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
-  <script src="../assets/js/herramientas-infusiones.js?v=20261103"></script>
-  <script src="../assets/js/club-avisos.js?v=20261103"></script>
+  <script src="../assets/js/club.js?v=20261104"></script>
+  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club-paywall.js?v=20261104"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
+  <script src="../assets/js/herramientas-infusiones.js?v=20261104"></script>
+  <script src="../assets/js/club-avisos.js?v=20261104"></script>
 <script>
 (async () => {
   const session = await ZOORIGEN_CLUB.requireAuth();

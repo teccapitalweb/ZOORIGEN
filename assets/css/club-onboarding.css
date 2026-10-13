@@ -83,7 +83,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zob__icono--grande svg { width: 42px; height: 42px; }
 
 .zob__kicker {
-  margin: 0 0 8px; font-size: .74rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+  margin: 0 0 8px; font-size: .75rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
   color: var(--zob-acento);
 }
 .zob__titulo {
@@ -235,14 +235,14 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
   box-shadow: 0 24px 80px rgba(0, 0, 0, .45); transition: left .22s ease, top .22s ease;
 }
 .zob-tour__cabeza { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
-.zob-tour__marca { display: flex; align-items: center; gap: 9px; min-width: 0; font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--zob-acento); }
+.zob-tour__marca { display: flex; align-items: center; gap: 9px; min-width: 0; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--zob-acento); }
 .zob-tour__punto { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; background: var(--zob-naranja); box-shadow: 0 0 12px color-mix(in srgb, var(--zob-naranja) 65%, transparent); }
 .zob-tour__omitir { padding: 6px 8px; border: 0; border-radius: 8px; font: inherit; font-size: .8rem; font-weight: 600; color: var(--zob-suave); background: transparent; cursor: pointer; }
 .zob-tour__omitir:hover { color: var(--zob-texto); background: var(--zob-fondo-suave); }
 .zob-tour__progreso { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .zob-tour__pista { flex: 1; height: 5px; overflow: hidden; border-radius: 99px; background: var(--zob-fondo-suave); }
 .zob-tour__barra { height: 100%; width: 0; border-radius: inherit; background: var(--zoo-fill, #6FBF73); transition: width .22s ease; }
-.zob-tour__cuenta { font-size: .72rem; font-weight: 700; white-space: nowrap; color: var(--zob-suave); }
+.zob-tour__cuenta { font-size: .75rem; font-weight: 700; white-space: nowrap; color: var(--zob-suave); }
 .zob-tour__titulo { margin: 0 0 8px; font-family: var(--zoo-font-display); font-size: 1.2rem; line-height: 1.25; font-weight: 700; color: var(--zob-texto); }
 .zob-tour__texto { margin: 0; font-size: .92rem; line-height: 1.6; color: var(--zob-suave); }
 .zob-tour__acciones { display: flex; align-items: center; justify-content: flex-end; gap: 9px; margin-top: 18px; }

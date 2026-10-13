@@ -4,7 +4,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Webinars en vivo · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -15,12 +15,12 @@
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261103">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261103">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
   <style>
     .webinar-hero {
       position: relative;
@@ -111,7 +111,7 @@
     }
     .webinar-countdown__lbl {
       color: rgba(255,255,255,0.7);
-      font-size: .72rem; font-weight: 700;
+      font-size: .75rem; font-weight: 700;
       letter-spacing: .08em; text-transform: uppercase;
       margin-top: 4px; display: block;
     }
@@ -133,7 +133,7 @@
       width: 28px; height: 28px; background: #1a73e8;
       border-radius: 6px;
       display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 800; font-size: .7rem; letter-spacing: -1px;
+      color: #fff; font-weight: 800; font-size: .75rem; letter-spacing: -1px;
     }
 
     .section-title-webinars {
@@ -180,7 +180,7 @@
     :root:not([data-theme="light"]) .webinar-card__date-day { color: var(--zoo-amber); }
     .webinar-card__date-month {
       color: var(--zoo-text-muted);
-      font-size: .72rem; font-weight: 700;
+      font-size: .75rem; font-weight: 700;
       letter-spacing: .08em; text-transform: uppercase;
       margin-top: 4px;
     }
@@ -205,7 +205,7 @@
       border: 1px solid rgba(213,90,40,0.3);
       color: #f08a5f;
       padding: 4px 10px; border-radius: 12px;
-      font-size: .72rem; font-weight: 700;
+      font-size: .75rem; font-weight: 700;
       letter-spacing: .04em; text-transform: uppercase;
       white-space: nowrap;
     }
@@ -259,6 +259,7 @@
       .webinar-countdown__num { font-size: 1.6rem; }
     }
   </style>
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
 </head>
 <body>
   <div class="club-layout">
@@ -275,10 +276,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261103"></script>
-  <script src="../assets/js/club-config.js?v=20261103"></script>
-  <script src="../assets/js/club-seccion.js?v=20261103"></script>
-  <script src="../assets/js/club-cola.js?v=20261103"></script>
+  <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
+  <script src="../assets/js/club-config.js?v=20261104"></script>
+  <script src="../assets/js/club-seccion.js?v=20261104"></script>
+  <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>
     (function () {
       var pronto = !!(window.ZOO_CONFIG && ZOO_CONFIG.clasesEnVivoPronto);
@@ -293,10 +294,10 @@
       });
     })();
   </script>
-  <script src="../assets/js/club.js?v=20261103"></script>
-  <script src="../assets/js/club-paywall.js?v=20261103"></script>
-  <script src="../assets/js/club-shell.js?v=20261103"></script>
-  <script src="../assets/js/club-avisos.js?v=20261103"></script>
+  <script src="../assets/js/club.js?v=20261104"></script>
+  <script src="../assets/js/club-paywall.js?v=20261104"></script>
+  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
