@@ -392,7 +392,10 @@ test('las páginas ya no mencionan 3 ni 6 amigos ni "dos premios"', () => {
   }
   const ref = fs.readFileSync(path.join(RAIZ, 'pages/club-referidos.html'), 'utf8');
   assert.match(ref, /Con 4 amigos válidos ganas tu premio/);
+  // La tarjeta del Inicio la arma club-inicio.js (invitaHTML); la página solo la monta con el código.
   const dash = fs.readFileSync(path.join(RAIZ, 'pages/club-dashboard.html'), 'utf8');
-  assert.match(dash, /Invita a 4 amigos y adelanta un curso/);
-  assert.match(dash, /META_REFERIDOS = 4/);
+  assert.match(dash, /id="invitaCard"/);
+  const inicio = require('../assets/js/club-inicio.js');
+  assert.match(inicio.invitaHTML({ codigo: 'ZOO-ABC123' }), /Invita a 4 amigos y adelanta un curso/);
+  assert.equal(inicio.META_REFERIDOS, 4);
 });

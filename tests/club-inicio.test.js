@@ -139,3 +139,122 @@ test('cuenta regresiva con horas: menos de un día muestra horas; después, día
   const html = I.widgetHTML(h, { ahora: new Date(ahora) });
   assert.match(html, /5 horas/);
 });
+
+/* ───── Rediseño del Inicio: tarjeta de saludo con Jaguarito, conteo animado e invitación ───── */
+test('conteo ascendente: sube de 0 al valor en 600 ms, con curva suave y sin pasarse', () => {
+  assert.equal(I.DURACION_CONTEO, 600);
+  assert.equal(I.valorConteo(0, 15, 0), 0);
+  assert.equal(I.valorConteo(0, 15, 600), 15);
+  assert.equal(I.valorConteo(0, 15, 5000), 15, 'no pasa de la meta');
+  const medio = I.valorConteo(0, 100, 300);
+  assert.ok(medio > 50 && medio < 100, 'sale rápido y frena al llegar: ' + medio);
+  assert.equal(I.valorConteo(10, 4, 600), 4, 'también baja si el dato baja');
+  assert.equal(I.valorConteo('x', 7, 600), 7);
+  assert.equal(I.valorConteo(0, 'x', 100), 0);
+  let anterior = -1;
+  for (let ms = 0; ms <= 600; ms += 50) { const v = I.valorConteo(0, 61, ms); assert.ok(v >= anterior); anterior = v; }
+  assert.equal(I.esConteo('15'), true);
+  assert.equal(I.esConteo(0), true);
+  for (const mal of ['—', '', null, undefined, -1, 1.5, true, 'abc']) assert.equal(I.esConteo(mal), false, String(mal));
+});
+
+test('cifras del saludo: cursos, clases, en progreso, completados y la racha solo si se conoce', () => {
+  const c = I.cifrasDelHero({ cursos: 15, clases: 61, enProgreso: 2, completados: 2, racha: 6 });
+  assert.deepEqual(c.map(x => x.clave), ['cursos', 'clases', 'enProgreso', 'completados', 'racha']);
+  assert.deepEqual(c.map(x => x.valor), ['15', '61', '2', '2', '6']);
+  assert.equal(c[4].rotulo, 'días seguidos');
+  assert.equal(I.cifrasDelHero({ cursos: 1, clases: 1, enProgreso: 1, completados: 1, racha: 1 }).map(x => x.rotulo).join('|'), 'curso|clase|en progreso|completado|día seguido');
+  const sin = I.cifrasDelHero({ cursos: 3 });
+  assert.equal(sin.length, 4, 'sin racha conocida (no miembro) no hay quinta cifra');
+  assert.equal(sin[1].valor, '—', 'lo que falta no se inventa');
+  const pendiente = I.cifrasDelHero({ conRacha: true });
+  assert.equal(pendiente.length, 5);
+  assert.equal(pendiente[4].valor, '—');
+  assert.equal(I.cifrasDelHero({ racha: 0 })[4].valor, '0', 'una racha de cero es un dato real');
+});
+
+test('botón principal: "Continuar mi curso" / "Empezar mi curso" o "Ver cursos"', () => {
+  assert.equal(I.botonHero({ tipo: 'continuar', hechas: 2, total: 4 }).etiqueta, 'Continuar mi curso');
+  assert.equal(I.botonHero({ tipo: 'continuar', hechas: 0, total: 4 }).etiqueta, 'Empezar mi curso');
+  for (const h of [{ tipo: 'proximo' }, { tipo: 'terminado' }, { tipo: 'sin-cursos' }, null]) assert.equal(I.botonHero(h).etiqueta, 'Ver cursos');
+  assert.equal(I.botonHero(null).href, 'club-biblioteca.html');
+});
+
+test('frase de Jaguarito según el estado (sin cursos, en progreso, terminó, esperando)', () => {
+  const m = (hero, racha) => I.mensajeGuia({ hero, racha });
+  assert.equal(m({ tipo: 'continuar', hechas: 1, total: 4 }, 0).texto, 'Tu siguiente clase te espera.');
+  assert.match(m({ tipo: 'continuar', hechas: 1, total: 4 }, 6).texto, /Llevas 6 días seguidos/);
+  assert.match(m({ tipo: 'continuar', hechas: 3, total: 4 }, 0).texto, /Te falta una clase/);
+  assert.match(m({ tipo: 'continuar', hechas: 0, total: 4 }, 0).texto, /primer curso/);
+  assert.match(m({ tipo: 'proximo' }, 0).texto, /próximo curso/);
+  assert.match(m({ tipo: 'terminado' }, 0).texto, /Terminaste/);
+  assert.match(m({ tipo: 'sin-cursos' }, 0).texto, /Pronto habrá cursos/);
+  assert.match(m(null, null).texto, /avance de hoy/);
+  const guia = require('../assets/js/guia-personaje.js');
+  for (const hero of [null, { tipo: 'continuar', hechas: 0, total: 3 }, { tipo: 'continuar', hechas: 1, total: 3 }, { tipo: 'proximo' }, { tipo: 'terminado' }, { tipo: 'sin-cursos' }]) {
+    const r = m(hero, 5);
+    assert.ok(guia.esExpresion(r.expresion), 'la expresión existe en el mapa de Jaguarito: ' + r.expresion);
+    assert.ok(r.texto.length > 10 && r.texto.length < 90, 'frase corta');
+  }
+});
+
+test('saludoHTML: tarjeta única con Jaguarito, frase, botón, cifras escalonadas y decoración sin texto ni emojis', () => {
+  const h = I.saludoHTML('Ana', new Date('2026-10-13T15:00:00'), { cursos: 15, clases: 61, enProgreso: 2, completados: 2, racha: 6 },
+    { hero: { tipo: 'continuar', hechas: 1, total: 4 } });
+  assert.match(h, /class="zs-seccion zs-inicio"/);
+  assert.match(h, /Buenas tardes,/);
+  assert.match(h, /Martes 13 de octubre de 2026/);
+  assert.match(h, /assets\/img\/guia\/guia-[a-z]+\.webp/);
+  assert.match(h, /id="zsInicioMensaje"[^>]*>Llevas 6 días seguidos/);
+  assert.match(h, /id="zsInicioCta"[^>]*>[\s\S]*Continuar mi curso/);
+  assert.equal((h.match(/style="--i:\d"/g) || []).length, 5, 'cada cifra lleva su índice de entrada');
+  assert.match(h, /data-cifra="racha"[^>]*>6</);
+  assert.match(h, /zs-inicio__decor" aria-hidden="true"/);
+  assert.doesNotMatch(h, /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u);
+  assert.doesNotMatch(h, /<script|onerror|javascript:/i);
+  const nombreSucio = I.saludoHTML('<img src=x onerror=1>', new Date('2026-10-13T09:00:00'), {});
+  assert.doesNotMatch(nombreSucio, /<img src=x/);
+});
+
+test('invitación: huellas llenas 0..4, aviso de lo que falta y premio listo', () => {
+  const e = (r) => I.estadoInvitados(r);
+  assert.deepEqual(e({ validos: 0 }).huellas, [false, false, false, false]);
+  assert.deepEqual(e({ validos: 2, pendientes: 1, puntosTotales: 30 }).huellas, [true, true, false, false]);
+  assert.equal(e({ validos: 2, pendientes: 1, puntosTotales: 30 }).aviso, 'Te faltan 2 para tu premio');
+  assert.equal(e({ validos: 3 }).aviso, 'Te falta 1 para tu premio');
+  assert.equal(e({ validos: 3 }).llenas, 3);
+  assert.equal(e({ validos: 9 }).llenas, 4, 'no pasa de la meta');
+  assert.equal(e({ validos: 4 }).aviso, 'Ya ganaste tu premio de invitados');
+  assert.equal(e({ validos: 4, premios: [{ ganado: true, usado: false }] }).aviso, 'Tienes un premio listo para canjear');
+  assert.equal(e({ validos: 1, premios: [{ ganado: true, usado: true }] }).aviso, 'Ya ganaste tu premio de invitados');
+  const raro = e({ validos: -3, pendientes: 'x', puntosTotales: null });
+  assert.deepEqual([raro.validos, raro.pendientes, raro.puntos, raro.llenas], [0, 0, 0, 0]);
+  assert.equal(e(null).huellas.length, 4);
+  assert.equal(I.estadoInvitados({ validos: 1 }, 6).huellas.length, 6, 'la meta se puede cambiar');
+});
+
+test('invitaHTML: boleto con código, copiar, huellas, tres cifras, WhatsApp y enlace a invitados', () => {
+  const est = I.estadoInvitados({ validos: 2, pendientes: 1, puntosTotales: 0 });
+  const h = I.invitaHTML({ codigo: 'ZOO-VIP8K2', estado: est });
+  assert.match(h, /Invita a 4 amigos y adelanta un curso/);
+  assert.match(h, /id="dashRefCode">ZOO-VIP8K2</);
+  assert.match(h, /data-copiar/);
+  assert.equal((h.match(/inv__huella is-llena/g) || []).length, 2);
+  assert.equal((h.match(/class="inv__huella[ "]/g) || []).length, 4);
+  assert.match(h, /aria-label="2 de 4 amigos confirmados"/);
+  assert.match(h, /Te faltan 2 para tu premio/);
+  for (const r of ['confirmados', 'por confirmar', 'puntos']) assert.ok(h.includes('<dt>' + r + '</dt>'), r);
+  assert.match(h, /data-compartir[\s\S]*Compartir por WhatsApp/);
+  assert.match(h, /href="club-referidos\.html">Ver mis invitados/);
+  assert.match(I.invitaHTML({ codigo: 'ZOO-A', error: true }), /No pudimos cargar tus invitados ahora/);
+  assert.match(I.invitaHTML({ codigo: 'ZOO-A' }), /Cargando tus invitados/);
+  assert.doesNotMatch(I.invitaHTML({ codigo: '"><img src=x onerror=1>' }), /<img src=x/);
+});
+
+test('compartir por WhatsApp: mismo texto y enlace de registro con el código', () => {
+  assert.equal(I.urlRegistroConCodigo('ZOO-VIP8K2'), 'https://www.zoorigen.com/pages/club-registro.html?ref=ZOO-VIP8K2');
+  const t = I.mensajeCompartir('ZOO-VIP8K2');
+  assert.match(t, /Únete con mi código ZOO-VIP8K2/);
+  assert.ok(t.includes('club-registro.html?ref=ZOO-VIP8K2'));
+  assert.ok(I.urlWhatsapp('ZOO-VIP8K2').startsWith('https://wa.me/?text='));
+});

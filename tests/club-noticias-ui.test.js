@@ -147,3 +147,79 @@ test('normalizar tolera datos incompletos', () => {
   const m = N.normalizar({ titulo: 'x', resumen: 'uno\n\ndos\n' + 'tres\n'.repeat(20) }, 0);
   assert.ok(m.resumen.length <= 8 && m.resumen[0] === 'uno');
 });
+
+/* ───── Primera plana de periódico ───── */
+const NOTAS = [1, 2, 3, 4, 5, 6, 7, 8].map(i => ({ id: 'n' + i, titulo: 'Nota ' + i, extracto: 'Extracto de la nota ' + i, fuente: 'Zoorigen', categoria: i % 2 ? 'fauna' : 'conservacion',
+  fecha: '2026-10-13T08:00:00Z', link: 'https://es.mongabay.com/n' + i, imagen: i === 3 ? 'https://cdn.mongabay.com/fotos/n3.jpg' : '' }));
+const AHORA = new Date('2026-10-13T12:00:00');
+
+test('composición: la principal es la primera con imagen propia; luego 4 secundarias y las demás como "más notas"', () => {
+  const c = N.componerPortada(NOTAS);
+  assert.equal(c.principal.indice, 2, 'la única con imagen sube a principal');
+  assert.deepEqual(c.secundarias.map(x => x.indice), [0, 1, 3, 4]);
+  assert.deepEqual(c.breves.map(x => x.indice), [5, 6, 7]);
+  const sinImagen = N.componerPortada(NOTAS.map(n => ({ ...n, imagen: '' })));
+  assert.equal(sinImagen.principal.indice, 0, 'sin imágenes, la primera');
+  assert.equal(N.componerPortada(NOTAS.slice(0, 1)).secundarias.length, 0);
+  assert.equal(N.componerPortada([]).principal, null);
+  assert.equal(N.componerPortada(null).principal, null);
+  assert.equal(N.componerPortada(NOTAS, { secundarias: 3, breves: 1 }).secundarias.length, 3);
+  assert.equal(N.componerPortada(NOTAS, { secundarias: 3, breves: 1 }).breves.length, 1);
+  const todos = [c.principal, ...c.secundarias, ...c.breves].map(x => x.indice).sort();
+  assert.deepEqual(todos, [0, 1, 2, 3, 4, 5, 6, 7], 'ninguna nota se repite ni se pierde');
+  assert.equal(N.componerPortada(['x', null, NOTAS[0]]).principal.indice, 2, 'lo que no es nota se ignora');
+});
+
+test('edición y fecha: día del año y fecha larga en español', () => {
+  assert.equal(N.numeroEdicion(new Date('2026-10-13T12:00:00')), 286);
+  assert.equal(N.numeroEdicion(new Date('2026-01-01T00:30:00')), 1);
+  assert.equal(N.numeroEdicion(new Date('2026-12-31T23:00:00')), 365);
+  assert.equal(N.fechaPeriodico(AHORA), 'Martes, 13 de octubre de 2026');
+});
+
+test('la primera plana trae cabecera de periódico, principal, columnas y "Más notas"', () => {
+  const h = N.periodicoHTML(NOTAS, { ahora: AHORA });
+  assert.match(h, /class="np-cab__titulo">Zoorigen Actualidad</);
+  assert.match(h, /Edición N\.º 286/);
+  assert.match(h, /np-cab__fecha">Martes, 13 de octubre de 2026</);
+  assert.match(h, /Fauna silvestre, ciencia y conservación al día/);
+  assert.match(h, /class="np-hoy">Hoy</);
+  assert.equal((h.match(/class="np-nota np-principal/g) || []).length, 1);
+  assert.equal((h.match(/class="np-nota np-sec/g) || []).length, 4);
+  assert.equal((h.match(/class="np-nota np-breve"/g) || []).length, 3);
+  assert.match(h, /np-columnas--4/);
+  assert.match(h, /Más notas/);
+  assert.match(h, /Leer nota completa/);
+  assert.match(h, /src="https:\/\/cdn\.mongabay\.com\/fotos\/n3\.jpg"/, 'la foto real de la nota es la principal');
+  assert.match(h, /data-i="2"/, 'el índice abre la nota correcta en la lectura ampliada');
+  assert.match(h, /hace \d+ h/);
+  assert.doesNotMatch(h, /gradient/i);
+  assert.doesNotMatch(h, /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u);
+});
+
+test('la primera plana escapa lo externo y conserva respaldo por categoría', () => {
+  const sucia = [{ id: 'a"><img src=x>', titulo: '<img src=x onerror=1>Título', extracto: '<script>x</script> texto', fuente: '"><b>M</b>', link: 'javascript:alert(1)', imagen: 'http://malo.com/x.jpg', categoria: 'fauna' }];
+  const h = N.periodicoHTML(sucia, { ahora: AHORA });
+  assert.doesNotMatch(h, /<img src=x|<script|<b>M|href="javascript:/i);
+  assert.match(h, /respaldo-fauna\.jpg/);
+  assert.match(h, /hoja--respaldo/);
+  const vacia = N.periodicoHTML([], { ahora: AHORA, tituloVacio: 'Sin conexión' });
+  assert.match(vacia, /Zoorigen Actualidad/);
+  assert.match(vacia, /Sin conexión/);
+});
+
+test('la hoja de estilos de la primera plana: papel crema de día, superficie neutra de noche, sin degradados', () => {
+  const css = fs.readFileSync(path.join(RAIZ, 'assets/css/club-noticias.css'), 'utf8');
+  assert.match(css, /--np-papel:\s*#FAF7F0/i);
+  assert.match(css, /--np-papel:\s*#171B20/i);
+  assert.match(css, /--np-borde:\s*#2A3038/i);
+  assert.match(css, /Playfair Display/);
+  assert.match(css, /font-weight:\s*900/);
+  assert.match(css, /4px double/);
+  assert.match(css, /hyphens:\s*auto/);
+  assert.match(css, /text-align:\s*justify/);
+  assert.match(css, /::first-letter/);
+  assert.match(css, /font-variant:\s*small-caps/);
+  assert.match(css, /@container \(min-width: 800px\)/);
+  assert.doesNotMatch(css.slice(css.indexOf('PRIMERA PLANA')), /gradient\(/);
+});

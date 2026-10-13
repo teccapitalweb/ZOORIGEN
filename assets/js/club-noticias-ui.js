@@ -1,6 +1,8 @@
 /* ============================================================ */
-/* CLUB VIP ZOORIGEN · NOTICIAS DEL SECTOR (tarjetas "hoja")     */
-/* Titular + extracto corto + enlace a la nota original.         */
+/* CLUB VIP ZOORIGEN · NOTICIAS DEL SECTOR                       */
+/* Primera plana de periódico (principal + secundarias + más     */
+/* notas) y, para la vista previa del administrador, la tarjeta  */
+/* "hoja". Titular + extracto corto + enlace a la nota original. */
 /* La parte pura se prueba en Node; la de pantalla solo en el    */
 /* navegador. Todo texto externo se escapa antes de mostrarse.   */
 /* ============================================================ */
@@ -196,11 +198,133 @@
     return chip('todas', 'Todas') + ids.map(function (c) { return chip(c, CATEGORIAS[c].nombre); }).join('');
   }
 
+  /* ───── Primera plana (estilo periódico) ───── */
+  var LEMA = 'Fauna silvestre, ciencia y conservación al día';
+  var NOMBRE_PERIODICO = 'Zoorigen Actualidad';
+  var MAX_SECUNDARIAS = 4;
+  var MAX_BREVES = 4;
+
+  /* Número de edición: el día del año (1 de enero = 1). */
+  function numeroEdicion(v) {
+    var d = aFecha(v) || new Date();
+    var hoy = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+    var ini = Date.UTC(d.getFullYear(), 0, 1);
+    return Math.round((hoy - ini) / 86400000) + 1;
+  }
+
+  /* "Martes, 13 de octubre de 2026" (la hoja de estilos la pone en versalitas) */
+  function fechaPeriodico(v) {
+    var t = fechaLarga(v || new Date());
+    return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
+  }
+
+  /* Reparte las notas en primera plana: una principal (la primera con imagen propia; si ninguna trae, la primera),
+     hasta `secundarias` en columnas y hasta `breves` en la franja "Más notas". Cada elemento lleva su índice original,
+     que es el que se usa para abrir la lectura ampliada. opciones: { secundarias, breves } */
+  function componerPortada(lista, opciones) {
+    var o = opciones || {};
+    var nSec = Number.isFinite(o.secundarias) ? Math.max(0, Math.floor(o.secundarias)) : MAX_SECUNDARIAS;
+    var nBre = Number.isFinite(o.breves) ? Math.max(0, Math.floor(o.breves)) : MAX_BREVES;
+    var items = (Array.isArray(lista) ? lista : []).map(function (n, i) { return { nota: n, indice: i }; }).filter(function (x) { return x.nota && typeof x.nota === 'object'; });
+    if (!items.length) return { principal: null, secundarias: [], breves: [] };
+    var ip = 0;
+    for (var i = 0; i < items.length; i++) { if (urlSegura(items[i].nota.imagen)) { ip = i; break; } }
+    var principal = items[ip];
+    var resto = items.filter(function (_, i) { return i !== ip; });
+    return { principal: principal, secundarias: resto.slice(0, nSec), breves: resto.slice(nSec, nSec + nBre) };
+  }
+
+  function atributosNota(n, indice) {
+    return ' role="button" tabindex="0" data-noticia="' + esc(n.id) + '" data-i="' + esc(indice) + '" aria-label="' + esc(n.titulo) + '"';
+  }
+  function metaNota(n, ahora) {
+    return '<p class="np-meta">' + esc(n.fuente) + (n.fecha ? ' · <span>' + esc(tiempoRelativo(n.fecha, ahora)) + '</span>' : '') + '</p>';
+  }
+  function fotoMini(n, opciones) {
+    var respaldo = imagenRespaldo(n.categoria.id, opciones);
+    return '<div class="np-sec__foto hoja__foto"><img class="hoja__img" src="' + esc(n.imagen || respaldo) + '" data-respaldo="' + esc(respaldo) + '"' + (n.imagen ? ' data-real="1"' : '') +
+      ' alt="" width="320" height="180" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span class="hoja__fuente">' + esc(n.fuente) + '</span></div>';
+  }
+
+  function principalHTML(raw, indice, opciones) {
+    var n = normalizar(raw, indice);
+    var ahora = opciones.ahora instanceof Date ? opciones.ahora : new Date();
+    var texto = limpiar(n.extracto || (n.resumen[0] || ''), 420);
+    return '<article class="np-nota np-principal' + (n.imagen ? '' : ' hoja--respaldo') + '"' + atributosNota(n, indice) + '>' +
+      fotoHTML(n, opciones, true) +
+      '<div class="np-principal__cuerpo">' +
+        '<h3 class="np-titular np-titular--grande">' + esc(n.titulo) + '</h3>' +
+        metaNota(n, ahora) +
+        (texto ? '<p class="np-texto np-texto--capitular" lang="es">' + esc(texto) + '</p>' : '') +
+        '<span class="np-leer">Leer nota completa <span aria-hidden="true">→</span></span>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function secundariaHTML(raw, indice, opciones) {
+    var n = normalizar(raw, indice);
+    var ahora = opciones.ahora instanceof Date ? opciones.ahora : new Date();
+    return '<article class="np-nota np-sec' + (n.imagen ? '' : ' hoja--respaldo') + '"' + atributosNota(n, indice) + '>' +
+      fotoMini(n, opciones) +
+      '<span class="np-etq">' + esc(n.categoria.nombre) + '</span>' +
+      '<h3 class="np-titular">' + esc(n.titulo) + '</h3>' +
+      metaNota(n, ahora) +
+    '</article>';
+  }
+
+  function breveHTML(raw, indice, opciones) {
+    var n = normalizar(raw, indice);
+    var ahora = opciones.ahora instanceof Date ? opciones.ahora : new Date();
+    return '<article class="np-nota np-breve"' + atributosNota(n, indice) + '>' +
+      '<span class="np-etq np-etq--texto">' + esc(n.categoria.nombre) + '</span>' +
+      '<h3 class="np-titular np-titular--breve">' + esc(n.titulo) + '</h3>' +
+      metaNota(n, ahora) +
+    '</article>';
+  }
+
+  /* Cabecera de periódico: filete doble, nombre, edición, "Hoy", fecha en versalitas y lema. */
+  function cabeceraPeriodicoHTML(ahora) {
+    var d = ahora instanceof Date ? ahora : new Date();
+    return '<header class="np-cab">' +
+      '<div class="np-cab__fila">' +
+        '<p class="np-cab__lado np-cab__lado--izq"><span>Noticias del sector</span><span>Edición N.º ' + numeroEdicion(d) + '</span></p>' +
+        '<h2 class="np-cab__titulo">' + NOMBRE_PERIODICO + '</h2>' +
+        '<p class="np-cab__lado np-cab__lado--der"><span class="np-hoy">Hoy</span></p>' +
+      '</div>' +
+      '<p class="np-cab__sub"><span class="np-cab__fecha">' + esc(fechaPeriodico(d)) + '</span><span class="np-cab__lema">' + esc(LEMA) + '</span></p>' +
+    '</header>';
+  }
+
+  /* Primera plana completa. lista: notas tal como llegan del servidor. opciones: { ahora, max, secundarias, breves, base } */
+  function periodicoHTML(lista, opciones) {
+    var o = opciones || {};
+    var ahora = o.ahora instanceof Date ? o.ahora : new Date();
+    var oo = { ahora: ahora, base: o.base };
+    var datos = Array.isArray(lista) ? lista.slice(0, o.max || 60) : [];
+    var c = componerPortada(datos, { secundarias: o.secundarias, breves: o.breves });
+    var h = '<div class="np" lang="es">' + cabeceraPeriodicoHTML(ahora);
+    if (!c.principal) {
+      return h + '<div class="nt-vacio"><strong>' + esc(o.tituloVacio || 'Noticias en camino') + '</strong><span>' + esc(o.mensajeVacio || 'Aún no hay noticias publicadas. Se actualizan cada mañana.') + '</span></div></div>';
+    }
+    h += principalHTML(c.principal.nota, c.principal.indice, oo);
+    if (c.secundarias.length) {
+      h += '<div class="np-columnas np-columnas--' + Math.min(4, c.secundarias.length) + '">' +
+        c.secundarias.map(function (x) { return secundariaHTML(x.nota, x.indice, oo); }).join('') + '</div>';
+    }
+    if (c.breves.length) {
+      h += '<section class="np-mas"><h3 class="np-mas__titulo"><span>Más notas</span></h3><div class="np-columnas np-columnas--breves">' +
+        c.breves.map(function (x) { return breveHTML(x.nota, x.indice, oo); }).join('') + '</div></section>';
+    }
+    return h + '</div>';
+  }
+
   var API = {
     PLANTILLAS: PLANTILLAS, CATEGORIAS: CATEGORIAS, FOTOS_RESPALDO: FOTOS_RESPALDO, RUTA_FOTOS: RUTA_FOTOS, MIN_ANCHO_IMAGEN: MIN_ANCHO_IMAGEN,
     esc: esc, urlSegura: urlSegura, limpiar: limpiar, fechaLarga: fechaLarga, tiempoRelativo: tiempoRelativo,
     plantillaDe: plantillaDe, categoriaDe: categoriaDe, imagenRespaldo: imagenRespaldo, normalizar: normalizar, filtrar: filtrar,
-    hojaHTML: hojaHTML, lecturaHTML: lecturaHTML, chipsHTML: chipsHTML
+    hojaHTML: hojaHTML, lecturaHTML: lecturaHTML, chipsHTML: chipsHTML,
+    numeroEdicion: numeroEdicion, fechaPeriodico: fechaPeriodico, componerPortada: componerPortada, periodicoHTML: periodicoHTML,
+    cabeceraPeriodicoHTML: cabeceraPeriodicoHTML, LEMA: LEMA, NOMBRE_PERIODICO: NOMBRE_PERIODICO
   };
 
   if (typeof document === 'undefined') return API;
@@ -217,7 +341,7 @@
     var respaldo = img.getAttribute('data-respaldo');
     if (img.dataset.cambiada || !respaldo) { if (img.parentNode) img.parentNode.classList.add('hoja__foto--vacia'); return; }
     img.dataset.cambiada = '1';
-    var hoja = img.closest ? img.closest('.hoja') : null;
+    var hoja = img.closest ? img.closest('.hoja, .np-nota') : null;
     if (hoja) hoja.classList.add('hoja--respaldo');
     img.src = respaldo;
   }
@@ -260,14 +384,17 @@
     opciones = opciones || {};
     if (!contenedor) return;
     var datos = Array.isArray(lista) ? lista.slice(0, opciones.max || 60) : [];
+    if (!datos.length && opciones.modo !== 'rejilla') { contenedor.innerHTML = periodicoHTML([], opciones); return; }
     if (!datos.length) {
       contenedor.innerHTML = '<div class="nt-vacio"><strong>' + esc(opciones.tituloVacio || 'Noticias en camino') + '</strong><span>' + esc(opciones.mensajeVacio || 'Aún no hay noticias publicadas. Se actualizan cada mañana.') + '</span></div>';
       return;
     }
-    contenedor.innerHTML = '<div class="hojas">' + datos.map(function (n, i) { return hojaHTML(n, i, opciones); }).join('') + '</div>';
+    contenedor.innerHTML = opciones.modo === 'rejilla'
+      ? '<div class="hojas">' + datos.map(function (n, i) { return hojaHTML(n, i, opciones); }).join('') + '</div>'
+      : periodicoHTML(datos, opciones);
     vigilarImagenes(contenedor);
     var abrir = cuando(function (e) {
-      var h = e.target.closest && e.target.closest('.hoja[data-i]');
+      var h = e.target.closest && e.target.closest('[data-noticia][data-i]');
       if (!h || !contenedor.contains(h)) return;
       if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
       if (e.type === 'keydown') e.preventDefault();

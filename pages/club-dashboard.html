@@ -16,14 +16,14 @@
   <meta name="theme-color" content="#1F5F3A">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261105-periodico">
+  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261105-inicio">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261104">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261104">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261104">
@@ -401,123 +401,7 @@
       font-size: .88rem;
     }
 
-    /* ═══════════════ INVITAR AMIGOS ═══════════════ */
-    .dash-refer-card {
-      background: var(--zoo-panel, #1F5F3A);
-      border: 1px solid var(--zoo-panel, #1F5F3A);
-      border-radius: 16px;
-      padding: 22px;
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-      position: relative;
-      overflow: hidden;
-    }
-    .dash-refer-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -20%;
-      width: 300px;
-      height: 300px;
-      background: none;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .dash-refer-icon {
-      color: #fff;
-      flex-shrink: 0;
-      font-size: 2.5rem;
-      position: relative;
-      z-index: 2;
-    }
-    .dash-refer-body {
-      flex: 1;
-      position: relative;
-      z-index: 2;
-      color: #fff;
-    }
-    .dash-refer-body h3 {
-      color: #fff;
-      font-family: var(--zoo-font-display);
-      font-weight: 800;
-      font-size: 1.1rem;
-      margin: 0 0 8px;
-    }
-    .dash-refer-body p {
-      color: rgba(255,255,255,0.85);
-      font-size: .88rem;
-      line-height: 1.5;
-      margin: 0 0 12px;
-    }
-    .dash-refer-code-box {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      background: rgba(0,0,0,0.3);
-      padding: 10px 14px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-    }
-    .dash-refer-code-label {
-      color: rgba(255,255,255,0.7);
-      font-size: .82rem;
-    }
-    .dash-refer-code-box code {
-      font-family: var(--zoo-font-display);
-      font-weight: 800;
-      color: #E8A317;
-      font-size: 1rem;
-      letter-spacing: .05em;
-      flex: 1;
-    }
-    .dash-refer-copy {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
-      padding: 5px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: .82rem;
-      font-weight: 600;
-    }
-    .dash-refer-copy:hover {
-      background: rgba(255,255,255,0.25);
-    }
-    .dash-refer-stats {
-      display: flex;
-      gap: 14px;
-      font-size: .85rem;
-      color: rgba(255,255,255,0.9);
-      margin-bottom: 12px;
-    }
-    .dash-refer-stats span strong {
-      color: #E8A317;
-      font-family: var(--zoo-font-display);
-      font-size: 1.05rem;
-      display: block;
-      line-height: 1;
-    }
-    .dash-refer-share {
-      background: #25D366;
-      border: 0;
-      color: #06361b;
-      padding: 10px 18px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-family: var(--zoo-font-display);
-      font-weight: 700;
-      font-size: .9rem;
-      transition: transform .15s;
-    }
-    .dash-refer-share:hover { transform: translateY(-1px); }
-
-    @media (max-width: 600px) {
-      .dash-refer-card { flex-direction: column; padding: 18px; }
-      .dash-refer-icon { align-self: center; }
-    }
+    /* La tarjeta "Invita amigos" y la primera plana de noticias tienen su estilo en club-inicio.css y club-noticias.css */
   </style>
   <style>
     /* Cuenta regresiva del próximo webinar: en tema claro las cajas eran grises y las etiquetas (DÍAS, HRS...) no se leían */
@@ -538,34 +422,15 @@
         <div class="dashboard-main">
           <div id="inicioSaludo"></div>
           <div id="resumeCard"></div>
-          <!-- ════ TARJETA DE NIVEL (solo si es VIP activo) ════ -->
-          <div id="levelCard"></div>
-
-          <!-- ════ NOTICIAS DEL SECTOR ════ -->
-          <section class="nt-seccion ih-noticias" id="noticias">
-            <div class="ih-noticias__cab"><h2>Noticias del sector</h2><span class="nt-hoy">Hoy</span></div>
-            <div id="newsList"><div class="nt-vacio"><span>Cargando noticias…</span></div></div>
+          <!-- ════ INVITA AMIGOS (en el lugar de la antigua tarjeta de nivel; el nivel sigue en Mis logros) ════ -->
+          <section class="inv" id="invitaCard" aria-label="Invita amigos y gana cursos antes de tiempo" data-vip-required data-vip-label="obtener tu código de referido">
+            <div class="inv__marco" id="invitaCont"></div>
           </section>
 
-          <!-- ════ SECCIÓN INVITAR AMIGOS ════ -->
-          <div>
-            <div class="section-title">Invita amigos y gana cursos antes de tiempo</div>
-            <div class="dash-refer-card" data-vip-required data-vip-label="obtener tu código de referido">
-              <div class="dash-refer-icon"><svg class="zi" aria-hidden="true"><use href="#zi-gift"/></svg></div>
-              <div class="dash-refer-body">
-                <h3>Invita a 4 amigos y adelanta un curso</h3>
-                <p>Comparte tu código. Cuando 4 amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha.</p>
-                <div class="dash-refer-code-box">
-                  <span class="dash-refer-code-label">Tu código:</span>
-                  <code id="dashRefCode">ZOO-XXXXXX</code>
-                  <button class="dash-refer-copy" onclick="copyReferCode()">Copiar</button>
-                </div>
-                <div class="dash-refer-stats" id="dashReferStats"></div>
-                <button class="dash-refer-share" onclick="shareReferLink()">Compartir por WhatsApp</button>
-                <a href="club-referidos.html" style="display:inline-block;margin-left:10px;color:#fff;font-weight:700;font-size:.88rem;text-decoration:underline;">Ver mis invitados</a>
-              </div>
-            </div>
-          </div>
+          <!-- ════ NOTICIAS DEL SECTOR (primera plana tipo periódico) ════ -->
+          <section class="nt-seccion ih-noticias" id="noticias" aria-label="Noticias del sector">
+            <div id="newsList"><div class="nt-vacio"><span>Cargando noticias…</span></div></div>
+          </section>
         </div>
 
         <aside class="dashboard-aside" id="inicioAside">
@@ -595,8 +460,9 @@
   <script src="../assets/js/club-iconos-comunidad.js?v=20261104"></script>
   <script src="../assets/js/club-acceso.js?v=20261104"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
-  <script src="../assets/js/club-noticias-ui.js?v=20261104"></script>
-  <script src="../assets/js/club-inicio.js?v=20261104"></script>
+  <script src="../assets/js/club-noticias-ui.js?v=20261105-periodico"></script>
+  <script src="../assets/js/guia-personaje.js?v=20261105-inicio"></script>
+  <script src="../assets/js/club-inicio.js?v=20261105-inicio"></script>
   <script src="../assets/js/club-premios.js?v=20261104"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261104"></script>
   <script src="../assets/js/club-onboarding.js?v=20261104"></script>
@@ -641,7 +507,13 @@
       }
 
       const firstName = session.name.split(' ')[0];
-      document.getElementById('inicioSaludo').innerHTML = ZOO_INICIO.saludoHTML(firstName, new Date());
+      const esMiembro = ZOORIGEN_CLUB.hasActiveMembership(session);
+      // Tarjeta de saludo: Jaguarito, frase según el estado y cifras con conteo ascendente (la racha solo para miembros).
+      const saludo = ZOO_INICIO.pintarSaludo(document.getElementById('inicioSaludo'), firstName, new Date(), { conRacha: esMiembro });
+      // Tarjeta de invitación: se monta ya con el código (se calcula con el UID); los invitados llegan después.
+      const refCode = 'ZOO-' + session.uid.substring(0, 6).toUpperCase();
+      window.__zooRefCode = refCode;
+      const tarjetaInvita = ZOO_INICIO.montarInvita(document.getElementById('invitaCard'), refCode);
 
       // Solo mostrar banner si hay problema con el plan
       const pb = document.getElementById('pendingBanner');
@@ -717,7 +589,7 @@
       ]);
 
       // Cifras de la tarjeta de título: cursos y clases (el avance se completa en pintarActividad)
-      if (window.ZOO_SECCION) ZOO_SECCION.cifras({ cursos: cursos.length, clases: cursos.reduce((n, c) => n + ZOO_INICIO.totalClases(c), 0) });
+      if (saludo) saludo.cifras({ cursos: cursos.length, clases: cursos.reduce((n, c) => n + ZOO_INICIO.totalClases(c), 0) });
 
       // ═══════════════ POPUP DE WEBINAR ═══════════════
       // Revisa TODOS los webinars próximos y muestra popup del PRIMERO que el usuario no haya visto.
@@ -1033,24 +905,16 @@
         });
       })();
 
-      // El nivel y los puntos los calcula el servidor (GET /api/premios). No bloquea el resto del panel.
-      // Solo se muestran si es VIP activo; si el servidor falla, la tarjeta lo dice y ofrece Reintentar.
-      if (ZOORIGEN_CLUB.hasActiveMembership(session)) {
-        const nivelCont = document.getElementById('levelCard');
-        const cargarNivel = async (forzar) => {
-          try {
-            const datos = await ZOORIGEN_CLUB.fetchPremios(forzar);
-            if (!ZOORIGEN_CLUB.resumenNivel(datos)) throw new Error('respuesta incompleta');
-            nivelCont.innerHTML = ZOORIGEN_CLUB.renderLevelCard(datos);
-            window.__zooInicioPremios = datos;
-            if (window.__zooInicioActividad) window.__zooInicioActividad();
-          } catch (err) {
-            console.warn('[Dashboard] nivel:', err);
-            nivelCont.innerHTML = ZOORIGEN_CLUB.renderLevelCard(null);
-          }
-        };
-        nivelCont.addEventListener('click', (ev) => { if (ev.target.closest('[data-nivel-reintentar]')) cargarNivel(true); });
-        cargarNivel(false);
+      // El nivel ya no se dibuja en el Inicio (sigue en Mis logros). Aquí solo se piden en silencio los datos que usa
+      // la tarjeta de saludo (racha de días) y "Tu actividad" (logros). Si el servidor falla, nada se rompe.
+      let rachaDias = null;
+      if (esMiembro) {
+        ZOORIGEN_CLUB.fetchPremios(false).then((datos) => {
+          window.__zooInicioPremios = datos;
+          rachaDias = Math.max(0, Math.round(Number(datos && datos.racha) || 0));
+          if (saludo) saludo.cifras({ racha: rachaDias });
+          if (window.__zooInicioActividad) window.__zooInicioActividad();
+        }).catch((err) => { console.warn('[Dashboard] premios:', err); });
       }
 
       // Tarjeta principal: "Continúa tu curso" / "Espera tu próximo curso" + "Tu siguiente meta" + accesos con números.
@@ -1059,7 +923,9 @@
         const base = { cursos };
         if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
           const sin = ZOO_INICIO.elegirHero({ cursos, dias: 0, progreso: {} });
-          resume.innerHTML = ZOO_INICIO.widgetHTML(cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]), resumen: sin.resumen } : sin, { ahora: new Date() });
+          const heroSin = cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]), resumen: sin.resumen } : sin;
+          resume.innerHTML = ZOO_INICIO.widgetHTML(heroSin, { ahora: new Date() });
+          if (saludo) saludo.estado(heroSin, null);
           return;
         }
         try {
@@ -1084,10 +950,13 @@
           window.__zooInicioRetos = mats && Number.isFinite(mats.superados) ? mats.superados : 0;
           if (window.__zooInicioActividad) window.__zooInicioActividad();
           resume.innerHTML = ZOO_INICIO.widgetHTML(hero, { ahora: new Date(), pdfsAbiertos: lista ? lista.filter(x => x.desbloqueado).length : 0, pdfsTotal: lista ? lista.length : undefined });
+          if (saludo) saludo.estado(hero, rachaDias !== null ? rachaDias : Math.max(0, Math.round(Number(premios && premios.racha) || 0)));
         } catch (e) {
           console.warn('[Dashboard] tarjeta de cursos:', e);
           const sin = ZOO_INICIO.elegirHero({ cursos, dias: 0, progreso: {} });
-          resume.innerHTML = ZOO_INICIO.widgetHTML(cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]), resumen: sin.resumen } : sin, { ahora: new Date() });
+          const heroSin = cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]), resumen: sin.resumen } : sin;
+          resume.innerHTML = ZOO_INICIO.widgetHTML(heroSin, { ahora: new Date() });
+          if (saludo) saludo.estado(heroSin, null);
         }
       };
       pintarTarjetaCursos();
@@ -1107,7 +976,7 @@
         try { progreso = await ZOORIGEN_CLUB.getCourseProgress(session.uid); } catch (e) { progreso = {}; }
         const terminados = cursos.filter(c => progreso[c.id] && progreso[c.id].isCompleted === true).length;
         const enProgreso = cursos.filter(c => { const av = ZOO_INICIO.avanceDe(progreso, c.id); return av.hechas > 0 && !av.terminado; }).length;
-        if (window.ZOO_SECCION) ZOO_SECCION.cifras({ enProgreso, completados: terminados });
+        if (saludo) saludo.cifras({ enProgreso, completados: terminados });
         const prem = window.__zooInicioPremios || null;
         const logros = prem && Array.isArray(prem.logros) ? prem.logros : [];
         document.getElementById('asideActividad').innerHTML = ZOO_INICIO.actividadHTML({
@@ -1131,64 +1000,29 @@
           ZOO_NOTICIAS.pintar(nl, Array.isArray(r && r.noticias) ? r.noticias : [], { max: 8 });
         } catch (err) {
           console.warn('[Dashboard] noticias:', err);
-          nl.innerHTML = '<div class="nt-vacio"><strong>No se pudieron cargar las noticias</strong><span>Revisa tu conexión y vuelve a abrir el Inicio en un momento.</span></div>';
+          ZOO_NOTICIAS.pintar(nl, [], { tituloVacio: 'No se pudieron cargar las noticias', mensajeVacio: 'Revisa tu conexión y vuelve a abrir el Inicio en un momento.' });
         }
       })();
 
       // ═══════════════ SISTEMA DE REFERIDOS ═══════════════
       try {
-        await cargarReferidos(session);
+        await cargarReferidos(session, tarjetaInvita);
       } catch (e) { console.error('[Dashboard] Error cargarReferidos:', e); }
     })();
 
-    // ═══════════════ FUNCIONES DE REFERIDOS ═══════════════
-    async function cargarReferidos(session) {
+    // ═══════════════ TARJETA DE INVITACIÓN ═══════════════
+    async function cargarReferidos(session, tarjeta) {
       // Código de referido: ZOO- + 6 primeras letras del UID. Es el mismo que usa el servidor.
-      const refCode = 'ZOO-' + session.uid.substring(0, 6).toUpperCase();
-      document.getElementById('dashRefCode').textContent = refCode;
-      window.__zooRefCode = refCode;
+      const refCode = window.__zooRefCode || ('ZOO-' + session.uid.substring(0, 6).toUpperCase());
       try { await db.collection('miembros').doc(session.uid).set({ refCode }, { merge: true }); } catch (e) { /* no es necesario */ }
-
-      const statsEl = document.getElementById('dashReferStats');
       try {
         // Los invitados los cuenta el servidor (correo confirmado y dispositivo distinto); lo escrito en el navegador ya no cuenta.
         const r = await ZOORIGEN_CLUB.apiFetch('/api/referidos/estado', { headers: { 'X-Device-Id': ZOORIGEN_CLUB.getDeviceId() } });
-        const validos = Math.max(0, Number(r && r.validos) || 0);
-        const pendientes = Math.max(0, Number(r && r.pendientes) || 0);
-        const puntos = Math.max(0, Number(r && r.puntosTotales) || 0);
-        const listo = Array.isArray(r && r.premios) && r.premios.some(p => p && p.ganado && !p.usado);
-        const META_REFERIDOS = 4;   // un solo premio: 4 invitados válidos
-        const usado = Array.isArray(r && r.premios) && r.premios.some(p => p && p.usado);
-        const aviso = listo ? 'Tienes un premio listo para canjear'
-          : (validos >= META_REFERIDOS || usado) ? 'Ya ganaste tu premio de invitados'
-          : 'Te ' + (META_REFERIDOS - validos === 1 ? 'falta 1' : 'faltan ' + (META_REFERIDOS - validos)) + ' para tu premio';
-        statsEl.innerHTML =
-          '<span><strong>' + validos + '</strong> confirmados</span>' +
-          '<span><strong>' + pendientes + '</strong> por confirmar</span>' +
-          '<span><strong>' + puntos + '</strong> puntos</span>' +
-          '<span style="margin-left:auto;color:#E8A317;font-weight:700;">' + aviso + '</span>';
+        tarjeta.fijar(r);
       } catch (err) {
         console.warn('Error referidos:', err);
-        statsEl.innerHTML = '<span>No pudimos cargar tus invitados ahora. <a href="club-referidos.html" style="color:#fff;text-decoration:underline;">Ver el detalle</a></span>';
+        tarjeta.error();
       }
-    }
-
-    function copyReferCode() {
-      const code = document.getElementById('dashRefCode').textContent;
-      navigator.clipboard.writeText(code).then(() => {
-        const btn = event.target;
-        const original = btn.textContent;
-        btn.textContent = 'Copiado';
-        setTimeout(() => { btn.textContent = original; }, 1800);
-      });
-    }
-
-    function shareReferLink() {
-      const code = document.getElementById('dashRefCode').textContent;
-      const url = `https://www.zoorigen.com/pages/club-registro.html?ref=${code}`;
-      const text = `¡Hola! Te invito al Club VIP Zoorigen, la comunidad científica de fauna más completa de México. Únete con mi código ${code} y obtén todos los beneficios VIP: cursos, webinars en vivo, certificados y más. Regístrate aquí: ${url}`;
-      const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-      window.open(waUrl, '_blank');
     }
   </script>
 <script>
