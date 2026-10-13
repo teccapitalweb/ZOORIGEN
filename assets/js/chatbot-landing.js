@@ -6,6 +6,11 @@
 /* globos, "escribiendo…", botones, tarjetas de curso, fuentes y  */
 /* la confirmación de la prueba gratuita.                         */
 /*                                                                */
+/* Personaje: Jaguarito (assets/js/guia-personaje.js). Si sus      */
+/* imágenes no cargan, quedan los iconos de huella de siempre.     */
+/* Aunque tenga rostro amigable, la guía dice a cada paso que no   */
+/* es una persona ni una inteligencia artificial.                  */
+/*                                                                */
 /* No es inteligencia artificial y lo dice. No pide datos         */
 /* personales. Las preguntas sin respuesta se mandan (sin datos   */
 /* personales, sin bloquear nada) a POST /api/chatbot/sin-respuesta */
@@ -66,6 +71,45 @@
     return n;
   }
 
+  /* --- personaje (Jaguarito) --- */
+  var G = window.ZOO_GUIA || null;
+  var reducido = false;
+  try { reducido = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { reducido = false; }
+  var imgsPrecargadas = {};
+  var rotas = {};
+
+  function urlDe(src) { try { return new URL(src, document.baseURI).href; } catch (e) { return src; } }
+
+  // Guarda y decodifica la imagen de antemano para que el cambio de cuadro no parpadee.
+  function precargar(src) {
+    if (!src) return null;
+    if (imgsPrecargadas[src]) return imgsPrecargadas[src];
+    var im = new Image();
+    im.decoding = 'async';
+    im.onerror = function () { rotas[src] = true; };
+    im.src = urlDe(src);
+    if (typeof im.decode === 'function') im.decode().catch(function () { /* lo marca onerror */ });
+    imgsPrecargadas[src] = im;
+    return im;
+  }
+
+  // <img> decorativo del personaje. Si no carga, se quita y queda el icono que había debajo.
+  function imagenPersonaje(src, cls, tam, alFallar) {
+    var im = el('img', cls);
+    im.alt = '';
+    im.width = tam;
+    im.height = tam;
+    im.decoding = 'async';
+    im.draggable = false;
+    im.addEventListener('error', function () {
+      rotas[src] = true;
+      if (im.parentNode) im.parentNode.removeChild(im);
+      if (typeof alFallar === 'function') alFallar();
+    });
+    im.src = src;
+    return im;
+  }
+
   /* --- motor y catálogo --- */
   var motor = window.ZOO_CHATBOT.crear({
     fichas: (window.ZOO_FICHAS && Array.isArray(window.ZOO_FICHAS.FICHAS)) ? window.ZOO_FICHAS.FICHAS : [],
@@ -114,7 +158,7 @@
   }
 
   /* --- interfaz --- */
-  var lanzador, panel, cuerpo, campo, punto;
+  var lanzador, panel, cuerpo, campo, punto, pjImg;
   var sesion = 0;     // sube con "Empezar de nuevo" para cancelar lo que estaba a medias
   var iniciado = false;
   var ocupado = false;
@@ -137,14 +181,25 @@
     abajo();
   }
 
+  // Fila del guía: avatar pequeño junto al globo (decorativo; el rótulo y el aviso dicen que es una guía virtual).
+  function filaGuia(contenido) {
+    var fila = el('div', 'zg-row');
+    var av = el('span', 'zg-bav');
+    if (G) av.appendChild(imagenPersonaje(G.AVATAR_CHICO, null, 32));
+    else av.hidden = true;
+    fila.append(av, contenido);
+    return fila;
+  }
+
   function escribiendo() {
     var w = el('div', 'zg-wait');
     w.setAttribute('role', 'status');
     w.appendChild(el('span', 'zg-sr', 'Escribiendo'));
     w.append(el('i'), el('i'), el('i'));
-    cuerpo.appendChild(w);
+    var fila = filaGuia(w);
+    cuerpo.appendChild(fila);
     abajo();
-    return w;
+    return fila;
   }
 
   function enlaceFuente(f) {
@@ -254,7 +309,7 @@
     espera.remove();
     if (tk !== sesion) return;
 
-    cuerpo.appendChild(globo(resp));
+    cuerpo.appendChild(filaGuia(globo(resp)));
     abajo();
     if (resp.registrar) registrarSinRespuesta(resp.registrar);
     if (resp.preferencia) {
@@ -290,7 +345,7 @@
       await pintar(resp, tk);
     } catch (e) {
       if (tk === sesion) {
-        cuerpo.appendChild(globo({ partes: ['Algo salió mal por mi lado. Intenta de nuevo o escríbele al equipo por WhatsApp.'], fuentes: [] }));
+        cuerpo.appendChild(filaGuia(globo({ partes: ['Algo salió mal por mi lado. Intenta de nuevo o escríbele al equipo por WhatsApp.'], fuentes: [] })));
       }
     } finally {
       ocupado = false;
@@ -339,11 +394,19 @@
     lanzador.setAttribute('aria-controls', 'zg-panel');
     var ico = el('span', 'zg-launcher__ico');
     ico.appendChild(icono('paw', 26));
+    if (G) {
+      // El busto asoma por encima del círculo verde; si no carga, queda la huella.
+      var pj = el('span', 'zg-launcher__pj');
+      pjImg = imagenPersonaje(G.imagenExpresion('neutral'), 'zg-launcher__pj-img', 92, function () { ico.classList.remove('con-personaje'); });
+      pj.appendChild(pjImg);
+      ico.appendChild(pj);
+      ico.classList.add('con-personaje');
+    }
     punto = el('span', 'zg-launcher__dot');
     punto.setAttribute('aria-hidden', 'true');
     punto.hidden = !!ls.get(VISTO_KEY);
     ico.appendChild(punto);
-    lanzador.append(el('span', 'zg-launcher__txt', 'Guía Zoorigen'), ico);
+    lanzador.append(el('span', 'zg-launcher__txt', 'Tu guía Zoorigen'), ico);
     lanzador.addEventListener('click', abrir);
     document.body.appendChild(lanzador);
     colocar();
@@ -360,6 +423,7 @@
     var hd = el('div', 'zg-hd');
     var av = el('span', 'zg-av');
     av.appendChild(icono('paw', 24));
+    if (G) av.appendChild(imagenPersonaje(G.AVATAR_CHICO, 'zg-av__img', 46));
     var tt = el('div', 'zg-tt');
     tt.append(el('small', null, 'Zoorigen'), el('b', null, 'Guía Zoorigen'), el('span', null, 'Guía virtual, no es una persona'));
     var bReiniciar = el('button', 'zg-ic');
@@ -462,7 +526,70 @@
     if (devolverFoco) lanzador.focus({ preventScroll: true });
   }
 
-  function iniciar() { construir(); }
+  /* --- animación del lanzador: saludo al aparecer y nota que sale unos segundos y se oculta --- */
+  var timersLanzador = [];
+  var saludandoLanzador = false;
+
+  function pestanaVisible() { return document.visibilityState !== 'hidden'; }
+
+  function saludarLanzador() {
+    if (!G || !pjImg || reducido || saludandoLanzador || !lanzador || lanzador.hidden || !pestanaVisible()) return;
+    var listos = [G.CUADROS.saludo1, G.CUADROS.saludo2].every(function (r) {
+      var c = imgsPrecargadas[r];
+      return c && c.complete && c.naturalWidth && !rotas[r];
+    });
+    if (!listos) return;
+    saludandoLanzador = true;
+    lanzador.classList.add('is-saluda');
+    var t = 0;
+    G.secuenciaSaludo(1).forEach(function (c) {
+      timersLanzador.push(setTimeout(function () {
+        if (!pjImg) return;
+        if (c.clave === G.EXPR_BASE) {
+          saludandoLanzador = false;
+          lanzador.classList.remove('is-saluda');
+        }
+        pjImg.src = urlDe(c.ruta);
+      }, t));
+      t += c.ms;
+    });
+  }
+
+  function mostrarNota(ms) {
+    if (!lanzador || lanzador.hidden) return;
+    lanzador.classList.add('is-nota');
+    timersLanzador.push(setTimeout(function () { lanzador.classList.remove('is-nota'); }, ms));
+  }
+
+  function animarLanzador() {
+    if (!G) return;
+    // Primero el busto de siempre; los cuadros del saludo llegan cuando el navegador esté libre.
+    precargar(G.imagenExpresion('neutral'));
+    var tarde = function () {
+      if (!reducido) { precargar(G.CUADROS.saludo1); precargar(G.CUADROS.saludo2); } // sin animación no hacen falta
+      precargar(G.AVATAR_CHICO);
+    };
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(tarde, { timeout: 2500 });
+    else setTimeout(tarde, 1200);
+
+    // La nota sale unos segundos y se oculta; el saludo solo si no hay "reducir movimiento".
+    timersLanzador.push(setTimeout(function () {
+      if (!pestanaVisible()) return;
+      mostrarNota(6500);
+      if (!reducido) timersLanzador.push(setTimeout(saludarLanzador, 450));
+    }, 2600));
+
+    // Al pasar el puntero saluda de nuevo (con pausa entre saludos).
+    var ultimo = 0;
+    lanzador.addEventListener('mouseenter', function () {
+      var ahora = Date.now();
+      if (ahora - ultimo < 12000) return;
+      ultimo = ahora;
+      saludarLanzador();
+    });
+  }
+
+  function iniciar() { construir(); animarLanzador(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 })();

@@ -11,9 +11,11 @@
 /* en Node. Este archivo solo dibuja y guarda.                     */
 /*                                                                */
 /* Envío: POST {servidor}/api/encuesta. NO escribe en Firestore.  */
-/* El personaje y sus imágenes son opcionales: si no hay imágenes  */
-/* (window.ZOO_ENCUESTA_IMAGENES) solo se muestra el recuadro de   */
-/* texto con la reacción.                                         */
+/* Personaje: Jaguarito (assets/js/guia-personaje.js). Sus         */
+/* imágenes son opcionales: si no cargan (o no hay mapa), solo se  */
+/* muestra el recuadro de texto con la reacción. Animación: saludo,*/
+/* parpadeo, rebote al responder y "respirar"; todo se apaga con   */
+/* prefers-reduced-motion y se pausa con la pestaña oculta.        */
 /*                                                                */
 /* Traspaso: al aceptar un curso se guarda localStorage            */
 /* `zoo_curso_pref` = { id, titulo, t } y se lleva a              */
@@ -203,28 +205,239 @@
 
   /* ───────────────────────── Personaje (opcional) ───────────────────────── */
 
-  var imagenes = (window.ZOO_ENCUESTA_IMAGENES && typeof window.ZOO_ENCUESTA_IMAGENES === 'object') ? window.ZOO_ENCUESTA_IMAGENES : {};
-  var imagenesRotas = {};
+  // Jaguarito: assets/js/guia-personaje.js trae el mapa expresión -> imagen y la secuencia del
+  // saludo. window.ZOO_ENCUESTA_IMAGENES (opcional) puede sustituir cualquier imagen.
+  var G = window.ZOO_GUIA || null;
+  var imagenes = Object.assign({}, G ? G.IMAGENES_EXPR : {},
+    (window.ZOO_ENCUESTA_IMAGENES && typeof window.ZOO_ENCUESTA_IMAGENES === 'object') ? window.ZOO_ENCUESTA_IMAGENES : {});
+  var imagenesRotas = {};   // ruta -> true si no cargó
+  var cacheImg = {};        // ruta -> Image precargada y decodificada de antemano
+  var exprActual = 'neutral';
+  var rutaActual = '';
+  var tkImg = 0;
+  var saludando = false;
+  var seccionVisible = true;
+  var timersSaludo = [];
+  var timerReaccion = null;
+  var timerParpadeo = null;
+  var timerFin = null;
+  var cicloSaludo = null;
+  var observador = null;
+
+  function urlDe(src) { try { return new URL(src, document.baseURI).href; } catch (e) { return src; } }
+
+  function ocultarCara() {
+    var cara = el('zenc-cara');
+    var sec = el('encuesta');
+    if (cara) cara.hidden = true;
+    if (sec) sec.classList.remove('zenc--con-cara');
+  }
+
+  // Guarda la imagen y la decodifica antes de necesitarla, para que el cambio de pose sea instantáneo.
+  function precargar(src) {
+    if (!src) return null;
+    if (cacheImg[src]) return cacheImg[src];
+    var im = new Image();
+    im.decoding = 'async';
+    im.onerror = function () { imagenesRotas[src] = true; if (rutaActual === src) ocultarCara(); };
+    im.src = urlDe(src);
+    if (typeof im.decode === 'function') im.decode().catch(function () { /* el fallo ya lo marca onerror */ });
+    cacheImg[src] = im;
+    return im;
+  }
+
+  // Resto de poses y cuadros del saludo, sin estorbar la carga inicial (y sin gastar datos con "ahorro de datos").
+  function precargarResto() {
+    if (!G) return;
+    try { if (navigator.connection && navigator.connection.saveData) return; } catch (e) { /* sin API */ }
+    var cuadros = [G.CUADROS.saludo1, G.CUADROS.saludo2, G.CUADROS.parpadeo];
+    G.rutasPrecarga(imagenes).forEach(function (r) {
+      if (reducido && cuadros.indexOf(r) !== -1) return; // sin animación no se necesitan
+      precargar(r);
+    });
+  }
+
+  // Muestra una imagen. Los cuadros auxiliares (saludo, parpadeo) solo se usan si ya están cargados.
+  function mostrarRuta(src, esCuadro) {
+    var img = el('zenc-cara-img');
+    var cara = el('zenc-cara');
+    var sec = el('encuesta');
+    if (!img || !cara || !sec) return;
+    if (esCuadro) {
+      var c = cacheImg[src];
+      if (!c || imagenesRotas[src] || !c.complete || !c.naturalWidth) return;
+    } else if (!src || imagenesRotas[src]) {
+      ocultarCara();
+      return;
+    }
+    rutaActual = src;
+    cara.hidden = false;
+    sec.classList.add('zenc--con-cara');
+    var url = urlDe(src);
+    if (img.getAttribute('src') === url) return;
+    var pre = precargar(src);
+    var mio = ++tkImg;
+    var poner = function () { if (mio === tkImg && el('zenc-cara-img') === img) img.setAttribute('src', url); };
+    if (pre && typeof pre.decode === 'function') pre.decode().then(poner, poner); else poner();
+  }
+
+  function rutaDePose() {
+    var s = imagenes[exprActual] || imagenes.neutral || '';
+    if (s && imagenesRotas[s]) s = (imagenes.neutral && !imagenesRotas[imagenes.neutral]) ? imagenes.neutral : '';
+    return s;
+  }
 
   function ponerReaccion(m) {
     var seccion = el('encuesta');
     if (!seccion) return;
     el('zenc-nota-t').textContent = m.titulo || '';
     el('zenc-nota-c').textContent = m.texto || '';
+    exprActual = (m.expr && imagenes[m.expr]) ? m.expr : 'neutral';
+    cancelarSaludo();
+    var src = rutaDePose();
+    if (src) mostrarRuta(src, false); else ocultarCara();
+  }
+
+  /* --- animación del personaje (se apaga con "reducir movimiento" y se pausa con la pestaña oculta) --- */
+
+  function estadoAnim() {
+    return { visible: seccionVisible, pestanaVisible: document.visibilityState !== 'hidden', reducido: reducido, saludando: saludando, expresion: exprActual };
+  }
+
+  function cancelarSaludo() {
+    timersSaludo.forEach(clearTimeout);
+    timersSaludo = [];
+    saludando = false;
     var cara = el('zenc-cara');
-    var src = m.expr && imagenes[m.expr] && !imagenesRotas[m.expr] ? imagenes[m.expr] : (imagenes.neutral && !imagenesRotas.neutral ? imagenes.neutral : '');
-    if (src) {
-      var url = new URL(src, document.baseURI).href;
-      cara.style.setProperty('--zenc-cara', "url('" + url + "')");
-      cara.hidden = false;
-      seccion.classList.add('zenc--con-cara');
-      var sonda = new Image();
-      sonda.onerror = function () { imagenesRotas[m.expr || 'neutral'] = true; cara.hidden = true; seccion.classList.remove('zenc--con-cara'); };
-      sonda.src = url;
-    } else {
-      cara.hidden = true;
-      seccion.classList.remove('zenc--con-cara');
+    if (cara) cara.classList.remove('is-saluda');
+  }
+
+  function restaurarPose() {
+    var s = rutaDePose();
+    if (s) mostrarRuta(s, false);
+  }
+
+  // Un pequeño rebote cada vez que la persona elige una respuesta.
+  function reaccionar() {
+    if (reducido) return;
+    var cara = el('zenc-cara');
+    if (!cara) return;
+    cara.classList.remove('is-reacciona');
+    void cara.offsetWidth; // reinicia la animación si ya estaba puesta
+    cara.classList.add('is-reacciona');
+    clearTimeout(timerReaccion);
+    timerReaccion = setTimeout(function () { cara.classList.remove('is-reacciona'); }, 520);
+  }
+
+  // Saludo: alterna saludo-1 y saludo-2 y vuelve a la pose de bienvenida. Solo en la primera pregunta.
+  function saludar() {
+    if (!G || paso !== 0 || Object.keys(respuestas).length > 0) return;
+    if (!G.puedeSaludar(estadoAnim())) return;
+    var cara = el('zenc-cara');
+    if (!cara) return;
+    saludando = true;
+    cara.classList.add('is-saluda');
+    var t = 0;
+    G.secuenciaSaludo().forEach(function (c) {
+      timersSaludo.push(setTimeout(function () {
+        if (c.clave === G.EXPR_BASE) {
+          saludando = false;
+          cara.classList.remove('is-saluda');
+          restaurarPose();
+        } else {
+          mostrarRuta(c.ruta, true);
+        }
+      }, t));
+      t += c.ms;
+    });
+  }
+
+  function programarParpadeo() {
+    clearTimeout(timerParpadeo);
+    timerParpadeo = null;
+    if (!G || reducido || !el('zenc-cara-img')) return;
+    timerParpadeo = setTimeout(function () {
+      if (G.puedeParpadear(estadoAnim())) {
+        mostrarRuta(G.CUADROS.parpadeo, true);
+        clearTimeout(timerFin);
+        timerFin = setTimeout(function () { if (exprActual === G.EXPR_BASE && !saludando) restaurarPose(); }, G.PARPADEO_DURA_MS);
+      }
+      programarParpadeo();
+    }, G.esperaParpadeo(Math.random()));
+  }
+
+  // Activa o pausa todo según lo que se ve: sección en pantalla y pestaña visible.
+  function actualizarActividad() {
+    var sec = el('encuesta');
+    if (!sec) return;
+    var activo = seccionVisible && document.visibilityState !== 'hidden';
+    sec.classList.toggle('zenc--pausa', !activo);
+    clearInterval(cicloSaludo);
+    cicloSaludo = null;
+    if (!activo) {
+      if (saludando) { cancelarSaludo(); restaurarPose(); }
+      return;
     }
+    if (G && !reducido) {
+      cicloSaludo = setInterval(saludar, 9000); // mientras se ve la primera pregunta, vuelve a saludar
+    }
+  }
+
+  function arrancarAnimacion(sec) {
+    if (!G) return;
+    var tarde = function () { precargarResto(); };
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(tarde, { timeout: 2500 });
+    else setTimeout(tarde, 1200);
+
+    var img = el('zenc-cara-img');
+    if (img) {
+      img.addEventListener('error', function () {
+        var rota = rutaActual;
+        if (rota) imagenesRotas[rota] = true;
+        var base = imagenes.neutral;
+        if (base && !imagenesRotas[base]) mostrarRuta(base, false); else ocultarCara();
+      });
+    }
+
+    if ('IntersectionObserver' in window) {
+      seccionVisible = false;
+      observador = new IntersectionObserver(function (entradas) {
+        var ahora = entradas.some(function (e) { return e.isIntersecting; });
+        var antes = seccionVisible;
+        seccionVisible = ahora;
+        actualizarActividad();
+        if (ahora && !antes) setTimeout(saludar, 350); // saluda al aparecer en pantalla
+      }, { threshold: 0.35 });
+      observador.observe(sec);
+    } else {
+      seccionVisible = true;
+    }
+
+    document.addEventListener('visibilitychange', actualizarActividad);
+    try {
+      var mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      var cambio = function (e) {
+        reducido = !!e.matches;
+        clearTimeout(timerParpadeo);
+        if (reducido) { cancelarSaludo(); restaurarPose(); } else { programarParpadeo(); precargarResto(); }
+        actualizarActividad();
+      };
+      if (typeof mq.addEventListener === 'function') mq.addEventListener('change', cambio);
+      else if (typeof mq.addListener === 'function') mq.addListener(cambio);
+    } catch (e) { /* sin matchMedia */ }
+
+    actualizarActividad();
+    programarParpadeo();
+  }
+
+  function detenerAnimacion() {
+    cancelarSaludo();
+    clearTimeout(timerParpadeo);
+    clearTimeout(timerFin);
+    clearTimeout(timerReaccion);
+    clearInterval(cicloSaludo);
+    document.removeEventListener('visibilitychange', actualizarActividad);
+    if (observador) { try { observador.disconnect(); } catch (e) { /* ya desconectado */ } observador = null; }
   }
 
   /* ───────────────────────── Estructura ───────────────────────── */
@@ -240,7 +453,9 @@
           '<div class="zenc__nota" id="zenc-nota" role="status" aria-live="polite">' +
             '<strong id="zenc-nota-t"></strong><span id="zenc-nota-c"></span>' +
           '</div>' +
-          '<div class="zenc__cara" id="zenc-cara" aria-hidden="true" hidden></div>' +
+          '<div class="zenc__cara" id="zenc-cara" aria-hidden="true" hidden>' +
+            '<img class="zenc__cara-img" id="zenc-cara-img" alt="" width="640" height="640" decoding="async" draggable="false">' +
+          '</div>' +
         '</aside>' +
         '<div class="zenc__tarjeta" id="zenc-tarjeta">' +
           '<div class="zenc__top">' +
@@ -330,6 +545,7 @@
     if (grupo) grupo.querySelectorAll('button').forEach(function (x) { x.disabled = true; });
     if (b) b.classList.add('is-selected');
     ponerReaccion(M.reaccion(clave, opt));
+    reaccionar();
     avanzar(1, reducido ? 120 : 420);
   }
 
@@ -615,6 +831,7 @@
 
   function cerrarSeccion() {
     var sec = el('encuesta');
+    detenerAnimacion();
     if (sec && sec.parentNode) sec.parentNode.removeChild(sec);
   }
 
@@ -635,11 +852,12 @@
     var n = Object.keys(respuestas).length;
     paso = n ? M.pasoParaRetomar(respuestas, prog.paso) : 0;
 
-    construirUI();
+    var seccion = construirUI();
     render(false);
     if (n && paso > 0) {
       ponerReaccion({ expr: 'happy', titulo: 'Retomamos donde te quedaste.', texto: 'Puedes volver a la pregunta anterior o empezar de nuevo.' });
     }
+    arrancarAnimacion(seccion);
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'hidden') guardarParcialSiHaceFalta();
     });

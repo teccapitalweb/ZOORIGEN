@@ -346,7 +346,7 @@
     return ICONOS && ICONOS.existe(nombre) ? ICONOS.svg(nombre, { size: t, clase: clase }) : '';
   }
 
-  const MASCOTAS = { jira: 'assets/img/mascotas/mascota-jira.png', buho: 'assets/img/mascotas/mascota-buho.png', jaguarito: 'assets/img/mascotas/mascota-jaguarito.png' };
+  const MASCOTAS = { jira: 'assets/img/mascotas/mascota-jira.png', buho: 'assets/img/mascotas/mascota-buho.png', jaguarito: 'assets/img/mascotas/mascota-jaguarito.webp' };
 
   function iniciar(opts) {
     const o = opts || {};

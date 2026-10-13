@@ -1,8 +1,8 @@
 /* ============================================================ */
 /* ENCUESTA DE LA PORTADA · estilos funcionales                  */
 /* Sección fija bajo el hero (#encuesta). Pantalla:              */
-/* assets/js/encuesta-landing.js. El diseño final (personaje,    */
-/* imágenes de reacciones, retoques) llega en la fase de diseño. */
+/* assets/js/encuesta-landing.js. Personaje: Jaguarito (WebP en  */
+/* assets/img/guia/), con su nota de reacción como globo.        */
 /* Colores del sitio: verde #1F5F3A, dorado #E8A317.             */
 /* ============================================================ */
 
@@ -31,12 +31,14 @@
   gap: 14px;
 }
 
-/* Con imagen del personaje: personaje y nota a la izquierda, tarjeta a la derecha */
+/* Con imagen del personaje: personaje y su nota a la izquierda, tarjeta a la derecha */
 .zenc--con-cara .zenc__inner {
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 290px minmax(0, 1fr);
   gap: 18px;
-  align-items: end;
+  align-items: start;
 }
+/* Si la tarjeta crece (resultado), el personaje la acompaña al bajar */
+.zenc--con-cara .zenc__guia { position: sticky; top: 24px; }
 
 /* ── Guía: recuadro de texto con la reacción (siempre existe) ── */
 .zenc__guia {
@@ -70,14 +72,71 @@
 .zenc__nota strong, .zenc__nota span { display: block; }
 .zenc__nota strong { color: #174a37; font-size: 13.5px; font-weight: 700; margin-bottom: 1px; }
 
+/* El espacio del personaje se reserva con aspect-ratio: cambiar de pose no mueve nada */
 .zenc__cara {
+  position: relative;
   width: 100%;
   max-width: 280px;
-  aspect-ratio: 841 / 706;
-  margin: 14px auto 0;
-  background: var(--zenc-cara) no-repeat center bottom / contain;
+  aspect-ratio: 1 / 1;
+  margin: 8px auto 0;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 8px 10px rgba(20, 57, 38, .16));
 }
 .zenc__cara[hidden] { display: none; }
+.zenc__cara-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: 50% 100%;
+  animation: zenc-respira 5.2s ease-in-out infinite;
+}
+
+/* Con personaje, la nota es un globo de diálogo que apunta hacia él */
+.zenc--con-cara .zenc__nota {
+  padding: 11px 14px;
+  min-height: 104px; /* alto del mensaje más largo: la columna no cambia de tamaño al cambiar el texto */
+  border-radius: 16px;
+}
+.zenc--con-cara .zenc__nota::before { display: none; }
+.zenc--con-cara .zenc__nota::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  background: #eef7f1;
+  border-right: 1px solid #c4dfcd;
+  border-bottom: 1px solid #c4dfcd;
+  transform: rotate(45deg);
+}
+
+/* Animaciones suaves del personaje (el saludo y el parpadeo cambian de imagen desde el JS) */
+@keyframes zenc-respira {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.012, 1.02); }
+}
+@keyframes zenc-rebote {
+  0% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-9px) scale(.98, 1.03); }
+  60% { transform: translateY(0) scale(1.03, .97); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+@keyframes zenc-saluda {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-2.2deg); }
+  75% { transform: rotate(1.6deg); }
+}
+.zenc__cara.is-reacciona { animation: zenc-rebote .5s cubic-bezier(.3, .7, .3, 1) 1; }
+.zenc__cara.is-saluda { animation: zenc-saluda 1.1s ease-in-out 1; }
+/* Sección fuera de pantalla o pestaña oculta: todo en pausa */
+.zenc--pausa .zenc__cara-img,
+.zenc--pausa .zenc__cara { animation-play-state: paused; }
 
 /* ── Tarjeta ── */
 .zenc__tarjeta {
@@ -138,7 +197,8 @@
 .zenc__q.is-resultado { font-size: clamp(22px, 3.2vw, 30px); font-weight: 800; line-height: 1.15; }
 .zenc-resalta { color: var(--zenc-verde-2); background: linear-gradient(180deg, transparent 62%, #ffe3a3 62%); padding: 0 .06em; }
 
-.zenc__cuerpo[aria-busy="true"] { min-height: 90px; }
+/* Mientras se prepara el resultado se reserva casi todo su alto: así la página no da un salto grande al mostrarlo */
+.zenc__cuerpo[aria-busy="true"] { min-height: 340px; display: flex; align-items: center; justify-content: center; }
 
 /* ── Opciones ── */
 .zenc__opciones-lista {
@@ -339,11 +399,22 @@
 @media (max-width: 760px) {
   .zenc { padding: 28px 14px 32px; }
   .zenc--con-cara .zenc__inner { grid-template-columns: minmax(0, 1fr); }
-  .zenc--con-cara .zenc__guia { order: 2; flex-direction: row-reverse; align-items: flex-end; gap: 8px; }
-  .zenc--con-cara .zenc__cara { flex: 0 0 110px; width: 110px; margin: 0; }
-  .zenc--con-cara .zenc__nota { flex: 1; }
+  /* Celular: personaje a la izquierda y su globo a la derecha, arriba de la tarjeta */
+  .zenc--con-cara .zenc__guia { order: -1; position: static; flex-direction: row-reverse; align-items: flex-end; gap: 8px; min-height: 104px; }
+  .zenc--con-cara .zenc__cara { flex: 0 0 104px; width: 104px; max-width: 104px; margin: 0; }
+  .zenc--con-cara .zenc__nota { flex: 1; align-self: center; min-height: 84px; }
+  .zenc--con-cara .zenc__nota::after {
+    left: -8px;
+    bottom: auto;
+    top: 50%;
+    margin: -7px 0 0;
+    border: 0;
+    border-left: 1px solid #c4dfcd;
+    border-bottom: 1px solid #c4dfcd;
+  }
   .zenc__tarjeta { padding: 18px 16px 20px; border-radius: 18px; }
   .zenc__q { font-size: 20px; margin-bottom: 14px; }
+  .zenc__cuerpo[aria-busy="true"] { min-height: 420px; }
   .zenc__opciones-lista { grid-template-columns: minmax(0, 1fr); }
   .zenc-tel { flex-direction: column; }
   .zenc-pais { max-width: 100%; }
@@ -352,7 +423,11 @@
 @media (prefers-reduced-motion: reduce) {
   .zenc__tarjeta.is-entrando .zenc__q,
   .zenc__tarjeta.is-entrando .zenc__cuerpo,
-  .zenc__espera i { animation: none; }
+  .zenc__espera i,
+  .zenc__cara,
+  .zenc__cara-img,
+  .zenc__cara.is-reacciona,
+  .zenc__cara.is-saluda { animation: none; }
   .zenc__progreso i, .zenc-opt, .zenc-curso, .zenc-btn { transition: none; }
 }
 

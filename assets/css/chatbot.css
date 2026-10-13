@@ -4,10 +4,9 @@
 /* assets/js/chatbot-motor.js (puro).                            */
 /* Colores del sitio: verde #1F5F3A, dorado #E8A317.             */
 /*                                                                */
-/* PENDIENTE DE DISEÑO: mascota y reacciones. El avatar usa un   */
-/* icono de huella (Lucide); cuando haya mascota, basta definir   */
-/*   .zg-av, .zg-launcher__ico { background-image: url(...) }     */
-/* y ocultar el svg interior.                                     */
+/* Personaje: Jaguarito (WebP en assets/img/guia/). Si sus        */
+/* imágenes no cargan, el JS las quita y queda el icono de huella */
+/* (Lucide) que hay debajo.                                       */
 /* ============================================================ */
 
 .zg-launcher,
@@ -52,7 +51,11 @@
   animation: zg-entra .45s cubic-bezier(.2, .8, .25, 1) both;
 }
 .zg-launcher[hidden] { display: none; }
+/* Nota "Tu guía Zoorigen": sale unos segundos y se oculta (también al pasar el puntero o enfocar) */
 .zg-launcher__txt {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
   padding: 8px 14px;
   border-radius: 999px;
   background: #fff;
@@ -61,12 +64,24 @@
   white-space: nowrap;
   box-shadow: 0 8px 22px rgba(20, 57, 38, .2);
   border: 1.5px solid var(--zg-borde);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(8px, -50%);
+  transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
+}
+.zg-launcher.is-nota .zg-launcher__txt,
+.zg-launcher:hover .zg-launcher__txt,
+.zg-launcher:focus-visible .zg-launcher__txt {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(0, -50%);
+  transition: opacity .25s ease, transform .25s ease, visibility 0s;
 }
 .zg-launcher__ico {
   position: relative;
-  flex: 0 0 54px;
-  width: 54px;
-  height: 54px;
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -76,10 +91,45 @@
   transition: background .2s, transform .2s;
 }
 .zg-launcher:hover .zg-launcher__ico { background: var(--zg-verde-2); transform: translateY(-2px); }
+
+/* El busto asoma por encima del círculo; abajo se recorta con la forma del círculo */
+.zg-launcher__ico.con-personaje > svg { display: none; }
+.zg-launcher__pj {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 92px;
+  height: 92px;
+  margin-left: -46px;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  clip-path: path('M 16 62 A 30 30 0 0 0 76 62 L 92 62 L 92 0 L 0 0 L 0 62 Z');
+  animation: zg-respira 4.6s ease-in-out infinite;
+}
+.zg-launcher__pj-img {
+  display: block;
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.zg-launcher:hover .zg-launcher__pj { animation-play-state: paused; }
+.zg-launcher.is-saluda .zg-launcher__pj { animation: zg-saluda 1.1s ease-in-out 1; }
+@keyframes zg-respira {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes zg-saluda {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-4deg); }
+  75% { transform: rotate(3deg); }
+}
 .zg-launcher:focus-visible { outline: none; }
 .zg-launcher:focus-visible .zg-launcher__ico { outline: 3px solid var(--zg-dorado); outline-offset: 3px; }
 .zg-launcher__dot {
   position: absolute;
+  z-index: 1;
   top: 1px;
   right: 1px;
   width: 14px;
@@ -136,6 +186,16 @@
   color: #fff;
   background-size: cover;
   background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+.zg-av__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #fff7e0;
 }
 .zg-tt { flex: 1; min-width: 0; }
 .zg-tt small {
@@ -254,6 +314,28 @@
   0%, 80%, 100% { opacity: .3; }
   40% { opacity: 1; }
 }
+
+/* Fila del guía: avatar pequeño a la izquierda del globo */
+.zg-row {
+  align-self: flex-start;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 100%;
+}
+.zg-row > .zg-bot,
+.zg-row > .zg-wait { max-width: none; min-width: 0; }
+.zg-bav {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #fff7e0;
+  border: 1.5px solid var(--zg-borde);
+}
+.zg-bav[hidden] { display: none; }
+.zg-bav img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* Botones de respuesta rápida */
 .zg-chips { display: flex; flex-wrap: wrap; gap: 8px; animation: zg-entra .2s ease both; }
@@ -389,6 +471,7 @@
 @media (max-width: 560px) {
   .zg-launcher { right: 16px; }
   .zg-launcher__txt { padding: 7px 12px; font-size: 12px; }
+  .zg-row .zg-bot { font-size: 14px; }
   .zg-panel {
     left: 8px;
     right: 8px;
@@ -403,7 +486,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .zg-launcher, .zg-panel, .zg-bot, .zg-me, .zg-wait, .zg-chips, .zg-curso { animation: none; }
+  .zg-launcher, .zg-panel, .zg-bot, .zg-me, .zg-wait, .zg-chips, .zg-curso, .zg-row { animation: none; }
+  .zg-launcher__pj, .zg-launcher.is-saluda .zg-launcher__pj { animation: none; }
+  .zg-launcher__txt, .zg-launcher.is-nota .zg-launcher__txt { transition: none; }
   .zg-wait i { animation: none; opacity: .6; }
   .zg-bd { scroll-behavior: auto; }
   .zg-launcher__ico, .zg-chip, .zg-curso { transition: none; }
