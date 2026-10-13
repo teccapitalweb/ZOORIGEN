@@ -19,16 +19,21 @@
     apicultura: { nombre: 'Apicultura', color: '#D4A017' },
     ciencia: { nombre: 'Ciencia y biodiversidad', color: '#8B7FBA' }
   };
-  /* Cuando la nota no trae foto (o falla al cargar) se muestra una ilustración propia, sin texto, hecha con el color
-     y el ícono de su categoría. Así nunca aparece una foto ajena a la noticia ni un cartel con precios. */
-  var ICONOS = {
-    fauna: '<ellipse cx="12" cy="16.2" rx="4.2" ry="3.4"/><ellipse cx="5.6" cy="11" rx="1.7" ry="2.3"/><ellipse cx="9.4" cy="6.6" rx="1.7" ry="2.4"/><ellipse cx="14.6" cy="6.6" rx="1.7" ry="2.4"/><ellipse cx="18.4" cy="11" rx="1.7" ry="2.3"/>',
-    conservacion: '<path d="M5 21c.5 -4.5 2.5 -8 7 -10"/><path d="M9 18c6.218 0 10.5 -3.288 11 -12v-2h-4.014c-9 0 -11.986 4 -12 9c0 1 0 3 2 5h3z"/>',
-    veterinaria: '<path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/><path d="M3.5 12h3l1.5 -3l2 6l1 -3h2.5"/>',
-    normativa: '<path d="M12 3v18"/><path d="M9 21h6"/><path d="M5 6h14"/><path d="M5 6l-2 6a3 3 0 0 0 6 0l-2 -6"/><path d="M19 6l-2 6a3 3 0 0 0 6 0l-2 -6"/>',
-    apicultura: '<path d="M12 3l4 2.3v4.6l-4 2.3l-4 -2.3v-4.6z"/><path d="M6 12.6l4 2.3v4.6l-4 2.3l-4 -2.3v-4.6z" transform="translate(1 -1.6)"/><path d="M18 12.6l4 2.3v4.6l-4 2.3l-4 -2.3v-4.6z" transform="translate(-1 -1.6)"/>',
-    ciencia: '<path d="M9 3l6 0"/><path d="M10 3v5.5a3.5 3.5 0 0 1 -.5 1.8l-3.5 5.8a3.5 3.5 0 0 0 3 5.4h6a3.5 3.5 0 0 0 3 -5.4l-3.5 -5.8a3.5 3.5 0 0 1 -.5 -1.8v-5.5"/><path d="M6 14l12 0"/>'
+  /* La portada de cada tarjeta es la imagen de la propia nota. Cuando la nota no trae imagen (o falla al cargar, o es
+     una miniatura de menos de 200 px) se usa una FOTO propia del sitio según la categoría, con la fuente en una
+     etiqueta pequeña encima. Sin degradados ni ilustraciones: son las mismas fotos que ya usa el sitio, recortadas a 16:9
+     y optimizadas en assets/img/noticias/ (salen de assets/img/areas/). */
+  var RUTA_FOTOS = '../assets/img/noticias/';
+  var FOTOS_RESPALDO = {
+    fauna: 'respaldo-fauna.jpg',               /* pangolín */
+    conservacion: 'respaldo-conservacion.jpg', /* equipo de campo en un monitoreo nocturno */
+    veterinaria: 'respaldo-veterinaria.jpg',   /* perro con su cuidadora */
+    normativa: 'respaldo-normativa.jpg',       /* manejo de fauna en una UMA */
+    apicultura: 'respaldo-apicultura.jpg',     /* abeja polinizando */
+    ciencia: 'respaldo-ciencia.jpg'            /* serpiente verde (biodiversidad) */
   };
+  var FOTO_GENERAL = 'respaldo-fauna.jpg';
+  var MIN_ANCHO_IMAGEN = 200;
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -98,15 +103,22 @@
     return { id: c, nombre: (n && n.categoriaNombre) ? limpiar(n.categoriaNombre, 40) : CATEGORIAS[c].nombre, color: CATEGORIAS[c].color };
   }
 
-  function imagenRespaldo(categoria) {
-    var id = ICONOS[categoria] ? categoria : 'ciencia';
-    var color = CATEGORIAS[id].color;
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" preserveAspectRatio="xMidYMid slice">' +
-      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f2418"/><stop offset="1" stop-color="' + color + '"/></linearGradient></defs>' +
-      '<rect width="640" height="400" fill="url(#g)"/>' +
-      '<g fill="#ffffff" fill-opacity=".07"><circle cx="560" cy="60" r="150"/><circle cx="60" cy="380" r="120"/><circle cx="330" cy="420" r="90"/></g>' +
-      '<g transform="translate(320 200) scale(7) translate(-12 -12)" fill="none" stroke="#ffffff" stroke-opacity=".88" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">' + ICONOS[id] + '</g></svg>';
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  /* Dirección de la foto de respaldo de una categoría. `opciones.base` cambia la carpeta (por defecto la de las páginas del club). */
+  function imagenRespaldo(categoria, opciones) {
+    var base = opciones && typeof opciones.base === 'string' ? opciones.base : RUTA_FOTOS;
+    var archivo = Object.prototype.hasOwnProperty.call(FOTOS_RESPALDO, categoria) ? FOTOS_RESPALDO[categoria] : FOTO_GENERAL;
+    return base + archivo;
+  }
+
+  /* Portada de una tarjeta: la imagen de la nota o, si no hay, la foto de respaldo (con la fuente encima). */
+  function fotoHTML(n, opciones, grande) {
+    var respaldo = imagenRespaldo(n.categoria.id, opciones);
+    return '<div class="hoja__foto' + (grande ? ' hoja__foto--grande' : '') + '">' +
+      '<img class="hoja__img" src="' + esc(n.imagen || respaldo) + '" data-respaldo="' + esc(respaldo) + '"' + (n.imagen ? ' data-real="1"' : '') +
+      ' alt="" width="640" height="360"' + (grande ? '' : ' loading="lazy"') + ' decoding="async" referrerpolicy="no-referrer">' +
+      '<span class="hoja__etq">' + esc(n.categoria.nombre) + '</span>' +
+      '<span class="hoja__fuente">' + esc(n.fuente) + '</span>' +
+    '</div>';
   }
 
   /* Datos ya limpios y seguros para pintar una noticia. */
@@ -142,16 +154,15 @@
     opciones = opciones || {};
     var n = normalizar(raw, indice);
     var ahora = opciones.ahora instanceof Date ? opciones.ahora : new Date();
-    var respaldo = imagenRespaldo(n.categoria.id);
     var texto = n.extracto || (n.resumen[0] || '');
-    return '<article class="hoja hoja--' + n.plantilla + '" role="button" tabindex="0" data-noticia="' + esc(n.id) + '" data-i="' + esc(indice) + '" aria-label="' + esc(n.titulo) + '">' +
-      '<div class="hoja__top"><span>zoorigen.com</span><span>' + esc(fechaLarga(n.fecha || ahora)) + '</span></div>' +
-      '<div class="hoja__mast"><span class="hoja__logo">Zoorigen Actualidad</span><strong>' + esc(n.categoria.nombre) + ' — ' + esc(n.fuente) + '</strong></div>' +
-      '<div class="hoja__foto"><img src="' + esc(n.imagen || respaldo) + '" data-cat="' + esc(n.categoria.id) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></div>' +
-      '<h3 class="hoja__titulo">' + esc(n.titulo) + '</h3>' +
-      '<div class="hoja__meta">' + esc(n.fuente) + (n.fecha ? ' · ' + esc(tiempoRelativo(n.fecha, ahora)) : '') + '</div>' +
-      (texto ? '<p class="hoja__texto">' + esc(limpiar(texto, 300)) + '</p>' : '') +
-      '<div class="hoja__pie"><span>Ver resumen ampliado →</span><span>' + String(Number(indice || 0) + 1).padStart(2, '0') + '</span></div>' +
+    return '<article class="hoja hoja--' + n.plantilla + (n.imagen ? '' : ' hoja--respaldo') + '" role="button" tabindex="0" data-noticia="' + esc(n.id) + '" data-i="' + esc(indice) + '" aria-label="' + esc(n.titulo) + '">' +
+      fotoHTML(n, opciones, false) +
+      '<div class="hoja__cuerpo">' +
+        '<div class="hoja__meta">' + esc(n.fuente) + (n.fecha ? ' · ' + esc(tiempoRelativo(n.fecha, ahora)) : '') + '</div>' +
+        '<h3 class="hoja__titulo">' + esc(n.titulo) + '</h3>' +
+        (texto ? '<p class="hoja__texto">' + esc(limpiar(texto, 300)) + '</p>' : '') +
+        '<div class="hoja__pie"><span>Ver resumen ampliado →</span></div>' +
+      '</div>' +
     '</article>';
   }
 
@@ -160,20 +171,19 @@
     opciones = opciones || {};
     var n = normalizar(raw, indice);
     var ahora = opciones.ahora instanceof Date ? opciones.ahora : new Date();
-    var respaldo = imagenRespaldo(n.categoria.id);
     var cuerpo = n.resumen.length
       ? '<ul class="lectura__lista">' + n.resumen.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>'
       : (n.extracto ? '<p>' + esc(n.extracto) + '</p>' : '');
-    return '<div class="hoja hoja--' + n.plantilla + ' hoja--grande" role="document">' +
-      '<div class="hoja__top"><span>zoorigen.com</span><span>' + esc(fechaLarga(n.fecha || ahora)) + '</span></div>' +
-      '<div class="hoja__mast"><span class="hoja__logo">Zoorigen Actualidad</span><strong>' + esc(n.categoria.nombre) + ' — ' + esc(n.fuente) + '</strong></div>' +
-      '<h2 class="hoja__titulo hoja__titulo--grande">' + esc(n.titulo) + '</h2>' +
-      '<div class="hoja__meta">Por ' + esc(n.fuente) + (n.fecha ? ' · ' + esc(tiempoRelativo(n.fecha, ahora)) : '') + '</div>' +
-      '<div class="hoja__foto hoja__foto--grande"><img src="' + esc(n.imagen || respaldo) + '" data-cat="' + esc(n.categoria.id) + '" alt="" decoding="async" referrerpolicy="no-referrer"></div>' +
-      '<div class="lectura__esencial"><div class="lectura__etq">Lo esencial</div>' + cuerpo + '</div>' +
-      '<p class="lectura__aviso">Resumen informativo. La nota completa es de ' + esc(n.fuente) + '.</p>' +
-      (n.link ? '<a class="lectura__leer" href="' + esc(n.link) + '" target="_blank" rel="noopener noreferrer">Leer nota completa en ' + esc(n.fuente) + ' <svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></a>'
-              : '<div class="lectura__leer lectura__leer--sin">Fuente: ' + esc(n.fuente) + '</div>') +
+    return '<div class="hoja hoja--' + n.plantilla + (n.imagen ? '' : ' hoja--respaldo') + ' hoja--grande" role="document">' +
+      fotoHTML(n, opciones, true) +
+      '<div class="hoja__cuerpo">' +
+        '<h2 class="hoja__titulo hoja__titulo--grande">' + esc(n.titulo) + '</h2>' +
+        '<div class="hoja__meta">Por ' + esc(n.fuente) + (n.fecha ? ' · ' + esc(fechaLarga(n.fecha)) + ' (' + esc(tiempoRelativo(n.fecha, ahora)) + ')' : '') + '</div>' +
+        '<div class="lectura__esencial"><div class="lectura__etq">Lo esencial</div>' + cuerpo + '</div>' +
+        '<p class="lectura__aviso">Resumen informativo. La nota completa es de ' + esc(n.fuente) + '.</p>' +
+        (n.link ? '<a class="lectura__leer" href="' + esc(n.link) + '" target="_blank" rel="noopener noreferrer">Leer nota completa en ' + esc(n.fuente) + ' <svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></a>'
+                : '<div class="lectura__leer lectura__leer--sin">Fuente: ' + esc(n.fuente) + '</div>') +
+      '</div>' +
     '</div>';
   }
 
@@ -187,7 +197,7 @@
   }
 
   var API = {
-    PLANTILLAS: PLANTILLAS, CATEGORIAS: CATEGORIAS, ICONOS: ICONOS,
+    PLANTILLAS: PLANTILLAS, CATEGORIAS: CATEGORIAS, FOTOS_RESPALDO: FOTOS_RESPALDO, RUTA_FOTOS: RUTA_FOTOS, MIN_ANCHO_IMAGEN: MIN_ANCHO_IMAGEN,
     esc: esc, urlSegura: urlSegura, limpiar: limpiar, fechaLarga: fechaLarga, tiempoRelativo: tiempoRelativo,
     plantillaDe: plantillaDe, categoriaDe: categoriaDe, imagenRespaldo: imagenRespaldo, normalizar: normalizar, filtrar: filtrar,
     hojaHTML: hojaHTML, lecturaHTML: lecturaHTML, chipsHTML: chipsHTML
@@ -200,14 +210,27 @@
   /* ============================================================ */
   function cuando(handler) { return function (e) { try { handler(e); } catch (err) { console.warn('Noticias:', err); } }; }
 
-  /* Si una imagen falla, se cambia por la imagen de respaldo (una sola vez). */
+  /* Si la imagen de la nota falla (o es una miniatura de menos de 200 px) se cambia, una sola vez, por la foto de respaldo
+     de su categoría y la tarjeta muestra la etiqueta de la fuente. Si hasta el respaldo falla, queda el fondo liso. */
+  function usarRespaldo(img) {
+    if (!img || img.tagName !== 'IMG' || !img.classList.contains('hoja__img')) return;
+    var respaldo = img.getAttribute('data-respaldo');
+    if (img.dataset.cambiada || !respaldo) { if (img.parentNode) img.parentNode.classList.add('hoja__foto--vacia'); return; }
+    img.dataset.cambiada = '1';
+    var hoja = img.closest ? img.closest('.hoja') : null;
+    if (hoja) hoja.classList.add('hoja--respaldo');
+    img.src = respaldo;
+  }
   function vigilarImagenes(contenedor) {
-    contenedor.addEventListener('error', function (e) {
+    contenedor.addEventListener('error', function (e) { usarRespaldo(e.target); }, true);
+    contenedor.addEventListener('load', function (e) {
       var img = e.target;
-      if (!img || img.tagName !== 'IMG' || !img.dataset.cat || img.dataset.cambiada) return;
-      img.dataset.cambiada = '1';
-      img.src = imagenRespaldo(img.dataset.cat);
+      if (img && img.tagName === 'IMG' && img.getAttribute('data-real') && !img.dataset.cambiada && img.naturalWidth && img.naturalWidth < MIN_ANCHO_IMAGEN) usarRespaldo(img);
     }, true);
+    /* una imagen que ya falló antes de engancharse */
+    Array.prototype.forEach.call(contenedor.querySelectorAll('img.hoja__img'), function (img) {
+      if (img.complete && !img.naturalWidth && img.getAttribute('src')) usarRespaldo(img);
+    });
   }
 
   var modal = null, ultimoFoco = null;

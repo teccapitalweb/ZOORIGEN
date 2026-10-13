@@ -133,7 +133,7 @@
             '<div class="an-dos"><div class="field"><label>Categoría</label><select id="anCat">' + opciones(CATEGORIAS, 'fauna') + '</select></div>' +
             '<div class="field"><label>Fuente</label><input id="anFuente" maxlength="60" placeholder="Equipo Zoorigen"></div></div>' +
             '<div class="field"><label>Enlace a la nota original <small>(https, opcional)</small></label><input id="anLink" placeholder="https://"></div>' +
-            '<div class="field"><label>Imagen <small>(https, opcional; si no hay, se usa una ilustración)</small></label><input id="anImg" placeholder="https://"></div>' +
+            '<div class="field"><label>Imagen <small>(https, opcional; si no hay, se usa una foto del sitio según la categoría)</small></label><input id="anImg" placeholder="https://"></div>' +
             '<label class="an-check"><input type="checkbox" id="anAvisar" checked> Avisar a todos en la campana</label>' +
             '<div class="modal-actions" style="justify-content:flex-start;gap:10px;"><button class="btn-save" id="anPublicar">Publicar</button><button class="btn-cancel" id="anSync" type="button">Buscar noticias ahora</button></div>' +
             '<div id="anSyncRes" class="an-nota"></div>' +

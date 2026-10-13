@@ -2,7 +2,10 @@
 // Noticias del sector: partes puras de club-noticias-ui.js (seguridad al mostrar texto externo, plantillas, fechas)
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const N = require('../assets/js/club-noticias-ui.js');
+const RAIZ = path.join(__dirname, '..');
 
 test('urlSegura: solo https; todo lo demás se descarta', () => {
   assert.equal(N.urlSegura('https://es.mongabay.com/nota-1/'), 'https://es.mongabay.com/nota-1/');
@@ -51,7 +54,7 @@ test('fechas en español y tiempo relativo', () => {
   assert.equal(N.tiempoRelativo(new Date('2026-09-01T09:00:00'), ahora), '1 sep 2026');
 });
 
-test('categorías, filtro y chips; el respaldo de imagen es una ilustración sin texto', () => {
+test('categorías, filtro y chips; el respaldo de imagen es una foto propia del sitio', () => {
   const lista = [{ categoria: 'fauna' }, { categoria: 'normativa' }, { categoria: 'fauna' }];
   assert.equal(N.filtrar(lista, 'fauna').length, 2);
   assert.equal(N.filtrar(lista, 'todas').length, 3);
@@ -63,10 +66,76 @@ test('categorías, filtro y chips; el respaldo de imagen es una ilustración sin
   assert.ok(!/data-cat="apicultura"/.test(chips), 'solo categorías que existen');
   for (const c of Object.keys(N.CATEGORIAS)) {
     const u = N.imagenRespaldo(c);
-    assert.ok(u.startsWith('data:image/svg+xml'), c);
-    assert.ok(!/<text/i.test(decodeURIComponent(u)), 'sin texto dentro de la imagen');
+    assert.match(u, /^\.\.\/assets\/img\/noticias\/respaldo-[a-z]+\.jpg$/, c);
+    assert.ok(fs.existsSync(path.join(RAIZ, u.replace('../', ''))), `existe la foto de ${c}`);
   }
   assert.equal(N.categoriaDe({ categoria: 'inventada' }).id, 'ciencia');
+});
+
+/* ───── imagen de la nota como portada ───── */
+const hoja = (n, i = 0) => N.hojaHTML(n, i, { ahora: new Date('2026-10-09T12:00:00') });
+const NOTA = { id: 'n_1', titulo: 'Jaguares regresan a la selva Maya', extracto: 'Un extracto corto de la nota.', link: 'https://es.mongabay.com/jaguar',
+  fuente: 'Mongabay Latam', categoria: 'conservacion', fecha: '2026-10-09T08:00:00Z', origen: 'auto' };
+
+test('la portada es la imagen de la nota: 16:9 por CSS, carga perezosa, alt vacío y sin enviar referencia', () => {
+  const h = hoja({ ...NOTA, imagen: 'https://cdn.mongabay.com/fotos/jaguar.jpg' });
+  assert.match(h, /<img class="hoja__img" src="https:\/\/cdn\.mongabay\.com\/fotos\/jaguar\.jpg"/);
+  assert.match(h, /alt=""/);
+  assert.match(h, /loading="lazy"/);
+  assert.match(h, /referrerpolicy="no-referrer"/);
+  assert.match(h, /data-real="1"/);
+  assert.ok(!/hoja--respaldo/.test(h), 'con imagen real no es una tarjeta de respaldo');
+  assert.ok(!/Zoorigen Actualidad/.test(h), 'sin el encabezado de color de relleno');
+  assert.ok(!/noticias de ejemplo/i.test(h));
+  assert.match(h, /class="hoja__etq">Conservación</, 'etiqueta de la categoría');
+});
+
+test('sin imagen (o con una que no es https) se usa la foto del sitio de su categoría, con la fuente encima', () => {
+  for (const imagen of ['', undefined, null, 'http://inseguro.com/a.jpg', 'javascript:alert(1)', 'data:image/png;base64,AAAA']) {
+    const h = hoja({ ...NOTA, categoria: 'apicultura', imagen });
+    assert.match(h, /src="\.\.\/assets\/img\/noticias\/respaldo-apicultura\.jpg"/, String(imagen));
+    assert.match(h, /class="hoja hoja--verde hoja--respaldo"/);
+    assert.match(h, /class="hoja__fuente">Mongabay Latam</);
+    assert.ok(!/data-real/.test(h));
+  }
+  // cada categoría tiene su foto y lo desconocido cae en la general
+  const fotos = Object.keys(N.CATEGORIAS).map(c => N.imagenRespaldo(c));
+  assert.equal(new Set(fotos).size, fotos.length, 'una foto distinta por categoría');
+  assert.equal(N.imagenRespaldo('inventada'), N.imagenRespaldo('fauna'));
+  assert.equal(N.imagenRespaldo('fauna', { base: '/assets/img/noticias/' }), '/assets/img/noticias/respaldo-fauna.jpg');
+});
+
+test('las notas del equipo (origen admin) sin imagen también usan la foto de respaldo', () => {
+  const h = hoja({ id: 'adm_1', titulo: 'Cómo preparar un informe anual', resumen: ['Uno', 'Dos'], categoria: 'normativa', fuente: 'Zoorigen', origen: 'admin', plantilla: 'naranja' });
+  assert.match(h, /respaldo-normativa\.jpg/);
+  assert.match(h, /hoja--naranja hoja--respaldo/);
+  const lectura = N.lecturaHTML({ titulo: 'T', categoria: 'veterinaria', origen: 'admin' }, 0);
+  assert.match(lectura, /respaldo-veterinaria\.jpg/);
+  assert.match(lectura, /hoja--respaldo/);
+});
+
+test('el respaldo viaja en la propia imagen para cambiarla si la de la nota falla, y todo se escapa', () => {
+  const h = hoja({ ...NOTA, imagen: 'https://cdn.mongabay.com/x.jpg', categoria: 'ciencia' });
+  assert.match(h, /data-respaldo="\.\.\/assets\/img\/noticias\/respaldo-ciencia\.jpg"/);
+  const sucia = N.hojaHTML({ ...NOTA, imagen: 'https://x.com/a.jpg', fuente: '"><script>alert(1)</script>' }, 0, { base: '"><img src=x onerror=1>' });
+  assert.ok(!/<script/i.test(sucia) && !/<img src=x/i.test(sucia));
+});
+
+test('la tarjeta lleva el enlace original solo en la lectura ampliada: pestaña nueva y noopener', () => {
+  const lectura = N.lecturaHTML({ ...NOTA, imagen: 'https://cdn.mongabay.com/x.jpg' }, 0);
+  assert.match(lectura, /<a class="lectura__leer" href="https:\/\/es\.mongabay\.com\/jaguar" target="_blank" rel="noopener noreferrer">/);
+  assert.match(lectura, /src="https:\/\/cdn\.mongabay\.com\/x\.jpg"/);
+  assert.ok(!/<a [^>]*href=/.test(hoja({ ...NOTA, imagen: 'https://cdn.mongabay.com/x.jpg' })), 'la tarjeta no es un enlace: abre la lectura');
+});
+
+test('la hoja de estilos de noticias no usa degradados ni encabezados de color (solo el hero del inicio, que no es de noticias)', () => {
+  const css = fs.readFileSync(path.join(RAIZ, 'assets', 'css', 'club-noticias.css'), 'utf8');
+  const parteNoticias = css.slice(0, css.indexOf('INICIO · tarjeta principal del curso'));
+  assert.ok(parteNoticias.length > 1000);
+  assert.ok(!/gradient\(/i.test(parteNoticias), 'sin degradados en las tarjetas de noticias');
+  assert.match(parteNoticias, /\.hoja__etq\s*\{[^}]*background:\s*#1f5f3a/i, 'etiqueta en verde sólido');
+  assert.match(parteNoticias, /\.hoja__foto\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/, 'relación 16:9 fija');
+  assert.match(parteNoticias, /\.hoja__img\s*\{[^}]*object-fit:\s*cover/);
 });
 
 test('normalizar tolera datos incompletos', () => {
