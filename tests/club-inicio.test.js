@@ -244,6 +244,7 @@ test('invitaHTML: boleto con código, copiar, huellas, tres cifras, WhatsApp y e
   assert.match(h, /aria-label="2 de 4 amigos confirmados"/);
   assert.match(h, /Te faltan 2 para tu premio/);
   for (const r of ['confirmados', 'por confirmar', 'puntos']) assert.ok(h.includes('<dt>' + r + '</dt>'), r);
+  for (const tono of ['ok', 'pen', 'pts']) assert.match(h, new RegExp('class="inv__cifra inv__cifra--' + tono + '"'), 'cifra ' + tono);
   assert.match(h, /data-compartir[\s\S]*Compartir por WhatsApp/);
   assert.match(h, /href="club-referidos\.html">Ver mis invitados/);
   assert.match(I.invitaHTML({ codigo: 'ZOO-A', error: true }), /No pudimos cargar tus invitados ahora/);

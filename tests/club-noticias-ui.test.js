@@ -1,5 +1,5 @@
 'use strict';
-// Noticias del sector: partes puras de club-noticias-ui.js (seguridad al mostrar texto externo, plantillas, fechas)
+// Noticias del sector: partes puras de club-noticias-ui.js (seguridad al mostrar texto externo, cabeceras, fechas, rejilla estilo Alintec)
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -36,10 +36,22 @@ test('el HTML de una hoja escapa todo el texto que viene de afuera', () => {
   assert.match(N.lecturaHTML({ titulo: 'T', fuente: 'M', link: 'http://x.com' }, 0), /Fuente: M/);
 });
 
-test('plantillas: la que elige el administrador, o se reparten verde, naranja y bicolor', () => {
-  assert.equal(N.plantillaDe({ plantilla: 'bicolor' }, 0), 'bicolor');
-  assert.equal(N.plantillaDe({ plantilla: 'rosa' }, 1), 'naranja');
-  assert.deepEqual([0, 1, 2, 3, 4, 5].map(i => N.plantillaDe({}, i)), ['verde', 'naranja', 'bicolor', 'verde', 'naranja', 'bicolor']);
+test('cabeceras: la que elige el administrador; si no, una estable derivada del id (no cambia al recargar ni al reordenar)', () => {
+  assert.deepEqual(N.PLANTILLAS, ['verde', 'naranja', 'bicolor']);
+  assert.equal(N.plantillaDe({ plantilla: 'bicolor', id: 'x' }, 0), 'bicolor');
+  const ids = ['n_demo_serpientes', 'n_demo_colmenas', 'abc123', 'adm_7', 'Zq9', 'n_2026_10_13_aves'];
+  for (const id of ids) {
+    const p = N.plantillaDe({ id }, 0);
+    assert.ok(N.PLANTILLAS.includes(p), id);
+    assert.equal(N.plantillaDe({ id }, 5), p, 'no depende de la posición');
+    assert.equal(N.plantillaDe({ id, plantilla: 'rosa' }, 9), p, 'una plantilla inválida cae al hash del id');
+  }
+  assert.equal(N.hashTexto('n_demo_serpientes'), N.hashTexto('n_demo_serpientes'));
+  assert.notEqual(N.hashTexto('a'), N.hashTexto('b'));
+  const reparto = new Set(Array.from({ length: 30 }, (_, i) => N.plantillaDe({ id: 'nota-' + i }, 0)));
+  assert.equal(reparto.size, 3, 'con varias notas aparecen las tres cabeceras');
+  // sin id se reparten por posición
+  assert.deepEqual([0, 1, 2, 3].map(i => N.plantillaDe({}, i)), ['verde', 'naranja', 'bicolor', 'verde']);
 });
 
 test('fechas en español y tiempo relativo', () => {
@@ -52,6 +64,25 @@ test('fechas en español y tiempo relativo', () => {
   assert.equal(N.tiempoRelativo(new Date('2026-10-08T09:00:00'), ahora), 'ayer');
   assert.equal(N.tiempoRelativo(new Date('2026-10-05T09:00:00'), ahora), 'hace 4 días');
   assert.equal(N.tiempoRelativo(new Date('2026-09-01T09:00:00'), ahora), '1 sep 2026');
+});
+
+test('línea superior y fuente: fecha corta en español, "Ahora", "hace N h", "Ayer"', () => {
+  assert.equal(N.fechaCorta('2026-10-13T12:00:00'), '13 de octubre de 2026');
+  assert.equal(N.fechaCorta(new Date('2026-01-05T12:00:00')), '5 de enero de 2026');
+  assert.equal(N.fechaCorta('basura'), '');
+  const ahora = new Date('2026-10-13T12:00:00');
+  assert.equal(N.tiempoCorto(new Date('2026-10-13T11:40:00'), ahora), 'Ahora');
+  assert.equal(N.tiempoCorto(new Date('2026-10-13T09:00:00'), ahora), 'hace 3 h');
+  assert.equal(N.tiempoCorto(new Date('2026-10-12T09:00:00'), ahora), 'Ayer');
+  assert.equal(N.tiempoCorto(new Date('2026-10-09T09:00:00'), ahora), 'hace 4 días');
+  assert.equal(N.tiempoCorto(new Date('2026-09-20T09:00:00'), ahora), '20 sep');
+  assert.equal(N.tiempoCorto(null, ahora), '');
+});
+
+test('número de orden con dos cifras: 01, 02, ... 10', () => {
+  assert.deepEqual([0, 1, 8, 9, 10, 98].map(N.numeroOrden), ['01', '02', '09', '10', '11', '99']);
+  assert.equal(N.numeroOrden(undefined), '01');
+  assert.equal(N.numeroOrden(-3), '01');
 });
 
 test('categorías, filtro y chips; el respaldo de imagen es una foto propia del sitio', () => {
@@ -85,16 +116,21 @@ test('la portada es la imagen de la nota: 16:9 por CSS, carga perezosa, alt vac�
   assert.match(h, /referrerpolicy="no-referrer"/);
   assert.match(h, /data-real="1"/);
   assert.ok(!/hoja--respaldo/.test(h), 'con imagen real no es una tarjeta de respaldo');
-  assert.ok(!/Zoorigen Actualidad/.test(h), 'sin el encabezado de color de relleno');
   assert.ok(!/noticias de ejemplo/i.test(h));
-  assert.match(h, /class="hoja__etq">Conservación</, 'etiqueta de la categoría');
+  assert.match(h, /class="hj-lema">Conservación — <em>Mongabay Latam<\/em>/, 'categoría — fuente bajo el nombre del periódico');
+  assert.ok(!/hoja__etq/.test(h), 'la categoría ya no va encima de la foto');
+});
+
+test('la foto va siempre debajo de la cabecera de color', () => {
+  const h = hoja({ ...NOTA, imagen: 'https://cdn.mongabay.com/fotos/jaguar.jpg' });
+  assert.ok(h.indexOf('hj-top') < h.indexOf('hj-mast') && h.indexOf('hj-mast') < h.indexOf('hoja__foto') && h.indexOf('hoja__foto') < h.indexOf('hoja__titulo'));
 });
 
 test('sin imagen (o con una que no es https) se usa la foto del sitio de su categoría, con la fuente encima', () => {
   for (const imagen of ['', undefined, null, 'http://inseguro.com/a.jpg', 'javascript:alert(1)', 'data:image/png;base64,AAAA']) {
     const h = hoja({ ...NOTA, categoria: 'apicultura', imagen });
     assert.match(h, /src="\.\.\/assets\/img\/noticias\/respaldo-apicultura\.jpg"/, String(imagen));
-    assert.match(h, /class="hoja hoja--verde hoja--respaldo"/);
+    assert.match(h, /class="hoja hoja--(verde|naranja|bicolor) hoja--tarjeta hoja--respaldo"/);
     assert.match(h, /class="hoja__fuente">Mongabay Latam</);
     assert.ok(!/data-real/.test(h));
   }
@@ -108,7 +144,7 @@ test('sin imagen (o con una que no es https) se usa la foto del sitio de su cate
 test('las notas del equipo (origen admin) sin imagen también usan la foto de respaldo', () => {
   const h = hoja({ id: 'adm_1', titulo: 'Cómo preparar un informe anual', resumen: ['Uno', 'Dos'], categoria: 'normativa', fuente: 'Zoorigen', origen: 'admin', plantilla: 'naranja' });
   assert.match(h, /respaldo-normativa\.jpg/);
-  assert.match(h, /hoja--naranja hoja--respaldo/);
+  assert.match(h, /hoja--naranja hoja--tarjeta hoja--respaldo/);
   const lectura = N.lecturaHTML({ titulo: 'T', categoria: 'veterinaria', origen: 'admin' }, 0);
   assert.match(lectura, /respaldo-veterinaria\.jpg/);
   assert.match(lectura, /hoja--respaldo/);
@@ -133,7 +169,21 @@ test('la hoja de estilos de noticias no usa degradados ni encabezados de color (
   const parteNoticias = css.slice(0, css.indexOf('INICIO · tarjeta principal del curso'));
   assert.ok(parteNoticias.length > 1000);
   assert.ok(!/gradient\(/i.test(parteNoticias), 'sin degradados en las tarjetas de noticias');
-  assert.match(parteNoticias, /\.hoja__etq\s*\{[^}]*background:\s*#1f5f3a/i, 'etiqueta en verde sólido');
+  assert.match(parteNoticias, /--h-mast:\s*#1F5F3A/i, 'cabecera verde de marca');
+  assert.match(parteNoticias, /--h-mast:\s*#C25100/i, 'cabecera naranja quemado');
+  assert.match(parteNoticias, /--h-mast:\s*#1B1F23/i, 'cabecera carbón');
+  assert.match(parteNoticias, /--h-b1-bg:\s*#E8A317/i, 'etiqueta dorada');
+  assert.match(parteNoticias, /--h-papel:\s*#171B20/i, 'superficie de noche');
+  assert.match(parteNoticias, /--h-papel:\s*#FFFEFA/i, 'papel de día');
+  assert.match(parteNoticias, /border-bottom:\s*3px double/, 'doble filete bajo dominio y fecha');
+  assert.match(parteNoticias, /'Playfair Display'/);
+  assert.match(parteNoticias, /ui-monospace/);
+  assert.match(parteNoticias, /text-align:\s*justify/);
+  assert.match(parteNoticias, /-webkit-line-clamp:\s*5/, 'extracto a 5 líneas');
+  assert.match(parteNoticias, /-webkit-line-clamp:\s*3/, 'titular a 3 líneas');
+  for (const [ancho, cols] of [[500, 2], [760, 3], [960, 4]])
+    assert.match(parteNoticias, new RegExp('@container \\(min-width: ' + ancho + 'px\\)\\s*\\{\\s*\\.hojas\\s*\\{\\s*grid-template-columns:\\s*repeat\\(' + cols + ','), cols + ' columnas desde ' + ancho + ' px');
+  assert.doesNotMatch(parteNoticias, /\.np-|--np-/, 'sin restos de la primera plana');
   assert.match(parteNoticias, /\.hoja__foto\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/, 'relación 16:9 fija');
   assert.match(parteNoticias, /\.hoja__img\s*\{[^}]*object-fit:\s*cover/);
 });
@@ -148,78 +198,77 @@ test('normalizar tolera datos incompletos', () => {
   assert.ok(m.resumen.length <= 8 && m.resumen[0] === 'uno');
 });
 
-/* ───── Primera plana de periódico ───── */
+/* ───── Rejilla estilo Alintec ───── */
 const NOTAS = [1, 2, 3, 4, 5, 6, 7, 8].map(i => ({ id: 'n' + i, titulo: 'Nota ' + i, extracto: 'Extracto de la nota ' + i, fuente: 'Zoorigen', categoria: i % 2 ? 'fauna' : 'conservacion',
-  fecha: '2026-10-13T08:00:00Z', link: 'https://es.mongabay.com/n' + i, imagen: i === 3 ? 'https://cdn.mongabay.com/fotos/n3.jpg' : '' }));
+  fecha: '2026-10-13T08:00:00', link: 'https://es.mongabay.com/n' + i, imagen: i === 3 ? 'https://cdn.mongabay.com/fotos/n3.jpg' : '' }));
 const AHORA = new Date('2026-10-13T12:00:00');
 
-test('composición: la principal es la primera con imagen propia; luego 4 secundarias y las demás como "más notas"', () => {
-  const c = N.componerPortada(NOTAS);
-  assert.equal(c.principal.indice, 2, 'la única con imagen sube a principal');
-  assert.deepEqual(c.secundarias.map(x => x.indice), [0, 1, 3, 4]);
-  assert.deepEqual(c.breves.map(x => x.indice), [5, 6, 7]);
-  const sinImagen = N.componerPortada(NOTAS.map(n => ({ ...n, imagen: '' })));
-  assert.equal(sinImagen.principal.indice, 0, 'sin imágenes, la primera');
-  assert.equal(N.componerPortada(NOTAS.slice(0, 1)).secundarias.length, 0);
-  assert.equal(N.componerPortada([]).principal, null);
-  assert.equal(N.componerPortada(null).principal, null);
-  assert.equal(N.componerPortada(NOTAS, { secundarias: 3, breves: 1 }).secundarias.length, 3);
-  assert.equal(N.componerPortada(NOTAS, { secundarias: 3, breves: 1 }).breves.length, 1);
-  const todos = [c.principal, ...c.secundarias, ...c.breves].map(x => x.indice).sort();
-  assert.deepEqual(todos, [0, 1, 2, 3, 4, 5, 6, 7], 'ninguna nota se repite ni se pierde');
-  assert.equal(N.componerPortada(['x', null, NOTAS[0]]).principal.indice, 2, 'lo que no es nota se ignora');
-});
-
-test('edición y fecha: día del año y fecha larga en español', () => {
-  assert.equal(N.numeroEdicion(new Date('2026-10-13T12:00:00')), 286);
-  assert.equal(N.numeroEdicion(new Date('2026-01-01T00:30:00')), 1);
-  assert.equal(N.numeroEdicion(new Date('2026-12-31T23:00:00')), 365);
-  assert.equal(N.fechaPeriodico(AHORA), 'Martes, 13 de octubre de 2026');
-});
-
-test('la primera plana trae cabecera de periódico, principal, columnas y "Más notas"', () => {
-  const h = N.periodicoHTML(NOTAS, { ahora: AHORA });
-  assert.match(h, /class="np-cab__titulo">Zoorigen Actualidad</);
-  assert.match(h, /Edición N\.º 286/);
-  assert.match(h, /np-cab__fecha">Martes, 13 de octubre de 2026</);
-  assert.match(h, /Fauna silvestre, ciencia y conservación al día/);
-  assert.match(h, /class="np-hoy">Hoy</);
-  assert.equal((h.match(/class="np-nota np-principal/g) || []).length, 1);
-  assert.equal((h.match(/class="np-nota np-sec/g) || []).length, 4);
-  assert.equal((h.match(/class="np-nota np-breve"/g) || []).length, 3);
-  assert.match(h, /np-columnas--4/);
-  assert.match(h, /Más notas/);
-  assert.match(h, /Leer nota completa/);
-  assert.match(h, /src="https:\/\/cdn\.mongabay\.com\/fotos\/n3\.jpg"/, 'la foto real de la nota es la principal');
+test('la tarjeta trae dominio y fecha, cabecera con el nombre, foto, titular, fuente, extracto y pie con número', () => {
+  const h = N.hojaHTML(NOTAS[2], 2, { ahora: AHORA });
+  assert.match(h, /<span class="hj-dom">zoorigen\.com<\/span><span class="hj-fecha">13 de octubre de 2026<\/span>/);
+  assert.match(h, /<h3 class="hj-brand"><span class="hj-b1">Zoorigen<\/span> <span class="hj-b2">Actualidad<\/span><\/h3>/);
+  assert.match(h, /class="hj-lema">Fauna silvestre — <em>Zoorigen<\/em>/);
+  assert.match(h, /src="https:\/\/cdn\.mongabay\.com\/fotos\/n3\.jpg"/);
+  assert.match(h, /<h3 class="hoja__titulo">Nota 3<\/h3>/);
+  assert.match(h, /<p class="hj-deck">Zoorigen · hace 4 h<\/p>/);
+  assert.match(h, /<p class="hoja__texto" lang="es">Extracto de la nota 3<\/p>/);
+  assert.match(h, /Ver resumen ampliado <span aria-hidden="true">→<\/span>/);
+  assert.match(h, /<span class="hj-page" aria-hidden="true">03<\/span>/);
   assert.match(h, /data-i="2"/, 'el índice abre la nota correcta en la lectura ampliada');
-  assert.match(h, /hace \d+ h/);
   assert.doesNotMatch(h, /gradient/i);
   assert.doesNotMatch(h, /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u);
 });
 
-test('la primera plana escapa lo externo y conserva respaldo por categoría', () => {
-  const sucia = [{ id: 'a"><img src=x>', titulo: '<img src=x onerror=1>Título', extracto: '<script>x</script> texto', fuente: '"><b>M</b>', link: 'javascript:alert(1)', imagen: 'http://malo.com/x.jpg', categoria: 'fauna' }];
-  const h = N.periodicoHTML(sucia, { ahora: AHORA });
-  assert.doesNotMatch(h, /<img src=x|<script|<b>M|href="javascript:/i);
-  assert.match(h, /respaldo-fauna\.jpg/);
-  assert.match(h, /hoja--respaldo/);
-  const vacia = N.periodicoHTML([], { ahora: AHORA, tituloVacio: 'Sin conexión' });
-  assert.match(vacia, /Zoorigen Actualidad/);
-  assert.match(vacia, /Sin conexión/);
+test('la variante de cabecera sale de la plantilla del administrador o del id, y es la misma en cada recarga', () => {
+  const clase = (n, i) => (N.hojaHTML(n, i, { ahora: AHORA }).match(/hoja--(verde|naranja|bicolor)/) || [])[1];
+  for (const n of NOTAS) assert.equal(clase(n, 0), clase(n, 7), 'no depende de la posición ni del momento');
+  assert.equal(clase({ id: 'a', plantilla: 'naranja' }, 0), 'naranja');
+  assert.equal(clase({ id: 'a', plantilla: 'bicolor' }, 0), 'bicolor');
+  assert.equal(new Set(NOTAS.map(n => clase(n, 0))).size >= 2, true, 'las notas se reparten entre varias cabeceras');
 });
 
-test('la hoja de estilos de la primera plana: papel crema de día, superficie neutra de noche, sin degradados', () => {
+test('recorte de textos: titular a 180, extracto de tarjeta a 420 sin partir palabras, y sin etiquetas', () => {
+  const largo = { ...NOTA, titulo: 'palabra '.repeat(60), extracto: '<b>texto</b> ' + 'extracto '.repeat(120) };
+  const n = N.normalizar(largo, 0);
+  assert.ok(n.titulo.length <= 181 && n.titulo.endsWith('…'));
+  const h = hoja(largo);
+  const texto = h.match(/<p class="hoja__texto" lang="es">([^<]*)<\/p>/)[1];
+  assert.ok(texto.length <= 421 && texto.endsWith('…'), String(texto.length));
+  assert.ok(!/<b>|texto<\/b>/.test(texto));
+  assert.ok(!/extract…$/.test(texto), 'no parte una palabra');
+  // sin extracto se usa el resumen
+  const r = hoja({ id: 'adm', titulo: 'T', resumen: ['Primera línea.', 'Segunda línea.'], categoria: 'normativa', origen: 'admin' });
+  assert.match(r, /Primera línea\. Segunda línea\./);
+});
+
+test('la rejilla numera 01, 02..., escapa lo externo y avisa cuando no hay notas', () => {
+  const h = N.rejillaHTML(NOTAS, { ahora: AHORA });
+  assert.equal((h.match(/class="hoja hoja--/g) || []).length, 8);
+  assert.deepEqual([...h.matchAll(/class="hj-page"[^>]*>(\d\d)</g)].map(m => m[1]), ['01', '02', '03', '04', '05', '06', '07', '08']);
+  assert.match(h, /^<div class="hojas">/);
+  assert.equal((N.rejillaHTML(NOTAS, { ahora: AHORA, max: 3 }).match(/class="hoja hoja--/g) || []).length, 3);
+  const sucia = N.rejillaHTML([{ id: 'a"><img src=x>', titulo: '<img src=x onerror=1>Título', extracto: '<script>x</script> texto', fuente: '"><b>M</b>', categoriaNombre: '<i>cat</i>',
+    link: 'javascript:alert(1)', imagen: 'http://malo.com/x.jpg', categoria: 'fauna' }], { ahora: AHORA });
+  assert.doesNotMatch(sucia, /<img src=x|<script|<b>M|<i>cat|href="javascript:/i);
+  assert.match(sucia, /respaldo-fauna\.jpg/);
+  assert.match(sucia, /hoja--respaldo/);
+  const vacia = N.rejillaHTML([], { tituloVacio: 'Sin conexión' });
+  assert.match(vacia, /nt-vacio/);
+  assert.match(vacia, /Sin conexión/);
+  assert.equal(N.rejillaHTML(null).includes('nt-vacio'), true);
+});
+
+test('la lectura ampliada usa la misma cabecera y conserva el enlace original en pestaña nueva', () => {
+  const l = N.lecturaHTML({ ...NOTA, imagen: 'https://cdn.mongabay.com/x.jpg' }, 0, { ahora: AHORA });
+  assert.match(l, /hoja--grande/);
+  assert.match(l, /class="hj-brand"/);
+  assert.match(l, /zoorigen\.com/);
+  assert.match(l, /rel="noopener noreferrer"/);
+});
+
+test('la primera plana ya no existe: sin periodicoHTML ni estilos np-', () => {
+  assert.equal(N.periodicoHTML, undefined);
+  assert.equal(N.componerPortada, undefined);
   const css = fs.readFileSync(path.join(RAIZ, 'assets/css/club-noticias.css'), 'utf8');
-  assert.match(css, /--np-papel:\s*#FAF7F0/i);
-  assert.match(css, /--np-papel:\s*#171B20/i);
-  assert.match(css, /--np-borde:\s*#2A3038/i);
-  assert.match(css, /Playfair Display/);
-  assert.match(css, /font-weight:\s*900/);
-  assert.match(css, /4px double/);
-  assert.match(css, /hyphens:\s*auto/);
-  assert.match(css, /text-align:\s*justify/);
-  assert.match(css, /::first-letter/);
-  assert.match(css, /font-variant:\s*small-caps/);
-  assert.match(css, /@container \(min-width: 800px\)/);
-  assert.doesNotMatch(css.slice(css.indexOf('PRIMERA PLANA')), /gradient\(/);
+  assert.doesNotMatch(css, /\.np-|--np-/);
 });

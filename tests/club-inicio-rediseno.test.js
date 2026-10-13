@@ -1,5 +1,5 @@
 'use strict';
-// Rediseño del Inicio del Club: tarjeta de saludo con Jaguarito, sin tarjeta de nivel, invitación en su lugar y noticias tipo periódico.
+// Rediseño del Inicio del Club: tarjeta de saludo con Jaguarito, sin tarjeta de nivel, invitación en su lugar y noticias en rejilla tipo recorte de periódico (como Alintec).
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -69,18 +69,43 @@ test('el Inicio carga la tipografía del periódico en el mismo enlace de Google
 
 test('las versiones de lo que cambió suben en las páginas que lo cargan', () => {
   for (const [pag, patron] of [
-    ['pages/club-dashboard.html', /assets\/css\/club-inicio\.css\?v=20261105-inicio/],
-    ['pages/club-dashboard.html', /assets\/css\/club-noticias\.css\?v=20261105-periodico/],
-    ['pages/club-dashboard.html', /assets\/js\/club-inicio\.js\?v=20261105-inicio/],
-    ['pages/club-dashboard.html', /assets\/js\/club-noticias-ui\.js\?v=20261105-periodico/],
-    ['pages/admin-club.html', /assets\/css\/club-noticias\.css\?v=20261105-periodico/],
-    ['pages/admin-club.html', /assets\/js\/club-noticias-ui\.js\?v=20261105-periodico/]
+    ['pages/club-dashboard.html', /assets\/css\/club-inicio\.css\?v=20261106-noticias/],
+    ['pages/club-dashboard.html', /assets\/css\/club-noticias\.css\?v=20261106-noticias/],
+    ['pages/club-dashboard.html', /assets\/js\/club-inicio\.js\?v=20261106-noticias/],
+    ['pages/club-dashboard.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/],
+    ['pages/admin-club.html', /assets\/css\/club-noticias\.css\?v=20261106-noticias/],
+    ['pages/admin-club.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/]
   ]) assert.match(leer(pag), patron, pag + ' ' + patron);
 });
 
-test('las noticias del Inicio se pintan como primera plana y el error también lleva la cabecera', () => {
+test('las noticias del Inicio se pintan como rejilla de tarjetas (modo por defecto) y el error muestra su aviso', () => {
   assert.match(dash, /ZOO_NOTICIAS\.pintar\(nl, Array\.isArray/);
   assert.match(dash, /tituloVacio: 'No se pudieron cargar las noticias'/);
   assert.doesNotMatch(dash, /ih-noticias__cab/);
-  assert.match(leer('assets/js/club-noticias-ui.js'), /periodicoHTML\(datos, opciones\)/);
+  const js = leer('assets/js/club-noticias-ui.js');
+  assert.match(js, /rejillaHTML\(datos, opciones\)/);
+  assert.doesNotMatch(js, /periodicoHTML|componerPortada/);
+  // la sección es contenedor: las columnas dependen de su ancho (4, 3, 2, 1)
+  assert.match(leer('assets/css/club-noticias.css'), /\.nt-seccion \{ container-type: inline-size; \}/);
+  assert.doesNotMatch(leer('assets/css/club-inicio.css'), /\.nt-seccion \.hojas/, 'el Inicio no pisa las columnas de la rejilla');
+});
+
+test('la invitación lleva color sólido: fondo en tinte verde, borde superior verde, banda dorada, boleto dorado y cifras de color', () => {
+  const css = leer('assets/css/club-inicio.css');
+  const b = css.slice(css.indexOf('TARJETA "INVITA AMIGOS"'));
+  assert.doesNotMatch(b, /gradient\(/);
+  assert.match(b, /--iv-fondo:\s*#EAF2EC/i, 'tinte verde de día');
+  assert.match(b, /--iv-fondo:\s*#171B20/i, 'superficie neutra de noche');
+  assert.match(b, /border-top:\s*6px solid var\(--iv-sup\)/);
+  assert.match(b, /--iv-sup:\s*#1F5F3A/i);
+  assert.match(b, /\.inv__banda \{[^}]*background:\s*var\(--iv-dorado\)/);
+  assert.match(b, /--iv-dorado:\s*#E8A317/i);
+  assert.match(b, /--iv-boleto:\s*#FFF3CF/i, 'boleto en tinte dorado');
+  assert.match(b, /\.inv__boleto \{[^}]*dashed/);
+  assert.match(b, /--iv-c-pts-top:\s*#037BC9/i, 'puntos en azul');
+  assert.match(b, /\.inv__leyenda \{[^}]*background:\s*var\(--iv-dorado\)/, 'etiqueta dorada sólida');
+  assert.match(b, /\.inv__titulo \{[^}]*font-weight:\s*800/);
+  assert.match(b, /nth-child\(even\)/, 'huellas alternan verde y dorado');
+  assert.match(b, /#25D366/i);
+  assert.match(b, /\[data-theme="light"\] \.inv \{/);
 });

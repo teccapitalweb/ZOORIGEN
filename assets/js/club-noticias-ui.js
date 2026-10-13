@@ -1,8 +1,10 @@
 /* ============================================================ */
 /* CLUB VIP ZOORIGEN · NOTICIAS DEL SECTOR                       */
-/* Primera plana de periódico (principal + secundarias + más     */
-/* notas) y, para la vista previa del administrador, la tarjeta  */
-/* "hoja". Titular + extracto corto + enlace a la nota original. */
+/* Rejilla de tarjetas tipo recorte de periódico (igual que las  */
+/* de Alintec Food): dominio y fecha, cabecera de color SÓLIDO   */
+/* con el nombre del periódico, foto de la nota, titular serif,  */
+/* extracto justificado y "Ver resumen ampliado" con su número.  */
+/* La lectura ampliada reutiliza la misma cabecera.              */
 /* La parte pura se prueba en Node; la de pantalla solo en el    */
 /* navegador. Todo texto externo se escapa antes de mostrarse.   */
 /* ============================================================ */
@@ -12,7 +14,10 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
+  /* Las tres cabeceras: verde de marca, naranja quemado y carbón con etiqueta dorada. */
   var PLANTILLAS = ['verde', 'naranja', 'bicolor'];
+  var DOMINIO = 'zoorigen.com';
+  var NOMBRE_PERIODICO = 'Zoorigen Actualidad';
   var CATEGORIAS = {
     fauna: { nombre: 'Fauna silvestre', color: '#2F7A4F' },
     conservacion: { nombre: 'Conservación', color: '#6FBF73' },
@@ -21,7 +26,7 @@
     apicultura: { nombre: 'Apicultura', color: '#D4A017' },
     ciencia: { nombre: 'Ciencia y biodiversidad', color: '#8B7FBA' }
   };
-  /* La portada de cada tarjeta es la imagen de la propia nota. Cuando la nota no trae imagen (o falla al cargar, o es
+  /* La foto de cada tarjeta es la imagen de la propia nota. Cuando la nota no trae imagen (o falla al cargar, o es
      una miniatura de menos de 200 px) se usa una FOTO propia del sitio según la categoría, con la fuente en una
      etiqueta pequeña encima. Sin degradados ni ilustraciones: son las mismas fotos que ya usa el sitio, recortadas a 16:9
      y optimizadas en assets/img/noticias/ (salen de assets/img/areas/). */
@@ -36,6 +41,8 @@
   };
   var FOTO_GENERAL = 'respaldo-fauna.jpg';
   var MIN_ANCHO_IMAGEN = 200;
+  var MAX_TITULO = 180;
+  var MAX_EXTRACTO_TARJETA = 420;  /* la hoja de estilos lo recorta a ~5 líneas */
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -77,6 +84,13 @@
     return DIAS[d.getDay()] + ', ' + d.getDate() + ' de ' + MESES[d.getMonth()] + ' de ' + d.getFullYear();
   }
 
+  /* "13 de octubre de 2026" (línea superior de la tarjeta) */
+  function fechaCorta(v) {
+    var d = aFecha(v);
+    if (!d) return '';
+    return d.getDate() + ' de ' + MESES[d.getMonth()] + ' de ' + d.getFullYear();
+  }
+
   /* "hace 5 min", "hace 3 h", "ayer", "hace 4 días", "12 sep 2026" */
   function tiempoRelativo(v, ahora) {
     var d = aFecha(v);
@@ -94,9 +108,34 @@
     return d.getDate() + ' ' + MESES[d.getMonth()].slice(0, 3) + ' ' + d.getFullYear();
   }
 
-  /* La plantilla que eligió la persona administradora; si no hay, se reparten verde → naranja → bicolor. */
+  /* Versión corta para la línea de la fuente: "Ahora", "hace 3 h", "Ayer", "hace 4 días", "12 sep". */
+  function tiempoCorto(v, ahora) {
+    var d = aFecha(v);
+    if (!d) return '';
+    var ms = (ahora instanceof Date ? ahora.getTime() : Date.now()) - d.getTime();
+    if (ms < 0) ms = 0;
+    var h = Math.floor(ms / 3600000);
+    if (h < 1) return 'Ahora';
+    if (h < 24) return 'hace ' + h + ' h';
+    var dias = Math.floor(h / 24);
+    if (dias === 1) return 'Ayer';
+    if (dias < 8) return 'hace ' + dias + ' días';
+    return d.getDate() + ' ' + MESES[d.getMonth()].slice(0, 3);
+  }
+
+  /* Número entero estable a partir de un texto (djb2). Misma entrada, mismo resultado, siempre. */
+  function hashTexto(s) {
+    var h = 5381, t = String(s == null ? '' : s);
+    for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
+    return h;
+  }
+
+  /* La plantilla que eligió la persona administradora; si no hay, se deriva del id de la nota (así no cambia al
+     recargar ni cuando llegan notas nuevas). Sin id, se reparten por posición. */
   function plantillaDe(n, indice) {
     if (n && PLANTILLAS.indexOf(n.plantilla) !== -1) return n.plantilla;
+    var id = n && n.id != null ? String(n.id) : '';
+    if (id) return PLANTILLAS[hashTexto(id) % PLANTILLAS.length];
     return PLANTILLAS[Math.abs(indice || 0) % PLANTILLAS.length];
   }
 
@@ -112,13 +151,19 @@
     return base + archivo;
   }
 
-  /* Portada de una tarjeta: la imagen de la nota o, si no hay, la foto de respaldo (con la fuente encima). */
+  /* Número de orden de la tarjeta: 01, 02, ... 10, 11 */
+  function numeroOrden(indice) {
+    var n = Number(indice);
+    n = Number.isFinite(n) && n >= 0 ? Math.floor(n) + 1 : 1;
+    return (n < 10 ? '0' : '') + n;
+  }
+
+  /* Foto de la nota (16:9 por CSS) o, si no hay, la foto de respaldo (con la fuente encima). */
   function fotoHTML(n, opciones, grande) {
     var respaldo = imagenRespaldo(n.categoria.id, opciones);
     return '<div class="hoja__foto' + (grande ? ' hoja__foto--grande' : '') + '">' +
       '<img class="hoja__img" src="' + esc(n.imagen || respaldo) + '" data-respaldo="' + esc(respaldo) + '"' + (n.imagen ? ' data-real="1"' : '') +
       ' alt="" width="640" height="360"' + (grande ? '' : ' loading="lazy"') + ' decoding="async" referrerpolicy="no-referrer">' +
-      '<span class="hoja__etq">' + esc(n.categoria.nombre) + '</span>' +
       '<span class="hoja__fuente">' + esc(n.fuente) + '</span>' +
     '</div>';
   }
@@ -131,7 +176,7 @@
     resumen = resumen.map(function (l) { return limpiar(l, 400); }).filter(Boolean).slice(0, 8);
     return {
       id: String(n.id || ''),
-      titulo: limpiar(n.titulo, 180) || 'Noticia',
+      titulo: limpiar(n.titulo, MAX_TITULO) || 'Noticia',
       extracto: limpiar(n.extracto, 520),
       resumen: resumen,
       fuente: limpiar(n.fuente, 60) || 'Zoorigen',
@@ -152,19 +197,38 @@
   }
 
   /* ───── HTML (devuelve texto; todo valor externo pasa por esc) ───── */
+
+  /* Línea superior (dominio + fecha) y cabecera de color con el nombre del periódico y "Categoría — fuente". */
+  function cabeceraHTML(n, ahora) {
+    var fecha = fechaCorta(n.fecha || ahora);
+    var partes = NOMBRE_PERIODICO.split(' ');
+    return '<div class="hj-top"><span class="hj-dom">' + esc(DOMINIO) + '</span><span class="hj-fecha">' + esc(fecha) + '</span></div>' +
+      '<header class="hj-mast">' +
+        '<h3 class="hj-brand"><span class="hj-b1">' + esc(partes[0]) + '</span> <span class="hj-b2">' + esc(partes[1]) + '</span></h3>' +
+        '<p class="hj-lema">' + esc(n.categoria.nombre) + ' — <em>' + esc(n.fuente) + '</em></p>' +
+      '</header>';
+  }
+
+  function claseHoja(n, extra) {
+    return 'hoja hoja--' + n.plantilla + (extra ? ' ' + extra : '') + (n.imagen ? '' : ' hoja--respaldo');
+  }
+
+  /* Tarjeta de la rejilla. opciones: { ahora, base } */
   function hojaHTML(raw, indice, opciones) {
     opciones = opciones || {};
     var n = normalizar(raw, indice);
     var ahora = opciones.ahora instanceof Date ? opciones.ahora : new Date();
-    var texto = n.extracto || (n.resumen[0] || '');
-    return '<article class="hoja hoja--' + n.plantilla + (n.imagen ? '' : ' hoja--respaldo') + '" role="button" tabindex="0" data-noticia="' + esc(n.id) + '" data-i="' + esc(indice) + '" aria-label="' + esc(n.titulo) + '">' +
+    var texto = n.extracto || n.resumen.join(' ');
+    var tiempo = n.fecha ? tiempoCorto(n.fecha, ahora) : '';
+    return '<article class="' + claseHoja(n, 'hoja--tarjeta') + '" role="button" tabindex="0" data-noticia="' + esc(n.id) + '" data-i="' + esc(indice) + '" aria-label="' + esc(n.titulo) + '">' +
+      cabeceraHTML(n, ahora) +
       fotoHTML(n, opciones, false) +
       '<div class="hoja__cuerpo">' +
-        '<div class="hoja__meta">' + esc(n.fuente) + (n.fecha ? ' · ' + esc(tiempoRelativo(n.fecha, ahora)) : '') + '</div>' +
         '<h3 class="hoja__titulo">' + esc(n.titulo) + '</h3>' +
-        (texto ? '<p class="hoja__texto">' + esc(limpiar(texto, 300)) + '</p>' : '') +
-        '<div class="hoja__pie"><span>Ver resumen ampliado →</span></div>' +
+        '<p class="hj-deck">' + esc(n.fuente) + (tiempo ? ' · ' + esc(tiempo) : '') + '</p>' +
+        (texto ? '<p class="hoja__texto" lang="es">' + esc(limpiar(texto, MAX_EXTRACTO_TARJETA)) + '</p>' : '') +
       '</div>' +
+      '<footer class="hj-foot"><span class="hj-leer">Ver resumen ampliado <span aria-hidden="true">→</span></span><span class="hj-page" aria-hidden="true">' + numeroOrden(indice) + '</span></footer>' +
     '</article>';
   }
 
@@ -176,7 +240,8 @@
     var cuerpo = n.resumen.length
       ? '<ul class="lectura__lista">' + n.resumen.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>'
       : (n.extracto ? '<p>' + esc(n.extracto) + '</p>' : '');
-    return '<div class="hoja hoja--' + n.plantilla + (n.imagen ? '' : ' hoja--respaldo') + ' hoja--grande" role="document">' +
+    return '<div class="' + claseHoja(n, 'hoja--grande') + '" role="document">' +
+      cabeceraHTML(n, ahora) +
       fotoHTML(n, opciones, true) +
       '<div class="hoja__cuerpo">' +
         '<h2 class="hoja__titulo hoja__titulo--grande">' + esc(n.titulo) + '</h2>' +
@@ -198,133 +263,26 @@
     return chip('todas', 'Todas') + ids.map(function (c) { return chip(c, CATEGORIAS[c].nombre); }).join('');
   }
 
-  /* ───── Primera plana (estilo periódico) ───── */
-  var LEMA = 'Fauna silvestre, ciencia y conservación al día';
-  var NOMBRE_PERIODICO = 'Zoorigen Actualidad';
-  var MAX_SECUNDARIAS = 4;
-  var MAX_BREVES = 4;
-
-  /* Número de edición: el día del año (1 de enero = 1). */
-  function numeroEdicion(v) {
-    var d = aFecha(v) || new Date();
-    var hoy = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
-    var ini = Date.UTC(d.getFullYear(), 0, 1);
-    return Math.round((hoy - ini) / 86400000) + 1;
+  function vacioHTML(opciones) {
+    opciones = opciones || {};
+    return '<div class="nt-vacio"><strong>' + esc(opciones.tituloVacio || 'Noticias en camino') + '</strong><span>' + esc(opciones.mensajeVacio || 'Aún no hay noticias publicadas. Se actualizan cada mañana.') + '</span></div>';
   }
 
-  /* "Martes, 13 de octubre de 2026" (la hoja de estilos la pone en versalitas) */
-  function fechaPeriodico(v) {
-    var t = fechaLarga(v || new Date());
-    return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
-  }
-
-  /* Reparte las notas en primera plana: una principal (la primera con imagen propia; si ninguna trae, la primera),
-     hasta `secundarias` en columnas y hasta `breves` en la franja "Más notas". Cada elemento lleva su índice original,
-     que es el que se usa para abrir la lectura ampliada. opciones: { secundarias, breves } */
-  function componerPortada(lista, opciones) {
+  /* Rejilla completa. lista: notas tal como llegan del servidor. opciones: { ahora, max, base, tituloVacio, mensajeVacio } */
+  function rejillaHTML(lista, opciones) {
     var o = opciones || {};
-    var nSec = Number.isFinite(o.secundarias) ? Math.max(0, Math.floor(o.secundarias)) : MAX_SECUNDARIAS;
-    var nBre = Number.isFinite(o.breves) ? Math.max(0, Math.floor(o.breves)) : MAX_BREVES;
-    var items = (Array.isArray(lista) ? lista : []).map(function (n, i) { return { nota: n, indice: i }; }).filter(function (x) { return x.nota && typeof x.nota === 'object'; });
-    if (!items.length) return { principal: null, secundarias: [], breves: [] };
-    var ip = 0;
-    for (var i = 0; i < items.length; i++) { if (urlSegura(items[i].nota.imagen)) { ip = i; break; } }
-    var principal = items[ip];
-    var resto = items.filter(function (_, i) { return i !== ip; });
-    return { principal: principal, secundarias: resto.slice(0, nSec), breves: resto.slice(nSec, nSec + nBre) };
-  }
-
-  function atributosNota(n, indice) {
-    return ' role="button" tabindex="0" data-noticia="' + esc(n.id) + '" data-i="' + esc(indice) + '" aria-label="' + esc(n.titulo) + '"';
-  }
-  function metaNota(n, ahora) {
-    return '<p class="np-meta">' + esc(n.fuente) + (n.fecha ? ' · <span>' + esc(tiempoRelativo(n.fecha, ahora)) + '</span>' : '') + '</p>';
-  }
-  function fotoMini(n, opciones) {
-    var respaldo = imagenRespaldo(n.categoria.id, opciones);
-    return '<div class="np-sec__foto hoja__foto"><img class="hoja__img" src="' + esc(n.imagen || respaldo) + '" data-respaldo="' + esc(respaldo) + '"' + (n.imagen ? ' data-real="1"' : '') +
-      ' alt="" width="320" height="180" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span class="hoja__fuente">' + esc(n.fuente) + '</span></div>';
-  }
-
-  function principalHTML(raw, indice, opciones) {
-    var n = normalizar(raw, indice);
-    var ahora = opciones.ahora instanceof Date ? opciones.ahora : new Date();
-    var texto = limpiar(n.extracto || (n.resumen[0] || ''), 420);
-    return '<article class="np-nota np-principal' + (n.imagen ? '' : ' hoja--respaldo') + '"' + atributosNota(n, indice) + '>' +
-      fotoHTML(n, opciones, true) +
-      '<div class="np-principal__cuerpo">' +
-        '<h3 class="np-titular np-titular--grande">' + esc(n.titulo) + '</h3>' +
-        metaNota(n, ahora) +
-        (texto ? '<p class="np-texto np-texto--capitular" lang="es">' + esc(texto) + '</p>' : '') +
-        '<span class="np-leer">Leer nota completa <span aria-hidden="true">→</span></span>' +
-      '</div>' +
-    '</article>';
-  }
-
-  function secundariaHTML(raw, indice, opciones) {
-    var n = normalizar(raw, indice);
-    var ahora = opciones.ahora instanceof Date ? opciones.ahora : new Date();
-    return '<article class="np-nota np-sec' + (n.imagen ? '' : ' hoja--respaldo') + '"' + atributosNota(n, indice) + '>' +
-      fotoMini(n, opciones) +
-      '<span class="np-etq">' + esc(n.categoria.nombre) + '</span>' +
-      '<h3 class="np-titular">' + esc(n.titulo) + '</h3>' +
-      metaNota(n, ahora) +
-    '</article>';
-  }
-
-  function breveHTML(raw, indice, opciones) {
-    var n = normalizar(raw, indice);
-    var ahora = opciones.ahora instanceof Date ? opciones.ahora : new Date();
-    return '<article class="np-nota np-breve"' + atributosNota(n, indice) + '>' +
-      '<span class="np-etq np-etq--texto">' + esc(n.categoria.nombre) + '</span>' +
-      '<h3 class="np-titular np-titular--breve">' + esc(n.titulo) + '</h3>' +
-      metaNota(n, ahora) +
-    '</article>';
-  }
-
-  /* Cabecera de periódico: filete doble, nombre, edición, "Hoy", fecha en versalitas y lema. */
-  function cabeceraPeriodicoHTML(ahora) {
-    var d = ahora instanceof Date ? ahora : new Date();
-    return '<header class="np-cab">' +
-      '<div class="np-cab__fila">' +
-        '<p class="np-cab__lado np-cab__lado--izq"><span>Noticias del sector</span><span>Edición N.º ' + numeroEdicion(d) + '</span></p>' +
-        '<h2 class="np-cab__titulo">' + NOMBRE_PERIODICO + '</h2>' +
-        '<p class="np-cab__lado np-cab__lado--der"><span class="np-hoy">Hoy</span></p>' +
-      '</div>' +
-      '<p class="np-cab__sub"><span class="np-cab__fecha">' + esc(fechaPeriodico(d)) + '</span><span class="np-cab__lema">' + esc(LEMA) + '</span></p>' +
-    '</header>';
-  }
-
-  /* Primera plana completa. lista: notas tal como llegan del servidor. opciones: { ahora, max, secundarias, breves, base } */
-  function periodicoHTML(lista, opciones) {
-    var o = opciones || {};
-    var ahora = o.ahora instanceof Date ? o.ahora : new Date();
-    var oo = { ahora: ahora, base: o.base };
-    var datos = Array.isArray(lista) ? lista.slice(0, o.max || 60) : [];
-    var c = componerPortada(datos, { secundarias: o.secundarias, breves: o.breves });
-    var h = '<div class="np" lang="es">' + cabeceraPeriodicoHTML(ahora);
-    if (!c.principal) {
-      return h + '<div class="nt-vacio"><strong>' + esc(o.tituloVacio || 'Noticias en camino') + '</strong><span>' + esc(o.mensajeVacio || 'Aún no hay noticias publicadas. Se actualizan cada mañana.') + '</span></div></div>';
-    }
-    h += principalHTML(c.principal.nota, c.principal.indice, oo);
-    if (c.secundarias.length) {
-      h += '<div class="np-columnas np-columnas--' + Math.min(4, c.secundarias.length) + '">' +
-        c.secundarias.map(function (x) { return secundariaHTML(x.nota, x.indice, oo); }).join('') + '</div>';
-    }
-    if (c.breves.length) {
-      h += '<section class="np-mas"><h3 class="np-mas__titulo"><span>Más notas</span></h3><div class="np-columnas np-columnas--breves">' +
-        c.breves.map(function (x) { return breveHTML(x.nota, x.indice, oo); }).join('') + '</div></section>';
-    }
-    return h + '</div>';
+    var datos = Array.isArray(lista) ? lista.filter(function (n) { return n && typeof n === 'object'; }).slice(0, o.max || 60) : [];
+    if (!datos.length) return vacioHTML(o);
+    return '<div class="hojas">' + datos.map(function (n, i) { return hojaHTML(n, i, o); }).join('') + '</div>';
   }
 
   var API = {
     PLANTILLAS: PLANTILLAS, CATEGORIAS: CATEGORIAS, FOTOS_RESPALDO: FOTOS_RESPALDO, RUTA_FOTOS: RUTA_FOTOS, MIN_ANCHO_IMAGEN: MIN_ANCHO_IMAGEN,
-    esc: esc, urlSegura: urlSegura, limpiar: limpiar, fechaLarga: fechaLarga, tiempoRelativo: tiempoRelativo,
-    plantillaDe: plantillaDe, categoriaDe: categoriaDe, imagenRespaldo: imagenRespaldo, normalizar: normalizar, filtrar: filtrar,
-    hojaHTML: hojaHTML, lecturaHTML: lecturaHTML, chipsHTML: chipsHTML,
-    numeroEdicion: numeroEdicion, fechaPeriodico: fechaPeriodico, componerPortada: componerPortada, periodicoHTML: periodicoHTML,
-    cabeceraPeriodicoHTML: cabeceraPeriodicoHTML, LEMA: LEMA, NOMBRE_PERIODICO: NOMBRE_PERIODICO
+    DOMINIO: DOMINIO, NOMBRE_PERIODICO: NOMBRE_PERIODICO,
+    esc: esc, urlSegura: urlSegura, limpiar: limpiar, fechaLarga: fechaLarga, fechaCorta: fechaCorta, tiempoRelativo: tiempoRelativo, tiempoCorto: tiempoCorto,
+    hashTexto: hashTexto, plantillaDe: plantillaDe, categoriaDe: categoriaDe, imagenRespaldo: imagenRespaldo, numeroOrden: numeroOrden,
+    normalizar: normalizar, filtrar: filtrar,
+    hojaHTML: hojaHTML, lecturaHTML: lecturaHTML, rejillaHTML: rejillaHTML, chipsHTML: chipsHTML
   };
 
   if (typeof document === 'undefined') return API;
@@ -341,7 +299,7 @@
     var respaldo = img.getAttribute('data-respaldo');
     if (img.dataset.cambiada || !respaldo) { if (img.parentNode) img.parentNode.classList.add('hoja__foto--vacia'); return; }
     img.dataset.cambiada = '1';
-    var hoja = img.closest ? img.closest('.hoja, .np-nota') : null;
+    var hoja = img.closest ? img.closest('.hoja') : null;
     if (hoja) hoja.classList.add('hoja--respaldo');
     img.src = respaldo;
   }
@@ -379,19 +337,13 @@
   }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarModal(); });
 
-  /* Pinta la rejilla de hojas y engancha clics/teclado. opciones: { mensajeVacio, tituloVacio, max }. */
+  /* Pinta la rejilla de tarjetas y engancha clics/teclado. opciones: { mensajeVacio, tituloVacio, max }. */
   function pintar(contenedor, lista, opciones) {
     opciones = opciones || {};
     if (!contenedor) return;
-    var datos = Array.isArray(lista) ? lista.slice(0, opciones.max || 60) : [];
-    if (!datos.length && opciones.modo !== 'rejilla') { contenedor.innerHTML = periodicoHTML([], opciones); return; }
-    if (!datos.length) {
-      contenedor.innerHTML = '<div class="nt-vacio"><strong>' + esc(opciones.tituloVacio || 'Noticias en camino') + '</strong><span>' + esc(opciones.mensajeVacio || 'Aún no hay noticias publicadas. Se actualizan cada mañana.') + '</span></div>';
-      return;
-    }
-    contenedor.innerHTML = opciones.modo === 'rejilla'
-      ? '<div class="hojas">' + datos.map(function (n, i) { return hojaHTML(n, i, opciones); }).join('') + '</div>'
-      : periodicoHTML(datos, opciones);
+    var datos = Array.isArray(lista) ? lista.filter(function (n) { return n && typeof n === 'object'; }).slice(0, opciones.max || 60) : [];
+    contenedor.innerHTML = rejillaHTML(datos, opciones);
+    if (!datos.length) return;
     vigilarImagenes(contenedor);
     var abrir = cuando(function (e) {
       var h = e.target.closest && e.target.closest('[data-noticia][data-i]');

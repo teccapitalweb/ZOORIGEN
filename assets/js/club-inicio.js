@@ -320,7 +320,7 @@
       huellas += '<li class="inv__huella' + (llena ? ' is-llena' : '') + '" style="--n:' + i + '">' + HUELLA_ICONO + '<span class="inv__sr">' + (llena ? 'Amigo confirmado' : 'Falta un amigo') + '</span></li>';
     }
     var leyenda = e ? e.aviso : (o.error ? 'No pudimos cargar tus invitados ahora.' : 'Cargando tus invitados…');
-    var cif = function (valor, rotulo) { return '<div class="inv__cifra"><dt>' + esc(rotulo) + '</dt><dd>' + esc(valor) + '</dd></div>'; };
+    var cif = function (valor, rotulo, tono) { return '<div class="inv__cifra' + (tono ? ' inv__cifra--' + tono : '') + '"><dt>' + esc(rotulo) + '</dt><dd>' + esc(valor) + '</dd></div>'; };
     var v = function (k) { return e ? String(e[k]) : '—'; };
     return '<div class="inv__banda" aria-hidden="true"></div>' +
       '<div class="inv__icono" aria-hidden="true"><span class="inv__pulso"></span>' + svg('regalo', 34) + '</div>' +
@@ -336,7 +336,7 @@
             '<p class="inv__leyenda' + (e && (e.listo || e.usado || e.faltan === 0) ? ' is-listo' : '') + '" role="status">' + esc(leyenda) + '</p>' +
           '</div>' +
         '</div>' +
-        '<dl class="inv__cifras">' + cif(v('validos'), 'confirmados') + cif(v('pendientes'), 'por confirmar') + cif(v('puntos'), 'puntos') + '</dl>' +
+        '<dl class="inv__cifras">' + cif(v('validos'), 'confirmados', 'ok') + cif(v('pendientes'), 'por confirmar', 'pen') + cif(v('puntos'), 'puntos', 'pts') + '</dl>' +
         '<div class="inv__acciones">' +
           '<button type="button" class="inv__wa" data-compartir>' + svg('chat', 18) + '<span>Compartir por WhatsApp</span></button>' +
           '<a class="inv__ver" href="club-referidos.html">Ver mis invitados</a>' +

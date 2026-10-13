@@ -14,7 +14,7 @@
     ['fauna', 'Fauna silvestre'], ['conservacion', 'Conservación'], ['veterinaria', 'Veterinaria y medicina zoológica'],
     ['normativa', 'Normatividad ambiental'], ['apicultura', 'Apicultura'], ['ciencia', 'Ciencia y biodiversidad']
   ];
-  var PLANTILLAS = [['verde', 'Portada verde'], ['naranja', 'Portada naranja'], ['bicolor', 'Portada bicolor']];
+  var PLANTILLAS = [['verde', 'Cabecera verde'], ['naranja', 'Cabecera naranja'], ['bicolor', 'Cabecera carbón']];
   var TEMAS = ['Biodiversidad', 'Biología', 'Apicultura', 'Medicina zoológica', 'Normatividad', 'Conservación', 'General'];
   var TIPOS_AVISO = [['general', 'General'], ['sistema', 'Del sistema'], ['clase', 'Clase o webinar'], ['curso', 'Curso nuevo']];
   var ENLACES = [['', 'Sin enlace'], ['inicio', 'Inicio'], ['biblioteca', 'Cursos'], ['noticias', 'Noticias del sector'], ['pdfs', 'PDFs y materiales'], ['sesiones', 'Webinars en vivo'], ['retos', 'Retos'], ['logros', 'Mis logros']];
