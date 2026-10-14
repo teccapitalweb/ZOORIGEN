@@ -114,6 +114,7 @@
   function normalizarEstado(r) {
     const d = r && typeof r === 'object' ? r : {};
     const camino = d.camino && typeof d.camino === 'object' ? d.camino : {};
+    const hechos = d.caminoHechos && typeof d.caminoHechos === 'object' ? d.caminoHechos : {};
     const totales = d.totales && typeof d.totales === 'object' ? d.totales : {};
     const out = {
       membresia: d.membresia === true,
@@ -121,10 +122,18 @@
       xp: d.xp,
       superados: entero(d.superados, 0, 100000),
       porReto: d.porReto && typeof d.porReto === 'object' ? d.porReto : {},
-      camino: {}, totales: {},
+      camino: {}, caminoHechos: {}, totales: {},
       retosHoy: Array.isArray(d.retosHoy) ? d.retosHoy.filter(x => IDS.indexOf(x) >= 0) : []
     };
-    CAMINOS.forEach(m => { out.camino[m] = entero(camino[m], 0, 1000); out.totales[m] = entero(totales[m], 0, 1000); });
+    CAMINOS.forEach(m => {
+      out.camino[m] = entero(camino[m], 0, 1000);
+      out.totales[m] = entero(totales[m], 0, 1000);
+      // Retos ya superados de cada camino. Si el servidor aún manda solo el contador, son los primeros N.
+      const lista = Array.isArray(hechos[m]) ? hechos[m] : null;
+      out.caminoHechos[m] = lista
+        ? Array.from(new Set(lista.filter(n => Number.isInteger(n) && n >= 0 && n < 1000))).sort((a, b) => a - b)
+        : Array.from({ length: out.camino[m] }, (_, i) => i);
+    });
     return out;
   }
 
@@ -145,10 +154,23 @@
 
   /* ───────────────────────── Camino (quiz, detective, orden) ───────────────────────── */
 
-  // 'hecho' = ya superado (se puede repasar), 'siguiente' = el que toca, 'bloqueado' = todavía no.
-  function estadoNodo(indice, hechos) {
-    const h = Math.max(0, Number(hechos) || 0);
-    return indice < h ? 'hecho' : indice === h ? 'siguiente' : 'bloqueado';
+  // Todos los retos del camino están abiertos para un miembro: puede resolver cualquiera, en el orden que quiera.
+  // 'hecho' = ya superado (se puede repasar, sin XP), 'recomendado' = el primero que falta, 'pendiente' = por resolver.
+  // "hechos" es la lista de índices superados (o, por compatibilidad, un número = los primeros N).
+  function listaHechos(hechos) {
+    if (Array.isArray(hechos)) return hechos;
+    return Array.from({ length: Math.max(0, Math.floor(Number(hechos) || 0)) }, (_, i) => i);
+  }
+  function primerPendiente(hechos, total) {
+    const lista = listaHechos(hechos);
+    for (let i = 0; i < total; i++) if (lista.indexOf(i) < 0) return i;
+    return -1;
+  }
+  function estadoNodo(indice, hechos, total) {
+    const lista = listaHechos(hechos);
+    if (lista.indexOf(indice) >= 0) return 'hecho';
+    const limite = Number.isFinite(Number(total)) && Number(total) > 0 ? Number(total) : Math.max(indice + 1, lista.length + 1);
+    return primerPendiente(lista, limite) === indice ? 'recomendado' : 'pendiente';
   }
   function apruebaCamino(puntaje, total) {
     const p = Number(puntaje), t = Number(total);
@@ -363,7 +385,7 @@
     const reducir = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     const img = ruta => (/^(https?:|\/|data:)/.test(ruta) ? ruta : base + ruta);
 
-    const estado = { cargado: false, error: false, membresia: sesionMiembro, nivel: null, xp: 0, superados: 0, camino: { quiz: 0, detective: 0, orden: 0 }, totales: {}, retosHoy: [], porReto: {} };
+    const estado = { cargado: false, error: false, membresia: sesionMiembro, nivel: null, xp: 0, superados: 0, camino: { quiz: 0, detective: 0, orden: 0 }, caminoHechos: { quiz: [], detective: [], orden: [] }, totales: {}, retosHoy: [], porReto: {} };
     let nivelAnterior = null;
 
     /* ── Red ── */
@@ -389,7 +411,7 @@
     function aplicarEstado(r) {
       const n = normalizarEstado(r);
       estado.membresia = n.membresia; estado.nivel = n.nivel; estado.xp = n.xp; estado.superados = n.superados;
-      estado.camino = n.camino; estado.totales = n.totales; estado.retosHoy = n.retosHoy; estado.porReto = n.porReto;
+      estado.camino = n.camino; estado.caminoHechos = n.caminoHechos; estado.totales = n.totales; estado.retosHoy = n.retosHoy; estado.porReto = n.porReto;
       estado.cargado = true; estado.error = false;
     }
     async function cargarEstado() {
@@ -530,7 +552,7 @@
     function avisarRecompensa(r, contexto, esCamino) {
       if (!r) return;
       if (r.xpGanado > 0) toast('+' + r.xpGanado + ' XP', contexto || 'Reto superado');
-      else if (r.aprobado) toast('Reto superado', esCamino ? 'Sigue con el siguiente del camino.' : 'Hoy ya cobraste los XP de este reto. Vuelve mañana.', 'info');
+      else if (r.aprobado) toast('Reto superado', esCamino ? 'Elige otro reto del camino cuando quieras.' : 'Hoy ya cobraste los XP de este reto. Vuelve mañana.', 'info');
       (r.insigniasNuevas || []).forEach(n => toast('Nueva insignia', n && n.nombre ? n.nombre : 'Insignia nueva'));
       // Si este reto abrió un libro, el servidor lo dice en librosNuevos (ids) y manda el resumen en libros.
       const abiertos = Array.isArray(r.librosNuevos) ? r.librosNuevos : [];
@@ -567,7 +589,10 @@
     async function enviarCamino(modo, indice, puntaje, total) {
       const r = await pedir('/api/retos/camino', 'POST', { modo, indice, puntaje, total });
       if (r.camino && typeof r.camino === 'object') CAMINOS.forEach(m => { if (Number.isFinite(Number(r.camino[m]))) estado.camino[m] = entero(r.camino[m], 0, 1000); });
-      if (r.aceptado === false) toast('Este reto ya estaba superado', 'Puedes seguir con el siguiente.', 'info');
+      if (r.caminoHechos && typeof r.caminoHechos === 'object') {
+        CAMINOS.forEach(m => { if (Array.isArray(r.caminoHechos[m])) estado.caminoHechos[m] = normalizarEstado({ caminoHechos: r.caminoHechos, camino: r.camino }).caminoHechos[m]; });
+      }
+      if (r.aceptado === false) toast('Este reto ya estaba superado', 'Puedes elegir otro reto del camino.', 'info');
       else avisarRecompensa(r, 'Reto del camino superado', true);
       cargarEstado().then(() => { revisarSubida(); pintarHero(); pintarDia(); pintarTarjetas(); });   // el nivel lo recalcula el servidor
       return r;
@@ -603,31 +628,28 @@
 
     function verCamino(modo) {
       const items = itemsDe(modo);
-      const hechos = Math.min(estado.camino[modo] || 0, items.length);
+      const lista = (estado.caminoHechos[modo] || []).filter(n => n < items.length);
+      const hechos = lista.length;
       const pct = items.length ? Math.round(hechos / items.length * 100) : 0;
       const pend = modo === 'detective' ? escenasPendientes(datos.detective) : 0;
       const nodos = items.map((it, i) => {
-        const st = estadoNodo(i, hechos);
+        const st = estadoNodo(i, lista, items.length);
         const m = metaDe(modo, it);
-        const num = st === 'bloqueado' ? ic('lock', 16) : st === 'hecho' ? ic('check', 16) : (i + 1);
-        const titulo = st === 'bloqueado' ? 'Reto ' + (i + 1) : m.titulo;
-        const sub = st === 'bloqueado' ? 'Se revela al desbloquearlo' : m.sub;
-        const etiqueta = st === 'hecho' ? 'Resuelto' : st === 'siguiente' ? 'Siguiente' : 'Bloqueado';
+        const num = st === 'hecho' ? ic('check', 16) : (i + 1);
+        const etiqueta = st === 'hecho' ? 'Resuelto' : st === 'recomendado' ? 'Recomendado' : 'Por resolver';
         return '<li class="rz-nodo is-' + st + '"><span class="rz-nodo__punto">' + num + '</span>' +
-          '<button type="button" class="rz-nodo__card" data-nodo="' + i + '"' + (st === 'bloqueado' ? ' aria-disabled="true"' : '') + '>' +
-          '<span class="rz-nodo__txt"><strong>' + esc(titulo) + '</strong><small>' + esc(sub) + '</small></span><span class="rz-etiqueta rz-etiqueta--' + st + '">' + etiqueta + '</span></button></li>';
+          '<button type="button" class="rz-nodo__card" data-nodo="' + i + '">' +
+          '<span class="rz-nodo__txt"><strong>' + esc(m.titulo) + '</strong><small>' + esc(m.sub) + '</small></span><span class="rz-etiqueta rz-etiqueta--' + st + '">' + etiqueta + '</span></button></li>';
       }).join('');
       const fin = hechos >= items.length && items.length > 0;
-      abrirEscenario('<div class="rz-panel">' + cabecera(NOMBRE_MODO[modo], 'Tu camino', 'Resuelve cada reto para desbloquear el siguiente. Puedes repasar los que ya superaste, sin XP.', hechos + ' de ' + items.length) +
+      abrirEscenario('<div class="rz-panel">' + cabecera(NOMBRE_MODO[modo], 'Tu camino', 'Elige el reto que quieras, en el orden que prefieras. Cada uno da XP la primera vez que lo superas y puedes repasar los que ya resolviste, sin XP.', hechos + ' de ' + items.length) +
         '<div class="rz-barra rz-barra--fina" role="progressbar" aria-label="Avance del camino" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><div style="width:' + pct + '%"></div></div>' +
         (pend ? '<p class="rz-nota">' + ic('info', 16) + ' Faltan por llegar ' + pend + ' escenas del detective. Se agregan poco a poco.</p>' : '') +
         (fin ? '<p class="rz-nota rz-nota--ok">' + ic('trophy', 16) + ' Completaste todo el camino disponible. Puedes repasar cualquier reto.</p>' : '') +
         '<ol class="rz-camino">' + nodos + '</ol></div>');
       stage.querySelectorAll('[data-nodo]').forEach(b => b.addEventListener('click', () => {
         const i = Number(b.dataset.nodo);
-        const h = Math.min(estado.camino[modo] || 0, items.length);
-        if (i > h) { toast('Reto bloqueado', 'Supera el reto anterior para abrir este.', 'info'); return; }
-        const repaso = i < h;
+        const repaso = lista.indexOf(i) >= 0;
         if (modo === 'quiz') abrirQuiz(i, repaso); else if (modo === 'orden') abrirOrden(i, repaso); else abrirDetective(i, repaso);
       }));
     }
@@ -975,7 +997,7 @@
   return {
     SERVIDOR, HISTORIA_KEY, NIVELES, TIPOS, IDS, DATOS,
     esc, barajar, nivelPorXp, xpTotal, resumenNivel, normalizarEstado,
-    retoDelDia, estadoNodo, apruebaCamino,
+    retoDelDia, estadoNodo, primerPendiente, apruebaCamino,
     barajarOpciones, barajarOrden, moverPaso, aciertosOrden, ordenCorrecto,
     limpiarZonas, escenaActiva, escenasActivas, escenasPendientes, tocaZona, buscarZona, puntajeDetective,
     estrellasHistoria, leerHistoria, historiaAbierta, historiaGuardar,

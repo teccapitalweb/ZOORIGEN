@@ -115,7 +115,7 @@
           </div>
         </div>
 
-        <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value" id="profilePlan">Miembro VIP · $199 MXN/mes</div></div>
+        <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value" id="profilePlan">—</div></div>
         <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value" id="profileStatus">—</div></div>
         <div class="info-row"><div class="info-row__label">WhatsApp</div><div class="info-row__value" id="profilePhone">—</div></div>
         <div class="info-row"><div class="info-row__label">Miembro desde</div><div class="info-row__value" id="profileSince">—</div></div>
@@ -124,6 +124,14 @@
         <div style="margin-top:24px;">
           <a href="https://wa.me/5212361113237?text=Hola%2C%20necesito%20ayuda%20con%20mi%20cuenta%20VIP%20Zoorigen" target="_blank" class="btn-club-outline" style="display:inline-block;width:auto;padding:12px 24px;margin:0;"><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg> Hablar con soporte</a>
         </div>
+      </div>
+
+      <div class="card" id="perfilActividad" style="margin-top:20px;">
+        <h3 style="margin:0 0 6px;font:800 1.05rem var(--zoo-font-display);color:var(--zoo-text);">Tu actividad</h3>
+        <div class="info-row"><div class="info-row__label">Cursos</div><div class="info-row__value" id="actCursos">—</div></div>
+        <div class="info-row"><div class="info-row__label">Certificados</div><div class="info-row__value" id="actCerts">—</div></div>
+        <div class="info-row"><div class="info-row__label">Clases vistas</div><div class="info-row__value" id="actClases">—</div></div>
+        <div class="info-row"><div class="info-row__label">Último inicio de sesión</div><div class="info-row__value" id="actUltimo">—</div></div>
       </div>
     </main>
   </div>
@@ -141,6 +149,8 @@
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionPerfil","seccion":"perfil","icono":"user","eyebrow":"Mi cuenta","titulo":"Mi perfil,","acento":"tus datos y tu plan.","sub":"Información de tu cuenta Zoorigen.","cifras":[{"clave":"estado","valor":"—","ancho":"Activa","anchoLibre":"Gratuita","rotulo":"membresía"},{"clave":"desde","valor":"—","ancho":"4 sep 2026","rotulo":"miembro desde"},{"clave":"vence","valor":"—","ancho":"3 nov 2026","anchoLibre":"—","rotulo":"renovación"}]});</script>
   <script src="../assets/js/club.js?v=20261110-aviso"></script>
+  <script src="../assets/js/club-progreso.js?v=20261111-nombre"></script>
+  <script src="../assets/js/club-certificado.js?v=20261104"></script>
   <script src="../assets/js/club-shell.js?v=20261110-aviso"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script>
@@ -171,6 +181,11 @@
         ZOO_SECCION.cifras({ estado: nombresPlan[session.planStatus] || '—', desde: session.createdAt ? ZOORIGEN_CLUB.formatShort(session.createdAt) : '—', vence: session.planVence ? ZOORIGEN_CLUB.formatShort(session.planVence) : '—' });
       }
       document.getElementById('profileLast').textContent = session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : 'Sin pagos aún';
+      // Plan real de la persona (mensual o anual), no un texto fijo
+      if (ZOORIGEN_CLUB.hasActiveMembership(session)) {
+        document.getElementById('profilePlan').textContent = session.planTipo === 'anual' ? 'VIP Anual · $1,899 MXN / año'
+          : session.planTipo === 'mensual' ? 'VIP Mensual · $199 MXN / mes' : 'Miembro VIP';
+      }
       if (session.planStatus === 'active') document.getElementById('vipTag').textContent = 'Membresía activa';
       else if (session.planStatus === 'cancelled_active') document.getElementById('vipTag').textContent = 'Acceso vigente hasta el fin del periodo';
       else if (session.planStatus === 'past_due') document.getElementById('vipTag').textContent = 'Pago no confirmado';
@@ -183,6 +198,40 @@
         document.getElementById('profilePlan').innerHTML = 'Sin plan activo · <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;">Ver planes de membresía</a>';
         if (!session.name) document.getElementById('profileName').textContent = 'Mi cuenta';
       }
+
+      // ═══════════════ TU ACTIVIDAD (datos reales) ═══════════════
+      (async () => {
+        const plural = (n, uno, varios) => n + ' ' + (n === 1 ? uno : varios);
+        try {
+          // Último inicio de sesión: el que guarda la cuenta de Firebase
+          const u = window.firebase && window.firebase.auth().currentUser;
+          const ls = u && u.metadata && u.metadata.lastSignInTime ? new Date(u.metadata.lastSignInTime) : null;
+          if (ls && !isNaN(ls.getTime())) {
+            const hh = String(ls.getHours()).padStart(2, '0') + ':' + String(ls.getMinutes()).padStart(2, '0') + ' h';
+            const hoy = new Date();
+            const mismo = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+            const ayer = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 1);
+            document.getElementById('actUltimo').textContent = (mismo(ls, hoy) ? 'hoy' : mismo(ls, ayer) ? 'ayer' : ZOORIGEN_CLUB.formatShort(ls)) + ' · ' + hh;
+          }
+        } catch (e) { /* se queda el guion */ }
+        try {
+          const progreso = await ZOORIGEN_CLUB.getCourseProgress(session.uid);
+          let enCurso = 0, hechos = 0, clases = 0;
+          Object.keys(progreso || {}).forEach(id => {
+            const p = progreso[id] || {};
+            const vistas = Array.isArray(p.completedLessons) ? p.completedLessons.length : 0;
+            clases += vistas;
+            if (p.isCompleted === true) hechos++; else if (vistas > 0) enCurso++;
+          });
+          document.getElementById('actCursos').textContent = enCurso + ' en progreso · ' + hechos + ' completados';
+          document.getElementById('actClases').textContent = String(clases);
+        } catch (e) { /* se quedan los guiones */ }
+        try {
+          const snap = await db.collection('certificados').where('memberUid', '==', session.uid).get();
+          const lista = window.ZOO_CERT ? ZOO_CERT.propiosParaMostrar(snap.docs.map(d => Object.assign({ folio: d.id }, d.data()))) : snap.docs;
+          document.getElementById('actCerts').textContent = plural(lista.length, 'emitido', 'emitidos');
+        } catch (e) { /* se queda el guion */ }
+      })();
 
       // ═══════════════ EDITAR NOMBRE ═══════════════
       const editBtn = document.getElementById('editNameBtn');
@@ -223,10 +272,11 @@
           await db.collection('miembros').doc(session.uid).update({
             name: newName,
             nombreCompleto: newName,
+            nombreCertificado: newName,
             nameUpdatedAt: new Date().toISOString()
           });
 
-          msgEl.innerHTML = `<div style="color:var(--zoo-ok-txt);background:var(--zoo-ok-tinte);border:1px solid var(--zoo-ok-borde);padding:10px 14px;border-radius:8px;font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Nombre actualizado. Tus nuevos certificados usarán este nombre.</div>`;
+          msgEl.innerHTML = `<div style="color:var(--zoo-ok-txt);background:var(--zoo-ok-tinte);border:1px solid var(--zoo-ok-borde);padding:10px 14px;border-radius:8px;font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Nombre actualizado. Tus certificados nuevos usarán este nombre; los que ya se emitieron conservan el suyo.</div>`;
           document.getElementById('profileName').textContent = newName;
           document.getElementById('avatar').textContent = ZOORIGEN_CLUB.getInitials(newName);
 

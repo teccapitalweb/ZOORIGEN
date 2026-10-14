@@ -270,3 +270,57 @@ test('presencia: una tarjeta privada no se anuncia como activa; la publicada sí
   assert.match(I.presenciaHTML(true), /está activa/, 'sin dato se trata como publicada (compatibilidad)');
   assert.match(I.presenciaHTML(false, false), /Crea tu tarjeta profesional/, 'sin tarjeta, la bandera no importa');
 });
+
+test('prueba gratuita sin elegir: Inicio no impone ningún curso, solo invita a elegir el suyo', () => {
+  const h = { tipo: 'elegir-prueba', resumen: { cursosAbiertos: 0, cursosTotal: 3, clasesHechas: 0, clasesTotal: 12 } };
+  const html = I.widgetHTML(h, { ahora: new Date('2026-10-09T12:00:00') });
+  assert.match(html, /Elige tu curso de prueba\./);
+  assert.match(html, /Aún no eliges tu curso/);
+  assert.match(html, /href="club-biblioteca\.html\?elegir=1"/);
+  assert.match(html, /Elegir mi curso/);
+  assert.equal(/Empezar mi curso|Seguir aprendiendo|Se abre en/.test(html), false, 'no le pone un curso ni una cuenta regresiva');
+  assert.equal(/\p{Extended_Pictographic}/u.test(html), false);
+  assert.deepEqual(I.botonHero(h), { href: 'club-biblioteca.html?elegir=1', etiqueta: 'Elegir mi curso' });
+  assert.match(I.mensajeGuia({ hero: h, racha: 0 }).texto, /Elige tu curso de prueba/);
+  const m = I.pasosDe(h);
+  assert.equal(m.titulo, 'Tu prueba gratuita te espera');
+  assert.equal(m.pasos.length, 3);
+});
+
+test('Inicio: sin membresía consulta la prueba gratuita antes de poner un curso en la tarjeta', () => {
+  const fs2 = require('node:fs');
+  const path2 = require('node:path');
+  const dash = fs2.readFileSync(path2.join(__dirname, '..', 'pages', 'club-dashboard.html'), 'utf8');
+  const ini = dash.indexOf('const pintarTarjetaCursos = async () => {');
+  const fin = dash.indexOf('pintarTarjetaCursos();', ini);
+  assert.ok(ini > 0 && fin > ini);
+  const bloque = dash.slice(ini, fin);
+  assert.ok(bloque.includes("apiFetch('/api/prueba-gratuita')"));
+  assert.ok(bloque.includes("tipo: 'elegir-prueba'"));
+  assert.ok(bloque.includes('est.elegida'));
+});
+
+test('Mi perfil: plan real (mensual o anual), "Tu actividad" con datos reales y sin el precio fijo para todos', () => {
+  const fs2 = require('node:fs');
+  const path2 = require('node:path');
+  const pag = fs2.readFileSync(path2.join(__dirname, '..', 'pages', 'club-perfil.html'), 'utf8');
+  assert.equal(pag.includes('Miembro VIP · $199 MXN/mes</div>'), false, 'el plan ya no es un texto fijo');
+  assert.ok(pag.includes("session.planTipo === 'anual' ? 'VIP Anual"));
+  for (const id of ['actCursos', 'actCerts', 'actClases', 'actUltimo']) assert.ok(pag.includes('id="' + id + '"'), id);
+  assert.ok(pag.includes('lastSignInTime'), 'el último inicio de sesión sale de la cuenta');
+  assert.ok(pag.includes("db.collection('certificados').where('memberUid', '==', session.uid)"));
+  assert.ok(pag.includes('nombreCertificado: newName'), 'editar el nombre cambia el de los certificados nuevos');
+  assert.ok(/assets\/js\/club-progreso\.js\?v=[\w.-]+/.test(pag) && /assets\/js\/club-certificado\.js\?v=[\w.-]+/.test(pag));
+});
+
+test('Canal: botón de Facebook de Zoorigen, sin degradados ni emojis', () => {
+  const fs2 = require('node:fs');
+  const path2 = require('node:path');
+  const pag = fs2.readFileSync(path2.join(__dirname, '..', 'pages', 'club-canal.html'), 'utf8');
+  assert.ok(pag.includes('https://www.facebook.com/profile.php?id=61579624231627'));
+  const ini = pag.indexOf('zk-redes');
+  assert.ok(ini > 0);
+  const bloque = pag.slice(ini, pag.indexOf('zkBloqueo', ini));
+  assert.equal(/gradient/i.test(bloque), false);
+  assert.equal(/\p{Extended_Pictographic}/u.test(bloque), false);
+});

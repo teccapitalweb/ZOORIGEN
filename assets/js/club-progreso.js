@@ -211,7 +211,8 @@
     }
 
     // Marca una clase como vista en el servidor. Devuelve
-    //   { entrada, completado, nuevoCompletado, certificado, bono, sesionesVistas }
+    //   { entrada, completado, nuevoCompletado, certificado, bono, sesionesVistas, confirmarNombre }
+    // confirmarNombre: true solo cuando se emitió el PRIMER certificado de la cuenta y falta confirmar el nombre.
     // o lanza un Error con .status y .mensajeUsuario (texto en español para mostrar).
     function registrarClaseVista(cursoId, indice, ctx) {
       var id;
@@ -231,7 +232,8 @@
           if (uid) { var c = leerCache(uid); c[id] = entrada; guardarCache(uid, c); }
           return {
             entrada: entrada, completado: resp.completado === true, nuevoCompletado: nuevoCompletado,
-            certificado: cert, bono: esObjeto(resp.bono) ? resp.bono : null, sesionesVistas: entrada.completedLessons
+            certificado: cert, bono: esObjeto(resp.bono) ? resp.bono : null, sesionesVistas: entrada.completedLessons,
+            confirmarNombre: resp.confirmarNombre === true
           };
         } catch (err) {
           if (!err.mensajeUsuario) err.mensajeUsuario = mensajeError(err, Object.assign({ accion: 'clase' }, ctx || {}));

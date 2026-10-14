@@ -48,7 +48,8 @@
 
   /* Decide qué mostrar y resume los números del inicio.
      entrada: { cursos, dias, adelantados, progreso }
-     salida:  { tipo: 'sin-cursos' | 'continuar' | 'proximo' | 'terminado', curso?, hechas?, total?, diasFalta?,
+     salida:  { tipo: 'sin-cursos' | 'continuar' | 'proximo' | 'terminado' | 'elegir-prueba', curso?, hechas?, total?, diasFalta?,
+                ('elegir-prueba' no sale de aquí: la arma el Inicio cuando la prueba gratuita aún no se elige)
                 resumen: { cursosAbiertos, cursosTotal, clasesHechas, clasesTotal } } */
   function elegirHero(entrada) {
     var o = entrada || {};
@@ -142,6 +143,10 @@
       ['Ahora', 'Continúa «' + (h.curso.title || 'tu curso') + '» y completa sus juegos', 'club-biblioteca.html', 'play'],
       ['Después', 'Supera retos para ganar XP y abrir libros', 'club-retos.html', 'flecha'],
       ['Al terminar', 'Obtén tu certificado y sube de nivel', 'club-certificados.html', 'foco']] };
+    if (h && h.tipo === 'elegir-prueba') return { titulo: 'Tu prueba gratuita te espera', pasos: [
+      ['Ahora', 'Entra a Cursos y elige el curso que más te interese', 'club-biblioteca.html?elegir=1', 'play'],
+      ['Después', 'Verás todas sus clases, menos la última', 'club-biblioteca.html', 'flecha'],
+      ['Cuando quieras', 'Puedes hacerlo hoy o volver más tarde: no corre prisa', 'club-biblioteca.html', 'foco']] };
     var proximo = h && h.curso && h.curso.title ? 'Podrás empezar «' + h.curso.title + '» desde Cursos' : 'Entra a tu curso y completa sus juegos';
     return { titulo: 'Mientras esperas', pasos: [
       ['Ahora', 'Supera un reto y gana XP', 'club-retos.html', 'play'],
@@ -219,6 +224,7 @@
   function botonHero(h, hrefCursos) {
     var href = hrefCursos || 'club-biblioteca.html';
     if (h && h.tipo === 'continuar') return { href: href, etiqueta: h.hechas > 0 ? 'Continuar mi curso' : 'Empezar mi curso' };
+    if (h && h.tipo === 'elegir-prueba') return { href: 'club-biblioteca.html?elegir=1', etiqueta: 'Elegir mi curso' };
     return { href: href, etiqueta: 'Ver cursos' };
   }
 
@@ -234,6 +240,7 @@
       if (racha >= 3) return { texto: 'Llevas ' + racha + ' días seguidos. Tu siguiente clase te espera.', expresion: 'happy' };
       return { texto: 'Tu siguiente clase te espera.', expresion: 'happy' };
     }
+    if (h.tipo === 'elegir-prueba') return { texto: 'Elige tu curso de prueba cuando quieras. No corre prisa.', expresion: 'happy' };
     if (h.tipo === 'proximo') return { texto: 'Tu próximo curso se abre pronto. Mientras, supera un reto.', expresion: 'thinking' };
     if (h.tipo === 'terminado') return { texto: 'Terminaste tus cursos. Te avisaremos cuando haya uno nuevo.', expresion: 'happy' };
     return { texto: 'Pronto habrá cursos nuevos. Mientras, lee las noticias.', expresion: 'neutral' };
@@ -354,11 +361,18 @@
     var espera = h.tipo === 'proximo';
     var vacio = h.tipo === 'sin-cursos' || h.tipo === 'terminado';
     var foto = h.curso ? fotoDelCurso(h.curso) : '../' + FOTO_GENERAL;
-    var titulo = vacio ? (h.tipo === 'terminado' ? 'Terminaste tus cursos.' : 'Pronto habrá cursos.') : (espera ? 'Espera tu próximo curso.' : 'Continúa tu curso.');
-    var boton = '<a class="ih-btn" href="' + href + '">' + svg('play', 14) + (h.tipo === 'continuar' ? (h.hechas > 0 ? 'Seguir aprendiendo' : 'Ver curso') : 'Ver mis cursos') + '</a>';
+    var elegirPrueba = h.tipo === 'elegir-prueba';
+    var titulo = vacio ? (h.tipo === 'terminado' ? 'Terminaste tus cursos.' : 'Pronto habrá cursos.') : (elegirPrueba ? 'Elige tu curso de prueba.' : (espera ? 'Espera tu próximo curso.' : 'Continúa tu curso.'));
+    var boton = elegirPrueba
+      ? '<a class="ih-btn" href="club-biblioteca.html?elegir=1">' + svg('play', 14) + 'Elegir mi curso</a>'
+      : '<a class="ih-btn" href="' + href + '">' + svg('play', 14) + (h.tipo === 'continuar' ? (h.hechas > 0 ? 'Seguir aprendiendo' : 'Ver curso') : 'Ver mis cursos') + '</a>';
     var tarjeta;
     if (h.tipo === 'sin-cursos') {
       tarjeta = '<div class="ih-card"><div class="ih-card__etq">Cursos</div><div class="ih-card__nombre">El equipo está subiendo los primeros cursos</div>' + boton + '</div>';
+    } else if (elegirPrueba) {
+      // Ningún curso se le impone: solo se le recuerda que puede elegir el suyo cuando quiera
+      tarjeta = '<div class="ih-card"><div class="ih-card__etq">Prueba gratuita</div><div class="ih-card__nombre">Aún no eliges tu curso</div>' +
+        '<div class="ih-card__caja"><small>Siguiente paso</small><strong>Elige el curso de tu preferencia</strong></div>' + boton + '</div>';
     } else if (h.tipo === 'terminado') {
       tarjeta = '<div class="ih-card"><div class="ih-card__etq">¡Al día!</div><div class="ih-card__nombre">Cuando se publique un curso nuevo lo verás aquí</div>' + boton + '</div>';
     } else if (espera) {

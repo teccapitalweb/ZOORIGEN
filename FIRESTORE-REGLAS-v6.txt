@@ -21,6 +21,9 @@
 //    Estas dos reglas se publican junto con el servidor de la rama webhook-chatbot; NO estan
 //    publicadas. Sin ellas la regla comodin de abajo ya las niega todo, asi que el panel admin
 //    de Encuesta tampoco las lee directo: usa GET /api/admin/encuesta y /api/admin/chatbot/sin-respuesta.
+//  - miembros (CAMBIO PROPUESTO, sin publicar): el titular tampoco escribe nombreCertificadoConfirmadoEn ni
+//    nombreCertificadoFolio. Los escribe SOLO el servidor (POST /api/certificados/nombre) cuando la persona confirma
+//    el nombre de su primer certificado; asi nadie puede marcar su nombre como confirmado a mano.
 // ============================================================================
 rules_version = '2';
 service cloud.firestore {
@@ -61,7 +64,8 @@ service cloud.firestore {
           'planStatus', 'stripeCustomerId', 'stripeSubscriptionId',
           'stripeSubscriptionStatus', 'activadoManualmente', 'activadoPor',
           'metodoPago', 'montoPagado', 'actualizadoDesdeStripe', 'shopifyOrderId',
-          'courseProgress', 'progresoLegadoImportado'
+          'courseProgress', 'progresoLegadoImportado',
+          'nombreCertificadoConfirmadoEn', 'nombreCertificadoFolio'
         ]);
       // El avance de los cursos (courseProgress) y la marca de importacion del avance anterior
       // (progresoLegadoImportado) los escribe SOLO el servidor: el titular no puede tocarlos.
@@ -73,7 +77,8 @@ service cloud.firestore {
           'stripeCustomerId', 'stripeSubscriptionId',
           'stripeSubscriptionStatus', 'activadoManualmente', 'activadoPor',
           'metodoPago', 'montoPagado', 'actualizadoDesdeStripe', 'shopifyOrderId',
-          'courseProgress', 'progresoLegadoImportado'
+          'courseProgress', 'progresoLegadoImportado',
+          'nombreCertificadoConfirmadoEn', 'nombreCertificadoFolio'
         ])
       );
       allow delete: if isAdmin();

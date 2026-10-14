@@ -465,7 +465,7 @@
   <script src="../assets/js/club-seccion.js?v=20261109-cromo"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261110-aviso"></script>
-  <script src="../assets/js/club-progreso.js?v=20261104"></script>
+  <script src="../assets/js/club-progreso.js?v=20261111-nombre"></script>
   <script src="../assets/js/club-shell.js?v=20261110-aviso"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
@@ -475,7 +475,7 @@
   <script src="../assets/js/club-noticias-ui.js?v=20261106-noticias"></script>
   <script src="../assets/js/guia-personaje.js?v=20261105-inicio"></script>
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
-  <script src="../assets/js/club-inicio.js?v=20261111-directorio"></script>
+  <script src="../assets/js/club-inicio.js?v=20261112-prueba"></script>
   <script src="../assets/js/club-premios.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261104"></script>
   <script src="../assets/js/club-onboarding.js?v=20261104"></script>
@@ -936,9 +936,30 @@
         const base = { cursos };
         if (!ZOORIGEN_CLUB.hasActiveMembership(session)) {
           const sin = ZOO_INICIO.elegirHero({ cursos, dias: 0, progreso: {} });
-          const heroSin = cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]), resumen: sin.resumen } : sin;
-          resume.innerHTML = ZOO_INICIO.widgetHTML(heroSin, { ahora: new Date() });
-          if (saludo) saludo.estado(heroSin, null);
+          const pintarSin = hero => {
+            resume.innerHTML = ZOO_INICIO.widgetHTML(hero, { ahora: new Date() });
+            if (saludo) saludo.estado(hero, null);
+          };
+          // Primero se pinta lo de siempre; cuando llega el estado de la prueba gratuita se ajusta: si aún no elige su curso,
+          // Inicio no le pone ninguno por su cuenta (solo le recuerda que puede elegir); si ya lo eligió, muestra ese.
+          const heroBase = cursos.length ? { tipo: 'continuar', curso: cursos[0], hechas: 0, total: ZOO_INICIO.totalClases(cursos[0]), resumen: sin.resumen } : sin;
+          pintarSin(heroBase);
+          try {
+            const [prueba, progresoSin] = await Promise.all([
+              ZOORIGEN_CLUB.apiFetch('/api/prueba-gratuita').catch(() => null),
+              ZOORIGEN_CLUB.getCourseProgress(session.uid).catch(() => ({}))
+            ]);
+            const est = ZOO_ACCESO.estadoPrueba(prueba);
+            if (est.elegida) {
+              const elegido = cursos.find(c => c.id === est.elegida);
+              if (elegido) {
+                const av = ZOO_INICIO.avanceDe(progresoSin, elegido.id);
+                pintarSin(av.terminado ? { tipo: 'terminado', resumen: sin.resumen } : { tipo: 'continuar', curso: elegido, hechas: av.hechas, total: ZOO_INICIO.totalClases(elegido), resumen: sin.resumen });
+              }
+            } else if (est.elegible && cursos.length) {
+              pintarSin({ tipo: 'elegir-prueba', resumen: sin.resumen });
+            }
+          } catch (e) { console.warn('[Dashboard] prueba gratuita:', e); }
           return;
         }
         try {

@@ -297,10 +297,46 @@ test('retoDelDia(): no propone un reto que hoy no se puede jugar', () => {
 
 /* ───────── camino y nivel ───────── */
 
-test('estadoNodo(): hecho, siguiente y bloqueado según el avance del servidor', () => {
-  assert.deepEqual([0, 1, 2, 3, 4].map(i => R.estadoNodo(i, 2)), ['hecho', 'hecho', 'siguiente', 'bloqueado', 'bloqueado']);
-  assert.equal(R.estadoNodo(0, 0), 'siguiente');
-  assert.equal(R.estadoNodo(0, undefined), 'siguiente');
+test('estadoNodo(): ningún reto del camino está bloqueado; solo hecho, recomendado o pendiente', () => {
+  // Lista de retos superados, en cualquier orden (el miembro elige cuál resolver)
+  assert.deepEqual([0, 1, 2, 3, 4].map(i => R.estadoNodo(i, [3, 0], 5)), ['hecho', 'recomendado', 'pendiente', 'hecho', 'pendiente']);
+  assert.deepEqual([0, 1, 2].map(i => R.estadoNodo(i, [], 3)), ['recomendado', 'pendiente', 'pendiente']);
+  assert.deepEqual([0, 1].map(i => R.estadoNodo(i, [0, 1], 2)), ['hecho', 'hecho']);
+  // Compatibilidad: un número son los primeros N
+  assert.deepEqual([0, 1, 2, 3].map(i => R.estadoNodo(i, 2)), ['hecho', 'hecho', 'recomendado', 'pendiente']);
+  assert.equal(R.estadoNodo(0, 0), 'recomendado');
+  assert.equal(R.estadoNodo(0, undefined), 'recomendado');
+  for (let n = 0; n < 6; n++) assert.notEqual(R.estadoNodo(n, [], 6), 'bloqueado');
+  assert.equal(R.primerPendiente([0, 1, 3], 5), 2);
+  assert.equal(R.primerPendiente([0, 1], 2), -1);
+});
+
+test('normalizarEstado(): la lista de retos superados se limpia y, sin lista, son los primeros N', () => {
+  const con = R.normalizarEstado({ camino: { quiz: 2 }, caminoHechos: { quiz: [7, 7, 1, -3, 'x', 2.5], detective: 'no', orden: [4] } });
+  assert.deepEqual(con.caminoHechos.quiz, [1, 7]);
+  assert.deepEqual(con.caminoHechos.detective, []);
+  assert.deepEqual(con.caminoHechos.orden, [4]);
+  const viejo = R.normalizarEstado({ camino: { quiz: 3, detective: 0, orden: 1 } });
+  assert.deepEqual(viejo.caminoHechos, { quiz: [0, 1, 2], detective: [], orden: [0] });
+  assert.deepEqual(R.normalizarEstado(null).caminoHechos, { quiz: [], detective: [], orden: [] });
+});
+
+test('el camino ya no tiene candados ni textos de "bloqueado" en el sitio', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const js = fs.readFileSync(path.join(__dirname, '..', 'assets', 'js', 'club-retos.js'), 'utf8');
+  const ini = js.indexOf('function verCamino(modo)');
+  const fin = js.indexOf('/* ── Quiz ── */');
+  assert.ok(ini > 0 && fin > ini, 'no se encontró verCamino');
+  const bloque = js.slice(ini, fin);
+  for (const mal of ["ic('lock'", 'Bloqueado', 'Se revela al desbloquearlo', 'Reto bloqueado', 'desbloquear el siguiente', "'bloqueado'"]) {
+    assert.equal(bloque.includes(mal), false, 'verCamino todavía dice: ' + mal);
+  }
+  assert.ok(bloque.includes('Recomendado') && bloque.includes('Por resolver') && bloque.includes('Resuelto'));
+  assert.ok(bloque.includes('lista.indexOf(i) >= 0'), 'repasar solo lo ya superado, abrir todo lo demás');
+  // El estilo ya no define el estado bloqueado
+  const css = fs.readFileSync(path.join(__dirname, '..', 'assets', 'css', 'club-retos.css'), 'utf8');
+  assert.equal(/is-bloqueado|etiqueta--bloqueado|is-siguiente/.test(css), false);
 });
 
 test('resumenNivel(): usa el nivel del servidor y calcula barra y XP faltante', () => {

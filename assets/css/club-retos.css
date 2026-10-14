@@ -184,18 +184,17 @@
 .rz-nodo:not(:last-child)::after { content: ''; position: absolute; left: 19px; top: 44px; bottom: -14px; width: 2px; background: var(--rz-line); }
 .rz-nodo__punto { display: grid; place-items: center; flex: none; width: 40px; height: 40px; font: 700 .9rem/1 var(--zoo-font-display); color: var(--rz-muted); background: var(--rz-surface-2); border: 2px solid var(--rz-line); border-radius: 50%; position: relative; z-index: 1; }
 .rz-nodo.is-hecho .rz-nodo__punto { color: #fff; background: var(--rz-ok); border-color: var(--rz-ok); }
-.rz-nodo.is-siguiente .rz-nodo__punto { color: #fff; background: var(--rz-naranja); border-color: var(--rz-naranja); box-shadow: 0 0 0 5px rgba(199, 84, 2, 0.22); }
+.rz-nodo.is-recomendado .rz-nodo__punto { color: #fff; background: var(--rz-naranja); border-color: var(--rz-naranja); box-shadow: 0 0 0 5px rgba(199, 84, 2, 0.22); }
 .rz-nodo__card { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; text-align: left; background: var(--rz-surface); border: 1px solid var(--rz-line); border-radius: 14px; transition: border-color .15s, background .15s; }
 .rz-nodo__card:hover { border-color: var(--rz-azul); background: var(--rz-surface-2); }
-.rz-nodo.is-bloqueado .rz-nodo__card { opacity: .62; }
-.rz-nodo.is-siguiente .rz-nodo__card { border-color: var(--rz-naranja); }
+.rz-nodo.is-recomendado .rz-nodo__card { border-color: var(--rz-naranja); }
 .rz-nodo__txt { min-width: 0; }
 .rz-nodo__txt strong { display: block; font-size: .92rem; line-height: 1.4; overflow-wrap: anywhere; }
 .rz-nodo__txt small { display: block; margin-top: 2px; font-size: .76rem; color: var(--rz-dim); }
 .rz-etiqueta { flex: none; padding: 5px 10px; font: 700 .75rem/1 var(--zoo-font-body); letter-spacing: .05em; text-transform: uppercase; border-radius: 100px; }
 .rz-etiqueta--hecho { color: var(--rz-ok); background: rgba(46, 158, 91, 0.16); }
-.rz-etiqueta--siguiente { color: #fff; background: var(--rz-naranja); }
-.rz-etiqueta--bloqueado { color: var(--rz-dim); background: var(--rz-surface); }
+.rz-etiqueta--recomendado { color: #fff; background: var(--rz-naranja); }
+.rz-etiqueta--pendiente { color: var(--rz-dim); background: var(--rz-surface); }
 
 /* ───────── Opciones y respuestas ───────── */
 .rz-opciones { display: grid; gap: 10px; }

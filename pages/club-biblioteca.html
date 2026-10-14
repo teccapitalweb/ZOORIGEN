@@ -389,7 +389,7 @@
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261110-aviso"></script>
   <script src="../assets/js/club-paywall.js?v=20261104"></script>
-  <script src="../assets/js/club-progreso.js?v=20261104"></script>
+  <script src="../assets/js/club-progreso.js?v=20261111-nombre"></script>
   <script src="../assets/js/club-shell.js?v=20261110-aviso"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/club-juegos.js?v=20261104"></script>
@@ -401,6 +401,7 @@
   <script src="../assets/js/club-cursos-ui.js?v=20261104"></script>
   <script src="../assets/js/club-premios.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261104"></script>
+  <script src="../assets/js/club-nombre-cert.js?v=20261111-nombre"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
     const ZOORIGEN_FREE_VIDEO_ID = 'befd1641-850a-4099-88a8-047a1badc703';
@@ -1021,6 +1022,19 @@
         zcToast('¡Completaste el curso! Tu certificado aparecerá en "Mis certificados".');
         renderCourseModal();
         return;
+      }
+      // Primer certificado de la cuenta: antes de verlo se confirma el nombre que llevará (una sola vez, ver
+      // club-nombre-cert.js). Si la persona lo deja para después, el certificado sale igual y se le vuelve a ofrecer
+      // en "Mis certificados".
+      if (r && r.confirmarNombre === true && window.ZOO_NOMBRE_CERT) {
+        try {
+          const sesion = window.__zooSession || {};
+          const res = await ZOO_NOMBRE_CERT.preguntar({
+            folio, nombre: (r.certificado && r.certificado.nombre) || sesion.name, curso: titulo, correo: sesion.email,
+            alConfirmar: nombre => { sesion.name = nombre; }
+          });
+          if (res && res.confirmado) zcToast('Nombre confirmado. Así aparecerá en tu certificado: ' + res.nombre);
+        } catch (e) { /* el certificado no depende de esta pregunta */ }
       }
       const abrirCertificado = () => {
         window.open('ver-certificado.html?folio=' + encodeURIComponent(folio), '_blank');

@@ -71,8 +71,9 @@
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionCertificados","seccion":"certificados","icono":"graduation-cap","eyebrow":"Mis certificados","titulo":"Tus logros,","acento":"con folio verificable.","sub":"Completa cursos para ganar certificados descargables que cualquiera puede verificar.","cifras":[{"clave":"certificados","valor":"—","rotulo":"certificados"},{"clave":"verificados","valor":"—","rotulo":"verificados"}]});</script>
   <script src="../assets/js/club.js?v=20261110-aviso"></script>
-  <script src="../assets/js/club-progreso.js?v=20261104"></script>
+  <script src="../assets/js/club-progreso.js?v=20261111-nombre"></script>
   <script src="../assets/js/club-certificado.js?v=20261104"></script>
+  <script src="../assets/js/club-nombre-cert.js?v=20261111-nombre"></script>
   <script src="../assets/js/club-shell.js?v=20261110-aviso"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script>
@@ -91,7 +92,20 @@
         // Los certificados los emite el servidor al terminar cada curso; aquí solo se leen los del propio miembro.
         // Al pedir el avance, el servidor valida y firma solo los certificados anteriores de esta persona (conservan su folio).
         try { await ZOORIGEN_CLUB.getCourseProgress(session.uid); } catch (e) { /* si falla, se muestra lo que haya */ }
-        const snap = await db.collection('certificados').where('memberUid', '==', session.uid).get();
+        let snap = await db.collection('certificados').where('memberUid', '==', session.uid).get();
+        // Primer certificado nuevo sin nombre confirmado (por ejemplo, cerró la ventana a medias): se pregunta una sola
+        // vez antes de mostrarlo. Quien tiene certificados anteriores no es obligado a confirmar nada.
+        if (window.ZOO_NOMBRE_CERT) {
+          const falta = ZOO_NOMBRE_CERT.pendiente(snap.docs.map(d => Object.assign({ folio: d.id }, d.data())));
+          if (falta) {
+            const res = await ZOO_NOMBRE_CERT.preguntar({
+              folio: falta.folio, nombre: falta.nombre || falta.memberName || session.nombreCertificado || session.name,
+              curso: falta.curso || falta.courseTitle, correo: session.email,
+              alConfirmar: nombre => { session.name = nombre; session.nombreCertificado = nombre; }
+            });
+            if (res && res.confirmado) snap = await db.collection('certificados').where('memberUid', '==', session.uid).get();
+          }
+        }
         // Uno por curso (gana el verificado), del más reciente al más antiguo
         const certs = ZOO_CERT.propiosParaMostrar(snap.docs.map(d => Object.assign({ folio: d.id }, d.data())));
         const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
