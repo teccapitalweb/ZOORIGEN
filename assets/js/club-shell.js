@@ -21,7 +21,8 @@
       { id: 'biblioteca', label: 'Cursos', icon: 'book', href: 'club-biblioteca.html' },
       { id: 'retos', label: 'Retos', icon: 'target', href: 'club-retos.html', nuevo: true },
       { id: 'logros', label: 'Mis logros', icon: 'trophy', href: 'club-logros.html' },
-      { id: 'certificados', label: 'Mis certificados', icon: 'certificate', href: 'club-certificados.html' }
+      { id: 'certificados', label: 'Mis certificados', icon: 'certificate', href: 'club-certificados.html' },
+      { id: 'referidos', label: 'Invitar amigos', icon: 'gift', href: 'club-referidos.html' }
     ] },
     { id: 'material', titulo: 'Material', items: [
       { id: 'pdfs', label: 'PDFs y materiales', icon: 'filetext', href: 'club-pdfs.html' },
@@ -40,19 +41,22 @@
       { id: 'canal', label: 'Canal de WhatsApp', icon: 'brandwhatsapp', href: 'club-canal.html' }
     ] },
     { id: 'cuenta', titulo: 'Mi cuenta', items: [
-      { id: 'referidos', label: 'Invitar amigos', icon: 'gift', href: 'club-referidos.html' },
       { id: 'perfil', label: 'Mi perfil', icon: 'user', href: 'club-perfil.html' },
       { id: 'suscripcion', label: 'Suscripción', icon: 'creditcard', href: 'club-suscripcion.html' }
     ] }
   ];
 
-  /* Pestañas de la barra inferior del celular (la última abre el cajón "Más") */
+  /* Pestañas de la barra inferior del celular (la última abre el cajón "Más").
+     Hay dos juegos que comparten las tres primeras y "Más": el de miembro (Vivo y Pro) y el de cuenta gratuita
+     (Retos y Logros). El CSS muestra uno u otro según <html data-plan>. */
   var BARRA = [
     { id: 'inicio', label: 'Inicio', icon: 'home', href: 'club-dashboard.html' },
     { id: 'biblioteca', label: 'Cursos', icon: 'book', href: 'club-biblioteca.html' },
     { id: 'pdfs', label: 'PDFs', icon: 'news', href: 'club-pdfs.html' },
-    { id: 'sesiones', label: 'Vivo', icon: 'broadcast', href: 'club-sesiones.html' },
-    { id: 'herramientas', label: 'Pro', icon: 'tools', href: 'club-herramientas.html' },
+    { id: 'sesiones', label: 'Vivo', icon: 'broadcast', href: 'club-sesiones.html', solo: 'vip' },
+    { id: 'herramientas', label: 'Pro', icon: 'tools', href: 'club-herramientas.html', solo: 'vip' },
+    { id: 'retos', label: 'Retos', icon: 'target', href: 'club-retos.html', solo: 'libre' },
+    { id: 'logros', label: 'Logros', icon: 'trophy', href: 'club-logros.html', solo: 'libre' },
     { id: 'mas', label: 'Más', icon: 'menu', href: '#' }
   ];
 
@@ -85,9 +89,10 @@
   }
 
   /* Qué pestaña de la barra inferior queda marcada según la página. */
-  function pestanaActiva(activoId) {
-    if (activoId === 'herramientas' || activoId === 'legal') return 'herramientas';
-    for (var i = 0; i < BARRA.length - 1; i++) if (BARRA[i].id === activoId) return activoId;
+  function pestanaActiva(activoId, variante) {
+    var v = variante === 'libre' ? 'libre' : 'vip';
+    if (v === 'vip' && (activoId === 'herramientas' || activoId === 'legal')) return 'herramientas';
+    for (var i = 0; i < BARRA.length - 1; i++) if (BARRA[i].id === activoId && (!BARRA[i].solo || BARRA[i].solo === v)) return activoId;
     return 'mas';
   }
 
@@ -216,14 +221,16 @@
   }
 
   function barraInferiorHTML(activo) {
-    var marcada = pestanaActiva(activo);
+    var mVip = pestanaActiva(activo, 'vip'), mLibre = pestanaActiva(activo, 'libre');
     return BARRA.map(function (t) {
-      var es = t.id === marcada;
+      var enVip = t.solo !== 'libre' && t.id === mVip, enLibre = t.solo !== 'vip' && t.id === mLibre;
+      var es = enVip || enLibre;
+      var extra = (t.solo ? ' zs-tab--solo-' + t.solo : '') + (es && !t.solo && !(enVip && enLibre) ? (enVip ? ' zs-tab--act-vip' : ' zs-tab--act-libre') : '');
       var etiqueta = '<span class="zs-tab__ico">' + icono(t.icon, 20) + '</span><span class="zs-tab__txt">' + esc(t.label) + '</span>' +
         (t.id === 'sesiones' && enVivoPronto() ? '<span class="zs-tab__pronto">Pronto</span>' : '');
       return t.id === 'mas'
-        ? '<button type="button" class="zs-tab' + (es ? ' is-active' : '') + '" id="zsMas" aria-label="Más opciones" aria-haspopup="dialog">' + etiqueta + '</button>'
-        : '<a class="zs-tab' + (es ? ' is-active' : '') + '" href="' + esc(t.href) + '">' + etiqueta + '</a>';
+        ? '<button type="button" class="zs-tab' + extra + (es ? ' is-active' : '') + '" id="zsMas" aria-label="Más opciones" aria-haspopup="dialog">' + etiqueta + '</button>'
+        : '<a class="zs-tab' + extra + (es ? ' is-active' : '') + '" href="' + esc(t.href) + '">' + etiqueta + '</a>';
     }).join('');
   }
 

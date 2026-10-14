@@ -131,7 +131,7 @@ test('la lista blanca es honesta: ninguna página carga club-extra.css', () => {
   }
 });
 
-test('tokens de color sólido definidos una vez en club.css y banner de acceso gratuito en azul pizarra liso', () => {
+test('tokens de color sólido definidos una vez en club.css y banner de acceso gratuito en dorado liso', () => {
   const css = leer('assets/css/club.css');
   for (const t of ['--zoo-solid: #1F5F3A', '--zoo-solid-dark: #174A2D', '--zoo-solid-mid: #2A7A4E', '--zoo-tint', '--zoo-fill']) {
     assert.ok(css.includes(t), 'falta el token ' + t);
@@ -140,7 +140,7 @@ test('tokens de color sólido definidos una vez en club.css y banner de acceso g
   const i = js.indexOf("banner.id = 'zooPayBanner'");
   assert.ok(i > 0, 'banner de acceso gratuito');
   const bloque = js.slice(i, i + 1400);
-  assert.match(bloque, /background:#24384F;color:#fff/, 'fondo azul pizarra profundo liso con texto blanco');
-  assert.match(bloque, /zoo-pay-banner__btn" style="background:#fff;color:#24384F/, 'botón blanco con texto azul pizarra');
+  assert.match(bloque, /background:#E8B431;color:#2B2000/, 'fondo dorado liso con texto oscuro');
+  assert.match(bloque, /zoo-pay-banner__btn" style="background:#24384F;color:#fff/, 'botón azul pizarra con texto blanco');
   assert.doesNotMatch(bloque, /gradient|box-shadow:0 6px 18px rgba\(232/, 'sin degradado ni sombra dorada');
 });

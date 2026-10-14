@@ -66,13 +66,13 @@ const OFFLINE_URL = '/offline.html';
    club-extra.css) ni de endpoints externos. */
 const SHELL = [
   OFFLINE_URL,
-  '/assets/css/club.css?v=20261109-cromo',
+  '/assets/css/club.css?v=20261110-barra',
   '/assets/css/club-mobile.css?v=20261108-paleta',
   '/assets/css/club-theme.css?v=20261108-paleta',
-  '/assets/js/club.js?v=20261109-cromo',
-  '/assets/js/club-shell.js?v=20261109-cromo',
-  '/assets/css/club-shell.css?v=20261109-cromo',
-  '/assets/css/club-responsivo.css?v=20261109-cromo',
+  '/assets/js/club.js?v=20261110-barra',
+  '/assets/js/club-shell.js?v=20261110-barra',
+  '/assets/css/club-shell.css?v=20261110-barra',
+  '/assets/css/club-responsivo.css?v=20261110-barra',
   /* tipografias propias (Outfit e Inter, subconjunto latin que cubre el espanol): el panel las usa en todas las paginas */
   '/assets/css/fuentes.css?v=20261109-cromo',
   '/assets/fonts/inter-latin.woff2',

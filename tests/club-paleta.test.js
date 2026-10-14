@@ -183,10 +183,11 @@ test('comodidad visual: día cálido (#F6F4EF), texto #1F2933 / #52606D; noche n
   }
 });
 
-test('banner de acceso gratuito: azul pizarra profundo #24384F, texto blanco y botón blanco con texto azul pizarra (AA)', () => {
+test('banner de acceso gratuito: dorado sólido #E8B431 con texto oscuro y botón azul pizarra con texto blanco (AA)', () => {
   const js = leer('assets/js/club.js');
-  assert.match(js, /background:#24384F;color:#fff/);
-  assert.match(js, /zoo-pay-banner__btn" style="background:#fff;color:#24384F/);
+  assert.match(js, /background:#E8B431;color:#2B2000/);
+  assert.match(js, /zoo-pay-banner__btn" style="background:#24384F;color:#fff/);
+  assert.ok(contraste('#2B2000', '#E8B431') >= 7);
   assert.ok(contraste('#FFFFFF', '#24384F') >= 7);
 });
 

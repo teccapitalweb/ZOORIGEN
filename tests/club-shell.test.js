@@ -21,9 +21,17 @@ test('el menú tiene los grupos esperados y cada sección apunta a una página q
   assert.ok(!ids.has('noticias'), 'las noticias viven en el Inicio, no tienen sección aparte');
 });
 
-test('la barra inferior del celular: Inicio, Cursos, PDFs, Vivo, Pro y Más', () => {
-  assert.deepEqual(S.BARRA.map(t => t.label), ['Inicio', 'Cursos', 'PDFs', 'Vivo', 'Pro', 'Más']);
+test('la barra inferior del celular: miembro (Inicio, Cursos, PDFs, Vivo, Pro y Más) y cuenta gratuita (Inicio, Cursos, PDFs, Retos, Logros y Más)', () => {
+  const juego = v => S.BARRA.filter(t => !t.solo || t.solo === v).map(t => t.label);
+  assert.deepEqual(juego('vip'), ['Inicio', 'Cursos', 'PDFs', 'Vivo', 'Pro', 'Más']);
+  assert.deepEqual(juego('libre'), ['Inicio', 'Cursos', 'PDFs', 'Retos', 'Logros', 'Más']);
   assert.equal(S.BARRA[S.BARRA.length - 1].id, 'mas');
+});
+
+test('Invitar amigos vive en el grupo Principal del menú', () => {
+  const principal = S.GRUPOS.find(g => g.id === 'principal');
+  assert.ok(principal.items.some(i => i.id === 'referidos'));
+  assert.ok(!S.GRUPOS.find(g => g.id === 'cuenta').items.some(i => i.id === 'referidos'));
 });
 
 test('qué pestaña queda marcada según la página', () => {
@@ -34,6 +42,11 @@ test('qué pestaña queda marcada según la página', () => {
   assert.equal(S.pestanaActiva('herramientas'), 'herramientas');
   assert.equal(S.pestanaActiva('legal'), 'herramientas');
   for (const otra of ['retos', 'logros', 'perfil', 'foro', 'noticias', '']) assert.equal(S.pestanaActiva(otra), 'mas', otra);
+  // cuenta gratuita: Retos y Logros tienen su pestaña; las herramientas caen en "Más"
+  assert.equal(S.pestanaActiva('retos', 'libre'), 'retos');
+  assert.equal(S.pestanaActiva('logros', 'libre'), 'logros');
+  assert.equal(S.pestanaActiva('herramientas', 'libre'), 'mas');
+  assert.equal(S.pestanaActiva('sesiones', 'libre'), 'mas');
 });
 
 test('el buscador encuentra secciones sin importar acentos ni mayúsculas', () => {

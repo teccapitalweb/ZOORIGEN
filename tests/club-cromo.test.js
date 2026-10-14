@@ -93,7 +93,9 @@ test('la barra superior, la inferior del celular y el botón de WhatsApp vienen 
     assert.match(h, /<div class="zs-wa" id="zsWa" data-vip="0">/, f + ': WhatsApp');
     assert.equal((h.match(/id="zsTopbar"/g) || []).length, 1);
     assert.equal((h.match(/id="zsBottom"/g) || []).length, 1);
-    assert.equal((h.match(/class="zs-tab is-active"/g) || []).length, 1, f + ': una pestaña activa');
+    // una pestaña marcada por cada juego de pestañas (miembro y cuenta gratuita comparten Inicio, Cursos, PDFs y Más)
+    const marcadas = (h.match(/class="zs-tab[^"]*is-active"/g) || []).length;
+    assert.ok(marcadas >= 1 && marcadas <= 2, f + ': pestaña activa por juego (' + marcadas + ')');
   }
 });
 

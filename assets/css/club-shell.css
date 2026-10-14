@@ -178,38 +178,39 @@
   .zs-help { display: none; }
   .notif-panel.zs-notif { top: 64px; right: 12px; left: 12px; width: auto; max-width: none; }
 
+  /* Barra inferior: panel flotante de esquinas redondeadas con las etiquetas siempre visibles; la pestaña activa lleva
+     una "pastilla" dorada detrás del ícono (color sólido, sin degradados). */
   .zs-bottom {
     display: flex;
     position: fixed;
     left: 12px; right: 12px;
     bottom: calc(10px + env(safe-area-inset-bottom));
     height: var(--zs-bar-h);
-    padding: 6px;
-    gap: 2px;
+    padding: 6px 4px;
+    gap: 0;
     z-index: 80;
     background: var(--zs-glass);
     -webkit-backdrop-filter: blur(18px);
     backdrop-filter: blur(18px);
     border: 1px solid var(--zoo-border-strong);
-    border-radius: 28px;
+    border-radius: 20px;
     box-shadow: var(--zs-shadow);
   }
   .zs-tab {
     flex: 1 1 0; min-width: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-    border-radius: 22px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    border-radius: 14px;
     color: var(--zoo-text-muted);
-    font-size: .75rem; font-weight: 700; letter-spacing: .02em;
-    transition: flex-grow .2s, background .2s, color .2s;
+    font-size: .75rem; font-weight: 600; letter-spacing: 0;
+    transition: color .2s;
   }
-  .zs-tab__ico { display: inline-flex; }
-  .zs-tab.is-active {
-    flex-grow: 2.2;
-    flex-direction: row; gap: 7px;
-    background: var(--zoo-solid, #1F5F3A);
-    color: #fff;
-    font-size: .78rem;
+  .zs-tab__ico {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 100%; max-width: 48px; height: 28px; border-radius: 14px;
+    transition: background .2s, color .2s;
   }
+  .zs-tab.is-active { color: var(--zoo-text); font-weight: 800; }
+  .zs-tab.is-active .zs-tab__ico { background: #E8B431; color: #2B2000; }
   .zs-wa { left: 14px; bottom: calc(var(--zs-bar-h) + 26px + env(safe-area-inset-bottom)); }
   .zs-wa__btn { width: 48px; height: 48px; }
   .zs-wa__btn svg { width: 22px; height: 22px; }
@@ -263,7 +264,7 @@
 [data-theme="light"] .zs-drawer__link { color: #3E4A56; }
 [data-theme="light"] .zs-drawer__link.is-active { background: #F1ECDF; color: #1F2933; border-left: 3px solid #E8A317; box-shadow: none; }
 [data-theme="light"] .zs-drawer__who strong { color: #1F2933; }
-[data-theme="light"] .zs-tab.is-active { color: #fff; }
+[data-theme="light"] .zs-tab.is-active { color: #1F2933; }
 [data-theme="light"] .zs-bottom { border-color: #D8D2C4; }
 [data-theme="light"] .zs-tab { color: #52606D; }
 [data-theme="light"] .zs-avatar__circle { color: #fff; }
@@ -392,7 +393,7 @@ html[data-theme="light"] { color-scheme: light; background-color: #F6F4EF; }
 .zs-aviso-reserva { display: none; }
 html[data-plan="past_due"] .zs-aviso-reserva,
 html[data-plan="expired"] .zs-aviso-reserva,
-html[data-plan="free"] .zs-aviso-reserva { display: block; height: 62px; margin-bottom: 16px; border-radius: 12px; background: #24384F; }
+html[data-plan="free"] .zs-aviso-reserva { display: block; height: 62px; margin-bottom: 16px; border-radius: 12px; background: #E8B431; }
 @media (max-width: 460px) {
   html[data-plan="past_due"] .zs-aviso-reserva,
   html[data-plan="expired"] .zs-aviso-reserva,
@@ -446,3 +447,18 @@ html[data-plan="past_due"] body[data-zoo="videos"] #lockedNotice:empty { min-hei
   html[data-plan="expired"] body[data-zoo="videos"] #lockedNotice:empty,
   html[data-plan="past_due"] body[data-zoo="videos"] #lockedNotice:empty { min-height: 90px; }
 }
+
+/* ═══════════════ BARRA INFERIOR: JUEGO DE PESTAÑAS SEGÚN LA CUENTA ═══════════════
+   Miembro (active / cancelled_active): Inicio, Cursos, PDFs, Vivo, Pro y Más.
+   Cuenta gratuita (cualquier otro estado, o aún sin saberlo): Inicio, Cursos, PDFs, Retos, Logros y Más. */
+html:not([data-plan="active"]):not([data-plan="cancelled_active"]) .zs-tab--solo-vip { display: none; }
+html[data-plan="active"] .zs-tab--solo-libre,
+html[data-plan="cancelled_active"] .zs-tab--solo-libre { display: none; }
+/* "Más" (y las pestañas compartidas) solo se marcan en el juego en que corresponde */
+html:not([data-plan="active"]):not([data-plan="cancelled_active"]) .zs-tab.is-active.zs-tab--act-vip,
+html[data-plan="active"] .zs-tab.is-active.zs-tab--act-libre,
+html[data-plan="cancelled_active"] .zs-tab.is-active.zs-tab--act-libre { color: var(--zoo-text-muted); font-weight: 600; }
+html:not([data-plan="active"]):not([data-plan="cancelled_active"]) .zs-tab.is-active.zs-tab--act-vip .zs-tab__ico,
+html[data-plan="active"] .zs-tab.is-active.zs-tab--act-libre .zs-tab__ico,
+html[data-plan="cancelled_active"] .zs-tab.is-active.zs-tab--act-libre .zs-tab__ico { background: transparent; color: inherit; }
+[data-theme="light"] .zs-tab.is-active.zs-tab--act-vip { color: #52606D; }
