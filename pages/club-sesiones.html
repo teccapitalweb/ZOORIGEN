@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
   <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
   <style>
     .webinar-hero {
@@ -278,13 +278,13 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261104"></script>
+  <script src="../assets/js/club-seccion.js?v=20261105"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>
     (function () {
       var pronto = !!(window.ZOO_CONFIG && ZOO_CONFIG.clasesEnVivoPronto);
       ZOO_SECCION.montar('#zsSeccion', pronto ? {
-        id: 'zsSeccionSesiones', seccion: 'sesiones', icono: 'radio', eyebrow: 'Webinars en vivo', titulo: 'Clases en vivo,', acento: 'con especialistas.',
+        id: 'zsSeccionSesiones', seccion: 'sesiones', pronto: true, icono: 'radio', eyebrow: 'Webinars en vivo', titulo: 'Clases en vivo,', acento: 'con especialistas.',
         sub: "Estamos preparando las transmisiones en vivo con especialistas de fauna silvestre. Muy pronto podrás conectarte desde aquí.",
         cifras: [{ clave: 'proximos', valor: 'Pronto', rotulo: 'próximo webinar' }, { clave: 'clases', valor: 'Pronto', rotulo: 'clases en vivo' }]
       } : {

@@ -109,6 +109,8 @@
 
   /* Foto de portada del curso: la suya, o una foto propia del sitio según su área. */
   function fotoDelCurso(curso) {
+    var portada = (typeof ZOO_PORTADAS !== 'undefined' && ZOO_PORTADAS && ZOO_PORTADAS.paraCurso) ? ZOO_PORTADAS.paraCurso(curso, '../') : '';
+    if (portada) return portada;
     var propia = imagenSegura(curso && curso.image);
     if (propia) return propia;
     var area = String((curso && (curso.area || curso.title)) || '');

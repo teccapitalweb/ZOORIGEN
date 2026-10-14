@@ -71,7 +71,7 @@ test('las versiones de lo que cambió suben en las páginas que lo cargan', () =
   for (const [pag, patron] of [
     ['pages/club-dashboard.html', /assets\/css\/club-inicio\.css\?v=20261106-noticias/],
     ['pages/club-dashboard.html', /assets\/css\/club-noticias\.css\?v=20261106-noticias/],
-    ['pages/club-dashboard.html', /assets\/js\/club-inicio\.js\?v=20261106-noticias/],
+    ['pages/club-dashboard.html', /assets\/js\/club-inicio\.js\?v=20261107-portadas/],
     ['pages/club-dashboard.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/],
     ['pages/admin-club.html', /assets\/css\/club-noticias\.css\?v=20261106-noticias/],
     ['pages/admin-club.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/]

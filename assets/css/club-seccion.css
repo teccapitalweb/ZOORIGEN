@@ -227,3 +227,231 @@
   .filter-bar::-webkit-scrollbar { display: none; }
   .filter-chip-club { flex: none; }
 }
+
+/* ============================================================ */
+/* CAPA DECORATIVA Y PERSONAJE DE CADA APARTADO                  */
+/* Íconos Lucide muy tenues (un tono más claro que el fondo) y   */
+/* un animalito a la derecha, recortado por el borde inferior.   */
+/* Todo SÓLIDO. Si la imagen no existe, el script quita el       */
+/* personaje y la tarjeta queda completa solo con los íconos.    */
+/* Se apaga con prefers-reduced-motion y se pausa (.is-pausa)    */
+/* con la pestaña oculta o la tarjeta fuera de pantalla.         */
+/* ============================================================ */
+.zs-seccion--deco {
+  --zs-deco: #9BD9AE;
+  --zs-halo: #234632;                       /* noche: verde un poco más claro que #16301F */
+  --zs-pil: #9BD9AE;
+  --zs-pil-borde: rgba(255, 255, 255, 0.18);
+  --zs-pad: clamp(18px, 3.4vw, 40px);       /* igual al relleno de la tarjeta */
+  --zs-pj: clamp(150px, 20vw, 250px);       /* alto máximo del personaje (y ancho reservado) */
+  --zs-pj-der: clamp(10px, 2.2vw, 32px);
+  --zs-vel: 1;
+  overflow: hidden;
+  isolation: isolate;
+}
+[data-theme="light"] .zs-seccion--deco { --zs-halo: #2C7A4D; }
+
+/* Acento de borde y de píldora por apartado (el fondo sigue siendo el verde sólido de marca) */
+.zs-seccion--deco[data-acento="oro"]     { --zs-pil: #F7CB62; --zs-pil-borde: #E8A317; border-color: #C98F10; }
+.zs-seccion--deco[data-acento="azul"]    { --zs-pil: #A8D8F5; --zs-pil-borde: #4DA3DF; border-color: #2C86C8; }
+.zs-seccion--deco[data-acento="naranja"] { --zs-pil: #FFC09A; --zs-pil-borde: #E27B3A; border-color: #D9692A; }
+.zs-seccion--deco .zs-seccion__pildora { border-color: var(--zs-pil-borde); }
+.zs-seccion--deco .zs-seccion__pildora .zi { color: var(--zs-pil); }
+
+/* El contenido va sobre la decoración */
+.zs-seccion--deco > .zs-seccion__cuerpo,
+.zs-seccion--deco > .zs-seccion__cifras { position: relative; z-index: 1; }
+
+/* Etiqueta "Próximamente" junto a la píldora (Webinars) */
+.zs-seccion__marcas { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.zs-seccion__pronto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--zoo-amber, #E8A317);
+  color: #1F1D17;
+  font: 700 .78rem/1.2 var(--zoo-font-body);
+  letter-spacing: .02em;
+}
+.zs-seccion__pronto .zi { width: 15px; height: 15px; flex: none; }
+
+/* Capa de íconos: ocho posiciones fijas, repartidas por los bordes y la zona del personaje */
+.zs-deco { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.zs-deco__i {
+  position: absolute;
+  display: block;
+  width: var(--s, 44px);
+  height: var(--s, 44px);
+  color: var(--zs-deco);
+  opacity: .14;
+  transform: rotate(var(--r, 0deg));
+}
+.zs-deco__i svg { display: block; width: 100%; height: 100%; }
+.zs-deco__i--1 { left: 56%; top: 9%;   --s: 46px; --r: 12deg;  --n: 1; }
+.zs-deco__i--2 { left: 66%; top: 52%;  --s: 36px; --r: -14deg; --n: 2; }
+.zs-deco__i--3 { left: 77%; top: 5%;   --s: 54px; --r: 8deg;   --n: 3; }
+.zs-deco__i--4 { left: 46%; top: 72%;  --s: 40px; --r: -8deg;  --n: 4; }
+.zs-deco__i--5 { left: 89%; top: 42%;  --s: 32px; --r: 18deg;  --n: 5; }
+.zs-deco__i--6 { left: 58%; top: 80%;  --s: 44px; --r: 16deg;  --n: 6; }
+.zs-deco__i--7 { left: 35%; top: -5%;  --s: 34px; --r: -20deg; --n: 7; }
+.zs-deco__i--8 { left: 83%; top: 70%;  --s: 38px; --r: -20deg; --n: 8; }
+
+/* Movimiento lento de los íconos (distinto por apartado): flota, gira poco, parpadea o sube */
+.zs-seccion--deco .zs-deco__i {
+  animation-duration: calc(9s + var(--n, 1) * 1.3s);
+  animation-delay: calc(var(--n, 1) * -2.7s);
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+.zs-seccion[data-deco="flota"]    .zs-deco__i { animation-name: zsdFlota; animation-direction: alternate; }
+.zs-seccion[data-deco="gira"]     .zs-deco__i { animation-name: zsdGira; animation-direction: alternate; }
+.zs-seccion[data-deco="parpadea"] .zs-deco__i { animation-name: zsdParpadea; }
+.zs-seccion[data-deco="sube"]     .zs-deco__i { animation-name: zsdSube; animation-timing-function: linear; }
+@keyframes zsdFlota    { from { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); } to { transform: translate3d(5px, -9px, 0) rotate(calc(var(--r, 0deg) + 6deg)); } }
+@keyframes zsdGira     { from { transform: rotate(calc(var(--r, 0deg) - 8deg)); } to { transform: rotate(calc(var(--r, 0deg) + 8deg)); } }
+@keyframes zsdParpadea { 0%, 100% { opacity: .08; } 50% { opacity: .18; } }
+@keyframes zsdSube     { 0% { transform: translate3d(0, 12px, 0) rotate(var(--r, 0deg)); opacity: .05; } 50% { opacity: .16; } 100% { transform: translate3d(0, -14px, 0) rotate(var(--r, 0deg)); opacity: .05; } }
+
+/* Personaje: a la derecha, alineado abajo, ~88 % del alto y apenas solapando el borde inferior */
+.zs-personaje {
+  position: absolute;
+  right: var(--zs-pj-der);
+  bottom: -4px;
+  z-index: 0;
+  height: min(88%, var(--zs-pj));
+  aspect-ratio: 1 / 1;
+  pointer-events: none;
+}
+.zs-personaje__halo {
+  position: absolute;
+  left: 6%;
+  bottom: -12%;
+  width: 88%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: var(--zs-halo);
+}
+.zs-personaje__img {
+  position: relative;
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  object-position: 50% 100%;
+  transform-origin: 50% 100%;
+  user-select: none;
+  -webkit-user-drag: none;
+  animation-duration: calc(var(--zs-dur, 2.2s) * var(--zs-vel, 1));
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+/* Espacio para que el texto no pase por debajo del personaje */
+.zs-seccion--con-personaje > .zs-seccion__cuerpo,
+.zs-seccion--con-personaje > .zs-seccion__cifras {
+  padding-right: calc(var(--zs-pj) + var(--zs-pj-der) + 14px - var(--zs-pad));
+}
+.zs-seccion[data-pronto="1"] { --zs-vel: 2.2; }   /* Próximamente: el personaje se mueve más despacio */
+
+/* Un movimiento propio por apartado: sutil (menos de 8 px y menos de 4 grados) */
+.zs-seccion[data-anim="asiente"]   .zs-personaje__img { animation-name: zspAsiente;   --zs-dur: 2.4s; }
+.zs-seccion[data-anim="camina"]    .zs-personaje__img { animation-name: zspCamina;    --zs-dur: 1.8s; }
+.zs-seccion[data-anim="balanceo"]  .zs-personaje__img { animation-name: zspBalanceo;  --zs-dur: 2.2s; }
+.zs-seccion[data-anim="burbujea"]  .zs-personaje__img { animation-name: zspBurbujea;  --zs-dur: 2.2s; }
+.zs-seccion[data-anim="balanza"]   .zs-personaje__img { animation-name: zspBalanza;   --zs-dur: 2.4s; transform-origin: 50% 70%; }
+.zs-seccion[data-anim="anota"]     .zs-personaje__img { animation-name: zspAnota;     --zs-dur: 2s; }
+.zs-seccion[data-anim="cabecea"]   .zs-personaje__img { animation-name: zspCabecea;   --zs-dur: 2.2s; transform-origin: 50% 80%; }
+.zs-seccion[data-anim="claqueta"]  .zs-personaje__img { animation-name: zspClaqueta;  --zs-dur: 2.2s; }
+.zs-seccion[data-anim="burbuja"]   .zs-personaje__img { animation-name: zspBurbuja;   --zs-dur: 1.6s; animation-timing-function: cubic-bezier(.4, 0, .3, 1.4); }
+.zs-seccion[data-anim="saluda"]    .zs-personaje__img { animation: zspEntra .7s ease-out 1 both, zspSaluda 2.2s ease-in-out .7s infinite; }
+.zs-seccion[data-anim="tictac"]    .zs-personaje__img { animation-name: zspTictac;    --zs-dur: 1.4s; transform-origin: 50% 80%; }
+.zs-seccion[data-anim="brillo"]    .zs-personaje__img { animation-name: zspBrillo;    --zs-dur: 2.4s; }
+.zs-seccion[data-anim="cabeceo"]   .zs-personaje__img { animation-name: zspCabeceo;   --zs-dur: 2.4s; transform-origin: 50% 40%; }
+.zs-seccion[data-anim="revolotea"] .zs-personaje__img { animation-name: zspRevolotea; --zs-dur: 2.5s; animation-timing-function: linear; transform-origin: 50% 60%; }
+.zs-seccion[data-anim="ajusta"]    .zs-personaje__img { animation-name: zspAjusta;    --zs-dur: 2.4s; }
+.zs-seccion[data-anim="zumba"]     .zs-personaje__img { animation-name: zspZumba;     --zs-dur: 2.2s; animation-timing-function: linear; }
+.zs-seccion[data-anim="salta"]     .zs-personaje__img { animation-name: zspSalta;     --zs-dur: 2.2s; animation-timing-function: ease-out; }
+
+@keyframes zspAsiente   { 0%, 100% { transform: translateY(0) rotate(0deg); } 45% { transform: translateY(4px) rotate(1.5deg); } 70% { transform: translateY(1px) rotate(0deg); } }
+@keyframes zspCamina    { 0%, 100% { transform: translate3d(-4px, 0, 0) rotate(-2deg); } 25% { transform: translate3d(0, -2px, 0) rotate(0deg); } 50% { transform: translate3d(4px, 0, 0) rotate(2deg); } 75% { transform: translate3d(0, -2px, 0) rotate(0deg); } }
+@keyframes zspBalanceo  { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes zspBurbujea  { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.015); } }
+@keyframes zspBalanza   { 0%, 100% { transform: rotate(-3.5deg); } 50% { transform: rotate(3.5deg); } }
+@keyframes zspAnota     { 0%, 100% { transform: rotate(0deg) translateX(0); } 30% { transform: rotate(-2.5deg) translateX(-2px); } 60% { transform: rotate(1.5deg) translateX(2px); } }
+@keyframes zspCabecea   { 0%, 100% { transform: rotate(-2.5deg) translateY(0); } 50% { transform: rotate(2.5deg) translateY(-3px); } }
+@keyframes zspClaqueta  { 0%, 55%, 100% { transform: rotate(0deg); } 65% { transform: rotate(-3.5deg); } 75% { transform: rotate(0deg); } 85% { transform: rotate(-2deg); } }
+@keyframes zspBurbuja   { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes zspEntra     { from { opacity: 0; transform: translateX(7px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes zspSaluda    { 0%, 100% { transform: rotate(0deg); } 35% { transform: rotate(3deg) translateY(-2px); } 70% { transform: rotate(-1.5deg); } }
+@keyframes zspTictac    { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg); } }
+@keyframes zspBrillo    { 0%, 100% { transform: scale(1) translateY(0); } 50% { transform: scale(1.025) translateY(-2px); } }
+@keyframes zspCabeceo   { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(-3deg) translateY(-2px); } 65% { transform: rotate(3deg) translateY(1px); } }
+@keyframes zspRevolotea { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); } 25% { transform: translate3d(5px, -4px, 0) rotate(2deg); } 50% { transform: translate3d(0, -6px, 0) rotate(0deg); } 75% { transform: translate3d(-5px, -4px, 0) rotate(-2deg); } }
+@keyframes zspAjusta    { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.04) rotate(-1deg); } }
+@keyframes zspZumba     { 0%, 28%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); } 4% { transform: translate3d(-2px, 0, 0) rotate(-2deg); } 8% { transform: translate3d(2px, -1px, 0) rotate(2deg); } 12% { transform: translate3d(-2px, 0, 0) rotate(-2deg); } 16% { transform: translate3d(2px, -1px, 0) rotate(2deg); } 20% { transform: translate3d(-1px, 0, 0) rotate(-1deg); } 24% { transform: translate3d(1px, 0, 0) rotate(1deg); } }
+@keyframes zspSalta     { 0%, 45%, 100% { transform: translateY(0) rotate(0deg); } 15% { transform: translateY(-7px) rotate(-2deg); } 30% { transform: translateY(0) rotate(0deg); } }
+
+/* Burbujas (infusiones): dos círculos de línea que suben desde el matraz */
+.zs-seccion[data-anim="burbujea"] .zs-personaje::before,
+.zs-seccion[data-anim="burbujea"] .zs-personaje::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  border-radius: 50%;
+  border: 2px solid #CFEFD9;
+  opacity: .8;
+  animation: zspSube 2.6s ease-in infinite;
+}
+.zs-seccion[data-anim="burbujea"] .zs-personaje::before { left: 22%; bottom: 52%; width: 12px; height: 12px; }
+.zs-seccion[data-anim="burbujea"] .zs-personaje::after  { left: 34%; bottom: 60%; width: 8px;  height: 8px; animation-delay: -1.3s; }
+@keyframes zspSube { 0% { transform: translateY(0) scale(.7); opacity: 0; } 20% { opacity: .9; } 100% { transform: translateY(-30px) scale(1.1); opacity: 0; } }
+
+/* Destellos (logros): dos estrellas de cuatro puntas que centellean */
+.zs-seccion[data-anim="brillo"] .zs-personaje::before,
+.zs-seccion[data-anim="brillo"] .zs-personaje::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  background: #F7CB62;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: zspDestello 2.2s ease-in-out infinite;
+}
+.zs-seccion[data-anim="brillo"] .zs-personaje::before { left: 6%;  top: 14%; width: 16px; height: 16px; }
+.zs-seccion[data-anim="brillo"] .zs-personaje::after  { right: 4%; top: 30%; width: 11px; height: 11px; animation-delay: -1.1s; }
+@keyframes zspDestello { 0%, 100% { transform: scale(.4) rotate(0deg); opacity: .2; } 50% { transform: scale(1) rotate(40deg); opacity: 1; } }
+
+/* Pausa: pestaña oculta o tarjeta fuera de pantalla */
+.zs-seccion--deco.is-pausa *,
+.zs-seccion--deco.is-pausa *::before,
+.zs-seccion--deco.is-pausa *::after { animation-play-state: paused !important; }
+
+/* Reducir movimiento: imagen fija y decoración estática */
+@media (prefers-reduced-motion: reduce) {
+  .zs-seccion--deco *,
+  .zs-seccion--deco *::before,
+  .zs-seccion--deco *::after { animation: none !important; transition: none !important; }
+}
+
+/* Celular: personaje de ~92 px junto a las cifras; menos íconos y más chicos */
+@media (max-width: 640px) {
+  .zs-seccion--deco { --zs-pj: 92px; --zs-pj-der: 8px; }
+  .zs-personaje { height: var(--zs-pj); }
+  .zs-seccion--con-personaje > .zs-seccion__cuerpo { padding-right: 0; }
+  .zs-seccion--con-personaje > .zs-seccion__cifras {
+    padding-right: calc(var(--zs-pj) + var(--zs-pj-der) + 6px - var(--zs-pad));
+    min-height: calc(var(--zs-pj) - 10px);
+  }
+  .zs-seccion--con-personaje.zs-seccion--sin-cifras > .zs-seccion__cuerpo { padding-bottom: calc(var(--zs-pj) - 18px); }
+  .zs-deco__i { width: calc(var(--s, 44px) * .78); height: calc(var(--s, 44px) * .78); }
+  .zs-deco__i--7, .zs-deco__i--8 { display: none; }
+  .zs-seccion__pronto { padding: 6px 11px; }
+}
+/* Pantallas muy angostas (320-360 px): sin personaje */
+@media (max-width: 360px) {
+  .zs-personaje { display: none; }
+  .zs-seccion--con-personaje > .zs-seccion__cuerpo,
+  .zs-seccion--con-personaje > .zs-seccion__cifras { padding-right: 0; min-height: 0; padding-bottom: 0; }
+  .zs-deco__i--5, .zs-deco__i--6 { display: none; }
+}
