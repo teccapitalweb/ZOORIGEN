@@ -1,0 +1,117 @@
+/* ============================================================ */
+/* ZOORIGEN · TIPOGRAFÍA AUTOALOJADA                             */
+/* Outfit (titulares y cifras), Inter (texto e interfaz) y       */
+/* Playfair Display (titulares de noticias). Archivos woff2      */
+/* variables en assets/fonts/ (licencia OFL: LICENSE-OFL.txt).   */
+/*                                                               */
+/* Por qué autoalojadas: la hoja de Google Fonts bloqueaba el    */
+/* primer pintado con una petición a otro dominio y las letras   */
+/* llegaban después, así que el texto se acomodaba dos veces.    */
+/* Aquí van del mismo origen, precargadas en el <head>, y cada   */
+/* una tiene una letra de respaldo con las mismas medidas        */
+/* (size-adjust + ascent/descent) para que, si aún no llegó, el  */
+/* texto ocupe el mismo espacio y no se mueva al cambiar.        */
+/*                                                               */
+/* Cobertura: latin (todo el español: á é í ó ú ñ ü ¿ ¡ y la     */
+/* puntuación) y latin-ext (nombres propios con otras marcas).   */
+/* El navegador solo descarga latin-ext si la página lo usa.     */
+/* ============================================================ */
+
+/* ---- Inter ---- */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/inter-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---- Outfit ---- */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/outfit-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/outfit-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---- Playfair Display (solo titulares de noticias) ---- */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('../fonts/playfair-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('../fonts/playfair-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---- Respaldos con las medidas de cada fuente (evitan el salto al cambiar) ----
+   Valores medidos con Chrome sobre texto en español: size-adjust = ancho de la fuente real / ancho de la de respaldo;
+   ascent y descent = métricas reales de la fuente / size-adjust. Sin tipografía local instalada, el navegador sigue
+   con la siguiente de la lista (system-ui) igual que antes. */
+@font-face {
+  font-family: 'Inter Fallback';
+  font-style: normal;
+  font-weight: 100 599;
+  src: local('Arial'), local('Helvetica Neue'), local('Helvetica');
+  size-adjust: 106.1%;
+  ascent-override: 91.3%;
+  descent-override: 22.7%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Inter Fallback';
+  font-style: normal;
+  font-weight: 600 900;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Helvetica Bold'), local('Helvetica-Bold');
+  size-adjust: 100.5%;
+  ascent-override: 96.4%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Outfit Fallback';
+  font-style: normal;
+  font-weight: 100 900;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Helvetica Bold'), local('Helvetica-Bold'), local('Arial');
+  size-adjust: 95%;
+  ascent-override: 105.3%;
+  descent-override: 27.4%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Playfair Fallback';
+  font-style: normal;
+  font-weight: 400 900;
+  src: local('Georgia Bold'), local('Georgia-Bold'), local('Georgia');
+  size-adjust: 90%;
+  ascent-override: 120%;
+  descent-override: 27.9%;
+  line-gap-override: 0%;
+}

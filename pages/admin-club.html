@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" data-tema="selva" data-modo="oscuro">
 <head>
+<script>/*zs-tema*/!function(d){var t,p,h=d.documentElement;try{t=localStorage.getItem("zoo_theme");p=localStorage.getItem("zoo_plan")}catch(e){}h.setAttribute("data-theme",t==="dark"?"dark":"light");if(/^(active|cancelled_active|past_due|expired|free)$/.test(p))h.setAttribute("data-plan",p)}(document)</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin · Club VIP Zoorigen</title>
@@ -13,10 +14,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+  <!-- zs:fuentes -->
+  <link rel="preload" href="../assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/fuentes.css?v=20261109-cromo">
+  <!-- /zs:fuentes -->
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
   <style>
     body { background: var(--zoo-bg-darker); }
@@ -208,10 +211,10 @@
     }
   </style>
   <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261109-cromo">
 </head>
 <body>
 
@@ -274,7 +277,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club.js?v=20261109-cromo"></script>
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-juegos.js?v=20261104"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>

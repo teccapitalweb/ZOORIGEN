@@ -60,20 +60,21 @@ test('colores sólidos y modo noche: verde de marca de día, superficie neutra #
   assert.match(bloque, /#25D366/i, 'botón de WhatsApp en su verde');
 });
 
-test('el Inicio carga la tipografía del periódico en el mismo enlace de Google Fonts', () => {
-  const enlaces = dash.match(/https:\/\/fonts\.googleapis\.com\/css2\?[^"']+/g) || [];
-  assert.equal(enlaces.length, 1);
-  assert.match(enlaces[0], /family=Playfair\+Display:wght@700;900/);
-  assert.match(enlaces[0], /display=swap/);
+test('el Inicio carga la tipografía del periódico (Playfair) desde el propio sitio y la precarga', () => {
+  assert.doesNotMatch(dash, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
+  assert.match(dash, /<link rel="preload" href="\.\.\/assets\/fonts\/playfair-latin\.woff2" as="font" type="font\/woff2" crossorigin>/);
+  const css = leer('assets/css/fuentes.css');
+  assert.match(css, /font-family: 'Playfair Display';[^}]*font-weight: 400 900;[^}]*font-display: swap;[^}]*playfair-latin\.woff2/);
+  assert.ok(fs.existsSync(path.join(RAIZ, 'assets/fonts/playfair-latin.woff2')));
 });
 
 test('las versiones de lo que cambió suben en las páginas que lo cargan', () => {
   for (const [pag, patron] of [
-    ['pages/club-dashboard.html', /assets\/css\/club-inicio\.css\?v=20261108-paleta/],
-    ['pages/club-dashboard.html', /assets\/css\/club-noticias\.css\?v=20261108-paleta/],
+    ['pages/club-dashboard.html', /assets\/css\/club-inicio\.css\?v=20261109-cromo/],
+    ['pages/club-dashboard.html', /assets\/css\/club-noticias\.css\?v=20261109-cromo/],
     ['pages/club-dashboard.html', /assets\/js\/club-inicio\.js\?v=20261108-paleta/],
     ['pages/club-dashboard.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/],
-    ['pages/admin-club.html', /assets\/css\/club-noticias\.css\?v=20261108-paleta/],
+    ['pages/admin-club.html', /assets\/css\/club-noticias\.css\?v=20261109-cromo/],
     ['pages/admin-club.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/]
   ]) assert.match(leer(pag), patron, pag + ' ' + patron);
 });

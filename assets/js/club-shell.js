@@ -115,49 +115,30 @@
     return 'https://wa.me/' + SOPORTE + '?text=' + encodeURIComponent(texto);
   }
 
-  var API = {
-    GRUPOS: GRUPOS, BARRA: BARRA, SOPORTE: SOPORTE, BREAKPOINT_MOVIL: BREAKPOINT_MOVIL,
-    planos: planos, normalizar: normalizar, buscarSecciones: buscarSecciones, buscarCursos: buscarCursos,
-    pestanaActiva: pestanaActiva, primerNombre: primerNombre, iniciales: iniciales, enlaceSoporte: enlaceSoporte, esMiembroVip: esMiembroVip, whatsappHTML: whatsappHTML, modoInstalacion: modoInstalacion
-  };
-
-  if (typeof document === 'undefined') return API;
-
-  /* ============================================================ */
-  /* PARTE DE PANTALLA                                             */
-  /* ============================================================ */
-  var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-  var icono = function (nombre, tam) {
+  /* ───── MARCADO (el mismo que usa el navegador y el que se escribe, ya hecho, en el HTML de cada página) ─────
+     Todo lo de esta parte es puro: el generador (tools/generar-cromo-club.js) lo ejecuta en Node para dejar la barra lateral,
+     la barra superior y la barra inferior escritas en el HTML. Así existen desde el primer pintado, sin esperar a que cargue
+     Firebase ni a que responda la sesión. El navegador solo las completa (nombre, plan) y les pone sus eventos. */
+  function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function icono(nombre, tam) {
     return (typeof zooIcon === 'function') ? zooIcon(nombre, tam || 18) : '';
-  };
-  var estado = { montado: false, cursos: null };
-
-  /* ZOORIGEN_CLUB se declara con const en club.js: no es propiedad de window, se busca por su nombre. */
-  function club() { try { return (typeof ZOORIGEN_CLUB !== 'undefined') ? ZOORIGEN_CLUB : null; } catch (e) { return null; } }
-
-  /* Íconos que el menú nuevo necesita y club.js aún no tenía. */
-  function completarIconos() {
-    try {
-      if (typeof ZOORIGEN_ICONS === 'undefined') return;
-      var extra = {
-        news: '<path d="M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11"/><path d="M8 8l4 0"/><path d="M8 12l4 0"/><path d="M8 16l4 0"/>',
-        menu: '<path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/>',
-        logout: '<path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M9 12h12l-3 -3"/><path d="M18 15l3 -3"/>',
-        tools: '<path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5"/>',
-        x: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>',
-        download: '<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/>',
-        bulb: '<path d="M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7"/><path d="M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3"/><path d="M9.7 17l4.6 0"/>'
-      };
-      Object.keys(extra).forEach(function (k) { if (!ZOORIGEN_ICONS[k]) ZOORIGEN_ICONS[k] = extra[k]; });
-    } catch (e) { /* sin íconos extra */ }
   }
-
-  completarIconos();
 
   /* Clases en vivo en "Próximamente" (ZOO_CONFIG.clasesEnVivoPronto): el menú lo marca con una etiqueta "Pronto". */
   function enVivoPronto() {
     try { return typeof ZOO_CONFIG !== 'undefined' && ZOO_CONFIG.clasesEnVivoPronto === true; } catch (e) { return false; }
   }
+
+  /* Íconos que el menú nuevo necesita y club.js aún no tenía. */
+  var ICONOS_EXTRA = {
+    news: '<path d="M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11"/><path d="M8 8l4 0"/><path d="M8 12l4 0"/><path d="M8 16l4 0"/>',
+    menu: '<path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/>',
+    logout: '<path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M9 12h12l-3 -3"/><path d="M18 15l3 -3"/>',
+    tools: '<path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5"/>',
+    x: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>',
+    download: '<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/>',
+    bulb: '<path d="M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7"/><path d="M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3"/><path d="M9.7 17l4.6 0"/>'
+  };
 
   function enlaceHTML(item, activo, clase) {
     var pronto = item.id === 'sesiones' && enVivoPronto();
@@ -175,6 +156,104 @@
       return '<div class="club-sidebar__section">' + esc(g.titulo) + '</div>' + g.items.map(function (i) { return enlaceHTML(i, activo, clase); }).join('') + cierre;
     }).join('');
   }
+
+  /* Estado de la membresía en palabras cortas (se guarda en localStorage como "zoo_plan" y se pone en <html data-plan>
+     para que el CSS pinte el bloque de plan desde el primer pintado). Es solo el estado, nunca nombre ni correo. */
+  var ESTADOS_PLAN = ['active', 'cancelled_active', 'past_due', 'expired', 'free'];
+  function estadoPlan(planStatus) {
+    return ESTADOS_PLAN.indexOf(planStatus) !== -1 ? planStatus : 'free';
+  }
+
+  /* Bloque de plan de la barra lateral ANTES de saber la sesión: cada texto trae sus variantes y el CSS muestra la del
+     <html data-plan>. Cuando llega la sesión, club.js lo reemplaza por el bloque real (con la fecha de renovación). */
+  function planEsqueletoHTML() {
+    var v = function (estado, txt) { return '<span class="zs-pv zs-pv--' + estado + '">' + txt + '</span>'; };
+    return '<div class="club-sidebar__plan zs-plan-esq" style="padding:10px 12px;text-align:center;">' +
+      '<div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:4px;">' +
+        '<span class="zs-plan-punto" style="width:7px;height:7px;border-radius:50%;"></span>' +
+        '<span class="plan-label" style="margin:0;font-size:.75rem;letter-spacing:.06em;">' +
+          v('active', 'MEMBRESÍA ACTIVA') + v('cancelled_active', 'ACCESO VIGENTE') + v('past_due', 'PAGO NO CONFIRMADO') +
+          v('expired', 'MEMBRESÍA VENCIDA') + v('free', 'CUENTA GRATUITA') + '</span>' +
+      '</div>' +
+      '<div class="plan-meta" style="font-size:.75rem;margin-bottom:8px;opacity:.75;">&nbsp;</div>' +
+      '<a href="club-suscripcion.html" class="zs-pv zs-pv--boton" style="font-size:.78rem;background:rgba(232,163,23,0.12);border:1px solid rgba(232,163,23,0.4);color:var(--zoo-amber,#E8A317);padding:7px 10px;border-radius:8px;margin-bottom:8px;font-weight:700;text-decoration:none;">Activar membresía</a>' +
+      '<a href="#" class="plan-logout" style="display:inline-block;font-size:.8rem;" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a>' +
+    '</div>';
+  }
+
+  /* Barra lateral completa sin sesión: marca, menú agrupado y bloque de plan. */
+  function barraLateralHTML(activo) {
+    return '<button class="club-sidebar__close" id="sidebarCloseBtn" aria-label="Cerrar menú"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>' +
+      '<div class="club-sidebar__brand"><img src="../assets/img/logo/logo-96.webp" alt="Zoorigen" width="44" height="44">' +
+        '<div class="club-sidebar__brand-text"><h3>Zoorigen</h3><small>' +
+          '<span class="zs-pv zs-pv--vip">Club VIP</span><span class="zs-pv zs-pv--libre">Acceso gratuito</span></small></div></div>' +
+      menuHTML(activo, '') + planEsqueletoHTML();
+  }
+
+  /* Barra superior. Con sesión lleva el nombre; sin ella (el HTML estático) deja esos huecos vacíos y el navegador los llena. */
+  function barraSuperiorHTML(sesion) {
+    var nombre = sesion ? primerNombre(sesion.name, sesion.email) : '';
+    var inic = sesion ? iniciales(sesion.name, sesion.email) : '';
+    return '' +
+      '<span class="zs-quien' + (sesion ? ' is-listo' : '') + '">' + icono('user', 14) + '<span class="zs-quien__n">' + esc(nombre) + '</span></span>' +
+      '<div class="zs-search" id="zsSearch" role="search">' +
+        '<span class="zs-search__ico">' + icono('search', 17) + '</span>' +
+        '<input type="search" id="zsSearchInput" placeholder="Buscar cursos o secciones…" autocomplete="off" aria-label="Buscar">' +
+        '<div class="zs-results" id="zsResults" hidden></div>' +
+      '</div>' +
+      '<div class="zs-actions">' +
+        '<button type="button" class="zs-btn zs-help" id="zsHelp" title="Ver guía de bienvenida" aria-label="Ver guía de bienvenida">' + icono('helpcircle', 18) + '</button>' +
+        '<button type="button" class="zs-btn notif-icon zs-bell" id="notifBtn" title="Notificaciones" aria-label="Notificaciones">' + icono('bell', 18) +
+          '<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>' +
+        '<button type="button" class="zs-btn zs-theme" id="zsTheme" data-dual="1" title="Cambiar entre modo día y noche" aria-label="Cambiar entre modo día y noche">' +
+          '<span class="zs-theme__v zs-theme__luna">' + icono('moon', 17) + '<span class="zs-theme__txt">Noche</span></span>' +
+          '<span class="zs-theme__v zs-theme__sol">' + icono('sun', 17) + '<span class="zs-theme__txt">Día</span></span></button>' +
+        '<a class="zs-avatar" href="club-perfil.html" title="Mi perfil" aria-label="Mi perfil">' +
+          '<span class="zs-avatar__circle">' + esc(inic) + '</span>' +
+          '<span class="zs-avatar__name">' + esc(nombre) + '</span></a>' +
+        '<button type="button" class="zs-btn zs-salir" id="zsSalir" title="Cerrar sesión" aria-label="Cerrar sesión">' + icono('logout', 18) + '</button>' +
+      '</div>';
+  }
+
+  function barraInferiorHTML(activo) {
+    var marcada = pestanaActiva(activo);
+    return BARRA.map(function (t) {
+      var es = t.id === marcada;
+      var etiqueta = '<span class="zs-tab__ico">' + icono(t.icon, 20) + '</span><span class="zs-tab__txt">' + esc(t.label) + '</span>' +
+        (t.id === 'sesiones' && enVivoPronto() ? '<span class="zs-tab__pronto">Pronto</span>' : '');
+      return t.id === 'mas'
+        ? '<button type="button" class="zs-tab' + (es ? ' is-active' : '') + '" id="zsMas" aria-label="Más opciones" aria-haspopup="dialog">' + etiqueta + '</button>'
+        : '<a class="zs-tab' + (es ? ' is-active' : '') + '" href="' + esc(t.href) + '">' + etiqueta + '</a>';
+    }).join('');
+  }
+
+  var API = {
+    GRUPOS: GRUPOS, BARRA: BARRA, SOPORTE: SOPORTE, BREAKPOINT_MOVIL: BREAKPOINT_MOVIL,
+    planos: planos, normalizar: normalizar, buscarSecciones: buscarSecciones, buscarCursos: buscarCursos,
+    pestanaActiva: pestanaActiva, primerNombre: primerNombre, iniciales: iniciales, enlaceSoporte: enlaceSoporte, esMiembroVip: esMiembroVip, whatsappHTML: whatsappHTML, modoInstalacion: modoInstalacion,
+    ICONOS_EXTRA: ICONOS_EXTRA, ESTADOS_PLAN: ESTADOS_PLAN, estadoPlan: estadoPlan, menuHTML: menuHTML,
+    barraLateralHTML: barraLateralHTML, barraSuperiorHTML: barraSuperiorHTML, barraInferiorHTML: barraInferiorHTML, planEsqueletoHTML: planEsqueletoHTML
+  };
+
+  if (typeof document === 'undefined') return API;
+
+  /* ============================================================ */
+  /* PARTE DE PANTALLA                                             */
+  /* ============================================================ */
+  var estado = { montado: false, cursos: null };
+
+  /* ZOORIGEN_CLUB se declara con const en club.js: no es propiedad de window, se busca por su nombre. */
+  function club() { try { return (typeof ZOORIGEN_CLUB !== 'undefined') ? ZOORIGEN_CLUB : null; } catch (e) { return null; } }
+
+  /* Íconos que el menú nuevo necesita y club.js aún no tenía. */
+  function completarIconos() {
+    try {
+      if (typeof ZOORIGEN_ICONS === 'undefined') return;
+      Object.keys(ICONOS_EXTRA).forEach(function (k) { if (!ZOORIGEN_ICONS[k]) ZOORIGEN_ICONS[k] = ICONOS_EXTRA[k]; });
+    } catch (e) { /* sin íconos extra */ }
+  }
+
+  completarIconos();
 
   /* ───── Instalar la app (PWA): el navegador avisa una sola vez que se puede instalar; se guarda ese aviso ───── */
   var avisoInstalar = null;
@@ -225,7 +304,8 @@
   function pintarTema() {
     var oscuro = temaActual() === 'dark';
     document.querySelectorAll('.zs-theme').forEach(function (b) {
-      b.innerHTML = icono(oscuro ? 'sun' : 'moon', 17) + '<span class="zs-theme__txt">' + (oscuro ? 'Día' : 'Noche') + '</span>';
+      /* el botón de la barra superior trae ya los dos estados (el CSS muestra el que toca por <html data-theme>) */
+      if (!b.hasAttribute('data-dual')) b.innerHTML = icono(oscuro ? 'sun' : 'moon', 17) + '<span class="zs-theme__txt">' + (oscuro ? 'Día' : 'Noche') + '</span>';
       b.setAttribute('aria-label', oscuro ? 'Cambiar a modo día' : 'Cambiar a modo noche');
       b.title = oscuro ? 'Cambiar a modo día' : 'Cambiar a modo noche';
     });
@@ -258,42 +338,9 @@
     });
   }
 
-  function barraSuperiorHTML(sesion) {
-    var nombre = primerNombre(sesion && sesion.name, sesion && sesion.email);
-    return '' +
-      '<span class="zs-quien">' + icono('user', 14) + esc(nombre) + '</span>' +
-      '<div class="zs-search" id="zsSearch" role="search">' +
-        '<span class="zs-search__ico">' + icono('search', 17) + '</span>' +
-        '<input type="search" id="zsSearchInput" placeholder="Buscar cursos o secciones…" autocomplete="off" aria-label="Buscar">' +
-        '<div class="zs-results" id="zsResults" hidden></div>' +
-      '</div>' +
-      '<div class="zs-actions">' +
-        '<button type="button" class="zs-btn zs-help" id="zsHelp" title="Ver guía de bienvenida" aria-label="Ver guía de bienvenida">' + icono('helpcircle', 18) + '</button>' +
-        '<button type="button" class="zs-btn notif-icon zs-bell" id="notifBtn" title="Notificaciones" aria-label="Notificaciones">' + icono('bell', 18) +
-          '<span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>' +
-        '<button type="button" class="zs-btn zs-theme" id="zsTheme"></button>' +
-        '<a class="zs-avatar" href="club-perfil.html" title="Mi perfil" aria-label="Mi perfil">' +
-          '<span class="zs-avatar__circle">' + esc(iniciales(sesion && sesion.name, sesion && sesion.email)) + '</span>' +
-          '<span class="zs-avatar__name">' + esc(nombre) + '</span></a>' +
-        '<button type="button" class="zs-btn zs-salir" id="zsSalir" title="Cerrar sesión" aria-label="Cerrar sesión">' + icono('logout', 18) + '</button>' +
-      '</div>';
-  }
-
   /* El contenido del panel lo pinta club-avisos.js (o, si no está, la campana anterior de club.js). */
   function panelNotifHTML() {
     return '<div class="notif-panel zs-notif" id="notifPanel" style="display:none;"></div>';
-  }
-
-  function barraInferiorHTML(activo) {
-    var marcada = pestanaActiva(activo);
-    return BARRA.map(function (t) {
-      var es = t.id === marcada;
-      var etiqueta = '<span class="zs-tab__ico">' + icono(t.icon, 20) + '</span><span class="zs-tab__txt">' + esc(t.label) + '</span>' +
-        (t.id === 'sesiones' && enVivoPronto() ? '<span class="zs-tab__pronto">Pronto</span>' : '');
-      return t.id === 'mas'
-        ? '<button type="button" class="zs-tab' + (es ? ' is-active' : '') + '" id="zsMas" aria-label="Más opciones" aria-haspopup="dialog">' + etiqueta + '</button>'
-        : '<a class="zs-tab' + (es ? ' is-active' : '') + '" href="' + esc(t.href) + '">' + etiqueta + '</a>';
-    }).join('');
   }
 
   function cajonHTML(sesion, activo) {
@@ -311,21 +358,45 @@
      descuento, soporte VIP, dirección y canal es solo para miembros. */
   var MSG_SIN_MEMBRESIA = 'Hola, quiero información sobre el Club VIP de Zoorigen';
   function ico(nombre) { return '<svg class="zi" aria-hidden="true"><use href="#zi-' + nombre + '"/></svg>'; }
-  function whatsappHTML(esVip) {
+  function waMenuHTML() {
     var item = function (icon, txt, sub, url, interno) {
       return '<a class="zs-wa__item" href="' + esc(url) + '"' + (interno ? '' : ' target="_blank" rel="noopener"') + '>' +
         '<span class="zs-wa__ic">' + ico(icon) + '</span><span><span class="zs-wa__tx">' + esc(txt) + '</span><span class="zs-wa__sub">' + esc(sub) + '</span></span></a>';
     };
-    var menu = esVip
-      ? '<div class="zs-wa__menu" id="zsWaMenu" hidden>' +
-          item('gift', 'Mi descuento 20%', 'Solicitar por WhatsApp', enlaceSoporte('Hola, quiero aplicar mi 20% de descuento VIP')) +
-          item('message-circle', 'Soporte VIP', 'Ayuda con tu cuenta', enlaceSoporte('Hola, soy miembro del Club VIP Zoorigen y necesito ayuda')) +
-          item('mail', 'Contactar dirección', 'Para temas estratégicos', enlaceSoporte('Hola, quiero hablar con la dirección de Zoorigen')) +
-          item('radio', 'Canal oficial Zoorigen', 'Únete y recibe alertas', 'club-canal.html', true) +
-        '</div>'
-      : '';
+    return '<div class="zs-wa__menu" id="zsWaMenu" hidden>' +
+        item('gift', 'Mi descuento 20%', 'Solicitar por WhatsApp', enlaceSoporte('Hola, quiero aplicar mi 20% de descuento VIP')) +
+        item('message-circle', 'Soporte VIP', 'Ayuda con tu cuenta', enlaceSoporte('Hola, soy miembro del Club VIP Zoorigen y necesito ayuda')) +
+        item('mail', 'Contactar dirección', 'Para temas estratégicos', enlaceSoporte('Hola, quiero hablar con la dirección de Zoorigen')) +
+        item('radio', 'Canal oficial Zoorigen', 'Únete y recibe alertas', 'club-canal.html', true) +
+      '</div>';
+  }
+  function whatsappHTML(esVip) {
+    var menu = esVip ? waMenuHTML() : '';
     return '<div class="zs-wa" id="zsWa" data-vip="' + (esVip ? '1' : '0') + '">' + menu +
       '<button type="button" class="zs-wa__btn" id="zsWaBtn" aria-label="Ayuda por WhatsApp" aria-expanded="false">' + icono('brandwhatsapp', 24) + '</button></div>';
+  }
+
+  /* La barra superior estática trae los huecos del nombre vacíos: se llenan con la sesión (sin tocar nada más). */
+  function completarBarra(barra, sesion) {
+    var nombre = primerNombre(sesion && sesion.name, sesion && sesion.email);
+    var q = barra.querySelector('.zs-quien');
+    if (q) {
+      var n = q.querySelector('.zs-quien__n');
+      if (n) n.textContent = nombre;
+      q.classList.add('is-listo');
+    }
+    var c = barra.querySelector('.zs-avatar__circle');
+    if (c) c.textContent = iniciales(sesion && sesion.name, sesion && sesion.email);
+    var an = barra.querySelector('.zs-avatar__name');
+    if (an) an.textContent = nombre;
+  }
+
+  /* Botón de WhatsApp estático: con membresía se le añade el menú; sin ella se queda como está (va directo al chat). */
+  function completarWhatsapp(esVip) {
+    var wa = document.getElementById('zsWa');
+    if (!wa) return;
+    wa.setAttribute('data-vip', esVip ? '1' : '0');
+    if (esVip && !document.getElementById('zsWaMenu')) wa.insertAdjacentHTML('afterbegin', waMenuHTML());
   }
 
   function cerrarResultados() { var r = document.getElementById('zsResults'); if (r) { r.hidden = true; r.innerHTML = ''; } }
@@ -371,7 +442,7 @@
   /* Monta la estructura. opciones: { sesion, activo }. Se puede llamar más de una vez sin duplicar nada. */
   function montar(opciones) {
     opciones = opciones || {};
-    if (estado.montado || document.getElementById('zsTopbar')) return false;
+    if (estado.montado) return false;
     var main = document.querySelector('.club-main');
     if (!main) return false;
     estado.montado = true;
@@ -381,20 +452,29 @@
     var sesion = opciones.sesion || {};
     var activo = opciones.activo || '';
 
-    var barra = document.createElement('header');
-    barra.className = 'zs-topbar';
-    barra.id = 'zsTopbar';
-    barra.innerHTML = barraSuperiorHTML(sesion);
-    main.insertBefore(barra, main.firstChild);
+    /* La barra superior, la inferior y el botón de WhatsApp ya vienen escritos en el HTML de la página (generados con las
+       mismas funciones de arriba), así que existen desde el primer pintado. Aquí solo se completan con la sesión y se les
+       pone sus eventos. Si una página no las trae, se arman como siempre. */
+    var barra = document.getElementById('zsTopbar');
+    if (barra) {
+      completarBarra(barra, sesion);
+    } else {
+      barra = document.createElement('header');
+      barra.className = 'zs-topbar';
+      barra.id = 'zsTopbar';
+      barra.innerHTML = barraSuperiorHTML(sesion);
+      main.insertBefore(barra, main.firstChild);
+    }
 
     var cuerpo = document.createElement('div');
     cuerpo.innerHTML =
-      panelNotifHTML() +
-      '<nav class="zs-bottom" id="zsBottom" aria-label="Navegación principal">' + barraInferiorHTML(activo) + '</nav>' +
+      (document.getElementById('notifPanel') ? '' : panelNotifHTML()) +
+      (document.getElementById('zsBottom') ? '' : '<nav class="zs-bottom" id="zsBottom" aria-label="Navegación principal">' + barraInferiorHTML(activo) + '</nav>') +
       '<div class="zs-velo" id="zsVelo"></div>' +
       '<aside class="zs-drawer" id="zsDrawer" role="dialog" aria-label="Menú" aria-hidden="true">' + cajonHTML(sesion, activo) + '</aside>' +
-      whatsappHTML(esMiembroVip(sesion));
+      (document.getElementById('zsWa') ? '' : whatsappHTML(esMiembroVip(sesion)));
     while (cuerpo.firstChild) document.body.appendChild(cuerpo.firstChild);
+    completarWhatsapp(esMiembroVip(sesion));
 
     pintarTema();
 

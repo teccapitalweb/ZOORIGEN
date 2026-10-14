@@ -313,3 +313,136 @@
 .zs-quien { display: none; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--zs-pill-line); font: 700 .75rem/1 'JetBrains Mono', ui-monospace, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--zoo-text-muted); }
 
 @media (min-width: 981px) { .zs-quien { display: inline-flex; } }
+
+/* ============================================================ */
+/* CONTINUIDAD AL CAMBIAR DE APARTADO (primer pintado completo)  */
+/* La barra lateral, la barra superior y la inferior vienen      */
+/* escritas en el HTML de cada página (tools/generar-cromo-      */
+/* club.js). Aquí van las reglas que las dejan correctas SIN     */
+/* esperar a Firebase ni al JavaScript: la membresía sale de     */
+/* <html data-plan> (la pone el script del <head> desde          */
+/* localStorage "zoo_plan", solo el estado, nunca nombre ni      */
+/* correo) y el modo día/noche de <html data-theme>.             */
+/* ============================================================ */
+
+/* Bloque de plan de la barra lateral antes de conocer la sesión */
+.zs-pv { display: none; }
+.club-sidebar__brand-text small::before,
+.zs-plan-esq .plan-label::before { content: "\200b"; }
+html[data-plan="active"] .zs-pv--active,
+html[data-plan="cancelled_active"] .zs-pv--cancelled_active,
+html[data-plan="past_due"] .zs-pv--past_due,
+html[data-plan="expired"] .zs-pv--expired,
+html[data-plan="free"] .zs-pv--free { display: inline; }
+html[data-plan="active"] .zs-pv--vip,
+html[data-plan="cancelled_active"] .zs-pv--vip,
+html[data-plan="past_due"] .zs-pv--libre,
+html[data-plan="expired"] .zs-pv--libre,
+html[data-plan="free"] .zs-pv--libre { display: inline; }
+html[data-plan="past_due"] .zs-pv--boton,
+html[data-plan="expired"] .zs-pv--boton,
+html[data-plan="free"] .zs-pv--boton { display: block; }
+.zs-plan-punto { background: #a0a8a4; }
+html[data-plan="active"] .zs-plan-punto { background: #6FBF73; }
+html[data-plan="cancelled_active"] .zs-plan-punto,
+html[data-plan="past_due"] .zs-plan-punto,
+html[data-plan="expired"] .zs-plan-punto,
+html[data-plan="free"] .zs-plan-punto { background: #E8A317; }
+.zs-plan-esq .plan-label { color: var(--zoo-amber, #E8A317); }
+html[data-plan="active"] .zs-plan-esq .plan-label,
+html[data-plan="cancelled_active"] .zs-plan-esq .plan-label { color: var(--zoo-ok-txt); }
+
+/* Barra superior estática: el nombre y las iniciales llegan con la sesión, sin mover nada */
+.zs-quien:not(.is-listo) { visibility: hidden; }
+.zs-theme__v { display: inline-flex; align-items: center; gap: 8px; }
+html[data-theme="dark"] .zs-theme__luna,
+html:not([data-theme="dark"]) .zs-theme__sol { display: none; }
+
+/* El lienzo toma el color de la página desde el primer pintado (antes del cambio de modo no había ninguno) */
+html[data-theme="dark"] { color-scheme: dark; background-color: #0F1215; }
+html[data-theme="light"] { color-scheme: light; background-color: #F6F4EF; }
+
+/* ═══════ Transición entre páginas (View Transitions entre documentos) ═══════
+   Cada apartado sigue siendo una página distinta. Donde el navegador lo permite (Chrome, Edge, Safari 18.2+), la barra
+   lateral y la superior se quedan fijas y solo el contenido se funde en 0,16 s. Donde no, cambia de página como siempre.
+   Con "reducir movimiento" no hay animación. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+.club-sidebar { view-transition-name: zs-lateral; }
+.zs-topbar { view-transition-name: zs-superior; }
+.zs-bottom { view-transition-name: zs-inferior; }
+.zs-wa { view-transition-name: zs-whatsapp; }
+::view-transition-group(zs-lateral), ::view-transition-group(zs-superior),
+::view-transition-group(zs-inferior), ::view-transition-group(zs-whatsapp) { animation-duration: 0s; }
+::view-transition-old(zs-lateral), ::view-transition-old(zs-superior),
+::view-transition-old(zs-inferior), ::view-transition-old(zs-whatsapp) { display: none; }
+::view-transition-new(zs-lateral), ::view-transition-new(zs-superior),
+::view-transition-new(zs-inferior), ::view-transition-new(zs-whatsapp) { animation: none; }
+::view-transition-old(root) { animation: zsSale .16s ease both; }
+::view-transition-new(root) { animation: zsEntra .16s ease both; }
+@keyframes zsSale { to { opacity: 0; } }
+@keyframes zsEntra { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* Aviso de "Acceso gratuito" (club.js lo mete en #zsAvisoReserva): para quien no es miembro el hueco ya existe desde el primer
+   pintado, con la altura y el color del aviso, así que al llegar la sesión el contenido no baja. Miembros: no ocupa nada. */
+.zs-aviso-reserva { display: none; }
+html[data-plan="past_due"] .zs-aviso-reserva,
+html[data-plan="expired"] .zs-aviso-reserva,
+html[data-plan="free"] .zs-aviso-reserva { display: block; height: 62px; margin-bottom: 16px; border-radius: 12px; background: #24384F; }
+@media (max-width: 460px) {
+  html[data-plan="past_due"] .zs-aviso-reserva,
+  html[data-plan="expired"] .zs-aviso-reserva,
+  html[data-plan="free"] .zs-aviso-reserva { height: 126px; }
+}
+/* en Perfil y Suscripción el aviso no se muestra nunca */
+body[data-zoo="perfil"] .zs-aviso-reserva,
+body[data-zoo="suscripcion"] .zs-aviso-reserva { display: none !important; }
+
+/* Íconos en línea: el tamaño ya no depende de la hoja que inyecta herramientas-iconos.js */
+.zi { width: 1.1em; height: 1.1em; vertical-align: -0.2em; flex: none; display: inline-block; }
+
+/* Foro: quien no es miembro nunca ve las cifras de la tarjeta (club-foro.html las oculta al armar la vista previa). Con el estado
+   de la membresía ya en <html data-plan>, la tarjeta nace sin ellas y no se encoge al llegar la sesión. */
+html[data-plan="free"] body[data-zoo="foro"] .zs-seccion__cifras,
+html[data-plan="expired"] body[data-zoo="foro"] .zs-seccion__cifras,
+html[data-plan="past_due"] body[data-zoo="foro"] .zs-seccion__cifras { display: none; }
+
+/* Cursos: la nota de ruta/prueba y el filtro por área se llenan con datos; reservan el alto que tendrán (1280, 768 y 390 px). */
+#unlockInfo:empty { min-height: 71px; }
+#filterBar:empty { min-height: 40px; }
+@media (max-width: 980px) { #filterBar:empty { min-height: 96px; } }
+@media (max-width: 560px) { #unlockInfo:empty { min-height: 104px; } #filterBar:empty { min-height: 210px; } }
+/* Foro, vista previa de quien no es miembro: el aviso (debajo de la tarjeta) y la caja de escribir (debajo del botón) los mete
+   el JavaScript; sus huecos ya existen desde el primer pintado y desaparecen al llegar cada pieza (alto medido a 1280/768/390 px). */
+html[data-plan="free"] body[data-zoo="foro"] #zsSeccion:not(:has(.pw-aviso)),
+html[data-plan="expired"] body[data-zoo="foro"] #zsSeccion:not(:has(.pw-aviso)),
+html[data-plan="past_due"] body[data-zoo="foro"] #zsSeccion:not(:has(.pw-aviso)) { padding-bottom: 66px; }
+html[data-plan="free"] body[data-zoo="foro"] .foro-main-actions:not(:has(+ #foroComposer)),
+html[data-plan="expired"] body[data-zoo="foro"] .foro-main-actions:not(:has(+ #foroComposer)),
+html[data-plan="past_due"] body[data-zoo="foro"] .foro-main-actions:not(:has(+ #foroComposer)) { margin-bottom: 188px; }
+@media (max-width: 560px) {
+  html[data-plan="free"] body[data-zoo="foro"] #zsSeccion:not(:has(.pw-aviso)),
+  html[data-plan="expired"] body[data-zoo="foro"] #zsSeccion:not(:has(.pw-aviso)),
+  html[data-plan="past_due"] body[data-zoo="foro"] #zsSeccion:not(:has(.pw-aviso)) { padding-bottom: 105px; }
+  html[data-plan="free"] body[data-zoo="foro"] .foro-main-actions:not(:has(+ #foroComposer)),
+  html[data-plan="expired"] body[data-zoo="foro"] .foro-main-actions:not(:has(+ #foroComposer)),
+  html[data-plan="past_due"] body[data-zoo="foro"] .foro-main-actions:not(:has(+ #foroComposer)) { margin-bottom: 208px; }
+}
+
+/* Perfil: en pantallas chicas un nombre completo ocupa dos renglones; se reservan desde el primer pintado. */
+@media (max-width: 560px) { #profileName { min-height: 60px; } }
+
+/* Videos: a quien no es miembro el JavaScript le pone un aviso en #lockedNotice; su hueco (alto + 20 px de margen, medido a
+   1280/768/390 px) existe desde el primer pintado. */
+html[data-plan="free"] body[data-zoo="videos"] #lockedNotice:empty,
+html[data-plan="expired"] body[data-zoo="videos"] #lockedNotice:empty,
+html[data-plan="past_due"] body[data-zoo="videos"] #lockedNotice:empty { min-height: 86px; }
+@media (max-width: 980px) {
+  html[data-plan="free"] body[data-zoo="videos"] #lockedNotice:empty,
+  html[data-plan="expired"] body[data-zoo="videos"] #lockedNotice:empty,
+  html[data-plan="past_due"] body[data-zoo="videos"] #lockedNotice:empty { min-height: 90px; }
+}

@@ -387,3 +387,14 @@
   .inv__huella, .inv__copiar { transition: none; }
   .inv.is-visible .inv__huella.is-llena { transition-delay: 0s; }
 }
+
+/* ═══════ Altura reservada desde el primer pintado ═══════
+   #resumeCard y el interior de la tarjeta "Invita amigos" se llenan con datos; mientras están vacíos ocupan el alto que tendrán
+   (medido a 1280, 768 y 390 px) con la forma de una tarjeta, así la página no se mueve cuando llegan. */
+#resumeCard:empty, #invitaCont:empty {
+  background: var(--zoo-bg-card); border: 1px solid var(--zoo-border); border-radius: var(--zoo-radius-lg);
+}
+#resumeCard:empty { min-height: 540px; }
+#invitaCont:empty { min-height: 430px; }
+@media (max-width: 1099px) { #resumeCard:empty { min-height: 740px; } #invitaCont:empty { min-height: 450px; } }
+@media (max-width: 699px) { #resumeCard:empty { min-height: 960px; } #invitaCont:empty { min-height: 790px; } }

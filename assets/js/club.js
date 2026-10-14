@@ -1245,6 +1245,8 @@ const ZOORIGEN_CLUB = {
   },
 
   logout() {
+    // El estado de la membresía que se guardó para pintar la barra lateral al instante no debe quedar para quien entre después.
+    try { localStorage.removeItem('zoo_plan'); document.documentElement.removeAttribute('data-plan'); } catch (e) { /* sin almacenamiento */ }
     auth.signOut().then(() => { window.location.href = 'club-login.html'; });
   },
 
@@ -1383,6 +1385,7 @@ const ZOORIGEN_CLUB = {
     // Con la estructura nueva (club-shell.js) el menú sale agrupado de una sola fuente; sin ella queda el listado plano de antes.
     this._shellActivo = activeId;
     this._shellSesion = session;
+    this._guardarEstadoPlan(session);
     const items = [
       { id: 'inicio', label: 'Inicio', icon: 'home', href: 'club-dashboard.html' },
       { id: 'biblioteca', label: 'Cursos', icon: 'book', href: 'club-biblioteca.html' },
@@ -1415,7 +1418,7 @@ const ZOORIGEN_CLUB = {
     return `
       <button class="club-sidebar__close" id="sidebarCloseBtn" aria-label="Cerrar menú"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
       <div class="club-sidebar__brand">
-        <img src="../assets/img/logo/logo.jpg" alt="Zoorigen">
+        <img src="../assets/img/logo/logo-96.webp" alt="Zoorigen" width="44" height="44">
         <div class="club-sidebar__brand-text">
           <h3>Zoorigen</h3>
           <small>${isActivePlan ? 'Club VIP' : 'Acceso gratuito'}</small>
@@ -1448,6 +1451,17 @@ const ZOORIGEN_CLUB = {
         <a href="#" class="plan-logout" style="display:inline-block;font-size:.8rem;" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a>
       </div>
     `;
+  },
+
+  // Guarda el ESTADO de la membresía (solo eso: ni nombre ni correo) para que la barra lateral de la página siguiente pinte su
+  // bloque de plan desde el primer cuadro, sin esperar a Firebase (el script del <head> lo lee y lo pone en <html data-plan>).
+  _guardarEstadoPlan(session) {
+    const validos = ['active', 'cancelled_active', 'past_due', 'expired'];
+    const estado = validos.includes(session && session.planStatus) ? session.planStatus : 'free';
+    try {
+      localStorage.setItem('zoo_plan', estado);
+      document.documentElement.setAttribute('data-plan', estado);
+    } catch (e) { /* sin almacenamiento */ }
   },
 
   // Helper interno para mostrar guía desde el sidebar
@@ -1768,8 +1782,11 @@ const ZOORIGEN_CLUB = {
         <div class="zoo-pay-banner__btn" style="background:#fff;color:#24384F;padding:8px 18px;border-radius:10px;font-family:var(--zoo-font-display);font-weight:800;font-size:.88rem;white-space:nowrap;">Suscribirme</div>
       `;
       banner.addEventListener('click', () => this.showPaywall(session, 'desbloquear todo el contenido'));
+      // La página trae un hueco (zsAvisoReserva) con la altura del aviso para quien no es miembro: el aviso entra ahí y nada se mueve.
+      const reserva = document.getElementById('zsAvisoReserva');
       const barra = document.getElementById('zsTopbar');
-      if (barra && barra.parentNode === main) barra.insertAdjacentElement('afterend', banner);
+      if (reserva) reserva.replaceWith(banner);
+      else if (barra && barra.parentNode === main) barra.insertAdjacentElement('afterend', banner);
       else main.insertBefore(banner, main.firstChild);
     }
   }

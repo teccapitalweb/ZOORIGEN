@@ -256,3 +256,12 @@
   .zc-card { padding: 16px; }
   .zc-btn { white-space: normal; }
 }
+
+/* ═══════ Sin saltos al llegar los datos ═══════ */
+/* Directorio: el botón de "Mi tarjeta" y los sectores se llenan con la sesión; ya ocupan su lugar desde el primer pintado. */
+.zd-barra #zdMiTarjeta[hidden] { display: inline-flex; visibility: hidden; }
+@media (max-width: 560px) { .zd-barra #zdMiTarjeta[hidden] { min-width: 100%; } }
+/* los sectores (chips) se pintan con JavaScript: reservan el alto que ocupan según el ancho (1, 2 o 4 filas) */
+.zd-chips:empty { min-height: 40px; }
+@media (max-width: 980px) { .zd-chips:empty { min-height: 96px; } }
+@media (max-width: 560px) { .zd-chips:empty { min-height: 200px; } }

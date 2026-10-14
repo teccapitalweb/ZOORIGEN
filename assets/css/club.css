@@ -55,8 +55,8 @@
   --zoo-radius-lg: 20px;
   --zoo-shadow: 0 12px 32px rgba(0,0,0,0.3);
   /* Tipografía: Outfit para titulares, cifras y títulos de tarjeta; Inter para texto e interfaz. */
-  --zoo-font-display: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --zoo-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --zoo-font-display: 'Outfit', 'Outfit Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --zoo-font-body: 'Inter', 'Inter Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --zoo-font-heading: var(--zoo-font-display);
 }
 

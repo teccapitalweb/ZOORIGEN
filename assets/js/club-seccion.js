@@ -326,7 +326,7 @@
   function personajeHTML(dec, base, clave, pronto) {
     return '<div class="zs-personaje" aria-hidden="true" data-personaje="' + esc(dec.personaje) + '">' +
       '<span class="zs-personaje__halo"></span>' +
-      '<img class="zs-personaje__img" src="' + esc(rutaPersonaje(dec.personaje, base)) + '" alt="" width="240" height="240" loading="lazy" decoding="async">' +
+      '<img class="zs-personaje__img" src="' + esc(rutaPersonaje(dec.personaje, base)) + '" alt="" width="240" height="240" loading="eager" fetchpriority="high" decoding="async">' +
       burbujaHTML(clave, pronto) +
       '</div>';
   }
@@ -339,6 +339,16 @@
     if (!cfg.pronto) return pildora(cfg);
     return '<div class="zs-seccion__marcas">' + pildora(cfg) +
       '<span class="zs-seccion__pronto">' + ico('hourglass') + '<span>Próximamente</span></span></div>';
+  }
+
+  /* Firma corta (djb2) de la configuración de la tarjeta. La página puede traer la tarjeta ya escrita en su HTML (para que
+     exista desde el primer pintado); montar() compara firmas y, si coinciden, la conserva en vez de volver a pintarla. */
+  function firmaCfg(cfg) {
+    var t = '';
+    try { t = JSON.stringify(cfg || {}); } catch (e) { t = ''; }
+    var h = 5381;
+    for (var i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0;
+    return h.toString(36);
   }
 
   /* cfg: { id, seccion, icono, eyebrow, titulo, acento, sub, cifras:[{id, clave, valor, rotulo}],
@@ -358,7 +368,7 @@
       clases += ' zs-seccion--deco' + (pintaPj ? ' zs-seccion--con-personaje' : '') + (cifras.length ? '' : ' zs-seccion--sin-cifras');
       attrs = ' data-anim="' + esc(dec.animacion) + '" data-deco="' + esc(dec.deco) + '" data-acento="' + esc(dec.acento) + '"' + (cfg.pronto ? ' data-pronto="1"' : '');
     }
-    var h = '<header class="' + clases + '"' + (cfg.id ? ' id="' + idSeguro(cfg.id) + '"' : '') + ' data-seccion="' + idSeguro(cfg.seccion || cfg.id || '') + '"' + attrs + '>' +
+    var h = '<header class="' + clases + '"' + (cfg.id ? ' id="' + idSeguro(cfg.id) + '"' : '') + ' data-seccion="' + idSeguro(cfg.seccion || cfg.id || '') + '"' + attrs + ' data-zs-firma="' + firmaCfg(cfg) + '">' +
       (dec ? decorHTML(dec) + (pintaPj ? personajeHTML(dec, cfg.base, claveDeco(cfg.seccion), cfg.pronto === true) : '') : '') +
       '<div class="zs-seccion__cuerpo"><div class="zs-seccion__texto">' +
       marcas(cfg) +
@@ -384,7 +394,11 @@
     if (cifras.length) {
       h += '<div class="zs-seccion__cifras" role="list">' + cifras.map(function (c) {
         return '<div class="zs-cifra" role="listitem"><strong class="zs-cifra__v"' + (c.id ? ' id="' + idSeguro(c.id) + '"' : '') +
-          ' data-cifra="' + idSeguro(c.clave || c.id || '') + '">' + esc(c.valor == null ? '—' : c.valor) + '</strong>' +
+          ' data-cifra="' + idSeguro(c.clave || c.id || '') + '">' + esc(c.valor == null ? '—' : c.valor) +
+          /* c.ancho: texto típico del valor que llegará; reserva su ancho (sin alto ni a la vista) para que la tarjeta no cambie de forma al llegar */
+          /* c.anchoLibre: lo mismo para quien no es miembro (el CSS muestra una u otra según <html data-plan>) */
+          (c.ancho ? '<span class="zs-cifra__res' + (c.anchoLibre ? ' zs-cifra__res--vip' : '') + '" aria-hidden="true">' + esc(c.ancho) + '</span>' : '') +
+          (c.anchoLibre ? '<span class="zs-cifra__res zs-cifra__res--libre" aria-hidden="true">' + esc(c.anchoLibre) + '</span>' : '') + '</strong>' +
           '<span class="zs-cifra__r">' + esc(c.rotulo || '') + '</span></div>';
       }).join('') + '</div>';
     }
@@ -401,7 +415,7 @@
   }
 
   var API = {
-    esc: esc, html: html, prontoHTML: prontoHTML,
+    esc: esc, html: html, prontoHTML: prontoHTML, firmaCfg: firmaCfg,
     DECORACION: DECORACION, ALIAS: ALIAS, ANIMACIONES: ANIMACIONES, ANIMACIONES_DECOR: ANIMACIONES_DECOR, ACENTOS: ACENTOS,
     ICONOS_DECOR: ICONOS_DECOR, RUTA_PERSONAJES: RUTA_PERSONAJES, EXT_PERSONAJE: EXT_PERSONAJE,
     claveDeco: claveDeco, claveApartado: claveApartado, decoracionDe: decoracionDe, trazo: trazo, rutaPersonaje: rutaPersonaje, debePintarPersonaje: debePintarPersonaje,
@@ -760,7 +774,11 @@
   API.montar = function (destino, cfg) {
     var el = typeof destino === 'string' ? document.querySelector(destino) : destino;
     if (!el) return null;
-    el.innerHTML = html(cfg);
+    /* Si el HTML de la página ya trae esta misma tarjeta (misma firma) se conserva tal cual: no se vuelve a pintar, así que no
+       parpadea ni se recarga el personaje. Con otra configuración (p. ej. Webinars con "Pronto" distinto) se pinta de nuevo. */
+    var previa = el.firstElementChild;
+    var firma = firmaCfg(cfg);
+    if (!(previa && previa.classList && previa.classList.contains('zs-seccion') && previa.getAttribute('data-zs-firma') === firma)) el.innerHTML = html(cfg);
     /* respaldo: la página ya trae <body data-zoo>; si no, se pone aquí para que tome el color de su apartado */
     try {
       var clave = claveApartado(cfg && cfg.seccion);

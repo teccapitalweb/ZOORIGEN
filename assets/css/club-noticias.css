@@ -96,7 +96,7 @@
   border: 1px solid var(--h-borde-mast); border-radius: 2px;
 }
 .hj-brand {
-  margin: 0; font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-weight: 900;
+  margin: 0; font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif; font-weight: 900;
   font-size: var(--h-bs); line-height: 1.05; letter-spacing: -0.01em; color: var(--h-mast-txt);
   /* siempre reserva dos renglones: así las tres cabeceras miden lo mismo y las fotos de una fila quedan alineadas */
   min-height: calc(var(--h-bs) * 2.1); display: flex; flex-wrap: wrap; align-content: center; align-items: center; column-gap: .3em;
@@ -129,7 +129,7 @@
 /* ───── Cuerpo: titular serif, fuente y extracto justificado ───── */
 .hoja__cuerpo { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
 .hoja__titulo {
-  margin: 0; font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-weight: 700;
+  margin: 0; font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif; font-weight: 700;
   font-size: clamp(1.05rem, 6.2cqw, 1.3rem); line-height: 1.2; letter-spacing: -0.005em; color: var(--h-titulo);
   display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: break-word;
 }

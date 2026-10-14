@@ -584,7 +584,7 @@ test('página: avisos de seguridad y sin emojis ni "☰"', () => {
 
 test('página: campos de número son texto con teclado decimal (nunca type="number")', () => {
   assert.ok(!/type="number"/.test(PAGINA));
-  const entradas = [...PAGINA.matchAll(/<input\b[^>]*>/g)].map(m => m[0]);
+  const entradas = [...PAGINA.matchAll(/<input\b[^>]*>/g)].map(m => m[0]).filter(t => !/id="zsSearchInput"/.test(t));   // el buscador de la barra superior es del panel, no de la calculadora
   assert.ok(entradas.length >= 20);
   for (const t of entradas) {
     assert.match(t, /type="text"/, t);

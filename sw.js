@@ -66,13 +66,17 @@ const OFFLINE_URL = '/offline.html';
    club-extra.css) ni de endpoints externos. */
 const SHELL = [
   OFFLINE_URL,
-  '/assets/css/club.css?v=20261108-paleta',
+  '/assets/css/club.css?v=20261109-cromo',
   '/assets/css/club-mobile.css?v=20261108-paleta',
   '/assets/css/club-theme.css?v=20261108-paleta',
-  '/assets/js/club.js?v=20261108-paleta',
-  '/assets/js/club-shell.js?v=20261108-paleta',
-  '/assets/css/club-shell.css?v=20261108-paleta',
-  '/assets/css/club-responsivo.css?v=20261108-paleta',
+  '/assets/js/club.js?v=20261109-cromo',
+  '/assets/js/club-shell.js?v=20261109-cromo',
+  '/assets/css/club-shell.css?v=20261109-cromo',
+  '/assets/css/club-responsivo.css?v=20261109-cromo',
+  /* tipografias propias (Outfit e Inter, subconjunto latin que cubre el espanol): el panel las usa en todas las paginas */
+  '/assets/css/fuentes.css?v=20261109-cromo',
+  '/assets/fonts/inter-latin.woff2',
+  '/assets/fonts/outfit-latin.woff2',
   '/assets/img/icon-192.png',
   '/assets/img/icon-512.png',
   '/assets/img/icon-maskable-192.png',
@@ -125,6 +129,10 @@ self.addEventListener('activate', function (event) {
           return n === CACHE ? null : caches.delete(n);
         }));
       })
+      .then(function () {
+        // Con la precarga de navegacion el documento se pide a la red mientras el service worker arranca (sin esperar su inicio).
+        return self.registration.navigationPreload ? self.registration.navigationPreload.enable().catch(function () {}) : null;
+      })
       .then(function () { return self.clients.claim(); })
   );
 });
@@ -154,7 +162,7 @@ self.addEventListener('fetch', function (event) {
   // ── Navegacion (documentos HTML): network-first ──
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req).catch(function () {
+      Promise.resolve(event.preloadResponse).then(function (pre) { return pre || fetch(req); }).catch(function () {
         return caches.match(req).then(function (hit) {
           return hit || caches.match(OFFLINE_URL);
         });

@@ -106,23 +106,30 @@ test('Cursos: el control Todos / En progreso / Completados filtra con el avance 
 });
 
 /* ───────── tipografía ───────── */
-test('tipografía: Outfit para titulares y Inter para texto, con tokens y una sola carga de Google Fonts', () => {
+test('tipografía: Outfit para titulares e Inter para texto, con tokens y alojadas en el propio sitio (sin Google Fonts)', () => {
   const css = leer('assets/css/club.css');
-  assert.match(css, /--zoo-font-display:\s*'Outfit'/);
-  assert.match(css, /--zoo-font-body:\s*'Inter'/);
+  assert.match(css, /--zoo-font-display:\s*'Outfit', 'Outfit Fallback'/);
+  assert.match(css, /--zoo-font-body:\s*'Inter', 'Inter Fallback'/);
   assert.match(css, /--zoo-font-heading:\s*var\(--zoo-font-display\)/);
-  const paginas = fs.readdirSync(path.join(RAIZ, 'pages')).filter(f => /^(club-.*|admin-club|verificar-correo)\.html$/.test(f) && f !== 'club-noticias.html');
+  const paginas = fs.readdirSync(path.join(RAIZ, 'pages')).filter(f => /^(club-.*|admin-club|verificar-correo)\.html$/.test(f) && !['club-noticias.html', 'club.html'].includes(f));
   for (const f of paginas) {
     const h = leer('pages/' + f);
-    const enlaces = h.match(/https:\/\/fonts\.googleapis\.com\/css2\?[^"']+/g) || [];
-    assert.equal(enlaces.length, 1, f + ': un solo <link> de Google Fonts');
-    assert.match(enlaces[0], /family=Inter:wght@400;500;600/, f);
-    assert.match(enlaces[0], /family=Outfit:wght@700;800/, f);
-    assert.match(enlaces[0], /display=swap/, f);
-    assert.match(h, /rel="preconnect" href="https:\/\/fonts\.googleapis\.com"/, f + ': preconnect');
-    assert.match(h, /rel="preconnect" href="https:\/\/fonts\.gstatic\.com"/, f + ': preconnect gstatic');
+    assert.doesNotMatch(h, /fonts\.googleapis\.com|fonts\.gstatic\.com/, f + ': sin Google Fonts');
+    assert.match(h, /<link rel="preload" href="\.\.\/assets\/fonts\/inter-latin\.woff2" as="font" type="font\/woff2" crossorigin>/, f + ': precarga Inter');
+    assert.match(h, /<link rel="preload" href="\.\.\/assets\/fonts\/outfit-latin\.woff2" as="font" type="font\/woff2" crossorigin>/, f + ': precarga Outfit');
+    assert.match(h, /<link rel="stylesheet" href="\.\.\/assets\/css\/fuentes\.css\?v=[\w.-]+">/, f + ': fuentes.css');
     assert.doesNotMatch(h, /Poppins|Open Sans|Open\+Sans/, f + ': sin familias anteriores');
   }
+  const fuentes = leer('assets/css/fuentes.css');
+  for (const fam of ['Inter', 'Outfit', 'Playfair Display']) assert.match(fuentes, new RegExp("font-family: '" + fam + "';"), fam);
+  assert.equal((fuentes.match(/font-display: swap/g) || []).length, 6, 'las seis caras con font-display: swap');
+  for (const arch of ['inter-latin', 'inter-latin-ext', 'outfit-latin', 'outfit-latin-ext', 'playfair-latin', 'playfair-latin-ext']) {
+    assert.ok(fs.existsSync(path.join(RAIZ, 'assets/fonts/' + arch + '.woff2')), arch);
+    assert.ok(fuentes.includes('../fonts/' + arch + '.woff2'), arch + ' en fuentes.css');
+  }
+  assert.ok(fs.existsSync(path.join(RAIZ, 'assets/fonts/LICENSE-OFL.txt')), 'licencia OFL junto a las fuentes');
+  const bytes = fs.readdirSync(path.join(RAIZ, 'assets/fonts')).filter(f => f.endsWith('.woff2')).reduce((a, f) => a + fs.statSync(path.join(RAIZ, 'assets/fonts', f)).size, 0);
+  assert.ok(bytes < 250 * 1024, 'las fuentes pesan ' + bytes + ' bytes (límite 250 KB)');
 });
 
 test('tipografía: el panel ya no escribe familias fijas (usa los tokens)', () => {
