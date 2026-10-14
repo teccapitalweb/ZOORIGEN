@@ -412,13 +412,18 @@
       fila('Cursos', n(d.cursosHechos), n(d.cursosTotal)) + fila('Certificados', n(d.certificados), 0) + fila('Retos', n(d.retos), 0) + fila('Logros', n(d.logros), n(d.logrosTotal)) + '</div>';
   }
 
-  function presenciaHTML(tieneTarjeta) {
+  // publicada: false = la tarjeta existe pero es privada (solo su dueña o dueño la ve); sin dato se trata como publicada.
+  function presenciaHTML(tieneTarjeta, publicada) {
     var pct = tieneTarjeta ? 100 : 0;
+    var privada = !!tieneTarjeta && publicada === false;
+    var titulo = !tieneTarjeta ? 'Crea tu tarjeta profesional' : (privada ? 'Tu tarjeta es privada' : 'Tu tarjeta profesional está activa');
+    var texto = privada ? 'Solo tú la ves. Publícala cuando quieras aparecer en el Directorio VIP.'
+      : 'Aparece en el Directorio VIP y haz networking con otros profesionales de fauna silvestre.';
     return '<div class="ih-aside ih-aside--presencia"><div class="ih-aside__etq">' + svg('usuarios', 14) + 'Tu presencia en la comunidad</div>' +
-      '<h3>' + (tieneTarjeta ? 'Tu tarjeta profesional está activa' : 'Crea tu tarjeta profesional') + '</h3>' +
-      '<p>Aparece en el Directorio VIP y haz networking con otros profesionales de fauna silvestre.</p>' +
+      '<h3>' + titulo + '</h3>' +
+      '<p>' + texto + '</p>' +
       '<div class="ih-fila"><span></span><i><b style="width:' + pct + '%"></b></i><em>' + pct + '%</em></div>' +
-      '<a class="ih-btn-oscuro" href="club-directorio.html">' + (tieneTarjeta ? 'Ver el directorio' : 'Crear mi tarjeta') + '</a></div>';
+      '<a class="ih-btn-oscuro" href="club-directorio.html">' + (!tieneTarjeta ? 'Crear mi tarjeta' : (privada ? 'Ver mi tarjeta' : 'Ver el directorio')) + '</a></div>';
   }
 
   var API = {

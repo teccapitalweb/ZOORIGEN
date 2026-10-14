@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261109-cromo">
-  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261109-cromo">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261111-directorio">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261108-paleta">
   <style>
@@ -475,7 +475,7 @@
   <script src="../assets/js/club-noticias-ui.js?v=20261106-noticias"></script>
   <script src="../assets/js/guia-personaje.js?v=20261105-inicio"></script>
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
-  <script src="../assets/js/club-inicio.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club-inicio.js?v=20261111-directorio"></script>
   <script src="../assets/js/club-premios.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261104"></script>
   <script src="../assets/js/club-onboarding.js?v=20261104"></script>
@@ -1000,9 +1000,9 @@
       window.__zooInicioActividad = pintarActividad;
       pintarActividad();
       (async () => {
-        let tiene = false;
-        try { const d = await ZOORIGEN_CLUB.apiFetch('/api/directorio'); tiene = !!(d && d.mia); } catch (e) { tiene = false; }
-        document.getElementById('asidePresencia').innerHTML = ZOO_INICIO.presenciaHTML(tiene);
+        let tiene = false, publicada = true;
+        try { const d = await ZOORIGEN_CLUB.apiFetch('/api/directorio'); tiene = !!(d && d.mia); publicada = !(d && d.mia) || d.mia.publicado === true; } catch (e) { tiene = false; }
+        document.getElementById('asidePresencia').innerHTML = ZOO_INICIO.presenciaHTML(tiene, publicada);
       })();
 
       // Noticias del sector (las trae el servidor; si falla, el inicio sigue funcionando)

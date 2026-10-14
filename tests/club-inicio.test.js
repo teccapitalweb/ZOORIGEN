@@ -259,3 +259,14 @@ test('compartir por WhatsApp: mismo texto y enlace de registro con el código', 
   assert.ok(t.includes('club-registro.html?ref=ZOO-VIP8K2'));
   assert.ok(I.urlWhatsapp('ZOO-VIP8K2').startsWith('https://wa.me/?text='));
 });
+
+test('presencia: una tarjeta privada no se anuncia como activa; la publicada sí', () => {
+  const privada = I.presenciaHTML(true, false);
+  assert.match(privada, /Tu tarjeta es privada/);
+  assert.match(privada, /Solo tú la ves/);
+  assert.match(privada, /Ver mi tarjeta/);
+  assert.doesNotMatch(privada, /está activa/);
+  assert.match(I.presenciaHTML(true, true), /Tu tarjeta profesional está activa/);
+  assert.match(I.presenciaHTML(true), /está activa/, 'sin dato se trata como publicada (compatibilidad)');
+  assert.match(I.presenciaHTML(false, false), /Crea tu tarjeta profesional/, 'sin tarjeta, la bandera no importa');
+});

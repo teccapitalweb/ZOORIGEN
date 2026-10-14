@@ -265,3 +265,44 @@
 .zd-chips:empty { min-height: 40px; }
 @media (max-width: 980px) { .zd-chips:empty { min-height: 96px; } }
 @media (max-width: 560px) { .zd-chips:empty { min-height: 200px; } }
+
+/* ═══════ Directorio: tarjeta privada hasta publicar, sello verificado, grupos y campos nuevos ═══════ */
+.zd-seccion { font-family: var(--zoo-font-display); font-size: 1.1rem; font-weight: 800; color: var(--zoo-text); margin: 6px 0 12px; }
+.zd-seccion[hidden], .zd-mia-caja[hidden] { display: none; }
+
+/* Panel "Mi tarjeta": la tarjeta propia y si está privada o publicada */
+.zd-mia { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 18px; align-items: start; margin-bottom: 22px; }
+.zd-mia__tarjeta .zd-tarjeta { height: 100%; }
+.zd-mia__info { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.zd-mia__info p { margin: 0; color: var(--zoo-text-muted); font-size: .9rem; line-height: 1.55; }
+.zd-mia__estado { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; font-size: .8rem; font-weight: 800; background: var(--zoo-aviso-tinte); color: var(--zoo-aviso-txt); border: 1px solid var(--zoo-aviso-borde); }
+.zd-mia__estado.is-pub { background: var(--zoo-ok-tinte); color: var(--zoo-ok-txt); border-color: var(--zoo-ok-borde); }
+.zd-mia__acc { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 760px) { .zd-mia { grid-template-columns: minmax(0, 1fr); } }
+
+/* Sello verificado sobre el avatar y estado profesional */
+.zd-avatar-caja { position: relative; flex-shrink: 0; }
+.zd-sello { position: absolute; right: -4px; bottom: -4px; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--zoo-ok-txt); color: var(--zoo-bg-card); border: 2px solid var(--zoo-bg-card); }
+.zd-estado { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+.zd-estado i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.zd-estado--ok { background: var(--zoo-ok-tinte); color: var(--zoo-ok-txt); }
+.zd-estado--info { background: var(--zoo-info-tinte); color: var(--zoo-info-txt); }
+.zd-vacio { color: var(--zoo-text-dim); font-style: italic; }
+
+/* Grupos dentro de la rejilla (verificados / comunidad) */
+.zd-grupo { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 2px; border-bottom: 1px solid var(--zoo-border); color: var(--zoo-text); font-weight: 800; font-size: .92rem; }
+.zd-grupo span { display: inline-flex; align-items: center; gap: 8px; }
+.zd-grupo small { color: var(--zoo-text-muted); font-weight: 700; font-size: .78rem; }
+.zd-grupo--verificado .zi { color: var(--zoo-ok-txt); }
+
+/* Aviso de la vista previa (sin membresía) */
+.zd-aviso { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; background: var(--zoo-aviso-tinte); color: var(--zoo-aviso-txt); border: 1px solid var(--zoo-aviso-borde); font-size: .88rem; font-weight: 600; }
+.zd-aviso .zi { flex-shrink: 0; }
+
+/* Ventana "Mi tarjeta": estado, secciones y nota */
+.zd-modal__estado { display: inline-block; margin: 0 0 8px; padding: 4px 10px; border-radius: 99px; font-size: .78rem; font-weight: 800; background: var(--zoo-aviso-tinte); color: var(--zoo-aviso-txt); }
+.zd-sep { font-size: .86rem; font-weight: 800; color: var(--zoo-text); margin: 16px 0 10px; padding-top: 12px; border-top: 1px solid var(--zoo-border); }
+.zd-sep small { font-weight: 500; color: var(--zoo-text-dim); }
+.zd-check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: .88rem; color: var(--zoo-text); cursor: pointer; }
+.zd-check input { width: 20px; height: 20px; flex-shrink: 0; }
+.zd-nota { margin: 6px 0 12px; font-size: .82rem; color: var(--zoo-text-muted); line-height: 1.5; }

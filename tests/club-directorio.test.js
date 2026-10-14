@@ -175,8 +175,126 @@ test('paraServidor: el correo de contacto viaja con el nombre del contrato (emai
   const v = D.validarTarjeta({ nombre: 'Ana Pérez', profesion: 'Bióloga', sector: 'Conservación', ciudad: 'Mérida', bio: 'Hola', whatsapp: '55 1234 5678', correo: 'ana@correo.com', linkedin: 'linkedin.com/in/ana' });
   assert.equal(v.ok, true);
   const cuerpo = D.paraServidor(v.valor);
-  assert.deepEqual(Object.keys(cuerpo).sort(), ['bio', 'ciudad', 'contacto', 'nombre', 'profesion', 'sector']);
+  assert.deepEqual(Object.keys(cuerpo).sort(),
+    ['bio', 'cedula', 'cedulaVisible', 'ciudad', 'contacto', 'estado', 'institucion', 'nombre', 'profesion', 'publicado', 'sector']);
   assert.equal(cuerpo.contacto.email, 'ana@correo.com');
   assert.equal('correo' in cuerpo.contacto, false);
   assert.deepEqual(D.paraServidor({ nombre: 'Ana', profesion: 'x', sector: 'Otro', ciudad: 'y', bio: '', contacto: {} }).contacto, {});
+});
+
+/* ───────────── privada hasta publicar, sello verificado, campos opcionales (igual que Alintec Food) ───────────── */
+
+test('privada por defecto: sin pedirlo, la tarjeta se manda con publicado false; solo publicado true la publica', () => {
+  const v = D.validarTarjeta(buena());
+  assert.equal(D.paraServidor(v.valor).publicado, false);
+  assert.equal(D.paraServidor(v.valor, {}).publicado, false);
+  assert.equal(D.paraServidor(v.valor, { publicado: 'si' }).publicado, false, 'solo el booleano true cuenta');
+  assert.equal(D.paraServidor(v.valor, { publicado: true }).publicado, true);
+});
+
+test('normalizarTarjeta trae publicado y verificado solo si son true; el sello no se inventa', () => {
+  const t = D.normalizarTarjeta({ uid: 'u', nombre: 'Ana', publicado: true, verificado: true });
+  assert.equal(t.publicado, true);
+  assert.equal(t.verificado, true);
+  for (const raro of ['true', 1, {}, null, undefined]) {
+    const x = D.normalizarTarjeta({ uid: 'u', nombre: 'Ana', publicado: raro, verificado: raro });
+    assert.equal(x.publicado, false);
+    assert.equal(x.verificado, false);
+  }
+  assert.doesNotMatch(D.renderTarjeta(D.normalizarTarjeta({ uid: 'u', nombre: 'Ana' })), /zd-sello/);
+  assert.match(D.renderTarjeta(t), /zd-sello[^>]*aria-label="Miembro verificado de Zoorigen"/);
+});
+
+test('campos opcionales: institución, estado profesional, cédula (con "mostrar"), sitio web e Instagram', () => {
+  const r = D.validarTarjeta(buena({ institucion: ' UMA  El Pedregal ', estado: 'empleo', cedula: '12345678', cedulaVisible: true, web: 'tusitio.com', instagram: '@mi_usuario' }));
+  assert.equal(r.ok, true);
+  assert.equal(r.valor.institucion, 'UMA El Pedregal');
+  assert.equal(r.valor.estado, 'empleo');
+  assert.equal(r.valor.cedula, '12345678');
+  assert.equal(r.valor.cedulaVisible, true);
+  assert.equal(r.valor.contacto.web, 'https://tusitio.com/');
+  assert.equal(r.valor.contacto.instagram, 'mi_usuario');
+  const cuerpo = D.paraServidor(r.valor, { publicado: true });
+  assert.deepEqual(cuerpo.contacto, { web: 'https://tusitio.com/', instagram: 'mi_usuario' });
+  assert.equal(cuerpo.cedulaVisible, true);
+  // sin cédula no hay nada que "mostrar"
+  assert.equal(D.validarTarjeta(buena({ cedulaVisible: true })).valor.cedulaVisible, false);
+  // errores
+  assert.ok(D.validarTarjeta(buena({ estado: 'jubilado' })).errores.estado);
+  assert.ok(D.validarTarjeta(buena({ cedula: 'ab' })).errores.cedula);
+  assert.ok(D.validarTarjeta(buena({ cedula: '12 34 56' })).errores.cedula);
+  assert.ok(D.validarTarjeta(buena({ institucion: 'x'.repeat(81) })).errores.institucion);
+  assert.ok(D.validarTarjeta(buena({ web: 'javascript:alert(1)' })).errores.web);
+  assert.ok(D.validarTarjeta(buena({ web: 'localhost' })).errores.web);
+  assert.ok(D.validarTarjeta(buena({ instagram: 'con espacios' })).errores.instagram);
+});
+
+test('la tarjeta dibuja institución, estado y cédula; la cédula oculta solo la ve su dueña o dueño', () => {
+  const base = { uid: 'u1', nombre: 'Ana López', profesion: 'Bióloga', institucion: 'UMA El Pedregal', sector: 'Biología', ciudad: 'Xalapa', estado: 'proyectos', cedula: '12345678' };
+  const publica = D.renderTarjeta(D.normalizarTarjeta(Object.assign({ cedulaVisible: true }, base)));
+  assert.match(publica, /UMA El Pedregal/);
+  assert.match(publica, /Disponible para proyectos/);
+  assert.match(publica, /Cédula profesional 12345678/);
+  const oculta = D.normalizarTarjeta(Object.assign({ cedulaVisible: false }, base));
+  assert.doesNotMatch(D.renderTarjeta(oculta), /12345678/);
+  assert.match(D.renderTarjeta(oculta, { esMia: true }), /Cédula profesional 12345678 \(solo tú la ves\)/);
+  const html = D.renderTarjeta(D.normalizarTarjeta(Object.assign({ contacto: { web: 'https://tusitio.com/', instagram: 'mi_usuario' } }, base)));
+  assert.match(html, /href="https:\/\/tusitio\.com\/" target="_blank" rel="noopener noreferrer"/);
+  assert.match(html, /href="https:\/\/instagram\.com\/mi_usuario"/);
+});
+
+test('la lista separa "Miembros verificados" y "Comunidad" solo si hay de las dos, y la propia va primero', () => {
+  const T = (uid, extra) => D.normalizarTarjeta(Object.assign({ uid: uid, nombre: 'Persona ' + uid, sector: 'Biología' }, extra));
+  const solas = D.renderLista([T('a', { verificado: true }), T('b', { verificado: true })], { miUid: 'b' });
+  assert.doesNotMatch(solas, /zd-grupo/, 'con un solo grupo no hay encabezados');
+  assert.ok(solas.indexOf('data-uid="b"') < solas.indexOf('data-uid="a"'), 'la propia primero');
+  const mezcla = D.renderLista([T('a'), T('b', { verificado: true })], { miUid: 'x' });
+  assert.match(mezcla, /Miembros verificados/);
+  assert.match(mezcla, /Comunidad Zoorigen/);
+  assert.ok(mezcla.indexOf('Miembros verificados') < mezcla.indexOf('data-uid="b"') && mezcla.indexOf('data-uid="b"') < mezcla.indexOf('Comunidad Zoorigen'));
+});
+
+test('panel "Mi tarjeta": sin tarjeta invita a crearla; privada ofrece Publicar; publicada ofrece Dejar de publicar', () => {
+  const sin = D.renderMiTarjeta(null);
+  assert.match(sin, /Privada · solo tú la ves/);
+  assert.match(sin, /data-mia="editar"[^>]*>[^<]*<svg[\s\S]*?Crear mi tarjeta/);
+  assert.doesNotMatch(sin, /data-mia="publicar"|data-mia="despublicar"/);
+  const privada = D.renderMiTarjeta(D.normalizarTarjeta({ uid: 'u', nombre: 'Ana', sector: 'Biología', publicado: false }));
+  assert.match(privada, /Privada · solo tú la ves/);
+  assert.match(privada, /Nadie la ve hasta que tú decidas publicarla/);
+  assert.match(privada, /data-mia="publicar"/);
+  const publicada = D.renderMiTarjeta(D.normalizarTarjeta({ uid: 'u', nombre: 'Ana', sector: 'Biología', publicado: true }));
+  assert.match(publicada, /Publicada · visible para los miembros/);
+  assert.match(publicada, /data-mia="despublicar"/);
+  assert.doesNotMatch(D.renderMiTarjeta(D.normalizarTarjeta({ uid: 'u', nombre: '<b>x</b>', sector: 'Otro' })), /<b>x<\/b>/);
+});
+
+test('valorDeTarjeta: publicar o dejar de publicar desde el panel conserva todos los datos de la tarjeta', () => {
+  const mia = D.normalizarTarjeta({ uid: 'u', nombre: 'Ana', profesion: 'Bióloga', institucion: 'UMA', sector: 'Biología', ciudad: 'Xalapa', bio: 'Hola',
+    estado: 'empleo', cedula: '12345678', cedulaVisible: true, contacto: { whatsapp: '5512345678', email: 'ana@x.com', web: 'https://x.com/', instagram: 'ana' } });
+  const cuerpo = D.paraServidor(D.valorDeTarjeta(mia), { publicado: true });
+  assert.deepEqual(cuerpo, {
+    nombre: 'Ana', profesion: 'Bióloga', institucion: 'UMA', sector: 'Biología', ciudad: 'Xalapa', bio: 'Hola', estado: 'empleo', cedula: '12345678',
+    cedulaVisible: true, publicado: true, contacto: { whatsapp: '5512345678', email: 'ana@x.com', web: 'https://x.com/', instagram: 'ana' }
+  });
+});
+
+test('la vista previa avisa que los perfiles reales y su contacto son solo para miembros', () => {
+  const html = D.renderVistaPrevia(D.tarjetasDeEjemplo([]));
+  assert.match(html, /class="zd-aviso"/);
+  assert.match(html, /Vista previa: los perfiles reales y sus datos de contacto solo los ven los miembros\./);
+  assert.doesNotMatch(html, /zd-sello|Miembros verificados/, 'los ejemplos no llevan sello');
+});
+
+test('la página: panel "Mi tarjeta", publicar/dejar de publicar, eliminar y nada de contacto a quien no es miembro', () => {
+  const fs = require('node:fs');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'pages', 'club-directorio.html'), 'utf8');
+  assert.match(html, /id="zdMia"/);
+  assert.match(html, /id="zdSeccionTitulo"[^>]*>Miembros del directorio</);
+  for (const frase of ['Guardar sin publicar', 'Dejar de publicar', 'Publicar', 'Eliminar tarjeta', 'Mostrar mi cédula en el directorio',
+    'Mientras no la publiques, solo tú la ves', 'solo lo ven los miembros']) assert.ok(html.includes(frase), 'falta: ' + frase);
+  // la tarjeta se manda siempre con la bandera de publicación explícita
+  assert.match(html, /paraServidor\(r\.valor, \{ publicado: publicar \}\)/);
+  // sin membresía no se pinta el panel ni se piden tarjetas reales
+  assert.match(html, /panelMia\.hidden = true;\s*\$\('zdSeccionTitulo'\)\.hidden = true;/);
 });
