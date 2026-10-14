@@ -4,7 +4,9 @@
 /* píldora con ícono, título con la parte final en acento,       */
 /* subtítulo, cifras y segmentos/acciones a la derecha.          */
 /* Cada apartado puede llevar una capa decorativa (íconos Lucide */
-/* en línea, muy tenues) y un personaje animado a la derecha.    */
+/* en línea, muy tenues) y un personaje animado a la derecha,    */
+/* con una burbuja de diálogo que rota mensajes cortos y, si hay */
+/* cuadros extra (FRAMES), parpadeo y habla.                     */
 /* html() es puro y se prueba en Node; montar() corre en el      */
 /* navegador. Estilos: assets/css/club-seccion.css               */
 /* ============================================================ */
@@ -177,6 +179,127 @@
   var NO_DISPONIBLES = {};   // archivo -> true (se llena en el navegador al fallar la carga)
   var noDispSet = { has: function (k) { return NO_DISPONIBLES[k] === true; } };
 
+  /* ------------------------------------------------------------ */
+  /* BURBUJA DE DIÁLOGO Y CUADROS DEL PERSONAJE (lógica pura)       */
+  /* ------------------------------------------------------------ */
+  /* Mensajes cortos que rotan en la burbuja de cada personaje. Un solo mapa por clave de apartado (la de DECORACION).
+     Reglas: máximo MENSAJE_MAX caracteres, sin emojis ni HTML, y NINGUNO promete algo que el sitio no hace.
+     Cada afirmación se comprobó contra el texto que ya muestra la página del apartado (dónde, entre paréntesis):
+       cursos        clase a clase con preguntas y un juego al final; "Aprende a tu ritmo" (club-biblioteca.html, onboarding)
+       pdfs          "guías y plantillas para descargar" y "los libros se desbloquean con tus retos" (club-materiales.js)
+       herramientas  "cada dosis, protocolo y dato trae el enlace a la fuente" y "no sustituyen el criterio del médico veterinario"
+       infusiones    "Tú escribes la dosis: la herramienta solo hace la aritmética y te muestra la fórmula con tus números"
+       legal         "Material de apoyo, no es asesoría legal" (club-legal.html)
+       registro      "Anota tus ejemplares y lo que les pasa (nacimientos, bajas, muertes, traslados)", "arma tu inventario" y
+                     "el borrador de tu informe anual" (club-inventario.html)
+       sesiones      con la bandera ZOO_CONFIG.clasesEnVivoPronto solo "Próximamente"; sin ella, lo que dice la página (Google Meet)
+       videos        "Videos prácticos, paso a paso. Técnicas de campo"
+       foro          "Conecta, pregunta y comparte con profesionales en fauna silvestre de toda Latinoamérica"
+       directorio    "Crea tu tarjeta para que te encuentren"
+       retos         "Cada reto superado suma XP y abre libros"
+       logros        "abre cursos antes de tiempo con tus premios"
+       certificados  "certificados descargables que cualquiera puede verificar" (folio verificable)
+       referidos     "Comparte tu enlace... cuando tus amigos se unan y confirmen su correo, ganas cursos antes de tiempo"
+       perfil        "Editar nombre" y "como aparecerá en certificados" (club-perfil.html)
+       suscripcion   "Cancela cuando quieras" (club-suscripcion.html)
+       canal         "Novedades oficiales de Zoorigen directo en tu teléfono"
+     Quitados o cambiados por no poder comprobarse: "Lleva tus guías contigo"; "Calcula con respaldo y fuente" (la página es de
+     referencia, no una calculadora de dosis); "Diluciones sin prisa y sin errores" (no se puede prometer cero errores);
+     "Registra cada ingreso y movimiento" (la página habla de nacimientos, bajas y traslados); "Cada acierto suma XP" (suma el reto
+     superado); "Comparte tu código" (la página habla de enlace); "Entérate primero" (no hay garantía de orden); "Únete al canal de
+     WhatsApp" (hoy el botón abre el chat de Zoorigen para pedir entrada); "Lo anotado hoy te ahorra problemas" y "Es material de
+     apoyo: valida con tu criterio" (la página de herramientas dice que no sustituye el criterio del veterinario). */
+  var MENSAJE_MAX = 56;
+  var MENSAJES = {
+    cursos:       ['¿Qué aprenderemos hoy?', 'Una clase a la vez, a tu ritmo.', 'Al terminar cada clase hay un juego.'],
+    pdfs:         ['Guías y plantillas para descargar.', 'Aquí están tus libros, guías y plantillas.', 'Los libros se desbloquean con retos.'],
+    herramientas: ['Cada dato trae el enlace a su fuente.', 'Revisa siempre la fuente.', 'No sustituye el criterio del veterinario.'],
+    infusiones:   ['Tú escribes la dosis y yo hago la aritmética.', 'Te muestro la fórmula con tus números.', 'Revisa las unidades antes de calcular.'],
+    legal:        ['La norma vigente manda.', 'Consulta siempre el texto oficial.', 'Esto es material de apoyo, no asesoría legal.'],
+    registro:     ['Anota nacimientos, bajas y traslados.', 'Tu inventario se arma con lo que anotas.', 'También armo el borrador de tu informe anual.'],
+    sesiones:     ['Muy pronto, clases en vivo.', 'Estamos preparando todo.'],
+    videos:       ['¡Luces, cámara, aprende!', 'Elige un video y dale play.', 'Técnicas de campo, paso a paso.'],
+    foro:         ['¿Qué quieres preguntar?', 'Aquí se aprende conversando.', 'Conecta con colegas de toda Latinoamérica.'],
+    directorio:   ['Conoce a la manada.', 'Tu tarjeta ayuda a que te encuentren.'],
+    retos:        ['¿Aceptas el reto?', 'Cada reto superado suma XP.', 'Los retos superados abren libros.'],
+    logros:       ['¡Cada paso cuenta!', 'Mira lo que has logrado.', 'Tus premios abren cursos antes de tiempo.'],
+    certificados: ['Tu esfuerzo, certificado.', 'Cualquiera puede verificar tu folio.'],
+    referidos:    ['Invita y gana cursos antes.', 'Comparte tu enlace de invitación.', 'Tus amigos deben confirmar su correo.'],
+    perfil:       ['Puedes editar tu nombre aquí.', 'Tu nombre saldrá en tu certificado.'],
+    suscripcion:  ['Elige tu plan.', 'Puedes cancelar cuando quieras.'],
+    canal:        ['Novedades directo en tu teléfono.', 'Aquí está el canal oficial de Zoorigen.']
+  };
+  /* Webinars sin la bandera clasesEnVivoPronto (clases en vivo ya activas): lo que la página dice de ellos. */
+  var MENSAJES_SESIONES_EN_VIVO = ['Masterclasses con especialistas invitados.', 'Se transmiten por Google Meet.'];
+
+  /* Tiempos (ms). La burbuja aparece "aparicion" tras entrar la tarjeta; cada mensaje está "visible" en total (con "fundido" al
+     entrar y al salir) y entre mensajes hay una "pausa". El parpadeo cierra los ojos de cierreMin a cierreMax; 1 de cada dobleCada es doble. */
+  var TIEMPOS = {
+    aparicion: 1200, visible: 5500, fundido: 500, pausa: 2000,
+    hablaMs: 1400, hablaIntervalo: 220,
+    parpadeoMin: 3000, parpadeoMax: 6500, cierreMin: 130, cierreMax: 160, dobleCada: 5, entreDoble: 90
+  };
+
+  /* CUADROS EXTRA DE CADA PERSONAJE (ojos cerrados y gesto con la boca abierta).
+     Manifiesto { 'seccion-cursos': ['ojos', 'gesto'], ... }: por defecto VACÍO, así no hay 404 mientras no existan los archivos.
+     Cuando lleguen las imágenes (assets/img/guia/secciones/<personaje>-ojos.webp y <personaje>-gesto.webp), declara aquí el
+     personaje. tests/club-personaje-anim.test.js falla si se declara un archivo que no existe. */
+  var FRAMES = {};
+  var FRAMES_VALIDOS = ['ojos', 'gesto'];
+
+  function aleatorio(rand) {
+    var r = typeof rand === 'number' && isFinite(rand) ? rand : Math.random();
+    return r < 0 ? 0 : (r >= 1 ? 0.999999 : r);
+  }
+  /* Lista de mensajes del apartado (copia). Clave o alias; con "pronto" === false, Webinars usa los mensajes de clases en vivo. */
+  function mensajesDe(clave, pronto) {
+    var k = claveDeco(clave);
+    if (!k) return [];
+    if (k === 'sesiones' && pronto === false) return MENSAJES_SESIONES_EN_VIVO.slice();
+    return (MENSAJES[k] || []).slice();
+  }
+  /* Índice del siguiente mensaje (vuelve al primero al terminar). */
+  function ciclarMensaje(indice, total) {
+    var n = Math.floor(Number(total));
+    if (!(n > 1)) return 0;
+    var i = Math.floor(Number(indice));
+    if (!isFinite(i) || i < 0) return 0;
+    return (i + 1) % n;
+  }
+  /* Espera (ms) hasta el próximo parpadeo: aleatoria entre parpadeoMin y parpadeoMax. rand en [0, 1). */
+  function siguienteParpadeo(rand) {
+    return Math.round(TIEMPOS.parpadeoMin + aleatorio(rand) * (TIEMPOS.parpadeoMax - TIEMPOS.parpadeoMin));
+  }
+  /* Cuánto dura el ojo cerrado (ms). */
+  function duracionParpadeo(rand) {
+    return Math.round(TIEMPOS.cierreMin + aleatorio(rand) * (TIEMPOS.cierreMax - TIEMPOS.cierreMin));
+  }
+  /* ¿Este parpadeo es doble? (1 de cada dobleCada) */
+  function esDobleParpadeo(rand) { return aleatorio(rand) < 1 / TIEMPOS.dobleCada; }
+  /* Cuadros del habla: alterna 'gesto' y 'base' cada intervaloMs durante ~duracionMs y SIEMPRE termina en 'base'. */
+  function secuenciaHabla(duracionMs, intervaloMs) {
+    var d = Number(duracionMs), i = Number(intervaloMs);
+    if (!(d > 0) || !(i > 0)) return ['base'];
+    var pares = Math.max(1, Math.round(d / i / 2));
+    var seq = [];
+    for (var n = 0; n < pares; n++) { seq.push('gesto'); seq.push('base'); }
+    return seq;
+  }
+  /* Cuadros extra declarados para el personaje en el manifiesto (solo 'ojos' y 'gesto', sin repetir). */
+  function framesDisponibles(personaje, manifiesto) {
+    var m = manifiesto;
+    if (!m || typeof m !== 'object' || !personaje || !Object.prototype.hasOwnProperty.call(m, personaje)) return [];
+    var lista = Array.isArray(m[personaje]) ? m[personaje] : [];
+    return FRAMES_VALIDOS.filter(function (f) { return lista.indexOf(f) !== -1; });
+  }
+  /* Ruta del cuadro a partir de la de la imagen base: .../seccion-cursos.webp -> .../seccion-cursos-ojos.webp */
+  function rutaFrame(rutaBase, frame) {
+    var r = String(rutaBase == null ? '' : rutaBase);
+    var f = String(frame == null ? '' : frame).replace(/[^a-z0-9-]/gi, '');
+    if (!r || !f) return '';
+    return r.replace(/(\.[a-z0-9]+)(\?.*)?$/i, '-' + f + '$1$2');
+  }
+
   function iconoSVG(nombre) {
     var d = trazo(nombre);
     if (!d) return '';
@@ -193,10 +316,18 @@
     });
     return s ? '<div class="zs-deco" aria-hidden="true">' + s + '</div>' : '';
   }
-  function personajeHTML(dec, base) {
+  /* Burbuja de diálogo: decorativa (aria-hidden), nunca lleva información única. Trae ya el primer mensaje: sin movimiento
+     (o sin script) es el que se queda fijo. El motor del navegador lo rota. */
+  function burbujaHTML(clave, pronto) {
+    var m = mensajesDe(clave, pronto);
+    if (!m.length) return '';
+    return '<div class="zs-burbuja" aria-hidden="true"><span class="zs-burbuja__txt">' + esc(m[0]) + '</span></div>';
+  }
+  function personajeHTML(dec, base, clave, pronto) {
     return '<div class="zs-personaje" aria-hidden="true" data-personaje="' + esc(dec.personaje) + '">' +
       '<span class="zs-personaje__halo"></span>' +
       '<img class="zs-personaje__img" src="' + esc(rutaPersonaje(dec.personaje, base)) + '" alt="" width="240" height="240" loading="lazy" decoding="async">' +
+      burbujaHTML(clave, pronto) +
       '</div>';
   }
 
@@ -228,7 +359,7 @@
       attrs = ' data-anim="' + esc(dec.animacion) + '" data-deco="' + esc(dec.deco) + '" data-acento="' + esc(dec.acento) + '"' + (cfg.pronto ? ' data-pronto="1"' : '');
     }
     var h = '<header class="' + clases + '"' + (cfg.id ? ' id="' + idSeguro(cfg.id) + '"' : '') + ' data-seccion="' + idSeguro(cfg.seccion || cfg.id || '') + '"' + attrs + '>' +
-      (dec ? decorHTML(dec) + (pintaPj ? personajeHTML(dec, cfg.base) : '') : '') +
+      (dec ? decorHTML(dec) + (pintaPj ? personajeHTML(dec, cfg.base, claveDeco(cfg.seccion), cfg.pronto === true) : '') : '') +
       '<div class="zs-seccion__cuerpo"><div class="zs-seccion__texto">' +
       marcas(cfg) +
       '<h1 class="zs-seccion__titulo">' + titulo + (titulo && acento ? ' ' : '') + acento + '</h1>' +
@@ -273,7 +404,11 @@
     esc: esc, html: html, prontoHTML: prontoHTML,
     DECORACION: DECORACION, ALIAS: ALIAS, ANIMACIONES: ANIMACIONES, ANIMACIONES_DECOR: ANIMACIONES_DECOR, ACENTOS: ACENTOS,
     ICONOS_DECOR: ICONOS_DECOR, RUTA_PERSONAJES: RUTA_PERSONAJES, EXT_PERSONAJE: EXT_PERSONAJE,
-    claveDeco: claveDeco, claveApartado: claveApartado, decoracionDe: decoracionDe, trazo: trazo, rutaPersonaje: rutaPersonaje, debePintarPersonaje: debePintarPersonaje
+    claveDeco: claveDeco, claveApartado: claveApartado, decoracionDe: decoracionDe, trazo: trazo, rutaPersonaje: rutaPersonaje, debePintarPersonaje: debePintarPersonaje,
+    MENSAJES: MENSAJES, MENSAJES_SESIONES_EN_VIVO: MENSAJES_SESIONES_EN_VIVO, MENSAJE_MAX: MENSAJE_MAX, TIEMPOS: TIEMPOS,
+    FRAMES: FRAMES, FRAMES_VALIDOS: FRAMES_VALIDOS,
+    mensajesDe: mensajesDe, ciclarMensaje: ciclarMensaje, siguienteParpadeo: siguienteParpadeo, duracionParpadeo: duracionParpadeo,
+    esDobleParpadeo: esDobleParpadeo, secuenciaHabla: secuenciaHabla, framesDisponibles: framesDisponibles, rutaFrame: rutaFrame
   };
   if (typeof document === 'undefined') return API;
 
@@ -293,14 +428,286 @@
   function pausar(tarjeta) {
     var visible = tarjeta.__zsVisible !== false;
     tarjeta.classList.toggle('is-pausa', !visible || !estado.pestanaVisible);
+    sincronizarMotor(tarjeta);
   }
   function tarjetas() { return document.querySelectorAll('.zs-seccion--deco'); }
+
+  /* ------------------------------------------------------------ */
+  /* MOTOR DE LA BURBUJA Y DE LOS CUADROS (un solo temporizador     */
+  /* por tarjeta, encadenado con setTimeout)                        */
+  /* ------------------------------------------------------------ */
+  var mqReducir = null;
+  try { if (typeof window.matchMedia === 'function') mqReducir = window.matchMedia('(prefers-reduced-motion: reduce)'); } catch (e) { mqReducir = null; }
+  function movimientoReducido() { return !!(mqReducir && mqReducir.matches); }
+  function ahora() { return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now(); }
+
+  /* Estado de una tarjeta (se crea una vez): caja del personaje, imagen, burbuja, mensajes y cuadros precargados. */
+  function estadoMotor(t) {
+    if (t.__zsAnim) return t.__zsAnim;
+    var caja = t.querySelector('.zs-personaje');
+    var img = caja && caja.querySelector('.zs-personaje__img');
+    if (!caja || !img) return null;
+    var pronto = t.hasAttribute('data-pronto');
+    var st = {
+      tarjeta: t, caja: caja, img: img,
+      burbuja: caja.querySelector('.zs-burbuja'), txt: caja.querySelector('.zs-burbuja__txt'),
+      personaje: caja.getAttribute('data-personaje') || '',
+      mensajes: mensajesDe(t.getAttribute('data-seccion'), pronto),
+      indice: 0, activo: false, timer: 0, eventos: [],
+      srcBase: img.getAttribute('src') || '', cuadros: {}, refs: {}, precargado: false, hablando: false, cuadro: 'base'
+    };
+    caja.setAttribute('data-cuadro', 'base');
+    t.__zsAnim = st;
+    return st;
+  }
+
+  /* Un solo temporizador por tarjeta: los eventos se guardan con su hora y el timer apunta al más próximo. */
+  function rearmar(st) {
+    if (st.timer) { clearTimeout(st.timer); st.timer = 0; }
+    if (!st.activo || !st.eventos.length) return;
+    var prox = st.eventos[0].en;
+    for (var i = 1; i < st.eventos.length; i++) if (st.eventos[i].en < prox) prox = st.eventos[i].en;
+    st.timer = setTimeout(function () { st.timer = 0; correr(st); }, Math.max(0, prox - ahora()));
+  }
+  function agendar(st, ms, fn, tipo) {
+    if (!st.activo) return;
+    st.eventos.push({ en: ahora() + ms, fn: fn, tipo: tipo || '' });
+    rearmar(st);
+  }
+  function cancelar(st, tipo) {
+    st.eventos = st.eventos.filter(function (e) { return e.tipo !== tipo; });
+  }
+  function correr(st) {
+    if (!st.activo) return;
+    if (!st.tarjeta.isConnected) { detenerMotor(st); return; }   // la página volvió a pintar la tarjeta: este estado ya no sirve
+    var limite = ahora() + 3;
+    var listos = st.eventos.filter(function (e) { return e.en <= limite; }).sort(function (a, b) { return a.en - b.en; });
+    st.eventos = st.eventos.filter(function (e) { return e.en > limite; });
+    listos.forEach(function (e) { try { e.fn(); } catch (err) { /* un cuadro fallido no detiene el resto */ } });
+    rearmar(st);
+  }
+
+  /* Cuadro visible: 'base' | 'ojos' | 'gesto'. Solo cambia a uno ya decodificado (si no, se queda en la base). */
+  function ponerCuadro(st, nombre) {
+    var src = nombre === 'base' ? st.srcBase : st.cuadros[nombre];
+    if (!src) { nombre = 'base'; src = st.srcBase; }
+    if (st.cuadro === nombre) return;
+    st.cuadro = nombre;
+    st.caja.setAttribute('data-cuadro', nombre);
+    if (src && st.img.getAttribute('src') !== src) st.img.setAttribute('src', src);
+  }
+
+  /* Precarga y decodifica los cuadros declarados; los que fallan se ignoran sin ruido. */
+  function precargar(st) {
+    if (st.precargado) return;
+    st.precargado = true;
+    framesDisponibles(st.personaje, API.FRAMES).forEach(function (nombre) {
+      var url = rutaFrame(st.srcBase, nombre);
+      if (!url) return;
+      try {
+        var im = new Image();
+        im.decoding = 'async';
+        im.src = url;
+        st.refs[nombre] = im;   // la referencia mantiene la imagen decodificada en memoria
+        var listo = function () { st.cuadros[nombre] = url; };
+        if (typeof im.decode === 'function') im.decode().then(listo, function () { delete st.refs[nombre]; });
+        else { im.onload = listo; im.onerror = function () { delete st.refs[nombre]; }; }
+      } catch (e) { delete st.refs[nombre]; }
+    });
+  }
+
+  function declarados(st) { return framesDisponibles(st.personaje, API.FRAMES); }
+
+  /* ¿Cabe la burbuja sin tapar texto ni salirse de la tarjeta? Primero encima de la cabeza del personaje; si no cabe (tarjetas
+     bajas), a su izquierda; y si tampoco, se oculta (is-sin-sitio). */
+  function rectsDeTexto(t) {
+    var r = [];
+    var sel = '.zs-seccion__pildora, .zs-seccion__pronto, .zs-seccion__titulo, .zs-seccion__sub, .zs-segmentos, .zs-seccion__btn, .zs-cifra';
+    Array.prototype.forEach.call(t.querySelectorAll(sel), function (n) {
+      var esTexto = n.classList.contains('zs-seccion__titulo') || n.classList.contains('zs-seccion__sub');
+      if (esTexto && document.createRange) {
+        var rg = document.createRange();
+        rg.selectNodeContents(n);
+        Array.prototype.forEach.call(rg.getClientRects(), function (c) { if (c.width > 0 && c.height > 0) r.push(c); });
+      } else {
+        var c2 = n.getBoundingClientRect();
+        if (c2.width > 0 && c2.height > 0) r.push(c2);
+      }
+    });
+    return r;
+  }
+  function cabe(st, textos) {
+    var rb = st.burbuja.getBoundingClientRect();
+    if (!rb.width || !rb.height) return false;
+    var rt = st.tarjeta.getBoundingClientRect();
+    var margen = 4;
+    if (rb.left < rt.left + 2 || rb.top < rt.top + 2 || rb.right > rt.right - 2 || rb.bottom > rt.bottom - 2) return false;
+    for (var i = 0; i < textos.length; i++) {
+      var c = textos[i];
+      if (!(c.right + margen <= rb.left || c.left - margen >= rb.right || c.bottom + margen <= rb.top || c.top - margen >= rb.bottom)) return false;
+    }
+    return true;
+  }
+  function evaluarSitio(st) {
+    var b = st.burbuja;
+    if (!b) return;
+    var VARIANTES = ['zs-burbuja--izq', 'zs-burbuja--estrecha'];
+    b.classList.remove('is-sin-sitio', VARIANTES[0], VARIANTES[1]);
+    if (getComputedStyle(st.caja).display === 'none') { b.classList.add('is-sin-sitio'); return; }
+    var textos = rectsDeTexto(st.tarjeta);
+    if (cabe(st, textos)) return;
+    var angosto = false;
+    try { angosto = window.matchMedia('(max-width: 640px)').matches; } catch (e) { angosto = false; }
+    // Pantallas medianas: a la izquierda de la cabeza. Celular: más estrecha (más líneas), siempre encima del personaje.
+    var variante = angosto ? VARIANTES[1] : VARIANTES[0];
+    b.classList.add(variante);
+    if (cabe(st, textos)) return;
+    b.classList.remove(variante);
+    b.classList.add('is-sin-sitio');
+  }
+
+  /* Con "reducir movimiento" no rota: queda fijo el primer mensaje que quepa (normalmente el primero). */
+  function ajustarFijo(st) {
+    if (!st.burbuja || !st.txt || !st.mensajes.length) return;
+    for (var i = 0; i < st.mensajes.length; i++) {
+      st.txt.textContent = st.mensajes[i];
+      evaluarSitio(st);
+      if (!st.burbuja.classList.contains('is-sin-sitio')) return;
+    }
+    st.txt.textContent = st.mensajes[0];
+    evaluarSitio(st);
+  }
+
+  /* Habla: alterna base y gesto durante ~1.4 s y vuelve a la base (solo si el cuadro de gesto está listo). */
+  function hablar(st) {
+    cancelar(st, 'habla');
+    cancelar(st, 'parpadeo');
+    st.hablando = false;
+    if (!st.cuadros.gesto) { ponerCuadro(st, 'base'); programarParpadeo(st); return; }
+    var seq = secuenciaHabla(TIEMPOS.hablaMs, TIEMPOS.hablaIntervalo);
+    st.hablando = true;
+    seq.forEach(function (c, i) {
+      var fn = function () { ponerCuadro(st, c === 'gesto' ? 'gesto' : 'base'); };
+      if (i === 0) fn(); else agendar(st, i * TIEMPOS.hablaIntervalo, fn, 'habla');
+    });
+    agendar(st, seq.length * TIEMPOS.hablaIntervalo, function () {
+      st.hablando = false;
+      ponerCuadro(st, 'base');
+      programarParpadeo(st);
+    }, 'habla');
+  }
+
+  /* Parpadeo: cada 3 a 6.5 s cierra los ojos 130-160 ms; 1 de cada 5 es doble. */
+  function programarParpadeo(st) {
+    if (!declarados(st).length) return;
+    cancelar(st, 'parpadeo');
+    agendar(st, siguienteParpadeo(Math.random()), function () { parpadear(st); }, 'parpadeo');
+  }
+  function parpadear(st) {
+    if (!st.cuadros.ojos || st.hablando) { programarParpadeo(st); return; }
+    ponerCuadro(st, 'ojos');
+    agendar(st, duracionParpadeo(Math.random()), function () {
+      ponerCuadro(st, 'base');
+      if (esDobleParpadeo(Math.random())) {
+        agendar(st, TIEMPOS.entreDoble, function () {
+          if (st.hablando) { programarParpadeo(st); return; }
+          ponerCuadro(st, 'ojos');
+          agendar(st, duracionParpadeo(Math.random()), function () { ponerCuadro(st, 'base'); programarParpadeo(st); }, 'parpadeo');
+        }, 'parpadeo');
+      } else programarParpadeo(st);
+    }, 'parpadeo');
+  }
+
+  /* Mensaje: aparece (fundido), se queda y se va (fundido); tras la pausa sigue el siguiente. */
+  function mostrarMensaje(st) {
+    if (!st.activo || !st.burbuja || !st.mensajes.length) return;
+    cancelar(st, 'msg');
+    st.txt.textContent = st.mensajes[st.indice % st.mensajes.length];
+    evaluarSitio(st);
+    st.burbuja.classList.add('is-visible');
+    hablar(st);
+    agendar(st, Math.max(0, TIEMPOS.visible - TIEMPOS.fundido), function () {
+      st.burbuja.classList.remove('is-visible');
+      agendar(st, TIEMPOS.fundido + TIEMPOS.pausa, function () {
+        st.indice = ciclarMensaje(st.indice, st.mensajes.length);
+        mostrarMensaje(st);
+      }, 'msg');
+    }, 'msg');
+  }
+
+  function iniciarMotor(st) {
+    if (st.activo) return;
+    st.activo = true;
+    st.eventos = [];
+    precargar(st);
+    programarParpadeo(st);
+    if (st.burbuja && st.mensajes.length) agendar(st, TIEMPOS.aparicion, function () { mostrarMensaje(st); }, 'msg');
+  }
+  function detenerMotor(st) {
+    if (st.timer) { clearTimeout(st.timer); st.timer = 0; }
+    st.eventos = [];
+    st.activo = false;
+    st.hablando = false;
+    if (st.burbuja) st.burbuja.classList.remove('is-visible');
+    try { ponerCuadro(st, 'base'); } catch (e) { /* imagen ya quitada */ }
+  }
+  /* Arranca o detiene según la tarjeta esté a la vista y el movimiento esté permitido. */
+  function sincronizarMotor(t) {
+    var st = t.__zsAnim;
+    if (!st) return;
+    var debeCorrer = !t.classList.contains('is-pausa') && !movimientoReducido() && t.isConnected;
+    if (debeCorrer) iniciarMotor(st); else if (st.activo) detenerMotor(st);
+  }
+
+  /* Tocar o hacer clic en el personaje: siguiente mensaje de inmediato (sin interferir con enlaces ni botones). */
+  function siguienteAhora(st) {
+    if (!st.activo || !st.burbuja || !st.mensajes.length) return;
+    cancelar(st, 'msg');
+    st.indice = ciclarMensaje(st.indice, st.mensajes.length);
+    mostrarMensaje(st);
+  }
+  document.addEventListener('click', function (e) {
+    var n = e.target;
+    if (!n || !n.closest) return;
+    if (n.closest('a, button, input, select, textarea, label, summary, [role="button"], [contenteditable="true"]')) return;
+    var t = n.closest('.zs-seccion--deco');
+    var st = t && t.__zsAnim;
+    if (!st || !st.activo || !st.caja.isConnected) return;
+    var r = st.caja.getBoundingClientRect();
+    if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) siguienteAhora(st);
+  });
+  // Cambia el tamaño o el ajuste de movimiento: se vuelve a medir el sitio y se arranca o detiene.
+  var temporizadorTamano = 0;
+  window.addEventListener('resize', function () {
+    if (temporizadorTamano) clearTimeout(temporizadorTamano);
+    temporizadorTamano = setTimeout(function () {
+      temporizadorTamano = 0;
+      Array.prototype.forEach.call(tarjetas(), function (t) {
+        var st = t.__zsAnim;
+        if (st) { if (movimientoReducido()) ajustarFijo(st); else evaluarSitio(st); }
+      });
+    }, 150);
+  });
+  window.addEventListener('load', function () {
+    Array.prototype.forEach.call(tarjetas(), function (t) {
+      var st = t.__zsAnim;
+      if (st) { if (movimientoReducido()) ajustarFijo(st); else evaluarSitio(st); }
+    });
+  });
+  try {
+    if (mqReducir) {
+      var alCambiarMovimiento = function () { Array.prototype.forEach.call(tarjetas(), sincronizarMotor); };
+      if (typeof mqReducir.addEventListener === 'function') mqReducir.addEventListener('change', alCambiarMovimiento);
+      else if (typeof mqReducir.addListener === 'function') mqReducir.addListener(alCambiarMovimiento);
+    }
+  } catch (e) { /* sin matchMedia */ }
 
   /* Quita el personaje (imagen que no existe o no carga) sin dejar hueco ni ícono roto. */
   function quitarPersonaje(img) {
     var caja = img.closest ? img.closest('.zs-personaje') : img.parentNode;
     var tarjeta = img.closest ? img.closest('.zs-seccion') : null;
     var archivo = caja && caja.getAttribute('data-personaje');
+    if (tarjeta && tarjeta.__zsAnim) { detenerMotor(tarjeta.__zsAnim); tarjeta.__zsAnim = null; }
     if (archivo) NO_DISPONIBLES[archivo] = true;
     if (caja && caja.parentNode) caja.parentNode.removeChild(caja);
     else if (img.parentNode) img.parentNode.removeChild(img);
@@ -316,6 +723,12 @@
       if (t.__zsVivo) return;
       t.__zsVivo = true;
       t.__zsVisible = true;
+      var st = estadoMotor(t);
+      // Con "reducir movimiento" la burbuja queda fija con el primer mensaje: solo se revisa que quepa.
+      if (st && movimientoReducido()) {
+        var medir = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : function (f) { return setTimeout(f, 16); };
+        medir(function () { ajustarFijo(st); });
+      }
       if (io) io.observe(t);
       pausar(t);
     });

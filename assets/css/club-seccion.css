@@ -481,6 +481,61 @@ body[data-zoo] {
 .zs-seccion[data-anim="brillo"] .zs-personaje::after  { right: 4%; top: 30%; width: 11px; height: 11px; animation-delay: -1.1s; }
 @keyframes zspDestello { 0%, 100% { transform: scale(.4) rotate(0deg); opacity: .2; } 50% { transform: scale(1) rotate(40deg); opacity: 1; } }
 
+/* ------------------------------------------------------------ */
+/* Burbuja de diálogo del personaje (decorativa, aria-hidden).   */
+/* Sólida: fondo claro, texto oscuro, borde del color del        */
+/* apartado y cola hacia el personaje. El script la muestra y    */
+/* rota los mensajes (.is-visible); sin sitio se oculta con      */
+/* .is-sin-sitio y con "reducir movimiento" queda fija.          */
+/* ------------------------------------------------------------ */
+.zs-burbuja {
+  --zs-bur-fondo: #FFFFFF;
+  --zs-bur-texto: #1F2933;
+  --zs-bur-borde: var(--zs-claro, #9BD9AE);
+  position: absolute;
+  z-index: 3;
+  /* Encima de la cabeza del personaje y dentro de la columna que el título ya le reserva (no pisa el texto) */
+  right: calc(var(--zs-pj, 250px) * .1);
+  bottom: calc(100% + 8px);
+  width: max-content;
+  max-width: min(184px, calc(var(--zs-pj, 250px) * .9 + 14px));
+  margin: 0;
+  padding: 8px 12px;
+  border: 2px solid var(--zs-bur-borde);
+  border-radius: 14px;
+  background: var(--zs-bur-fondo);
+  color: var(--zs-bur-texto);
+  font: 600 .8125rem/1.3 var(--zoo-font-body);
+  letter-spacing: 0;
+  text-align: left;
+  text-wrap: balance;
+  opacity: 0;
+  transform: translateY(4px) scale(.96);
+  transform-origin: 80% 100%;
+  transition: opacity .5s ease, transform .5s ease;
+  pointer-events: none;
+}
+.zs-burbuja.is-visible { opacity: 1; transform: none; }
+.zs-burbuja.is-sin-sitio { display: none; }
+:root:not([data-theme="light"]) .zs-burbuja { --zs-bur-fondo: #E7EAEE; }
+/* Cola: un cuadrito girado 45 grados con el mismo fondo y el mismo borde; apunta al personaje (hacia abajo) */
+.zs-burbuja::after {
+  content: '';
+  position: absolute;
+  right: 28px;
+  bottom: -7px;
+  width: 10px;
+  height: 10px;
+  background: var(--zs-bur-fondo);
+  border-right: 2px solid var(--zs-bur-borde);
+  border-bottom: 2px solid var(--zs-bur-borde);
+  transform: rotate(45deg);
+}
+/* Si arriba no cabe (tarjetas bajas), el script la pasa a la izquierda de la cabeza, con la cola hacia la derecha */
+.zs-burbuja--izq { right: 66%; bottom: auto; top: 4%; max-width: 184px; transform-origin: 100% 60%; }
+.zs-burbuja--izq::after { right: -7px; bottom: auto; top: calc(50% - 6px); border-bottom: 0; border-top: 2px solid var(--zs-bur-borde); }
+.zs-burbuja__txt { display: block; overflow-wrap: anywhere; }
+
 /* Pausa: pestaña oculta o tarjeta fuera de pantalla */
 .zs-seccion--deco.is-pausa *,
 .zs-seccion--deco.is-pausa *::before,
@@ -491,6 +546,8 @@ body[data-zoo] {
   .zs-seccion--deco *,
   .zs-seccion--deco *::before,
   .zs-seccion--deco *::after { animation: none !important; transition: none !important; }
+  /* La burbuja queda fija con el primer mensaje (sin fundido ni rotación) */
+  .zs-burbuja { opacity: 1; transform: none; }
 }
 
 /* Celular: personaje de ~92 px junto a las cifras; menos íconos y más chicos */
@@ -506,6 +563,10 @@ body[data-zoo] {
   .zs-deco__i { width: calc(var(--s, 44px) * .78); height: calc(var(--s, 44px) * .78); }
   .zs-deco__i--7, .zs-deco__i--8 { display: none; }
   .zs-seccion__pronto { padding: 6px 11px; }
+  /* La burbuja va encima del personaje (como en pantallas medianas), con un ancho máximo de ~170 px */
+  .zs-burbuja { right: 0; bottom: calc(100% + 9px); max-width: 170px; }
+  .zs-burbuja--izq { display: none; }
+  .zs-burbuja--estrecha { max-width: 124px; }   /* más líneas, para no pasar sobre las cifras */
 }
 /* Pantallas muy angostas (320-360 px): sin personaje */
 @media (max-width: 360px) {
