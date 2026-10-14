@@ -131,7 +131,7 @@ test('la lista blanca es honesta: ninguna página carga club-extra.css', () => {
   }
 });
 
-test('tokens de color sólido definidos una vez en club.css y banner de acceso gratuito en dorado liso', () => {
+test('tokens de color sólido definidos una vez en club.css y banner de acceso gratuito sin degradados', () => {
   const css = leer('assets/css/club.css');
   for (const t of ['--zoo-solid: #1F5F3A', '--zoo-solid-dark: #174A2D', '--zoo-solid-mid: #2A7A4E', '--zoo-tint', '--zoo-fill']) {
     assert.ok(css.includes(t), 'falta el token ' + t);
@@ -140,7 +140,7 @@ test('tokens de color sólido definidos una vez en club.css y banner de acceso g
   const i = js.indexOf("banner.id = 'zooPayBanner'");
   assert.ok(i > 0, 'banner de acceso gratuito');
   const bloque = js.slice(i, i + 1400);
-  assert.match(bloque, /background:#E8B431;color:#2B2000/, 'fondo dorado liso con texto oscuro');
-  assert.match(bloque, /zoo-pay-banner__btn" style="background:#24384F;color:#fff/, 'botón azul pizarra con texto blanco');
+  assert.match(bloque, /banner\.className = 'zoo-pay-banner'/, 'el aviso usa su clase (colores en club-shell.css)');
+  assert.doesNotMatch(leer('assets/css/club-shell.css').match(/\.zoo-pay-banner \{[\s\S]*$/)[0], /gradient/, 'sin degradados en el aviso');
   assert.doesNotMatch(bloque, /gradient|box-shadow:0 6px 18px rgba\(232/, 'sin degradado ni sombra dorada');
 });

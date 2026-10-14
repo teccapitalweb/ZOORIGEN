@@ -355,6 +355,7 @@ select, .rdr-ir select { min-height: 40px; }
 .pw-aviso > span { min-width: 0; overflow-wrap: break-word; }
 .zoo-pay-banner { max-width: 100%; }
 .zoo-pay-banner__btn { white-space: normal; }
+@media (max-width: 460px) { .zoo-pay-banner__btn { width: 100%; text-align: center; } }
 .reg-barra, .reg-buscar { min-width: 0; max-width: 100%; }
 td.reg-acciones { white-space: normal; }
 

@@ -183,12 +183,14 @@ test('comodidad visual: día cálido (#F6F4EF), texto #1F2933 / #52606D; noche n
   }
 });
 
-test('banner de acceso gratuito: dorado sólido #E8B431 con texto oscuro y botón azul pizarra con texto blanco (AA)', () => {
+test('banner de acceso gratuito: tarjeta de superficie con filo dorado, candado dorado tenue y botón azul pizarra con texto blanco (AA)', () => {
   const js = leer('assets/js/club.js');
-  assert.match(js, /background:#E8B431;color:#2B2000/);
-  assert.match(js, /zoo-pay-banner__btn" style="background:#24384F;color:#fff/);
-  assert.ok(contraste('#2B2000', '#E8B431') >= 7);
+  assert.match(js, /banner.className = 'zoo-pay-banner'/);
+  const css = leer('assets/css/club-shell.css');
+  assert.match(css, /.zoo-pay-banner {[^}]*border-left: 5px solid #E8A317/);
+  assert.match(css, /.zoo-pay-banner__btn {[^}]*background: #24384F; color: #fff/);
   assert.ok(contraste('#FFFFFF', '#24384F') >= 7);
+  assert.ok(contraste('#8A5A00', '#FBF1D4') >= 4.5, 'candado legible sobre su círculo en modo día');
 });
 
 test('avisos: "Tu ruta VIP" y avisos de estado usan el tinte del apartado con borde de 4 px y texto oscuro (no bloque de color sólido)', () => {

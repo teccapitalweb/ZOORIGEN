@@ -3976,9 +3976,7 @@ p { line-height: 1.7; color: var(--zoo-text-muted); margin: 0; }
   font-weight: 700;
 }
 
-/* Banner de acceso gratuito (lo crea club.js): azul pizarra profundo liso, botón blanco con texto azul pizarra */
-#zooPayBanner:hover .zoo-pay-banner__btn { background: #E4EAF1 !important; }
-#zooPayBanner:focus-visible { outline: 3px solid var(--zoo-amber, #E8A317); outline-offset: 2px; }
+/* Banner de acceso gratuito (lo crea club.js): sus estilos viven en club-shell.css (.zoo-pay-banner) */
 
 /* Cabeceras y tarjetas sobre verde sólido: títulos y textos claros siempre
    (en modo día --zoo-text es oscuro y se perdería sobre el verde). */

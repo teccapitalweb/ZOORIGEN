@@ -1774,15 +1774,18 @@ const ZOORIGEN_CLUB = {
     if (main && !document.getElementById('zooPayBanner')) {
       const banner = document.createElement('div');
       banner.id = 'zooPayBanner';
-      banner.style.cssText = 'background:#E8B431;color:#2B2000;padding:12px 18px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;';
+      banner.className = 'zoo-pay-banner';
+      banner.setAttribute('role', 'button');
+      banner.tabIndex = 0;
       banner.innerHTML = `
-        <div style="font-size:1.8rem;line-height:1;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
-        <div style="flex:1;min-width:200px;">
-          <div style="font-family:var(--zoo-font-display);font-weight:800;font-size:.98rem;margin-bottom:2px;">Acceso gratuito</div>
-          <div style="font-size:.82rem;opacity:.9;">Activa tu membresía para abrir todos los cursos.</div>
-        </div>
-        <div class="zoo-pay-banner__btn" style="background:#24384F;color:#fff;padding:8px 18px;border-radius:10px;font-family:var(--zoo-font-display);font-weight:800;font-size:.88rem;white-space:nowrap;">Suscribirme</div>
+        <span class="zoo-pay-banner__ico"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></span>
+        <span class="zoo-pay-banner__txt">
+          <strong class="zoo-pay-banner__t">Acceso gratuito</strong>
+          <span class="zoo-pay-banner__s">Activa tu membresía para abrir todos los cursos.</span>
+        </span>
+        <span class="zoo-pay-banner__btn">Suscribirme</span>
       `;
+      banner.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); banner.click(); } });
       banner.addEventListener('click', () => this.showPaywall(session, 'desbloquear todo el contenido'));
       // La página trae un hueco (zsAvisoReserva) con la altura del aviso para quien no es miembro: el aviso entra ahí y nada se mueve.
       const reserva = document.getElementById('zsAvisoReserva');
