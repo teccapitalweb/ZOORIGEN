@@ -16,7 +16,7 @@
 /* Saludo: tarjeta suave con ícono, saludo y fecha */
 .ih-saludo { position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 20px; align-items: center; padding: 22px 26px; border-radius: 26px; border: 1px solid var(--zoo-border-strong); background: var(--zoo-tint, #EAF2EC); }
 .ih-saludo::after { content: ''; position: absolute; right: -60px; top: -70px; width: 260px; height: 260px; border-radius: 50%; background: none; pointer-events: none; }
-.ih-saludo__ico { width: 60px; height: 60px; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: var(--zoo-solid, #1F5F3A); box-shadow: 0 10px 22px rgba(31, 95, 58, 0.35); }
+.ih-saludo__ico { width: 60px; height: 60px; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: var(--zoo-solid, #1F5F3A); box-shadow: 0 10px 22px rgba(15,18,21,0.16); }
 .ih-eyebrow { display: flex; align-items: center; gap: 8px; font: 700 .75rem/1 'JetBrains Mono', ui-monospace, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--zoo-text-dim); }
 .ih-eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: #E0603C; }
 .ih-saludo h1 { font-size: clamp(2rem, 4.6vw, 3.2rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: 8px 0 8px; }
@@ -76,12 +76,12 @@
 .ih-aside small { color: var(--zoo-text-dim); font-size: .8rem; margin-top: -4px; }
 .ih-aside p { margin: 0; font-size: .86rem; line-height: 1.5; color: var(--zoo-text-muted); }
 .ih-aside__centro { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 8px 0 4px; }
-.ih-pildora { display: inline-flex; padding: 6px 16px; border-radius: 999px; background: #1F7A4C; color: #fff; font: 700 .75rem/1 'JetBrains Mono', ui-monospace, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; }
+.ih-pildora { display: inline-flex; padding: 6px 16px; border-radius: 999px; background: #24384F; color: #fff; font: 700 .75rem/1 'JetBrains Mono', ui-monospace, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; }
 .ih-aside--comunidad { border-top-color: #25D366; }
 .ih-aside--descuento { border-top-color: var(--zoo-amber); }
 .ih-aside--actividad { border-top-color: #8B7FBA; }
 .ih-aside--presencia { border-top-color: var(--zoo-solid-mid, #2A7A4E); }
-.ih-aside__grande { font-family: var(--zoo-font-heading); font-size: 2.6rem; font-weight: 800; letter-spacing: -.04em; color: var(--zoo-green-500); line-height: 1; }
+.ih-aside__grande { font-family: var(--zoo-font-heading); font-size: 2.6rem; font-weight: 800; letter-spacing: -.04em; color: var(--zoo-aviso-txt); line-height: 1; }
 .ih-btn-verde, .ih-btn-oscuro { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; padding: 11px 16px; border-radius: 14px; font-weight: 800; font-size: .86rem; text-decoration: none; text-align: center; }
 .ih-btn-verde { background: #1fa74d; color: #fff; }
 .ih-btn-oscuro { background: #11201a; color: #fff; border: 1px solid rgba(255, 255, 255, 0.14); }
@@ -114,23 +114,31 @@
 .dashboard-aside > div { width: 100%; min-width: 0; }
 .dashboard-aside > div:empty { display: none; }
 
-/* Tarjetas de resumen: todas en el verde de marca (antes cada una traía su propio color) */
-.ih-kpi { --k: var(--zoo-fill, #2A7A4E) !important; }
+/* Tarjetas de resumen: cada una con el color de su apartado (cursos verde de marca, clases índigo, PDFs azul petróleo, Pro teal).
+   De noche usan la versión clara de ese color para leerse sobre la superficie. */
+.ih-kpi--cursos { --k: #1F5F3A !important; }
+.ih-kpi--clases { --k: #3B4A9E !important; }
+.ih-kpi--pdfs   { --k: #1F5A7A !important; }
+.ih-kpi--pro    { --k: #0F5E60 !important; }
+:root:not([data-theme="light"]) .ih-kpi--cursos { --k: #9BD9AE !important; }
+:root:not([data-theme="light"]) .ih-kpi--clases { --k: #C0C5E0 !important; }
+:root:not([data-theme="light"]) .ih-kpi--pdfs   { --k: #BCCED7 !important; }
+:root:not([data-theme="light"]) .ih-kpi--pro    { --k: #B7CFCF !important; }
 
 /* ============================================================ */
 /* TARJETA DE SALUDO · Jaguarito, hojas y huellas, cifras       */
 /* Todo SÓLIDO: capas planas en tonos de verde (sin degradados). */
-/* Día: base #1F5F3A. Noche: #16301F con borde #24472F.          */
+/* Día: base #1F5F3A. Noche: superficie #1E2329, barra verde.    */
 /* Animaciones: entrada escalonada de las cifras, hojas que      */
 /* flotan, respiración del personaje, frase que aparece.         */
 /* Se apagan con prefers-reduced-motion y se pausan (.is-pausa)  */
 /* con la pestaña oculta o la tarjeta fuera de pantalla.         */
 /* ============================================================ */
 .zs-seccion.zs-inicio {
-  --zi-capa-a: #1C3B27;
-  --zi-capa-b: #122A1A;
-  --zi-forma: #234632;
-  --zi-burbuja: #FFFFFF;
+  --zi-capa-a: color-mix(in srgb, #1F5F3A 30%, #1E2329);
+  --zi-capa-b: color-mix(in srgb, #1F5F3A 16%, #1E2329);
+  --zi-forma: color-mix(in srgb, #1F5F3A 46%, #1E2329);
+  --zi-burbuja: #E7EAEE;
   --zi-burbuja-tinta: #14301F;
   --zi-pad: clamp(20px, 3.4vw, 40px);
   position: relative;
@@ -143,7 +151,7 @@
   row-gap: clamp(18px, 2.4vw, 26px);
   align-items: start;
 }
-[data-theme="light"] .zs-seccion.zs-inicio { --zi-capa-a: #266B44; --zi-capa-b: #1A5232; --zi-forma: #2C7A4D; }
+[data-theme="light"] .zs-seccion.zs-inicio { --zi-capa-a: #266B44; --zi-capa-b: #1A5232; --zi-forma: #2C7A4D; --zi-burbuja: #FFFFFF; }
 .zs-inicio > .zs-seccion__cuerpo { grid-area: cuerpo; position: relative; z-index: 1; flex-direction: column; align-items: flex-start; gap: 18px; }
 .zs-inicio > .zs-seccion__cifras { grid-area: cifras; position: relative; z-index: 1; align-self: end; border-top: 0; padding-top: 0; gap: 10px; }
 .zs-inicio .zs-seccion__texto { flex: 0 1 auto; }
@@ -157,7 +165,7 @@
   animation: zsiEntra .55s cubic-bezier(.2, .7, .2, 1) both;
   animation-delay: calc(var(--i, 0) * 80ms + 120ms);
 }
-.zs-inicio .zs-cifra:hover { background: rgba(255, 255, 255, 0.16); box-shadow: 0 0 0 3px rgba(155, 217, 174, 0.28), 0 8px 20px rgba(0, 0, 0, 0.18); transform: translateY(-2px); }
+.zs-inicio .zs-cifra:hover { background: rgba(255, 255, 255, 0.16); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.16), 0 6px 16px rgba(0, 0, 0, 0.14); transform: translateY(-2px); }
 .zs-inicio .zs-cifra__v { font-variant-numeric: tabular-nums; }
 
 /* Decoración: dos capas orgánicas planas y hojas / huellas más claras que la base */
@@ -227,18 +235,18 @@
   /* noche */
   --iv-fondo: #171B20;
   --iv-borde: #3A424C;
-  --iv-sup: #2A7A4E;            /* borde superior grueso */
+  --iv-sup: #4F7FCF;            /* borde superior grueso (azul) */
   --iv-dorado: #E8A317;
   --iv-icono: #16301F;          /* ícono del regalo sobre el círculo dorado */
-  --iv-etq: #6FBF73;
+  --iv-etq: #8EC3EA;
   --iv-titulo: #E7EAEE;
   --iv-texto: #A3ABB5;
   --iv-boleto: #2A230F;
   --iv-boleto-borde: #E8A317;
   --iv-boleto-etq: #D9C48A;
   --iv-codigo: #F7CB62;
-  --iv-btn: #2A7A4E;
-  --iv-btn-h: #1F6A41;
+  --iv-btn: #2F5CA8;
+  --iv-btn-h: #264E91;
   --iv-verde: #2A7A4E;          /* huella llena verde */
   --iv-vacia: #E8A317;
   --iv-vacia-ico: #A3ABB5;
@@ -246,33 +254,33 @@
   --iv-c-pen-fondo: #1E2329; --iv-c-pen-num: #F7CB62; --iv-c-pen-top: #E8A317;
   --iv-c-pts-fondo: #1E2329; --iv-c-pts-num: #7CC4F0; --iv-c-pts-top: #037BC9;
   --iv-rotulo: #A3ABB5;
-  --iv-ver: #6FBF73;
+  --iv-ver: #8EC3EA;
   position: relative; container-type: inline-size; overflow: hidden;
   background: var(--iv-fondo); border: 1px solid var(--iv-borde); border-top: 6px solid var(--iv-sup); border-radius: 22px;
   color: var(--iv-titulo);
 }
 [data-theme="light"] .inv {
-  --iv-fondo: #EAF2EC;
-  --iv-borde: #C8DBCD;
-  --iv-sup: #1F5F3A;
-  --iv-icono: #174A2D;
-  --iv-etq: #1F5F3A;
-  --iv-titulo: #15201A;
-  --iv-texto: #4A544F;
+  --iv-fondo: #FBF8F0;
+  --iv-borde: #E4DFD3;
+  --iv-sup: #2F5CA8;
+  --iv-icono: #2B2000;
+  --iv-etq: #2B549C;
+  --iv-titulo: #1F2933;
+  --iv-texto: #52606D;
   --iv-boleto: #FFF3CF;
   --iv-boleto-borde: #B07D0A;
   --iv-boleto-etq: #6B4F00;
-  --iv-codigo: #174A2D;
-  --iv-btn: #1F5F3A;
-  --iv-btn-h: #174A2D;
+  --iv-codigo: #1F2933;
+  --iv-btn: #2F5CA8;
+  --iv-btn-h: #264E91;
   --iv-verde: #1F5F3A;
   --iv-vacia: #D19A14;
   --iv-vacia-ico: #8A5A00;
   --iv-c-ok-fondo: #DCEBE0;  --iv-c-ok-num: #174A2D;  --iv-c-ok-top: #1F5F3A;
   --iv-c-pen-fondo: #FFF3CF; --iv-c-pen-num: #6B4F00; --iv-c-pen-top: #E8A317;
   --iv-c-pts-fondo: #E3F1FB; --iv-c-pts-num: #05558F; --iv-c-pts-top: #037BC9;
-  --iv-rotulo: #4A544F;
-  --iv-ver: #1F5F3A;
+  --iv-rotulo: #52606D;
+  --iv-ver: #2B549C;
 }
 .inv__marco {
   display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px clamp(16px, 2.4vw, 26px);

@@ -17,12 +17,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
 <style>
   .legal-hero {
     background: var(--zoo-panel, #1F5F3A);
@@ -88,7 +88,7 @@
   .legal-tab.is-active {
     background: var(--zoo-amber, #E8A317);
     color: #1f1d17; border-color: transparent;
-    box-shadow: 0 4px 14px rgba(232,163,23,0.3);
+    box-shadow: 0 4px 14px rgba(15,18,21,0.14);
   }
 
   .legal-panel {
@@ -111,7 +111,7 @@
   }
   .legal-header__icon {
     width: 54px; height: 54px;
-    background: rgba(111,191,115,0.25);
+    background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 25%, transparent);
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.6rem;
@@ -126,7 +126,7 @@
   }
   .legal-header__count {
     margin-left: auto;
-    background: rgba(111,191,115,0.15); color: #6FBF73;
+    background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 15%, transparent); color: var(--zoo-acc-txt, #6FBF73);
     padding: 6px 12px; border-radius: 10px;
     font-size: .78rem; font-weight: 700;
   }
@@ -154,14 +154,14 @@
   [data-theme="light"] .legal-field select,
   [data-theme="light"] .legal-field textarea {
     background: #fff !important;
-    border: 1px solid #d0d4cb !important;
-    color: #1a1d1b !important;
+    border: 1px solid #D8D2C4 !important;
+    color: #1F2933 !important;
   }
   .legal-field input:focus, .legal-field select:focus, .legal-field textarea:focus {
     outline: 0; border-color: #E8A317 !important;
   }
   .legal-field select option { background: #171B20; color: #fff; }
-  [data-theme="light"] .legal-field select option { background: #fff; color: #1a1d1b; }
+  [data-theme="light"] .legal-field select option { background: #fff; color: #1F2933; }
 
   .legal-grid2 {
     display: grid;
@@ -177,7 +177,7 @@
     cursor: pointer; font-size: .95rem;
   }
   .legal-btn-primary:hover {
-    box-shadow: 0 6px 18px rgba(232,163,23,0.35);
+    box-shadow: 0 6px 18px rgba(15,18,21,0.16);
     transform: translateY(-1px);
   }
   .legal-btn-secondary {
@@ -199,7 +199,7 @@
     font-family: inherit; font-size: 1rem;
   }
   [data-theme="light"] .nom-search-wrap input {
-    background: #fff; border: 2px solid #d0d4cb; color: #1a1d1b;
+    background: #fff; border: 2px solid #D8D2C4; color: #1F2933;
   }
   .nom-search-wrap input:focus { outline: 0; border-color: #E8A317; }
 
@@ -276,7 +276,7 @@
   .nom-badge.e { background: rgba(213,90,40,0.15); color: #E07856; border: 1px solid rgba(213,90,40,0.3); }
   .nom-badge.a { background: rgba(232,163,23,0.2); color: #E8A317; border: 1px solid rgba(232,163,23,0.4); }
   .nom-badge.pr { background: rgba(42,164,213,0.2); color: #2AA4D5; border: 1px solid rgba(42,164,213,0.4); }
-  .nom-badge.cites { background: rgba(111,191,115,0.15); color: #6FBF73; border: 1px solid rgba(111,191,115,0.3); }
+  .nom-badge.cites { background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 15%, transparent); color: var(--zoo-acc-txt, #6FBF73); border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 30%, transparent); }
   .nom-badge.iucn { background: rgba(255,255,255,0.08); color: var(--zoo-text, #e5e9e7); border: 1px solid var(--zoo-border-strong, #3A424C); }
   .nom-badge.endem { background: rgba(232,163,23,0.1); color: #E8A317; border: 1px solid rgba(232,163,23,0.2); }
 
@@ -368,7 +368,7 @@
     max-height: 600px; overflow-y: auto;
     display: none;
   }
-  [data-theme="light"] .uma-preview-box { background: #f5f6f4; }
+  [data-theme="light"] .uma-preview-box { background: #F6F4EF; }
   .uma-preview-box.is-visible { display: block; }
 
   /* ══ CUOTAS ══ */
@@ -406,11 +406,11 @@
   }
   .cuota-item__price {
     font-family: var(--zoo-font-display); font-weight: 800;
-    color: #6FBF73; font-size: 1.15rem; white-space: nowrap;
+    color: var(--zoo-acc-txt, #6FBF73); font-size: 1.15rem; white-space: nowrap;
   }
   .cuota-total {
     background: var(--zoo-tint, #EAF2EC);
-    border: 1px solid rgba(111,191,115,0.3);
+    border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 30%, transparent);
     border-radius: 12px; padding: 18px 20px; margin-top: 16px;
   }
   .cuota-total__row {
@@ -426,7 +426,7 @@
     color: var(--zoo-text, #fff); font-size: 1rem;
   }
   .cuota-total__amount.final {
-    color: #6FBF73; font-size: 1.5rem; font-weight: 800;
+    color: var(--zoo-acc-txt, #6FBF73); font-size: 1.5rem; font-weight: 800;
   }
   .cuota-selector {
     display: flex; align-items: center; gap: 8px;
@@ -493,12 +493,12 @@
   /* ══ MARCO LEGAL ══ */
   .marco-card {
     background: rgba(255,255,255,0.03);
-    border-left: 4px solid #6FBF73;
+    border-left: 4px solid var(--zoo-acc-txt, #6FBF73);
     padding: 16px 18px;
     border-radius: 10px; margin-bottom: 12px;
   }
   .marco-card__title {
-    color: #6FBF73; font-family: var(--zoo-font-display);
+    color: var(--zoo-acc-txt, #6FBF73); font-family: var(--zoo-font-display);
     font-weight: 700; font-size: 1rem;
     margin-bottom: 6px;
   }
@@ -515,13 +515,13 @@
 
   /* ══ CHECKLIST ══ */
   .checklist {
-    background: rgba(111,191,115,0.05);
-    border: 1px solid rgba(111,191,115,0.2);
+    background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 20%, transparent);
     border-radius: 12px; padding: 18px;
     margin-bottom: 16px;
   }
   .checklist__title {
-    color: #6FBF73; font-family: var(--zoo-font-display);
+    color: var(--zoo-acc-txt, #6FBF73); font-family: var(--zoo-font-display);
     font-weight: 800; font-size: 1.05rem;
     margin-bottom: 14px;
   }
@@ -534,7 +534,7 @@
   .checklist-item input[type="checkbox"] {
     margin-top: 3px; cursor: pointer;
     width: 18px; height: 18px;
-    accent-color: #6FBF73;
+    accent-color: var(--zoo-acc-txt, #6FBF73);
   }
   .checklist-item label {
     flex: 1; color: var(--zoo-text, #e5e9e7);
@@ -553,7 +553,7 @@
     color: var(--zoo-text-muted, #a0a8a4);
     font-size: .85rem;
   }
-  .checklist-progress strong { color: #6FBF73; font-size: 1.1rem; }
+  .checklist-progress strong { color: var(--zoo-acc-txt, #6FBF73); font-size: 1.1rem; }
 
   .legal-disclaimer {
     margin-top: 20px; padding: 12px 16px;
@@ -580,7 +580,7 @@
   .legal-aviso { margin: 14px 0; padding: 12px 16px; border-radius: 10px; border-left: 4px solid #E8A317; background: rgba(232,163,23,0.12); font-size: .88rem; color: var(--zoo-text); }
   .legal-aviso.is-error { border-left-color: #D55A28; background: rgba(213,90,40,0.12); }
   .legal-aviso ul { margin: 6px 0 0; padding-left: 20px; }
-  .zl-toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(20px); background: #1F5F3A; color: #fff; padding: 10px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 9999; max-width: 90vw; text-align: center; }
+  .zl-toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(20px); background: var(--zoo-solid, #1F5F3A); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 9999; max-width: 90vw; text-align: center; }
   .zl-toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   .legal-field, .legal-field select, .legal-field input, .legal-field textarea { min-width: 0; max-width: 100%; }
 
@@ -601,9 +601,9 @@
   .checklist-item--vista input[type="checkbox"] { flex: none; }
   .checklist .pw-aviso { margin: 0 0 14px; }
 </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="legal">
 <div class="club-layout">
   <aside class="club-sidebar" id="sidebar"></aside>
   <main class="club-main">
@@ -661,7 +661,7 @@
       <div class="nom-results" id="nomResults"></div>
 
       <div class="legal-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Fuente y alcance:</strong> NOM-059-SEMARNAT-2010, publicada en el DOF el 30-dic-2010, con modificación del Anexo Normativo III el 14-nov-2019. Esta es una selección de especies frecuentes en UMA, PIMVS y colecta, no la lista completa. La categoría y el Apéndice CITES son de referencia: confírmalos en el Anexo Normativo III (<a href="https://dof.gob.mx" target="_blank" rel="noopener" style="color:#6FBF73;">dof.gob.mx</a>) y en <a href="https://speciesplus.net" target="_blank" rel="noopener" style="color:#6FBF73;">Species+</a> antes de usarlas en un trámite.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Fuente y alcance:</strong> NOM-059-SEMARNAT-2010, publicada en el DOF el 30-dic-2010, con modificación del Anexo Normativo III el 14-nov-2019. Esta es una selección de especies frecuentes en UMA, PIMVS y colecta, no la lista completa. La categoría y el Apéndice CITES son de referencia: confírmalos en el Anexo Normativo III (<a href="https://dof.gob.mx" target="_blank" rel="noopener" style="color:var(--zoo-acc-txt, #6FBF73);">dof.gob.mx</a>) y en <a href="https://speciesplus.net" target="_blank" rel="noopener" style="color:var(--zoo-acc-txt, #6FBF73);">Species+</a> antes de usarlas en un trámite.
       </div>
     </div>
 
@@ -910,7 +910,7 @@
       <div id="citesContent"></div>
 
       <div class="legal-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-globe"/></svg> Autoridades CITES en México:</strong> la Dirección General de Vida Silvestre de SEMARNAT (autoridad administrativa) y la CONABIO (autoridad científica). Consulta <a href="https://cites.org" target="_blank" rel="noopener" style="color:#6FBF73;">cites.org</a>.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-globe"/></svg> Autoridades CITES en México:</strong> la Dirección General de Vida Silvestre de SEMARNAT (autoridad administrativa) y la CONABIO (autoridad científica). Consulta <a href="https://cites.org" target="_blank" rel="noopener" style="color:var(--zoo-acc-txt, #6FBF73);">cites.org</a>.
       </div>
     </div>
 
@@ -928,7 +928,7 @@
       <div id="marcoLegal"></div>
 
       <div class="legal-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg> Consulta oficial:</strong> Textos vigentes disponibles en <a href="https://www.diputados.gob.mx" target="_blank" style="color:#6FBF73;">diputados.gob.mx</a> (leyes) y <a href="https://dof.gob.mx" target="_blank" style="color:#6FBF73;">dof.gob.mx</a> (NOMs). Los artículos citados son referenciales — siempre consultar versión vigente.
+        <strong><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg> Consulta oficial:</strong> Textos vigentes disponibles en <a href="https://www.diputados.gob.mx" target="_blank" style="color:var(--zoo-acc-txt, #6FBF73);">diputados.gob.mx</a> (leyes) y <a href="https://dof.gob.mx" target="_blank" style="color:var(--zoo-acc-txt, #6FBF73);">dof.gob.mx</a> (NOMs). Los artículos citados son referenciales — siempre consultar versión vigente.
       </div>
     </div>
 
@@ -970,11 +970,11 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionLegal","seccion":"legal","icono":"scale","eyebrow":"Herramienta profesional","titulo":"Compliance legal","acento":"para fauna silvestre.","sub":"Consulta de especies de la NOM-059, borradores de informes UMA/PIMVS, derechos de la Ley Federal de Derechos 2026, CITES, marco legal y listas de revisión. Material de apoyo con artículos y cantidades tomados de los textos vigentes.","cifras":[{"id":"statNom","valor":"0","rotulo":"especies NOM-059"},{"id":"statCuotas","valor":"0","rotulo":"derechos de la LFD"},{"valor":"6","rotulo":"listas de revisión"},{"valor":"2026","rotulo":"cantidades de la LFD"}]});</script>
-  <script src="../assets/js/club.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-paywall.js?v=20261104"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
@@ -1655,11 +1655,11 @@ const CITES_CONTENT = {
         <ol>
           <li><strong style="color:#D55A28;">Apéndice I:</strong> especies amenazadas de extinción. El comercio solo se autoriza en circunstancias excepcionales.</li>
           <li><strong style="color:#E8A317;">Apéndice II:</strong> especies que podrían llegar a estar amenazadas si su comercio no se controla.</li>
-          <li><strong style="color:#6FBF73;">Apéndice III:</strong> especies que un país incluye porque ya las regula y pide cooperación a los demás.</li>
+          <li><strong style="color:var(--zoo-acc-txt, #6FBF73);">Apéndice III:</strong> especies que un país incluye porque ya las regula y pide cooperación a los demás.</li>
         </ol>
       </div>
       <div class="legal-disclaimer" style="margin-top:12px;">
-        <strong>${ico('info')} Verifica siempre:</strong> los apéndices cambian cuando se reúne la Conferencia de las Partes. Consulta la lista vigente en <a href="https://speciesplus.net" target="_blank" rel="noopener" style="color:#6FBF73;">speciesplus.net</a> o en <a href="https://cites.org" target="_blank" rel="noopener" style="color:#6FBF73;">cites.org</a>.
+        <strong>${ico('info')} Verifica siempre:</strong> los apéndices cambian cuando se reúne la Conferencia de las Partes. Consulta la lista vigente en <a href="https://speciesplus.net" target="_blank" rel="noopener" style="color:var(--zoo-acc-txt, #6FBF73);">speciesplus.net</a> o en <a href="https://cites.org" target="_blank" rel="noopener" style="color:var(--zoo-acc-txt, #6FBF73);">cites.org</a>.
       </div>
     </div>
   `,
@@ -1713,7 +1713,7 @@ const CITES_CONTENT = {
   ap3: `
     <div class="cites-info">
       <h3><span class="zdot" style="background:#3FA45B"></span> Apéndice III · Cooperación entre países</h3>
-      <p>Incluye especies que <strong style="color:#6FBF73;">un país ya protege</strong> dentro de su territorio y para las que pide a los demás cooperar en el control de su comercio.</p>
+      <p>Incluye especies que <strong style="color:var(--zoo-acc-txt, #6FBF73);">un país ya protege</strong> dentro de su territorio y para las que pide a los demás cooperar en el control de su comercio.</p>
       <p><strong style="color:#E8A317;">Ejemplos:</strong> el cedro rojo (<em>Cedrela odorata</em>) y el zopilote rey (<em>Sarcoramphus papa</em>), incluidos a solicitud de algunos países.</p>
       <div class="cites-proc">
         <h4>${ico('clipboard-list')} Qué exige la Convención</h4>
@@ -1759,7 +1759,7 @@ const CITES_CONTENT = {
         <h4>${ico('banknote')} Costo y dónde tramitar</h4>
         <ol>
           <li><strong>$880.20 MXN por solicitud</strong> (Ley Federal de Derechos, Art. 194-F, apartado B, fr. II).</li>
-          <li>Los formatos, las ventanillas y los medios electrónicos cambian: consulta el trámite vigente en <a href="https://www.gob.mx/semarnat" target="_blank" rel="noopener" style="color:#6FBF73;">gob.mx/semarnat</a>.</li>
+          <li>Los formatos, las ventanillas y los medios electrónicos cambian: consulta el trámite vigente en <a href="https://www.gob.mx/semarnat" target="_blank" rel="noopener" style="color:var(--zoo-acc-txt, #6FBF73);">gob.mx/semarnat</a>.</li>
         </ol>
       </div>
     </div>

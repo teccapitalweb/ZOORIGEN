@@ -15,11 +15,11 @@
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
   <script src="https://js.stripe.com/v3/"></script>
   <style>
     /* Selector de plan y pago embebido (colores sólidos: verde de marca, dorado solo en la etiqueta) */
@@ -41,9 +41,9 @@
     .sub-pago__detalle { font-size: .84rem; color: var(--zoo-text-muted); margin-bottom: 16px; }
     .sub-pago__form { min-height: 120px; }
   </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="suscripcion">
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
@@ -58,11 +58,11 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionSuscripcion","seccion":"suscripcion","icono":"credit-card","eyebrow":"Mi suscripción","titulo":"Tu membresía,","acento":"a tu manera.","sub":"Elige el plan que prefieras, consulta tu estado y gestiona tu renovación.","cifras":[{"clave":"plan","valor":"—","rotulo":"plan"},{"clave":"estado","valor":"—","rotulo":"estado"},{"clave":"vence","valor":"—","rotulo":"próxima renovación"}]});</script>
-  <script src="../assets/js/club.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script>
     (async () => {
@@ -140,7 +140,7 @@
             <h2 style="color:var(--zoo-text);font-size:1.2rem;margin-bottom:14px;">Plan actual</h2>
             <div class="info-row"><div class="info-row__label">Plan</div><div class="info-row__value">Miembro VIP Zoorigen</div></div>
             <div class="info-row"><div class="info-row__label">Precio</div><div class="info-row__value">${session.planTipo === 'anual' ? '$1,899 MXN / año' : '$199 MXN / mes'}</div></div>
-            <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-green-500);">● Membresía activa</span>' : '<span style="color:var(--zoo-amber);"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cancelada · acceso vigente</span>'}</div></div>
+            <div class="info-row"><div class="info-row__label">Estado</div><div class="info-row__value">${session.planStatus === 'active' ? '<span style="color:var(--zoo-ok-txt);">● Membresía activa</span>' : '<span style="color:var(--zoo-amber);"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cancelada · acceso vigente</span>'}</div></div>
             <div class="info-row"><div class="info-row__label">${session.planStatus === 'active' ? 'Próxima renovación' : 'Acceso hasta'}</div><div class="info-row__value">${ZOORIGEN_CLUB.formatShort(session.planVence)}</div></div>
             <div class="info-row"><div class="info-row__label">Último pago</div><div class="info-row__value">${session.ultimoPago ? ZOORIGEN_CLUB.formatShort(session.ultimoPago) : '—'}</div></div>
           </div>`;
@@ -201,7 +201,7 @@
         // Overlay bonito de "procesando pago"
         const overlay = document.createElement('div');
         overlay.id = 'payWaitOverlay';
-        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(12, 12, 12,0.95);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,18,21,0.74);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
         overlay.innerHTML = `
           <div style="max-width:480px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.4);border-radius:20px;padding:40px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
             <div style="font-size:4rem;margin-bottom:14px;animation:pulseZ 1.5s ease-in-out infinite;"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" width="64" height="64"></div>
@@ -238,10 +238,10 @@
               clearInterval(autoCheck);
               // Éxito: cambiar overlay a mensaje de bienvenida + redirect
               overlay.innerHTML = `
-                <div style="max-width:480px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid #6FBF73;border-radius:20px;padding:40px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <div style="max-width:480px;width:100%;background:#1F5F3A;border:2px solid #9BD9AE;border-radius:20px;padding:40px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
                   <div style="font-size:4rem;margin-bottom:14px;"><svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg></div>
                   <h2 style="font-family:var(--zoo-font-display);color:#fff;font-size:1.6rem;margin:0 0 10px;">¡Bienvenido al Club VIP!</h2>
-                  <p style="color:rgba(255,255,255,0.9);font-size:1rem;margin:0 0 20px;line-height:1.5;">Tu membresía está <strong style="color:#6FBF73;">ACTIVA</strong>. Ya tienes acceso a todo el contenido exclusivo.</p>
+                  <p style="color:rgba(255,255,255,0.9);font-size:1rem;margin:0 0 20px;line-height:1.5;">Tu membresía está <strong style="color:#9BD9AE;">ACTIVA</strong>. Ya tienes acceso a todo el contenido exclusivo.</p>
                   <div style="color:#E8A317;font-size:.85rem;">Redirigiendo al dashboard en 2 segundos...</div>
                 </div>
               `;
@@ -291,7 +291,7 @@
             if (!response.ok) throw new Error(data.error || 'No se pudo verificar');
 
             if (data.active === true) {
-              msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Pago confirmado. Tu acceso está vigente${data.expiresAt ? ' hasta ' + ZOORIGEN_CLUB.formatShort(data.expiresAt) : ''}. Recargando...</div>`;
+              msgEl.innerHTML = `<div style="color:var(--zoo-ok-txt);background:var(--zoo-ok-tinte);border:1px solid var(--zoo-ok-borde);padding:10px 14px;border-radius:8px;font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Pago confirmado. Tu acceso está vigente${data.expiresAt ? ' hasta ' + ZOORIGEN_CLUB.formatShort(data.expiresAt) : ''}. Recargando...</div>`;
               setTimeout(() => window.location.href = 'club-dashboard.html', 1500);
               return;
             }
@@ -364,7 +364,7 @@
             
             // Mostrar popup de felicitación
             const popup = document.createElement('div');
-            popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .4s ease;';
+            popup.style.cssText = 'position:fixed;inset:0;background:rgba(15,18,21,0.74);backdrop-filter:blur(12px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .4s ease;';
             popup.innerHTML = `
               <style>
                 @keyframes zooFadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
@@ -373,7 +373,7 @@
                 .zoo-confetti-r div{position:absolute;top:-20px;animation:confettiFall linear forwards;}
               </style>
               <div class="zoo-confetti-r" id="confettiReanudar"></div>
-              <div style="max-width:440px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.3);border-radius:24px;padding:40px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);z-index:100001;position:relative;">
+              <div style="max-width:440px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.3);border-radius:24px;padding:40px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.45);z-index:100001;position:relative;">
                 <div style="font-size:4rem;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg></div>
                 <h2 style="color:#fff;font-family:var(--zoo-font-display);font-size:1.5rem;margin:0 0 8px;">¡Bienvenido de regreso!</h2>
                 <p style="color:#E8A317;font-size:1.1rem;font-weight:700;margin:0 0 12px;">Tu membresía VIP está activa</p>

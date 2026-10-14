@@ -295,7 +295,7 @@
 
   const estilos = `
 .zp .zc-modal { max-width: 520px; }
-.zp .zc-btn--main { color: #fff; background: var(--zoo-solid, #1F5F3A); border: 0; box-shadow: 0 8px 20px rgba(31, 95, 58, .3); }
+.zp .zc-btn--main { color: #fff; background: var(--zoo-solid, #1F5F3A); border: 0; box-shadow: 0 8px 20px rgba(15,18,21,0.14); }
 .zp .zc-btn--main:hover { background: var(--zoo-solid-mid, #2A7A4E); }
 .zp-lista { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 4px; }
 .zp-fila { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px; border: 1px solid var(--zoo-border, rgba(255,255,255,.18)); border-radius: 14px; background: var(--zoo-bg-card-2, rgba(255,255,255,.05)); }
@@ -304,7 +304,7 @@
 .zp-fila__txt span { display: inline-flex; align-items: center; gap: 5px; color: var(--zoo-text-dim, rgba(255,255,255,.6)); font-size: .76rem; line-height: 1.35; }
 .zp-abrir { flex: none; padding: 9px 16px; }
 [data-theme="light"] .zp .zc-btn:not(.zc-btn--main) { border-color: #c4cabf; }
-[data-theme="light"] .zp .zc-modal { border-color: #d0d4cb; box-shadow: 0 30px 80px rgba(23, 23, 23, .28); }
+[data-theme="light"] .zp .zc-modal { border-color: #D8D2C4; box-shadow: 0 30px 80px rgba(23, 23, 23, .28); }
 @media (max-width: 480px) { .zp-fila { flex-direction: column; align-items: stretch; } .zp-abrir { width: 100%; } }
 `;
   function inyectarEstilos() {

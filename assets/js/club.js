@@ -25,7 +25,7 @@ async function iniciarPagoStripe(planType, email) {
   const isAnual = planType === 'anual';
   const price = isAnual ? '$1,899 MXN' : '$199 MXN';
   const planLabel = isAnual ? 'Plan Anual' : 'Plan Mensual';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(12, 12, 12,0.95);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,18,21,0.74);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
   overlay.innerHTML = `
     <div style="max-width:440px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.4);border-radius:18px;padding:36px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
       <div style="font-size:3.5rem;margin-bottom:12px;animation:zooPulse 1.2s ease-in-out infinite;"><svg class="zi" aria-hidden="true"><use href="#zi-credit-card"/></svg></div>
@@ -1378,7 +1378,7 @@ const ZOORIGEN_CLUB = {
       : 'Acceso gratuito';
     const isActivePlan = this.hasActiveMembership(session);
     const planDotColor = session?.planStatus === 'active' ? '#6FBF73' : session?.planStatus === 'cancelled_active' ? '#E8A317' : !isActivePlan ? '#E8A317' : '#a0a8a4';
-    const planLabelColor = isActivePlan ? 'var(--zoo-green-500, #6FBF73)' : 'var(--zoo-amber, #E8A317)';
+    const planLabelColor = isActivePlan ? 'var(--zoo-ok-txt)' : 'var(--zoo-amber, #E8A317)';
 
     // Con la estructura nueva (club-shell.js) el menú sale agrupado de una sola fuente; sin ella queda el listado plano de antes.
     this._shellActivo = activeId;
@@ -1496,7 +1496,7 @@ const ZOORIGEN_CLUB = {
     const nombre = (session.name || session.email.split('@')[0]).split(' ')[0];
 
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .4s ease;';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,18,21,0.74);backdrop-filter:blur(12px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .4s ease;';
     overlay.innerHTML = `
       <style>
         @keyframes zooFadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
@@ -1504,7 +1504,7 @@ const ZOORIGEN_CLUB = {
         @keyframes confettiFall { 0%{transform:translateY(-100vh) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
         .zoo-confetti { position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100000;overflow:hidden; }
         .zoo-confetti-piece { position:absolute;width:10px;height:10px;top:-20px;animation:confettiFall linear forwards; }
-        .zoo-welcome-box { max-width:520px;width:100%;max-height:92vh;overflow-y:auto;background:var(--zoo-panel, #1F5F3A);border:2px solid rgba(232,163,23,0.3);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;z-index:100001; }
+        .zoo-welcome-box { max-width:520px;width:100%;max-height:92vh;overflow-y:auto;background:var(--zoo-panel, #1F5F3A);border:2px solid rgba(232,163,23,0.3);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,0.45);position:relative;z-index:100001; }
         .zoo-welcome-close { position:absolute;top:14px;right:14px;z-index:5;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s; }
         .zoo-welcome-close:hover { background:rgba(0,0,0,0.55);transform:scale(1.08); }
         .zoo-welcome-top { background:rgba(255,255,255,0.06);padding:40px 30px 20px;text-align:center;position:relative; }
@@ -1519,7 +1519,7 @@ const ZOORIGEN_CLUB = {
         .zoo-welcome-feat-icon { font-size:1.5rem;margin-bottom:6px; }
         .zoo-welcome-feat-text { color:rgba(255,255,255,0.85);font-size:.82rem;font-weight:600; }
         .zoo-welcome-cta { display:block;width:100%;padding:16px;background:var(--zoo-amber, #E8A317);color:#1f1d17;border:0;border-radius:14px;font-family:var(--zoo-font-display);font-size:1.05rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:all .2s; }
-        .zoo-welcome-cta:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,163,23,0.4); }
+        .zoo-welcome-cta:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,18,21,0.16); }
         .zoo-welcome-skip { display:block;text-align:center;margin-top:12px;color:rgba(255,255,255,0.4);font-size:.8rem;cursor:pointer;border:0;background:0; }
         @media(max-width:500px) { .zoo-welcome-features{grid-template-columns:1fr;} .zoo-welcome-title{font-size:1.3rem;} .zoo-welcome-name{font-size:1.5rem;} .zoo-welcome-top{padding:30px 20px 16px;} .zoo-welcome-body{padding:20px;} }
       </style>
@@ -1671,9 +1671,9 @@ const ZOORIGEN_CLUB = {
     const label = accionLabel || 'acceder a esta función';
     const overlay = document.createElement('div');
     overlay.id = 'zooPaywall';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(12, 12, 12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooPaywallFade .25s ease-out;';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,18,21,0.74);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooPaywallFade .25s ease-out;';
     overlay.innerHTML = `
-      <div style="max-width:500px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;overflow:hidden;">
+      <div style="max-width:500px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.45);position:relative;overflow:hidden;">
         <button id="zooPaywallClose" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.3);border:0;color:#fff;font-size:1rem;cursor:pointer;"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
         <div style="font-size:3.8rem;margin-bottom:14px;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
         <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">ACCESO EXCLUSIVO VIP</div>
@@ -1699,7 +1699,7 @@ const ZOORIGEN_CLUB = {
             <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$199<span style="font-size:.75rem;opacity:.7;">/mes</span></div>
             <div style="font-size:.75rem;opacity:.7;">Cancela cuando quieras</div>
           </button>
-          <button id="zooPaywallAnual" style="background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:var(--zoo-font-display);font-weight:800;position:relative;box-shadow:0 6px 18px rgba(232,163,23,0.4);">
+          <button id="zooPaywallAnual" style="background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 10px;border-radius:12px;cursor:pointer;font-family:var(--zoo-font-display);font-weight:800;position:relative;box-shadow:0 6px 18px rgba(15,18,21,0.16);">
             <div style="position:absolute;top:-8px;right:6px;background:#D55A28;color:#fff;font-size:.75rem;padding:2px 8px;border-radius:10px;font-weight:800;">-20% OFF</div>
             <div style="font-weight:700;font-size:.78rem;">ANUAL</div>
             <div style="font-weight:800;font-size:1.3rem;margin:2px 0;">$1,899<span style="font-size:.75rem;">/año</span></div>
@@ -1712,7 +1712,7 @@ const ZOORIGEN_CLUB = {
       <style>
         @keyframes zooPaywallFade { from{opacity:0} to{opacity:1} }
         #zooPaywallMens:hover { background:rgba(255,255,255,0.15) !important; }
-        #zooPaywallAnual:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(232,163,23,0.5) !important; }
+        #zooPaywallAnual:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(15,18,21,0.16) !important; }
       </style>
     `;
     document.body.appendChild(overlay);
@@ -1758,14 +1758,14 @@ const ZOORIGEN_CLUB = {
     if (main && !document.getElementById('zooPayBanner')) {
       const banner = document.createElement('div');
       banner.id = 'zooPayBanner';
-      banner.style.cssText = 'background:var(--zoo-solid, #1F5F3A);color:#fff;padding:12px 18px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;';
+      banner.style.cssText = 'background:#24384F;color:#fff;padding:12px 18px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;';
       banner.innerHTML = `
         <div style="font-size:1.8rem;line-height:1;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
         <div style="flex:1;min-width:200px;">
           <div style="font-family:var(--zoo-font-display);font-weight:800;font-size:.98rem;margin-bottom:2px;">Acceso gratuito</div>
           <div style="font-size:.82rem;opacity:.88;">Activa tu membresía para abrir todos los cursos.</div>
         </div>
-        <div class="zoo-pay-banner__btn" style="background:#fff;color:#1F5F3A;padding:8px 18px;border-radius:10px;font-family:var(--zoo-font-display);font-weight:800;font-size:.88rem;white-space:nowrap;">Suscribirme</div>
+        <div class="zoo-pay-banner__btn" style="background:#fff;color:#24384F;padding:8px 18px;border-radius:10px;font-family:var(--zoo-font-display);font-weight:800;font-size:.88rem;white-space:nowrap;">Suscribirme</div>
       `;
       banner.addEventListener('click', () => this.showPaywall(session, 'desbloquear todo el contenido'));
       const barra = document.getElementById('zsTopbar');

@@ -147,6 +147,12 @@
     k = ALIAS[k] || k;
     return Object.prototype.hasOwnProperty.call(DECORACION, k) ? k : '';
   }
+  /* Clave de paleta de la página (la que lleva <body data-zoo>): las del mapa de DECORACION más 'inicio'. Vacía si no se conoce. */
+  function claveApartado(seccion) {
+    var k = String(seccion == null ? '' : seccion).toLowerCase().replace(/[^a-z0-9-]/g, '');
+    if (k === 'inicio' || k === 'dashboard') return 'inicio';
+    return claveDeco(k);
+  }
   function decoracionDe(seccion) { var k = claveDeco(seccion); return k ? DECORACION[k] : null; }
   function trazo(nombre) { return Object.prototype.hasOwnProperty.call(ICONOS_DECOR, nombre) ? ICONOS_DECOR[nombre] : ''; }
 
@@ -267,7 +273,7 @@
     esc: esc, html: html, prontoHTML: prontoHTML,
     DECORACION: DECORACION, ALIAS: ALIAS, ANIMACIONES: ANIMACIONES, ANIMACIONES_DECOR: ANIMACIONES_DECOR, ACENTOS: ACENTOS,
     ICONOS_DECOR: ICONOS_DECOR, RUTA_PERSONAJES: RUTA_PERSONAJES, EXT_PERSONAJE: EXT_PERSONAJE,
-    claveDeco: claveDeco, decoracionDe: decoracionDe, trazo: trazo, rutaPersonaje: rutaPersonaje, debePintarPersonaje: debePintarPersonaje
+    claveDeco: claveDeco, claveApartado: claveApartado, decoracionDe: decoracionDe, trazo: trazo, rutaPersonaje: rutaPersonaje, debePintarPersonaje: debePintarPersonaje
   };
   if (typeof document === 'undefined') return API;
 
@@ -342,6 +348,11 @@
     var el = typeof destino === 'string' ? document.querySelector(destino) : destino;
     if (!el) return null;
     el.innerHTML = html(cfg);
+    /* respaldo: la página ya trae <body data-zoo>; si no, se pone aquí para que tome el color de su apartado */
+    try {
+      var clave = claveApartado(cfg && cfg.seccion);
+      if (clave && document.body && !document.body.hasAttribute('data-zoo')) document.body.setAttribute('data-zoo', clave);
+    } catch (e) { /* sin body */ }
     activar(el);
     return el.firstElementChild;
   };

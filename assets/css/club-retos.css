@@ -79,8 +79,8 @@
 .rz-hero {
   position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: 22px; align-items: center; overflow: hidden;
   padding: 24px 26px; margin-bottom: 18px; border: 1px solid var(--rz-line); border-radius: 22px;
-  background: var(--zoo-panel, #1F5F3A);
-  color: #fff; --rz-text: #fff; --rz-muted: rgba(255, 255, 255, 0.86); --rz-dim: rgba(255, 255, 255, 0.72); --rz-line: rgba(255, 255, 255, 0.22);
+  background: var(--zoo-acc-tinte, var(--zoo-bg-card-2)); border-left: 6px solid var(--zoo-acc-txt, var(--zoo-amber));
+  color: var(--zoo-text); --rz-text: var(--zoo-text); --rz-muted: var(--zoo-text-muted); --rz-dim: var(--zoo-text-dim); --rz-line: var(--zoo-border-strong);
 }
 .rz-hero__insignia {
   position: relative; display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%; color: #fff;
@@ -92,8 +92,8 @@
 .rz-hero__insignia .zi { margin-top: -10px; color: #FFB066; }
 .rz-hero__insignia b { position: absolute; bottom: 17px; font: 800 1.25rem/1 var(--zoo-font-display); }
 .rz-hero__cuerpo { min-width: 0; }
-.rz-hero h2 { margin: 6px 0 12px !important; font-size: 1.45rem !important; line-height: 1.2; color: #fff; }
-.rz-hero .rz-eyebrow { color: #F4C45A; }
+.rz-hero h2 { margin: 6px 0 12px !important; font-size: 1.45rem !important; line-height: 1.2; color: var(--zoo-text); }
+.rz-hero .rz-eyebrow { color: var(--zoo-acc-txt, var(--zoo-aviso-txt)); }
 .rz-barra { height: 12px; overflow: hidden; background: var(--rz-surface-2); border-radius: 100px; }
 .rz-barra > div { height: 100%; min-width: 4px; background: var(--zoo-amber, #E8A317); border-radius: 100px; transition: width .9s ease-out; }
 .rz-barra--fina { height: 8px; margin-bottom: 14px; }

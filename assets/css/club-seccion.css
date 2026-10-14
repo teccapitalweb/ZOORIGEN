@@ -3,14 +3,73 @@
 /* Componente único: píldora con ícono, título grande con la     */
 /* última parte en acento, subtítulo, cifras y acciones/         */
 /* segmentos a la derecha. Todo SÓLIDO (sin degradados).         */
-/* Día: verde de marca #1F5F3A. Noche: #16301F con borde #24472F.*/
-/* Colores y tipografía vienen de los tokens de club.css.        */
+/* Día: fondo sólido del color del apartado. Noche: superficie   */
+/* elevada neutra #1E2329 con barra lateral de 5 px del acento.  */
 /* ============================================================ */
 
+/* ------------------------------------------------------------ */
+/* PALETA POR APARTADO (mapa único)                              */
+/* Cada página lleva <body data-zoo="clave">. Aquí se define, por */
+/* apartado, solo DOS valores: --zs-bg (fondo sólido: texto      */
+/* blanco >= 4.5:1) y --zs-claro (acento claro: >= 4.5:1 sobre  */
+/* --zs-bg y sobre la superficie de noche #1E2329). Todo lo      */
+/* demás (tintes, hover, chips, barras, enlaces) se deriva abajo. */
+/* El verde de marca #1F5F3A queda solo en Inicio y Cursos.      */
+/* ------------------------------------------------------------ */
+body[data-zoo="inicio"] { --zs-bg: #1F5F3A; --zs-claro: #9BD9AE; }
+body[data-zoo="cursos"] { --zs-bg: #1F5F3A; --zs-claro: #9BD9AE; }
+body[data-zoo="pdfs"] { --zs-bg: #1F5A7A; --zs-claro: #BCCED7; }
+body[data-zoo="herramientas"] { --zs-bg: #0F5E60; --zs-claro: #B7CFCF; }
+body[data-zoo="infusiones"] { --zs-bg: #3B4A9E; --zs-claro: #C0C5E0; }
+body[data-zoo="legal"] { --zs-bg: #6D2D4B; --zs-claro: #C8AFBB; }
+body[data-zoo="registro"] { --zs-bg: #7A4A21; --zs-claro: #D7C9BC; }
+body[data-zoo="sesiones"] { --zs-bg: #884119; --zs-claro: #DBC6BA; }
+body[data-zoo="videos"] { --zs-bg: #3A4B63; --zs-claro: #B4BBC4; }
+body[data-zoo="foro"] { --zs-bg: #2B549C; --zs-claro: #BFCCE1; }
+body[data-zoo="directorio"] { --zs-bg: #5B4A9B; --zs-claro: #CEC9E1; }
+body[data-zoo="retos"] { --zs-bg: #7E4A0A; --zs-claro: #D8C9B6; }
+body[data-zoo="logros"] { --zs-bg: #715000; --zs-claro: #D4CBB3; }
+body[data-zoo="certificados"] { --zs-bg: #1F3F73; --zs-claro: #AAB6CA; }
+body[data-zoo="referidos"] { --zs-bg: #8A3D2D; --zs-claro: #DCC5C0; }
+body[data-zoo="perfil"] { --zs-bg: #44505C; --zs-claro: #BCC0C4; }
+body[data-zoo="suscripcion"] { --zs-bg: #505C19; --zs-claro: #CBCEBA; }
+body[data-zoo="canal"] { --zs-bg: #0B6054; --zs-claro: #B6CFCC; }
+
+/* Derivados comunes (noche por defecto) y reasignación de los tokens antiguos */
+body[data-zoo] {
+  --zoo-acc: var(--zs-bg);                                             /* relleno sólido, texto blanco */
+  --zoo-acc-claro: var(--zs-claro);                                    /* acento claro (texto sobre el color / sobre noche) */
+  --zoo-acc-oscuro: color-mix(in srgb, var(--zs-bg) 78%, #000000);     /* hover / pulsado */
+  --zoo-acc-txt: var(--zs-claro);                                      /* acento como TEXTO o línea sobre la superficie */
+  --zoo-acc-tinte: color-mix(in srgb, var(--zs-bg) 24%, #171B20);      /* fondo suave de avisos */
+  --zoo-acc-tinte-2: color-mix(in srgb, var(--zs-bg) 34%, #171B20);
+  --zoo-solid: var(--zs-bg);
+  --zoo-solid-dark: var(--zoo-acc-oscuro);
+  --zoo-solid-mid: var(--zs-bg);
+  --zoo-fill: var(--zs-claro);
+  --zoo-green-900: var(--zs-bg);
+  --zoo-green-800: var(--zoo-acc-oscuro);
+  --zoo-green-700: var(--zoo-acc-oscuro);
+  --zoo-green-500: var(--zoo-acc-txt);
+  --zoo-green-400: var(--zs-claro);
+}
+[data-theme="light"] body[data-zoo] {
+  --zoo-acc-txt: var(--zs-bg);
+  --zoo-acc-tinte: color-mix(in srgb, var(--zs-bg) 9%, #FFFFFF);
+  --zoo-acc-tinte-2: color-mix(in srgb, var(--zs-bg) 16%, #FFFFFF);
+  --zoo-panel: var(--zs-bg);
+  --zoo-hero: var(--zs-bg);
+  --zoo-hero-borde: var(--zs-bg);
+  --zoo-tint: var(--zoo-acc-tinte);
+  --zoo-tint-2: var(--zoo-acc-tinte-2);
+  --zoo-fill: var(--zs-bg);
+}
+
 .zs-seccion {
-  --zs-acento: #9BD9AE;               /* verde claro de acento: 4.7:1 sobre #1F5F3A y 6:1 sobre #16301F */
+  --zs-acento: var(--zs-claro, #9BD9AE);   /* acento claro del apartado: >= 4.5:1 sobre su fondo */
   --zs-tinta: #FFFFFF;
   --zs-tinta-2: rgba(255, 255, 255, 0.88);
+  --zs-blanco: #FFFFFF;                    /* segmento activo y botón blanco */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -19,11 +78,14 @@
   padding: clamp(20px, 3.4vw, 40px);
   background: var(--zoo-hero, #1F5F3A);
   border: 1px solid var(--zoo-hero-borde, #1F5F3A);
+  border-left: 5px solid var(--zs-claro, #9BD9AE);   /* noche: la barra lateral lleva el color del apartado */
   border-radius: 24px;
   color: var(--zs-tinta);
   font-family: var(--zoo-font-body);
 }
-[data-theme="light"] .zs-seccion { background: #1F5F3A; border-color: #1F5F3A; }
+/* Noche: texto de la tarjeta sobre superficie elevada (sin blanco puro sobre casi negro) */
+:root:not([data-theme="light"]) .zs-seccion { --zs-tinta: #E7EAEE; --zs-tinta-2: #A3ABB5; --zs-blanco: #E7EAEE; }
+[data-theme="light"] .zs-seccion { background: var(--zs-bg, #1F5F3A); border-color: var(--zs-bg, #1F5F3A); border-left-width: 1px; }
 
 .zs-seccion__cuerpo {
   display: flex;
@@ -98,8 +160,8 @@
   cursor: pointer;
   transition: background .15s, color .15s;
 }
-.zs-segmento:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
-.zs-segmento[aria-pressed="true"] { background: #FFFFFF; color: #14301F; }
+.zs-segmento:hover { background: rgba(255, 255, 255, 0.12); color: var(--zs-tinta, #fff); }
+.zs-segmento[aria-pressed="true"] { background: var(--zs-blanco, #FFFFFF); color: var(--zs-bg, #1F2933); }
 .zs-segmento:focus-visible { outline: 3px solid #F7CB62; outline-offset: 1px; }
 
 /* Botón dentro de la tarjeta (sólido): blanco con texto verde, o dorado */
@@ -111,13 +173,13 @@
   padding: 10px 18px;
   border: 0;
   border-radius: 12px;
-  background: #FFFFFF;
-  color: #14301F;
+  background: var(--zs-blanco, #FFFFFF);
+  color: var(--zs-bg, #1F2933);
   font: 700 .92rem/1.2 var(--zoo-font-body);
   text-decoration: none;
   cursor: pointer;
 }
-.zs-seccion__btn:hover { background: #E9F4EC; }
+.zs-seccion__btn:hover { background: color-mix(in srgb, var(--zs-bg, #1F5F3A) 10%, var(--zs-blanco, #FFFFFF)); }
 .zs-seccion__btn--oro { background: var(--zoo-amber, #E8A317); color: #1F1D17; }
 .zs-seccion__btn--oro:hover { background: var(--zoo-amber-hover, #F4B942); }
 .zs-seccion__btn:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
@@ -156,9 +218,9 @@
   cursor: pointer;
 }
 .zs-chip:hover { color: var(--zoo-text, #E7EAEE); }
-.zs-chip[aria-pressed="true"], .zs-chip.is-active { background: var(--zoo-solid, #1F5F3A); border-color: var(--zoo-solid, #1F5F3A); color: #fff; }
-[data-theme="light"] .zs-chip { background: #fff; border-color: #d0d4cb; color: #3a403d; }
-[data-theme="light"] .zs-chip[aria-pressed="true"], [data-theme="light"] .zs-chip.is-active { background: #1F5F3A; border-color: #1F5F3A; color: #fff; }
+.zs-chip[aria-pressed="true"], .zs-chip.is-active { background: var(--zs-bg, #1F5F3A); border-color: var(--zs-claro, #1F5F3A); color: #fff; }
+[data-theme="light"] .zs-chip { background: #fff; border-color: #D8D2C4; color: #3E4A56; }
+[data-theme="light"] .zs-chip[aria-pressed="true"], [data-theme="light"] .zs-chip.is-active { background: var(--zs-bg, #1F5F3A); border-color: var(--zs-bg, #1F5F3A); color: #fff; }
 
 /* Bloque "Próximamente" (clases en vivo): sin cuenta regresiva ni enlaces */
 .zs-pronto {
@@ -175,7 +237,7 @@
 .zs-pronto__ico {
   display: inline-flex; align-items: center; justify-content: center;
   width: 56px; height: 56px; border-radius: 50%;
-  background: var(--zoo-tint, #1E2329); color: var(--zoo-fill, #6FBF73);
+  background: var(--zoo-acc-tinte, #1E2329); color: var(--zoo-acc-txt, #6FBF73);
 }
 .zs-pronto__ico .zi { width: 28px; height: 28px; }
 .zs-pronto__chip {
@@ -185,10 +247,10 @@
 }
 .zs-pronto__titulo { margin: 4px 0 0; font-family: var(--zoo-font-display); font-weight: 800; font-size: clamp(1.3rem, 1.1rem + 1vw, 1.75rem); letter-spacing: -0.015em; color: var(--zoo-text, #E7EAEE); }
 .zs-pronto__texto { margin: 0; max-width: 54ch; font-size: .98rem; line-height: 1.6; color: var(--zoo-text-muted, #A3ABB5); }
-[data-theme="light"] .zs-pronto { background: #fff; border-color: #d0d4cb; }
-[data-theme="light"] .zs-pronto__ico { background: #EAF2EC; color: #1F5F3A; }
-[data-theme="light"] .zs-pronto__titulo { color: #1a1d1b; }
-[data-theme="light"] .zs-pronto__texto { color: #5a6360; }
+[data-theme="light"] .zs-pronto { background: #fff; border-color: #D8D2C4; }
+[data-theme="light"] .zs-pronto__ico { background: var(--zoo-acc-tinte, #EAF2EC); color: var(--zoo-acc-txt, #1F5F3A); }
+[data-theme="light"] .zs-pronto__titulo { color: #1F2933; }
+[data-theme="light"] .zs-pronto__texto { color: #52606D; }
 
 /* Etiqueta "Pronto" del menú */
 .badge--pronto { background: transparent !important; color: var(--zoo-amber-soft, #F7CB62) !important; border: 1px solid currentColor; font-weight: 700; font-size: .75rem !important; padding: 1px 6px !important; letter-spacing: .02em; white-space: nowrap; }
@@ -209,8 +271,8 @@
   color: var(--zoo-text-muted, #A3ABB5);
 }
 .zs-vacio strong { font-family: var(--zoo-font-display); font-size: 1.1rem; color: var(--zoo-text, #E7EAEE); }
-[data-theme="light"] .zs-vacio { background: #fff; border-color: #d0d4cb; color: #5a6360; }
-[data-theme="light"] .zs-vacio strong { color: #1a1d1b; }
+[data-theme="light"] .zs-vacio { background: #fff; border-color: #D8D2C4; color: #52606D; }
+[data-theme="light"] .zs-vacio strong { color: #1F2933; }
 
 /* Etiqueta "Pronto" en la barra inferior del celular */
 .zs-tab { position: relative; }
@@ -238,9 +300,9 @@
 /* con la pestaña oculta o la tarjeta fuera de pantalla.         */
 /* ============================================================ */
 .zs-seccion--deco {
-  --zs-deco: #9BD9AE;
-  --zs-halo: #234632;                       /* noche: verde un poco más claro que #16301F */
-  --zs-pil: #9BD9AE;
+  --zs-deco: var(--zs-claro, #9BD9AE);
+  --zs-halo: color-mix(in srgb, var(--zs-bg, #1F5F3A) 46%, #1E2329);   /* noche: círculo sólido del tono del apartado */
+  --zs-pil: var(--zs-claro, #9BD9AE);
   --zs-pil-borde: rgba(255, 255, 255, 0.18);
   --zs-pad: clamp(18px, 3.4vw, 40px);       /* igual al relleno de la tarjeta */
   --zs-pj: clamp(150px, 20vw, 250px);       /* alto máximo del personaje (y ancho reservado) */
@@ -249,12 +311,9 @@
   overflow: hidden;
   isolation: isolate;
 }
-[data-theme="light"] .zs-seccion--deco { --zs-halo: #2C7A4D; }
+[data-theme="light"] .zs-seccion--deco { --zs-halo: color-mix(in srgb, var(--zs-bg, #1F5F3A) 80%, #FFFFFF); }   /* día: un tono más claro que el fondo */
 
-/* Acento de borde y de píldora por apartado (el fondo sigue siendo el verde sólido de marca) */
-.zs-seccion--deco[data-acento="oro"]     { --zs-pil: #F7CB62; --zs-pil-borde: #E8A317; border-color: #C98F10; }
-.zs-seccion--deco[data-acento="azul"]    { --zs-pil: #A8D8F5; --zs-pil-borde: #4DA3DF; border-color: #2C86C8; }
-.zs-seccion--deco[data-acento="naranja"] { --zs-pil: #FFC09A; --zs-pil-borde: #E27B3A; border-color: #D9692A; }
+/* El acento (píldora, título, íconos, halo) sale del mapa de paleta de arriba; ya no hay un borde de color distinto por apartado. */
 .zs-seccion--deco .zs-seccion__pildora { border-color: var(--zs-pil-borde); }
 .zs-seccion--deco .zs-seccion__pildora .zi { color: var(--zs-pil); }
 
@@ -400,7 +459,7 @@
   position: absolute;
   z-index: 2;
   border-radius: 50%;
-  border: 2px solid #CFEFD9;
+  border: 2px solid var(--zs-claro, #CFEFD9);
   opacity: .8;
   animation: zspSube 2.6s ease-in infinite;
 }

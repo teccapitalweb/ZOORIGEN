@@ -17,15 +17,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
     .player-overlay {
@@ -61,7 +61,7 @@
       border-radius: 18px;
       overflow: hidden;
       border: 1px solid rgba(232,163,23,0.22);
-      box-shadow: 0 30px 90px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.4);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.4);
       max-height: calc(100vh - 80px);
       display: flex;
       flex-direction: column;
@@ -128,8 +128,8 @@
     }
     /* En modo cine el botón ampliar se resalta para indicar que está activo */
     .player-box.is-cinema .player-box__fs {
-      background: rgba(111,191,115,0.32);
-      border-color: rgba(111,191,115,0.6);
+      background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 32%, transparent);
+      border-color: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 60%, transparent);
     }
 
     /* Video container 16:9 */
@@ -236,16 +236,16 @@
       align-items: center;
     }
     .class-item.is-done {
-      background: rgba(111,191,115,0.08);
-      border-color: rgba(111,191,115,0.25);
+      background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 8%, transparent);
+      border-color: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 25%, transparent);
     }
     .class-item.is-paywalled {
       background: rgba(232,163,23,0.055);
       border-color: rgba(232,163,23,0.2);
     }
     .class-item.is-free-preview {
-      background: rgba(111,191,115,0.09);
-      border-color: rgba(111,191,115,0.32);
+      background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 9%, transparent);
+      border-color: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 32%, transparent);
     }
     .class-item__num {
       width: 34px;
@@ -290,12 +290,12 @@
       margin-top: 4px;
     }
     .class-item.is-done .class-item__meta {
-      color: #6FBF73;
+      color: var(--zoo-acc-txt, #6FBF73);
     }
     .class-item__btn {
-      background: rgba(111,191,115,0.15);
-      border: 1px solid rgba(111,191,115,0.3);
-      color: #6FBF73;
+      background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 15%, transparent);
+      border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 30%, transparent);
+      color: var(--zoo-acc-txt, #6FBF73);
       padding: 6px 11px;
       border-radius: 8px;
       font-family: inherit;
@@ -323,9 +323,9 @@
       white-space: nowrap;
     }
     .cert-btn-top--done {
-      background: rgba(111,191,115,0.15);
-      color: #6FBF73;
-      border: 1px solid rgba(111,191,115,0.3);
+      background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 15%, transparent);
+      color: var(--zoo-acc-txt, #6FBF73);
+      border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 30%, transparent);
     }
 
     @media (max-width: 640px) {
@@ -343,9 +343,9 @@
       .classes-list-box { padding: 14px 16px; }
     }
   </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="cursos">
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
@@ -375,12 +375,12 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-paywall.js?v=20261104"></script>
   <script src="../assets/js/club-progreso.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/club-juegos.js?v=20261104"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
@@ -389,7 +389,7 @@
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
   <script src="../assets/js/club-cursos-ui.js?v=20261104"></script>
-  <script src="../assets/js/club-premios.js?v=20261104"></script>
+  <script src="../assets/js/club-premios.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261104"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
@@ -427,13 +427,13 @@
       overlay.id = 'zooCoursePaywall';
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(9, 9, 9,.94);backdrop-filter:blur(12px);z-index:200000;display:flex;align-items:center;justify-content:center;padding:20px;';
       overlay.innerHTML = `
-        <div style="width:min(500px,100%);position:relative;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,.5);border-radius:22px;padding:38px 30px;text-align:center;box-shadow:0 32px 90px rgba(0,0,0,.72);">
+        <div style="width:min(500px,100%);position:relative;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,.5);border-radius:22px;padding:38px 30px;text-align:center;box-shadow:0 32px 90px rgba(0,0,0,0.45);">
           <button id="zooCoursePaywallClose" aria-label="Cerrar" style="position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.25);color:#fff;cursor:pointer;font-size:1rem;"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button>
           <div style="font-size:3.5rem;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg></div>
           <div style="display:inline-block;background:rgba(232,163,23,.18);color:#F2BC4A;border-radius:100px;padding:5px 13px;font-size:.75rem;font-weight:800;letter-spacing:.1em;margin-bottom:14px;">CONTENIDO VIP</div>
           <h2 style="font-family:var(--zoo-font-display);color:#fff;font-size:1.55rem;line-height:1.25;margin:0 0 12px;">Continúa aprendiendo con Zoorigen</h2>
           <p style="color:rgba(255,255,255,.88);font-size:.96rem;line-height:1.6;margin:0 0 24px;">Activa tu membresía para continuar con esta clase y acceder a todos los cursos de Zoorigen.</p>
-          <button id="zooCourseSubscribe" style="width:100%;background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 20px;border-radius:12px;font:800 .95rem var(--zoo-font-display);cursor:pointer;box-shadow:0 8px 24px rgba(232,163,23,.3);">Ver planes de membresía</button>
+          <button id="zooCourseSubscribe" style="width:100%;background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 20px;border-radius:12px;font:800 .95rem var(--zoo-font-display);cursor:pointer;box-shadow:0 8px 24px rgba(15,18,21,0.14);">Ver planes de membresía</button>
           <button id="zooCourseContinue" style="margin-top:10px;background:transparent;border:0;color:rgba(255,255,255,.65);padding:8px;cursor:pointer;">Seguir explorando</button>
         </div>`;
       document.body.appendChild(overlay);

@@ -23,7 +23,7 @@
   --h-mast: #1F5F3A;
   --h-mast-txt: #F4EEDC;
   --h-lema: #F4EEDC;
-  --h-acento: #6FBF73;
+  --h-acento: var(--zoo-acc-txt, #6FBF73);
   --h-borde-mast: #2A7A4E;
   --h-b1-bg: transparent;
   --h-b1-txt: #F4EEDC;

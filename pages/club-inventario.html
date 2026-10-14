@@ -17,12 +17,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
 <style>
   /* ── Cabecera de la herramienta (mismos estilos .tools-* y .tool-* de club-herramientas.html) ── */
   .tools-hero {
@@ -55,7 +55,7 @@
     display: inline-flex; align-items: center; gap: 6px;
   }
   .tool-tab:hover { background: rgba(232,163,23,0.1); border-color: rgba(232,163,23,0.4); color: var(--zoo-text, #fff); }
-  .tool-tab.is-active { background: var(--zoo-amber, #E8A317); color: #1f1d17; border-color: transparent; box-shadow: 0 4px 14px rgba(232,163,23,0.3); }
+  .tool-tab.is-active { background: var(--zoo-amber, #E8A317); color: #1f1d17; border-color: transparent; box-shadow: 0 4px 14px rgba(15,18,21,0.14); }
 
   .tool-panel {
     display: none; background: var(--zoo-bg-card, #171B20); border: 1px solid var(--zoo-border, #2A3038);
@@ -90,12 +90,12 @@
     .tool-field input, .tool-field select, .tool-field textarea, .reg-buscar input, .reg-barra select { font-size: 16px; }
   }
   [data-theme="light"] .tool-field input, [data-theme="light"] .tool-field select, [data-theme="light"] .tool-field textarea {
-    background: #ffffff !important; border: 1px solid #d0d4cb !important; color: #1a1d1b !important;
+    background: #ffffff !important; border: 1px solid #D8D2C4 !important; color: #1F2933 !important;
   }
   .tool-field input:focus, .tool-field select:focus, .tool-field textarea:focus { outline: 0; border-color: #E8A317 !important; }
   .tool-field select { text-overflow: ellipsis; }
   .tool-field select option { background: #171B20; color: #fff; }
-  [data-theme="light"] .tool-field select option { background: #fff; color: #1a1d1b; }
+  [data-theme="light"] .tool-field select option { background: #fff; color: #1F2933; }
   .tool-field .reg-ayuda { color: var(--zoo-text-muted, #a0a8a4); font-size: .76rem; margin-top: 5px; line-height: 1.4; }
   .tool-field .reg-error { color: #D55A28; font-size: .8rem; margin-top: 5px; font-weight: 600; display: none; }
   .tool-field.tiene-error .reg-error { display: block; }
@@ -107,7 +107,7 @@
     background: var(--zoo-amber, #E8A317); color: #1f1d17; border: 0; padding: 12px 22px; border-radius: 10px;
     font-family: var(--zoo-font-display); font-weight: 700; cursor: pointer; font-size: .95rem; display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
   }
-  .tool-btn-calc:hover { box-shadow: 0 6px 18px rgba(232,163,23,0.35); transform: translateY(-1px); }
+  .tool-btn-calc:hover { box-shadow: 0 6px 18px rgba(15,18,21,0.16); transform: translateY(-1px); }
   .tool-btn-calc[disabled] { opacity: .6; cursor: default; transform: none; box-shadow: none; }
   .tool-btn-reset {
     background: transparent; border: 1px solid var(--zoo-border-strong, #3A424C); color: var(--zoo-text-muted, #a0a8a4);
@@ -116,7 +116,7 @@
   .tool-btn-reset:hover { border-color: rgba(232,163,23,0.5); color: var(--zoo-text, #fff); }
 
   .tool-result {
-    margin-top: 18px; padding: 20px; background: rgba(111,191,115,0.08); border: 1px solid rgba(111,191,115,0.3);
+    margin-top: 18px; padding: 20px; background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 8%, transparent); border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 30%, transparent);
     border-radius: 12px; display: none;
   }
   .tool-result.is-visible { display: block; }
@@ -130,7 +130,7 @@
   }
   .tool-table td { padding: 10px 12px; color: var(--zoo-text, #e5e9e7); border-bottom: 1px solid var(--zoo-border, #2A3038); font-size: .85rem; vertical-align: top; overflow-wrap: anywhere; }
   .tool-table tr:hover td { background: rgba(255,255,255,0.02); }
-  [data-theme="light"] .tool-table td { color: #1a1d1b; }
+  [data-theme="light"] .tool-table td { color: #1F2933; }
   [data-theme="light"] .tool-table tr:hover td { background: rgba(0,0,0,0.03); }
   .tool-table-wrap { overflow-x: auto; border: 1px solid var(--zoo-border, #2A3038); border-radius: 10px; }
 
@@ -155,9 +155,9 @@
   }
   .reg-buscar input { padding-left: 38px; }
   .reg-barra select { width: auto; max-width: 100%; flex: 0 1 190px; }
-  [data-theme="light"] .reg-buscar input, [data-theme="light"] .reg-barra select { background: #fff; border-color: #d0d4cb; color: #1a1d1b; }
+  [data-theme="light"] .reg-buscar input, [data-theme="light"] .reg-barra select { background: #fff; border-color: #D8D2C4; color: #1F2933; }
   .reg-barra select option { background: #171B20; color: #fff; }
-  [data-theme="light"] .reg-barra select option { background: #fff; color: #1a1d1b; }
+  [data-theme="light"] .reg-barra select option { background: #fff; color: #1F2933; }
   .reg-nota { color: var(--zoo-text-muted, #a0a8a4); font-size: .8rem; margin: 0 0 14px; }
   .reg-grupo { margin-bottom: 20px; }
   .reg-grupo__cab { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 8px; }
@@ -182,7 +182,7 @@
   .reg-btn:hover { border-color: rgba(232,163,23,0.6); background: rgba(232,163,23,0.08); }
   .reg-btn--peligro { color: #D55A28; }
   .reg-btn--peligro:hover { border-color: #D55A28; background: rgba(213,90,40,0.1); }
-  [data-theme="light"] .reg-btn { color: #1a1d1b; }
+  [data-theme="light"] .reg-btn { color: #1F2933; }
   [data-theme="light"] .reg-btn--peligro { color: #b8431b; }
 
   .reg-chip {
@@ -190,7 +190,7 @@
     background: rgba(255,255,255,0.08); color: var(--zoo-text, #fff); white-space: nowrap;
   }
   .reg-chip .zi { width: 13px; height: 13px; }
-  .reg-chip--activo, .reg-chip--alta, .reg-chip--nacimiento { background: rgba(111,191,115,0.18); color: #3f9a44; }
+  .reg-chip--activo, .reg-chip--alta, .reg-chip--nacimiento { background: var(--zoo-ok-tinte); color: var(--zoo-ok-txt); }
   .reg-chip--baja, .reg-chip--traslado { background: rgba(42,164,213,0.16); color: #2380a6; }
   .reg-chip--muerte { background: rgba(213,90,40,0.16); color: #c14822; }
   .reg-chip--nota { background: rgba(232,163,23,0.16); color: #a9740a; }
@@ -205,7 +205,7 @@
     padding: 12px 14px; border: 1px solid var(--zoo-border, #2A3038); border-left: 4px solid #E8A317; border-radius: 10px; background: rgba(255,255,255,0.02);
   }
   .reg-evento--muerte { border-left-color: #D55A28; }
-  .reg-evento--alta, .reg-evento--nacimiento { border-left-color: #6FBF73; }
+  .reg-evento--alta, .reg-evento--nacimiento { border-left-color: var(--zoo-ok-txt); }
   .reg-evento--baja, .reg-evento--traslado { border-left-color: #2AA4D5; }
   .reg-evento__fecha { font-weight: 700; font-size: .82rem; color: var(--zoo-text-muted, #a0a8a4); }
   .reg-evento__titulo { font-size: .9rem; color: var(--zoo-text, #fff); overflow-wrap: anywhere; }
@@ -239,9 +239,9 @@
   details.reg-detalles[open] > summary { border-bottom: 1px solid var(--zoo-border, #2A3038); margin-bottom: 14px; }
   details.reg-detalles .tool-form { margin-bottom: 14px; }
   .reg-borrador-caja { border: 1px solid var(--zoo-border-strong, #3A424C); border-radius: 12px; overflow-x: auto; background: rgba(0,0,0,0.25); }
-  [data-theme="light"] .reg-borrador-caja { background: #f6f7f3; border-color: #d0d4cb; }
+  [data-theme="light"] .reg-borrador-caja { background: #f6f7f3; border-color: #D8D2C4; }
   .reg-borrador { margin: 0; padding: 16px; font-family: 'Consolas', 'Courier New', monospace; font-size: .78rem; line-height: 1.5; color: var(--zoo-text, #e5e9e7); white-space: pre; }
-  [data-theme="light"] .reg-borrador { color: #1a1d1b; }
+  [data-theme="light"] .reg-borrador { color: #1F2933; }
   .reg-plazos { margin: 0; padding-left: 20px; color: var(--zoo-text-muted, #a0a8a4); font-size: .86rem; line-height: 1.7; }
   .reg-plazos strong { color: var(--zoo-text, #fff); }
 
@@ -262,7 +262,7 @@
   .reg-ficha .reg-ficha__ancho { grid-column: 1 / -1; }
   .reg-confirmar { background: rgba(213,90,40,0.1); border: 1px solid rgba(213,90,40,0.4); border-radius: 12px; padding: 14px; margin-top: 14px; font-size: .9rem; line-height: 1.5; }
   .reg-toast {
-    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 9500; background: #1F5F3A; color: #fff;
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 9500; background: var(--zoo-solid, #1F5F3A); color: #fff;
     padding: 12px 18px; border-radius: 12px; font-weight: 600; font-size: .9rem; box-shadow: 0 10px 30px rgba(0,0,0,0.35); max-width: calc(100vw - 32px);
   }
   .reg-toast--error { background: #b8431b; }
@@ -305,9 +305,9 @@
     .tool-actions .tool-btn-calc, .tool-actions .tool-btn-reset { flex: 1 1 100%; justify-content: center; }
   }
 </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="registro">
 <div class="club-layout">
   <aside class="club-sidebar" id="sidebar"></aside>
   <main class="club-main">
@@ -442,11 +442,11 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionRegistro","seccion":"registro","icono":"clipboard-list","eyebrow":"Para UMA y PIMVS","titulo":"Libro de registro","acento":"de ejemplares.","sub":"Anota tus ejemplares y lo que les pasa (nacimientos, bajas, muertes, traslados y notas). La herramienta arma tu inventario actual y el borrador de tu informe anual.","cifras":[{"id":"statActivos","valor":"—","rotulo":"ejemplares activos"},{"id":"statEspecies","valor":"—","rotulo":"especies"},{"id":"statEventos","valor":"—","rotulo":"eventos en la bitácora"}]});</script>
-  <script src="../assets/js/club.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-paywall.js?v=20261104"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/registro-ejemplares-ui.js?v=20261104"></script>

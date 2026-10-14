@@ -17,12 +17,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
   <style>
     .foro-hero {
       background: var(--zoo-panel, #1F5F3A);
@@ -63,7 +63,7 @@
     .foro-hero__live-dot {
       width: 7px;
       height: 7px;
-      background: #6FBF73;
+      background: var(--zoo-acc-txt, #6FBF73);
       border-radius: 50%;
       animation: pulse 1.8s ease-in-out infinite;
     }
@@ -128,7 +128,7 @@
       font-weight: 700;
       cursor: pointer;
       font-size: 1rem;
-      box-shadow: 0 6px 20px rgba(232,163,23,0.3);
+      box-shadow: 0 6px 20px rgba(15,18,21,0.14);
       transition: all .2s;
       display: flex;
       align-items: center;
@@ -137,7 +137,7 @@
     }
     .foro-new-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(232,163,23,0.5);
+      box-shadow: 0 10px 28px rgba(15,18,21,0.16);
     }
 
     .foro-cats-wrap {
@@ -149,7 +149,7 @@
     }
     [data-theme="light"] .foro-cats-wrap {
       background: #ffffff;
-      border: 1px solid #e2e5df;
+      border: 1px solid #E4DFD3;
     }
     .foro-cats-title {
       font-size: .82rem;
@@ -157,7 +157,7 @@
       font-weight: 600;
       margin-bottom: 10px;
     }
-    [data-theme="light"] .foro-cats-title { color: #5a6360; }
+    [data-theme="light"] .foro-cats-title { color: #52606D; }
 
     /* Scroll horizontal en móvil para que todas las categorías se vean */
     .foro-cats {
@@ -191,8 +191,8 @@
       flex-shrink: 0;
     }
     [data-theme="light"] .foro-cat {
-      border: 1px solid #d0d4cb;
-      color: #3a403d !important;
+      border: 1px solid #D8D2C4;
+      color: #3E4A56 !important;
     }
     .foro-cat:hover {
       background: rgba(232,163,23,0.12);
@@ -201,13 +201,13 @@
     }
     [data-theme="light"] .foro-cat:hover {
       background: rgba(232,163,23,0.08);
-      color: #1a1d1b !important;
+      color: #1F2933 !important;
     }
     .foro-cat.is-active {
       background: var(--zoo-amber, #E8A317) !important;
       color: #1f1d17 !important;
       border-color: transparent !important;
-      box-shadow: 0 3px 10px rgba(232,163,23,0.4);
+      box-shadow: 0 3px 10px rgba(15,18,21,0.16);
     }
 
     .foro-list {
@@ -256,8 +256,8 @@
       flex-wrap: wrap;
     }
     .foro-post__cat {
-      background: rgba(111,191,115,0.12);
-      color: #6FBF73;
+      background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 12%, transparent);
+      color: var(--zoo-acc-txt, #6FBF73);
       padding: 3px 10px;
       border-radius: 10px;
       font-size: .75rem;
@@ -516,12 +516,12 @@
     [data-theme="light"] .foro-form-group select,
     [data-theme="light"] .foro-form-group textarea {
       background: #ffffff !important;
-      border: 1px solid #d0d4cb !important;
-      color: #1a1d1b !important;
+      border: 1px solid #D8D2C4 !important;
+      color: #1F2933 !important;
     }
     [data-theme="light"] .foro-form-group select option {
       background: #ffffff !important;
-      color: #1a1d1b !important;
+      color: #1F2933 !important;
     }
     .foro-form-group textarea { resize: vertical; min-height: 120px; }
     .foro-form-group input:focus,
@@ -556,8 +556,8 @@
     }
     [data-theme="light"] .foro-custom-select__btn {
       background: #ffffff !important;
-      border: 1px solid #d0d4cb !important;
-      color: #1a1d1b !important;
+      border: 1px solid #D8D2C4 !important;
+      color: #1F2933 !important;
     }
     .foro-custom-select__btn:hover {
       border-color: #E8A317;
@@ -589,7 +589,7 @@
     }
     [data-theme="light"] .foro-custom-select__options {
       background: #ffffff !important;
-      border: 1px solid #d0d4cb !important;
+      border: 1px solid #D8D2C4 !important;
       box-shadow: 0 12px 30px rgba(0,0,0,0.15);
     }
     .foro-custom-opt {
@@ -607,8 +607,8 @@
       transition: background .12s;
     }
     [data-theme="light"] .foro-custom-opt {
-      color: #1a1d1b !important;
-      border-bottom: 1px solid #e2e5df;
+      color: #1F2933 !important;
+      border-bottom: 1px solid #E4DFD3;
     }
     .foro-custom-opt:last-child { border-bottom: 0; }
     .foro-custom-opt:hover {
@@ -617,7 +617,7 @@
     }
     [data-theme="light"] .foro-custom-opt:hover {
       background: rgba(232,163,23,0.12) !important;
-      color: #1a1d1b !important;
+      color: #1F2933 !important;
     }
     .foro-custom-opt.is-active {
       background: rgba(232,163,23,0.2) !important;
@@ -860,9 +860,9 @@
       .foro-view-content h2 { font-size: 1.15rem; }
     }
   </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="foro">
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
@@ -905,11 +905,11 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionForo","seccion":"foro","icono":"message-circle","eyebrow":"Comunidad privada","titulo":"Foro VIP,","acento":"conversa con colegas.","sub":"Conecta, pregunta y comparte con profesionales en fauna silvestre de toda Latinoamérica.","cifras":[{"id":"totalPosts","valor":"0","rotulo":"discusiones"},{"id":"totalMembers","valor":"0","rotulo":"miembros activos"},{"id":"totalReplies","valor":"0","rotulo":"respuestas"}]});</script>
-  <script src="../assets/js/club.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/club-paywall.js?v=20261104"></script>
   <script src="../assets/js/club-foro-previa.js?v=20261104"></script>
@@ -1088,7 +1088,7 @@
         } else if (err.code === 'unavailable') {
           detalle = '<p style="margin-top:10px;font-size:.85rem;">Sin conexión. Revisa tu internet.</p>';
         } else {
-          detalle = `<p style="margin-top:10px;font-size:.82rem;color:#8a938f;">Detalles: ${escapeHtml(err.message || err.code || 'Desconocido')}</p>`;
+          detalle = `<p style="margin-top:10px;font-size:.82rem;color:#66727F;">Detalles: ${escapeHtml(err.message || err.code || 'Desconocido')}</p>`;
         }
         list.innerHTML = `
           <div class="foro-empty">

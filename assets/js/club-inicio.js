@@ -155,10 +155,10 @@
     datos = datos || {};
     var pdfs = Number.isFinite(datos.pdfsTotal) ? datos.pdfsAbiertos + '/' + datos.pdfsTotal : '—';
     return [
-      { id: 'cursos', etiqueta: 'Cursos', valor: r.cursosAbiertos + '/' + r.cursosTotal, nota: 'abiertos', href: 'club-biblioteca.html', color: '#2F7A4F' },
-      { id: 'clases', etiqueta: 'Clases', valor: r.clasesHechas + '/' + r.clasesTotal, nota: 'completadas', href: 'club-biblioteca.html', color: '#D4547A' },
-      { id: 'pdfs', etiqueta: 'PDFs', valor: pdfs, nota: 'materiales', href: 'club-pdfs.html', color: '#D9A21B' },
-      { id: 'pro', etiqueta: 'Pro', valor: '13', nota: 'herramientas', href: 'club-herramientas.html', color: '#8B7FBA' }
+      { id: 'cursos', etiqueta: 'Cursos', valor: r.cursosAbiertos + '/' + r.cursosTotal, nota: 'abiertos', href: 'club-biblioteca.html', color: '#1F5F3A' },
+      { id: 'clases', etiqueta: 'Clases', valor: r.clasesHechas + '/' + r.clasesTotal, nota: 'completadas', href: 'club-biblioteca.html', color: '#3B4A9E' },
+      { id: 'pdfs', etiqueta: 'PDFs', valor: pdfs, nota: 'materiales', href: 'club-pdfs.html', color: '#1F5A7A' },
+      { id: 'pro', etiqueta: 'Pro', valor: '13', nota: 'herramientas', href: 'club-herramientas.html', color: '#0F5E60' }
     ];
   }
 

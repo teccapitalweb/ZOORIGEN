@@ -17,16 +17,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
-  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261106-noticias">
-  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261106-noticias">
-  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261108-paleta">
   <style>
     /* ═══════════════ NOTIFICACIONES ═══════════════ */
     .notif-icon {
@@ -82,7 +82,7 @@
       background: #171B20;
       border: 1px solid rgba(232,163,23,0.25);
       border-radius: 14px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
       z-index: 9999;
       overflow: hidden;
       display: flex;
@@ -199,7 +199,7 @@
       height: 8px;
       background: #E8A317;
       border-radius: 50%;
-      box-shadow: 0 0 8px rgba(232,163,23,0.6);
+      box-shadow: 0 0 8px rgba(15,18,21,0.16);
     }
     .notif-empty {
       padding: 40px 24px;
@@ -407,11 +407,11 @@
     /* Cuenta regresiva del próximo webinar: en tema claro las cajas eran grises y las etiquetas (DÍAS, HRS...) no se leían */
     [data-theme="light"] .countdown div { background: var(--zoo-tint-2, #DCEBE0); }
     [data-theme="light"] .countdown strong { color: var(--zoo-solid-dark, #174A2D); }
-    [data-theme="light"] .countdown span { color: var(--zoo-text-muted, #5a6360); }
+    [data-theme="light"] .countdown span { color: var(--zoo-text-muted, #52606D); }
   </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="inicio">
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
@@ -450,11 +450,11 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-progreso.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261104"></script>
@@ -463,8 +463,8 @@
   <script src="../assets/js/club-noticias-ui.js?v=20261106-noticias"></script>
   <script src="../assets/js/guia-personaje.js?v=20261105-inicio"></script>
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
-  <script src="../assets/js/club-inicio.js?v=20261107-portadas"></script>
-  <script src="../assets/js/club-premios.js?v=20261104"></script>
+  <script src="../assets/js/club-inicio.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club-premios.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261104"></script>
   <script src="../assets/js/club-onboarding.js?v=20261104"></script>
   <script>
@@ -544,9 +544,9 @@
       if (urlParams.has('welcome') && !ZOORIGEN_CLUB.hasActiveMembership(session) && !window.ZOO_ONBOARDING) {
         setTimeout(() => {
           const welcomeOverlay = document.createElement('div');
-          welcomeOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(12, 12, 12,0.92);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .3s ease-out;';
+          welcomeOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,18,21,0.74);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:zooFadeIn .3s ease-out;';
           welcomeOverlay.innerHTML = `
-            <div style="max-width:520px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6);">
+            <div style="max-width:520px;width:100%;background:var(--zoo-solid, #1F5F3A);border:2px solid rgba(232,163,23,0.5);border-radius:22px;padding:36px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.45);">
               <div style="font-size:4rem;margin-bottom:14px;"><img class="zi-logo" src="../assets/img/logo/logo.jpg" alt="Zoorigen" width="64" height="64"></div>
               <div style="display:inline-block;background:rgba(232,163,23,0.2);color:#E8A317;padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:700;letter-spacing:.12em;margin-bottom:14px;">¡BIENVENIDO, ${(session.name || 'nuevo miembro').split(' ')[0].toUpperCase()}!</div>
               <h2 style="font-family:var(--zoo-font-display);color:#fff;font-size:1.7rem;margin:0 0 12px;line-height:1.2;">Ya eres parte de Zoorigen <svg class="zi" aria-hidden="true"><use href="#zi-party-popper"/></svg></h2>
@@ -563,7 +563,7 @@
               </div>
 
               <div style="display:flex;gap:10px;flex-direction:column;">
-                <button id="zooWelcomeExplore" style="background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 22px;border-radius:12px;cursor:pointer;font-family:var(--zoo-font-display);font-weight:800;font-size:.98rem;box-shadow:0 6px 18px rgba(232,163,23,0.3);"><svg class="zi" aria-hidden="true"><use href="#zi-leaf"/></svg> Explorar Zoorigen</button>
+                <button id="zooWelcomeExplore" style="background:var(--zoo-amber, #E8A317);border:0;color:#1f1d17;padding:14px 22px;border-radius:12px;cursor:pointer;font-family:var(--zoo-font-display);font-weight:800;font-size:.98rem;box-shadow:0 6px 18px rgba(15,18,21,0.14);"><svg class="zi" aria-hidden="true"><use href="#zi-leaf"/></svg> Explorar Zoorigen</button>
                 <button id="zooWelcomeSubscribe" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:12px 22px;border-radius:12px;cursor:pointer;font-family:var(--zoo-font-display);font-weight:700;font-size:.9rem;"><svg class="zi" aria-hidden="true"><use href="#zi-credit-card"/></svg> Suscribirme ahora (desde $199/mes)</button>
               </div>
             </div>
@@ -704,7 +704,7 @@
                   border: 2px solid #E8A317;
                   border-radius: 24px;
                   padding: 36px 30px 30px;
-                  box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(232,163,23,0.3);
+                  box-shadow: 0 30px 80px rgba(0,0,0,0.45), 0 0 60px rgba(15,18,21,0.14);
                   z-index: 99999;
                   animation: webinarPopIn .7s cubic-bezier(0.34, 1.56, 0.64, 1);
                   overflow: hidden;

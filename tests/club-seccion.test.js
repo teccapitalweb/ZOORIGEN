@@ -26,11 +26,11 @@ function contraste(a, b) {
   return (x + 0.05) / (y + 0.05);
 }
 
-test('el acento del título (#9BD9AE) se lee sobre el verde de día y el de noche (AA, 4.5:1)', () => {
+test('el acento del título de Inicio y Cursos (#9BD9AE) se lee sobre el verde de día y la superficie de noche (AA, 4.5:1)', () => {
   assert.ok(contraste('#9BD9AE', '#1F5F3A') >= 4.5, 'día: ' + contraste('#9BD9AE', '#1F5F3A'));
-  assert.ok(contraste('#9BD9AE', '#16301F') >= 4.5, 'noche: ' + contraste('#9BD9AE', '#16301F'));
+  assert.ok(contraste('#9BD9AE', '#1E2329') >= 4.5, 'noche: ' + contraste('#9BD9AE', '#1E2329'));
   const css = leer('assets/css/club-seccion.css');
-  assert.match(css, /--zs-acento:\s*#9BD9AE/i);
+  assert.match(css, /--zs-acento:\s*var\(--zs-claro, #9BD9AE\)/i);
   assert.match(css, /\.zs-acento\s*\{\s*color:\s*var\(--zs-acento\)/);
 });
 
@@ -42,7 +42,7 @@ test('modo noche: texto y botón principal cumplen AA sobre sus superficies neut
     assert.ok(contraste('#868F99', s) >= 4.5, 'tenue sobre ' + s);
   }
   assert.ok(contraste('#FFFFFF', '#2A7A4E') >= 4.5, 'botón principal verde con texto blanco');
-  assert.ok(contraste('#FFFFFF', '#16301F') >= 7, 'texto en la tarjeta de título de noche');
+  assert.ok(contraste('#E7EAEE', '#1E2329') >= 7, 'texto en la tarjeta de título de noche');
 });
 
 /* ───────── componente ───────── */
@@ -151,8 +151,8 @@ test('modo noche: paleta neutra definida y sin verde oscuro de superficie', () =
   assert.equal(val('--zoo-border').toUpperCase(), '#2A3038');
   assert.equal(val('--zoo-text').toUpperCase(), '#E7EAEE');
   assert.equal(val('--zoo-text-muted').toUpperCase(), '#A3ABB5');
-  assert.equal(val('--zoo-hero').toUpperCase(), '#16301F');
-  assert.equal(val('--zoo-hero-borde').toUpperCase(), '#24472F');
+  assert.equal(val('--zoo-hero').toUpperCase(), '#1E2329');
+  assert.equal(val('--zoo-hero-borde').toUpperCase(), '#2A3038');
   // el verde de marca vuelve en modo día
   const dia = css.slice(css.indexOf('[data-theme="light"] {'), css.indexOf('[data-theme="light"] {') + 600);
   assert.match(dia, /--zoo-hero:\s*#1F5F3A/i);

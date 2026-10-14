@@ -17,12 +17,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
 <style>
   .tools-hero {
     background: var(--zoo-panel, #1F5F3A);
@@ -106,7 +106,7 @@
     background: var(--zoo-amber, #E8A317);
     color: #1f1d17;
     border-color: transparent;
-    box-shadow: 0 4px 14px rgba(232,163,23,0.3);
+    box-shadow: 0 4px 14px rgba(15,18,21,0.14);
   }
 
   .tool-panel {
@@ -174,14 +174,14 @@
   [data-theme="light"] .tool-field select,
   [data-theme="light"] .tool-field textarea {
     background: #ffffff !important;
-    border: 1px solid #d0d4cb !important;
-    color: #1a1d1b !important;
+    border: 1px solid #D8D2C4 !important;
+    color: #1F2933 !important;
   }
   .tool-field input:focus, .tool-field select:focus, .tool-field textarea:focus {
     outline: 0; border-color: #E8A317 !important;
   }
   .tool-field select option { background: #171B20; color: #fff; }
-  [data-theme="light"] .tool-field select option { background: #fff; color: #1a1d1b; }
+  [data-theme="light"] .tool-field select option { background: #fff; color: #1F2933; }
 
   .tool-actions {
     display: flex; gap: 10px; flex-wrap: wrap;
@@ -194,7 +194,7 @@
     cursor: pointer; font-size: .95rem;
   }
   .tool-btn-calc:hover {
-    box-shadow: 0 6px 18px rgba(232,163,23,0.35);
+    box-shadow: 0 6px 18px rgba(15,18,21,0.16);
     transform: translateY(-1px);
   }
   .tool-btn-reset {
@@ -207,8 +207,8 @@
 
   .tool-result {
     margin-top: 18px; padding: 20px;
-    background: rgba(111,191,115,0.08);
-    border: 1px solid rgba(111,191,115,0.3);
+    background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 30%, transparent);
     border-radius: 12px; display: none;
   }
   .tool-result.is-visible { display: block; }
@@ -247,10 +247,10 @@
     color: rgba(255,255,255,0.75);
     font-size: .85rem; line-height: 1.6;
   }
-  [data-theme="light"] .tool-result__title { color: #1a1d1b; }
+  [data-theme="light"] .tool-result__title { color: #1F2933; }
   [data-theme="light"] .tool-result__row { background: rgba(0,0,0,0.05); }
-  [data-theme="light"] .tool-result__row-label { color: #3a403d; }
-  [data-theme="light"] .tool-result__note { color: #5a6360; border-top-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .tool-result__row-label { color: #3E4A56; }
+  [data-theme="light"] .tool-result__note { color: #52606D; border-top-color: rgba(0,0,0,0.08); }
 
   .tool-subsection {
     margin-top: 16px;
@@ -343,9 +343,9 @@
   .tool-info-card .pw-vista { min-height: 150px; margin-top: 4px; }
   .pw-aviso a { color: inherit; font-weight: 700; text-decoration: underline; }
 </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="infusiones">
 <div class="club-layout">
   <aside class="club-sidebar" id="sidebar"></aside>
   <main class="club-main">
@@ -663,11 +663,11 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionInfusiones","seccion":"infusiones","icono":"syringe","eyebrow":"Herramienta profesional","titulo":"Infusiones","acento":"y diluciones.","sub":"Velocidad de infusión continua, preparación de bolsas y jeringas, diluciones y conversiones de unidades. Tú escribes la dosis: la herramienta solo hace la aritmética y te muestra la fórmula con tus números para que puedas comprobarla.","cifras":[{"valor":"4","rotulo":"calculadoras"},{"valor":"4","rotulo":"equipos de goteo (10, 15, 20 y 60 gtt/ml)"}]});</script>
-  <script src="../assets/js/club.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-paywall.js?v=20261104"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/herramientas-infusiones.js?v=20261104"></script>

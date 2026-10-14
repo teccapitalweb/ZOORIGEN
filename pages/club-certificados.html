@@ -17,15 +17,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
   <style>
     /* Estado del certificado: verificado por el servidor o en validación (anterior a la validación automática) */
     .cert-estado { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: .75rem; font-weight: 700; letter-spacing: .02em; margin-bottom: 8px; border: 1px solid transparent; }
-    .cert-estado--verificado { color: #6FBF73; background: rgba(111,191,115,.12); border-color: rgba(111,191,115,.35); }
+    .cert-estado--verificado { color: var(--zoo-ok-txt); background: var(--zoo-ok-tinte); border-color: var(--zoo-ok-borde); }
     .cert-estado--en-validacion { color: #E8A317; background: rgba(232,163,23,.12); border-color: rgba(232,163,23,.4); }
     /* El título usaba blanco fijo y desaparecía en el tema claro */
     .cert-item-card__body h3 { color: var(--zoo-text); }
@@ -38,9 +38,9 @@
     [data-theme="light"] .cert-item-card__label { color: #7A5200; }
     .certs-empty__acc { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
   </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="certificados">
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
@@ -57,13 +57,13 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionCertificados","seccion":"certificados","icono":"graduation-cap","eyebrow":"Mis certificados","titulo":"Tus logros,","acento":"con folio verificable.","sub":"Completa cursos para ganar certificados descargables que cualquiera puede verificar.","cifras":[{"clave":"certificados","valor":"—","rotulo":"certificados"},{"clave":"verificados","valor":"—","rotulo":"verificados"}]});</script>
-  <script src="../assets/js/club.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-progreso.js?v=20261104"></script>
   <script src="../assets/js/club-certificado.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script>
     (async () => {

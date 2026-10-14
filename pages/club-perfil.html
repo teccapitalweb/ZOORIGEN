@@ -15,11 +15,11 @@
   <meta name="apple-mobile-web-app-title" content="Zoorigen">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
   <style>
     .profile-edit-btn {
       background: rgba(232,163,23,0.1);
@@ -62,7 +62,7 @@
       font-size: 1rem;
       margin-bottom: 6px;
     }
-    .profile-edit-form input:focus { outline: 0; border-color: var(--zoo-green-500); }
+    .profile-edit-form input:focus { outline: 0; border-color: var(--zoo-ok-txt); }
     .profile-edit-form .hint-cert {
       color: var(--zoo-amber);
       font-size: .8rem;
@@ -77,9 +77,9 @@
     [data-theme="light"] .pf-ambar { color: #7A5200 !important; }
     [data-theme="light"] .pf-verde { color: #1F6A3F !important; }
   </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="perfil">
   <div class="club-layout">
     <aside class="club-sidebar" id="sidebar"></aside>
     <main class="club-main">
@@ -144,11 +144,11 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionPerfil","seccion":"perfil","icono":"user","eyebrow":"Mi cuenta","titulo":"Mi perfil,","acento":"tus datos y tu plan.","sub":"Información de tu cuenta Zoorigen.","cifras":[{"clave":"estado","valor":"—","rotulo":"membresía"},{"clave":"desde","valor":"—","rotulo":"miembro desde"},{"clave":"vence","valor":"—","rotulo":"renovación"}]});</script>
-  <script src="../assets/js/club.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script>
     (async () => {
@@ -164,7 +164,7 @@
       document.getElementById('profileEmail').textContent = session.email;
       document.getElementById('profilePhone').textContent = session.phone || 'No registrado';
       const statusMap = {
-        'active': '<span class="pf-verde" style="color:var(--zoo-green-500);">● Membresía activa</span>',
+        'active': '<span class="pf-verde" style="color:var(--zoo-ok-txt);">● Membresía activa</span>',
         'cancelled_active': '<span class="pf-ambar" style="color:var(--zoo-amber);"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Cancelada · acceso vigente</span>',
         'pending_payment': '<span class="pf-ambar" style="color:var(--zoo-amber);">Cuenta gratuita</span>',
         'past_due': '<span style="color:var(--zoo-orange);"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Pago no confirmado</span>',
@@ -233,7 +233,7 @@
             nameUpdatedAt: new Date().toISOString()
           });
 
-          msgEl.innerHTML = `<div style="color:var(--zoo-green-500);background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);padding:10px 14px;border-radius:8px;font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Nombre actualizado. Tus nuevos certificados usarán este nombre.</div>`;
+          msgEl.innerHTML = `<div style="color:var(--zoo-ok-txt);background:var(--zoo-ok-tinte);border:1px solid var(--zoo-ok-borde);padding:10px 14px;border-radius:8px;font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> Nombre actualizado. Tus nuevos certificados usarán este nombre.</div>`;
           document.getElementById('profileName').textContent = newName;
           document.getElementById('avatar').textContent = ZOORIGEN_CLUB.getInitials(newName);
 

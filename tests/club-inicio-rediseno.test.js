@@ -8,7 +8,7 @@ const path = require('node:path');
 const RAIZ = path.resolve(__dirname, '..');
 const leer = rel => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
 const dash = leer('pages/club-dashboard.html');
-const cuerpo = dash.slice(dash.indexOf('<body>'), dash.indexOf('<script src="https://www.gstatic.com'));
+const cuerpo = dash.slice(dash.indexOf('<body'), dash.indexOf('<script src="https://www.gstatic.com'));
 
 test('el Inicio ya no trae la tarjeta de nivel (los datos siguen en Mis logros)', () => {
   assert.doesNotMatch(dash, /id="levelCard"/);
@@ -48,14 +48,14 @@ test('el saludo usa el personaje y su módulo, con animaciones que respetan "red
   assert.match(js, /IntersectionObserver/);
 });
 
-test('colores sólidos y modo noche: verde de marca de día, #16301F con borde #24472F de noche (tokens)', () => {
+test('colores sólidos y modo noche: verde de marca de día, superficie neutra #1E2329 con borde #2A3038 de noche (tokens)', () => {
   const css = leer('assets/css/club-inicio.css');
   const bloque = css.slice(css.indexOf('TARJETA DE SALUDO'));
   assert.doesNotMatch(bloque, /gradient\(/, 'sin degradados en el saludo ni en la invitación');
   assert.doesNotMatch(bloque, /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u);
   const base = leer('assets/css/club.css');
-  assert.match(base, /--zoo-hero:\s*#16301F/i);
-  assert.match(base, /--zoo-hero-borde:\s*#24472F/i);
+  assert.match(base, /--zoo-hero:\s*#1E2329/i);
+  assert.match(base, /--zoo-hero-borde:\s*#2A3038/i);
   assert.match(base, /--zoo-hero:\s*#1F5F3A/i);
   assert.match(bloque, /#25D366/i, 'botón de WhatsApp en su verde');
 });
@@ -69,11 +69,11 @@ test('el Inicio carga la tipografía del periódico en el mismo enlace de Google
 
 test('las versiones de lo que cambió suben en las páginas que lo cargan', () => {
   for (const [pag, patron] of [
-    ['pages/club-dashboard.html', /assets\/css\/club-inicio\.css\?v=20261106-noticias/],
-    ['pages/club-dashboard.html', /assets\/css\/club-noticias\.css\?v=20261106-noticias/],
-    ['pages/club-dashboard.html', /assets\/js\/club-inicio\.js\?v=20261107-portadas/],
+    ['pages/club-dashboard.html', /assets\/css\/club-inicio\.css\?v=20261108-paleta/],
+    ['pages/club-dashboard.html', /assets\/css\/club-noticias\.css\?v=20261108-paleta/],
+    ['pages/club-dashboard.html', /assets\/js\/club-inicio\.js\?v=20261108-paleta/],
     ['pages/club-dashboard.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/],
-    ['pages/admin-club.html', /assets\/css\/club-noticias\.css\?v=20261106-noticias/],
+    ['pages/admin-club.html', /assets\/css\/club-noticias\.css\?v=20261108-paleta/],
     ['pages/admin-club.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/]
   ]) assert.match(leer(pag), patron, pag + ' ' + patron);
 });
@@ -90,14 +90,15 @@ test('las noticias del Inicio se pintan como rejilla de tarjetas (modo por defec
   assert.doesNotMatch(leer('assets/css/club-inicio.css'), /\.nt-seccion \.hojas/, 'el Inicio no pisa las columnas de la rejilla');
 });
 
-test('la invitación lleva color sólido: fondo en tinte verde, borde superior verde, banda dorada, boleto dorado y cifras de color', () => {
+test('la invitación lleva color sólido: fondo crema, borde superior azul, banda dorada, boleto dorado y cifras de color (el verde queda en lo pequeño)', () => {
   const css = leer('assets/css/club-inicio.css');
   const b = css.slice(css.indexOf('TARJETA "INVITA AMIGOS"'));
   assert.doesNotMatch(b, /gradient\(/);
-  assert.match(b, /--iv-fondo:\s*#EAF2EC/i, 'tinte verde de día');
+  assert.match(b, /--iv-fondo:\s*#FBF8F0/i, 'crema cálido de día');
   assert.match(b, /--iv-fondo:\s*#171B20/i, 'superficie neutra de noche');
   assert.match(b, /border-top:\s*6px solid var\(--iv-sup\)/);
-  assert.match(b, /--iv-sup:\s*#1F5F3A/i);
+  assert.match(b, /--iv-sup:\s*#2F5CA8/i, 'borde superior azul (el verde ya no domina la tarjeta)');
+  assert.match(b, /--iv-btn:\s*#2F5CA8/i, 'botón copiar en azul');
   assert.match(b, /\.inv__banda \{[^}]*background:\s*var\(--iv-dorado\)/);
   assert.match(b, /--iv-dorado:\s*#E8A317/i);
   assert.match(b, /--iv-boleto:\s*#FFF3CF/i, 'boleto en tinte dorado');

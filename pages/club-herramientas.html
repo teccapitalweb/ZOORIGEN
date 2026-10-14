@@ -17,12 +17,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/club.css?v=20261104">
-<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261104">
-<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261105">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261104">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261108-paleta">
+<link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
+<link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
 <style>
   .tools-hero {
     background: var(--zoo-panel, #1F5F3A);
@@ -106,7 +106,7 @@
     background: var(--zoo-amber, #E8A317);
     color: #1f1d17;
     border-color: transparent;
-    box-shadow: 0 4px 14px rgba(232,163,23,0.3);
+    box-shadow: 0 4px 14px rgba(15,18,21,0.14);
   }
 
   .tool-panel {
@@ -183,14 +183,14 @@
   [data-theme="light"] .tool-field select,
   [data-theme="light"] .tool-field textarea {
     background: #ffffff !important;
-    border: 1px solid #d0d4cb !important;
-    color: #1a1d1b !important;
+    border: 1px solid #D8D2C4 !important;
+    color: #1F2933 !important;
   }
   .tool-field input:focus, .tool-field select:focus, .tool-field textarea:focus {
     outline: 0; border-color: #E8A317 !important;
   }
   .tool-field select option { background: #171B20; color: #fff; }
-  [data-theme="light"] .tool-field select option { background: #fff; color: #1a1d1b; }
+  [data-theme="light"] .tool-field select option { background: #fff; color: #1F2933; }
 
   .tool-actions {
     display: flex; gap: 10px; flex-wrap: wrap;
@@ -203,7 +203,7 @@
     cursor: pointer; font-size: .95rem;
   }
   .tool-btn-calc:hover {
-    box-shadow: 0 6px 18px rgba(232,163,23,0.35);
+    box-shadow: 0 6px 18px rgba(15,18,21,0.16);
     transform: translateY(-1px);
   }
   .tool-btn-reset {
@@ -216,8 +216,8 @@
 
   .tool-result {
     margin-top: 18px; padding: 20px;
-    background: rgba(111,191,115,0.08);
-    border: 1px solid rgba(111,191,115,0.3);
+    background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 30%, transparent);
     border-radius: 12px; display: none;
   }
   .tool-result.is-visible { display: block; }
@@ -256,10 +256,10 @@
     color: rgba(255,255,255,0.75);
     font-size: .85rem; line-height: 1.6;
   }
-  [data-theme="light"] .tool-result__title { color: #1a1d1b; }
+  [data-theme="light"] .tool-result__title { color: #1F2933; }
   [data-theme="light"] .tool-result__row { background: rgba(0,0,0,0.05); }
-  [data-theme="light"] .tool-result__row-label { color: #3a403d; }
-  [data-theme="light"] .tool-result__note { color: #5a6360; border-top-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .tool-result__row-label { color: #3E4A56; }
+  [data-theme="light"] .tool-result__note { color: #52606D; border-top-color: rgba(0,0,0,0.08); }
 
   .tool-subsection {
     margin-top: 16px;
@@ -306,7 +306,7 @@
     font-weight: 700; font-size: .76rem;
     text-transform: uppercase; letter-spacing: .06em;
   }
-  [data-theme="light"] .tool-table td { color: #1a1d1b; }
+  [data-theme="light"] .tool-table td { color: #1F2933; }
   [data-theme="light"] .tool-table tr:hover td { background: rgba(0,0,0,0.03); }
 
   .tool-search-filter {
@@ -328,7 +328,7 @@
     .tool-search-filter input { font-size: 16px; }
   }
   [data-theme="light"] .tool-search-filter input {
-    background: #fff; border: 1px solid #d0d4cb; color: #1a1d1b;
+    background: #fff; border: 1px solid #D8D2C4; color: #1F2933;
   }
 
   /* Tabla scrollable con altura */
@@ -507,7 +507,7 @@
   .anes-fila { padding: 10px 12px; border-radius: 10px; background: rgba(0,0,0,0.04); margin-top: 8px; }
   .anes-fila__cab { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .anes-fila__conc { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: .8rem; color: var(--zoo-text-muted); }
-  .anes-fila__conc input { width: 110px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--zoo-border-strong, #ccc); background: #fff; color: #1a1d1b; }
+  .anes-fila__conc input { width: 110px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--zoo-border-strong, #ccc); background: #fff; color: #1F2933; }
   .gas-tabla { width: 100%; border-collapse: collapse; font-size: .84rem; margin-top: 6px; }
   .gas-tabla th, .gas-tabla td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--zoo-border, rgba(0,0,0,.1)); }
   /* Vista previa para quien no es miembro: nombres visibles, detalle difuminado con marcadores */
@@ -518,9 +518,9 @@
   .gas-tabla--previa td .pw-barra { margin: 3px 0; }
   .pw-aviso a { color: inherit; font-weight: 700; text-decoration: underline; }
 </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261108-paleta">
 </head>
-<body>
+<body data-zoo="herramientas">
 <div class="club-layout">
   <aside class="club-sidebar" id="sidebar"></aside>
   <main class="club-main">
@@ -866,11 +866,11 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261105"></script>
+  <script src="../assets/js/club-seccion.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionHerramientas","seccion":"herramientas","icono":"dna","eyebrow":"Herramienta profesional","titulo":"Clínica y farmacología","acento":"de fauna silvestre.","sub":"Referencia para médicos veterinarios zoológicos y biólogos de campo. Cada dosis, protocolo y dato trae el enlace a la fuente abierta de donde se tomó (Manual Veterinario Merck, guías AAHA y RECOVER, FDA, artículos de PubMed). Lo que no se pudo verificar no aparece.","cifras":[{"id":"statFarmacos","valor":"40+","rotulo":"fármacos"},{"id":"statProtocolos","valor":"6","rotulo":"protocolos anestésicos"},{"id":"statEspecies","valor":"60+","rotulo":"especies"},{"valor":"8","rotulo":"protocolos de urgencia"}]});</script>
-  <script src="../assets/js/club.js?v=20261104"></script>
-  <script src="../assets/js/club-shell.js?v=20261104"></script>
+  <script src="../assets/js/club.js?v=20261108-paleta"></script>
+  <script src="../assets/js/club-shell.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-paywall.js?v=20261104"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/herramientas-dosis.js?v=20261104"></script>
@@ -1077,7 +1077,7 @@ function calcularAnestesia() {
       <div class="tool-ref__fuente">Fuente: <a href="${C.esc(x.url)}" target="_blank" rel="noopener noreferrer">${C.esc(x.fuente)}</a></div>
     </div>`;
   });
-  html += `<div class="tool-subsection"><div class="tool-subsection__title" style="color:#6FBF73;"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Reversión</div><p style="margin:0;color:var(--zoo-text);">${C.esc(p.reversion)} <a href="${C.esc(p.reversionFuente.url)}" target="_blank" rel="noopener noreferrer">${C.esc(p.reversionFuente.fuente)}</a></p></div>`;
+  html += `<div class="tool-subsection"><div class="tool-subsection__title" style="color:var(--zoo-acc-txt, #6FBF73);"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Reversión</div><p style="margin:0;color:var(--zoo-text);">${C.esc(p.reversion)} <a href="${C.esc(p.reversionFuente.url)}" target="_blank" rel="noopener noreferrer">${C.esc(p.reversionFuente.fuente)}</a></p></div>`;
   html += `<div class="tool-result__note">Dosis de referencia publicadas, revisadas el ${ZOO_PROTOCOLOS.FECHA_REVISION}. No sustituyen el criterio del médico veterinario: confirma dosis, vía y concentración antes de aplicar.</div>`;
   rEl.innerHTML = html;
   rEl.className = 'tool-result is-visible';

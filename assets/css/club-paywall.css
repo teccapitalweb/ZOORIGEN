@@ -13,7 +13,7 @@
 .tool-paywall {
   text-align: center;
   background: var(--zoo-tint, #EAF2EC);
-  border: 1px solid var(--zoo-border-strong, #d0d4cb);
+  border: 1px solid var(--zoo-border-strong, #D8D2C4);
   border-radius: 14px;
   padding: 22px 20px;
   margin: 4px 0;
@@ -42,7 +42,7 @@
 /* ── Aviso de vista previa (arriba de una pantalla) ── */
 .pw-aviso {
   display: flex; align-items: flex-start; gap: 10px;
-  background: var(--zoo-tint, #EAF2EC); border: 1px solid var(--zoo-border-strong, #d0d4cb);
+  background: var(--zoo-tint, #EAF2EC); border: 1px solid var(--zoo-border-strong, #D8D2C4);
   border-left: 4px solid var(--zoo-solid, #1F5F3A);
   border-radius: 10px; padding: 12px 14px; margin: 0 0 16px;
   color: var(--zoo-text); font-size: .88rem; line-height: 1.5;
@@ -57,7 +57,7 @@
 .pw-vista__caja {
   max-width: 380px; width: 100%; text-align: center;
   background: var(--zoo-bg-card, #fff); color: var(--zoo-text);
-  border: 1px solid var(--zoo-border-strong, #d0d4cb); border-radius: 14px;
+  border: 1px solid var(--zoo-border-strong, #D8D2C4); border-radius: 14px;
   padding: 18px 18px 20px; box-shadow: 0 14px 40px rgba(0, 0, 0, .28);
   display: flex; flex-direction: column; gap: 8px; align-items: center;
 }
@@ -79,7 +79,7 @@
 .pw-chip .pw-ic { width: 13px; height: 13px; }
 .pw-ejemplo {
   display: inline-block; background: var(--zoo-tint-2, #DCEBE0); color: var(--zoo-text);
-  border: 1px solid var(--zoo-border-strong, #d0d4cb);
+  border: 1px solid var(--zoo-border-strong, #D8D2C4);
   border-radius: 999px; padding: 2px 9px; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
 }
 
@@ -107,7 +107,7 @@
 .pw-modal {
   width: 100%; max-width: 420px; text-align: center;
   background: var(--zoo-bg-card, #fff); color: var(--zoo-text);
-  border: 1px solid var(--zoo-border-strong, #d0d4cb); border-radius: 18px;
+  border: 1px solid var(--zoo-border-strong, #D8D2C4); border-radius: 18px;
   padding: 26px 24px 22px; box-shadow: 0 24px 70px rgba(0, 0, 0, .4);
 }
 .pw-modal__ic {

@@ -16,7 +16,7 @@
   --zob-fondo-suave: rgba(127, 140, 130, .14);
   --zob-texto: var(--zoo-text, #fff);
   --zob-suave: var(--zoo-text-muted, rgba(255, 255, 255, .72));
-  --zob-borde: var(--zoo-border-strong, rgba(111, 191, 115, .35));
+  --zob-borde: var(--zoo-border-strong, color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 35%, transparent));
   --zob-acento: #FF9D52;
   --zob-azul-texto: #66BDF3;
   --zob-verde-texto: #BCCF2C;
@@ -307,13 +307,13 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zoo-welcome-backdrop { background: rgba(10, 12, 14, 0.9); }
 
 /* Día: la bienvenida de miembro es una tarjeta blanca; los textos que eran blancos pasan a tinta oscura (antes no se leían). */
-[data-theme="light"] .zoo-welcome-title { color: #1a1d1b; }
+[data-theme="light"] .zoo-welcome-title { color: #1F2933; }
 [data-theme="light"] .zoo-welcome-title span { background: none; -webkit-text-fill-color: #8A5A00; color: #8A5A00; }
-[data-theme="light"] .zoo-welcome-benefit strong { color: #1a1d1b; }
+[data-theme="light"] .zoo-welcome-benefit strong { color: #1F2933; }
 [data-theme="light"] .zoo-welcome-benefit small, [data-theme="light"] .zoo-welcome-desc, [data-theme="light"] .zoo-welcome-plan-sub { color: #4b5550; }
-[data-theme="light"] .zoo-welcome-desc strong, [data-theme="light"] .zoo-welcome-footer a { color: #1F5F3A; }
+[data-theme="light"] .zoo-welcome-desc strong, [data-theme="light"] .zoo-welcome-footer a { color: var(--zoo-acc-txt, #1F5F3A); }
 [data-theme="light"] .zoo-welcome-plan-label { color: #7A5200; }
 [data-theme="light"] .zoo-welcome-plan-icon { color: #8A5A00; }
 [data-theme="light"] .zoo-welcome-sparkle { color: #B27A06; }
-[data-theme="light"] .zoo-welcome-benefit span { color: #1F5F3A; }
-[data-theme="light"] .zoo-welcome-close { color: #4b5550; background: #f0f1ee; }
+[data-theme="light"] .zoo-welcome-benefit span { color: var(--zoo-acc-txt, #1F5F3A); }
+[data-theme="light"] .zoo-welcome-close { color: #4b5550; background: #EFEBE2; }

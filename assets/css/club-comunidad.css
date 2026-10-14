@@ -83,9 +83,8 @@
 .zc-premio__cab small { color: var(--zoo-text-muted); font-size: .78rem; }
 .zc-premio__desc, .zc-premio__nota { color: var(--zoo-text-muted); font-size: .84rem; line-height: 1.5; margin: 0; }
 .zc-premio__estado { display: flex; align-items: center; gap: 6px; font-size: .86rem; font-weight: 700; color: var(--zoo-text-muted); }
-.zc-premio__estado.is-listo { color: var(--zoo-green-500, #6FBF73); }
+.zc-premio__estado.is-listo { color: var(--zoo-ok-txt); }
 .zc-premio__estado.is-usado { color: var(--zoo-text-muted); }
-[data-theme="light"] .zc-premio__estado.is-listo { color: #1F5F3A; }
 
 /* ── Lista de invitados ── */
 .zc-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -96,19 +95,16 @@
 .zc-inv__id strong { display: block; color: var(--zoo-text); font-size: .95rem; overflow-wrap: anywhere; }
 .zc-inv__id small { color: var(--zoo-text-muted); font-size: .78rem; }
 .zc-est { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 99px; font-size: .78rem; font-weight: 700; }
-.zc-est--ok { background: rgba(111,191,115,.18); color: #2f7a4f; }
-.zc-est--espera { background: rgba(232,163,23,.16); color: #9a6a00; }
-.zc-est--no { background: rgba(213,90,40,.14); color: #b4441a; }
-:root:not([data-theme="light"]) .zc-est--ok { color: #8fe094; }
-:root:not([data-theme="light"]) .zc-est--espera { color: #f2c35a; }
-:root:not([data-theme="light"]) .zc-est--no { color: #f08a5d; }
+.zc-est--ok { background: var(--zoo-ok-tinte); color: var(--zoo-ok-txt); }
+.zc-est--espera { background: var(--zoo-aviso-tinte); color: var(--zoo-aviso-txt); }
+.zc-est--no { background: var(--zoo-error-tinte); color: var(--zoo-error-txt); }
 .zc-inv__nota { margin: 10px 0 0; font-size: .84rem; color: var(--zoo-text-muted); }
 .zc-inv__nota--no { color: var(--zoo-orange, #D55A28); }
 .zc-hitos { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .zc-hito { display: flex; gap: 8px; align-items: flex-start; font-size: .84rem; color: var(--zoo-text-muted); }
 .zc-hito .zi { margin-top: 2px; }
 .zc-hito.is-logrado { color: var(--zoo-text); font-weight: 600; }
-.zc-hito.is-logrado .zi { color: var(--zoo-green-500, #6FBF73); }
+.zc-hito.is-logrado .zi { color: var(--zoo-ok-txt); }
 .zc-hito em { font-style: normal; font-size: .76rem; opacity: .8; }
 .zc-inv__puntos { margin-top: 10px; font-size: .82rem; color: var(--zoo-text-muted); }
 .zc-inv__puntos strong { color: var(--zoo-amber, #E8A317); }
@@ -127,7 +123,7 @@
 @keyframes zcBrillo { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .zc-esqueleto { animation: none; } .zc-barra__relleno { transition: none; } }
 
-.zc-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 100000; background: #171B20; color: #fff; border: 1px solid rgba(111,191,115,.5); padding: 11px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.35); max-width: calc(100vw - 32px); }
+.zc-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 100000; background: #171B20; color: #fff; border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 50%, transparent); padding: 11px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.35); max-width: calc(100vw - 32px); }
 
 /* ============================================================ */
 /* DIRECTORIO                                                    */
@@ -202,7 +198,7 @@
   width: 100%; min-height: 44px; padding: 10px 12px; background: rgba(127,127,127,.1); color: var(--zoo-text);
   border: 1px solid var(--zoo-border-strong, var(--zoo-border)); border-radius: 10px; font-family: inherit; font-size: .92rem;
 }
-.zd-campo select option { color: #1a1d1b; background: #fff; }
+.zd-campo select option { color: #1F2933; background: #fff; }
 .zd-campo textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 .zd-campo.tiene-error input, .zd-campo.tiene-error select, .zd-campo.tiene-error textarea { border-color: var(--zoo-orange, #D55A28); }
 .zd-error { color: var(--zoo-orange, #D55A28); font-size: .8rem; min-height: 1em; }

@@ -107,7 +107,7 @@
   background: #171B20;
   border: 1px solid rgba(232,163,23,0.25);
   border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
   z-index: 9999;
   overflow: hidden;
   display: flex;
@@ -171,7 +171,7 @@
   transform: translateY(-50%);
   width: 8px; height: 8px;
   background: #E8A317; border-radius: 50%;
-  box-shadow: 0 0 8px rgba(232,163,23,0.6);
+  box-shadow: 0 0 8px rgba(15,18,21,0.16);
 }
 .notif-empty { padding: 40px 24px; text-align: center; }
 .notif-empty__icon { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; }
