@@ -45,8 +45,8 @@ test('la regla coincide con ZOORIGEN_CLUB.hasActiveMembership para todos los est
 });
 
 test('textoAviso nombra la acción y siempre está en español, sin emojis', () => {
-  assert.match(P.textoAviso('Calcular dosis'), /«Calcular dosis»/);
-  assert.match(P.textoAviso('Calcular dosis'), /membresía/);
+  assert.match(P.textoAviso('Ver equivalencia'), /«Ver equivalencia»/);
+  assert.match(P.textoAviso('Ver equivalencia'), /membresía/);
   assert.match(P.textoAviso(''), /membresía/);
   assert.equal(/\p{Extended_Pictographic}/u.test(P.textoAviso('X')), false);
 });

@@ -69,9 +69,9 @@ const SHELL = [
   '/assets/css/club.css?v=20261110-aviso',
   '/assets/css/club-mobile.css?v=20261108-paleta',
   '/assets/css/club-theme.css?v=20261108-paleta',
-  '/assets/js/club.js?v=20261110-aviso',
-  '/assets/js/club-shell.js?v=20261116-tamanos',
-  '/assets/css/club-shell.css?v=20261116-tamanos',
+  '/assets/js/club.js?v=20261124-referencia',
+  '/assets/js/club-shell.js?v=20261124-referencia',
+  '/assets/css/club-shell.css?v=20261124-referencia',
   '/assets/css/club-responsivo.css?v=20261110-aviso',
   /* tipografias propias (Outfit e Inter, subconjunto latin que cubre el espanol): el panel las usa en todas las paginas */
   '/assets/css/fuentes.css?v=20261109-cromo',

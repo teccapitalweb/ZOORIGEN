@@ -82,7 +82,7 @@ test('la barra lateral estática trae el menú completo, el bloque de plan y SOL
     assert.doesNotMatch(aside[1], /@|zoorigen-demo|Miembro Demo/, f + ': sin correo');
   }
   assert.match(leer('pages/club-pdfs.html'), /class=" is-active"><span class="icon">[\s\S]*?<\/span>PDFs y materiales/);
-  assert.match(leer('pages/club-infusiones.html'), /class=" is-active"><span class="icon">[\s\S]*?<\/span>Herramientas clínicas/, 'infusiones marca lo mismo que marcará el JavaScript');
+  assert.match(leer('pages/club-infusiones.html'), /class=" is-active"><span class="icon">[\s\S]*?<\/span>Referencia clínica/, 'infusiones marca lo mismo que marcará el JavaScript');
 });
 
 test('la barra superior, la inferior del celular y el botón de WhatsApp vienen escritos en el HTML', () => {

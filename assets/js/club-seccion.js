@@ -125,7 +125,7 @@
   var DECORACION = {
     cursos:       { personaje: 'seccion-cursos',       etiqueta: 'Profe Búho',            animacion: 'asiente',   deco: 'flota',    acento: 'verde',   iconos: ['library', 'graduation-cap', 'play', 'book-open', 'lightbulb', 'sparkles', 'pencil'] },
     pdfs:         { personaje: 'seccion-pdfs',         etiqueta: 'Tortuga mochilera',     animacion: 'camina',    deco: 'gira',     acento: 'azul',    iconos: ['files', 'file-text', 'folder', 'download', 'file-pen', 'printer'] },
-    herramientas: { personaje: 'seccion-herramientas', etiqueta: 'Coatí veterinario',     animacion: 'balanceo',  deco: 'parpadea', acento: 'oro',     iconos: ['stethoscope', 'flask-conical', 'calculator', 'syringe', 'thermometer', 'clipboard-list', 'heart-pulse', 'pill'] },
+    herramientas: { personaje: 'seccion-herramientas', etiqueta: 'Coatí veterinario',     animacion: 'balanceo',  deco: 'parpadea', acento: 'oro',     iconos: ['stethoscope', 'thermometer', 'clipboard-list', 'heart-pulse', 'file-text', 'book-open', 'search', 'hash'] },
     infusiones:   { personaje: 'seccion-infusiones',   etiqueta: 'Ajolote científico',    animacion: 'burbujea',  deco: 'sube',     acento: 'azul',    iconos: ['pipette', 'flask-conical', 'droplet', 'beaker', 'droplets', 'syringe', 'timer'] },
     legal:        { personaje: 'seccion-legal',        etiqueta: 'Águila legal',          animacion: 'balanza',   deco: 'gira',     acento: 'oro',     iconos: ['scale', 'gavel', 'stamp', 'scroll-text', 'shield-check', 'file-text', 'building-2'] },
     registro:     { personaje: 'seccion-inventario',   etiqueta: 'Tlacuache anotador',    animacion: 'anota',     deco: 'flota',    acento: 'naranja', iconos: ['notebook', 'pencil', 'tag', 'clipboard-list', 'pen-line', 'search', 'hash'] },
@@ -187,7 +187,7 @@
      Cada afirmación se comprobó contra el texto que ya muestra la página del apartado (dónde, entre paréntesis):
        cursos        clase a clase con preguntas y un juego al final; "Aprende a tu ritmo" (club-biblioteca.html, onboarding)
        pdfs          "guías y plantillas para descargar" y "los libros se desbloquean con tus retos" (club-materiales.js)
-       herramientas  "cada dosis, protocolo y dato trae el enlace a la fuente" y "no sustituyen el criterio del médico veterinario"
+       herramientas  "cada valor trae el enlace a la fuente" y "no sustituyen el criterio del médico veterinario" (Referencia clínica: constantes y BCS)
        infusiones    "Tú escribes la dosis: la herramienta solo hace la aritmética y te muestra la fórmula con tus números"
        legal         "Material de apoyo, no es asesoría legal" (club-legal.html)
        registro      "Anota tus ejemplares y lo que les pasa (nacimientos, bajas, muertes, traslados)", "arma tu inventario" y

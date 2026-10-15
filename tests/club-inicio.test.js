@@ -86,7 +86,7 @@ test('esperando: "Espera tu próximo curso", cuenta regresiva y "Mientras espera
 test('los cuatro accesos: Cursos, Clases, PDFs y Pro con sus números', () => {
   const k = I.kpisDe({ resumen: { cursosAbiertos: 2, cursosTotal: 5, clasesHechas: 7, clasesTotal: 20 } }, { pdfsAbiertos: 4, pdfsTotal: 9 });
   assert.deepEqual(k.map(x => x.etiqueta), ['Cursos', 'Clases', 'PDFs', 'Pro']);
-  assert.deepEqual(k.map(x => x.valor), ['2/5', '7/20', '4/9', '13']);
+  assert.deepEqual(k.map(x => x.valor), ['2/5', '7/20', '4/9', '5']);
   assert.equal(I.kpisDe({}, {})[2].valor, '—', 'sin dato de PDFs no inventa números');
   for (const x of k) assert.match(x.href, /^club-[a-z]+.html$/);
 });

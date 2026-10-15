@@ -570,8 +570,8 @@
       { id: 'herramientas', selectores: enlace('club-herramientas.html'), menu: true,
         titulo: 'Herramientas pro',
         texto: activo
-          ? 'Calculadoras clínicas, infusiones, herramientas legales y libro de registro para tu trabajo con fauna. Úsalas cuando quieras.'
-          : 'Calculadoras clínicas, infusiones, herramientas legales y libro de registro. Puedes explorarlas; calcular y guardar se abre con la membresía.' },
+          ? 'Referencia clínica, infusiones y diluciones, libro de registro y herramientas legales para tu trabajo con fauna. Úsalas cuando quieras.'
+          : 'Referencia clínica, infusiones y diluciones, libro de registro y herramientas legales. Puedes explorarlas; calcular y guardar se abre con la membresía.' },
       { id: 'foro', selectores: enlace('club-foro.html'), menu: true,
         titulo: 'Foro y comunidad',
         texto: activo

@@ -51,7 +51,9 @@ test('qué pestaña queda marcada según la página', () => {
 
 test('el buscador encuentra secciones sin importar acentos ni mayúsculas', () => {
   assert.equal(S.buscarSecciones('CERTIFICADOS')[0].id, 'certificados');
-  assert.equal(S.buscarSecciones('clinicas')[0].id, 'herramientas');
+  assert.equal(S.buscarSecciones('clinica')[0].id, 'herramientas');
+  assert.equal(S.buscarSecciones('REFERENCIA')[0].id, 'herramientas');
+  assert.deepEqual(S.buscarSecciones('dosis'), [], 'ya no hay dosis en el menú ni en el buscador');
   assert.deepEqual(S.buscarSecciones('noticias'), []);
   assert.ok(S.buscarSecciones('comunidad').length >= 3, 'busca también por grupo');
   assert.deepEqual(S.buscarSecciones('   '), []);

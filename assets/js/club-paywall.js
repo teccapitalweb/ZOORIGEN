@@ -43,7 +43,7 @@
     return sesion.planStatus === 'active' || sesion.planStatus === 'cancelled_active';
   }
 
-  /* Texto del aviso al intentar usar algo. nombreAccion: "Calcular dosis", "Publicar en el foro"... */
+  /* Texto del aviso al intentar usar algo. nombreAccion: "Ver equivalencia de condición corporal", "Publicar en el foro"... */
   function textoAviso(nombreAccion) {
     var n = String(nombreAccion == null ? '' : nombreAccion).trim();
     if (!n) return 'Esta función es para miembros. Activa tu membresía para usarla.';

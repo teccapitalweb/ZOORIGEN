@@ -164,7 +164,7 @@
       { id: 'cursos', etiqueta: 'Cursos', valor: r.cursosAbiertos + '/' + r.cursosTotal, nota: 'abiertos', href: 'club-biblioteca.html', color: '#1F5F3A' },
       { id: 'clases', etiqueta: 'Clases', valor: r.clasesHechas + '/' + r.clasesTotal, nota: 'completadas', href: 'club-biblioteca.html', color: '#8A5A00' },
       { id: 'pdfs', etiqueta: 'PDFs', valor: pdfs, nota: 'materiales', href: 'club-pdfs.html', color: '#1F5A7A' },
-      { id: 'pro', etiqueta: 'Pro', valor: '13', nota: 'herramientas', href: 'club-herramientas.html', color: '#0F5E60' }
+      { id: 'pro', etiqueta: 'Pro', valor: '5', nota: 'herramientas', href: 'club-herramientas.html', color: '#0F5E60' }
     ];
   }
 

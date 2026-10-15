@@ -30,7 +30,7 @@
       { id: 'sesiones', label: 'Webinars en vivo', icon: 'broadcast', href: 'club-sesiones.html' }
     ] },
     { id: 'herramientas', titulo: 'Herramientas pro', items: [
-      { id: 'herramientas', label: 'Herramientas clínicas', icon: 'flask', href: 'club-herramientas.html' },
+      { id: 'herramientas', label: 'Referencia clínica', icon: 'flask', href: 'club-herramientas.html' },
       { id: 'infusiones', label: 'Infusiones y diluciones', icon: 'flask', href: 'club-infusiones.html' },
       { id: 'inventario', label: 'Libro de registro', icon: 'filetext', href: 'club-inventario.html' },
       { id: 'legal', label: 'Herramientas legales', icon: 'scale', href: 'club-legal.html' }

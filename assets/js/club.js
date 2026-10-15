@@ -1396,7 +1396,7 @@ const ZOORIGEN_CLUB = {
       { id: 'videos', label: 'Videos', icon: 'video', href: 'club-videos.html' },
       { id: 'sesiones', label: 'Webinars en vivo', icon: 'broadcast', href: 'club-sesiones.html' },
       { id: 'pdfs', label: 'PDFs', icon: 'filetext', href: 'club-pdfs.html' },
-      { id: 'herramientas', label: 'Herramientas clínicas', icon: 'flask', href: 'club-herramientas.html' },
+      { id: 'herramientas', label: 'Referencia clínica', icon: 'flask', href: 'club-herramientas.html' },
       { id: 'legal', label: 'Herramientas legales', icon: 'scale', href: 'club-legal.html' }
     ];
     const itemsCuenta = [
@@ -1552,7 +1552,7 @@ const ZOORIGEN_CLUB = {
           <div class="zoo-welcome-features">
             <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-library"/></svg></div><div class="zoo-welcome-feat-text">Cursos completos</div></div>
             <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg></div><div class="zoo-welcome-feat-text">${zooEnVivoPronto() ? 'Clases en vivo (pronto)' : 'Webinars en vivo'}</div></div>
-            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-dna"/></svg></div><div class="zoo-welcome-feat-text">Herramientas clínicas</div></div>
+            <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-dna"/></svg></div><div class="zoo-welcome-feat-text">Referencia clínica</div></div>
             <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-scale"/></svg></div><div class="zoo-welcome-feat-text">Herramientas legales</div></div>
             <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-trophy"/></svg></div><div class="zoo-welcome-feat-text">Logros y recompensas</div></div>
             <div class="zoo-welcome-feat"><div class="zoo-welcome-feat-icon"><svg class="zi" aria-hidden="true"><use href="#zi-message-circle"/></svg></div><div class="zoo-welcome-feat-text">Foro VIP exclusivo</div></div>
@@ -1703,7 +1703,7 @@ const ZOORIGEN_CLUB = {
             <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> ${zooEnVivoPronto() ? '<strong>Clases en vivo</strong> (próximamente)' : '<strong>Webinars</strong> en vivo cada mes'}<br>
             <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Foro VIP</strong> con expertos<br>
             <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Certificados</strong> con validez<br>
-            <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Herramientas</strong> clínicas y legales<br>
+            <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>Herramientas pro</strong>: referencia clínica, registro y legales<br>
             <svg class="zi" aria-hidden="true"><use href="#zi-circle-check"/></svg> <strong>20% descuento</strong> en cursos Zoorigen<br>
             Videos y PDFs descargables
           </div>
