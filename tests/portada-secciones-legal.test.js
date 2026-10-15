@@ -92,7 +92,7 @@ test('el pie enlaza a ambas páginas legales, a las redes oficiales y al contact
   assert.match(PIE, /pages\/club-login\.html/);
   assert.match(PIE, /pages\/club-registro\.html/);
   assert.match(PIE, /id="zsAnio"/);
-  assert.match(CSS, /\.zs-pie\s*\{[^}]*padding:[^;}]*112px/, 'el pie deja margen inferior para el WhatsApp y la guía');
+  assert.match(CSS, /\.zs-pie\s*\{[^}]*padding:[^;}]*--zs-flot-abajo[^;}]*--zs-wa[^;}]*--zs-guia/, 'el pie deja margen inferior para el WhatsApp y la guía');
 });
 
 test('registro, inicio de sesión, suscripción, encuesta y directorio enlazan a los documentos', () => {
@@ -146,9 +146,60 @@ test('hoja nueva y páginas legales: sin degradados, sin emojis y sin letra meno
   assert.deepEqual(chicas, [], 'hay letra menor de 12 px: ' + chicas.join(' | '));
 });
 
-test('la hoja usa una sola pareja tipográfica (Manrope) y colores de marca', () => {
-  assert.doesNotMatch(CSS, /Poppins|Playfair|Open Sans|Outfit|Inter\b/);
+test('la hoja usa la pareja del Club (Outfit + Inter) y colores de marca; los nombres viejos solo existen como alias', () => {
+  const sinComentarios = CSS.replace(/\/\*[\s\S]*?\*\//g, '');
+  const sinAlias = sinComentarios.replace(/@font-face\s*\{\s*font-family:\s*'(Manrope|Poppins|Open Sans)'[^}]*\}/g, '');
+  assert.doesNotMatch(sinAlias, /Poppins|Playfair|Open Sans|Manrope/, 'quedó una letra vieja fuera de los alias');
+  assert.match(CSS, /--zs-titulo:\s*'Outfit'/);
+  assert.match(CSS, /--zs-fuente:\s*'Inter'/);
   assert.match(CSS, /#1F5F3A/i);
   assert.match(CSS, /#E8A317/i);
   assert.match(CSS, /prefers-reduced-motion/);
+});
+
+test('letras autoalojadas: la portada y las páginas legales no piden nada a Google Fonts', () => {
+  for (const [n, h] of [['index', INDEX], ['aviso', AVISO], ['terminos', TERMINOS]]) {
+    assert.doesNotMatch(h, /fonts\.googleapis|fonts\.gstatic/, n);
+    assert.match(h, /assets\/css\/fuentes\.css\?v=/, n);
+    assert.match(h, /rel="preload" href="assets\/fonts\/inter-latin\.woff2" as="font" type="font\/woff2" crossorigin/, n);
+    assert.match(h, /rel="preload" href="assets\/fonts\/outfit-latin\.woff2" as="font" type="font\/woff2" crossorigin/, n);
+  }
+  for (const f of ['inter-latin.woff2', 'outfit-latin.woff2', 'inter-latin-ext.woff2', 'outfit-latin-ext.woff2']) assert.ok(fs.existsSync(path.join(RAIZ, 'assets/fonts', f)), f);
+});
+
+test('ritmo vertical: relleno por lado entre 24 y 38 px (separación entre secciones de 48 a 76 px)', () => {
+  const m = CSS.match(/--zs-pad:\s*clamp\((\d+)px,[^,]+,\s*(\d+)px\)/);
+  assert.ok(m, 'falta --zs-pad');
+  assert.ok(+m[1] >= 20 && +m[1] <= 28, 'mínimo por lado: ' + m[1]);
+  assert.ok(+m[2] >= 32 && +m[2] <= 40, 'máximo por lado: ' + m[2]);
+  assert.match(CSS, /main > section:where\(:not\(#inicio\)\)\s*\{[^}]*padding-block:\s*var\(--zs-pad\)\s*!important/);
+});
+
+test('botones flotantes: guía arriba, WhatsApp abajo, centrados, a 12 px, con zona segura de iOS; "subir" a la izquierda', () => {
+  assert.match(CSS, /\.floating-whatsapp\s*\{[^}]*right:\s*var\(--zs-flot-lado\)[^}]*bottom:\s*var\(--zs-flot-abajo\)/);
+  assert.match(CSS, /\.zg-launcher\s*\{[^}]*bottom:\s*calc\(var\(--zs-flot-abajo\)\s*\+\s*var\(--zs-wa\)\s*\+\s*12px\)/);
+  assert.match(CSS, /safe-area-inset-bottom/);
+  assert.match(CSS, /#backToTop\s*\{[^}]*left:/);
+  const mov = CSS.match(/@media \(max-width: 560px\) \{\s*:root \{[^}]*\}/);
+  assert.ok(mov && /--zs-wa:\s*4\dpx/.test(mov[0]) && /--zs-guia:\s*5\dpx/.test(mov[0]), 'tamaños en celular de 40 a 56 px');
+});
+
+test('efectos: archivo enlazado, un solo observador, un solo puntero delegado, sin temporizadores y respetando reducir movimiento', () => {
+  const JS = leer('assets/js/landing-efectos.js');
+  assert.match(INDEX, /<script src="assets\/js\/landing-efectos\.js\?v=[\w.-]+" defer><\/script>/);
+  assert.match(INDEX, /<script>document\.documentElement\.classList\.add\("zs-js"\);<\/script>/);
+  assert.equal((JS.match(/new IntersectionObserver\(/g) || []).length, 1, 'un solo IntersectionObserver');
+  assert.equal((JS.match(/addEventListener\('pointermove'/g) || []).length, 1, 'un solo escuchador de puntero');
+  assert.equal((JS.match(/addEventListener\('scroll', pedirScroll/g) || []).length, 1, 'un solo escuchador de scroll de página');
+  assert.doesNotMatch(JS, /setInterval|alert\(|document\.write/);
+  assert.match(JS, /prefers-reduced-motion: reduce/);
+  assert.match(JS, /if \(reducir \|\| !unico\) return;/, 'con reducir movimiento no corre el movimiento');
+  assert.match(JS, /hover: hover\) and \(pointer: fine\)/, 'inclinación solo con puntero fino');
+  assert.match(JS, /requestAnimationFrame/);
+  assert.doesNotMatch(JS, EMOJI);
+  assert.match(CSS, /\.zs-js \[data-zs-r\]\s*\{[^}]*opacity:\s*0/);
+  assert.match(CSS, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\[data-zs-r\]\s*\{\s*opacity:\s*1 !important/);
+  assert.match(CSS, /perspective\(900px\)/);
+  assert.equal((CSS.match(/will-change/g) || []).length, 1, 'will-change acotado a un solo lugar');
+  assert.doesNotMatch(JS, /\.style\.(top|left|margin)\s*=/, 'el movimiento no anima propiedades de layout');
 });

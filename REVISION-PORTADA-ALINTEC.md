@@ -69,3 +69,18 @@ Cambios de marcado y código (compartidos con la otra herramienta, quedan sin co
 - Domicilio completo y si basta "Tehuacán, Puebla, México".
 - Política de reembolsos (no existe en el sitio).
 - Texto del certificado: "no es un título, cédula profesional ni reconocimiento oficial".
+
+## 6. Segunda ronda (quejas del dueño sobre la primera versión)
+
+Quejas: huecos enormes entre secciones, letras que no gustaron, cursos sin vida, secciones de abajo sin efectos 3D, pie "gigante" en pantalla mediana y celular, guía virtual debajo del WhatsApp.
+
+| Tema | Qué se hizo |
+| --- | --- |
+| Huecos | Relleno por lado de 24 / 30 / 38 px (celular / tableta / escritorio) para toda la portada, con una sola regla (`--zs-pad`) que anula los 60 a 110 px de las capas viejas. Separación visual entre contenidos: de unos 200 px a 55-105 px a 1440, de 115-165 a 45-110 px a 768 y de 105-155 a 40-95 px a 390 |
+| Letras | Outfit (titulares y cifras) + Inter (texto), autoalojadas con `assets/css/fuentes.css` y precargadas; sin Google Fonts. Los nombres Manrope, Poppins y Open Sans de las capas viejas quedan como alias hacia esos archivos, así toda la portada, la encuesta y la guía usan la misma pareja |
+| Cursos | Inclinación 3D con el puntero (máx. 6 grados), imagen con zoom y paralaje, pastilla que se desliza entre filtros, tarjetas que entran escalonadas al filtrar, contador que cuenta, barra de progreso del carrusel |
+| Secciones de abajo | Revelado escalonado, profundidad al pasar el puntero, íconos con micro-animación, línea que une los pasos y se dibuja con el scroll, paralaje en imágenes y portadas flotantes, acordeón con altura suave |
+| Pie | Una columna con enlaces en dos filas de dos en celular (750 px a 390), cuatro columnas en tableta (540 px a 950); conserva margen inferior para los botones flotantes |
+| Guía y WhatsApp | Una sola columna abajo a la derecha, guía arriba y WhatsApp abajo, centrados, 12 px entre sí, zona segura de iOS; "subir" queda a la izquierda |
+
+Archivos: `assets/css/landing-secciones.css` (todo el estilo y movimiento), `assets/js/landing-efectos.js` (un observador, un puntero delegado, un scroll con rAF; no corre con "reducir movimiento"; sin inclinación en pantallas táctiles).
