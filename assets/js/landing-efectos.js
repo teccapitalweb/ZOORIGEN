@@ -185,6 +185,11 @@
   iniciarGiro();
   iniciarFocoTarjetas();
 
+  // Pestaña oculta: los bucles de Beneficios y Del estudio a la práctica se detienen (clase en <html>)
+  doc.addEventListener('visibilitychange', function () {
+    doc.documentElement.classList.toggle('zs-pestana-oculta', doc.hidden);
+  });
+
   /* ---------------------------------------------------------- */
   /* 2. Movimiento (no corre con "reducir movimiento")           */
   /* ---------------------------------------------------------- */
@@ -194,7 +199,9 @@
     '.zs-campo', '.zs-dudas__cab', '.zs-faq details', '.zs-contacto__texto', '.zs-canal', '.zs-marquee'];
   // Beneficios y campos tienen su propio efecto en CSS (giro del panel y panel que baja): no se inclinan con el puntero
   var INCLINAR = { '.zs-curso': 6, '.zs-cifra': 5, '.zs-paso': 5, '.zs-canal': 3, '.zs-ventana': 2.5 };
-  var OBSERVAR = ['.zs-recursos', '.zs-campo', '.zs-muro'];   // paralaje y pausa del muro fuera de pantalla
+  // Paralaje, y pausa fuera de pantalla del muro, los beneficios que giran y los paneles de "Del estudio a la práctica"
+  var OBSERVAR = ['.zs-recursos', '.zs-campo', '.zs-muro', '.zs-beneficios', '.zs-campos'];
+  var PAUSABLES = ['zs-muro', 'zs-marquee', 'zs-beneficios', 'zs-campos'];
 
   var visibles = new Set();
   var grupos = [];   // bloques con paralaje: { cont, hijos: [{el, f, max}] }
@@ -202,12 +209,14 @@
   var io = new IntersectionObserver(function (entradas) {
     entradas.forEach(function (en) {
       var el = en.target;
-      // Muro de reseñas y marquee de confianza: se pausan cuando no se ven
-      if (el.classList.contains('zs-muro') || el.classList.contains('zs-marquee')) el.classList.toggle('zs-fuera', !en.isIntersecting);
+      // Muro de reseñas, marquee de confianza, beneficios y paneles del estudio: se pausan cuando no se ven
+      if (PAUSABLES.some(function (k) { return el.classList.contains(k); })) el.classList.toggle('zs-fuera', !en.isIntersecting);
       if (en.isIntersecting) {
         visibles.add(el);
         if (!el.classList.contains('zs-visto')) {
           el.classList.add('zs-visto');
+          // Del estudio a la práctica: terminada la intro (imagen y luego franja de título) el panel responde sin espera
+          if (el.classList.contains('zs-campos')) setTimeout(function () { el.classList.add('zs-intro-fin'); }, 1700);
           if (el.hasAttribute('data-zs-r')) {
             var i = parseInt(el.style.getPropertyValue('--zs-i') || '0', 10) || 0;
             setTimeout(function () { el.removeAttribute('data-zs-r'); }, 650 + i * 70 + 120);

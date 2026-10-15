@@ -265,45 +265,70 @@ test('Confianza: tarjetas que giran en 3D con foco y toque, caja de logo fija y 
   assert.match(CSS, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.zs-logo__giro\s*\{\s*transform:\s*none !important/);
 });
 
-test('Del estudio a la práctica: 4 columnas, 2 x 2 en tableta, 1 en celular; el panel crema baja con hover y foco', () => {
-  assert.match(CSS, /\.zs-campos\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
-  assert.match(CSS, /@media \(min-width: 480px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(2,/);
-  assert.match(CSS, /@media \(min-width: 900px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(4,/);
+test('Del estudio a la práctica: 4 / 2 x 2 / 1 columnas; primero la imagen y después el texto (hover en escritorio, bucle en celular)', () => {
+  assert.match(CSS, /\.zs-campos \{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(CSS, /@media \(min-width: 480px\) \{ \.zs-campos \{ grid-template-columns: repeat\(2,/);
+  assert.match(CSS, /@media \(min-width: 900px\) \{ \.zs-campos \{ grid-template-columns: repeat\(4,/);
   assert.equal((INDEX.match(/class="zs-campo__ver"/g) || []).length, 4);
-  // Imágenes propias con respaldo a las actuales mientras no existan los archivos nuevos
   for (const n of ['conservacion', 'comportamiento', 'campo', 'apicultura']) {
     assert.ok(INDEX.includes('src="assets/img/landing/estudio/estudio-' + n + '.webp" onerror="this.onerror=null;this.src=\'assets/img/landing/area-'), 'falta respaldo de ' + n);
   }
-  // El efecto solo existe con puntero fino, hover y sin reducir movimiento; la tarjeta es compacta (236 px) y el panel,
-  // solo del alto del texto, baja 100 % en 1 s
-  const mejora = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{[\s\S]*?\n\}\n/);
-  assert.ok(mejora, 'falta la mejora progresiva de campos');
-  assert.match(mejora[0], /height:\s*236px/);
-  assert.doesNotMatch(mejora[0], /height:\s*70%/);
-  assert.match(mejora[0], /border-radius:\s*16px 16px 0 0/);
-  assert.match(mejora[0], /cubic-bezier\(\.645, \.045, \.355, 1\)/);
-  assert.match(mejora[0], /:focus-within \.zs-campo__txt\s*\{\s*transform:\s*translateY\(100%\)/);
-  assert.match(mejora[0], /box-shadow:\s*0 0 20px 8px/);
-  // Fuera de la mejora el texto queda debajo de la imagen y sin esconderse
-  assert.doesNotMatch(CSS.split('/* Mejora progresiva (puntero fino, con hover, sin reducir movimiento): la foto')[0].split('/* Base (táctil, sin hover o reducir movimiento): imagen arriba')[1], /display:\s*none|opacity:\s*0/);
+  // Base (reducir movimiento): imagen arriba y texto debajo, nada escondido
+  const base = CSS.split('/* Base (reducir movimiento): imagen arriba y texto debajo, todo visible y estático */')[1].split('/* Con movimiento permitido: la foto ocupa toda la tarjeta')[0];
+  assert.doesNotMatch(base, /display:\s*none|opacity:\s*0|translateY/);
+  // Tarjeta compacta de 236 px con el panel sobre la foto
+  const capa = CSS.match(/@media \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{ height: 236px;[\s\S]*?\n\}\n/);
+  assert.ok(capa, 'falta la capa de movimiento');
+  assert.match(capa[0], /transform:\s*translateY\(100%\)/);
+  // Escritorio: franja de título en reposo, panel sube al hover/foco en 0.7 s, intro con 0.8 s de espera
+  const esc = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{ --tira: 60px;[\s\S]*?\n\}\n/);
+  assert.ok(esc, 'falta el efecto de escritorio');
+  assert.match(esc[0], /translateY\(calc\(100% - var\(--tira\)\)\)/);
+  assert.match(esc[0], /transition: transform \.7s/);
+  assert.match(esc[0], /:focus-within \.zs-campo__txt \{ transform: translateY\(0\)/);
+  assert.match(esc[0], /\.zs-campos:not\(\.zs-visto\) \.zs-campo__txt \{ transform: translateY\(100%\)/);
+  assert.match(esc[0], /transition-delay: \.8s/);
+  // Celular / sin hover: bucle constante de 6.5 s, escalonado 0.9 s
+  assert.match(CSS, /@media \(prefers-reduced-motion: no-preference\) and \(hover: none\), \(prefers-reduced-motion: no-preference\) and \(pointer: coarse\) \{\s*\.zs-campo__txt \{ animation: zs-panel-sube 6\.5s linear infinite; animation-delay: calc\(var\(--n, 0\) \* \.9s\)/);
+  assert.match(CSS, /@keyframes zs-panel-sube \{\s*0%, 40% \{ transform: translateY\(100%\)/);
+  assert.match(CSS, /\.zs-campos\.zs-fuera \.zs-campo__txt/);
+  assert.match(CSS, /\.zs-pestana-oculta \.zs-campo__txt/);
+  // La intro y la pausa las maneja el JS
+  const JS = leer('assets/js/landing-efectos.js');
+  assert.match(JS, /zs-intro-fin/);
+  assert.match(JS, /zs-pestana-oculta/);
 });
 
-test('Beneficios: tarjeta que gira el panel al hover y foco solo como mejora; descripción siempre en el DOM y visible sin hover', () => {
-  const mejora = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-beneficio \{[\s\S]*?\n\}\n/);
-  assert.ok(mejora, 'falta la mejora progresiva de beneficios');
-  assert.match(mejora[0], /transform:\s*rotate\(-3deg\) scale\(1\.05\)/);
-  assert.match(mejora[0], /transform:\s*scale\(0\) rotate\(-45deg\)/);
-  assert.match(mejora[0], /opacity:\s*0; transform:\s*rotate\(-45deg\)/);
-  assert.match(mejora[0], /opacity:\s*1; transform:\s*rotate\(0\)/);
-  assert.match(mejora[0], /\.6s var\(--ease\)/);
-  assert.match(mejora[0], /--ease:\s*cubic-bezier\(\.23, 1, \.32, 1\)/);
-  // Seis tarjetas con título y descripción en el DOM, y el título del frente oculto a lectores (no se lee dos veces)
+test('Beneficios: la tarjeta gira sobre su eje vertical (sin inclinarse); bucle constante en celular; estática con reducir movimiento', () => {
+  // Marcado: dos caras por tarjeta, descripción siempre en el DOM y título del frente oculto a lectores
   const lista = bloque(INDEX, '<ul class="zs-beneficios">', '</ul>');
-  assert.equal((lista.match(/<div class="zs-beneficio__panel"><h3>[^<]+<\/h3><p>[^<]{10,}<\/p><\/div>/g) || []).length, 6);
+  assert.equal((lista.match(/<div class="zs-beneficio__giro"><div class="zs-beneficio__cara zs-beneficio__cara--frente">/g) || []).length, 6);
+  assert.equal((lista.match(/<div class="zs-beneficio__cara zs-beneficio__cara--dorso"><h3>[^<]+<\/h3><p>[^<]{10,}<\/p><\/div>/g) || []).length, 6);
   assert.equal((lista.match(/<p class="zs-beneficio__frente" aria-hidden="true">/g) || []).length, 6);
-  // Fuera de la mejora no se esconde nada: el frente duplicado es lo único con display none
-  const base = CSS.split('/* Base (táctil, sin hover o reducir movimiento): ícono, título y descripción siempre visibles y estáticos */')[1].split('/* Mejora progresiva (puntero fino, con hover y sin reducir movimiento): el frente')[0];
-  assert.doesNotMatch(base.replace('.zs-beneficio__frente { display: none; }', ''), /display:\s*none|opacity:\s*0|visibility:\s*hidden/);
+  assert.doesNotMatch(lista, /zs-beneficio__panel/);
+  // Columnas 1 / 2 / 3
+  assert.match(CSS, /@media \(min-width: 480px\) \{ \.zs-beneficios \{ grid-template-columns: repeat\(2,/);
+  assert.match(CSS, /@media \(min-width: 800px\) \{ \.zs-beneficios \{ grid-template-columns: repeat\(3,/);
+  // Base estática: nada escondido salvo el frente duplicado
+  const base = CSS.split('/* Base (reducir movimiento): ícono, título y descripción a la vista y quietos, en una fila */')[1].split('/* Con movimiento permitido: cada tarjeta es una carta de dos caras.')[0];
+  assert.doesNotMatch(base.replace('.zs-beneficio__frente { display: none; }', ''), /display:\s*none|opacity:\s*0|visibility:\s*hidden|rotate/);
+  // Con movimiento: perspectiva, caras con backface-visibility y reverso a 180 grados; sin inclinar la tarjeta
+  const mov = CSS.match(/@media \(prefers-reduced-motion: no-preference\) \{\s*\.zs-beneficio \{ min-height: 132px;[\s\S]*?\n\}\n/)[0];
+  assert.match(mov, /perspective: 900px/);
+  assert.match(mov, /backface-visibility: hidden/);
+  assert.match(mov, /\.zs-beneficio__cara--dorso \{[^}]*transform: rotateY\(180deg\)/);
+  assert.match(mov, /var\(--tin, #FFFFFF\)/);
+  assert.doesNotMatch(CSS, /rotate\(-3deg\) scale\(1\.05\)/);
+  assert.doesNotMatch(CSS, /\.zs-beneficio__panel/);
+  // Escritorio: gira al hover/foco en 0.7 s
+  const esc = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-beneficio__giro \{ transition: transform \.7s[\s\S]*?\n\}\n/);
+  assert.ok(esc, 'falta el giro de escritorio');
+  assert.match(esc[0], /:hover \.zs-beneficio__giro, \.zs-beneficio:focus-visible \.zs-beneficio__giro \{ transform: rotateY\(180deg\)/);
+  // Celular / sin hover: 6.6 s por ciclo (3 s + 0.8 + 2 s + 0.8), escalonado 0.7 s y con pausa fuera de pantalla
+  assert.match(CSS, /\.zs-beneficio__giro \{ animation: zs-voltea 6\.6s linear infinite; animation-delay: calc\(var\(--n, 0\) \* \.7s\)/);
+  assert.match(CSS, /@keyframes zs-voltea \{\s*0%, 45\.45% \{ transform: rotateY\(0deg\)/);
+  assert.match(CSS, /\.zs-beneficios\.zs-fuera \.zs-beneficio__giro, \.zs-pestana-oculta \.zs-beneficio__giro \{ animation-play-state: paused; \}/);
+  assert.equal((CSS.match(/\.zs-beneficio:nth-child\(\d\) \{ --n: \d; \}/g) || []).length, 6);
 });
 
 test('apartado Membresía Zoorigen quitado: sin marcado, sin CSS muerto y sin anclas rotas', () => {
@@ -338,17 +363,10 @@ test('íconos de redes: círculo de 48 a 56 px, naranja y dorado al hover y foco
 });
 
 /* ---------------- Ronda 5: tarjetas compactas, tonos pálidos, mascota que se asoma ---------------- */
-test('beneficios compactos: 1, 2 y 3 columnas, frente que desaparece sin encimarse y colores pálidos', () => {
-  assert.match(CSS, /@media \(min-width: 480px\)\s*\{\s*\.zs-beneficios\s*\{\s*grid-template-columns:\s*repeat\(2,/);
-  assert.match(CSS, /@media \(min-width: 800px\)\s*\{\s*\.zs-beneficios\s*\{\s*grid-template-columns:\s*repeat\(3,/);
-  const mejora = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-beneficio \{[\s\S]*?\n\}\n/)[0];
-  assert.match(mejora, /min-height:\s*132px/);
-  assert.match(mejora, /background:\s*var\(--zs-salvia\)/);
-  assert.doesNotMatch(mejora, /background:\s*var\(--zs-verde\)/);
-  // El frente se desvanece por completo (.25 s) y el panel entra opaco después, sin que los textos convivan
-  assert.match(mejora, /\.zs-beneficio__frente \{[^}]*opacity:\s*0;\s*transition:\s*opacity \.25s ease/);
-  assert.match(mejora, /\.zs-beneficio__panel\s*\{[^}]*background:\s*#FFFFFF/);
-  assert.match(mejora, /transition:\s*transform \.6s var\(--ease\), opacity \.3s ease \.15s/);
+test('beneficios compactos: 132 px de alto y reverso en tinte naranja o dorado con texto oscuro', () => {
+  assert.match(CSS, /\.zs-beneficio \{ min-height: 132px;/);
+  assert.match(CSS, /\.zs-beneficio__cara--frente \{ background: var\(--zs-salvia\)/);
+  assert.match(CSS, /\.zs-beneficio__cara--dorso p \{[^}]*color: var\(--zs-tinta\)/);
 });
 
 test('mascota: usa la imagen del guía existente, respeta reducir movimiento y limita apariciones', () => {
@@ -444,9 +462,8 @@ test('en reposo la portada conserva su aspecto (crema, blanco y verde de marca);
   assert.match(efectos, /--acc: var\(--zs-dorado-texto\); --tin: var\(--zs-dorado-t\); --fill: var\(--zs-dorado\); --on: var\(--zs-tinta\);/);
   assert.match(efectos, /\.zs-logo__cara--dorso \{ background: var\(--tin, var\(--zs-salvia\)\)/);
   assert.match(efectos, /\.zs-paso__fondo \{ background: var\(--tin, var\(--zs-salvia\)\)/);
-  assert.match(efectos, /\.zs-beneficio:hover \.zs-beneficio__panel[^{]*\{ background: var\(--tin, #FFFFFF\)/);
   // Ninguna regla de color por tarjeta se aplica en reposo
-  const reposo = efectos.split('\n').filter(l => /var\(--(acc|tin|fill)/.test(l) && !/:hover|:focus|\[open\]|\.is-active|--acc:|\.zs-paso__fondo \{|\.zs-logo__cara--dorso/.test(l));
+  const reposo = efectos.split('\n').filter(l => /var\(--(acc|tin|fill)/.test(l) && !/:hover|:focus|\[open\]|\.is-active|--acc:|\.zs-paso__fondo \{|\.zs-logo__cara--dorso|bucle táctil/.test(l));
   assert.deepEqual(reposo, [], 'reglas con color por tarjeta fuera de un estado de efecto');
 });
 

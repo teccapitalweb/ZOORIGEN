@@ -420,14 +420,15 @@ main .zs-flecha.carousel-arrow.is-fin { opacity: .4; }
 }
 @media (min-width: 480px) { .zs-beneficios { grid-template-columns: repeat(2, minmax(0, 1fr)); } }   /* 2 desde 480 px */
 @media (min-width: 800px) { .zs-beneficios { grid-template-columns: repeat(3, minmax(0, 1fr)); } }   /* 3 desde 800 px */
-/* Base (táctil, sin hover o reducir movimiento): ícono, título y descripción siempre visibles y estáticos */
+/* Base (reducir movimiento): ícono, título y descripción a la vista y quietos, en una fila */
 .zs-beneficio {
   position: relative;
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 14px 16px;
   background: var(--zs-crema-2);
   border: 1px solid var(--zs-borde-t); border-radius: 14px;
 }
+.zs-beneficio__giro { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; }
+.zs-beneficio__cara--frente { display: contents; }
+.zs-beneficio__cara--dorso { display: block; min-width: 0; }
 .zs-beneficio__frente { display: none; }
 .zs-beneficio__icono {
   display: inline-flex; align-items: center; justify-content: center;
@@ -438,55 +439,55 @@ main .zs-flecha.carousel-arrow.is-fin { opacity: .4; }
 .zs-beneficio h3 { margin: 0 0 3px; font: 700 17px/1.3 var(--zs-titulo); color: var(--zs-tinta); }
 .zs-beneficio p { margin: 0; font: 400 14.5px/1.5 var(--zs-fuente); color: var(--zs-texto); }
 
-/* Mejora progresiva (puntero fino, con hover y sin reducir movimiento): el frente es ícono + título sobre un tinte pálido;
-   al pasar el puntero o enfocar, la tarjeta se inclina, el frente se desvanece por completo y un panel blanco opaco con
-   título y descripción gira hasta quedar recto. Nunca se ven dos textos a la vez. La descripción siempre está en el DOM. */
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .zs-beneficio {
-    --ease: cubic-bezier(.23, 1, .32, 1);
-    flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-    min-height: 132px; padding: 14px;
-    background: var(--zs-salvia); border-color: var(--zs-borde-t);
-    box-shadow: var(--zs-sombra);
-    cursor: default;
-    transition: transform .6s var(--ease), box-shadow .6s var(--ease);
+/* Con movimiento permitido: cada tarjeta es una carta de dos caras. Frente = ícono + título (verde pálido de siempre);
+   reverso = descripción sobre un tinte naranja o dorado. La tarjeta NO se inclina: solo gira sobre su eje vertical.
+   La descripción está siempre en el DOM (lectores de pantalla); el título del frente va aria-hidden. */
+@media (prefers-reduced-motion: no-preference) {
+  .zs-beneficio { min-height: 132px; background: transparent; border: 0; perspective: 900px; }
+  .zs-beneficio__giro {
+    position: absolute; inset: 0; display: block; padding: 0;
+    transform-style: preserve-3d;
   }
-  .zs-beneficio:hover, .zs-beneficio:focus-visible {
-    transform: rotate(-3deg) scale(1.05);
-    box-shadow: 0 18px 26px -14px rgba(18, 53, 36, .35);
+  .zs-beneficio__cara {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    padding: 12px 16px; border-radius: 14px; text-align: center;
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
   }
-  .zs-beneficio:focus-visible { outline: 3px solid var(--zs-dorado); outline-offset: 4px; }
-  .zs-beneficio__icono {
-    width: 52px; height: 52px; font-size: 26px;
-    opacity: 1;
-    transition: transform .6s var(--ease), opacity .3s ease .15s;
-  }
-  .zs-beneficio .zs-beneficio__frente {
-    display: block; margin: 0;
-    font: 700 17px/1.3 var(--zs-titulo); color: var(--zs-tinta); text-align: center;
-    opacity: 1;
-    transition: opacity .3s ease .15s;
-  }
-  .zs-beneficio__panel {
-    position: absolute; inset: 6px; z-index: 1;
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 10px 14px; border-radius: 10px; overflow: hidden;
-    background: #FFFFFF;
-    opacity: 0; transform: rotate(-45deg);
-    transition: transform .6s var(--ease), opacity .2s ease;
-  }
-  .zs-beneficio:hover .zs-beneficio__panel, .zs-beneficio:focus-visible .zs-beneficio__panel {
-    opacity: 1; transform: rotate(0);
-    transition: transform .6s var(--ease), opacity .3s ease .15s;
-  }
-  .zs-beneficio:hover .zs-beneficio__icono, .zs-beneficio:focus-visible .zs-beneficio__icono {
-    transform: scale(0) rotate(-45deg); opacity: 0;
-    transition: transform .6s var(--ease), opacity .25s ease;
-  }
-  .zs-beneficio:hover .zs-beneficio__frente, .zs-beneficio:focus-visible .zs-beneficio__frente { opacity: 0; transition: opacity .25s ease; }
-  .zs-beneficio__panel h3 { margin: 0 0 3px; font-size: 16.5px; }
-  .zs-beneficio__panel p { font-size: 14px; line-height: 1.45; }
+  .zs-beneficio__cara--frente { background: var(--zs-salvia); border: 1px solid var(--zs-borde-t); }
+  .zs-beneficio__cara--dorso { background: var(--tin, #FFFFFF); border: 1px solid var(--acc, var(--zs-borde-t)); transform: rotateY(180deg); }
+  .zs-beneficio .zs-beneficio__frente { display: block; margin: 0; font: 700 17px/1.3 var(--zs-titulo); color: var(--zs-tinta); text-align: center; }
+  .zs-beneficio__icono { width: 52px; height: 52px; font-size: 26px; }
+  .zs-beneficio__cara--dorso h3 { margin: 0 0 4px; font-size: 16.5px; }
+  .zs-beneficio__cara--dorso p { font-size: 14px; line-height: 1.45; color: var(--zs-tinta); }
 }
+@media (prefers-reduced-motion: no-preference) and (min-width: 480px) and (max-width: 799px) {
+  .zs-beneficio { min-height: 168px; }
+}
+/* Escritorio con ratón: gira al pasar el puntero o al enfocar con teclado (0.7 s) */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .zs-beneficio__giro { transition: transform .7s cubic-bezier(.4, .2, .2, 1); }
+  .zs-beneficio:hover .zs-beneficio__giro, .zs-beneficio:focus-visible .zs-beneficio__giro { transform: rotateY(180deg); }
+  .zs-beneficio:focus-visible { outline: 3px solid var(--zs-tinta); outline-offset: 4px; border-radius: 14px; }
+}
+/* Teléfono, tableta o cualquier pantalla sin hover: movimiento constante y calmado, tarjeta por tarjeta
+   (3 s frente, giro de 0.8 s, 2 s reverso, giro de 0.8 s = 6.6 s), escalonadas 0.7 s */
+@media (prefers-reduced-motion: no-preference) and (hover: none), (prefers-reduced-motion: no-preference) and (pointer: coarse) {
+  .zs-beneficio__giro { animation: zs-voltea 6.6s linear infinite; animation-delay: calc(var(--n, 0) * .7s); }
+  .zs-beneficio:nth-child(1) { --n: 0; }
+  .zs-beneficio:nth-child(2) { --n: 1; }
+  .zs-beneficio:nth-child(3) { --n: 2; }
+  .zs-beneficio:nth-child(4) { --n: 3; }
+  .zs-beneficio:nth-child(5) { --n: 4; }
+  .zs-beneficio:nth-child(6) { --n: 5; }
+}
+@keyframes zs-voltea {
+  0%, 45.45% { transform: rotateY(0deg); animation-timing-function: cubic-bezier(.4, .2, .2, 1); }
+  57.58%, 87.88% { transform: rotateY(180deg); animation-timing-function: cubic-bezier(.4, .2, .2, 1); }
+  100% { transform: rotateY(360deg); }
+}
+/* Se detiene cuando la sección no se ve o la pestaña está oculta */
+.zs-beneficios.zs-fuera .zs-beneficio__giro, .zs-pestana-oculta .zs-beneficio__giro { animation-play-state: paused; }
 
 /* ---------- 6. Tu plataforma ---------- */
 .zs-panel {
@@ -530,7 +531,7 @@ main #panel .zs-recursos p { flex: 1 0 100%; margin: 6px 0 0; text-align: center
 }
 @media (min-width: 480px) { .zs-campos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }   /* tableta: 2 x 2 */
 @media (min-width: 900px) { .zs-campos { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }  /* escritorio: 4 desde 900 px */
-/* Base (táctil, sin hover o reducir movimiento): imagen arriba y texto debajo, todo visible y estático */
+/* Base (reducir movimiento): imagen arriba y texto debajo, todo visible y estático */
 .zs-campo {
   position: relative;
   display: flex; flex-direction: column; min-width: 0;
@@ -557,37 +558,55 @@ main #panel .zs-recursos p { flex: 1 0 100%; margin: 6px 0 0; text-align: center
 .zs-campo h3 { margin: 0 0 3px; font: 700 17px/1.3 var(--zs-titulo); letter-spacing: -.01em; color: var(--zs-tinta); }
 .zs-campo p { margin: 0; font: 400 14px/1.5 var(--zs-fuente); color: var(--zs-texto); }
 
-/* Mejora progresiva (puntero fino, con hover, sin reducir movimiento): la foto ocupa toda la tarjeta (alto fijo y compacto)
-   y un panel crema, solo del alto del texto, descansa abajo; al pasar el puntero o enfocar, el panel baja y deja ver la foto.
-   El texto sigue en el DOM y el enlace "Explorar" sigue disponible con teclado. */
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .zs-campo {
-    height: 236px;
-    display: block; border: 0;
-    box-shadow: 0 0 20px 8px rgba(18, 53, 36, .08);
-    transition: box-shadow .6s ease;
-  }
-  .zs-campo:hover, .zs-campo:focus-within { box-shadow: 0 0 22px 9px rgba(18, 53, 36, .16); }
+/* Con movimiento permitido: la foto ocupa toda la tarjeta (236 px) y el panel de texto (título + descripción + Explorar)
+   sube sobre ella. El texto sigue en el DOM y el enlace "Explorar" es alcanzable con teclado. */
+@media (prefers-reduced-motion: no-preference) {
+  .zs-campo { height: 236px; display: block; border: 0; box-shadow: 0 0 20px 8px rgba(18, 53, 36, .08); }
   .zs-campo__img { position: absolute; inset: 0; aspect-ratio: auto; }
-  .zs-campo__img img { transition: transform 1s cubic-bezier(.645, .045, .355, 1); }
-  .zs-campo:hover .zs-campo__img img, .zs-campo:focus-within .zs-campo__img img { transform: translate3d(0, var(--py, 0px), 0) scale(1.16); }
   .zs-campo__txt {
     position: absolute; z-index: 1; left: 0; right: 0; bottom: 0;
-    padding: 12px 14px 14px;
-    border-radius: 16px 16px 0 0;
+    padding: 12px 14px 14px; border-radius: 16px 16px 0 0;
     background: var(--zs-crema-2);
     box-shadow: 0 0 20px 8px rgba(18, 53, 36, .10);
-    transform: translateY(0);
-    transition: transform 1s cubic-bezier(.645, .045, .355, 1);
+    transform: translateY(100%);
   }
-  .zs-campo:hover .zs-campo__txt, .zs-campo:focus-within .zs-campo__txt { transform: translateY(100%); }
-  .zs-campo__ver {
-    top: 12px; right: 12px; bottom: auto;
-    opacity: 0; transform: translateY(-8px);
-    transition: opacity .4s ease .25s, transform .5s cubic-bezier(.2, .7, .2, 1) .25s;
-  }
-  .zs-campo:hover .zs-campo__ver, .zs-campo:focus-within .zs-campo__ver { opacity: 1; transform: translateY(0); }
+  .zs-campo__ver { top: 12px; right: 12px; bottom: auto; opacity: 0; }
 }
+/* Escritorio con ratón: primero se ve la imagen completa con solo una franja de título; al pasar el puntero o enfocar,
+   el panel sube (0.7 s). La primera vez que la sección entra a pantalla: imagen ~0.8 s y luego aparece la franja. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .zs-campo { --tira: 60px; transition: box-shadow .6s ease; }
+  .zs-campo__txt { transform: translateY(calc(100% - var(--tira))); transition: transform .7s cubic-bezier(.645, .045, .355, 1); }
+  .zs-js .zs-campos:not(.zs-visto) .zs-campo__txt { transform: translateY(100%); }
+  .zs-js .zs-campos.zs-visto:not(.zs-intro-fin) .zs-campo__txt { transition-delay: .8s; }
+  .zs-campo__img img { transition: transform 1s cubic-bezier(.645, .045, .355, 1); }
+  .zs-campo:hover .zs-campo__img img, .zs-campo:focus-within .zs-campo__img img { transform: translate3d(0, var(--py, 0px), 0) scale(1.12); }
+  .zs-campo:hover .zs-campo__txt, .zs-campo:focus-within .zs-campo__txt { transform: translateY(0); transition-delay: 0s; }
+  .zs-campo__ver { transition: opacity .4s ease .2s; }
+  .zs-campo:hover .zs-campo__ver, .zs-campo:focus-within .zs-campo__ver { opacity: 1; }
+}
+/* Teléfono, tableta o pantalla sin hover: bucle constante por tarjeta (2.6 s solo imagen, el panel sube 0.7 s, 2.6 s con texto,
+   baja 0.6 s = 6.5 s), escalonado 0.9 s entre tarjetas */
+@media (prefers-reduced-motion: no-preference) and (hover: none), (prefers-reduced-motion: no-preference) and (pointer: coarse) {
+  .zs-campo__txt { animation: zs-panel-sube 6.5s linear infinite; animation-delay: calc(var(--n, 0) * .9s); }
+  .zs-campo__ver { animation: zs-ver-aparece 6.5s linear infinite; animation-delay: calc(var(--n, 0) * .9s); pointer-events: none; }
+  .zs-campo:nth-child(1) { --n: 0; }
+  .zs-campo:nth-child(2) { --n: 1; }
+  .zs-campo:nth-child(3) { --n: 2; }
+  .zs-campo:nth-child(4) { --n: 3; }
+}
+@keyframes zs-panel-sube {
+  0%, 40% { transform: translateY(100%); animation-timing-function: cubic-bezier(.645, .045, .355, 1); }
+  50.77%, 90.77% { transform: translateY(0); animation-timing-function: cubic-bezier(.645, .045, .355, 1); }
+  100% { transform: translateY(100%); }
+}
+@keyframes zs-ver-aparece {
+  0%, 48% { opacity: 0; pointer-events: none; }
+  54%, 88% { opacity: 1; pointer-events: auto; }
+  93%, 100% { opacity: 0; pointer-events: none; }
+}
+.zs-campos.zs-fuera .zs-campo__txt, .zs-campos.zs-fuera .zs-campo__ver,
+.zs-pestana-oculta .zs-campo__txt, .zs-pestana-oculta .zs-campo__ver { animation-play-state: paused; }
 
 /* ---------- 8. Resolvamos tus dudas ---------- */
 .zs-dudas { display: grid; align-items: start; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 64px); }
@@ -841,7 +860,7 @@ main #areas { background: var(--zs-crema); }
   .zs-logo__cara--frente { transition: opacity .3s ease; }
   .zs-logo:hover .zs-logo__cara--dorso, .zs-logo:focus-visible .zs-logo__cara--dorso, .zs-logo.is-girada .zs-logo__cara--dorso { opacity: 1; }
   .zs-logo:hover .zs-logo__cara--frente, .zs-logo:focus-visible .zs-logo__cara--frente, .zs-logo.is-girada .zs-logo__cara--frente { opacity: 0; }
-  .zs-paso__fondo, .zs-paso__tarjeta, .zs-campo__ver, .zs-campo__img::after { transition: none !important; }
+  .zs-paso__fondo, .zs-paso__tarjeta { transition: none !important; }
   .zs-paso:hover .zs-paso__tarjeta, .zs-paso:focus-within .zs-paso__tarjeta { transform: none; }
   .zs-marquee { overflow-x: auto; }
   .zs-carril { scroll-behavior: auto; }
@@ -1051,17 +1070,17 @@ main #areas .section-head h2 em { background: none; -webkit-background-clip: bor
 .zs-paso:hover .zs-enlace, .zs-paso:focus-within .zs-enlace { color: var(--acc, var(--zs-verde)); }
 .zs-paso:hover .zs-paso__tarjeta, .zs-paso:focus-within .zs-paso__tarjeta { border-color: var(--acc, #C5D6CB); }
 
-/* Beneficios: el panel que gira (y el borde de la tarjeta) toma su tinte */
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .zs-beneficio:hover, .zs-beneficio:focus-visible { border-color: var(--acc, var(--zs-borde-t)); }
-  .zs-beneficio:hover .zs-beneficio__panel, .zs-beneficio:focus-visible .zs-beneficio__panel { background: var(--tin, #FFFFFF); }
-}
+/* Beneficios: el reverso toma el tinte de su posición (naranja o dorado pálido) y su borde fino: ver sección 5 */
 
-/* Del estudio a la práctica: borde y panel del color de su posición al activarse */
+/* Del estudio a la práctica: al activarse, el panel toma el tinte de su posición y la tarjeta su aro */
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .zs-campo:hover, .zs-campo:focus-within { box-shadow: 0 0 0 3px var(--acc, var(--zs-verde)), 0 0 22px 9px rgba(18, 53, 36, .14); }
   .zs-campo:hover .zs-campo__txt, .zs-campo:focus-within .zs-campo__txt { background: var(--tin, var(--zs-crema-2)); box-shadow: inset 0 3px 0 var(--acc, var(--zs-verde)), 0 0 20px 8px rgba(18, 53, 36, .10); }
   .zs-campo:hover .zs-campo__ver, .zs-campo:focus-within .zs-campo__ver { color: var(--acc, var(--zs-verde)); }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: none), (prefers-reduced-motion: no-preference) and (pointer: coarse) {
+  .zs-campo__txt { background: var(--tin, var(--zs-crema-2)); box-shadow: inset 0 3px 0 var(--acc, var(--zs-verde)), 0 0 20px 8px rgba(18, 53, 36, .10); } /* bucle táctil */
+  .zs-campo__ver { color: var(--acc, var(--zs-verde)); } /* bucle táctil */
 }
 
 /* Áreas: borde, número, etiqueta y botón al pasar el puntero, enfocar o elegir el área */

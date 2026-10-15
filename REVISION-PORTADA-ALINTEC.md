@@ -147,3 +147,11 @@ El verde de marca (`#1F5F3A`) queda como acento (logo, botón principal "Crear c
 - **Sin morado:** se auditaron CSS, JS y HTML (tono HSL 255-310 con saturación > 15 %) y se reemplazó todo: apartados Infusiones, Directorio y Legal del Club, avatar y logros, KPI y juegos, y hojas heredadas sin uso. Queda un solo hallazgo que no es un color: el nombre de animal "serpiente índigo" en la tabla de dosis.
 - **Portada y páginas legales:** la paleta de efectos se reduce a **naranja** (`--zs-naranja #A94A04`, decorativo `--zs-naranja-d #E8761C`, tinte `--zs-naranja-t #FBEBDD`) y **dorado** (texto `--zs-dorado-texto #8A5A00`, relleno `--zs-dorado #E8A317`, tinte `--zs-dorado-t #FBF1D4`). Alternan por posición: nones naranja, pares dorado. Se eliminaron cielo, terracota, índigo/pizarra, teal y rosa.
 - Reposo sin cambios (verde de marca, crema y blanco). Íconos de redes del pie: Instagram y WhatsApp en naranja con ícono blanco, Facebook en dorado con ícono tinta, con rebote.
+
+## 13. Décima ronda: Beneficios y Del estudio a la práctica sin efectos de más
+
+- **Beneficios:** sin inclinación ni panel girado. La tarjeta solo gira sobre su eje vertical (`rotateY(180deg)`, 0.7 s, perspectiva 900 px, `backface-visibility`). Frente: ícono y título sobre verde pálido; reverso: descripción sobre tinte naranja o dorado (alternan), texto oscuro y borde fino. La descripción siempre está en el DOM.
+- **Celular / sin hover:** bucle constante y tranquilo por tarjeta de 6.6 s (3 s frente, giro de 0.8 s, 2 s reverso, giro de 0.8 s), escalonado 0.7 s. Pausa fuera de pantalla y con la pestaña oculta.
+- **Del estudio a la práctica:** primero la imagen y después el texto. En reposo, imagen completa con una franja discreta de título; con puntero o foco sube el panel (título, descripción y "Explorar") en 0.7 s y baja al salir; en la primera entrada la imagen se ve 0.8 s antes de la franja. En celular, bucle de 6.5 s por tarjeta (2.6 s solo imagen, sube 0.7 s, 2.6 s con texto, baja), escalonado 0.9 s, con la misma pausa.
+- **Reducir movimiento:** sin animaciones; Beneficios muestra frente y descripción a la vista y Estudio muestra imagen arriba y texto abajo, sin esconder nada.
+- Altura de tarjeta de Estudio sin cambio (236 px). El enlace "Explorar las capacitaciones relacionadas" queda libre.
