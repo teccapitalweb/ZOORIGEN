@@ -249,7 +249,7 @@
   /* ============================================================ */
 
   const NS = 'http://www.w3.org/2000/svg';
-  const PALETA = ['#B34A02', '#036CB0', '#5F6F00', '#6B4BCF', '#B3261E', '#08777A', '#8A5A00', '#C2410C', '#2457B8', '#4A5800'];
+  const PALETA = ['#B34A02', '#036CB0', '#5F6F00', '#A63A5C', '#B3261E', '#08777A', '#8A5A00', '#C2410C', '#2457B8', '#4A5800'];
   let abiertos = 0;
 
   function el(etiqueta, clase, texto) {

@@ -56,7 +56,7 @@
   --c-kpi-info: #3AA0C9;    --c-kpi-info-ink: var(--c-text);
   --c-kpi-warn: #E8A317;    --c-kpi-warn-ink: #E8A317;
   --c-kpi-bad: #D55A28;     --c-kpi-bad-ink: #D55A28;
-  --c-kpi-review: #A78BFA;  --c-kpi-review-ink: #A78BFA;
+  --c-kpi-review: #E59AA6;  --c-kpi-review-ink: #E59AA6;
   --c-card-shadow: none;
   --c-modal: #1B3625;
   --c-overlay: rgba(4, 11, 7, 0.76);
@@ -108,7 +108,7 @@
   --c-kpi-info: #037BC9;    --c-kpi-info-ink: var(--c-text);
   --c-kpi-warn: #F58220;    --c-kpi-warn-ink: #B45309;
   --c-kpi-bad: #D1352B;     --c-kpi-bad-ink: #B3261E;
-  --c-kpi-review: #7C5CE0;  --c-kpi-review-ink: #6445C8;
+  --c-kpi-review: #C25B6B;  --c-kpi-review-ink: #A64550;
   --c-card-shadow: 0 8px 24px rgba(120, 70, 20, 0.09);
   --c-modal: #ffffff;
   --c-overlay: rgba(42, 26, 16, 0.45);
@@ -157,7 +157,7 @@
   --c-kpi-info: #037BC9;    --c-kpi-info-ink: var(--c-text);
   --c-kpi-warn: #F58220;    --c-kpi-warn-ink: #B45309;
   --c-kpi-bad: #D1352B;     --c-kpi-bad-ink: #B3261E;
-  --c-kpi-review: #7C5CE0;  --c-kpi-review-ink: #6445C8;
+  --c-kpi-review: #C25B6B;  --c-kpi-review-ink: #A64550;
   --c-card-shadow: 0 8px 24px rgba(3, 80, 130, 0.09);
   --c-modal: #ffffff;
   --c-overlay: rgba(8, 30, 48, 0.45);
@@ -206,7 +206,7 @@
   --c-kpi-info: #037BC9;    --c-kpi-info-ink: var(--c-text);
   --c-kpi-warn: #F58220;    --c-kpi-warn-ink: #B45309;
   --c-kpi-bad: #D1352B;     --c-kpi-bad-ink: #B3261E;
-  --c-kpi-review: #7C5CE0;  --c-kpi-review-ink: #6445C8;
+  --c-kpi-review: #C25B6B;  --c-kpi-review-ink: #A64550;
   --c-card-shadow: 0 8px 24px rgba(70, 90, 0, 0.10);
   --c-modal: #ffffff;
   --c-overlay: rgba(31, 42, 10, 0.45);
@@ -255,7 +255,7 @@
   --c-kpi-info: #037BC9;    --c-kpi-info-ink: var(--c-text);
   --c-kpi-warn: #F58220;    --c-kpi-warn-ink: #B45309;
   --c-kpi-bad: #D1352B;     --c-kpi-bad-ink: #B3261E;
-  --c-kpi-review: #7C5CE0;  --c-kpi-review-ink: #6445C8;
+  --c-kpi-review: #C25B6B;  --c-kpi-review-ink: #A64550;
   --c-card-shadow: 0 8px 24px rgba(3, 80, 130, 0.09);
   --c-modal: #ffffff;
   --c-overlay: rgba(8, 30, 48, 0.45);

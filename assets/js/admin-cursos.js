@@ -24,7 +24,7 @@
 
   // Colores de área (todos permiten texto blanco con buen contraste).
   const COLOR_AREA = {
-    'Fauna silvestre': '#1F7A4C', 'Fauna ponzoñosa': '#B3261E', 'Apicultura': '#9A5200', 'Etología': '#6445C8',
+    'Fauna silvestre': '#1F7A4C', 'Fauna ponzoñosa': '#B3261E', 'Apicultura': '#9A5200', 'Etología': '#0F766E',
     'Investigación': '#05609F', 'Manejo en cautiverio': '#08777A', 'Conservación': '#4A5800'
   };
   const COLOR_DEFECTO = '#8A3F02';

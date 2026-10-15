@@ -60,7 +60,7 @@
     guia: { nombre: 'Guía', color: '#2F7A4F' },
     plantilla: { nombre: 'Plantilla', color: '#C75402' },
     checklist: { nombre: 'Checklist', color: '#0F9D58' },
-    glosario: { nombre: 'Glosario', color: '#8B7FBA' },
+    glosario: { nombre: 'Glosario', color: '#B35470' },
     infografia: { nombre: 'Infografía', color: '#2AA4D5' },
     presentacion: { nombre: 'Presentación', color: '#D4A017' }
   };

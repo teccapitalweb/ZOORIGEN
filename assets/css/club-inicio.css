@@ -79,7 +79,7 @@
 .ih-pildora { display: inline-flex; padding: 6px 16px; border-radius: 999px; background: #24384F; color: #fff; font: 700 .75rem/1 'JetBrains Mono', ui-monospace, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; }
 .ih-aside--comunidad { border-top-color: #25D366; }
 .ih-aside--descuento { border-top-color: var(--zoo-amber); }
-.ih-aside--actividad { border-top-color: #8B7FBA; }
+.ih-aside--actividad { border-top-color: #B35470; }
 .ih-aside--presencia { border-top-color: var(--zoo-solid-mid, #2A7A4E); }
 .ih-aside__grande { font-family: var(--zoo-font-heading); font-size: 2.6rem; font-weight: 800; letter-spacing: -.04em; color: var(--zoo-aviso-txt); line-height: 1; }
 .ih-btn-verde, .ih-btn-oscuro { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; padding: 11px 16px; border-radius: 14px; font-weight: 800; font-size: .86rem; text-decoration: none; text-align: center; }
@@ -114,14 +114,14 @@
 .dashboard-aside > div { width: 100%; min-width: 0; }
 .dashboard-aside > div:empty { display: none; }
 
-/* Tarjetas de resumen: cada una con el color de su apartado (cursos verde de marca, clases índigo, PDFs azul petróleo, Pro teal).
+/* Tarjetas de resumen: cada una con el color de su apartado (cursos verde de marca, clases ámbar, PDFs azul petróleo, Pro teal).
    De noche usan la versión clara de ese color para leerse sobre la superficie. */
 .ih-kpi--cursos { --k: #1F5F3A !important; }
-.ih-kpi--clases { --k: #3B4A9E !important; }
+.ih-kpi--clases { --k: #8A5A00 !important; }
 .ih-kpi--pdfs   { --k: #1F5A7A !important; }
 .ih-kpi--pro    { --k: #0F5E60 !important; }
 :root:not([data-theme="light"]) .ih-kpi--cursos { --k: #9BD9AE !important; }
-:root:not([data-theme="light"]) .ih-kpi--clases { --k: #C0C5E0 !important; }
+:root:not([data-theme="light"]) .ih-kpi--clases { --k: #EAD7A4 !important; }
 :root:not([data-theme="light"]) .ih-kpi--pdfs   { --k: #BCCED7 !important; }
 :root:not([data-theme="light"]) .ih-kpi--pro    { --k: #B7CFCF !important; }
 

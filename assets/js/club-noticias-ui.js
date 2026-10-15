@@ -24,7 +24,7 @@
     veterinaria: { nombre: 'Veterinaria y medicina zoológica', color: '#2AA4D5' },
     normativa: { nombre: 'Normatividad ambiental', color: '#E8A317' },
     apicultura: { nombre: 'Apicultura', color: '#D4A017' },
-    ciencia: { nombre: 'Ciencia y biodiversidad', color: '#8B7FBA' }
+    ciencia: { nombre: 'Ciencia y biodiversidad', color: '#B35470' }
   };
   /* La foto de cada tarjeta es la imagen de la propia nota. Cuando la nota no trae imagen (o falla al cargar, o es
      una miniatura de menos de 200 px) se usa una FOTO propia del sitio según la categoría, con la fuente en una

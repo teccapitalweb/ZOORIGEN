@@ -27,7 +27,7 @@
     { clave: 'inicio', nombre: 'Inicio', icono: 'door-open', color: '#2AA4D5' },
     { clave: 'cursos', nombre: 'Cursos', icono: 'graduation-cap', color: '#4FB86A' },
     { clave: 'constancia', nombre: 'Constancia', icono: 'flame', color: '#E0693A' },
-    { clave: 'comunidad', nombre: 'Comunidad', icono: 'users', color: '#9B7BE0' },
+    { clave: 'comunidad', nombre: 'Comunidad', icono: 'users', color: '#C8607E' },
     { clave: 'retos', nombre: 'Retos', icono: 'target', color: '#E8A317' },
     { clave: 'maestria', nombre: 'Maestría', icono: 'crown', color: '#2FB5A0' }
   ];
