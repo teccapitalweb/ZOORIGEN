@@ -318,15 +318,15 @@
       patron: /herramienta|calculadora|dosis|farmacolog|infusion|dilucion|hemograma|protocolo|libro de registro|bitacora|inventario|informe anual/,
       texto: function () {
         return [
-          'En **Herramientas pro** del panel hay cuatro secciones:',
-          '**Herramientas clínicas:** calculadora de dosis, protocolos anestésicos con fuente, fluidoterapia, constantes fisiológicas, valores hematológicos, condición corporal y protocolos de urgencia.',
+          'En **Herramientas pro** del panel hay cinco herramientas, repartidas en cuatro secciones:',
+          '**Referencia clínica:** constantes fisiológicas de referencia de 50 especies, con su fuente, y la escala de condición corporal (BCS).',
           '**Infusiones y diluciones:** infusión continua, diluciones, conversiones de unidades y duración y tasa.',
           '**Libro de registro:** inventario de ejemplares, bitácora de eventos e informe anual (borrador).',
           '**Herramientas legales:** consulta de la NOM-059, borradores de informes UMA/PIMVS, derechos de la Ley Federal de Derechos 2026, CITES, marco legal y listas de revisión.',
-          'Se abren con membresía activa y son material de apoyo, no sustituyen la asesoría de un especialista.'
+          'Se abren con membresía activa y son material de apoyo: no sustituyen el criterio del médico veterinario responsable ni la asesoría de un especialista.'
         ];
       }
-      // Verificado: pages/club-herramientas.html, club-infusiones.html, club-inventario.html, club-legal.html (títulos y secciones;
+      // Verificado: pages/club-herramientas.html (Referencia clínica: constantes y BCS), club-infusiones.html, club-inventario.html, club-legal.html (títulos y secciones;
       // cada página pide membresía activa) y assets/js/club-shell.js (grupo "Herramientas pro").
     },
     {
