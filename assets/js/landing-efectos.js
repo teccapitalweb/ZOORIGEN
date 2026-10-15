@@ -178,12 +178,104 @@
     $$('.zs-beneficio').forEach(function (t) { t.setAttribute('tabindex', '0'); });
   }
 
+  // Reseñas: carrusel con imanes (scroll-snap nativo), flechas, puntos y avance automático muy lento.
+  // Sin JS queda el desplazamiento nativo con barra; con reducir movimiento no hay avance automático.
+  function iniciarResenas() {
+    var caja = $('.zs-carrusel');
+    var pista = caja ? $('.zs-carrusel__pista', caja) : null;
+    var ctrl = caja ? $('.zs-carrusel__ctrl', caja) : null;
+    if (!pista || !ctrl) return;
+    var tarjetas = $$('.zs-resena', pista);
+    var prev = $('[data-dir="-1"]', ctrl);
+    var next = $('[data-dir="1"]', ctrl);
+    var cont = $('.zs-carrusel__puntos', ctrl);
+    if (tarjetas.length < 2 || !prev || !next || !cont) return;
+
+    var posiciones = 0, actual = 0, rafId = 0;
+    var detenido = reducir;      // el avance automático se apaga para siempre cuando la persona interactúa
+    var encima = false;
+
+    function paso() { return (tarjetas[1].offsetLeft - tarjetas[0].offsetLeft) || tarjetas[0].offsetWidth || 1; }
+    function maximo() { return Math.max(0, pista.scrollWidth - pista.clientWidth); }
+    function irA(i) {
+      var izq = limitar(i, 0, Math.max(0, posiciones - 1)) * paso();
+      izq = Math.min(izq, maximo());
+      try { pista.scrollTo({ left: izq, behavior: reducir ? 'auto' : 'smooth' }); } catch (e) { pista.scrollLeft = izq; }
+    }
+    function interactuo() { detenido = true; }
+    function construir(n) {
+      cont.textContent = '';
+      for (var i = 0; i < n; i++) {
+        var b = doc.createElement('button');
+        b.type = 'button';
+        b.className = 'zs-carrusel__punto';
+        b.setAttribute('aria-label', 'Mostrar reseñas, posición ' + (i + 1) + ' de ' + n);
+        (function (k) { b.addEventListener('click', function () { interactuo(); irA(k); }); })(i);
+        cont.appendChild(b);
+      }
+    }
+    function medir() {
+      rafId = 0;
+      var max = maximo(), p = paso();
+      var n = max > 4 ? Math.round(max / p) + 1 : 1;
+      if (n !== posiciones) { posiciones = n; construir(n); }
+      ctrl.hidden = n <= 1;
+      var fin = pista.scrollLeft >= max - 4;
+      actual = fin ? n - 1 : limitar(Math.round(pista.scrollLeft / p), 0, n - 1);
+      var pts = cont.children;
+      for (var i = 0; i < pts.length; i++) {
+        if (i === actual) pts[i].setAttribute('aria-current', 'true'); else pts[i].removeAttribute('aria-current');
+      }
+      prev.disabled = pista.scrollLeft <= 4;
+      next.disabled = fin;
+    }
+    function pedir() { if (!rafId) rafId = requestAnimationFrame(medir); }
+
+    prev.addEventListener('click', function () { interactuo(); irA(actual - 1); });
+    next.addEventListener('click', function () { interactuo(); irA(actual + 1); });
+    pista.addEventListener('scroll', pedir, { passive: true });
+    window.addEventListener('resize', pedir);
+    ['touchstart', 'wheel', 'keydown', 'pointerdown'].forEach(function (ev) { pista.addEventListener(ev, interactuo, { passive: true }); });
+    caja.addEventListener('pointerenter', function (e) { if (!e.pointerType || e.pointerType === 'mouse') encima = true; });
+    caja.addEventListener('pointerleave', function () { encima = false; });
+    caja.addEventListener('focusin', function () { encima = true; });
+    caja.addEventListener('focusout', function () { encima = false; });
+    // Avance automático: una tarjeta cada 9 s, lento y sin brusquedad; se detiene con puntero, foco, toque,
+    // fuera de pantalla (clase zs-fuera del observador compartido) o pestaña oculta
+    function avanzar() {
+      if (detenido) return;
+      if (!(encima || caja.classList.contains('zs-fuera') || doc.hidden || maximo() <= 4)) {
+        irA(pista.scrollLeft >= maximo() - 4 ? 0 : actual + 1);
+      }
+      setTimeout(avanzar, 9000);
+    }
+    if (!reducir) setTimeout(avanzar, 9000);
+    medir();
+    if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(pedir);
+    window.addEventListener('load', pedir);
+  }
+
+  // Botones que abren la Guía Zoorigen (el lanzador lo crea chatbot-landing.js): se muestran solo con JS
+  function iniciarGuia() {
+    $$('[data-zs-abrir-guia]').forEach(function (b) {
+      b.hidden = false;
+      b.addEventListener('click', function () {
+        var l = doc.getElementById('zg-launcher');
+        if (l) { if (l.getAttribute('aria-expanded') !== 'true') l.click(); return; }
+        var c = $('#contacto');
+        if (c && c.scrollIntoView) c.scrollIntoView({ behavior: reducir ? 'auto' : 'smooth', block: 'start' });
+      });
+    });
+  }
+
   iniciarPastilla();
   iniciarConteo();
   iniciarCarrusel();
   iniciarAcordeon();
   iniciarGiro();
   iniciarFocoTarjetas();
+  iniciarResenas();
+  iniciarGuia();
 
   // Pestaña oculta: los bucles de Beneficios y Del estudio a la práctica se detienen (clase en <html>)
   doc.addEventListener('visibilitychange', function () {
@@ -196,12 +288,12 @@
   if (reducir || !unico) return;
 
   var REVELAR = ['.zs-cifra', '.zs-head', '.zs-controles', '.zs-curso', '.zs-paso', '.zs-beneficio', '.zs-panel__texto', '.zs-ventana',
-    '.zs-campo', '.zs-dudas__cab', '.zs-faq details', '.zs-contacto__texto', '.zs-canal', '.zs-marquee'];
+    '.zs-campo', '.zs-dudas__cab', '.zs-ayuda', '.zs-faq details', '.zs-contacto__texto', '.zs-canal', '.zs-marquee'];
   // Beneficios y campos tienen su propio efecto en CSS (giro del panel y panel que baja): no se inclinan con el puntero
   var INCLINAR = { '.zs-curso': 6, '.zs-cifra': 5, '.zs-paso': 5, '.zs-canal': 3, '.zs-ventana': 2.5 };
-  // Paralaje, y pausa fuera de pantalla del muro, los beneficios que giran y los paneles de "Del estudio a la práctica"
-  var OBSERVAR = ['.zs-recursos', '.zs-campo', '.zs-muro', '.zs-beneficios', '.zs-campos'];
-  var PAUSABLES = ['zs-muro', 'zs-marquee', 'zs-beneficios', 'zs-campos'];
+  // Paralaje, y pausa fuera de pantalla de los beneficios que giran y los paneles de "Del estudio a la práctica"
+  var OBSERVAR = ['.zs-recursos', '.zs-campo', '.zs-beneficios', '.zs-campos', '.zs-carrusel'];
+  var PAUSABLES = ['zs-marquee', 'zs-beneficios', 'zs-campos', 'zs-carrusel'];
 
   var visibles = new Set();
   var grupos = [];   // bloques con paralaje: { cont, hijos: [{el, f, max}] }
@@ -209,7 +301,7 @@
   var io = new IntersectionObserver(function (entradas) {
     entradas.forEach(function (en) {
       var el = en.target;
-      // Muro de reseñas, marquee de confianza, beneficios y paneles del estudio: se pausan cuando no se ven
+      // Marquee de confianza, beneficios, paneles del estudio y carrusel de reseñas: se pausan cuando no se ven
       if (PAUSABLES.some(function (k) { return el.classList.contains(k); })) el.classList.toggle('zs-fuera', !en.isIntersecting);
       if (en.isIntersecting) {
         visibles.add(el);

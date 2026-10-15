@@ -204,9 +204,9 @@ test('efectos: archivo enlazado, un solo observador, un solo puntero delegado, s
 });
 
 /* ---------------- Ronda 3: reseñas en muro, esquina que se expande, tarjetas que giran, campos que se revelan ---------------- */
-const RESENAS = bloque(INDEX, '<section class="zs-sec zs-sec--verde-cl" id="resenas"', '</section>');
+const RESENAS = bloque(INDEX, '<section class="zs-sec zs-sec--crema" id="resenas"', '</section>');
 
-test('reseñas: muro de tarjetas con el texto transcrito de las capturas y sin las capturas', () => {
+test('reseñas: carrusel limpio con el texto transcrito de las capturas, sin muro inclinado y sin las capturas', () => {
   // Textos tal cual aparecen en las capturas (sin los emojis de Facebook)
   const TEXTOS = [
     ['Josselyne Valdez', 'Cumplen con cada aspecto de los cursos, son muy confiables. Yo tomé un curso de arácnidos con el profe Nicolás Soria y explica muy bien, es muy atento y amable. Es muy fácil acceder a el curso y las diapositivas son muy claras y educativas. Sí volvería a tomar otro curso en Zoorigen'],
@@ -224,10 +224,55 @@ test('reseñas: muro de tarjetas con el texto transcrito de las capturas y sin l
   assert.doesNotMatch(INDEX + SCRIPT, /resena_captura|assets\/img\/resenas|Ver captura original|data-lightbox-group="reviews"/);
   assert.doesNotMatch(RESENAS, EMOJI);
   assert.match(RESENAS, /href="https:\/\/www\.facebook\.com\/p\/Zoorigen-61579624231627\/" target="_blank" rel="noopener noreferrer"/);
-  assert.equal((RESENAS.match(/class="zs-resena zs-resena--/g) || []).length, 12, '6 reseñas y 6 copias para el bucle');
-  assert.equal((RESENAS.match(/aria-hidden="true"><header/g) || []).length, 6, 'las copias del bucle van ocultas a lectores');
-  assert.match(CSS, /\.zs-muro__plano\s*\{[^}]*rotate\(-9deg\)/);
-  assert.match(CSS, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.zs-muro__pista\s*\{\s*animation:\s*none !important/);
+  // Seis tarjetas reales, sin copias para bucle ni nada inclinado
+  assert.equal((RESENAS.match(/<article class="zs-resena">/g) || []).length, 6);
+  assert.doesNotMatch(RESENAS, /aria-hidden="true"><header|zs-muro/);
+  assert.doesNotMatch(CSS, /zs-muro|rotate\(-9deg\)|zs-sec--verde-cl/, 'el CSS del muro inclinado ya no existe');
+  // Solo Karen tiene estrellas (como en la captura original)
+  assert.equal((RESENAS.match(/class="zs-resena__estrellas"/g) || []).length, 1);
+  assert.match(RESENAS, /<article class="zs-resena">(?:(?!<\/article>)[\s\S])*zs-resena__estrellas(?:(?!<\/article>)[\s\S])*Karen Garcia<\/h3>/);
+  // Texto honesto: sin promedios, calificaciones agregadas ni cantidades inventadas
+  assert.match(RESENAS, /Lo que dice nuestra <em>comunidad<\/em>/);
+  assert.match(RESENAS, /Opiniones publicadas en nuestra página de Facebook\./);
+  assert.doesNotMatch(RESENAS, /\d[.,]\d\s*(\/\s*5|estrellas)|\d+\s*(alumnos|reseñas|opiniones)|promedio/i);
+  // Carrusel: imanes, 3 / 2 / 1.2 visibles, flechas, puntos y avance muy lento y pausable
+  assert.match(CSS, /\.zs-carrusel__pista \{[^}]*scroll-snap-type:\s*x mandatory/);
+  assert.match(CSS, /@media \(min-width: 1140px\) \{ \.zs-resena \{ flex-basis: calc\(\(100% - 40px\) \/ 3\)/);
+  assert.match(CSS, /@media \(min-width: 700px\) \{ \.zs-resena \{ flex-basis: calc\(\(100% - 20px\) \/ 2\)/);
+  assert.match(CSS, /\.zs-resena \{\s*flex: 0 0 min\(82vw, 340px\)/);
+  assert.match(CSS, /\.zs-resena blockquote \{[^}]*font:\s*400 17px\/1\.65 var\(--zs-fuente\)/);
+  assert.match(RESENAS, /data-dir="-1" aria-label="Reseñas anteriores"/);
+  assert.match(RESENAS, /data-dir="1" aria-label="Reseñas siguientes"/);
+  const JS = leer('assets/js/landing-efectos.js');
+  assert.match(JS, /var detenido = reducir;/, 'con reducir movimiento no hay avance automático');
+  assert.match(JS, /encima \|\| caja\.classList\.contains\('zs-fuera'\) \|\| doc\.hidden/, 'pausa con puntero, fuera de pantalla y pestaña oculta');
+  assert.match(JS, /PAUSABLES = \[[^\]]*'zs-carrusel'/);
+  assert.match(JS, /\['touchstart', 'wheel', 'keydown', 'pointerdown'\]/);
+  assert.match(JS, /9000\)/);
+  assert.doesNotMatch(JS, /zs-muro/);
+});
+
+test('Antes de empezar: titular grande con trazo dorado, panel de ayuda con la guía y preguntas como tarjetas numeradas', () => {
+  const DUDAS = bloque(INDEX, '<section class="zs-sec zs-sec--blanco" id="preguntas"', '</section>');
+  assert.match(DUDAS, /<h2 class="zs-title" id="preguntas-title">Resolvamos tus <em>dudas<svg class="zs-trazo"[^>]*aria-hidden="true"/);
+  assert.match(CSS, /main #preguntas \.zs-title \{ font: 800 clamp\(32px, 4\.2vw, 50px\)\/1\.08 var\(--zs-titulo\); letter-spacing: -\.025em/);
+  assert.match(CSS, /\.zs-trazo \{[^}]*stroke: var\(--zs-dorado\)/);
+  // Seis preguntas numeradas, con respuesta siempre en el DOM (details nativo)
+  assert.equal((DUDAS.match(/<details><summary><span class="zs-faq__num" aria-hidden="true">0\d<\/span>/g) || []).length, 6);
+  assert.equal((DUDAS.match(/<span class="zs-faq__ind" aria-hidden="true"><\/span><\/summary><p>/g) || []).length, 6);
+  assert.match(CSS, /\.zs-faq__num \{[^}]*font: 800 30px\/1 var\(--zs-titulo\)/);
+  assert.match(CSS, /\.zs-faq__preg \{ font: 600 clamp\(17px, 1\.4vw, 19px\)\/1\.35 var\(--zs-titulo\)/);
+  assert.match(CSS, /\.zs-faq details p \{[^}]*font: 400 16px\/1\.7 var\(--zs-fuente\)/);
+  assert.match(CSS, /\.zs-faq details\[open\] \{ --barra: var\(--acc[^}]*background: var\(--tin/);
+  assert.match(CSS, /\.zs-faq details::before \{[^}]*width: 6px/);
+  // Panel: guía, WhatsApp, Guía Zoorigen (solo con JS) y aviso de privacidad / términos
+  assert.match(DUDAS, /<h3 id="ayuda-title">¿Aún tienes dudas\?<\/h3>/);
+  assert.match(DUDAS, /src="assets\/img\/guia\/guia-pensando\.webp" alt="" width="128" height="128"/);
+  assert.match(DUDAS, /href="https:\/\/wa\.me\/5212361113237"/);
+  assert.match(DUDAS, /<button class="zs-boton zs-boton--contorno" type="button" data-zs-abrir-guia hidden>/);
+  assert.match(DUDAS, /href="aviso-de-privacidad\.html">Aviso de privacidad<\/a>[\s\S]*href="terminos-y-condiciones\.html">Términos y condiciones/);
+  assert.match(leer('assets/js/landing-efectos.js'), /getElementById\('zg-launcher'\)/);
+  assert.doesNotMatch(DUDAS, EMOJI);
 });
 
 test('Tu siguiente paso: tres columnas desde 900 px, una debajo, esquina que se expande con colores sólidos', () => {
@@ -267,8 +312,9 @@ test('Confianza: tarjetas que giran en 3D con foco y toque, caja de logo fija y 
 
 test('Del estudio a la práctica: 4 / 2 x 2 / 1 columnas; primero la imagen y después el texto (hover en escritorio, bucle en celular)', () => {
   assert.match(CSS, /\.zs-campos \{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
-  assert.match(CSS, /@media \(min-width: 480px\) \{ \.zs-campos \{ grid-template-columns: repeat\(2,/);
-  assert.match(CSS, /@media \(min-width: 900px\) \{ \.zs-campos \{ grid-template-columns: repeat\(4,/);
+  assert.match(CSS, /@media \(min-width: 600px\) \{ \.zs-campos \{ grid-template-columns: repeat\(2,/);
+  // 4 columnas solo si cada tarjeta mide 250 px o más: (1140 - 2 x 32 - 3 x 18) / 4 = 255
+  assert.match(CSS, /@media \(min-width: 1140px\) \{ \.zs-campos \{ grid-template-columns: repeat\(4,/);
   assert.equal((INDEX.match(/class="zs-campo__ver"/g) || []).length, 4);
   for (const n of ['conservacion', 'comportamiento', 'campo', 'apicultura']) {
     assert.ok(INDEX.includes('src="assets/img/landing/estudio/estudio-' + n + '.webp" onerror="this.onerror=null;this.src=\'assets/img/landing/area-'), 'falta respaldo de ' + n);
@@ -276,10 +322,14 @@ test('Del estudio a la práctica: 4 / 2 x 2 / 1 columnas; primero la imagen y de
   // Base (reducir movimiento): imagen arriba y texto debajo, nada escondido
   const base = CSS.split('/* Base (reducir movimiento): imagen arriba y texto debajo, todo visible y estático */')[1].split('/* Con movimiento permitido: la foto ocupa toda la tarjeta')[0];
   assert.doesNotMatch(base, /display:\s*none|opacity:\s*0|translateY/);
-  // Tarjeta compacta de 236 px con el panel sobre la foto
-  const capa = CSS.match(/@media \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{ height: 236px;[\s\S]*?\n\}\n/);
+  // Tarjetas grandes con el panel sobre la foto: 260 px en celular, 300 px en tableta y de 300 a 360 px en escritorio
+  const capa = CSS.match(/@media \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{ height: 260px;[\s\S]*?\n\}\n/);
   assert.ok(capa, 'falta la capa de movimiento');
   assert.match(capa[0], /transform:\s*translateY\(100%\)/);
+  assert.match(CSS, /@media \(prefers-reduced-motion: no-preference\) and \(min-width: 600px\) \{ \.zs-campo \{ height: 300px; \} \}/);
+  assert.match(CSS, /@media \(prefers-reduced-motion: no-preference\) and \(min-width: 1140px\) \{ \.zs-campo \{ height: clamp\(300px, 26vw, 360px\); \} \}/);
+  assert.match(CSS, /\.zs-campo h3 \{[^}]*clamp\(16px, 6\.6cqw, 19px\)/);
+  assert.equal((INDEX.match(/width="1600" height="1067" loading="lazy"><a class="zs-campo__ver"/g) || []).length, 4, 'las fotos nuevas miden 1600 x 1067');
   // Escritorio: franja de título en reposo, panel sube al hover/foco en 0.7 s, intro con 0.8 s de espera
   const esc = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{ --tira: 42px;[\s\S]*?\n\}\n/);
   assert.ok(esc, 'falta el efecto de escritorio');
@@ -445,7 +495,8 @@ test('paleta: todos los pares de color naranja/dorado pasan AA (4.5:1)', () => {
 
 test('en reposo la portada conserva su aspecto (crema, blanco y verde de marca); naranja y dorado solo viven en estados de efecto', () => {
   const secciones = [...INDEX.matchAll(/<section class="([^"]*)"/g)].map(m => m[1]);
-  assert.equal(secciones.filter(c => /zs-sec--verde\b/.test(c)).length, 2, 'Tu plataforma y Reseñas (verde pálido) como en la ronda 5');
+  assert.equal(secciones.filter(c => /zs-sec--verde\b/.test(c)).length, 1, 'solo Tu plataforma va en verde; Reseñas pasó a crema lisa en la ronda 11');
+  assert.match(INDEX, /<section class="zs-sec zs-sec--crema" id="resenas"/);
   assert.match(INDEX, /<section class="zs-sec zs-sec--verde" id="panel"/);
   assert.doesNotMatch(INDEX, /zs-sec--(azul|cielo|arena)\b|zs-boton--tinta/);
   assert.match(CSS, /\.zs-pie \{[^}]*background: var\(--zs-pie\)/);
