@@ -84,3 +84,15 @@ Quejas: huecos enormes entre secciones, letras que no gustaron, cursos sin vida,
 | Guía y WhatsApp | Una sola columna abajo a la derecha, guía arriba y WhatsApp abajo, centrados, 12 px entre sí, zona segura de iOS; "subir" queda a la izquierda |
 
 Archivos: `assets/css/landing-secciones.css` (todo el estilo y movimiento), `assets/js/landing-efectos.js` (un observador, un puntero delegado, un scroll con rAF; no corre con "reducir movimiento"; sin inclinación en pantallas táctiles).
+
+## 7. Tercera ronda (referencias del dueño: esquina que se expande, tarjetas que giran, tarjeta que se levanta, muro de reseñas)
+
+| Sección | Cambio |
+| --- | --- |
+| Tu siguiente paso | Tres columnas desde 900 px y una debajo (ya no queda una tarjeta huérfana). Esquina verde sólida que crece y llena la tarjeta al pasar el puntero, al enfocar con teclado o al tocar; título y texto pasan a blanco. El conector solo va entre tarjetas contiguas y solo con tres columnas |
+| Confianza | Tarjeta que gira 3D (0.8 s, perspectiva 1000 px): frente con el logo en caja fija de 156 x 72 px, en gris que se colorea; reverso con el nombre sobre verde sólido y un ícono. Foco por teclado y toque la giran; con reducir movimiento hay fundido, sin giro. El marquee se pausa con puntero, foco, tarjeta girada y fuera de pantalla |
+| Del estudio a la práctica | 4 columnas en escritorio, 2 x 2 en tableta, 1 en celular. Al pasar el puntero la imagen se oscurece con una capa sólida translucida, aparece "Explorar" con flecha, borde verde y sombra amplia |
+| Reseñas | Las capturas de Facebook ya no se muestran. Muro de 6 tarjetas blancas en 3 columnas inclinadas -9 grados sobre fondo verde pálido, columnas que suben y bajan lento, con pausa al pasar el puntero y fuera de pantalla; en celular, una fila que se desliza con el dedo |
+| Botón "subir" | Pasó a la columna derecha, arriba de la guía, para no tapar enlaces del contenido |
+
+Imágenes que ya no se usan en la portada (se pueden retirar del repo): `assets/img/resenas/resena_captura_de_pantalla_2026-03-07_181351.png`, `..._181415.png`, `..._181503.png`, `..._181513.png`, `..._181529.png`, `..._181539.png` y las copias con el mismo nombre en la raíz. `data.js` aún lista las seis de `assets/img/resenas` en `reviews`.

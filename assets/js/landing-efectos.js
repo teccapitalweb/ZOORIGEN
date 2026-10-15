@@ -154,10 +154,28 @@
     });
   }
 
+  // Tarjetas de confianza: en pantallas táctiles (sin hover) el toque gira la tarjeta y otro toque la regresa
+  function iniciarGiro() {
+    if (conRaton) return;
+    doc.addEventListener('click', function (e) {
+      var t = e.target && e.target.closest ? e.target.closest('.zs-logo') : null;
+      var giradas = $$('.zs-logo.is-girada');
+      giradas.forEach(function (g) { if (g !== t) g.classList.remove('is-girada'); });
+      if (t) t.classList.toggle('is-girada');
+    });
+    doc.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.classList && e.target.classList.contains('zs-logo')) {
+        e.preventDefault();
+        e.target.classList.toggle('is-girada');
+      }
+    });
+  }
+
   iniciarPastilla();
   iniciarConteo();
   iniciarCarrusel();
   iniciarAcordeon();
+  iniciarGiro();
 
   /* ---------------------------------------------------------- */
   /* 2. Movimiento (no corre con "reducir movimiento")           */
@@ -167,7 +185,7 @@
   var REVELAR = ['.zs-cifra', '.zs-head', '.zs-controles', '.zs-curso', '.zs-paso', '.zs-beneficio', '.zs-panel__texto', '.zs-ventana',
     '.zs-campo', '.zs-dudas__cab', '.zs-faq details', '.zs-contacto__texto', '.zs-canal', '.zs-marquee'];
   var INCLINAR = { '.zs-curso': 6, '.zs-cifra': 5, '.zs-paso': 5, '.zs-beneficio': 5, '.zs-campo': 5, '.zs-canal': 3, '.zs-ventana': 2.5 };
-  var OBSERVAR = ['.zs-recursos', '.zs-campo', '.zs-pasos'];   // solo para paralaje y línea
+  var OBSERVAR = ['.zs-recursos', '.zs-campo', '.zs-pasos', '.zs-muro'];   // paralaje, línea de pasos y pausa del muro fuera de pantalla
 
   var visibles = new Set();
   var grupos = [];   // bloques con paralaje: { cont, hijos: [{el, f, max}] }
@@ -175,6 +193,8 @@
   var io = new IntersectionObserver(function (entradas) {
     entradas.forEach(function (en) {
       var el = en.target;
+      // Muro de reseñas y marquee de confianza: se pausan cuando no se ven
+      if (el.classList.contains('zs-muro') || el.classList.contains('zs-marquee')) el.classList.toggle('zs-fuera', !en.isIntersecting);
       if (en.isIntersecting) {
         visibles.add(el);
         if (!el.classList.contains('zs-visto')) {

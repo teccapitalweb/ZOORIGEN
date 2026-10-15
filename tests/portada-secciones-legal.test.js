@@ -175,11 +175,11 @@ test('ritmo vertical: relleno por lado entre 24 y 38 px (separación entre secci
   assert.match(CSS, /main > section:where\(:not\(#inicio\)\)\s*\{[^}]*padding-block:\s*var\(--zs-pad\)\s*!important/);
 });
 
-test('botones flotantes: guía arriba, WhatsApp abajo, centrados, a 12 px, con zona segura de iOS; "subir" a la izquierda', () => {
+test('botones flotantes: guía arriba, WhatsApp abajo, centrados, a 12 px, con zona segura de iOS; "subir" arriba de la guía', () => {
   assert.match(CSS, /\.floating-whatsapp\s*\{[^}]*right:\s*var\(--zs-flot-lado\)[^}]*bottom:\s*var\(--zs-flot-abajo\)/);
   assert.match(CSS, /\.zg-launcher\s*\{[^}]*bottom:\s*calc\(var\(--zs-flot-abajo\)\s*\+\s*var\(--zs-wa\)\s*\+\s*12px\)/);
   assert.match(CSS, /safe-area-inset-bottom/);
-  assert.match(CSS, /#backToTop\s*\{[^}]*left:/);
+  assert.match(CSS, /#backToTop\s*\{[^}]*right:\s*calc\(var\(--zs-flot-lado\)[^}]*bottom:\s*calc\([^}]*var\(--zs-guia\)/);
   const mov = CSS.match(/@media \(max-width: 560px\) \{\s*:root \{[^}]*\}/);
   assert.ok(mov && /--zs-wa:\s*4\dpx/.test(mov[0]) && /--zs-guia:\s*5\dpx/.test(mov[0]), 'tamaños en celular de 40 a 56 px');
 });
@@ -202,4 +202,62 @@ test('efectos: archivo enlazado, un solo observador, un solo puntero delegado, s
   assert.match(CSS, /perspective\(900px\)/);
   assert.equal((CSS.match(/will-change/g) || []).length, 1, 'will-change acotado a un solo lugar');
   assert.doesNotMatch(JS, /\.style\.(top|left|margin)\s*=/, 'el movimiento no anima propiedades de layout');
+});
+
+/* ---------------- Ronda 3: reseñas en muro, esquina que se expande, tarjetas que giran, campos que se revelan ---------------- */
+const RESENAS = bloque(INDEX, '<section class="zs-sec zs-sec--verde-cl" id="resenas"', '</section>');
+
+test('reseñas: muro de tarjetas con el texto transcrito de las capturas y sin las capturas', () => {
+  // Textos tal cual aparecen en las capturas (sin los emojis de Facebook)
+  const TEXTOS = [
+    ['Josselyne Valdez', 'Cumplen con cada aspecto de los cursos, son muy confiables. Yo tomé un curso de arácnidos con el profe Nicolás Soria y explica muy bien, es muy atento y amable. Es muy fácil acceder a el curso y las diapositivas son muy claras y educativas. Sí volvería a tomar otro curso en Zoorigen'],
+    ['Antonio LM', 'Cursos en vivo, resuelven todas tus dudas. Es un curso completo, definitivamente lo recomiendo al 100'],
+    ['Fernanda Núñez', 'Excelente servicio, personal muy amable, aprendí mucho en estos cursos, y los recomiendo en su totalidad, 100% garantizado el aprendizaje.'],
+    ['Karen Garcia', 'Me encantaron estos cursos, los súper recomiendo en su totalidad!!'],
+    ['Anne Unu', 'me encantó tomar un curso con ellos aclaran al 100% todas tus dudas'],
+    ['Marisol Cabrera', 'Muy buenos cursos, la información te imparten es relevante, además sus ponentes son muy buenos explicando,']
+  ];
+  for (const [nombre, texto] of TEXTOS) {
+    assert.ok(RESENAS.includes('<h3>' + nombre + '</h3>'), 'falta ' + nombre);
+    assert.ok(RESENAS.includes('<blockquote>' + texto + '</blockquote>'), 'texto distinto en ' + nombre);
+  }
+  assert.doesNotMatch(RESENAS, /<img\b/, 'el muro no usa imágenes');
+  assert.doesNotMatch(INDEX + SCRIPT, /resena_captura|assets\/img\/resenas|Ver captura original|data-lightbox-group="reviews"/);
+  assert.doesNotMatch(RESENAS, EMOJI);
+  assert.match(RESENAS, /href="https:\/\/www\.facebook\.com\/p\/Zoorigen-61579624231627\/" target="_blank" rel="noopener noreferrer"/);
+  assert.equal((RESENAS.match(/class="zs-resena zs-resena--/g) || []).length, 12, '6 reseñas y 6 copias para el bucle');
+  assert.equal((RESENAS.match(/aria-hidden="true"><header/g) || []).length, 6, 'las copias del bucle van ocultas a lectores');
+  assert.match(CSS, /\.zs-muro__plano\s*\{[^}]*rotate\(-9deg\)/);
+  assert.match(CSS, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.zs-muro__pista\s*\{\s*animation:\s*none !important/);
+});
+
+test('Tu siguiente paso: tres columnas desde 900 px, una debajo, esquina que se expande con colores sólidos', () => {
+  assert.match(CSS, /\.zs-pasos\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(CSS, /@media \(min-width: 900px\)\s*\{\s*\.zs-pasos\s*\{\s*grid-template-columns:\s*repeat\(3,/);
+  assert.match(CSS, /\.zs-paso__fondo\s*\{[^}]*border-radius:\s*50%[^}]*background:\s*var\(--zs-verde\)/);
+  assert.match(CSS, /\.zs-paso:focus-within \.zs-paso__fondo[^{]*\{\s*transform:\s*scale\(var\(--zs-esc, 36\)\)/);
+  assert.equal((INDEX.match(/class="zs-paso__esquina"/g) || []).length, 3);
+  assert.match(CSS, /\.zs-paso:hover h3[^{]*\{\s*color:\s*#FFFFFF/);
+});
+
+test('Confianza: tarjetas que giran en 3D con foco y toque, caja de logo fija y sin giro con reducir movimiento', () => {
+  assert.match(CSS, /\.zs-logo\s*\{[^}]*perspective:\s*1000px/);
+  assert.match(CSS, /\.zs-logo:hover \.zs-logo__giro[^{]*\{\s*transform:\s*rotateY\(180deg\)/);
+  assert.match(CSS, /\.zs-logo:focus-visible \.zs-logo__giro/);
+  assert.match(CSS, /backface-visibility:\s*hidden/);
+  assert.match(CSS, /\.zs-logo__cara--frente img\s*\{[^}]*width:\s*156px;\s*height:\s*72px;[^}]*object-fit:\s*contain/);
+  assert.match(CSS, /transition:\s*transform \.8s/);
+  assert.match(SCRIPT, /zs-logo__cara--dorso/);
+  assert.match(SCRIPT, /tabindex="0"/);
+  const efectos = leer('assets/js/landing-efectos.js');
+  assert.match(efectos, /is-girada/);
+  assert.match(CSS, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.zs-logo__giro\s*\{\s*transform:\s*none !important/);
+});
+
+test('Del estudio a la práctica: 4 columnas, 2 x 2 en tableta, 1 en celular; la imagen se oscurece y aparece Explorar', () => {
+  assert.match(CSS, /\.zs-campos\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(CSS, /@media \(min-width: 560px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(2,/);
+  assert.match(CSS, /@media \(min-width: 1000px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(4,/);
+  assert.match(CSS, /\.zs-campo__img::after\s*\{[^}]*background:\s*rgba\(/);
+  assert.equal((INDEX.match(/class="zs-campo__ver"/g) || []).length, 4);
 });
