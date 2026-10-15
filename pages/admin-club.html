@@ -2,9 +2,10 @@
 <html lang="es" data-tema="selva" data-modo="oscuro">
 <head>
 <script>/*zs-tema*/!function(d){var t,p,h=d.documentElement;try{t=localStorage.getItem("zoo_theme");p=localStorage.getItem("zoo_plan")}catch(e){}h.setAttribute("data-theme",t==="dark"?"dark":"light");if(/^(active|cancelled_active|past_due|expired|free)$/.test(p))h.setAttribute("data-plan",p)}(document)</script>
+  <script>/*ap-modo*/!function(d){var h=d.documentElement;h.setAttribute("data-modo",h.getAttribute("data-theme")==="dark"?"oscuro":"claro")}(document)</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin · Club VIP Zoorigen</title>
+  <title>Panel de administración · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#1F5F3A">
@@ -21,6 +22,7 @@
   <!-- /zs:fuentes -->
   <link rel="stylesheet" href="../assets/css/club.css?v=20261110-aviso">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
   <style>
     body { background: var(--zoo-bg-darker); }
 
@@ -214,74 +216,97 @@
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261104">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261125-panel">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261110-aviso">
 </head>
-<body>
+<body data-zoo="inicio">
+  <a class="ap-saltar" href="#secView">Saltar al contenido</a>
 
-  <!-- ═══════════ LOGIN SCREEN ═══════════ -->
-  <div class="login-wrap" id="loginScreen">
-    <div class="login-card">
-      <div class="login-card__logo"><img src="../assets/img/logo/zoorigen-logo-remaster-v1.png" alt="Zoorigen" width="156" height="80"></div>
-      <h1>Panel Admin Zoorigen</h1>
-      <p class="subtitle">Acceso exclusivo para administradores</p>
-      <div class="login-err" id="loginErr"></div>
-      <div class="field">
-        <label>Contraseña de acceso</label>
-        <input type="password" id="accessPwd" placeholder="Contraseña admin" autocomplete="off">
-      </div>
-      <button id="loginBtn">Ingresar al panel</button>
-      <p class="login-hint"><svg class="zi" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg> Requiere sesión activa con cuenta admin en Firebase + contraseña del panel.</p>
+  <!-- ═══════════ ACCESO (lo decide el servidor: GET /api/admin/yo) ═══════════ -->
+  <div class="ap-acceso" id="apAcceso">
+    <div class="ap-acceso__tarjeta">
+      <img class="ap-acceso__logo" src="../assets/img/logo/zoorigen-logo-remaster-v1.png" alt="Zoorigen" width="156" height="80">
+      <span class="ap-acceso__ico" id="apAccesoIco" aria-hidden="true"><svg class="zi" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></svg></span>
+      <h1 id="apAccesoTitulo">Verificando tu acceso</h1>
+      <p id="apAccesoTexto" role="status">Estamos confirmando con el servidor que tu cuenta administra el sitio.</p>
+      <div class="ap-acceso__acciones" id="apAccesoAcciones" hidden></div>
     </div>
   </div>
 
-  <!-- ═══════════ ADMIN APP ═══════════ -->
-  <div class="admin-shell" id="adminApp" style="display:none;">
+  <!-- ═══════════ PANEL ═══════════ -->
+  <div class="admin-shell" id="adminApp" hidden>
 
-    <aside class="asb">
+    <aside class="asb" id="asb" aria-label="Menú de administración">
       <div class="asb-brand">
         <img class="asb-logo" src="../assets/img/logo/zoorigen-logo-remaster-v1.png" alt="Zoorigen" width="156" height="80">
-        <small>Panel admin</small>
+        <small>Panel de administración</small>
       </div>
+      <nav class="asb-nav" aria-label="Secciones del panel">
+      <div class="asb-section">Panel</div>
+      <button class="asb-item" data-sec="resumen"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg><span class="asb-label">Resumen</span><span class="nbg" id="nb-resumen" hidden>0</span></button>
+      <button class="asb-item" data-sec="miembros"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" /></svg><span class="asb-label">Miembros</span><span class="nbg" id="nb-miembros" hidden>0</span></button>
+      <button class="asb-item" data-sec="suscripciones"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg><span class="asb-label">Suscripciones y pagos</span><span class="nbg" id="nb-suscripciones" hidden>0</span></button>
 
-      <div class="asb-section">Gestión</div>
-      <button class="asb-item is-active" data-sec="miembros"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" /></svg><span class="asb-label">Miembros</span> <span class="nbg" id="nb-miembros">0</span></button>
-      <button class="asb-item" data-sec="cursos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></svg><span class="asb-label">Cursos</span> <span class="nbg" id="nb-cursos">0</span></button>
-      <button class="asb-item" data-sec="certificados"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" /><circle cx="12" cy="8" r="6" /></svg><span class="asb-label">Certificados</span> <span class="nbg" id="nb-certificados">0</span></button>
-      <button class="asb-item" data-sec="videos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12.296 3.464 3.02 3.956" /><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3z" /><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m6.18 5.276 3.1 3.899" /></svg><span class="asb-label">Videos</span> <span class="nbg" id="nb-videos">0</span></button>
-      <button class="asb-item" data-sec="pdfs"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="asb-label">PDFs</span> <span class="nbg" id="nb-pdfs">0</span></button>
-      <button class="asb-item" data-sec="sesiones"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" /><path d="M19.075 4.933a10 10 0 0 1 0 14.134" /><path d="M4.925 19.067a10 10 0 0 1 0-14.134" /><path d="M7.753 16.239a6 6 0 0 1 0-8.478" /><circle cx="12" cy="12" r="2" /></svg><span class="asb-label">Sesiones</span> <span class="nbg" id="nb-sesiones">0</span></button>
-      <button class="asb-item" data-sec="noticias"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 18h-5" /><path d="M18 14h-8" /><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2" /><rect width="8" height="4" x="10" y="6" rx="1" /></svg><span class="asb-label">Noticias y avisos</span> <span class="nbg" id="nb-noticias">0</span></button>
+      <div class="asb-section">Contenido</div>
+      <button class="asb-item" data-sec="cursos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></svg><span class="asb-label">Cursos</span><span class="nbg" id="nb-cursos" hidden>0</span></button>
+      <button class="asb-item" data-sec="certificados"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" /><circle cx="12" cy="8" r="6" /></svg><span class="asb-label">Certificados</span><span class="nbg" id="nb-certificados" hidden>0</span></button>
+      <button class="asb-item" data-sec="videos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12.296 3.464 3.02 3.956" /><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3z" /><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m6.18 5.276 3.1 3.899" /></svg><span class="asb-label">Videos</span><span class="nbg" id="nb-videos" hidden>0</span></button>
+      <button class="asb-item" data-sec="pdfs"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="asb-label">PDFs</span><span class="nbg" id="nb-pdfs" hidden>0</span></button>
+      <button class="asb-item" data-sec="sesiones"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" /><path d="M19.075 4.933a10 10 0 0 1 0 14.134" /><path d="M4.925 19.067a10 10 0 0 1 0-14.134" /><path d="M7.753 16.239a6 6 0 0 1 0-8.478" /><circle cx="12" cy="12" r="2" /></svg><span class="asb-label">Sesiones</span><span class="nbg" id="nb-sesiones" hidden>0</span></button>
+      <button class="asb-item" data-sec="noticias"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 18h-5" /><path d="M18 14h-8" /><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2" /><rect width="8" height="4" x="10" y="6" rx="1" /></svg><span class="asb-label">Noticias y avisos</span><span class="nbg" id="nb-noticias" hidden>0</span></button>
 
-      <button class="asb-item" data-sec="encuesta"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></svg><span class="asb-label">Encuesta</span> <span class="nbg" id="nb-encuesta">-</span></button>
+      <div class="asb-section">Comunidad</div>
+      <button class="asb-item" data-sec="retos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg><span class="asb-label">Retos y XP</span><span class="nbg" id="nb-retos" hidden>0</span></button>
+      <button class="asb-item" data-sec="comunidad"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="asb-label">Foro y directorio</span><span class="nbg" id="nb-comunidad" hidden>0</span></button>
+      <button class="asb-item" data-sec="referidos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 7v14" /><path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" /><path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5" /><rect x="3" y="7" width="18" height="4" rx="1" /></svg><span class="asb-label">Referidos</span><span class="nbg" id="nb-referidos" hidden>0</span></button>
+      <button class="asb-item" data-sec="encuesta"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13 5h8" /><path d="M13 12h8" /><path d="M13 19h8" /><path d="m3 17 2 2 4-4" /><path d="m3 7 2 2 4-4" /></svg><span class="asb-label">Encuesta</span><span class="nbg" id="nb-encuesta" hidden>0</span></button>
 
+      <div class="asb-section">Sistema</div>
+      <button class="asb-item" data-sec="herramientas"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span class="asb-label">Herramientas</span><span class="nbg" id="nb-herramientas" hidden>0</span></button>
+      <button class="asb-item" data-sec="configuracion"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="asb-label">Configuración</span><span class="nbg" id="nb-configuracion" hidden>0</span></button>
+      <button class="asb-item" data-sec="estado"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg><span class="asb-label">Estado del sistema</span><span class="nbg" id="nb-estado" hidden>0</span></button>
+
+      </nav>
       <div class="asb-ft">
-        <a href="club-dashboard.html"><svg class="zi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg><span>Ver como miembro</span></a>
+        <a href="club-dashboard.html?como=user"><svg class="zi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg><span>Ver como usuario</span></a>
+        <a href="club-dashboard.html?como=admin"><svg class="zi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 21H2" /><path d="M10 3H7a2 2 0 00-2 2v16" /><path d="M14 12h.01" /><path d="M19 21V5a2 2 0 00-1.675-1.974l-6.163-1.013A1 1 0 0010 3v18a1 1 0 001.124.992z" /><path d="M22 21h-3" /></svg><span>Ir al Club</span></a>
         <a href="#" onclick="adminLogout();return false;"><svg class="zi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg><span>Cerrar sesión</span></a>
       </div>
     </aside>
+    <div class="ap-velo" id="apVelo" hidden></div>
 
-    <main class="am">
-      <div id="secView">Cargando...</div>
+    <main class="am" id="contenido">
+      <div class="ap-barra-superior">
+        <button type="button" class="ap-icono ap-menu-btn" id="apMenuBtn" aria-label="Abrir el menú" aria-expanded="false" aria-controls="asb"><svg class="zi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg></button>
+        <nav class="ap-migas" aria-label="Ubicación"><span>Administración</span><span aria-hidden="true">/</span><strong id="apMiga">Resumen</strong></nav>
+        <div class="ap-barra-superior__der">
+          <a class="ap-btn ap-btn--suave ap-solo-grande" id="apComoUsuario" href="club-dashboard.html?como=user"><svg class="zi" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>Ver como usuario</a>
+          <button type="button" class="ap-icono" id="apTema" aria-label="Cambiar entre modo día y modo noche"><svg class="zi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+        </div>
+      </div>
+      <div id="secView" tabindex="-1">Cargando...</div>
     </main>
   </div>
 
-  <!-- MODAL -->
+  <!-- MODAL (módulos anteriores: cursos, certificados, noticias) -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-form" id="modalForm"></div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261124-referencia"></script>
+  <script src="../assets/js/club.js?v=20261125-admin"></script>
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
+  <script src="../assets/js/club-config.js?v=20261104"></script>
+  <script src="../assets/js/admin-panel.js?v=20261125-panel"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261125-panel"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
-  <script src="../assets/js/admin-miembros.js?v=20261104"></script>
   <script src="../assets/js/admin-cursos.js?v=20261123-sinmorado"></script>
   <script src="../assets/js/admin-certificados.js?v=20261104"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
@@ -291,81 +316,68 @@
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
-    // CONFIGURACIÓN: Contraseña del panel (2º factor)
-    // Además del role admin en Firebase, pide esta contraseña.
-    // Igual que OdonTeck (OdonTeck2026!) e ICADEM.
+    // ACCESO
+    // Nada de lo que decide el permiso está escrito en esta página: el navegador pide una sesión de Firebase y pregunta
+    // al servidor (GET /api/admin/yo), que responde 200 solo a administradores (correos de ADMIN_EMAILS o marca en
+    // Firestore). Si la respuesta no es 200, no se muestra ningún dato y se regresa al Club.
     // ═══════════════════════════════════════════════════════════
-    const ADMIN_PWD = 'Zoorigen2026!';
-    const PWD_KEY = 'zoorigen_admin_pwd_ok';
-
     const AREAS = ['Fauna silvestre', 'Fauna ponzoñosa', 'Apicultura', 'Etología', 'Investigación', 'Manejo en cautiverio', 'Conservación'];
 
     // ═══════════ FLOW DE ACCESO ═══════════
-    async function checkAccess() {
-      // 1. Firebase Auth obligatorio
-      await new Promise(resolve => {
-        auth.onAuthStateChanged(async (user) => {
-          if (!user) {
-            window.location.href = 'club-login.html?redirect=admin';
-            return;
-          }
-          // 2. Role admin obligatorio
-          try {
-            const doc = await db.collection('miembros').doc(user.uid).get();
-            const data = doc.data() || {};
-            if (data.role !== 'admin') {
-              document.getElementById('loginScreen').innerHTML = `
-                <div class="login-card">
-                  <div class="login-card__logo is-icon" style="background:var(--zoo-orange);">${ZOO_ICONOS.svg('lock', { size: 32 })}</div>
-                  <h1>Acceso denegado</h1>
-                  <p class="subtitle">Tu cuenta no tiene permisos de administrador.</p>
-                  <a href="club-dashboard.html" style="display:inline-block;margin-top:20px;color:var(--zoo-green-500);font-weight:600;text-decoration:none;">← Volver al club</a>
-                </div>`;
-              return;
-            }
-            // 3. Contraseña del panel
-            if (sessionStorage.getItem(PWD_KEY) === 'yes') {
-              showAdmin();
-            } else {
-              document.getElementById('loginScreen').style.display = 'flex';
-              document.getElementById('accessPwd').focus();
-            }
-          } catch (err) {
-            console.error(err);
-          }
-          resolve();
-        });
+    function mostrarAcceso(icono, titulo, texto, botones) {
+      document.getElementById('apAcceso').hidden = false;
+      document.getElementById('adminApp').hidden = true;
+      document.getElementById('apAccesoIco').innerHTML = ZOO_ICONOS.svg(icono, { size: 28 });
+      document.getElementById('apAccesoTitulo').textContent = titulo;
+      document.getElementById('apAccesoTexto').textContent = texto;
+      const caja = document.getElementById('apAccesoAcciones');
+      caja.innerHTML = '';
+      caja.hidden = !(botones && botones.length);
+      (botones || []).forEach(b => {
+        const a = document.createElement(b.href ? 'a' : 'button');
+        a.className = 'ap-btn ap-btn--' + (b.tipo || 'primario');
+        if (b.href) a.href = b.href; else { a.type = 'button'; a.addEventListener('click', b.alClic); }
+        a.textContent = b.texto;
+        caja.appendChild(a);
       });
     }
 
-    function showAdmin() {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('adminApp').style.display = 'grid';
-      initAdmin();
+    let panelIniciado = false;
+    async function verificarAcceso() {
+      mostrarAcceso('shield-check', 'Verificando tu acceso', 'Estamos confirmando con el servidor que tu cuenta administra el sitio.');
+      try {
+        const yo = await ZOORIGEN_CLUB.apiFetch('/api/admin/yo');
+        showAdmin(yo);
+      } catch (err) {
+        if (err.status === 401 || err.status === 403) {
+          mostrarAcceso('lock', 'Esta zona es solo para administradores',
+            'Tu cuenta no tiene permiso para entrar al panel de administración. Te llevamos de vuelta al Club.',
+            [{ texto: 'Ir al Club ahora', href: 'club-dashboard.html' }]);
+          setTimeout(() => { window.location.replace('club-dashboard.html'); }, 4000);
+        } else {
+          mostrarAcceso('cloud-off', 'No pudimos verificar tu acceso',
+            err.status === 0 ? 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.' : 'El servidor no respondió como esperábamos. Inténtalo de nuevo en un momento.',
+            [{ texto: 'Reintentar', alClic: verificarAcceso }, { texto: 'Ir al Club', href: 'club-dashboard.html', tipo: 'suave' }]);
+        }
+      }
     }
 
-    window.adminLogout = () => {
-      sessionStorage.removeItem(PWD_KEY);
-      auth.signOut().then(() => window.location.href = 'club-login.html');
-    };
+    function checkAccess() {
+      auth.onAuthStateChanged((user) => {
+        if (!user) { window.location.replace('club-login.html'); return; }
+        if (!panelIniciado) verificarAcceso();
+      });
+    }
 
-    // ═══════════ LOGIN HANDLER ═══════════
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const pwd = document.getElementById('accessPwd').value;
-      const err = document.getElementById('loginErr');
-      if (pwd === ADMIN_PWD) {
-        sessionStorage.setItem(PWD_KEY, 'yes');
-        err.classList.remove('show');
-        showAdmin();
-      } else {
-        err.textContent = 'Contraseña incorrecta';
-        err.classList.add('show');
-        document.getElementById('accessPwd').value = '';
-      }
-    });
-    document.getElementById('accessPwd').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') document.getElementById('loginBtn').click();
-    });
+    function showAdmin(yo) {
+      if (panelIniciado) return;
+      panelIniciado = true;
+      document.getElementById('apAcceso').hidden = true;
+      document.getElementById('adminApp').hidden = false;
+      initAdmin(yo);
+    }
+
+    window.adminLogout = () => { ZOORIGEN_CLUB.logout(); };
 
     // ═══════════ TOAST / MODAL HELPERS ═══════════
     const toast = (msg, isError = false) => {
@@ -391,210 +403,117 @@
     };
 
     // ═══════════ INIT ═══════════
-    let currentSec = 'miembros';
+    let currentSec = 'resumen';
 
     function initAdmin() {
+      const V = window.ZOO_ADMIN_VISTAS;
+      V.iniciar({
+        api: (ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op),
+        apiBase: () => ZOORIGEN_CLUB.apiBase(),
+        toast,
+        contenedor: () => document.getElementById('secView')
+      });
       document.querySelectorAll('.asb-item').forEach(btn => {
         btn.addEventListener('click', () => {
-          document.querySelectorAll('.asb-item').forEach(b => b.classList.remove('is-active'));
-          btn.classList.add('is-active');
-          currentSec = btn.dataset.sec;
-          renderSection(currentSec);
+          const destino = '#/' + btn.dataset.sec;
+          if (window.location.hash === destino) mostrarSeccion(btn.dataset.sec);
+          else window.location.hash = destino;
+          cerrarMenu();
         });
       });
-      renderSection('miembros');
-      // Actualizar badges en sidebar
+      window.addEventListener('hashchange', () => mostrarSeccion(ZOO_ADMIN_PANEL.seccionDeHash(window.location.hash)));
+      iniciarMenuMovil();
+      iniciarTema();
+      mostrarSeccion(ZOO_ADMIN_PANEL.seccionDeHash(window.location.hash));
       loadBadges();
     }
 
+    function mostrarSeccion(sec) {
+      const meta = ZOO_ADMIN_PANEL.seccion(sec) || ZOO_ADMIN_PANEL.seccion('resumen');
+      currentSec = meta.id;
+      document.body.setAttribute('data-zoo', meta.zoo);
+      document.querySelectorAll('.asb-item').forEach(b => {
+        const activo = b.dataset.sec === meta.id;
+        b.classList.toggle('is-active', activo);
+        if (activo) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+      });
+      document.getElementById('apMiga').textContent = meta.titulo;
+      document.title = meta.titulo + ' · Panel de administración · Zoorigen';
+      renderSection(meta.id);
+      const v = document.getElementById('secView');
+      window.scrollTo({ top: 0 });
+      try { v.focus({ preventScroll: true }); } catch (e) { /* sin foco */ }
+    }
+
+    function iniciarMenuMovil() {
+      const btn = document.getElementById('apMenuBtn');
+      btn.addEventListener('click', () => {
+        const abierto = document.getElementById('asb').classList.contains('is-abierto');
+        if (abierto) cerrarMenu(); else abrirMenu();
+      });
+      document.getElementById('apVelo').addEventListener('click', cerrarMenu);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarMenu(); });
+    }
+    function abrirMenu() {
+      document.getElementById('asb').classList.add('is-abierto');
+      document.getElementById('apVelo').hidden = false;
+      document.getElementById('apMenuBtn').setAttribute('aria-expanded', 'true');
+    }
+    function cerrarMenu() {
+      document.getElementById('asb').classList.remove('is-abierto');
+      document.getElementById('apVelo').hidden = true;
+      document.getElementById('apMenuBtn').setAttribute('aria-expanded', 'false');
+    }
+
+    // Modo día / noche: el mismo del Club (localStorage "zoo_theme") y data-modo para los módulos anteriores.
+    function iniciarTema() {
+      const btn = document.getElementById('apTema');
+      const aplicar = (modo) => {
+        const h = document.documentElement;
+        h.setAttribute('data-theme', modo);
+        h.setAttribute('data-modo', modo === 'dark' ? 'oscuro' : 'claro');
+        btn.innerHTML = ZOO_ICONOS.svg(modo === 'dark' ? 'sun' : 'moon', { size: 20 });
+        btn.setAttribute('aria-label', modo === 'dark' ? 'Cambiar a modo día' : 'Cambiar a modo noche');
+      };
+      aplicar(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+      btn.addEventListener('click', () => {
+        const nuevo = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        try { localStorage.setItem('zoo_theme', nuevo); } catch (e) { /* sin almacenamiento */ }
+        aplicar(nuevo);
+      });
+    }
+
     async function loadBadges() {
-      const cols = ['cursos', 'certificados', 'videos', 'pdfs', 'sesiones', 'noticias'];
+      const cols = ['cursos', 'certificados', 'videos', 'pdfs', 'sesiones'];
       for (const c of cols) {
         try {
           const snap = await db.collection(c).get();
-          document.getElementById(`nb-${c}`).textContent = snap.size;
+          const el = document.getElementById('nb-' + c);
+          el.textContent = snap.size; el.hidden = false;
         } catch {}
       }
-      try {
-        const snap = await db.collection('miembros').get();
-        document.getElementById(`nb-miembros`).textContent = snap.size;
-      } catch {}
     }
 
     function renderSection(sec) {
-      if (sec === 'miembros') loadMiembros();
+      const V = window.ZOO_ADMIN_VISTAS;
+      document.getElementById('secView').onclick = null; // cada vista nueva registra el suyo
+      if (sec === 'resumen') V.resumen();
+      else if (sec === 'miembros') V.miembros();
+      else if (sec === 'suscripciones') V.suscripciones();
       else if (sec === 'cursos') loadCursos();
-      else if (sec === 'certificados') loadCertificados();
+      else if (sec === 'certificados') Promise.resolve(loadCertificados()).then(() => { if (currentSec === 'certificados') V.agregarVerificadorFolio(); });
       else if (sec === 'videos') loadVideos();
       else if (sec === 'pdfs') loadPdfs();
       else if (sec === 'sesiones') loadSesiones();
       else if (sec === 'noticias') loadNoticias();
+      else if (sec === 'retos') V.retos();
+      else if (sec === 'comunidad') V.comunidad();
+      else if (sec === 'referidos') V.referidos();
       else if (sec === 'encuesta') loadEncuesta();
+      else if (sec === 'herramientas') V.herramientas();
+      else if (sec === 'configuracion') V.configuracion();
+      else if (sec === 'estado') V.estado();
     }
-
-    // ═══════════ MIEMBROS ═══════════
-    async function loadMiembros() {
-      const v = document.getElementById('secView');
-      v.innerHTML = '<h1>Miembros</h1><p class="sub">Gestión de miembros y suscripciones</p><p>Cargando...</p>';
-      try {
-        // Sin orderBy: ordenar en Firestore deja fuera a quien no tenga el campo (createdAt).
-        const snap = await db.collection('miembros').get();
-        const members = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderMiembros(members);
-      } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${ZOO_ADMIN_MIEMBROS.esc(err.message)}</div>`; }
-    }
-
-    function renderMiembros(members) {
-      const A = ZOO_ADMIN_MIEMBROS;
-      const analizados = A.ordenar(members.map(m => A.analizar(m, ZOORIGEN_CLUB)));
-      const porId = new Map(members.map(m => [m.id, m]));
-      const r = A.resumen(analizados);
-      let filtro = 'todos', texto = '';
-      const v = document.getElementById('secView');
-      const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
-      v.innerHTML = `
-        <header class="m-head">
-          <div>
-            <h1>Miembros</h1>
-            <p class="sub">Datos reales de Firestore · ${hoy}</p>
-          </div>
-          <button type="button" id="copiarResumen" class="btn-small extend m-copy">${ZOO_ICONOS.svg('clipboard-copy', { size: 16 })}Copiar resumen</button>
-        </header>
-        ${A.tarjetasHTML(r)}
-        <div class="m-controls">
-          <div class="zoo-chips" id="miembrosChips" role="group" aria-label="Filtrar miembros"></div>
-          <div class="m-search">${ZOO_ICONOS.svg('search', { size: 16 })}<input type="search" class="admin-search" id="searchMembers" placeholder="Buscar nombre, correo o WhatsApp" aria-label="Buscar miembros"></div>
-        </div>
-        <div class="mtable">
-          <table>
-            <thead><tr><th>Miembro</th><th>Estado</th><th>Vence</th><th><span class="sr-only">Acciones</span></th></tr></thead>
-            <tbody id="miembrosBody"></tbody>
-          </table>
-        </div>`;
-      const pintar = () => {
-        document.getElementById('miembrosChips').innerHTML = A.chipsHTML(filtro, r);
-        document.getElementById('miembrosBody').innerHTML = A.filasHTML(A.filtrar(analizados, { filtro, texto }), ZOORIGEN_CLUB);
-      };
-      pintar();
-      document.getElementById('searchMembers').addEventListener('input', e => { texto = e.target.value; pintar(); });
-      document.getElementById('miembrosChips').addEventListener('click', e => {
-        const b = e.target.closest('[data-filtro]');
-        if (b) { filtro = b.dataset.filtro; pintar(); }
-      });
-      document.getElementById('miembrosBody').addEventListener('click', e => {
-        const b = e.target.closest('[data-accion]');
-        const m = b && porId.get(b.dataset.uid);
-        if (!m) return;
-        if (b.dataset.accion === 'activar') adminActivar(m.id, m.name || '', m.email || '');
-        else if (b.dataset.accion === 'cancelar') adminCancelar(m.id, m.name || '');
-      });
-      document.getElementById('copiarResumen').addEventListener('click', async () => {
-        const txt = A.resumenTexto(r);
-        try { await navigator.clipboard.writeText(txt); toast('Resumen copiado (sin datos personales)'); }
-        catch { window.prompt('Copia el resumen:', txt); }
-      });
-    }
-
-    window.adminActivar = (uid, name, email) => {
-      openModal(`
-        <h3>Activar membresía manualmente</h3>
-        <p style="color:var(--zoo-text-muted);font-size:.9rem;margin-bottom:14px;">
-          Activarás la membresía VIP de <strong style="color:#fff;">${ZOO_ADMIN_MIEMBROS.esc(name || email || uid)}</strong>.<br>
-          Útil cuando el pago se hizo fuera de Stripe (transferencia, efectivo, cortesía, etc.).
-        </p>
-
-        <div class="field">
-          <label>Tipo de plan</label>
-          <select id="f_actTipo" style="width:100%;padding:10px 12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:8px;font-family:inherit;">
-            <option value="mensual">Mensual (30 días) · $199 MXN</option>
-            <option value="anual">Anual (365 días) · $1,899 MXN</option>
-            <option value="custom">Personalizado (elige días)</option>
-          </select>
-        </div>
-
-        <div class="field" id="f_actDiasWrap" style="display:none;">
-          <label>Días de acceso</label>
-          <input type="number" id="f_actDias" min="1" max="3650" value="30">
-        </div>
-
-        <div class="field">
-          <label>Método de pago (opcional, solo para tu registro)</label>
-          <input type="text" id="f_actMetodo" placeholder="Transferencia / Efectivo / Cortesía / etc.">
-        </div>
-
-        <div class="field">
-          <label>Monto cobrado (opcional)</label>
-          <input type="text" id="f_actMonto" placeholder="Ej. 199">
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn-cancel" onclick="closeM()">Cancelar</button>
-          <button class="btn-save" onclick="adminActivarConfirm('${uid}')">Activar ahora</button>
-        </div>
-      `);
-
-      // Toggle días custom
-      setTimeout(() => {
-        const tipoSel = document.getElementById('f_actTipo');
-        const diasWrap = document.getElementById('f_actDiasWrap');
-        const diasInput = document.getElementById('f_actDias');
-        if (tipoSel) {
-          tipoSel.addEventListener('change', () => {
-            if (tipoSel.value === 'custom') {
-              diasWrap.style.display = 'block';
-            } else {
-              diasWrap.style.display = 'none';
-              diasInput.value = tipoSel.value === 'anual' ? 365 : 30;
-            }
-          });
-        }
-      }, 50);
-    };
-
-    window.adminActivarConfirm = async (uid) => {
-      const tipoSel = document.getElementById('f_actTipo').value;
-      const diasCustom = parseInt(document.getElementById('f_actDias').value) || 30;
-      const metodo = document.getElementById('f_actMetodo').value.trim();
-      const monto = document.getElementById('f_actMonto').value.trim();
-
-      const dias = tipoSel === 'anual' ? 365 : tipoSel === 'mensual' ? 30 : diasCustom;
-      const tipoPlan = tipoSel === 'custom' ? 'mensual' : tipoSel;
-
-      try {
-        const now = new Date();
-        const vence = new Date(now.getTime() + dias * 86400000);
-
-        // Usar SET con merge: true para crear los campos que falten
-        // Esto soluciona el problema de miembros sin todos los campos (ej. creados por webhook)
-        await db.collection('miembros').doc(uid).set({
-          planActivo: true,
-          planCancelado: false,
-          planTipo: tipoPlan,
-          planInicio: firebase.firestore.Timestamp.fromDate(now),
-          planVence: firebase.firestore.Timestamp.fromDate(vence),
-          ultimoPago: firebase.firestore.Timestamp.fromDate(now),
-          planActivadoEn: firebase.firestore.Timestamp.fromDate(now),
-          planStatus: 'active',
-          activadoManualmente: true,
-          activadoPor: 'admin',
-          metodoPago: metodo || 'Admin manual',
-          montoPagado: monto || null,
-          needsLinkToAuth: firebase.firestore.FieldValue.delete()
-        }, { merge: true });
-
-        toast(`Plan ${tipoPlan} activado (${dias} días)`);
-        closeModal();
-        loadMiembros();
-      } catch (err) {
-        console.error('adminActivar error:', err);
-        toast('Error: ' + err.message, true);
-      }
-    };
-    window.adminCancelar = async (uid, name) => {
-      if (!confirm(`¿Cancelar membresía de ${name}?`)) return;
-      try { await db.collection('miembros').doc(uid).update({ planCancelado: true, planStatus: 'cancelled_active', canceladoEn: firebase.firestore.FieldValue.serverTimestamp() }); toast('Cancelado'); loadMiembros(); }
-      catch (err) { toast('Error: ' + err.message, true); }
-    };
 
     // ═══════════ CURSOS ═══════════
     const CURSOS = window.ZOO_ADMIN_CURSOS;
@@ -1277,7 +1196,7 @@
       const estado = await A.cargar((ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op));
       if (currentSec !== 'encuesta') return; // cambió de sección mientras cargaba
       v.innerHTML = A.vistaHTML(estado);
-      if (estado.encuesta.ok) document.getElementById('nb-encuesta').textContent = A.consolidar(estado.encuesta.docs).length;
+      if (estado.encuesta.ok) { const nb = document.getElementById('nb-encuesta'); nb.textContent = A.consolidar(estado.encuesta.docs).length; nb.hidden = false; }
       const recargar = document.getElementById('encRecargar');
       if (recargar) recargar.addEventListener('click', loadEncuesta);
     }

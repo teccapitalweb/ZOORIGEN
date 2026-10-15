@@ -74,19 +74,20 @@ test('todos los íconos que usa el panel existen', () => {
 
 test('el menú lateral, el pie y la marca llevan ícono y el logo real', () => {
   const h = leer('pages/admin-club.html');
-  for (const sec of ['miembros', 'cursos', 'certificados', 'videos', 'pdfs', 'sesiones', 'noticias']) {
+  for (const sec of ['resumen', 'miembros', 'suscripciones', 'cursos', 'certificados', 'videos', 'pdfs', 'sesiones', 'noticias', 'retos', 'comunidad', 'referidos', 'encuesta', 'herramientas', 'configuracion', 'estado']) {
     const m = h.match(new RegExp(`data-sec="${sec}">(<svg class="zi"[^>]*>)`));
     assert.ok(m, `el botón "${sec}" no empieza con un ícono`);
   }
   assert.ok(h.includes('class="asb-logo"') && h.includes('zoorigen-logo-remaster-v1.png'));
   assert.ok(h.includes('admin-iconos.js'));
-  assert.ok(h.indexOf('admin-iconos.js') < h.indexOf('admin-miembros.js'), 'los íconos deben cargarse antes que el módulo de miembros');
+  assert.ok(h.indexOf('admin-iconos.js') < h.indexOf('admin-panel.js'), 'los íconos deben cargarse antes que las ayudas del panel');
+  assert.ok(h.indexOf('admin-panel.js') < h.indexOf('admin-vistas.js'), 'las ayudas del panel van antes que las vistas');
 });
 
 test('no queda ningún emoji en la interfaz del panel (solo el campo de "Icono" de noticias, que es contenido)', () => {
   const emoji = /[\p{Extended_Pictographic}️]/u;
   const permitido = l => l.includes("id=\"f_icon\"") || l.includes("icon: document.getElementById('f_icon')");
-  for (const rel of ['pages/admin-club.html', 'assets/js/admin-miembros.js', 'assets/js/admin-cursos.js', 'assets/js/admin-certificados.js', 'assets/css/admin-redesign.css']) {
+  for (const rel of ['pages/admin-club.html', 'assets/js/admin-miembros.js', 'assets/js/admin-cursos.js', 'assets/js/admin-certificados.js', 'assets/css/admin-redesign.css', 'assets/js/admin-panel.js', 'assets/js/admin-vistas.js', 'assets/css/admin-club.css']) {
     const malas = leer(rel).split('\n').map((l, i) => [i + 1, l]).filter(([, l]) => emoji.test(l) && !permitido(l));
     assert.deepEqual(malas.map(([n, l]) => `${rel}:${n} ${l.trim().slice(0, 80)}`), [], 'quedaron emojis');
   }
