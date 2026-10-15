@@ -313,11 +313,17 @@ test('Mi perfil: plan real (mensual o anual), "Tu actividad" con datos reales y 
   assert.ok(/assets\/js\/club-progreso\.js\?v=[\w.-]+/.test(pag) && /assets\/js\/club-certificado\.js\?v=[\w.-]+/.test(pag));
 });
 
-test('Canal: botón de Facebook de Zoorigen, sin degradados ni emojis', () => {
+test('Canal: botones de Facebook e Instagram de Zoorigen con sus direcciones exactas, sin degradados ni emojis', () => {
   const fs2 = require('node:fs');
   const path2 = require('node:path');
   const pag = fs2.readFileSync(path2.join(__dirname, '..', 'pages', 'club-canal.html'), 'utf8');
-  assert.ok(pag.includes('https://www.facebook.com/profile.php?id=61579624231627'));
+  assert.ok(pag.includes('href="https://www.facebook.com/p/Zoorigen-61579624231627/"'));
+  assert.ok(pag.includes('href="https://www.instagram.com/zoorigen.mexico1/"'));
+  assert.equal(pag.includes('profile.php?id='), false, 'ya no queda el enlace anterior de Facebook');
+  for (const m of pag.matchAll(/<a class="zk-redes__btn[^>]*>/g)) {
+    assert.match(m[0], /target="_blank"/);
+    assert.match(m[0], /rel="noopener noreferrer"/);
+  }
   const ini = pag.indexOf('zk-redes');
   assert.ok(ini > 0);
   const bloque = pag.slice(ini, pag.indexOf('zkBloqueo', ini));
