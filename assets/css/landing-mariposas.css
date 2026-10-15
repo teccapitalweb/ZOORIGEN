@@ -1,0 +1,68 @@
+/* ============================================================ */
+/* PIE DE PÁGINA · mariposas monarca volando de fondo            */
+/* Capa decorativa (aria-hidden) creada por landing-mariposas.js. */
+/* Colores sólidos; sin movimiento si la persona pide reducirlo;  */
+/* se detiene cuando el pie no está a la vista.                   */
+/* ============================================================ */
+
+/* Fondo más profundo y algo azulado para que el naranja de las alas resalte */
+.zs-pie { position: relative; overflow: hidden; isolation: isolate; background: #0C2A24; }
+.zs-pie > .zs-wrap { position: relative; z-index: 1; }
+
+.zs-mariposas {
+  position: absolute; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.zs-monarca {
+  position: absolute;
+  left: 0;
+  top: var(--y, 30%);
+  width: var(--w, 44px);
+  height: calc(var(--w, 44px) * .8);
+  opacity: var(--o, .9);
+  animation: zsMonVuelo var(--dur, 30s) linear var(--delay, 0s) infinite;
+  will-change: transform;
+}
+.zs-monarca--izq { animation-name: zsMonVueloIzq; }
+.zs-monarca__onda {
+  display: block; width: 100%; height: 100%;
+  animation: zsMonOnda var(--onda, 5s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+.zs-monarca svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* Aleteo: cada ala se achica y se abre desde el cuerpo */
+.zs-mariposas .ala { transform-box: view-box; transform-origin: 50px 42px; animation: zsMonAleteo var(--aleteo, .55s) ease-in-out infinite alternate; }
+
+@keyframes zsMonVuelo {
+  0%   { transform: translate3d(-12vw, 0, 0) rotate(8deg); }
+  50%  { transform: translate3d(50vw, -28px, 0) rotate(-6deg); }
+  100% { transform: translate3d(112vw, 10px, 0) rotate(8deg); }
+}
+@keyframes zsMonVueloIzq {
+  0%   { transform: translate3d(112vw, 0, 0) scaleX(-1) rotate(8deg); }
+  50%  { transform: translate3d(48vw, 24px, 0) scaleX(-1) rotate(-6deg); }
+  100% { transform: translate3d(-12vw, -10px, 0) scaleX(-1) rotate(8deg); }
+}
+@keyframes zsMonOnda { from { transform: translateY(-14px); } to { transform: translateY(16px); } }
+@keyframes zsMonAleteo { from { transform: scaleX(1); } to { transform: scaleX(.28); } }
+
+/* Pie fuera de pantalla: todo en pausa (ahorra batería) */
+.zs-pie.is-fuera .zs-monarca,
+.zs-pie.is-fuera .zs-monarca__onda,
+.zs-pie.is-fuera .zs-mariposas .ala { animation-play-state: paused; }
+
+/* Celular: menos mariposas y más pequeñas */
+@media (max-width: 640px) {
+  .zs-monarca:nth-child(n+5) { display: none; }
+  .zs-monarca { width: calc(var(--w-base, 40px) * .75); height: calc(var(--w-base, 40px) * .6); }
+}
+
+/* Reducir movimiento: mariposas quietas, con las alas abiertas, repartidas por el fondo */
+@media (prefers-reduced-motion: reduce) {
+  .zs-monarca, .zs-monarca__onda, .zs-mariposas .ala { animation: none !important; }
+  .zs-monarca { left: var(--x0, 20%); transform: rotate(var(--giro, 8deg)); opacity: .75; }
+  .zs-monarca--izq { transform: scaleX(-1) rotate(var(--giro, 8deg)); }
+}
