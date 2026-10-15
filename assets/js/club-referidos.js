@@ -25,6 +25,14 @@
     error: 'No pudimos cargar tus invitados. Revisa tu conexión e inténtalo de nuevo.',
     sinMembresia: 'El premio se canjea con membresía activa. Tus invitados ya cuentan, y el premio te espera cuando actives tu membresía.',
     motivoGenerico: 'No cumplió las reglas de invitación.',
+    soloMiembrosTitulo: 'Invitar amigos es para miembros',
+    soloMiembros: 'Con tu membresía recibes tu enlace y tu código de invitación. Cuando tus amigos se unan y confirmen su correo, ganas un curso antes de su fecha y puntos para tu nivel.',
+    soloMiembrosPasos: [
+      'Activa tu membresía: es lo que te da tu enlace y tu código.',
+      'Comparte tu enlace por WhatsApp, Facebook, X o correo.',
+      'Tus amigos se registran con él y confirman su correo.',
+      'Con 4 amigos válidos eliges un curso y lo abres antes de su fecha.'
+    ],
     comoCuenta: [
       'Tu amigo se registra con tu enlace.',
       'Confirma su correo. Con Google ya queda confirmado; si usa correo y contraseña, debe abrir el mensaje de confirmación que le llega.',
@@ -228,6 +236,18 @@
       '<p class="zc-aviso">' + icono('award', 15) + '<span>Además, cada invitado válido te da puntos para tu nivel: +120 si paga una suscripción, +40 si supera 5 retos y +80 si supera 15 retos (una sola vez cada uno).</span></p>';
   }
 
+  /* Vista previa para quien NO es miembro: explica cómo funciona y lleva a Suscripción. No lleva enlace, código ni botones de compartir. */
+  function renderSoloMiembros() {
+    return '<section class="zc-card zc-solo" aria-labelledby="zcSoloTitulo">' +
+      '<div class="zc-solo__cab"><span class="zc-solo__ic" aria-hidden="true">' + icono('lock', 22) + '</span>' +
+      '<div><h2 id="zcSoloTitulo">' + esc(TEXTOS.soloMiembrosTitulo) + '</h2><p class="zc-card__sub">' + esc(TEXTOS.soloMiembros) + '</p></div></div>' +
+      '<ol class="zc-pasos">' + TEXTOS.soloMiembrosPasos.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ol>' +
+      '<div class="zc-premio"><div class="zc-premio__cab">' + icono('award', 20) + '<div><strong>Premio por invitar a ' + TOTAL_BARRA + ' amigos</strong><small>' + TOTAL_BARRA + ' invitados válidos</small></div></div>' +
+      '<p class="zc-premio__desc">Elige un curso y ábrelo antes de su fecha. Se usa una sola vez y no se puede cambiar el curso.</p></div>' +
+      '<a class="zc-btn zc-btn--primario zc-solo__btn" href="club-suscripcion.html">' + icono('crown', 16) + 'Suscribirme</a>' +
+      '</section>';
+  }
+
   function renderError(mensaje) {
     return '<div class="zc-error" role="alert">' + icono('triangle-alert', 28) + '<p>' + esc(mensaje || TEXTOS.error) + '</p>' +
       '<button type="button" class="zc-btn zc-btn--suave" data-reintentar>' + icono('refresh-cw', 15) + 'Reintentar</button></div>';
@@ -240,6 +260,6 @@
     normalizarEstado: normalizarEstado, hayPremioDisponible: hayPremioDisponible, progreso: progreso,
     etiquetaEstado: etiquetaEstado, textoHito: textoHito,
     renderInvitado: renderInvitado, renderInvitados: renderInvitados, renderResumen: renderResumen, renderBarra: renderBarra,
-    renderPremio: renderPremio, renderPremios: renderPremios, renderComoCuenta: renderComoCuenta, renderError: renderError
+    renderPremio: renderPremio, renderPremios: renderPremios, renderComoCuenta: renderComoCuenta, renderSoloMiembros: renderSoloMiembros, renderError: renderError
   };
 });

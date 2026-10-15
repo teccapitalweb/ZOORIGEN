@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261110-aviso">
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
-  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261109-cromo">
-  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261111-directorio">
+  <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261114-invitar">
+  <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261114-invitar">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261108-paleta">
   <style>
@@ -431,7 +431,7 @@
           <script>/*zs-saludo*/!function(){try{var d=new Date(),h=d.getHours(),t=document.querySelector("#inicioSaludo .zs-seccion__titulo"),s=document.querySelector("#inicioSaludo .zs-seccion__sub"),D=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"],M=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],f=D[d.getDay()]+" "+d.getDate()+" de "+M[d.getMonth()]+" de "+d.getFullYear();f=f.charAt(0).toUpperCase()+f.slice(1);if(t&&t.firstChild)t.firstChild.nodeValue=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+", ";if(s)s.textContent=f+". Tu acceso a cursos, herramientas pro y la comunidad de fauna silvestre más activa de México."}catch(e){}}()</script>
           <div id="resumeCard"></div>
           <!-- ════ INVITA AMIGOS (en el lugar de la antigua tarjeta de nivel; el nivel sigue en Mis logros) ════ -->
-          <section class="inv" id="invitaCard" aria-label="Invita amigos y gana cursos antes de tiempo" data-vip-required data-vip-label="obtener tu código de referido">
+          <section class="inv" id="invitaCard" aria-label="Invitar amigos">
             <div class="inv__marco" id="invitaCont"></div>
           </section>
 
@@ -475,7 +475,7 @@
   <script src="../assets/js/club-noticias-ui.js?v=20261106-noticias"></script>
   <script src="../assets/js/guia-personaje.js?v=20261105-inicio"></script>
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
-  <script src="../assets/js/club-inicio.js?v=20261112-prueba"></script>
+  <script src="../assets/js/club-inicio.js?v=20261114-invitar"></script>
   <script src="../assets/js/club-premios.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261104"></script>
   <script src="../assets/js/club-onboarding.js?v=20261104"></script>
@@ -526,7 +526,9 @@
       // Tarjeta de invitación: se monta ya con el código (se calcula con el UID); los invitados llegan después.
       const refCode = 'ZOO-' + session.uid.substring(0, 6).toUpperCase();
       window.__zooRefCode = refCode;
-      const tarjetaInvita = ZOO_INICIO.montarInvita(document.getElementById('invitaCard'), refCode);
+      // Invitar amigos es solo para miembros: sin membresía la tarjeta avisa y lleva a Suscripción (sin código ni compartir).
+      const puedeInvitar = esMiembro || session.role === 'admin';
+      const tarjetaInvita = ZOO_INICIO.montarInvita(document.getElementById('invitaCard'), puedeInvitar ? refCode : '', { soloMiembros: !puedeInvitar });
 
       // Solo mostrar banner si hay problema con el plan
       const pb = document.getElementById('pendingBanner');
@@ -1046,6 +1048,8 @@
 
     // ═══════════════ TARJETA DE INVITACIÓN ═══════════════
     async function cargarReferidos(session, tarjeta) {
+      // Sin membresía no hay código ni invitados que cargar (el servidor también lo niega con 403).
+      if (!(ZOORIGEN_CLUB.hasActiveMembership(session) || session.role === 'admin')) return;
       // Código de referido: ZOO- + 6 primeras letras del UID. Es el mismo que usa el servidor.
       const refCode = window.__zooRefCode || ('ZOO-' + session.uid.substring(0, 6).toUpperCase());
       try { await db.collection('miembros').doc(session.uid).set({ refCode }, { merge: true }); } catch (e) { /* no es necesario */ }

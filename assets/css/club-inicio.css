@@ -360,6 +360,15 @@
   font: 800 .95rem/1.2 var(--zoo-font-display);
 }
 .inv__wa:hover { background: #3BE07C; }
+/* Quien no es miembro: botón de Suscripción en dorado sólido (sin degradado) */
+.inv__sus {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 10px 20px;
+  border-radius: 12px; background: var(--iv-dorado); color: #1F1D17; text-decoration: none;
+  font: 800 .95rem/1.2 var(--zoo-font-display);
+}
+.inv__sus:hover { filter: brightness(1.06); }
+.inv__sus:focus-visible { outline: 3px solid #E8A317; outline-offset: 2px; }
+.inv--bloqueada .inv__pulso { animation: none; opacity: 0; }
 .inv__ver { display: inline-flex; align-items: center; min-height: 44px; font-weight: 800; font-size: .92rem; color: var(--iv-ver); text-decoration: underline; text-underline-offset: 3px; }
 .inv__ver:hover { color: var(--iv-titulo); }
 
@@ -373,7 +382,7 @@
   .inv__icono { width: 60px; height: 60px; }
   .inv__icono svg { width: 28px; height: 28px; }
   .inv__acciones { flex-direction: column; align-items: stretch; }
-  .inv__wa, .inv__ver { width: 100%; justify-content: center; }
+  .inv__wa, .inv__sus, .inv__ver { width: 100%; justify-content: center; }
   .inv__cifras { gap: 8px; }
   .inv__cifra { padding: 8px 10px; }
 }

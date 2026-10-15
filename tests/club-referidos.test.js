@@ -399,3 +399,50 @@ test('las páginas ya no mencionan 3 ni 6 amigos ni "dos premios"', () => {
   assert.match(inicio.invitaHTML({ codigo: 'ZOO-ABC123' }), /Invita a 4 amigos y adelanta un curso/);
   assert.equal(inicio.META_REFERIDOS, 4);
 });
+
+/* ───────────── Invitar amigos es solo para miembros ───────────── */
+
+test('vista previa de quien no es miembro: explica cómo funciona y lleva a Suscripción, sin enlace, código ni compartir', () => {
+  const h = R.renderSoloMiembros();
+  assert.match(h, /Invitar amigos es para miembros/);
+  assert.match(h, /href="club-suscripcion\.html"/);
+  assert.match(h, /Suscribirme/);
+  assert.match(h, /Premio por invitar a 4 amigos/);
+  assert.doesNotMatch(h, /ZOO-|refLink|copyBtn|wa\.me|facebook\.com|data-canjear|zcCodigo|\?ref=/, 'nada copiable ni compartible');
+  assert.doesNotMatch(h, /<button/, 'sin botones que hagan algo');
+});
+
+test('club-referidos.html: sin membresía no pide el estado, no escribe refCode ni muestra enlace; con membresía sigue igual', () => {
+  const html = fs.readFileSync(path.join(RAIZ, 'pages', 'club-referidos.html'), 'utf8');
+  const sinMembresia = html.indexOf('if (!puedeInvitar)');
+  assert.ok(sinMembresia > 0, 'hay una rama para quien no es miembro');
+  assert.ok(sinMembresia < html.indexOf("/api/referidos/estado"), 'la rama va antes de pedir el estado');
+  assert.ok(sinMembresia < html.indexOf("set({ refCode"), 'la rama va antes de escribir refCode');
+  assert.match(html, /const puedeInvitar = membresia \|\| session\.role === 'admin'/);
+  assert.match(html, /renderSoloMiembros\(\)/);
+  assert.match(html, /id="zcEnlaceSec"/);
+  const css = fs.readFileSync(path.join(RAIZ, 'assets', 'css', 'club-comunidad.css'), 'utf8');
+  assert.match(css, /html\[data-plan="free"\] #zcEnlaceSec/, 'el enlace no parpadea para cuentas ya conocidas como gratuitas');
+});
+
+test('Inicio: la tarjeta "Invita amigos" de quien no es miembro avisa y lleva a Suscripción, sin código ni compartir', () => {
+  const inicio = require('../assets/js/club-inicio.js');
+  const h = inicio.invitaHTML({ codigo: 'ZOO-ABC123', soloMiembros: true });
+  assert.match(h, /Invitar amigos es para miembros/);
+  assert.match(h, /href="club-suscripcion\.html"/);
+  assert.doesNotMatch(h, /ZOO-ABC123|data-copiar|data-compartir|dashRefCode/);
+  const dash = fs.readFileSync(path.join(RAIZ, 'pages', 'club-dashboard.html'), 'utf8');
+  assert.match(dash, /montarInvita\(document\.getElementById\('invitaCard'\), puedeInvitar \? refCode : ''/);
+  const i = dash.indexOf('async function cargarReferidos');
+  assert.ok(dash.indexOf("session.role === 'admin')) return;", i) > i, 'cargarReferidos sale pronto sin membresía');
+});
+
+test('Mis logros: para quien no es miembro el premio por invitar no promete lo que no puede hacer', () => {
+  const L = require('../assets/js/club-logros-ui.js');
+  const d = { membresia: false, nivel: { id: 1, nombre: 'Aprendiz', desde: 0, hasta: 500, faltan: 500, xp: 0 }, niveles: [], xp: { total: 0, logros: 0, retos: 0, referidos: 0, cursos: 0, bienvenida: 0 }, cursos: { terminados: 0, lista: [] }, logros: [], premios: [], disponibles: 0 };
+  const v = L.premiosVista(d, {}).find(x => x.clave === 'referidos-1');
+  assert.match(v.descripcion, /Invitar amigos es para miembros/);
+  const h = L.premiosHTML(d, {});
+  assert.doesNotMatch(h, /o al invitar amigos que de verdad se unan/);
+  assert.match(h, /con tu membresía también al invitar amigos/);
+});

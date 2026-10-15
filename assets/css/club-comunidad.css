@@ -306,3 +306,12 @@
 .zd-check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: .88rem; color: var(--zoo-text); cursor: pointer; }
 .zd-check input { width: 20px; height: 20px; flex-shrink: 0; }
 .zd-nota { margin: 6px 0 12px; font-size: .82rem; color: var(--zoo-text-muted); line-height: 1.5; }
+
+/* ── Invitar amigos para quien no es miembro: vista previa sin enlace ni código ── */
+html[data-plan="free"] #zcEnlaceSec, html[data-plan="expired"] #zcEnlaceSec, html[data-plan="past_due"] #zcEnlaceSec { display: none; }
+.zc-solo__cab { display: flex; gap: 14px; align-items: flex-start; }
+.zc-solo__ic { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: rgba(232,163,23,.16); color: var(--zoo-amber, #E8A317); }
+.zc-solo__cab h2 { margin: 0 0 4px; }
+.zc-solo .zc-premio { margin: 4px 0 16px; }
+.zc-solo__btn { text-decoration: none; }
+@media (max-width: 480px) { .zc-solo__btn { width: 100%; } .zc-solo { padding: 16px; } }

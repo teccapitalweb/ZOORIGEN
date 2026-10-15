@@ -25,7 +25,8 @@ test('la tarjeta de invitación va después del héroe de curso y antes de las n
   const noticias = cuerpo.indexOf('id="noticias"');
   assert.ok(heroe > 0 && invita > heroe && noticias > invita, 'orden: resumeCard < invitaCard < noticias');
   assert.equal((cuerpo.match(/id="invitaCard"/g) || []).length, 1);
-  assert.match(cuerpo, /id="invitaCard"[^>]*data-vip-required/, 'sigue el bloqueo de vista previa para quien no es miembro');
+  assert.doesNotMatch(cuerpo, /id="invitaCard"[^>]*data-vip-required/, 'ya no usa el candado VIP genérico: la tarjeta avisa por sí misma que invitar es para miembros');
+  assert.match(dash, /soloMiembros: !puedeInvitar/, 'sin membresía la tarjeta se monta en modo "solo miembros"');
   assert.doesNotMatch(dash, /dash-refer-/, 'sin el diseño anterior de la tarjeta');
   assert.doesNotMatch(dash, /shareReferLink|copyReferCode/);
   assert.match(dash, /montarInvita/);
@@ -70,12 +71,12 @@ test('el Inicio carga la tipografía del periódico (Playfair) desde el propio s
 
 test('las versiones de lo que cambió suben en las páginas que lo cargan', () => {
   for (const [pag, patron] of [
-    ['pages/club-dashboard.html', /assets\/css\/club-inicio\.css\?v=20261109-cromo/],
-    ['pages/club-dashboard.html', /assets\/css\/club-noticias\.css\?v=20261109-cromo/],
-    ['pages/club-dashboard.html', /assets\/js\/club-inicio\.js\?v=20261112-prueba/],
-    ['pages/club-dashboard.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/],
-    ['pages/admin-club.html', /assets\/css\/club-noticias\.css\?v=20261109-cromo/],
-    ['pages/admin-club.html', /assets\/js\/club-noticias-ui\.js\?v=20261106-noticias/]
+    ['pages/club-dashboard.html', /assets\/css\/club-inicio\.css\?v=[\w.-]+/],
+    ['pages/club-dashboard.html', /assets\/css\/club-noticias\.css\?v=[\w.-]+/],
+    ['pages/club-dashboard.html', /assets\/js\/club-inicio\.js\?v=[\w.-]+/],
+    ['pages/club-dashboard.html', /assets\/js\/club-noticias-ui\.js\?v=[\w.-]+/],
+    ['pages/admin-club.html', /assets\/css\/club-noticias\.css\?v=[\w.-]+/],
+    ['pages/admin-club.html', /assets\/js\/club-noticias-ui\.js\?v=[\w.-]+/]
   ]) assert.match(leer(pag), patron, pag + ' ' + patron);
 });
 

@@ -130,6 +130,7 @@
     estrella: '<path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>',
     usuario: '<circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>',
     regalo: '<path d="M12 7v14"/><path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5"/><rect x="3" y="7" width="18" height="4" rx="1"/>',
+    candado: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
     copiar: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
     usuarios: '<circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/>'
   };
@@ -315,9 +316,27 @@
   }
   function urlWhatsapp(codigo) { return 'https://wa.me/?text=' + encodeURIComponent(mensajeCompartir(codigo)); }
 
-  /* HTML interior de la tarjeta. o: { codigo, estado: salida de estadoInvitados | null, error: boolean } */
+  /* Tarjeta para quien NO es miembro: invitar amigos es de la membresía, así que no hay código ni botones de compartir.
+     Solo explica cómo funciona y lleva a Suscripción. */
+  function invitaSoloMiembrosHTML() {
+    return '<div class="inv__banda" aria-hidden="true"></div>' +
+      '<div class="inv__icono" aria-hidden="true">' + svg('candado', 34) + '</div>' +
+      '<div class="inv__cuerpo">' +
+        '<p class="inv__etq">Invitar amigos</p>' +
+        '<h2 class="inv__titulo">Invitar amigos es para miembros</h2>' +
+        '<p class="inv__sub">Con tu membresía recibes tu código y tu enlace de invitación. Cuando ' + META_REFERIDOS +
+          ' amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha.</p>' +
+        '<div class="inv__acciones">' +
+          '<a class="inv__sus" href="club-suscripcion.html">' + svg('regalo', 18) + '<span>Suscribirme</span></a>' +
+          '<a class="inv__ver" href="club-referidos.html">Ver cómo funciona</a>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* HTML interior de la tarjeta. o: { codigo, estado: salida de estadoInvitados | null, error: boolean, soloMiembros: boolean } */
   function invitaHTML(o) {
     o = o || {};
+    if (o.soloMiembros) return invitaSoloMiembrosHTML();
     var e = o.estado || null;
     var cargando = !e && !o.error;
     var codigo = esc(o.codigo || 'ZOO-XXXXXX');
@@ -445,7 +464,7 @@
     elegirHero: elegirHero, widgetHTML: widgetHTML, saludoHTML: saludoHTML, textoDias: textoDias, imagenSegura: imagenSegura, fotoDelCurso: fotoDelCurso,
     totalClases: totalClases, avanceDe: avanceDe, pasosDe: pasosDe, kpisDe: kpisDe, fechaLarga: fechaLarga, saludoHora: saludoHora,
     valorConteo: valorConteo, esConteo: esConteo, cifrasDelHero: cifrasDelHero, botonHero: botonHero, mensajeGuia: mensajeGuia, DURACION_CONTEO: DURACION_CONTEO,
-    estadoInvitados: estadoInvitados, invitaHTML: invitaHTML, urlRegistroConCodigo: urlRegistroConCodigo, mensajeCompartir: mensajeCompartir, urlWhatsapp: urlWhatsapp, META_REFERIDOS: META_REFERIDOS
+    estadoInvitados: estadoInvitados, invitaHTML: invitaHTML, invitaSoloMiembrosHTML: invitaSoloMiembrosHTML, urlRegistroConCodigo: urlRegistroConCodigo, mensajeCompartir: mensajeCompartir, urlWhatsapp: urlWhatsapp, META_REFERIDOS: META_REFERIDOS
   };
   if (typeof document === 'undefined') return API;
 
@@ -572,9 +591,15 @@
 
   /* Monta la tarjeta de invitación dentro de `contenedor` (que debe tener un hijo .inv__marco). Devuelve { fijar(respuesta), error() }.
      Las huellas se llenan cuando la tarjeta entra en pantalla. */
-  API.montarInvita = function (contenedor, codigo) {
+  API.montarInvita = function (contenedor, codigo, opciones) {
     if (!contenedor) return null;
     var marco = contenedor.querySelector('.inv__marco') || contenedor;
+    // Sin membresía: tarjeta de aviso, sin código ni compartir (invitar es solo para miembros).
+    if (opciones && opciones.soloMiembros) {
+      marco.innerHTML = invitaSoloMiembrosHTML();
+      contenedor.classList.add('inv--bloqueada');
+      return { fijar: function () {}, error: function () {} };
+    }
     var estado = null, fallo = false, observador = null, tCopiado = null;
 
     function ver() {

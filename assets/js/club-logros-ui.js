@@ -206,7 +206,10 @@
           ? { icono: 'lock', texto: 'Requiere ' + (info.requisito || 'más avance') }
           : { icono: 'lock', texto: 'Te faltan ' + fmt(faltan) + ' ' + (unidad === 'invitados' && faltan === 1 ? 'invitado' : unidad) };
       }
-      return { clave: info.clave, titulo: info.titulo, tipo: info.tipo, descripcion: info.descripcion || '', requisito: info.requisito || '', estado, chip, faltan };
+            // Invitar amigos es solo para miembros: a quien no lo es no se le promete un premio que no puede ganar invitando.
+      const soloMiembros = !d.membresia && info.tipo === 'invitados';
+      const descripcion = soloMiembros ? 'Invitar amigos es para miembros. Con tu membresía, 4 invitados válidos abren un curso antes de su fecha.' : (info.descripcion || '');
+      return { clave: info.clave, titulo: info.titulo, tipo: info.tipo, descripcion, requisito: soloMiembros ? '' : (info.requisito || ''), estado, chip, faltan, soloMiembros };
     });
   }
 
@@ -221,7 +224,7 @@
       <div class="lg-premios__cab">
         <div class="lg-premios__copa">${ico('trophy', { size: 38 })}</div>
         <div class="lg-premios__intro"><span class="lg-eyebrow">Premios · Recompensas de trayectoria</span><h2>Tu progreso también <em>abre puertas.</em></h2>
-          <p>Cada premio abre <strong>un curso</strong> antes de su fecha, el que tú elijas. Se ganan al subir de nivel o al invitar amigos que de verdad se unan.</p></div>
+          <p>Cada premio abre <strong>un curso</strong> antes de su fecha, el que tú elijas. ${d.membresia ? 'Se ganan al subir de nivel o al invitar amigos que de verdad se unan.' : 'Se ganan al subir de nivel; con tu membresía también al invitar amigos.'}</p></div>
         <div class="lg-premios__cuenta"><b>${fmt(disp)}</b><span>${disp === 1 ? 'premio disponible' : 'premios disponibles'}</span></div>
       </div>
       <div class="lg-premios__cuerpo"><div class="lg-tiers">${tiers.map((t, i) => `
