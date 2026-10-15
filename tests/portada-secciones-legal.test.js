@@ -252,6 +252,37 @@ test('reseñas: carrusel limpio con el texto transcrito de las capturas, sin mur
   assert.doesNotMatch(JS, /zs-muro/);
 });
 
+test('logo original: la imagen circular de Zoorigen en cabecera, pie y páginas legales, sin la Z dibujada', () => {
+  assert.ok(fs.existsSync(path.join(RAIZ, 'assets/img/logo/logo-96.webp')), 'existe el logo original');
+  const LOGO = /<img class="[^"]*" src="assets\/img\/logo\/logo-96\.webp" alt="Zoorigen" width="4[0-8]" height="4[0-8]" decoding="async"/;
+  assert.match(INDEX, /<a class="brand" href="#inicio"[^>]*>\s*<img class="brand__logo" src="assets\/img\/logo\/logo-96\.webp" alt="Zoorigen" width="46" height="46" decoding="async"><span>ZOORIGEN</, 'cabecera con el logo y el texto al lado');
+  assert.match(bloque(INDEX, '<footer class="zs-pie"', '</footer>'), LOGO, 'pie de la portada');
+  for (const f of ['aviso-de-privacidad.html', 'terminos-y-condiciones.html']) {
+    const h = leer(f);
+    assert.match(bloque(h, '<header class="zs-cab"', '</header>'), LOGO, 'cabecera de ' + f);
+    assert.match(bloque(h, '<footer class="zs-pie"', '</footer>'), LOGO, 'pie de ' + f);
+    assert.doesNotMatch(h, /zs-pie__marca-z|>Z<\/span>/, 'sin Z dibujada en ' + f);
+  }
+  assert.doesNotMatch(INDEX, /brand__mark|zs-pie__marca-z|<span>Z<\/span>/, 'sin Z dibujada en la portada');
+  assert.doesNotMatch(CSS, /zs-pie__marca-z/);
+  assert.match(CSS, /\.navbar \.brand \.brand__logo \{[^}]*border-radius: 50%[^}]*object-fit: cover/);
+  assert.match(CSS, /\.zs-pie__marca-img \{[^}]*width: 44px; height: 44px; border-radius: 50%/);
+});
+
+test('globo del guía: "Soy tu guía virtual" fijo a la izquierda del personaje, sin ocultarse y sin tapar el WhatsApp', () => {
+  const g = CSS.split('Globo "Soy tu guía virtual"')[1].split('@keyframes zs-globo-pulsa')[0];
+  assert.match(g, /\.zg-launcher\.is-nota \.zg-launcher__txt,\s*\.zg-launcher:hover \.zg-launcher__txt,\s*\.zg-launcher:focus-visible \.zg-launcher__txt \{/);
+  assert.match(g, /right: calc\(100% \+ 14px\); top: 50%/);
+  assert.match(g, /opacity: 1; visibility: visible/);
+  assert.match(g, /font: 600 14px\/1\.25/);
+  assert.doesNotMatch(g, /gradient/);
+  assert.match(CSS, /@media \(max-width: 360px\) \{[^}]*\.zg-launcher \.zg-launcher__txt[\s\S]*?font-size: 12px/);
+  assert.match(CSS, /@media \(prefers-reduced-motion: reduce\) \{\s*\.zg-launcher \.zg-launcher__txt[^}]*animation: none/);
+  const js = leer('assets/js/chatbot-landing.js');
+  assert.match(js, /el\('span', 'zg-launcher__txt', 'Soy tu guía virtual'\)/);
+  assert.match(js, /globoFijo\.setAttribute\('aria-hidden', 'true'\)/, 'el globo no repite el texto del botón a lectores de pantalla');
+});
+
 test('Antes de empezar: titular grande con trazo dorado, panel de ayuda con la guía y preguntas como tarjetas numeradas', () => {
   const DUDAS = bloque(INDEX, '<section class="zs-sec zs-sec--blanco" id="preguntas"', '</section>');
   assert.match(DUDAS, /<h2 class="zs-title" id="preguntas-title">Resolvamos tus <em>dudas<svg class="zs-trazo"[^>]*aria-hidden="true"/);
