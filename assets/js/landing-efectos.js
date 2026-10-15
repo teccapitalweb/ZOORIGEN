@@ -194,7 +194,7 @@
     '.zs-campo', '.zs-dudas__cab', '.zs-faq details', '.zs-contacto__texto', '.zs-canal', '.zs-marquee'];
   // Beneficios y campos tienen su propio efecto en CSS (giro del panel y panel que baja): no se inclinan con el puntero
   var INCLINAR = { '.zs-curso': 6, '.zs-cifra': 5, '.zs-paso': 5, '.zs-canal': 3, '.zs-ventana': 2.5 };
-  var OBSERVAR = ['.zs-recursos', '.zs-campo', '.zs-pasos', '.zs-muro'];   // paralaje, línea de pasos y pausa del muro fuera de pantalla
+  var OBSERVAR = ['.zs-recursos', '.zs-campo', '.zs-muro'];   // paralaje y pausa del muro fuera de pantalla
 
   var visibles = new Set();
   var grupos = [];   // bloques con paralaje: { cont, hijos: [{el, f, max}] }
@@ -297,7 +297,7 @@
     window.addEventListener('blur', function () { soltar(actual); actual = null; });
   }
 
-  /* ---------- Paralaje por capas y línea de pasos (un solo listener de scroll) ---------- */
+  /* ---------- Paralaje por capas (un solo listener de scroll) ---------- */
   function hijosDe(cont) {
     if (cont.matches('.zs-campo')) {
       var im = $('.zs-campo__img img', cont);
@@ -310,7 +310,6 @@
   }
   $$('.zs-campo, .zs-recursos').forEach(function (c) { grupos.push({ cont: c, hijos: hijosDe(c) }); });
 
-  var pasosEl = $('.zs-pasos');
   var rafS = 0;
   function actualizar() {
     rafS = 0;
@@ -323,11 +322,6 @@
         h.el.style.setProperty('--py', limitar(-d * h.f, -h.max, h.max).toFixed(1) + 'px');
       });
     });
-    if (pasosEl && visibles.has(pasosEl)) {
-      var rp = pasosEl.getBoundingClientRect();
-      var p = limitar((alto * 0.85 - rp.top) / (alto * 0.55), 0, 1);
-      pasosEl.style.setProperty('--prog', p.toFixed(3));
-    }
   }
   function pedirScroll() { if (!rafS) rafS = requestAnimationFrame(actualizar); }
   window.addEventListener('scroll', pedirScroll, { passive: true });

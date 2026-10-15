@@ -234,10 +234,16 @@ test('reseñas: muro de tarjetas con el texto transcrito de las capturas y sin l
 test('Tu siguiente paso: tres columnas desde 900 px, una debajo, esquina que se expande con colores sólidos', () => {
   assert.match(CSS, /\.zs-pasos\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
   assert.match(CSS, /@media \(min-width: 900px\)\s*\{\s*\.zs-pasos\s*\{\s*grid-template-columns:\s*repeat\(3,/);
-  assert.match(CSS, /\.zs-paso__fondo\s*\{[^}]*border-radius:\s*50%[^}]*background:\s*var\(--zs-verde\)/);
-  assert.match(CSS, /\.zs-paso:focus-within \.zs-paso__fondo[^{]*\{\s*transform:\s*scale\(var\(--zs-esc, 36\)\)/);
+  // La esquina se llena con un tinte pálido (no verde fuerte) y el texto sigue oscuro
+  assert.match(CSS, /\.zs-paso__fondo\s*\{[^}]*border-radius:\s*50%[^}]*background:\s*var\(--zs-salvia\)/);
+  assert.match(CSS, /\.zs-paso:focus-within \.zs-paso__fondo[^{]*\{\s*transform:\s*scale\(var\(--zs-esc, 34\)\)/);
   assert.equal((INDEX.match(/class="zs-paso__esquina"/g) || []).length, 3);
-  assert.match(CSS, /\.zs-paso:hover h3[^{]*\{\s*color:\s*#FFFFFF/);
+  assert.doesNotMatch(CSS, /\.zs-paso:hover h3[^{]*\{\s*color:\s*#FFFFFF/);
+  // Sin conector entre pasos
+  assert.doesNotMatch(CSS, /\.zs-paso:not\(:last-child\)::(before|after)/);
+  assert.doesNotMatch(INDEX, /class="zs-linea"/);
+  // Compacta: relleno de 14 a 18 px
+  assert.match(CSS, /\.zs-paso__tarjeta\s*\{[^}]*padding:\s*16px 18px/);
 });
 
 test('Confianza: tarjetas que giran en 3D con foco y toque, caja de logo fija y sin giro con reducir movimiento', () => {
@@ -245,7 +251,13 @@ test('Confianza: tarjetas que giran en 3D con foco y toque, caja de logo fija y 
   assert.match(CSS, /\.zs-logo:hover \.zs-logo__giro[^{]*\{\s*transform:\s*rotateY\(180deg\)/);
   assert.match(CSS, /\.zs-logo:focus-visible \.zs-logo__giro/);
   assert.match(CSS, /backface-visibility:\s*hidden/);
-  assert.match(CSS, /\.zs-logo__cara--frente img\s*\{[^}]*width:\s*156px;\s*height:\s*72px;[^}]*object-fit:\s*contain/);
+  assert.match(CSS, /\.zs-logo__cara--frente img\s*\{[^}]*width:\s*136px;\s*height:\s*60px;[^}]*object-fit:\s*contain/);
+  // Logos siempre a color y reverso en tinte pálido con texto oscuro
+  assert.doesNotMatch(CSS, /grayscale/);
+  assert.match(CSS, /\.zs-logo__cara--dorso\s*\{[^}]*background:\s*var\(--zs-salvia\)/);
+  assert.match(CSS, /\.zs-logo__cara--dorso strong\s*\{[^}]*color:\s*var\(--zs-tinta\)/);
+  assert.match(INDEX, /<h2 class="zs-title" id="empresas-title">Empresas que confían en nosotros<\/h2>/);
+  assert.doesNotMatch(bloque(INDEX, '<section class="zs-sec zs-sec--blanco" id="empresas"', '</header>'), /zs-lead/);
   assert.match(CSS, /transition:\s*transform \.8s/);
   assert.match(SCRIPT, /zs-logo__cara--dorso/);
   assert.match(SCRIPT, /tabindex="0"/);
@@ -256,14 +268,20 @@ test('Confianza: tarjetas que giran en 3D con foco y toque, caja de logo fija y 
 
 test('Del estudio a la práctica: 4 columnas, 2 x 2 en tableta, 1 en celular; el panel crema baja con hover y foco', () => {
   assert.match(CSS, /\.zs-campos\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
-  assert.match(CSS, /@media \(min-width: 560px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(2,/);
-  assert.match(CSS, /@media \(min-width: 1000px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(4,/);
+  assert.match(CSS, /@media \(min-width: 480px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(2,/);
+  assert.match(CSS, /@media \(min-width: 900px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(4,/);
   assert.equal((INDEX.match(/class="zs-campo__ver"/g) || []).length, 4);
-  // El efecto solo existe con puntero fino, hover y sin reducir movimiento; el panel mide 70 % y baja 100 % en 1 s
+  // Imágenes propias con respaldo a las actuales mientras no existan los archivos nuevos
+  for (const n of ['conservacion', 'comportamiento', 'campo', 'apicultura']) {
+    assert.ok(INDEX.includes('src="assets/img/landing/estudio/estudio-' + n + '.webp" onerror="this.onerror=null;this.src=\'assets/img/landing/area-'), 'falta respaldo de ' + n);
+  }
+  // El efecto solo existe con puntero fino, hover y sin reducir movimiento; la tarjeta es compacta (236 px) y el panel,
+  // solo del alto del texto, baja 100 % en 1 s
   const mejora = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{[\s\S]*?\n\}\n/);
   assert.ok(mejora, 'falta la mejora progresiva de campos');
-  assert.match(mejora[0], /height:\s*70%/);
-  assert.match(mejora[0], /border-radius:\s*0 0 16px 16px/);
+  assert.match(mejora[0], /height:\s*236px/);
+  assert.doesNotMatch(mejora[0], /height:\s*70%/);
+  assert.match(mejora[0], /border-radius:\s*16px 16px 0 0/);
   assert.match(mejora[0], /cubic-bezier\(\.645, \.045, \.355, 1\)/);
   assert.match(mejora[0], /:focus-within \.zs-campo__txt\s*\{\s*transform:\s*translateY\(100%\)/);
   assert.match(mejora[0], /box-shadow:\s*0 0 20px 8px/);
@@ -319,4 +337,46 @@ test('íconos de redes: círculo de 48 a 56 px, color sólido de marca al hover 
   assert.match(AVISO, /zs-red--instagram/);
   // Con reducir movimiento solo cambia el color
   assert.match(CSS, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.zs-pie__redes a:hover \.zs-i[^{]*\{\s*animation:\s*none/);
+});
+
+/* ---------------- Ronda 5: tarjetas compactas, tonos pálidos, mascota que se asoma ---------------- */
+test('beneficios compactos: 1, 2 y 3 columnas, frente que desaparece sin encimarse y colores pálidos', () => {
+  assert.match(CSS, /@media \(min-width: 480px\)\s*\{\s*\.zs-beneficios\s*\{\s*grid-template-columns:\s*repeat\(2,/);
+  assert.match(CSS, /@media \(min-width: 800px\)\s*\{\s*\.zs-beneficios\s*\{\s*grid-template-columns:\s*repeat\(3,/);
+  const mejora = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-beneficio \{[\s\S]*?\n\}\n/)[0];
+  assert.match(mejora, /min-height:\s*132px/);
+  assert.match(mejora, /background:\s*var\(--zs-salvia\)/);
+  assert.doesNotMatch(mejora, /background:\s*var\(--zs-verde\)/);
+  // El frente se desvanece por completo (.25 s) y el panel entra opaco después, sin que los textos convivan
+  assert.match(mejora, /\.zs-beneficio__frente \{[^}]*opacity:\s*0;\s*transition:\s*opacity \.25s ease/);
+  assert.match(mejora, /\.zs-beneficio__panel\s*\{[^}]*background:\s*#FFFFFF/);
+  assert.match(mejora, /transition:\s*transform \.6s var\(--ease\), opacity \.3s ease \.15s/);
+});
+
+test('mascota: usa la imagen del guía existente, respeta reducir movimiento y limita apariciones', () => {
+  const JS = leer('assets/js/landing-mascota.js');
+  assert.match(JS, /assets\/img\/guia\/guia-saludo-1\.webp/);
+  assert.ok(fs.existsSync(path.join(RAIZ, 'assets/img/guia/guia-saludo-1.webp')), 'la imagen debe existir');
+  assert.match(JS, /prefers-reduced-motion: reduce[\s\S]{0,120}return;/);
+  assert.match(JS, /MAX_POR_VISITA = 4/);
+  assert.match(JS, /ENFRIAMIENTO = 8000/);
+  assert.match(JS, /PAUSA = 1200/);
+  assert.match(JS, /VISIBLE_MIN = 0\.5/);
+  assert.match(JS, /document\.hidden/);
+  assert.match(JS, /\.zg-panel:not\(\[hidden\]\)/);
+  assert.match(JS, /aria-hidden/);
+  assert.doesNotMatch(JS, EMOJI);
+  assert.match(INDEX, /<script src="assets\/js\/landing-mascota\.js\?v=[\w.-]+" defer><\/script>/);
+  // Secciones elegibles configuradas en el marcado
+  assert.equal((INDEX.match(/data-mascota="\.zs-[a-z]+"/g) || []).length, 4);
+  assert.match(CSS, /\.zs-mascota\s*\{[^}]*pointer-events:\s*none/);
+  assert.match(CSS, /@media \(prefers-reduced-motion: reduce\) \{ \.zs-mascota \{ display: none; \} \}/);
+});
+
+test('tarjetas: sin grises ni verde fuerte de fondo en pasos, beneficios y confianza', () => {
+  for (const sel of ['.zs-logo__cara--dorso', '.zs-paso__fondo', '.zs-paso__esquina']) {
+    const m = CSS.match(new RegExp(sel.replace(/\./g, '\\.') + '\\s*\\{[^}]*\\}'));
+    assert.ok(m, sel);
+    assert.doesNotMatch(m[0], /background:\s*var\(--zs-verde\)/, sel);
+  }
 });

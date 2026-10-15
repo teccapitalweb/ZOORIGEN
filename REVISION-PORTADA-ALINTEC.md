@@ -104,3 +104,12 @@ Imágenes que ya no se usan en la portada (se pueden retirar del repo): `assets/
 - **Beneficios:** frente verde sólido con ícono grande y título; con puntero fino y sin reducir movimiento, al pasar el puntero o enfocar la tarjeta se inclina (-3 grados, escala 1.05), el ícono se encoge y un panel blanco con título y descripción gira hasta quedar recto (0.6 s). Sin hover, en táctil o con reducir movimiento: ícono, título y descripción visibles y estáticos. La descripción siempre está en el DOM.
 - **Del estudio a la práctica:** foto a toda la tarjeta y panel crema de 70 % de alto (radio 16 px) encima; al hover o foco el panel baja 100 % en 1 s y deja ver la foto. En táctil o sin hover: imagen arriba y texto debajo.
 - Lo de las palabras que alternan en las cifras no se hizo.
+
+## 9. Quinta ronda
+
+- **Tarjetas compactas** (alto real de la primera tarjeta, antes → después a 1440 / 390 px): cursos 494 → 396 / 476 → 360, beneficios 200 → 132 / 128 → 99, del estudio a la práctica 359 → 236 / 348 → 273, pasos 321 → 208 / 276 → 205, áreas 398 → 284 / 334 → 263, confianza 124 → 100 / 124 → 92, cifras 98 → 82 / 85 → 79.
+- **Tonos pálidos** en pasos (la esquina se llena con salvia `#EAF1EC`, texto oscuro), beneficios (frente salvia, panel blanco opaco) y reverso de confianza (salvia con nombre oscuro). El verde de marca queda para íconos, enlaces y líneas finas.
+- **Sin conector** entre los pasos; **logos siempre a color**; **Confianza** con solo etiqueta y título.
+- **Beneficios**: el frente se desvanece por completo en 0.25 s y el panel entra opaco después (nunca hay dos textos a la vez).
+- **Imágenes de "Del estudio a la práctica"**: ahora se piden a `assets/img/landing/estudio/estudio-*.webp` y, mientras no existan, caen a las fotos de las áreas. Prompts en `PROMPTS-IMAGENES-PORTADA.md` (nota interna).
+- **Jaguarito que se asoma** (`assets/js/landing-mascota.js`): usa `assets/img/guia/guia-saludo-1.webp`; sale al detenerse 1.2 s en pasos, beneficios, estudio a la práctica o cursos (atributo `data-mascota` de cada sección). Máximo 4 por visita, 8 s de enfriamiento, una vez por sección, nunca sobre texto, sin reducir movimiento no aparece; el toque abre la guía.
