@@ -213,7 +213,7 @@
         '<button type="button" class="zs-btn zs-theme" id="zsTheme" data-dual="1" title="Cambiar entre modo día y noche" aria-label="Cambiar entre modo día y noche">' +
           '<span class="zs-theme__v zs-theme__luna">' + icono('moon', 17) + '<span class="zs-theme__txt">Noche</span></span>' +
           '<span class="zs-theme__v zs-theme__sol">' + icono('sun', 17) + '<span class="zs-theme__txt">Día</span></span></button>' +
-        '<a class="zs-avatar" href="club-perfil.html" title="Mi perfil" aria-label="Mi perfil">' +
+        '<a class="zs-avatar" id="zsAvatar" href="club-perfil.html" title="Tu espacio: perfil, plan y accesos" aria-label="Mi perfil y mi cuenta" aria-haspopup="dialog" aria-expanded="false">' +
           '<span class="zs-avatar__circle">' + esc(inic) + '</span>' +
           '<span class="zs-avatar__name">' + esc(nombre) + '</span></a>' +
         '<button type="button" class="zs-btn zs-salir" id="zsSalir" title="Cerrar sesión" aria-label="Cerrar sesión">' + icono('logout', 18) + '</button>' +
@@ -234,11 +234,86 @@
     }).join('');
   }
 
+  /* ───── MENÚ DEL AVATAR ("Tu espacio"): resumen de la cuenta y accesos ───── */
+  var MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  function aFecha(v) {
+    if (!v) return null;
+    var d = null;
+    if (v instanceof Date) d = v;
+    else if (typeof v.toDate === 'function') { try { d = v.toDate(); } catch (e) { d = null; } }
+    else if (isFinite(v.seconds != null ? v.seconds : v._seconds)) d = new Date((v.seconds != null ? v.seconds : v._seconds) * 1000);
+    else d = new Date(v);
+    return d && !isNaN(d.getTime()) ? d : null;
+  }
+  function fechaCorta(v) {
+    var d = aFecha(v);
+    return d ? d.getDate() + ' ' + MESES_CORTOS[d.getMonth()] + ' ' + d.getFullYear() : '';
+  }
+  /* Estado del plan en palabras: { clave, miembro, etiqueta, detalle }  (detalle = renovación o vencimiento, si se conoce) */
+  function resumenPlan(sesion) {
+    var s = sesion || {};
+    if (s.role === 'admin') return { clave: 'admin', miembro: true, etiqueta: 'Administrador', detalle: '' };
+    var f = fechaCorta(s.planVence);
+    switch (s.planStatus) {
+      case 'active': return { clave: 'active', miembro: true, etiqueta: 'Membresía activa', detalle: f ? 'Se renueva el ' + f : '' };
+      case 'cancelled_active': return { clave: 'cancelled_active', miembro: true, etiqueta: 'Acceso vigente', detalle: f ? 'Sin renovación. Conservas acceso hasta el ' + f : 'Cancelaste la renovación' };
+      case 'past_due': return { clave: 'past_due', miembro: false, etiqueta: 'Pago no confirmado', detalle: 'Revisa tu suscripción para recuperar el acceso' };
+      case 'expired': return { clave: 'expired', miembro: false, etiqueta: 'Membresía vencida', detalle: f ? 'Venció el ' + f : '' };
+      default: return { clave: 'free', miembro: false, etiqueta: 'Cuenta gratuita', detalle: '' };
+    }
+  }
+
+  var ATAJOS_PERFIL = [
+    { id: 'perfil', label: 'Mi perfil', sub: 'Datos y nombre del certificado', href: 'club-perfil.html', icon: 'user' },
+    { id: 'suscripcion', label: 'Suscripción', sub: 'Plan y renovación', href: 'club-suscripcion.html', icon: 'creditcard' },
+    { id: 'referidos', label: 'Invitar amigos', sub: 'Gana cursos antes', href: 'club-referidos.html', icon: 'gift' },
+    { id: 'certificados', label: 'Mis certificados', sub: 'Descarga los tuyos', href: 'club-certificados.html', icon: 'certificate' },
+    { id: 'logros', label: 'Mis logros', sub: 'Nivel y premios', href: 'club-logros.html', icon: 'trophy' }
+  ];
+
+  /* Contenido del panel. datos (opcional, solo miembros): { xp, nivel, cursos } del servidor. */
+  function perfilMenuHTML(sesion, datos) {
+    var s = sesion || {};
+    var plan = resumenPlan(s);
+    var nombre = (s.name && String(s.name).trim()) || primerNombre(s.name, s.email);
+    var correo = s.email || '';
+    var d = datos || {};
+    var num = function (v) { return isFinite(Number(v)) && v !== null && v !== '' && v !== undefined ? Number(v).toLocaleString('es-MX') : '—'; };
+    var estadisticas = plan.miembro
+      ? '<div class="zs-pm__stats" data-pm-stats>' +
+          '<div><b data-pm-xp>' + esc(num(d.xp)) + '</b><span>XP</span></div>' +
+          '<div><b data-pm-nivel>' + esc(d.nivel ? String(d.nivel) : '—') + '</b><span>Nivel</span></div>' +
+          '<div><b data-pm-cursos>' + esc(num(d.cursos)) + '</b><span>Cursos</span></div></div>'
+      : '<div class="zs-pm__libre"><strong>Tu cuenta es gratuita</strong>' +
+          '<p>Con la membresía abres todos los cursos, retos y herramientas, y puedes invitar amigos.</p>' +
+          '<a class="zs-pm__sus" href="club-suscripcion.html">' + icono('creditcard', 17) + '<span>Suscribirme</span></a></div>';
+    var atajos = ATAJOS_PERFIL.map(function (a) {
+      return '<a class="zs-pm__atajo" href="' + esc(a.href) + '" role="menuitem"><span class="zs-pm__ico">' + icono(a.icon, 18) + '</span>' +
+        '<span><b>' + esc(a.label) + '</b><small>' + esc(a.sub) + '</small></span></a>';
+    }).join('');
+    return '<div class="zs-pm__cab">' +
+        '<button type="button" class="zs-pm__x" id="zsPmCerrar" aria-label="Cerrar">' + icono('x', 17) + '</button>' +
+        '<p class="zs-pm__kick">Tu espacio Zoorigen</p>' +
+        '<div class="zs-pm__id"><span class="zs-pm__foto" aria-hidden="true">' + esc(iniciales(s.name, s.email)) + '</span>' +
+          '<div><h2 id="zsPmTitulo">' + esc(nombre) + '</h2>' + (correo ? '<p class="zs-pm__correo">' + esc(correo) + '</p>' : '') +
+          '<span class="zs-pm__plan zs-pm__plan--' + esc(plan.clave) + '">' + esc(plan.etiqueta) + '</span></div></div>' +
+        (plan.detalle ? '<p class="zs-pm__detalle">' + esc(plan.detalle) + '</p>' : '') +
+      '</div>' +
+      '<div class="zs-pm__cuerpo">' + estadisticas +
+        '<nav class="zs-pm__atajos" aria-label="Accesos de tu cuenta" role="menu">' + atajos + '</nav>' +
+        '<div class="zs-pm__pie">' +
+          '<button type="button" class="zs-pm__btn" id="zsPmAyuda">' + icono('helpcircle', 17) + '<span>Ver la guía de bienvenida</span></button>' +
+          '<button type="button" class="zs-pm__btn zs-theme" id="zsPmTema"></button>' +
+          '<button type="button" class="zs-pm__btn zs-pm__btn--salir" id="zsPmSalir">' + icono('logout', 17) + '<span>Cerrar sesión</span></button>' +
+        '</div>' +
+      '</div>';
+  }
+
   var API = {
     GRUPOS: GRUPOS, BARRA: BARRA, SOPORTE: SOPORTE, BREAKPOINT_MOVIL: BREAKPOINT_MOVIL,
     planos: planos, normalizar: normalizar, buscarSecciones: buscarSecciones, buscarCursos: buscarCursos,
     pestanaActiva: pestanaActiva, primerNombre: primerNombre, iniciales: iniciales, enlaceSoporte: enlaceSoporte, esMiembroVip: esMiembroVip, whatsappHTML: whatsappHTML, modoInstalacion: modoInstalacion,
-    ICONOS_EXTRA: ICONOS_EXTRA, ESTADOS_PLAN: ESTADOS_PLAN, estadoPlan: estadoPlan, menuHTML: menuHTML,
+    ICONOS_EXTRA: ICONOS_EXTRA, ESTADOS_PLAN: ESTADOS_PLAN, resumenPlan: resumenPlan, fechaCorta: fechaCorta, perfilMenuHTML: perfilMenuHTML, ATAJOS_PERFIL: ATAJOS_PERFIL, estadoPlan: estadoPlan, menuHTML: menuHTML,
     barraLateralHTML: barraLateralHTML, barraSuperiorHTML: barraSuperiorHTML, barraInferiorHTML: barraInferiorHTML, planEsqueletoHTML: planEsqueletoHTML
   };
 
@@ -247,7 +322,7 @@
   /* ============================================================ */
   /* PARTE DE PANTALLA                                             */
   /* ============================================================ */
-  var estado = { montado: false, cursos: null };
+  var estado = { montado: false, cursos: null, sesion: null };
 
   /* ZOORIGEN_CLUB se declara con const en club.js: no es propiedad de window, se busca por su nombre. */
   function club() { try { return (typeof ZOORIGEN_CLUB !== 'undefined') ? ZOORIGEN_CLUB : null; } catch (e) { return null; } }
@@ -446,6 +521,95 @@
     if (club() && club().logout) club().logout();
   }
 
+  /* ── Panel del avatar ("Tu espacio") ──
+     Se crea al primer toque (el primer pintado no cambia). Cierra con Esc, clic fuera o la X, devuelve el foco al avatar y
+     no se abre encima de otra ventana (bienvenida, premio, recorrido, aviso): la cola de ventanas manda. */
+  var pm = { abierto: false, previo: null };
+
+  function hayVentanaAjena() {
+    var lista = document.querySelectorAll('[aria-modal="true"], .zob:not(.zob-toast), .zc-ov, .pw-modal__fondo, #zoo-welcome-modal');
+    return Array.prototype.some.call(lista, function (el) {
+      return el.id !== 'zsPm' && !(el.closest && el.closest('#zsPm')) && el.getClientRects().length > 0;
+    });
+  }
+
+  function crearPanelPerfil() {
+    var velo = document.createElement('div');
+    velo.className = 'zs-pm-velo'; velo.id = 'zsPmVelo';
+    var panel = document.createElement('aside');
+    panel.className = 'zs-pm'; panel.id = 'zsPm';
+    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); panel.setAttribute('aria-labelledby', 'zsPmTitulo');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.innerHTML = perfilMenuHTML(estado.sesion, null);
+    document.body.appendChild(velo);
+    document.body.appendChild(panel);
+    velo.addEventListener('click', function () { cerrarPerfil(); });
+    panel.querySelector('#zsPmCerrar').addEventListener('click', function () { cerrarPerfil(); });
+    panel.querySelector('#zsPmAyuda').addEventListener('click', function () {
+      cerrarPerfil();
+      if (club() && club()._showGuideFromSidebar) club()._showGuideFromSidebar();
+    });
+    panel.querySelector('#zsPmTema').addEventListener('click', cambiarTema);
+    panel.querySelector('#zsPmSalir').addEventListener('click', cerrarSesion);
+    panel.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab') return;
+      var f = Array.prototype.filter.call(panel.querySelectorAll('a[href],button:not([disabled])'), function (x) { return x.getClientRects().length > 0; });
+      if (!f.length) return;
+      var primero = f[0], ultimo = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === primero) { e.preventDefault(); ultimo.focus(); }
+      else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus(); }
+    });
+    pintarTema();
+    return panel;
+  }
+
+  /* XP, nivel y cursos terminados solo se piden a los miembros (los demás no tienen esas cifras). */
+  function cargarCifrasPerfil(panel) {
+    var plan = resumenPlan(estado.sesion);
+    var cl = club();
+    if (!plan.miembro || !cl || typeof cl.apiFetch !== 'function') return;
+    Promise.resolve().then(function () { return cl.apiFetch('/api/premios'); }).then(function (r) {
+      if (!r || r.membresia === false || !panel.isConnected) return;
+      var q = function (s) { return panel.querySelector(s); };
+      if (r.xp && isFinite(Number(r.xp.total)) && q('[data-pm-xp]')) q('[data-pm-xp]').textContent = Number(r.xp.total).toLocaleString('es-MX');
+      if (r.nivel && r.nivel.nombre && q('[data-pm-nivel]')) q('[data-pm-nivel]').textContent = String(r.nivel.nombre);
+      if (r.cursos && isFinite(Number(r.cursos.terminados)) && q('[data-pm-cursos]')) q('[data-pm-cursos]').textContent = Number(r.cursos.terminados).toLocaleString('es-MX');
+    }).catch(function () { /* sin cifras: quedan los guiones */ });
+  }
+
+  function abrirPerfil() {
+    if (pm.abierto || hayVentanaAjena()) return;
+    var panel = document.getElementById('zsPm') || crearPanelPerfil();
+    var velo = document.getElementById('zsPmVelo');
+    abrirCajon(false);
+    pm.abierto = true;
+    pm.previo = document.activeElement;
+    panel.setAttribute('aria-hidden', 'false');
+    var av = document.getElementById('zsAvatar');
+    if (av) av.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('zs-noscroll');
+    requestAnimationFrame(function () {
+      panel.classList.add('is-open'); velo.classList.add('is-open');
+      var x = panel.querySelector('#zsPmCerrar');
+      if (x) { try { x.focus({ preventScroll: true }); } catch (e) { x.focus(); } }
+    });
+    cargarCifrasPerfil(panel);
+  }
+
+  function cerrarPerfil() {
+    if (!pm.abierto) return;
+    pm.abierto = false;
+    var panel = document.getElementById('zsPm'), velo = document.getElementById('zsPmVelo');
+    if (panel) { panel.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); }
+    if (velo) velo.classList.remove('is-open');
+    var av = document.getElementById('zsAvatar');
+    if (av) av.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('zs-noscroll');
+    var volver = pm.previo && pm.previo !== document.body && pm.previo.isConnected ? pm.previo : av;
+    if (volver && typeof volver.focus === 'function') { try { volver.focus({ preventScroll: true }); } catch (e) { volver.focus(); } }
+    pm.previo = null;
+  }
+
   /* Monta la estructura. opciones: { sesion, activo }. Se puede llamar más de una vez sin duplicar nada. */
   function montar(opciones) {
     opciones = opciones || {};
@@ -458,6 +622,7 @@
 
     var sesion = opciones.sesion || {};
     var activo = opciones.activo || '';
+    estado.sesion = sesion;
 
     /* La barra superior, la inferior y el botón de WhatsApp ya vienen escritos en el HTML de la página (generados con las
        mismas funciones de arriba), así que existen desde el primer pintado. Aquí solo se completan con la sesión y se les
@@ -506,7 +671,20 @@
     document.getElementById('zsCerrarCajon').addEventListener('click', function () { abrirCajon(false); });
     document.getElementById('zsVelo').addEventListener('click', function () { abrirCajon(false); });
     document.getElementById('zsDrawer').addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) abrirCajon(false); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { abrirCajon(false); abrirWa(false); } });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { abrirCajon(false); abrirWa(false); cerrarPerfil(); } });
+
+    /* avatar: abre "Tu espacio". Con clic medio, Ctrl o Cmd (abrir en otra pestaña) sigue siendo el enlace a Mi perfil. */
+    var avatar = document.getElementById('zsAvatar') || barra.querySelector('.zs-avatar');
+    if (avatar) {
+      avatar.id = 'zsAvatar';
+      avatar.setAttribute('aria-haspopup', 'dialog');
+      avatar.setAttribute('aria-expanded', 'false');
+      avatar.addEventListener('click', function (e) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
+        if (pm.abierto) cerrarPerfil(); else abrirPerfil();
+      });
+    }
 
     /* Instalar app (menú lateral y cajón) */
     document.addEventListener('click', function (e) {
