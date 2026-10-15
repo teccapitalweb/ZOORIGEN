@@ -575,8 +575,9 @@ main #panel .zs-recursos p { flex: 1 0 100%; margin: 6px 0 0; text-align: center
 /* Escritorio con ratón: primero se ve la imagen completa con solo una franja de título; al pasar el puntero o enfocar,
    el panel sube (0.7 s). La primera vez que la sección entra a pantalla: imagen ~0.8 s y luego aparece la franja. */
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .zs-campo { --tira: 60px; transition: box-shadow .6s ease; }
+  .zs-campo { --tira: 42px; transition: box-shadow .6s ease; }   /* solo el titulo: la descripcion no se asoma cortada */
   .zs-campo__txt { transform: translateY(calc(100% - var(--tira))); transition: transform .7s cubic-bezier(.645, .045, .355, 1); }
+  .zs-campo:not(:hover):not(:focus-within) h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .zs-js .zs-campos:not(.zs-visto) .zs-campo__txt { transform: translateY(100%); }
   .zs-js .zs-campos.zs-visto:not(.zs-intro-fin) .zs-campo__txt { transition-delay: .8s; }
   .zs-campo__img img { transition: transform 1s cubic-bezier(.645, .045, .355, 1); }

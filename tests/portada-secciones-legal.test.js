@@ -281,7 +281,7 @@ test('Del estudio a la práctica: 4 / 2 x 2 / 1 columnas; primero la imagen y de
   assert.ok(capa, 'falta la capa de movimiento');
   assert.match(capa[0], /transform:\s*translateY\(100%\)/);
   // Escritorio: franja de título en reposo, panel sube al hover/foco en 0.7 s, intro con 0.8 s de espera
-  const esc = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{ --tira: 60px;[\s\S]*?\n\}\n/);
+  const esc = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{ --tira: 42px;[\s\S]*?\n\}\n/);
   assert.ok(esc, 'falta el efecto de escritorio');
   assert.match(esc[0], /translateY\(calc\(100% - var\(--tira\)\)\)/);
   assert.match(esc[0], /transition: transform \.7s/);
