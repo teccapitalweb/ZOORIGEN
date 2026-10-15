@@ -407,3 +407,47 @@
 #invitaCont:empty { min-height: 430px; }
 @media (max-width: 1099px) { #resumeCard:empty { min-height: 740px; } #invitaCont:empty { min-height: 450px; } }
 @media (max-width: 699px) { #resumeCard:empty { min-height: 960px; } #invitaCont:empty { min-height: 790px; } }
+
+/* ============================================================ */
+/* TARJETA DEL INICIO EN CELULAR                                 */
+/* Antes: texto, cifras y Jaguarito apilados (66 % del alto en   */
+/* 390 px). Ahora las cifras van en cuadrícula a la izquierda y  */
+/* Jaguarito con su frase a la derecha, más chicos (clamp).       */
+/* ============================================================ */
+@media (max-width: 760px) {
+  .zs-seccion.zs-inicio {
+    --zi-pad: clamp(14px, 4vw, 18px);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "cuerpo cuerpo" "cifras guia";
+    column-gap: 10px; row-gap: 10px;
+  }
+  .zs-inicio > .zs-seccion__cuerpo { gap: 10px; }
+  .zs-inicio > .zs-seccion__cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-self: end; }
+  .zs-inicio .zs-cifra { min-width: 0; padding: 6px 10px; border-radius: 12px; }
+  .zs-inicio__guia { width: clamp(92px, 27vw, 128px); flex-direction: column-reverse; align-items: center; justify-content: flex-end; gap: 0; margin-bottom: calc(-1 * var(--zi-pad)); }
+  .zs-inicio__jaguar { width: 100%; flex: none; }
+  .zs-inicio__burbuja { flex: none; width: max-content; max-width: min(180px, 52vw); margin: 0 0 8px; padding: 6px 10px; font-size: .75rem; line-height: 1.3; text-align: center; }
+  .zs-inicio__burbuja::after { left: calc(50% - 7px); bottom: -7px; border-radius: 0 0 4px 0; }
+}
+@media (max-width: 760px) {
+  .zs-inicio__guia { align-items: flex-end; }
+  .zs-inicio__jaguar { margin-inline: auto; }
+  .zs-inicio__burbuja { max-width: min(150px, 42vw); }
+}
+@media (max-width: 420px) {
+  .zs-inicio .zs-seccion__sub { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+}
+@media (max-width: 360px) {
+  .zs-inicio__guia { width: 64px; }
+  .zs-inicio__burbuja { display: none; }
+  .zs-inicio .zs-cifra { padding: 5px 8px; }
+  .zs-seccion.zs-inicio { --zi-pad: 12px; }
+}
+@media (min-width: 361px) and (max-width: 760px) {
+  /* La frase de Jaguarito sube sobre el hueco a la derecha del botón: el renglón de cifras ya no se estira por ella */
+  .zs-inicio__guia { margin-top: -40px; }
+}
+@media (max-width: 360px) {
+  .zs-inicio .zs-cifra { padding: 5px 6px; }
+  .zs-inicio .zs-cifra__r { white-space: nowrap; }
+}

@@ -201,9 +201,9 @@
   // Campos del formulario de bienvenida. "nombre" alimenta nombreCertificado; el resto va a la ficha privada del Directorio.
   var PERFIL_CAMPOS = [
     { id: 'nombre', etiqueta: 'Nombre completo', ejemplo: 'Nombre y apellidos', max: NOMBRE_MAX, completo: true, auto: 'name', icono: 'user' },
-    { id: 'profesion', etiqueta: 'Profesión o puesto', ejemplo: 'Ej. Médico veterinario', max: 80, auto: 'organization-title', icono: 'briefcase' },
-    { id: 'institucion', etiqueta: 'Institución, UMA o empresa', ejemplo: 'Ej. UMA Sierra Verde', max: 80, auto: 'organization', icono: 'building' },
-    { id: 'ciudad', etiqueta: 'Ciudad', ejemplo: 'Ej. Mérida, Yucatán', max: 80, auto: 'address-level2', icono: 'pin' },
+    { id: 'profesion', etiqueta: 'Profesión o puesto', ejemplo: 'Ej. Biólogo', max: 80, auto: 'organization-title', icono: 'briefcase' },
+    { id: 'institucion', etiqueta: 'Institución, UMA o empresa', ejemplo: 'Ej. UMA Sierra', max: 80, auto: 'organization', icono: 'building' },
+    { id: 'ciudad', etiqueta: 'Ciudad', ejemplo: 'Ej. Mérida', max: 80, auto: 'address-level2', icono: 'pin' },
     { id: 'whatsapp', etiqueta: 'WhatsApp', ejemplo: 'Ej. 55 1234 5678', max: 20, tipo: 'tel', auto: 'tel', icono: 'phone' },
     { id: 'email', etiqueta: 'Correo de contacto', ejemplo: 'correo@ejemplo.com', max: 120, completo: true, tipo: 'email', auto: 'email', icono: 'mail' }
   ];

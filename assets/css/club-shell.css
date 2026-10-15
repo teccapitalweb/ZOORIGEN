@@ -570,3 +570,28 @@ html[data-plan="cancelled_active"] .zs-tab.is-active.zs-tab--act-libre .zs-tab__
 @media (max-width: 360px) { .zs-pm__atajos { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .zs-pm, .zs-pm-velo { transition: none; } }
 .zs-pm .zs-theme__txt { display: inline; }
+
+/* Aviso de "Acceso gratuito" más compacto en celular: ícono y botón más chicos (el botón conserva 40 px de alto) */
+@media (max-width: 460px) {
+  .zoo-pay-banner { gap: 8px 10px; margin-bottom: 14px; padding: 10px 12px; }
+  .zoo-pay-banner__ico { width: 34px; height: 34px; font-size: 1.05rem; }
+  .zoo-pay-banner__t { font-size: .92rem; }
+  .zoo-pay-banner__s { font-size: .8rem; line-height: 1.35; }
+  .zoo-pay-banner .zoo-pay-banner__btn { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 6px 14px; }
+}
+@media (min-width: 361px) and (max-width: 460px) {
+  .zoo-pay-banner { flex-wrap: nowrap; }
+  .zoo-pay-banner .zoo-pay-banner__btn { width: auto; flex: none; }
+  .zoo-pay-banner__txt { flex: 1 1 0; }
+}
+/* Hueco del aviso en celular: el aviso compacto mide 78 px (361-460 px) y 126 px (hasta 360 px) */
+@media (max-width: 460px) {
+  html[data-plan="past_due"] .zs-aviso-reserva,
+  html[data-plan="expired"] .zs-aviso-reserva,
+  html[data-plan="free"] .zs-aviso-reserva { height: 78px; margin-bottom: 14px; }
+}
+@media (max-width: 360px) {
+  html[data-plan="past_due"] .zs-aviso-reserva,
+  html[data-plan="expired"] .zs-aviso-reserva,
+  html[data-plan="free"] .zs-aviso-reserva { height: 126px; }
+}

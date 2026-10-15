@@ -76,3 +76,8 @@
 @media (prefers-reduced-motion: reduce) {
   .zpg-cover, .zpg-badge { animation: none !important; }
 }
+
+/* Pantallas muy angostas: el abanico baja un poco más */
+@media (max-width: 360px) {
+  .zpg-art { --zpg-w: 72px; margin-bottom: 6px; }
+}

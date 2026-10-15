@@ -579,3 +579,44 @@ html[data-plan="past_due"] .zs-cifra__res--vip, html[data-plan="expired"] .zs-ci
   .zs-seccion--con-personaje > .zs-seccion__cifras { padding-right: 0; min-height: 0; padding-bottom: 0; }
   .zs-deco__i--5, .zs-deco__i--6 { display: none; }
 }
+
+/* ============================================================ */
+/* TAMAÑOS EN CELULAR                                            */
+/* La tarjeta de título bajaba poco con la pantalla y en 390 px  */
+/* ocupaba la mitad (o más) del alto visible. Aquí relleno,      */
+/* título, subtítulo, cifras y personaje bajan con clamp(); la   */
+/* letra nunca baja de 12 px y los segmentos conservan 40 px.    */
+/* ============================================================ */
+@media (max-width: 640px) {
+  .zs-seccion { padding: clamp(14px, 4vw, 18px); gap: 10px; margin-bottom: 14px; border-radius: 18px; }
+  .zs-seccion--deco { --zs-pad: clamp(14px, 4vw, 18px); --zs-pj: clamp(64px, 19vw, 76px); --zs-pj-der: 6px; }
+  .zs-seccion__cuerpo { gap: 10px 14px; }
+  .zs-seccion__pildora { padding: 4px 10px 4px 8px; font-size: .75rem; }
+  .zs-seccion__titulo { margin-top: 8px; font-size: clamp(1.45rem, 1.05rem + 2.1vw, 1.9rem); line-height: 1.08; }
+  .zs-seccion__sub { margin-top: 6px; font-size: .88rem; line-height: 1.42; }
+  .zs-seccion__cifras { padding-top: 10px; gap: 8px 18px; }
+  .zs-cifra__v { font-size: clamp(1.2rem, 1rem + 1vw, 1.4rem); }
+  .zs-cifra__r { font-size: .75rem; line-height: 1.2; }
+  .zs-seccion__btn { min-height: 40px; padding: 8px 14px; }
+  .zs-seccion--con-personaje > .zs-seccion__cifras { min-height: calc(var(--zs-pj) - 14px); }
+  .zs-seccion--con-personaje.zs-seccion--sin-cifras > .zs-seccion__cuerpo { padding-bottom: calc(var(--zs-pj) - 22px); }
+  .zs-burbuja { max-width: 150px; }
+}
+@media (max-width: 420px) {
+  .zs-seccion__sub { font-size: .85rem; }
+  .zs-burbuja { max-width: 128px; }
+}
+@media (max-width: 360px) {
+  .zs-seccion { padding: 12px; gap: 8px; }
+  .zs-seccion--deco { --zs-pad: 12px; }
+  .zs-seccion__titulo { font-size: 1.35rem; margin-top: 6px; }
+  .zs-seccion__sub { font-size: .8rem; line-height: 1.4; margin-top: 4px; }
+  .zs-seccion__pildora { font-size: .75rem; }
+  .zs-seccion__cifras { padding-top: 8px; gap: 6px 14px; }
+  .zs-cifra__v { font-size: 1.2rem; }
+}
+@media (max-width: 360px) {
+  /* 320 px: la píldora repite lo que dice el título; se quita para que la tarjeta no ocupe media pantalla */
+  .zs-seccion__pildora { display: none; }
+  .zs-seccion__titulo { margin-top: 0; }
+}

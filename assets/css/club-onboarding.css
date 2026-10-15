@@ -342,7 +342,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 .zpf-avatar { width: var(--zpf-av); height: var(--zpf-av); margin-top: calc(var(--zpf-av) / -2); border-radius: 50%; padding: 3px; background: var(--zoo-amber, #E8A317); }
 .zpf-foto {
   width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
-  border: 3px solid var(--zob-fondo); background: var(--zoo-tint, #EAF2EC); color: var(--zoo-solid, #1F5F3A);
+  border: 3px solid var(--zob-fondo); background: var(--zoo-solid, #1F5F3A); color: #fff;
   font: 800 clamp(1.3rem, 5vw, 1.7rem)/1 var(--zoo-font-display); letter-spacing: .02em;
 }
 .zpf-avance { padding-bottom: 6px; }
@@ -396,4 +396,36 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
   .zob-prueba__pasos { gap: 6px; margin-bottom: 14px; }
   .zob-prueba__pasos li { padding: 9px 11px; font-size: .86rem; gap: 10px; }
   .zob-prueba__num { width: 22px; height: 22px; font-size: .75rem; }
+}
+
+/* Celular: iconos y relleno de las tarjetas de bienvenida bajan con el ancho */
+@media (max-width: 480px) {
+  .zob__icono { width: 56px; height: 56px; border-radius: 16px; margin-bottom: 10px; }
+  .zob__icono svg { width: 28px; height: 28px; }
+  .zob__icono--grande { width: 64px; height: 64px; border-radius: 20px; }
+  .zob__icono--grande svg { width: 32px; height: 32px; }
+  .zob__texto { margin-bottom: 14px; }
+  .zob-splash__escena { min-height: clamp(190px, 38vh, 250px); }
+  .zob-splash__logo { width: 64px; height: 64px; }
+  .zob-tour__dialogo { padding: 14px; }
+}
+@media (max-width: 360px) {
+  .zob__caja { padding: 24px 14px 16px; }
+  .zob__titulo { font-size: 1.15rem; }
+}
+
+/* Perfil profesional: en celular el texto de la portada se quita (el título basta) y todo se aprieta un poco */
+@media (max-width: 480px) {
+  .zpf-portada { padding: 22px 16px 34px; }
+  .zpf-portada p { display: none; }
+  .zpf-portada h2 { font-size: 1.15rem; }
+  .zpf-kick { margin-bottom: 4px; }
+  .zpf-fila { --zpf-av: 58px; }
+  .zpf-form { padding-bottom: 6px; }
+  .zpf-pie { padding-top: 10px; gap: 6px; }
+}
+@media (max-width: 360px) {
+  .zob-prueba .zob__texto { font-size: .86rem; margin-bottom: 10px; }
+  .zob-prueba .zob__kicker { margin-bottom: 4px; }
+  .zob-prueba__acciones { gap: 4px; }
 }

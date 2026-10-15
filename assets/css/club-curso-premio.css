@@ -301,3 +301,14 @@ html.zcp-lock, html.zcp-lock body { overflow: hidden; }
   .zcp__barra i { animation: none; }
   .zcp__btn, .zcp__x { transition: none; }
 }
+
+/* Celular: la tarjeta del premio baja de tamaño con el ancho (trofeo, relleno y textos) */
+@media (max-width: 480px) {
+  .zcp__tarjeta { padding: clamp(20px, 6vw, 26px) clamp(14px, 5vw, 18px) 16px; border-radius: 24px; }
+  .zcp__trofeo { width: clamp(60px, 18vw, 72px); height: clamp(60px, 18vw, 72px); margin-bottom: 8px; }
+  .zcp__trofeo svg { width: 60%; height: 60%; }
+}
+@media (max-width: 360px) {
+  .zcp__trofeo { width: 52px; height: 52px; margin-bottom: 6px; }
+  .zcp__tarjeta { padding: 18px 14px 14px; }
+}

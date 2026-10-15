@@ -240,9 +240,11 @@ test('CSS de la burbuja: con prefers-reduced-motion queda fija y visible, sin tr
   assert.ok(mq, 'falta el bloque de reducir movimiento');
   assert.match(mq[0], /\.zs-burbuja\s*\{\s*opacity:\s*1;\s*transform:\s*none/);
   assert.match(mq[0], /transition:\s*none !important/);
-  // En celular: encima del personaje y con ancho máximo de ~170 px.
-  const cel = css.slice(css.lastIndexOf('@media (max-width: 640px)'));
-  assert.match(cel, /\.zs-burbuja\s*\{[^}]*bottom:\s*calc\(100% \+ 9px\)[^}]*max-width:\s*170px/);
+  // En celular: encima del personaje; el ancho máximo baja con la pantalla (170 px, 150 px y 128 px en el ajuste de tamaños).
+  assert.match(css, /\.zs-burbuja\s*\{[^}]*bottom:\s*calc\(100% \+ 9px\)[^}]*max-width:\s*170px/);
+  const ajuste = css.slice(css.indexOf('TAMAÑOS EN CELULAR'));
+  assert.match(ajuste, /\.zs-burbuja \{ max-width: 150px; \}/);
+  assert.match(ajuste, /\.zs-burbuja \{ max-width: 128px; \}/);
 });
 
 test('CSS y JS de la animación: sin degradados ni emojis', () => {
