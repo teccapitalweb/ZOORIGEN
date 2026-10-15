@@ -207,8 +207,9 @@
 
   // Jaguarito: assets/js/guia-personaje.js trae el mapa expresión -> imagen y la secuencia del
   // saludo. window.ZOO_ENCUESTA_IMAGENES (opcional) puede sustituir cualquier imagen.
-  var G = window.ZOO_GUIA || null;
-  var imagenes = Object.assign({}, G ? G.IMAGENES_EXPR : {},
+  var imagenesPendientes = document.body.dataset.imagesPending === 'true';
+  var G = imagenesPendientes ? null : (window.ZOO_GUIA || null);
+  var imagenes = imagenesPendientes ? {} : Object.assign({}, G ? G.IMAGENES_EXPR : {},
     (window.ZOO_ENCUESTA_IMAGENES && typeof window.ZOO_ENCUESTA_IMAGENES === 'object') ? window.ZOO_ENCUESTA_IMAGENES : {});
   var imagenesRotas = {};   // ruta -> true si no cargó
   var cacheImg = {};        // ruta -> Image precargada y decodificada de antemano
@@ -448,6 +449,7 @@
     sec.className = 'zenc';
     sec.setAttribute('aria-labelledby', 'zenc-q');
     sec.innerHTML =
+      '<div class="zenc__heading"><p class="eyebrow">Encuentra tu camino</p><h2>Una ruta de aprendizaje para ti.</h2></div>' +
       '<div class="zenc__inner">' +
         '<aside class="zenc__guia" id="zenc-guia" aria-label="Guía de la encuesta">' +
           '<div class="zenc__nota" id="zenc-nota" role="status" aria-live="polite">' +
@@ -675,16 +677,22 @@
   // permite como prueba: solo informa ("Parte de la membresía"), sin pregunta ni botón.
   function filaCurso(rec, alElegir) {
     var c = rec.curso;
+    var cover = nodo('img', 'zenc-curso__cover');
+    cover.src = window.ZOORIGEN_COURSE_COVER ? window.ZOORIGEN_COURSE_COVER(c) : 'assets/img/landing/area-conservacion.webp';
+    cover.alt = 'Portada ilustrativa de ' + c.titulo;
+    cover.loading = 'lazy';
+    cover.width = 1600;
+    cover.height = 900;
     var info = nodo('span', 'zenc-curso__info');
     info.append(nodo('b', null, c.titulo), nodo('small', null, rec.razon ? 'Te serviría para reforzar ' + rec.razon : (c.area || '')));
     if (!rec.elegible) {
       var fijo = nodo('div', 'zenc-curso zenc-curso--membresia');
-      fijo.append(info, nodo('span', 'zenc-curso__go', 'Parte de la membresía'));
+      fijo.append(cover, info, nodo('span', 'zenc-curso__go', 'Parte de la membresía'));
       return fijo;
     }
     var fila = nodo('button', 'zenc-curso');
     fila.type = 'button';
-    fila.append(info, nodo('span', 'zenc-curso__go', 'Elegir'), icono('chevron-right', 18));
+    fila.append(cover, info, nodo('span', 'zenc-curso__go', 'Elegir'), icono('chevron-right', 18));
     fila.addEventListener('click', alElegir);
     return fila;
   }
@@ -701,6 +709,10 @@
     actualizarAcciones({ ocultar: true });
     var res = nodo('div', 'zenc__res');
     var sel = nodo('div', 'zenc-sel');
+    var cover = nodo('img', 'zenc-curso__cover');
+    cover.src = window.ZOORIGEN_COURSE_COVER ? window.ZOORIGEN_COURSE_COVER(c) : 'assets/img/landing/area-conservacion.webp';
+    cover.alt = 'Portada ilustrativa de ' + c.titulo;
+    sel.appendChild(cover);
     var info = nodo('span', 'zenc-sel__info');
     info.append(nodo('span', 'zenc-sel__tag', 'Tu prueba gratuita'), nodo('b', null, c.titulo), nodo('small', null, rec.razon ? 'Para reforzar ' + rec.razon : (c.area || '')));
     sel.appendChild(info);
@@ -773,7 +785,7 @@
     acepto.id = 'zenc-acepto';
     var txt = nodo('span');
     var enlace = nodo('a', null, 'Aviso de privacidad');
-    enlace.href = 'index.html#privacidad';
+    enlace.href = 'aviso-de-privacidad.html';
     enlace.target = '_blank';
     enlace.rel = 'noopener';
     txt.append('Acepto el ', enlace, ' y que un asesor me escriba por WhatsApp con información de cursos.');

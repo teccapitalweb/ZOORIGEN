@@ -1,0 +1,70 @@
+/* Efectos limitados a la portada pública: verde bosque, salvia y oro mate. */
+#areas .territory-card.nature-card.area-card { isolation:isolate; overflow:visible; border:0; padding:6px; background:#fdfdf8; border-radius:30px; }
+#areas .territory-card.nature-card.area-card::before,
+#areas .territory-card.nature-card.area-card::after { content:''; display:block; position:absolute; pointer-events:none; inset:-2px; border-radius:32px; z-index:-1; background:linear-gradient(145deg,#244f39 5%,#819a63 45%,#d2b66a 75%,#466f48); transition:transform .65s cubic-bezier(.175,.885,.32,1.275),filter .6s,opacity .6s; }
+#areas .territory-card.nature-card.area-card::after { inset:5px; filter:blur(16px); opacity:.12; transform:translateY(8px); z-index:-2; }
+#areas .territory-card.nature-card.area-card:hover::before,
+#areas .territory-card.nature-card.area-card:focus-visible::before { transform:rotate(-2deg) scale(1.025); }
+#areas .territory-card.nature-card.area-card:hover::after,
+#areas .territory-card.nature-card.area-card:focus-visible::after { filter:blur(23px); opacity:.32; }
+#areas .territory-card__photo { border-radius:24px 24px 18px 18px; aspect-ratio:1.35; }
+#areas .territory-card__body { border-radius:0 0 24px 24px; }
+#cursos .course-card { padding:8px; border-radius:29px; background:#fffefa; box-shadow:0 12px 32px #193e2410; }
+#cursos .course-card__image { border-radius:22px; height:210px; }
+#cursos .course-card__image::after { background:linear-gradient(0deg,#102c2d77,transparent 55%); }
+#cursos .course-card__cover-label { bottom:14px; left:16px; }
+#cursos .course-card__body { padding:20px 15px 15px; }
+#cursos .course-card h3 { letter-spacing:-.035em; font-size:21px; line-height:1.25; }
+#cursos .course-card__actions { padding-top:12px; border-top:1px solid #e7ebdf; }
+#cursos .course-card__actions .btn { border-radius:999px; }
+
+/* Fotografía a sangre y pie translúcido, inspirado en las referencias de viaje. */
+#galeria .wildlife-gallery figure { position:relative; min-height:355px; border:7px solid #fff; border-radius:30px; overflow:hidden; box-shadow:0 16px 32px #14351c14; }
+#galeria .wildlife-gallery figure > img { width:100%; height:355px; object-fit:cover; transition:transform .8s; }
+#galeria .wildlife-gallery figure:hover > img { transform:scale(1.06); }
+#galeria .wildlife-gallery figcaption { position:absolute; inset:auto 0 0; padding:35px 23px 25px; background:linear-gradient(0deg,#0b2119ef,#0b2119b3 65%,transparent); color:#fff; font-size:21px; line-height:1.25; letter-spacing:-.03em; }
+#galeria .wildlife-gallery figcaption span { display:block; width:fit-content; color:#e1c47f; font-size:11px; margin-bottom:10px; }
+/* Los recursos forman un abanico de cristal. */
+#panel .resource-preview { min-height:260px; padding:32px 12px 22px; display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:0; perspective:1000px; overflow:visible; }
+#panel .resource-preview img { position:relative; width:110px; height:153px; object-fit:cover; margin:0 -15px; padding:7px; background:linear-gradient(145deg,#ffffffb8,#edf3e733); border:1px solid #fff; border-radius:13px; box-shadow:0 18px 24px #183d2426; backdrop-filter:blur(10px); transform:rotate(var(--fan-angle,0deg)) translateY(var(--fan-y,0px)); transition:transform .6s cubic-bezier(.2,.75,.25,1),margin .6s,box-shadow .6s; }
+#panel .resource-preview img:nth-child(1) { --fan-angle:-13deg; --fan-y:7px; }
+#panel .resource-preview img:nth-child(2) { z-index:1; --fan-y:-7px; }
+#panel .resource-preview img:nth-child(3) { --fan-angle:13deg; --fan-y:7px; }
+#panel .resource-preview:hover img { margin:0 7px; transform:rotate(0) translateY(-5px); box-shadow:0 22px 30px #183d2420; }
+#panel .resource-preview > span { width:100%; text-align:center; margin-top:25px; color:#426043; font-size:12px; letter-spacing:.03em; }
+
+/* Recomendaciones auténticas: sin estrellas ni distintivos inventados. */
+main #resenas { background:radial-gradient(ellipse at 85% 0,#24493670,transparent 60%),#10251e; color:#f8f6ed; }
+#resenas .section-head h2 { color:#f8f6ed; }
+#resenas .section-head .eyebrow { color:#d1b36c; }
+#resenas .carousel-shell { display:block; }
+#reviewsGrid.reviews-grid { display:block !important; overflow:visible; width:100%; padding:12px 0; }
+.social-reviews { columns:3; column-gap:20px; }
+.social-review { display:inline-block; width:100%; break-inside:avoid; margin:0 0 20px; padding:25px; border:1px solid #c5d3b823; border-radius:22px; background:linear-gradient(140deg,#ffffff09,#ffffff02); box-shadow:0 10px 22px #04170e1a; transition:translate .35s,border-color .35s,background .35s; }
+.social-review:hover,.social-review:focus-within { translate:0 -5px; border-color:#c6ad6470; background:linear-gradient(140deg,#ffffff10,#ffffff03); }
+.social-review header { display:flex; align-items:center; gap:11px; }
+.social-review__avatar { display:grid; place-items:center; width:41px; height:41px; flex:0 0 41px; border-radius:50%; background:#3b5848; color:#e2dabd; font-weight:700; font-size:12px; border:1px solid #d6d0a82a; }
+.social-review:nth-child(2n) .social-review__avatar { background:#625437; }
+#resenas .social-review h3 { font-size:14px; line-height:1.35; color:#f1f3ed; margin:0 0 4px; letter-spacing:0; }
+.social-review header div > span { color:#97aaa0; font-size:10px; }
+.social-review__facebook { margin-left:auto; align-self:flex-start; color:#a5bcab; font:bold 22px Georgia,serif; }
+#resenas .social-review__recommendation { font-size:10px; color:#b5c7ac; margin:20px 0 13px; }
+.social-review__recommendation span { color:#d1b36c; margin-right:5px; }
+.social-review blockquote { margin:0; padding:0; border:0; color:#e5eae1; font-size:14px; line-height:1.85; }
+.social-review button { display:flex; justify-content:space-between; gap:12px; width:100%; margin-top:23px; padding:15px 0 0; border:0; border-top:1px solid #c5d3b81c; background:none; color:#cbb678; font:inherit; font-size:11px; cursor:pointer; text-align:left; }
+.social-review button:focus-visible { outline:2px solid #d9bf78; outline-offset:5px; }
+.social-reviews__community { display:table; margin:20px auto 0; padding:13px 21px; border:1px solid #d1b36c55; border-radius:999px; color:#e2d1a3; font-size:12px; text-align:center; }
+@media(max-width:1000px) { .social-reviews { columns:2; } }
+@media(max-width:600px) {
+ .social-reviews { columns:1; }
+ .social-review { padding:22px; border-radius:19px; }
+ #areas .territory-card__photo { aspect-ratio:1.45; }
+ #panel .resource-preview img { width:88px; height:123px; margin:0 3px; padding:5px; transform:none; }
+ #panel .resource-preview:hover img { margin:0 3px; transform:none; }
+ #panel .resource-preview { min-height:210px; padding-inline:0; }
+}
+@media(prefers-reduced-motion:reduce) {
+ #areas .territory-card.nature-card.area-card::before,#areas .territory-card.nature-card.area-card::after,#panel .resource-preview img,.social-review { transition:none; }
+ #areas .territory-card.nature-card.area-card:hover::before,#areas .territory-card.nature-card.area-card:focus-visible::before { transform:none; }
+ .social-review:hover,.social-review:focus-within { translate:none; }
+}

@@ -1,0 +1,105 @@
+/* Ajuste de jerarquía y registro: secuencia de escritura, clic y selección. */
+.hero__content { padding-top:230px; padding-bottom:65px; }
+.hero__text::before { inset:-25px -40px -25px -70px; background:linear-gradient(90deg,#032c2266 0%,#032c223d 55%,transparent 100%); }
+.hero h1 { text-shadow:0 3px 25px #001d1959; }
+.hero__text .hero__lead { text-shadow:0 2px 12px #001d19b3; }
+main .section h2,main .zenc__heading h2 { font-family:Manrope,sans-serif; font-size:clamp(29px,2.9vw,40px); font-weight:750; line-height:1.18; letter-spacing:-.035em; color:#213f2d; }
+main .section .eyebrow { font-size:10px; font-weight:700; letter-spacing:.13em; margin-bottom:15px; }
+.registration-section { padding:85px 0; background:#f8f8f1; }
+.registration-layout { gap:65px; padding:50px; border:1px solid #dfe8d6; border-radius:26px; background:#edf3e5; }
+.registration-copy h2 { max-width:440px; margin-bottom:20px; }
+.registration-copy > p:not(.eyebrow):not(.registration-terms) { font-size:15px; line-height:1.75; color:#65745f; }
+.registration-steps { margin:22px 0 25px; }
+.registration-step { padding:14px 0; }
+.registration-step > span { width:32px; height:32px; background:#fffdf6; border:0; }
+.registration-step strong { font-size:14px; }
+.registration-step small { font-size:11px; }
+.registration-step i { display:none; }
+.registration-cta { font-size:13px; padding:16px 23px; }
+.registration-terms { font-size:10px !important; }
+.registration-demo { min-height:0; padding:0; background:none; border-radius:0; overflow:visible; box-shadow:none; isolation:auto; }
+.registration-demo__top { color:#63795b; margin-bottom:15px; font-size:8px; letter-spacing:.1em; }
+.registration-demo__top button { color:#63795b; font-size:10px; }
+.registration-window { max-width:460px; height:456px; background:#fff; border-color:#d9e2d1; border-radius:16px; box-shadow:0 24px 55px #17391c14,0 3px 8px #17391c09; transform:none; animation:none; overflow:hidden; }
+.registration-browser-bar { height:39px; display:flex; align-items:center; gap:13px; padding:0 15px; background:#f0f3ed; border-bottom:1px solid #e2e8dc; color:#77816d; }
+.registration-browser-bar > span:first-child { display:flex; gap:5px; }
+.registration-browser-bar i { width:7px; height:7px; border-radius:50%; background:#e5a795; }
+.registration-browser-bar i:nth-child(2) { background:#e4c675; }
+.registration-browser-bar i:nth-child(3) { background:#8db294; }
+.registration-browser-bar strong { flex:1; font-size:9px; font-weight:500; background:#fff; border-radius:5px; padding:5px 10px; text-align:center; }
+.registration-browser-lock { font-size:14px; }
+.registration-scene { top:39px; height:380px; padding:23px 26px; text-align:left; background:white; transition:opacity .45s,transform .45s,visibility .45s; }
+.registration-mini-brand { display:flex; align-items:center; gap:7px; font-size:10px; font-weight:800; letter-spacing:.07em; color:#254d34; margin-bottom:14px; }
+.registration-mini-brand > span { display:grid; place-items:center; width:23px; height:24px; background:#edc15a; color:#234e31; border-radius:4px; font-size:16px; }
+.registration-scene h3 { font-size:21px; letter-spacing:-.035em; margin-bottom:7px; color:#213e2b; }
+.registration-scene > p { font-size:11px; line-height:1.6; margin-bottom:17px; color:#7b8774; }
+.registration-field { margin:10px 0; padding:0; border:0; border-radius:0; background:none; }
+.registration-field > span { font-size:10px; color:#65745f; display:block; margin-bottom:5px; font-weight:600; }
+.registration-input { display:flex; align-items:center; height:35px; padding:0 11px; border:1px solid #dbe4d3; border-radius:7px; background:#fbfcf8; transition:border .2s,box-shadow .2s; }
+.registration-input b { font-size:11px; font-weight:500; color:#3f5943; }
+.registration-field.is-typing .registration-input { border-color:#80a67a; box-shadow:0 0 0 3px #9bbb8f1f; }
+.registration-field .registration-caret { position:static; display:none; width:1px; height:14px; margin-left:2px; background:#567c52; transform:none; animation:none; }
+.registration-field.is-typing .registration-caret { display:block; animation:registration-blink .65s steps(1) infinite; }
+.registration-scene.is-active .registration-field i { animation:none; }
+.registration-illustrated-action { display:flex; margin-top:15px; padding:12px; border-radius:7px; font-size:11px; transition:transform .2s,background .2s; }
+.registration-demo[data-submit-pressed="true"] .registration-illustrated-action { transform:scale(.97); background:#173f2b; }
+.registration-cursor { position:absolute; width:22px; height:26px; z-index:5; left:70%; top:45%; opacity:0; pointer-events:none; transition:left .7s cubic-bezier(.22,.68,.18,1),top .7s cubic-bezier(.22,.68,.18,1),opacity .2s,transform .2s; filter:drop-shadow(0 2px 2px #17391c30); }
+.registration-demo[data-cursor-visible="true"] .registration-cursor { opacity:1; }
+.registration-demo[data-submit-pressed="true"] .registration-cursor,.registration-demo[data-course-selected="true"] .registration-cursor { transform:scale(.82); }
+.registration-scene[data-registration-scene="1"] { display:grid; align-content:center; justify-items:center; text-align:center; gap:14px; }
+.registration-success-halo { position:relative; width:84px; height:84px; display:grid; place-items:center; border-radius:50%; background:#e9f3e1; }
+.registration-success-halo::after { content:''; position:absolute; inset:-9px; border:1px solid #a4c19266; border-radius:50%; }
+.registration-check { width:70px; margin:0; }
+.registration-scene[data-registration-scene="1"] h3 { font-size:25px; margin-top:9px; }
+.registration-scene[data-registration-scene="1"] > p { margin:0; }
+.registration-success-line { display:flex; gap:8px; align-items:center; margin-top:10px; padding:9px 14px; border:1px solid #dce7d3; border-radius:7px; color:#597a50; font-size:10px; }
+.registration-success-line span { font-weight:800; }
+.registration-scene[data-registration-scene="2"] { padding:23px 26px; text-align:left; }
+.registration-scene[data-registration-scene="2"] h3 { font-size:19px; }
+.registration-demo-courses { display:grid; gap:9px; }
+.registration-demo-course { display:flex; gap:10px; align-items:center; padding:8px; background:#fbfcf7; border:1px solid #e0e7d9; border-radius:9px; transition:background .4s,border-color .4s,box-shadow .4s,transform .4s; }
+.registration-demo-course img { width:43px; height:43px; object-fit:cover; border-radius:6px; flex-shrink:0; }
+.registration-demo-course > span { flex:1; }
+.registration-demo-course strong { display:block; font-size:11px; color:#3d5d42; }
+.registration-demo-course small { display:block; margin-top:4px; font-size:9px; color:#819075; }
+.registration-demo-course i { font-style:normal; font-size:12px; color:#9bad8c; width:19px; }
+.registration-demo-course--selected i { opacity:0; }
+.registration-demo[data-course-selected="true"] .registration-demo-course--selected { border-color:#79a169; background:#edf6e6; box-shadow:0 5px 15px #456f2c17; transform:translateX(3px); }
+.registration-demo[data-course-selected="true"] .registration-demo-course--selected i { opacity:1; color:#fff; display:grid; place-items:center; width:20px; height:20px; background:#568547; border-radius:50%; }
+.registration-demo-toast { display:flex; gap:8px; justify-content:center; align-items:center; padding:11px; margin-top:11px; font-size:10px; color:#f6f8ed; background:#285a40; border-radius:7px; opacity:0; transform:translateY(7px); transition:opacity .4s,transform .4s; }
+.registration-demo[data-course-selected="true"] .registration-demo-toast { opacity:1; transform:none; }
+.registration-demo-toast span { color:#c5df9d; }
+.registration-progress { left:26px; right:26px; bottom:18px; }
+.registration-demo__caption { justify-content:space-between; gap:15px; margin-top:17px; }
+.registration-demo__caption p { color:#638055; font-size:10px; }
+.registration-demo__caption > span { color:#93a088; font-size:8px; white-space:nowrap; }
+.about-story__copy h2 { margin-bottom:22px; }
+.about-story__copy .eyebrow { font-size:10px; letter-spacing:.13em; }
+@keyframes registration-blink { 0%,50% { opacity:1; } 51%,100% { opacity:0; } }
+@media(max-width:1100px) { .registration-layout { padding:32px; gap:35px; } }
+@media(max-width:768px) {
+ .hero { min-height:880px; }
+ .hero__content { padding:185px 0 150px; }
+ .hero__text::before { inset:-18px -20px; background:linear-gradient(90deg,#032c2261 0%,#032c2233 65%,transparent 100%); }
+ .hero .hero__text h1 { font-size:clamp(38px,11.5vw,52px); }
+ main .section h2,main .zenc__heading h2 { font-size:30px; line-height:1.2; }
+ .registration-section { padding:50px 0; }
+ .registration-layout { width:calc(100% - 24px); padding:28px 18px; gap:32px; border-radius:20px; }
+ .registration-copy h2 { font-size:32px; }
+ .registration-window { height:454px; }
+ .registration-scene,.registration-scene[data-registration-scene="2"] { padding:20px 18px; }
+ .registration-scene h3 { font-size:20px; }
+ .registration-scene[data-registration-scene="2"] h3 { font-size:17px; }
+ .registration-demo-course img { width:38px; height:38px; }
+ .registration-demo-course strong { font-size:10px; }
+ .registration-demo-course small { font-size:8px; }
+ .registration-demo__top { gap:8px; }
+ .registration-demo__top span { font-size:7px; }
+ .registration-demo__top button { font-size:8px; }
+ .registration-demo__caption { gap:10px; }
+ .registration-demo__caption p { font-size:9px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .registration-field.is-typing .registration-caret { animation:none; }
+ .registration-cursor,.registration-demo-course,.registration-demo-toast { transition:none; }
+}

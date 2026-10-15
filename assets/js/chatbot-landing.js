@@ -72,7 +72,7 @@
   }
 
   /* --- personaje (Jaguarito) --- */
-  var G = window.ZOO_GUIA || null;
+  var G = document.body.dataset.imagesPending === 'true' ? null : (window.ZOO_GUIA || null);
   var reducido = false;
   try { reducido = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { reducido = false; }
   var imgsPrecargadas = {};
@@ -375,6 +375,11 @@
   function esMovil() { return window.matchMedia && window.matchMedia('(max-width: 560px)').matches; }
 
   function colocar() {
+    // En la portada editorial comparte la esquina derecha con WhatsApp.
+    if (document.body.dataset.landingStructure === 'true') {
+      lanzador.style.setProperty('--zg-abajo', '24px');
+      return;
+    }
     // Se apila justo arriba del botón flotante de WhatsApp de la portada (sin taparlo).
     var wa = document.querySelector('.floating-whatsapp');
     var abajoPx = 154;
@@ -397,7 +402,7 @@
     if (G) {
       // El busto asoma por encima del círculo verde; si no carga, queda la huella.
       var pj = el('span', 'zg-launcher__pj');
-      pjImg = imagenPersonaje(G.imagenExpresion('neutral'), 'zg-launcher__pj-img', 92, function () { ico.classList.remove('con-personaje'); });
+      pjImg = imagenPersonaje(G.imagenExpresion(EXPR_LANZADOR), 'zg-launcher__pj-img', 92, function () { ico.classList.remove('con-personaje'); });
       pj.appendChild(pjImg);
       ico.appendChild(pj);
       ico.classList.add('con-personaje');
@@ -406,7 +411,11 @@
     punto.setAttribute('aria-hidden', 'true');
     punto.hidden = !!ls.get(VISTO_KEY);
     ico.appendChild(punto);
-    lanzador.append(el('span', 'zg-launcher__txt', 'Tu guía Zoorigen'), ico);
+    // Globo fijo junto al personaje (ronda 12): siempre visible mientras el chat está cerrado. El botón ya se anuncia con su
+    // aria-label, así que el globo es decorativo para lectores de pantalla (no se repite el texto).
+    var globoFijo = el('span', 'zg-launcher__txt', 'Soy tu guía virtual');
+    globoFijo.setAttribute('aria-hidden', 'true');
+    lanzador.append(globoFijo, ico);
     lanzador.addEventListener('click', abrir);
     document.body.appendChild(lanzador);
     colocar();
@@ -532,7 +541,12 @@
 
   function pestanaVisible() { return document.visibilityState !== 'hidden'; }
 
+  // El botón flotante muestra al guía pensando (guia-pensando.webp). Los cuadros del saludo parten de la pose de
+  // bienvenida, así que solo se animan si el lanzador usa esa pose.
+  var EXPR_LANZADOR = 'thinking';
+
   function saludarLanzador() {
+    if (EXPR_LANZADOR !== 'neutral') return;
     if (!G || !pjImg || reducido || saludandoLanzador || !lanzador || lanzador.hidden || !pestanaVisible()) return;
     var listos = [G.CUADROS.saludo1, G.CUADROS.saludo2].every(function (r) {
       var c = imgsPrecargadas[r];
@@ -564,9 +578,9 @@
   function animarLanzador() {
     if (!G) return;
     // Primero el busto de siempre; los cuadros del saludo llegan cuando el navegador esté libre.
-    precargar(G.imagenExpresion('neutral'));
+    precargar(G.imagenExpresion(EXPR_LANZADOR));
     var tarde = function () {
-      if (!reducido) { precargar(G.CUADROS.saludo1); precargar(G.CUADROS.saludo2); } // sin animación no hacen falta
+      if (!reducido && EXPR_LANZADOR === 'neutral') { precargar(G.CUADROS.saludo1); precargar(G.CUADROS.saludo2); } // sin animación no hacen falta
       precargar(G.AVATAR_CHICO);
     };
     if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(tarde, { timeout: 2500 });

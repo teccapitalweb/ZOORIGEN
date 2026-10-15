@@ -900,7 +900,8 @@ test('index.html carga el CSS y los JS de la guía y de la encuesta, con ?v= y e
   const orden = ['zoo-catalogo.js', 'encuesta-motor.js', 'encuesta-landing.js', 'chatbot-fichas.js', 'chatbot-dudas.js', 'chatbot-motor.js', 'chatbot-landing.js'];
   let ultimo = -1;
   orden.forEach(a => {
-    const i = html.indexOf('src="assets/js/' + a + v + '"');
+    const script = html.match(new RegExp('src="assets/js/' + a.replace('.', '\\.') + '\\?v=[^" ]+"'));
+    const i = script ? html.indexOf(script[0]) : -1;
     assert.ok(i > ultimo, a + ' falta o está fuera de orden');
     ultimo = i;
   });

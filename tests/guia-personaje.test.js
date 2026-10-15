@@ -233,7 +233,8 @@ test('la guía usa el avatar y el busto, conserva el aviso de que no es una pers
   const js = leer('assets/js/chatbot-landing.js');
   assert.match(js, /ZOO_GUIA/);
   assert.match(js, /AVATAR_CHICO/);
-  assert.match(js, /Tu guía Zoorigen/);
+  assert.match(js, /'zg-launcher__txt', 'Soy tu guía virtual'/, 'globo fijo junto al personaje');
+  assert.match(js, /aria-label', 'Abrir la Guía Zoorigen, una guía virtual'/, 'el botón se anuncia con su etiqueta, sin repetir el globo');
   assert.match(js, /Guía virtual, no es una persona/);
   assert.match(js, /No hay una persona conectada/);
   assert.match(js, /\.floating-whatsapp/, 'sigue apilándose arriba del botón de WhatsApp');
