@@ -1,10 +1,13 @@
 'use strict';
-// Herramientas clínicas: dosis, anestesia, fluidos, BCS y urgencias (unidades y cuentas)
+// Cuentas de la referencia clínica (BCS, lectura de números) y de los módulos RETIRADOS de la interfaz
+// (dosis, anestesia, fluidos, urgencias y hemograma): ya no se cargan en ninguna página, pero el código y los
+// datos se conservan en el repositorio y sus pruebas siguen corriendo.
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const C = require('../assets/js/herramientas-calculos.js');
+const R = require('../assets/js/herramientas-clinica-retirada.js');
 
 const PAGINA = fs.readFileSync(path.resolve(__dirname, '../pages/club-herramientas.html'), 'utf8');
 const sinEtiquetas = s => s.replace(/<[^>]+>/g, '');
@@ -54,7 +57,7 @@ const FARMACO = {
 };
 
 test('dosis verificadas: una fila por referencia con mg y ml bien calculados', () => {
-  const r = C.dosisVerificadas(FARMACO, 'mamifero', 10, 100);
+  const r = R.dosisVerificadas(FARMACO, 'mamifero', 10, 100);
   assert.equal(r.ok, true);
   assert.equal(r.filas.length, 2);
   const perro = r.filas[0], gato = r.filas[1];
@@ -68,29 +71,29 @@ test('dosis verificadas: una fila por referencia con mg y ml bien calculados', (
 });
 
 test('dosis verificadas: "hasta X" no inventa un mínimo y un valor único se marca como tal', () => {
-  const loro = C.dosisVerificadas(FARMACO, 'ave', 2, 10).filas[0];
+  const loro = R.dosisVerificadas(FARMACO, 'ave', 2, 10).filas[0];
   assert.equal(loro.min, null);
   assert.equal(loro.mgMin, null);
   assert.equal(loro.mgMax, 8);
-  const lagarto = C.dosisVerificadas(FARMACO, 'reptil', 1, 10).filas[0];
+  const lagarto = R.dosisVerificadas(FARMACO, 'reptil', 1, 10).filas[0];
   assert.equal(lagarto.mismoValor, true);
 });
 
 test('dosis verificadas: sin referencia para ese grupo no devuelve ningún número', () => {
-  const r = C.dosisVerificadas(FARMACO, 'pediatrico', 5, 10);
+  const r = R.dosisVerificadas(FARMACO, 'pediatrico', 5, 10);
   assert.equal(r.ok, true);
   assert.equal(r.sinDatos, true);
   assert.equal(r.filas.length, 0);
 });
 
 test('dosis verificadas: avisa del volumen muy pequeño y valida peso y concentración', () => {
-  const chico = C.dosisVerificadas(FARMACO, 'ave', 0.03, 100).filas[0];
+  const chico = R.dosisVerificadas(FARMACO, 'ave', 0.03, 100).filas[0];
   assert.equal(chico.volumenPequeno, true);
   assert.notEqual(C.fmt(chico.mlMax), '0.00');
-  assert.match(C.dosisVerificadas(FARMACO, 'ave', 0, 10).error, /peso/i);
-  assert.match(C.dosisVerificadas(FARMACO, 'ave', 5, 0).error, /concentración/i);
-  assert.match(C.dosisVerificadas(FARMACO, 'ave', 5, NaN).error, /concentración/i);
-  assert.match(C.dosisVerificadas(null, 'ave', 5, 10).error, /medicamento/i);
+  assert.match(R.dosisVerificadas(FARMACO, 'ave', 0, 10).error, /peso/i);
+  assert.match(R.dosisVerificadas(FARMACO, 'ave', 5, 0).error, /concentración/i);
+  assert.match(R.dosisVerificadas(FARMACO, 'ave', 5, NaN).error, /concentración/i);
+  assert.match(R.dosisVerificadas(null, 'ave', 5, 10).error, /medicamento/i);
 });
 
 test('datos de dosis: todo rango trae fuente con enlace, sin números inventados ni vacíos', () => {
@@ -124,13 +127,13 @@ test('anestesia: mg totales siempre; ml solo si el usuario escribe la concentrac
   const v = { especie: 'X', componentes: [
     { nombre: 'A', min: 3, max: 3, via: 'IM', f: { fuente: 'F', url: 'https://f.example' } },
     { nombre: 'B', min: 0.05, max: 0.1, via: 'IM', f: { fuente: 'F', url: 'https://f.example' } }] };
-  const sin = C.anestesia(v, 20, null);
+  const sin = R.anestesia(v, 20, null);
   cerca(sin.filas[0].mgMax, 60); assert.equal(sin.filas[0].mlMax, null);
   cerca(sin.filas[1].mgMin, 1); cerca(sin.filas[1].mgMax, 2);
-  const con = C.anestesia(v, 20, [100, 1]);
+  const con = R.anestesia(v, 20, [100, 1]);
   cerca(con.filas[0].mlMax, 0.6); cerca(con.filas[1].mlMin, 1); cerca(con.filas[1].mlMax, 2);
-  assert.ok(C.anestesia(v, 0, null).error);
-  assert.ok(C.anestesia(null, 10, null).error);
+  assert.ok(R.anestesia(v, 0, null).error);
+  assert.ok(R.anestesia(null, 10, null).error);
 });
 
 test('protocolos: cada dosis trae fuente con enlace y ninguna concentración supuesta', () => {
@@ -151,18 +154,18 @@ test('protocolos: cada dosis trae fuente con enlace y ninguna concentración sup
 });
 
 test('fluidos: mantenimiento por especie (perro 60, gato 40, aves 50, reptiles 20 ml/kg/día) y gotas por minuto', () => {
-  const perro = C.fluidos({ grupo: 'perro', peso: 10, tipo: 'normal', perdidas: 0, equipo: 20 });
+  const perro = R.fluidos({ grupo: 'perro', peso: 10, tipo: 'normal', perdidas: 0, equipo: 20 });
   assert.equal(perro.mantenimiento, 600);
   cerca(perro.fases[0].mlPorHora, 25, 1e-9);
   cerca(perro.fases[0].gotasMin, 25 * 20 / 60, 1e-9);
-  assert.equal(C.fluidos({ grupo: 'gato', peso: 4, tipo: 'normal', equipo: 20 }).mantenimiento, 160);
-  assert.equal(C.fluidos({ grupo: 'aves', peso: 1, tipo: 'normal', equipo: 20 }).mantenimiento, 50);
-  assert.equal(C.fluidos({ grupo: 'reptiles', peso: 5, tipo: 'normal', equipo: 20 }).mantenimiento, 100);
-  assert.ok(C.fluidos({ grupo: 'mamiferos', peso: 5, tipo: 'normal' }).error, 'ya no hay "mamíferos" genérico');
+  assert.equal(R.fluidos({ grupo: 'gato', peso: 4, tipo: 'normal', equipo: 20 }).mantenimiento, 160);
+  assert.equal(R.fluidos({ grupo: 'aves', peso: 1, tipo: 'normal', equipo: 20 }).mantenimiento, 50);
+  assert.equal(R.fluidos({ grupo: 'reptiles', peso: 5, tipo: 'normal', equipo: 20 }).mantenimiento, 100);
+  assert.ok(R.fluidos({ grupo: 'mamiferos', peso: 5, tipo: 'normal' }).error, 'ya no hay "mamíferos" genérico');
 });
 
 test('fluidos: deshidratación = peso × % × 1000 ml, en 24 h o en 12 h, sin el reparto 8 h + 16 h sin fuente', () => {
-  const r = C.fluidos({ grupo: 'perro', peso: 10, tipo: 'desh', deshPct: 8, perdidas: 0, equipo: 20 });
+  const r = R.fluidos({ grupo: 'perro', peso: 10, tipo: 'desh', deshPct: 8, perdidas: 0, equipo: 20 });
   const deficit = 800;
   assert.equal(r.fases.length, 2);
   cerca(r.fases[0].ml, deficit + 600, 1e-6);
@@ -171,37 +174,37 @@ test('fluidos: deshidratación = peso × % × 1000 ml, en 24 h o en 12 h, sin el
   assert.equal(r.fases[1].alternativa, true);
   cerca(r.fases[1].ml, deficit + 300, 1e-6);
   cerca(r.total, deficit + 600, 1e-6);
-  assert.ok(C.fluidos({ grupo: 'perro', peso: 10, tipo: 'desh', deshPct: NaN }).error);
-  assert.ok(C.fluidos({ grupo: 'perro', peso: 10, tipo: 'gastro', deshPct: 0 }).error);
+  assert.ok(R.fluidos({ grupo: 'perro', peso: 10, tipo: 'desh', deshPct: NaN }).error);
+  assert.ok(R.fluidos({ grupo: 'perro', peso: 10, tipo: 'gastro', deshPct: 0 }).error);
 });
 
 test('fluidos: bolo de shock perro 15-20, gato 5-10, aves 10 ml/kg; reptiles sin dato', () => {
-  const perro = C.fluidos({ grupo: 'perro', peso: 10, tipo: 'shock', equipo: 20 });
+  const perro = R.fluidos({ grupo: 'perro', peso: 10, tipo: 'shock', equipo: 20 });
   assert.equal(perro.fases[0].ml, 150); assert.equal(perro.fases[0].mlMax, 200);
   cerca(perro.fases[0].mlPorHora, 600); cerca(perro.fases[0].mlPorHoraMax, 800);
-  const gato = C.fluidos({ grupo: 'gato', peso: 4, tipo: 'shock', equipo: 20 });
+  const gato = R.fluidos({ grupo: 'gato', peso: 4, tipo: 'shock', equipo: 20 });
   assert.equal(gato.fases[0].ml, 20); assert.equal(gato.fases[0].mlMax, 40);
-  assert.equal(C.fluidos({ grupo: 'aves', peso: 1, tipo: 'shock', equipo: 20 }).fases[0].ml, 10);
-  assert.match(C.fluidos({ grupo: 'reptiles', peso: 2, tipo: 'shock' }).error, /No hay un bolo/);
+  assert.equal(R.fluidos({ grupo: 'aves', peso: 1, tipo: 'shock', equipo: 20 }).fases[0].ml, 10);
+  assert.match(R.fluidos({ grupo: 'reptiles', peso: 2, tipo: 'shock' }).error, /No hay un bolo/);
 });
 
 test('fluidos: cirugía solo da la velocidad inicial (perro 5, gato 3-5 ml/kg/h), sin horas inventadas', () => {
-  const perro = C.fluidos({ grupo: 'perro', peso: 10, tipo: 'cirugia', equipo: 20 });
+  const perro = R.fluidos({ grupo: 'perro', peso: 10, tipo: 'cirugia', equipo: 20 });
   assert.equal(perro.fases.length, 1);
   assert.equal(perro.fases[0].mlPorHora, 50);
-  const gato = C.fluidos({ grupo: 'gato', peso: 4, tipo: 'cirugia', equipo: 20 });
+  const gato = R.fluidos({ grupo: 'gato', peso: 4, tipo: 'cirugia', equipo: 20 });
   cerca(gato.fases[0].mlPorHora, 12); cerca(gato.fases[0].mlPorHoraMax, 20);
-  assert.ok(C.fluidos({ grupo: 'aves', peso: 1, tipo: 'cirugia' }).error);
+  assert.ok(R.fluidos({ grupo: 'aves', peso: 1, tipo: 'cirugia' }).error);
 });
 
 test('fluidos: Parkland 4 ml × kg × %, la mitad en 8 h y la otra en 16 h; pérdidas negativas se rechazan', () => {
-  const r = C.fluidos({ grupo: 'perro', peso: 10, tipo: 'quemado', quemadoPct: 20, perdidas: 0, equipo: 20 });
+  const r = R.fluidos({ grupo: 'perro', peso: 10, tipo: 'quemado', quemadoPct: 20, perdidas: 0, equipo: 20 });
   assert.equal(r.fases.length, 2);
   cerca(r.fases[0].ml, 400); cerca(r.fases[1].ml, 400);
   assert.equal(r.fases[0].horas, 8); assert.equal(r.fases[1].horas, 16);
-  assert.ok(C.fluidos({ grupo: 'perro', peso: 10, tipo: 'quemado', quemadoPct: 0 }).error);
-  assert.ok(C.fluidos({ grupo: 'perro', peso: 10, tipo: 'quemado', quemadoPct: 150 }).error);
-  assert.ok(C.fluidos({ grupo: 'perro', peso: 10, tipo: 'normal', perdidas: -5 }).error);
+  assert.ok(R.fluidos({ grupo: 'perro', peso: 10, tipo: 'quemado', quemadoPct: 0 }).error);
+  assert.ok(R.fluidos({ grupo: 'perro', peso: 10, tipo: 'quemado', quemadoPct: 150 }).error);
+  assert.ok(R.fluidos({ grupo: 'perro', peso: 10, tipo: 'normal', perdidas: -5 }).error);
 });
 
 test('BCS: solo la equivalencia en grasa de la fuente (10 a 15 % por punto sobre 5); sin peso ideal inventado', () => {
@@ -217,11 +220,11 @@ test('BCS: solo la equivalencia en grasa de la fuente (10 a 15 % por punto sobre
 test('urgencias: unidades y cifras con respaldo (perro, 10 kg)', () => {
   const tipos = ['rcp', 'shock', 'convulsion', 'hipotermia', 'hipertermia', 'anafilaxia', 'envenenamiento', 'hemorragia'];
   for (const t of tipos) {
-    const r = C.urgencia(t, 10, 'perro');
+    const r = R.urgencia(t, 10, 'perro');
     assert.ok(r.ok, t);
     assert.ok(!/NaN|undefined|Infinity/.test(sinEtiquetas(r.steps.join(' '))), t);
   }
-  const rcp = sinEtiquetas(C.urgencia('rcp', 10, 'perro').steps.join(' '));
+  const rcp = sinEtiquetas(R.urgencia('rcp', 10, 'perro').steps.join(' '));
   assert.match(rcp, /0\.1 mg \(0\.01 mg\/kg\)/);
   assert.match(rcp, /0\.4 mg \(0\.04 mg\/kg\)/);
   assert.match(rcp, /100 a 120 por minuto/);
@@ -229,46 +232,46 @@ test('urgencias: unidades y cifras con respaldo (perro, 10 kg)', () => {
   assert.match(rcp, /se duplica la dosis/);
   assert.doesNotMatch(rcp, /15:2|2-3 veces/);
 
-  const shock = sinEtiquetas(C.urgencia('shock', 10, 'perro').steps.join(' '));
+  const shock = sinEtiquetas(R.urgencia('shock', 10, 'perro').steps.join(' '));
   assert.match(shock, /150 a 200 ml \(15 a 20 ml\/kg\)/);
-  assert.match(sinEtiquetas(C.urgencia('shock', 4, 'gato').steps.join(' ')), /20 a 40 ml \(5 a 10 ml\/kg\)/);
-  assert.match(sinEtiquetas(C.urgencia('shock', 1, 'aves').steps.join(' ')), /10 ml \(10 ml\/kg\)/);
-  assert.match(sinEtiquetas(C.urgencia('shock', 2, 'reptiles').steps.join(' ')), /no hay un bolo verificado para reptiles/);
+  assert.match(sinEtiquetas(R.urgencia('shock', 4, 'gato').steps.join(' ')), /20 a 40 ml \(5 a 10 ml\/kg\)/);
+  assert.match(sinEtiquetas(R.urgencia('shock', 1, 'aves').steps.join(' ')), /10 ml \(10 ml\/kg\)/);
+  assert.match(sinEtiquetas(R.urgencia('shock', 2, 'reptiles').steps.join(' ')), /no hay un bolo verificado para reptiles/);
   assert.doesNotMatch(shock, /ceftriaxona/);
   assert.match(shock, /diluida 1:3/);
 
-  const conv = sinEtiquetas(C.urgencia('convulsion', 10, 'perro').steps.join(' '));
+  const conv = sinEtiquetas(R.urgencia('convulsion', 10, 'perro').steps.join(' '));
   assert.match(conv, /5 a 10 mg \(0\.5 a 1 mg\/kg\)/);
   assert.match(conv, /2 mg \(0\.2 mg\/kg\)/);
   assert.match(conv, /10 a 40 mg \(1 a 4 mg\/kg\)/);
   assert.match(conv, /600 mg \(60 mg\/kg\)/);
 
-  const anaf = sinEtiquetas(C.urgencia('anafilaxia', 10, 'perro').steps.join(' '));
+  const anaf = sinEtiquetas(R.urgencia('anafilaxia', 10, 'perro').steps.join(' '));
   assert.match(anaf, /1 a 2 mg \(0\.1 a 0\.2 mg\/kg\)/);
   assert.match(anaf, /10 a 20 mg \(1 a 2 mg\/kg\)/);
 
-  const calor = sinEtiquetas(C.urgencia('hipertermia', 10, 'perro').steps.join(' '));
+  const calor = sinEtiquetas(R.urgencia('hipertermia', 10, 'perro').steps.join(' '));
   assert.match(calor, /No uses corticoides/);
   assert.match(calor, /39\.4 °C/);
   assert.doesNotMatch(calor, /alcohol isoprop|dexametasona/i);
 
-  const env = sinEtiquetas(C.urgencia('envenenamiento', 10, 'perro').steps.join(' '));
+  const env = sinEtiquetas(R.urgencia('envenenamiento', 10, 'perro').steps.join(' '));
   assert.match(env, /10 a 20 g \(1 a 2 g\/kg\)/);
 });
 
 test('urgencias: sin peso muestra dosis por kilo; aves y reptiles no calculan totales de fármacos', () => {
-  const sinPeso = C.urgencia('rcp', NaN, 'perro');
+  const sinPeso = R.urgencia('rcp', NaN, 'perro');
   assert.ok(sinPeso.avisos.length >= 1);
   assert.match(sinEtiquetas(sinPeso.steps.join(' ')), /0\.01 mg\/kg/);
-  const ave = C.urgencia('convulsion', 1, 'aves');
+  const ave = R.urgencia('convulsion', 1, 'aves');
   assert.ok(ave.avisos.some(a => /perro y gato/.test(a)));
   assert.doesNotMatch(sinEtiquetas(ave.steps.join(' ')), /\d mg \(\d/);
-  assert.ok(C.urgencia('nada', 5, 'perro').error);
+  assert.ok(R.urgencia('nada', 5, 'perro').error);
 });
 
 test('urgencias: no queda ninguna cifra que la revisión no pudo respaldar', () => {
   const todo = ['rcp', 'shock', 'convulsion', 'hipotermia', 'hipertermia', 'anafilaxia', 'envenenamiento', 'hemorragia']
-    .map(t => sinEtiquetas(C.urgencia(t, 10, 'perro').steps.join(' '))).join(' ');
+    .map(t => sinEtiquetas(R.urgencia(t, 10, 'perro').steps.join(' '))).join(' ');
   for (const sinRespaldo of ['café', 'ceftriaxona', 'terbutalina', 'vitamina K1', '15:2', 'lactato', 'hetastarch 100']) {
     assert.ok(!todo.includes(sinRespaldo), sinRespaldo + ' no tiene respaldo');
   }
@@ -316,12 +319,9 @@ test('hemograma: solo valores con fuente enlazada; lo no encontrado se declara a
   for (const e of ZH.ESPECIES.filter(x => x.clase === 'Aves')) assert.ok(!e.datos.some(d => d.campo === 'Creatinina'), e.esp);
 });
 
-test('hemograma: la página usa el módulo con fuente y ya no tiene la tabla sin respaldo', () => {
-  assert.match(PAGINA, /herramientas-hemograma\.js\?v=\w+/);
-  assert.match(PAGINA, /ZOO_HEMOGRAMA\.ESPECIES/);
-  assert.doesNotMatch(PAGINA, /hemoTbody|hemoTable/);
-  assert.doesNotMatch(PAGINA, /hto: '35-45'/);
-  assert.doesNotMatch(PAGINA, /Valores de referencia de animales en cautiverio con manejo/);
+test('hemograma (retirado): ninguna página carga el módulo ni lo muestra', () => {
+  assert.doesNotMatch(PAGINA, /herramientas-hemograma\.js/);
+  assert.doesNotMatch(PAGINA, /ZOO_HEMOGRAMA|hemoGrid|hemoFilter|panel-hemograma|data-tab="hemograma"/);
 });
 
 test('esc y sinAcentos', () => {
@@ -329,20 +329,16 @@ test('esc y sinAcentos', () => {
   assert.equal(C.sinAcentos('  Ñandú Águila '), 'nandu aguila');
 });
 
-test('la página usa el módulo y ya no tiene las cuentas viejas', () => {
+test('la página usa el módulo común: solo Constantes y BCS, sin las cuentas retiradas', () => {
   assert.match(PAGINA, /herramientas-calculos\.js\?v=\w+/);
-  assert.match(PAGINA, /const C = ZOO_CALCULOS;[\s\S]*C\.leerNumero/);
-  assert.match(PAGINA, /id="urgGrupo"/);
+  assert.match(PAGINA, /const C = ZOO_CALCULOS;[\s\S]*C\.sinAcentos/);
   assert.match(PAGINA, /Material de referencia para profesionales/);
-  // los campos numéricos ya aceptan coma
-  for (const id of ['dosePeso', 'doseConc', 'anesPeso', 'fluidsPeso', 'urgPeso']) {
-    assert.match(PAGINA, new RegExp('<input type="text" inputmode="decimal"[^>]*id="' + id + '"'));
+  // la página no carga el módulo de cálculos retirados ni los datos de las pestañas retiradas
+  for (const f of ['herramientas-clinica-retirada', 'herramientas-dosis', 'herramientas-protocolos', 'herramientas-hemograma']) {
+    assert.ok(!PAGINA.includes(f), 'la página no debe cargar ' + f);
   }
-  // el viejo ajuste de BCS de ±40%
-  assert.doesNotMatch(PAGINA, /Dosis máxima segura global/);
-  // los conteos salen de los datos
-  assert.match(PAGINA, /id="statFarmacos"|"id":"statFarmacos"/);
-  assert.match(PAGINA, /Object\.keys\(DOSIS\)\.length/);
-  assert.match(PAGINA, /herramientas-dosis\.js\?v=\w+/);
-  assert.doesNotMatch(PAGINA, /const DROGAS\b/, 'ya no queda la tabla de dosis sin fuente');
+  // los conteos salen de los datos de constantes
+  assert.match(PAGINA, /id":"statEspecies"/);
+  assert.match(PAGINA, /CONSTANTES\.reduce\(/);
+  assert.doesNotMatch(PAGINA, /const DROGAS\b|Object\.keys\(DOSIS\)/);
 });

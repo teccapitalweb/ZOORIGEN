@@ -5,6 +5,9 @@
 /* fuente abierta NO aparece. Revisado el 2026-10-12.            */
 /* Las concentraciones de los frascos las escribe el usuario:    */
 /* aquí no se supone ninguna.                                    */
+/* RETIRADO DE LA INTERFAZ el 15 de octubre de 2026: se conserva en el  */
+/* repositorio pero ninguna página lo carga (ver herramientas-clinica- */
+/* retirada.js). Sus pruebas siguen corriendo.                        */
 /* ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();

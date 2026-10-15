@@ -1,5 +1,5 @@
 'use strict';
-// Vista previa de Herramientas clínicas e Infusiones para quien NO es miembro:
+// Vista previa de Referencia clínica (Constantes y BCS) e Infusiones para quien NO es miembro:
 // ve toda la interfaz y puede llenar los campos, pero calcular o abrir el detalle pide la membresía.
 // Miembros y administradores conservan el comportamiento de siempre.
 const fs = require('node:fs');
@@ -13,9 +13,7 @@ const HERR = leer('pages/club-herramientas.html');
 const INF = leer('pages/club-infusiones.html');
 const PAYWALL = require('../assets/js/club-paywall.js');
 const CALC = require('../assets/js/herramientas-calculos.js');
-const PROTOS = require('../assets/js/herramientas-protocolos.js');
 const CONST = require('../assets/js/herramientas-constantes.js');
-const HEMO = require('../assets/js/herramientas-hemograma.js');
 const INFUS = require('../assets/js/herramientas-infusiones.js');
 
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}]/u;
@@ -61,7 +59,7 @@ test('cargan el módulo y la hoja de vista previa y lo inician justo tras requir
 });
 
 test('herramientas: cada acción que da un resultado pide membresía ANTES de leer o validar datos', () => {
-  const acciones = ['calcularDosis', 'calcularAnestesia', 'calcularFluidos', 'calcularBCS', 'mostrarUrgencia'];
+  const acciones = ['calcularBCS'];
   for (const a of acciones) {
     const f = funcion(HERR, a);
     const i = f.indexOf('usoBloqueado(');
@@ -69,7 +67,7 @@ test('herramientas: cada acción que da un resultado pide membresía ANTES de le
     assert.match(f, /if \(usoBloqueado\('[^']+', rEl\)\) return;/, a);
     // no se valida (showErr) ni se calcula antes del aviso
     const antes = f.slice(0, i);
-    assert.doesNotMatch(antes, /showErr\(|C\.dosisVerificadas|C\.anestesia\(|C\.fluidos\(|C\.bcs\(|C\.urgencia\(/, a + ': usó datos antes del aviso');
+    assert.doesNotMatch(antes, /showErr\(|C\.bcs\(/, a + ': usó datos antes del aviso');
   }
   const ayuda = funcion(HERR, 'usoBloqueado');
   assert.match(ayuda, /ZOO_PAYWALL\.requiereMembresia\(accion\)/);
@@ -93,9 +91,9 @@ test('infusiones: cada calculadora y la conversión pide membresía antes de lee
   assert.match(INF, /if \(\$\('convValor'\)\.value\.trim\(\) !== ''\) calcularConversion\(\); else \$\('convValor'\)\.focus\(\);/);
 });
 
-test('navegar y llenar sigue funcionando sin membresía: pestañas, categoría, modo, BCS y filtros no piden nada', () => {
+test('navegar y llenar sigue funcionando sin membresía: pestañas, modo, BCS y filtros no piden nada', () => {
   // ninguno de estos manejadores llama a requiereMembresia
-  for (const nombre of ['actualizarDrogas', 'actualizarVariantes', 'filtrarEspecies', 'filtrarHemograma', 'resetearForm']) {
+  for (const nombre of ['filtrarEspecies', 'resetearForm']) {
     assert.doesNotMatch(funcion(HERR, nombre), /requiereMembresia|usoBloqueado/, nombre);
   }
   assert.doesNotMatch(funcion(INF, 'limpiar'), /requiereMembresia|usoBloqueado/);
@@ -106,10 +104,10 @@ test('navegar y llenar sigue funcionando sin membresía: pestañas, categoría, 
   assert.match(HERR, /document\.querySelectorAll\('\.bcs-item'\)\.forEach/);
 });
 
-test('constantes y hemograma: la vista previa muestra nombres y NO carga los valores ni las fuentes', () => {
+test('constantes: la vista previa muestra nombres y NO carga los valores ni las fuentes', () => {
   const ctx = vm.createContext({ ZOO_CALCULOS: CALC, ZOO_PAYWALL: PAYWALL });
   vm.runInContext(funcion(HERR, 'tarjetaVistaPrevia'), ctx);
-  const grupos = [[CONST.ESPECIES, e => e.grupo], [HEMO.ESPECIES, e => e.clase + ' · ' + e.grupo]];
+  const grupos = [[CONST.ESPECIES, e => e.grupo]];
   for (const [lista, sub] of grupos) {
     let conDatos = 0;
     for (const e of lista) {
@@ -132,28 +130,6 @@ test('constantes y hemograma: la vista previa muestra nombres y NO carga los val
   }
 });
 
-test('anestesia inhalada: se ven los gases y los grupos; porcentajes y fuentes no se cargan', () => {
-  const salida = {};
-  const ctx = vm.createContext({
-    ZOO_CALCULOS: CALC, ZOO_PROTOCOLOS: PROTOS, ZOO_PAYWALL: PAYWALL,
-    document: { getElementById: id => { salida[id] = salida[id] || { innerHTML: '' }; return salida[id]; } }
-  });
-  vm.runInContext(funcion(HERR, 'renderGasesVistaPrevia'), ctx);
-  ctx.renderGasesVistaPrevia();
-  const html = salida.anesGases.innerHTML;
-  for (const g of Object.values(PROTOS.GASES)) {
-    assert.ok(html.includes(CALC.esc(g.nombre)));
-    for (const x of g.filas) {
-      assert.ok(html.includes(CALC.esc(x.grupo)));
-      assert.ok(!html.includes(CALC.esc(x.induccion)), 'porcentaje de inducción de ' + g.nombre + ' / ' + x.grupo);
-      assert.ok(!html.includes(CALC.esc(x.mantenimiento)), 'porcentaje de mantenimiento');
-      assert.ok(!html.includes(CALC.esc(x.f.url)), 'la fuente no debe ir en la vista previa');
-    }
-  }
-  assert.match(html, /pw-vista/);
-  assert.match(html, /Hazte miembro/);
-});
-
 test('equivalencias de consulta rápida (infusiones): títulos visibles, valores con marcador', () => {
   const f = funcion(INF, 'iniciarConversiones');
   assert.match(f, /if \(!ZOO_PAYWALL\.miembro\(\)\) \{/);
@@ -165,13 +141,6 @@ test('equivalencias de consulta rápida (infusiones): títulos visibles, valores
   assert.match(f, /'<div class="tool-info-card__value">' \+ E\(p\.texto\) \+ '<\/div><\/div>'\)\.join\(''\);/);
   // el módulo da equivalencias reales (que la rama de miembros muestra)
   assert.ok(INFUS.equivalencias().length >= 4);
-});
-
-test('el resumen del protocolo anestésico (con cifras) solo lo ven los miembros', () => {
-  const f = funcion(HERR, 'actualizarVariantes');
-  assert.match(f, /ZOO_PAYWALL\.miembro\(\)\s*\n?\s*\? \(p\.resumen \|\| ''\)/);
-  const conCifras = Object.values(PROTOS.PROTOCOLOS).filter(p => /\d/.test(p.resumen || ''));
-  assert.ok(conCifras.length >= 1, 'hay resúmenes con cifras (por eso se ocultan)');
 });
 
 test('el módulo decide: miembro, administrador y sin plan', () => {

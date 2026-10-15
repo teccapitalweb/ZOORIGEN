@@ -5,6 +5,9 @@
 /* lo medido en un estudio concreto (muestra pequeña, un solo      */
 /* lugar). No son rangos universales para la especie. Lo que no se */
 /* encontró publicado no aparece. Revisado el 2026-10-12.          */
+/* RETIRADO DE LA INTERFAZ el 15 de octubre de 2026: se conserva en el  */
+/* repositorio pero ninguna página lo carga (ver herramientas-clinica- */
+/* retirada.js). Sus pruebas siguen corriendo.                        */
 /* ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();

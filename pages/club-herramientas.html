@@ -7,7 +7,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Herramientas Clínicas Pro · Club VIP Zoorigen</title>
+<title>Referencia clínica · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="../assets/css/club.css?v=20261110-aviso">
 <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
 <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261116-tamanos">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261124-referencia">
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
 <style>
@@ -158,43 +158,6 @@
     font-weight: 700;
   }
 
-  .tool-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-    gap: 14px;
-    margin-bottom: 18px;
-  }
-  .tool-field { display: flex; flex-direction: column; }
-  .tool-field label {
-    color: var(--zoo-text-muted, #a0a8a4);
-    font-size: .78rem; font-weight: 700;
-    margin-bottom: 6px;
-    letter-spacing: .02em; text-transform: uppercase;
-  }
-  .tool-field input, .tool-field select, .tool-field textarea {
-    background: rgba(255,255,255,0.04) !important;
-    border: 1px solid var(--zoo-border-strong, #3A424C) !important;
-    color: var(--zoo-text, #fff) !important;
-    padding: 11px 13px; border-radius: 10px;
-    font-family: inherit; font-size: .95rem;
-  }
-  /* iOS hace zoom automatico al enfocar un campo de menos de 16px.
-     Solo en movil; el valor de escritorio queda intacto. */
-  @media (max-width: 768px) {
-    .tool-field input, .tool-field select, .tool-field textarea { font-size: 16px; }
-  }
-  [data-theme="light"] .tool-field input,
-  [data-theme="light"] .tool-field select,
-  [data-theme="light"] .tool-field textarea {
-    background: #ffffff !important;
-    border: 1px solid #D8D2C4 !important;
-    color: #1F2933 !important;
-  }
-  .tool-field input:focus, .tool-field select:focus, .tool-field textarea:focus {
-    outline: 0; border-color: #E8A317 !important;
-  }
-  .tool-field select option { background: #171B20; color: #fff; }
-  [data-theme="light"] .tool-field select option { background: #fff; color: #1F2933; }
 
   .tool-actions {
     display: flex; gap: 10px; flex-wrap: wrap;
@@ -265,54 +228,6 @@
   [data-theme="light"] .tool-result__row-label { color: #3E4A56; }
   [data-theme="light"] .tool-result__note { color: #52606D; border-top-color: rgba(0,0,0,0.08); }
 
-  .tool-subsection {
-    margin-top: 16px;
-    padding: 14px;
-    background: rgba(255,255,255,0.02);
-    border-left: 3px solid #2AA4D5;
-    border-radius: 8px;
-  }
-  .tool-subsection__title {
-    color: #2AA4D5; font-weight: 700;
-    font-size: .82rem; text-transform: uppercase;
-    letter-spacing: .04em; margin-bottom: 8px;
-  }
-  .tool-subsection ul {
-    margin: 0; padding-left: 20px;
-    color: var(--zoo-text-muted, #a0a8a4);
-    font-size: .85rem; line-height: 1.65;
-  }
-  .tool-subsection ul li { margin-bottom: 4px; }
-
-  .tool-table {
-    width: 100%;
-    border-collapse: separate; border-spacing: 0;
-    font-size: .88rem;
-  }
-  .tool-table th {
-    background: rgba(232,163,23,0.12); color: #E8A317;
-    padding: 10px 12px; text-align: left;
-    font-weight: 700; font-size: .76rem;
-    text-transform: uppercase; letter-spacing: .04em;
-    border-bottom: 1px solid var(--zoo-border-strong, #3A424C);
-    position: sticky; top: 0; z-index: 1;
-  }
-  .tool-table td {
-    padding: 10px 12px;
-    color: var(--zoo-text, #e5e9e7);
-    border-bottom: 1px solid var(--zoo-border, #2A3038);
-    font-size: .85rem;
-  }
-  .tool-table tr:hover td { background: rgba(255,255,255,0.02); }
-  .tool-table tr.group-row td {
-    background: rgba(232,163,23,0.08) !important;
-    color: #E8A317 !important;
-    font-weight: 700; font-size: .76rem;
-    text-transform: uppercase; letter-spacing: .06em;
-  }
-  [data-theme="light"] .tool-table td { color: #1F2933; }
-  [data-theme="light"] .tool-table tr:hover td { background: rgba(0,0,0,0.03); }
-
   .tool-search-filter {
     margin-bottom: 14px;
     display: flex; gap: 10px; flex-wrap: wrap;
@@ -334,30 +249,6 @@
   [data-theme="light"] .tool-search-filter input {
     background: #fff; border: 1px solid #D8D2C4; color: #1F2933;
   }
-
-  /* Tabla scrollable con altura */
-  .tool-table-wrap {
-    max-height: 520px;
-    overflow-y: auto;
-    border: 1px solid var(--zoo-border, #2A3038);
-    border-radius: 10px;
-  }
-
-  /* Drug cards (dosis) */
-  .drug-badges {
-    display: flex; gap: 6px; flex-wrap: wrap;
-    margin-top: 8px;
-  }
-  .drug-badge {
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: .75rem;
-    font-weight: 700;
-    background: rgba(232,163,23,0.15);
-    color: #E8A317;
-  }
-  .drug-badge.via { background: rgba(42,164,213,0.15); color: #2AA4D5; }
-  .drug-badge.danger { background: rgba(213,90,40,0.2); color: #D55A28; }
 
   .tool-info-grid {
     display: grid;
@@ -429,71 +320,19 @@
   }
   .tool-disclaimer strong { color: #D55A28; }
 
-  /* Urgencias */
-  .urg-protocol {
-    background: rgba(213,90,40,0.06);
-    border-left: 4px solid #D55A28;
-    padding: 16px 18px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-  }
-  .urg-protocol__title {
-    color: #D55A28;
-    font-family: var(--zoo-font-display);
-    font-weight: 800;
-    font-size: 1rem;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-  }
-  .urg-steps {
-    list-style: none; padding: 0; margin: 0;
-    counter-reset: urg;
-  }
-  .urg-steps li {
-    counter-increment: urg;
-    padding: 8px 10px 8px 38px;
-    color: var(--zoo-text, #fff);
-    position: relative;
-    font-size: .9rem;
-    line-height: 1.55;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  .urg-steps li:last-child { border-bottom: 0; }
-  .urg-steps li::before {
-    content: counter(urg);
-    position: absolute; left: 8px; top: 8px;
-    width: 22px; height: 22px; border-radius: 50%;
-    background: var(--zoo-sem-orange, #C75402);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--zoo-font-display); font-weight: 800; font-size: .75rem;
-  }
-  .urg-steps li strong { color: #E8A317; }
-
   @media (max-width: 600px) {
     .tools-hero { padding: 20px; }
     .tools-hero h1 { font-size: 1.35rem; }
     .tool-panel { padding: 18px; }
     .tool-header__text h2 { font-size: 1.05rem; }
-    .tool-form { grid-template-columns: 1fr; }
   }
   .zi { width: 1.1em; height: 1.1em; vertical-align: -0.2em; flex: none; display: inline-block; }
   .zdot { display: inline-block; width: .7em; height: .7em; border-radius: 50%; vertical-align: .02em; }
   .tool-header__icon .zi { width: 28px; height: 28px; color: #E8A317; }
   .tool-tab .zi { width: 16px; height: 16px; }
   .tool-aviso-global { margin: 0 0 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(232,163,23,0.45); background: rgba(232,163,23,0.10); color: var(--zoo-text); font-size: .86rem; line-height: 1.5; }
-  .tool-field, .tool-field select, .tool-field input { min-width: 0; max-width: 100%; }
-  .tool-field select { text-overflow: ellipsis; }
-  .tool-form { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
-  .tool-result__fases { margin-top: 10px; display: grid; gap: 8px; }
-  .tool-result__aviso { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; border-left: 4px solid #E8A317; background: rgba(232,163,23,0.12); font-size: .86rem; }
-  .tool-ref { margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--zoo-border-strong, #3A424C); background: rgba(0,0,0,0.03); }
-  .tool-ref__cab { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin-bottom: 8px; color: var(--zoo-text); }
-  .tool-ref__via { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: rgba(232,163,23,0.16); color: #B27A06; }
   .tool-ref__fuente { margin-top: 8px; font-size: .78rem; color: var(--zoo-text-muted); }
-  .tool-ref__fuente a, .tool-subsection a { color: #1F7A4D; font-weight: 600; }
-  .tool-result__intro { margin: 0 0 4px; font-size: .84rem; color: var(--zoo-text-muted); }
+  .tool-ref__fuente a { color: #1F7A4D; font-weight: 600; }
   .const-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; margin-top: 14px; }
   .const-card { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--zoo-border-strong, #3A424C); background: var(--zoo-bg-card, #fff); }
   .const-card h3 { margin: 0 0 2px; font-family: var(--zoo-font-display); font-size: .95rem; color: var(--zoo-text); }
@@ -504,233 +343,36 @@
   .const-dato__nota { font-size: .75rem; color: #B27A06; }
   .const-dato a { font-size: .75rem; color: #1F7A4D; font-weight: 600; }
   .const-vacio { font-size: .82rem; color: var(--zoo-text-muted); font-style: italic; }
-  .const-dato__estado { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: .75rem; font-weight: 700; letter-spacing: .03em; text-transform: none; vertical-align: 1px; }
-  .const-dato__estado--verificado { background: rgba(31,122,77,.14); color: #1F7A4D; }
-  .const-dato__estado--estudio { background: rgba(178,122,6,.14); color: #8A5F05; }
-  .anes-variante { margin-top: 12px; }
-  .anes-fila { padding: 10px 12px; border-radius: 10px; background: rgba(0,0,0,0.04); margin-top: 8px; }
-  .anes-fila__cab { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-  .anes-fila__conc { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: .8rem; color: var(--zoo-text-muted); }
-  .anes-fila__conc input { width: 110px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--zoo-border-strong, #ccc); background: #fff; color: #1F2933; }
-  .gas-tabla { width: 100%; border-collapse: collapse; font-size: .84rem; margin-top: 6px; }
-  .gas-tabla th, .gas-tabla td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--zoo-border, rgba(0,0,0,.1)); }
   /* Vista previa para quien no es miembro: nombres visibles, detalle difuminado con marcadores */
   .const-card__campos { margin: 0 0 8px; font-size: .78rem; line-height: 1.5; color: var(--zoo-text-muted); }
   .const-card .pw-vista { min-height: 168px; }
   .tool-result .tool-paywall { margin: 0; }
-  .tool-subsection .pw-vista { min-height: 168px; margin-top: 8px; }
-  .gas-tabla--previa td .pw-barra { margin: 3px 0; }
   .pw-aviso a { color: inherit; font-weight: 700; text-decoration: underline; }
 </style>
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261110-aviso">
 </head>
 <body data-zoo="herramientas">
 <div class="club-layout">
-  <aside class="club-sidebar" id="sidebar" data-zs-estatico><button class="club-sidebar__close" id="sidebarCloseBtn" aria-label="Cerrar menú"><svg class="zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><div class="club-sidebar__brand"><img src="../assets/img/logo/logo-96.webp" alt="Zoorigen" width="44" height="44"><div class="club-sidebar__brand-text"><h3>Zoorigen</h3><small><span class="zs-pv zs-pv--vip">Club VIP</span><span class="zs-pv zs-pv--libre">Acceso gratuito</span></small></div></div><div class="club-sidebar__section">Principal</div><a href="club-dashboard.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/></svg></span>Inicio</a><a href="club-biblioteca.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6v13"/><path d="M12 6v13"/><path d="M21 6v13"/></svg></span>Cursos</a><a href="club-retos.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span>Retos<span class="badge badge--nuevo">Nuevo</span></a><a href="club-logros.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1 -10 0z"/><path d="M17 4h4v2a3 3 0 0 1 -3 3h-1"/><path d="M7 4h-4v2a3 3 0 0 0 3 3h1"/></svg></span>Mis logros</a><a href="club-certificados.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="15" cy="15" r="3"/><path d="M13 17.5v4.5l2 -1.5l2 1.5v-4.5"/><path d="M10 19h-5a2 2 0 0 1 -2 -2v-10c0 -1.1 .9 -2 2 -2h14a2 2 0 0 1 2 2v6"/><path d="M6 9h12"/></svg></span>Mis certificados</a><a href="club-referidos.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M3 8m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z"/><path d="M12 8l0 13"/><path d="M19 12v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0 -5c1.5 0 3 1.5 4.5 5c1.5 -3.5 3 -5 4.5 -5a2.5 2.5 0 0 1 0 5"/></svg></span>Invitar amigos</a><div class="club-sidebar__section">Material</div><a href="club-pdfs.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 9l1 0"/><path d="M9 13l6 0"/><path d="M9 17l6 0"/></svg></span>PDFs y materiales</a><a href="club-videos.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z"/></svg></span>Videos</a><a href="club-sesiones.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="12" r="1"/><path d="M16.243 16.243a6 6 0 1 0 -8.486 0"/><path d="M19.071 19.071a10 10 0 1 0 -14.142 0"/></svg></span>Webinars en vivo<span class="badge badge--pronto">Pronto</span></a><div class="club-sidebar__section">Herramientas pro</div><a href="club-herramientas.html" class=" is-active"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M9 3l6 0"/><path d="M10 3v5.5a3.5 3.5 0 0 1 -.5 1.8l-3.5 5.8a3.5 3.5 0 0 0 3 5.4h6a3.5 3.5 0 0 0 3 -5.4l-3.5 -5.8a3.5 3.5 0 0 1 -.5 -1.8v-5.5"/><path d="M6 14l12 0"/></svg></span>Herramientas clínicas</a><a href="club-infusiones.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M9 3l6 0"/><path d="M10 3v5.5a3.5 3.5 0 0 1 -.5 1.8l-3.5 5.8a3.5 3.5 0 0 0 3 5.4h6a3.5 3.5 0 0 0 3 -5.4l-3.5 -5.8a3.5 3.5 0 0 1 -.5 -1.8v-5.5"/><path d="M6 14l12 0"/></svg></span>Infusiones y diluciones</a><a href="club-inventario.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 9l1 0"/><path d="M9 13l6 0"/><path d="M9 17l6 0"/></svg></span>Libro de registro</a><a href="club-legal.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M12 3v18"/><path d="M9 21h6"/><path d="M5 6h14"/><path d="M5 6l-2 6a3 3 0 0 0 6 0l-2 -6"/><path d="M19 6l-2 6a3 3 0 0 0 6 0l-2 -6"/></svg></span>Herramientas legales</a><div class="club-sidebar__section">Comunidad</div><a href="club-foro.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M21 14l-3 -3h-7a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1h9a1 1 0 0 1 1 1v10"/><path d="M14 15v2a1 1 0 0 1 -1 1h-7l-3 3v-10a1 1 0 0 1 1 -1h2"/></svg></span>Foro VIP</a><a href="club-directorio.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg></span>Directorio VIP</a><a href="club-canal.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9"/><path d="M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1"/></svg></span>Canal de WhatsApp</a><div class="club-sidebar__section">Mi cuenta</div><a href="club-perfil.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg></span>Mi perfil</a><a href="club-suscripcion.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/></svg></span>Suscripción</a><a href="#instalar" class=" zs-instalar" data-instalar="1"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></svg></span>Instalar app</a><div class="club-sidebar__plan zs-plan-esq" style="padding:10px 12px;text-align:center;"><div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:4px;"><span class="zs-plan-punto" style="width:7px;height:7px;border-radius:50%;"></span><span class="plan-label" style="margin:0;font-size:.75rem;letter-spacing:.06em;"><span class="zs-pv zs-pv--active">MEMBRESÍA ACTIVA</span><span class="zs-pv zs-pv--cancelled_active">ACCESO VIGENTE</span><span class="zs-pv zs-pv--past_due">PAGO NO CONFIRMADO</span><span class="zs-pv zs-pv--expired">MEMBRESÍA VENCIDA</span><span class="zs-pv zs-pv--free">CUENTA GRATUITA</span></span></div><div class="plan-meta" style="font-size:.75rem;margin-bottom:8px;opacity:.75;">&nbsp;</div><a href="club-suscripcion.html" class="zs-pv zs-pv--boton" style="font-size:.78rem;background:rgba(232,163,23,0.12);border:1px solid rgba(232,163,23,0.4);color:var(--zoo-amber,#E8A317);padding:7px 10px;border-radius:8px;margin-bottom:8px;font-weight:700;text-decoration:none;">Activar membresía</a><a href="#" class="plan-logout" style="display:inline-block;font-size:.8rem;" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a></div></aside>
+  <aside class="club-sidebar" id="sidebar" data-zs-estatico><button class="club-sidebar__close" id="sidebarCloseBtn" aria-label="Cerrar menú"><svg class="zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><div class="club-sidebar__brand"><img src="../assets/img/logo/logo-96.webp" alt="Zoorigen" width="44" height="44"><div class="club-sidebar__brand-text"><h3>Zoorigen</h3><small><span class="zs-pv zs-pv--vip">Club VIP</span><span class="zs-pv zs-pv--libre">Acceso gratuito</span></small></div></div><div class="club-sidebar__section">Principal</div><a href="club-dashboard.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/></svg></span>Inicio</a><a href="club-biblioteca.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6v13"/><path d="M12 6v13"/><path d="M21 6v13"/></svg></span>Cursos</a><a href="club-retos.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span>Retos<span class="badge badge--nuevo">Nuevo</span></a><a href="club-logros.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1 -10 0z"/><path d="M17 4h4v2a3 3 0 0 1 -3 3h-1"/><path d="M7 4h-4v2a3 3 0 0 0 3 3h1"/></svg></span>Mis logros</a><a href="club-certificados.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="15" cy="15" r="3"/><path d="M13 17.5v4.5l2 -1.5l2 1.5v-4.5"/><path d="M10 19h-5a2 2 0 0 1 -2 -2v-10c0 -1.1 .9 -2 2 -2h14a2 2 0 0 1 2 2v6"/><path d="M6 9h12"/></svg></span>Mis certificados</a><a href="club-referidos.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M3 8m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z"/><path d="M12 8l0 13"/><path d="M19 12v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0 -5c1.5 0 3 1.5 4.5 5c1.5 -3.5 3 -5 4.5 -5a2.5 2.5 0 0 1 0 5"/></svg></span>Invitar amigos</a><div class="club-sidebar__section">Material</div><a href="club-pdfs.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 9l1 0"/><path d="M9 13l6 0"/><path d="M9 17l6 0"/></svg></span>PDFs y materiales</a><a href="club-videos.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z"/></svg></span>Videos</a><a href="club-sesiones.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="12" r="1"/><path d="M16.243 16.243a6 6 0 1 0 -8.486 0"/><path d="M19.071 19.071a10 10 0 1 0 -14.142 0"/></svg></span>Webinars en vivo<span class="badge badge--pronto">Pronto</span></a><div class="club-sidebar__section">Herramientas pro</div><a href="club-herramientas.html" class=" is-active"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M9 3l6 0"/><path d="M10 3v5.5a3.5 3.5 0 0 1 -.5 1.8l-3.5 5.8a3.5 3.5 0 0 0 3 5.4h6a3.5 3.5 0 0 0 3 -5.4l-3.5 -5.8a3.5 3.5 0 0 1 -.5 -1.8v-5.5"/><path d="M6 14l12 0"/></svg></span>Referencia clínica</a><a href="club-infusiones.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M9 3l6 0"/><path d="M10 3v5.5a3.5 3.5 0 0 1 -.5 1.8l-3.5 5.8a3.5 3.5 0 0 0 3 5.4h6a3.5 3.5 0 0 0 3 -5.4l-3.5 -5.8a3.5 3.5 0 0 1 -.5 -1.8v-5.5"/><path d="M6 14l12 0"/></svg></span>Infusiones y diluciones</a><a href="club-inventario.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 9l1 0"/><path d="M9 13l6 0"/><path d="M9 17l6 0"/></svg></span>Libro de registro</a><a href="club-legal.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M12 3v18"/><path d="M9 21h6"/><path d="M5 6h14"/><path d="M5 6l-2 6a3 3 0 0 0 6 0l-2 -6"/><path d="M19 6l-2 6a3 3 0 0 0 6 0l-2 -6"/></svg></span>Herramientas legales</a><div class="club-sidebar__section">Comunidad</div><a href="club-foro.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M21 14l-3 -3h-7a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1h9a1 1 0 0 1 1 1v10"/><path d="M14 15v2a1 1 0 0 1 -1 1h-7l-3 3v-10a1 1 0 0 1 1 -1h2"/></svg></span>Foro VIP</a><a href="club-directorio.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg></span>Directorio VIP</a><a href="club-canal.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9"/><path d="M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1"/></svg></span>Canal de WhatsApp</a><div class="club-sidebar__section">Mi cuenta</div><a href="club-perfil.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg></span>Mi perfil</a><a href="club-suscripcion.html" class=""><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/></svg></span>Suscripción</a><a href="#instalar" class=" zs-instalar" data-instalar="1"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></svg></span>Instalar app</a><div class="club-sidebar__plan zs-plan-esq" style="padding:10px 12px;text-align:center;"><div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:4px;"><span class="zs-plan-punto" style="width:7px;height:7px;border-radius:50%;"></span><span class="plan-label" style="margin:0;font-size:.75rem;letter-spacing:.06em;"><span class="zs-pv zs-pv--active">MEMBRESÍA ACTIVA</span><span class="zs-pv zs-pv--cancelled_active">ACCESO VIGENTE</span><span class="zs-pv zs-pv--past_due">PAGO NO CONFIRMADO</span><span class="zs-pv zs-pv--expired">MEMBRESÍA VENCIDA</span><span class="zs-pv zs-pv--free">CUENTA GRATUITA</span></span></div><div class="plan-meta" style="font-size:.75rem;margin-bottom:8px;opacity:.75;">&nbsp;</div><a href="club-suscripcion.html" class="zs-pv zs-pv--boton" style="font-size:.78rem;background:rgba(232,163,23,0.12);border:1px solid rgba(232,163,23,0.4);color:var(--zoo-amber,#E8A317);padding:7px 10px;border-radius:8px;margin-bottom:8px;font-weight:700;text-decoration:none;">Activar membresía</a><a href="#" class="plan-logout" style="display:inline-block;font-size:.8rem;" onclick="ZOORIGEN_CLUB.logout(); return false;">Cerrar sesión</a></div></aside>
   <main class="club-main">
       <header class="zs-topbar" id="zsTopbar"><span class="zs-quien"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg><span class="zs-quien__n"></span></span><div class="zs-search" id="zsSearch" role="search"><span class="zs-search__ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35 -4.35"/></svg></span><input type="search" id="zsSearchInput" placeholder="Buscar cursos o secciones…" autocomplete="off" aria-label="Buscar"><div class="zs-results" id="zsResults" hidden></div></div><div class="zs-actions"><button type="button" class="zs-btn zs-help" id="zsHelp" title="Ver guía de bienvenida" aria-label="Ver guía de bienvenida"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2 -3 3 -3 3"/><path d="M12 17l0 .01"/></svg></button><button type="button" class="zs-btn notif-icon zs-bell" id="notifBtn" title="Notificaciones" aria-label="Notificaciones"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg><span class="notif-badge" id="notifBadge" style="display:none;">0</span></button><button type="button" class="zs-btn zs-theme" id="zsTheme" data-dual="1" title="Cambiar entre modo día y noche" aria-label="Cambiar entre modo día y noche"><span class="zs-theme__v zs-theme__luna"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg><span class="zs-theme__txt">Noche</span></span><span class="zs-theme__v zs-theme__sol"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="12" r="4"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg><span class="zs-theme__txt">Día</span></span></button><a class="zs-avatar" id="zsAvatar" href="club-perfil.html" title="Tu espacio: perfil, plan y accesos" aria-label="Mi perfil y mi cuenta" aria-haspopup="dialog" aria-expanded="false"><span class="zs-avatar__circle"></span><span class="zs-avatar__name"></span></a><button type="button" class="zs-btn zs-salir" id="zsSalir" title="Cerrar sesión" aria-label="Cerrar sesión"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M9 12h12l-3 -3"/><path d="M18 15l3 -3"/></svg></button></div></header>
       <div class="zs-aviso-reserva" id="zsAvisoReserva" aria-hidden="true"></div>
 
     <button class="mobile-menu-btn" id="mobileMenuBtn" style="margin-bottom:12px;" aria-label="Menú"><svg class="zi" aria-hidden="true"><use href="#zi-menu"/></svg></button>
 
-    <div id="zsSeccion"><header class="zs-seccion zs-seccion--deco zs-seccion--con-personaje" id="zsSeccionHerramientas" data-seccion="herramientas" data-anim="balanceo" data-deco="parpadea" data-acento="oro" data-zs-firma="18nzh40"><div class="zs-deco" aria-hidden="true"><span class="zs-deco__i zs-deco__i--1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg></span><span class="zs-deco__i zs-deco__i--2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg></span><span class="zs-deco__i zs-deco__i--3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg></span><span class="zs-deco__i zs-deco__i--4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg></span><span class="zs-deco__i zs-deco__i--5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg></span><span class="zs-deco__i zs-deco__i--6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span><span class="zs-deco__i zs-deco__i--7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg></span><span class="zs-deco__i zs-deco__i--8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg></span></div><div class="zs-personaje" aria-hidden="true" data-personaje="seccion-herramientas"><span class="zs-personaje__halo"></span><img class="zs-personaje__img" src="../assets/img/guia/secciones/seccion-herramientas.webp" alt="" width="240" height="240" loading="eager" fetchpriority="high" decoding="async"><div class="zs-burbuja" aria-hidden="true"><span class="zs-burbuja__txt">Cada dato trae el enlace a su fuente.</span></div></div><div class="zs-seccion__cuerpo"><div class="zs-seccion__texto"><span class="zs-seccion__pildora"><svg class="zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 16 1.5 1.5"/><path d="m14 8-1.5-1.5"/><path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/><path d="m16.5 10.5 1 1"/><path d="m17 6-2.891-2.891"/><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="m20 9 .891.891"/><path d="M3.109 14.109 4 15"/><path d="m6.5 12.5 1 1"/><path d="m7 18 2.891 2.891"/><path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/></svg><span>Herramienta profesional</span></span><h1 class="zs-seccion__titulo">Clínica y farmacología <span class="zs-acento">de fauna silvestre.</span></h1><p class="zs-seccion__sub">Referencia para médicos veterinarios zoológicos y biólogos de campo. Cada dosis, protocolo y dato trae el enlace a la fuente abierta de donde se tomó (Manual Veterinario Merck, guías AAHA y RECOVER, FDA, artículos de PubMed). Lo que no se pudo verificar no aparece.</p></div></div><div class="zs-seccion__cifras" role="list"><div class="zs-cifra" role="listitem"><strong class="zs-cifra__v" id="statFarmacos" data-cifra="statFarmacos">40+</strong><span class="zs-cifra__r">fármacos</span></div><div class="zs-cifra" role="listitem"><strong class="zs-cifra__v" id="statProtocolos" data-cifra="statProtocolos">6</strong><span class="zs-cifra__r">protocolos anestésicos</span></div><div class="zs-cifra" role="listitem"><strong class="zs-cifra__v" id="statEspecies" data-cifra="statEspecies">60+</strong><span class="zs-cifra__r">especies</span></div><div class="zs-cifra" role="listitem"><strong class="zs-cifra__v" data-cifra="">8</strong><span class="zs-cifra__r">protocolos de urgencia</span></div></div></header></div>
+    <div id="zsSeccion"><header class="zs-seccion zs-seccion--deco zs-seccion--con-personaje" id="zsSeccionHerramientas" data-seccion="herramientas" data-anim="balanceo" data-deco="parpadea" data-acento="oro" data-zs-firma="9u7ckl"><div class="zs-deco" aria-hidden="true"><span class="zs-deco__i zs-deco__i--1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg></span><span class="zs-deco__i zs-deco__i--2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg></span><span class="zs-deco__i zs-deco__i--3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span><span class="zs-deco__i zs-deco__i--4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg></span><span class="zs-deco__i zs-deco__i--5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span><span class="zs-deco__i zs-deco__i--6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></span><span class="zs-deco__i zs-deco__i--7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg></span><span class="zs-deco__i zs-deco__i--8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg></span></div><div class="zs-personaje" aria-hidden="true" data-personaje="seccion-herramientas"><span class="zs-personaje__halo"></span><img class="zs-personaje__img" src="../assets/img/guia/secciones/seccion-herramientas.webp" alt="" width="240" height="240" loading="eager" fetchpriority="high" decoding="async"><div class="zs-burbuja" aria-hidden="true"><span class="zs-burbuja__txt">Cada dato trae el enlace a su fuente.</span></div></div><div class="zs-seccion__cuerpo"><div class="zs-seccion__texto"><span class="zs-seccion__pildora"><svg class="zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 16 1.5 1.5"/><path d="m14 8-1.5-1.5"/><path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/><path d="m16.5 10.5 1 1"/><path d="m17 6-2.891-2.891"/><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="m20 9 .891.891"/><path d="M3.109 14.109 4 15"/><path d="m6.5 12.5 1 1"/><path d="m7 18 2.891 2.891"/><path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/></svg><span>Herramienta profesional</span></span><h1 class="zs-seccion__titulo">Referencia clínica <span class="zs-acento">de consulta rápida.</span></h1><p class="zs-seccion__sub">Valores de referencia de fauna silvestre y una equivalencia de condición corporal, cada uno con el enlace a la fuente abierta de donde se tomó. Lo que no se pudo verificar no aparece. No sustituye el criterio del médico veterinario.</p></div></div><div class="zs-seccion__cifras" role="list"><div class="zs-cifra" role="listitem"><strong class="zs-cifra__v" id="statEspecies" data-cifra="statEspecies">50</strong><span class="zs-cifra__r">especies con constantes</span></div><div class="zs-cifra" role="listitem"><strong class="zs-cifra__v" id="statDatos" data-cifra="statDatos">119</strong><span class="zs-cifra__r">datos con fuente</span></div><div class="zs-cifra" role="listitem"><strong class="zs-cifra__v" data-cifra="">1</strong><span class="zs-cifra__r">escala BCS de 9 puntos</span></div></div></header></div>
 
     <div class="tool-aviso-global" role="note">
-      <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Material de referencia para profesionales.</strong> Las dosis, rangos y protocolos provienen de literatura especializada y <strong>no sustituyen el criterio del médico veterinario responsable</strong> ni las indicaciones del fabricante. Verifica siempre el fármaco, la dosis y la especie antes de aplicar. Contenido en revisión por un especialista (octubre 2026).
+      <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Material de referencia para profesionales.</strong> Los valores provienen de literatura especializada, cada uno con el enlace a su fuente, y <strong>no sustituyen el criterio del médico veterinario responsable</strong>. Contenido en revisión por un especialista (octubre 2026).
     </div>
 
     <div class="tools-tabs" id="toolsTabs">
-      <button class="tool-tab is-active" data-tab="dosis"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> Dosis</button>
-      <button class="tool-tab" data-tab="anestesia"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> Anestesia</button>
-      <button class="tool-tab" data-tab="fluidos"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> Fluidoterapia</button>
-      <button class="tool-tab" data-tab="constantes"><svg class="zi" aria-hidden="true"><use href="#zi-thermometer"/></svg> Constantes</button>
-      <button class="tool-tab" data-tab="hemograma"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg> Hemograma</button>
+      <button class="tool-tab is-active" data-tab="constantes"><svg class="zi" aria-hidden="true"><use href="#zi-thermometer"/></svg> Constantes</button>
       <button class="tool-tab" data-tab="bcs"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg> BCS</button>
-      <button class="tool-tab" data-tab="urgencias"><svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg> Urgencias</button>
     </div>
 
-    <!-- 1. DOSIS -->
-    <div class="tool-panel is-active" id="panel-dosis">
-      <div class="tool-header">
-        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg></div>
-        <div class="tool-header__text">
-          <h2>Calculadora de dosis farmacológicas</h2>
-          <p><span id="descFarmacos">38</span> fármacos · <span id="descReferencias">0</span> rangos con fuente · 9 categorías · Precauciones con fuente</p>
-        </div>
-        <div class="tool-header__count" id="doseCount">—</div>
-      </div>
-
-      <div class="tool-form">
-        <div class="tool-field">
-          <label>Categoría</label>
-          <select id="doseCategory" onchange="actualizarDrogas()">
-            <option value="all">Todas las categorías</option>
-            <option value="anestesico">Anestésicos disociativos</option>
-            <option value="sedante">Sedantes/tranquilizantes</option>
-            <option value="analgesico">Analgésicos opioides</option>
-            <option value="aine">AINEs (anti-inflamatorios)</option>
-            <option value="antibiotico">Antibióticos</option>
-            <option value="antiparasitario">Antiparasitarios</option>
-            <option value="corticoide">Corticoides</option>
-            <option value="emergencia">Drogas de emergencia</option>
-            <option value="reversor">Antagonistas/reversores</option>
-          </select>
-        </div>
-        <div class="tool-field">
-          <label>Medicamento</label>
-          <select id="doseDrug"></select>
-        </div>
-        <div class="tool-field">
-          <label>Peso del paciente (kg)</label>
-          <input type="text" inputmode="decimal" autocomplete="off" id="dosePeso" placeholder="12.5">
-        </div>
-        <div class="tool-field">
-          <label>Concentración (mg/ml)</label>
-          <input type="text" inputmode="decimal" autocomplete="off" id="doseConc" placeholder="100">
-        </div>
-        <div class="tool-field">
-          <label>Grupo de especie</label>
-          <select id="doseEspecie">
-            <option value="mamifero">Mamífero</option>
-            <option value="ave">Ave</option>
-            <option value="reptil">Reptil</option>
-            <option value="pediatrico">Pediátrico / geriátrico</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularDosis()"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> Calcular dosis</button>
-        <button class="tool-btn-reset" onclick="resetearForm('dosis')">Limpiar</button>
-      </div>
-
-      <div class="tool-result" id="doseResult"></div>
-
-      <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Uso profesional:</strong> Rangos basados en literatura veterinaria especializada. La dosificación real debe ajustarse al estado del paciente, comorbilidades, función renal/hepática y respuesta clínica. NO sustituye juicio profesional ni farmacovigilancia. Los rangos en aves y reptiles son aproximaciones por grupos taxonómicos; especies específicas pueden requerir ajustes mayores.
-      </div>
-    </div>
-
-    <!-- 2. ANESTESIA -->
-    <div class="tool-panel" id="panel-anestesia">
-      <div class="tool-header">
-        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg></div>
-        <div class="tool-header__text">
-          <h2>Protocolos anestésicos con fuente</h2>
-          <p>Dosis publicadas por especie · Reversión · Anestesia inhalada</p>
-        </div>
-        <div class="tool-header__count" id="countProto">6 protocolos</div>
-      </div>
-
-      <div class="tool-form">
-        <div class="tool-field">
-          <label>Protocolo</label>
-          <select id="anesProto" onchange="actualizarVariantes()"></select>
-        </div>
-        <div class="tool-field">
-          <label>Especie o variante publicada</label>
-          <select id="anesVariante"></select>
-        </div>
-        <div class="tool-field">
-          <label>Peso (kg)</label>
-          <input type="text" inputmode="decimal" autocomplete="off" id="anesPeso" placeholder="25">
-        </div>
-      </div>
-      <p class="tool-result__intro" id="anesResumen"></p>
-
-      <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularAnestesia()"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> Calcular dosis</button>
-        <button class="tool-btn-reset" onclick="resetearForm('anestesia')">Limpiar</button>
-      </div>
-
-      <div class="tool-result" id="anesResult"></div>
-
-      <div class="tool-subsection" id="anesGases"></div>
-
-      <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Seguridad anestésica:</strong> verifica antes oxígeno disponible, antagonistas calculados, acceso venoso y monitoreo. Las dosis son las publicadas para esa especie y esa combinación: no se extrapolan a otras especies. Escribe la concentración real de tu frasco para ver el volumen.
-      </div>
-    </div>
-
-    <!-- 3. FLUIDOTERAPIA -->
-    <div class="tool-panel" id="panel-fluidos">
-      <div class="tool-header">
-        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg></div>
-        <div class="tool-header__text">
-          <h2>Fluidoterapia</h2>
-          <p>Guías AAHA 2024 (perro y gato) · Aves · Reptiles · Velocidad en ml/h y gotas por minuto</p>
-        </div>
-      </div>
-
-      <div class="tool-form">
-        <div class="tool-field">
-          <label>Especie</label>
-          <select id="fluidsGroup">
-            <option value="perro">Perro</option>
-            <option value="gato">Gato</option>
-            <option value="aves">Aves</option>
-            <option value="reptiles">Reptiles</option>
-          </select>
-        </div>
-        <div class="tool-field">
-          <label>Peso (kg)</label>
-          <input type="text" inputmode="decimal" autocomplete="off" id="fluidsPeso" placeholder="5">
-        </div>
-        <div class="tool-field">
-          <label>Situación</label>
-          <select id="fluidsTipo">
-            <option value="normal">Mantenimiento</option>
-            <option value="desh">Deshidratación</option>
-            <option value="shock">Shock hipovolémico</option>
-            <option value="cirugia">Cirugía (intraoperatorio)</option>
-            <option value="quemado">Quemaduras (fórmula de Parkland)</option>
-            <option value="gastro">Vómito o diarrea activa</option>
-          </select>
-        </div>
-        <div class="tool-field" id="fluidsDeshWrap" style="display:none;">
-          <label>% de deshidratación</label>
-          <select id="fluidsDesh">
-            <option value="5">5 %</option>
-            <option value="6">6 %</option>
-            <option value="7">7 %</option>
-            <option value="8">8 %</option>
-            <option value="10" selected>10 %</option>
-            <option value="12">12 %</option>
-          </select>
-        </div>
-        <div class="tool-field" id="fluidsQuemWrap" style="display:none;">
-          <label>% de superficie quemada</label>
-          <input type="text" inputmode="decimal" autocomplete="off" id="fluidsQuem" placeholder="20">
-        </div>
-        <div class="tool-field">
-          <label>Pérdidas extra (ml/día)</label>
-          <input type="text" inputmode="decimal" autocomplete="off" id="fluidsPerd" value="0" placeholder="0">
-        </div>
-        <div class="tool-field">
-          <label>Equipo de goteo</label>
-          <select id="fluidsEquipo">
-            <option value="20">Normal (20 gtt/ml)</option>
-            <option value="60">Microgotero (60 gtt/ml)</option>
-            <option value="15">Macrogotero (15 gtt/ml)</option>
-            <option value="10">Macrogotero (10 gtt/ml)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="calcularFluidos()"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> Calcular plan de fluidos</button>
-        <button class="tool-btn-reset" onclick="resetearForm('fluidos')">Limpiar</button>
-      </div>
-
-      <div class="tool-result" id="fluidsResult"></div>
-
-      <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Alcance:</strong> las cifras de perro y gato son las de las guías AAHA 2024 de fluidoterapia; en aves y reptiles son de memorias de medicina de exóticos y del Manual Merck. Donde no hay un valor verificado (por ejemplo, el bolo de shock en reptiles) la herramienta no calcula nada. El tipo de fluido y los electrolitos los decide el médico según el caso.
-      </div>
-    </div>
-
-    <!-- 4. CONSTANTES -->
-    <div class="tool-panel" id="panel-constantes">
+    <!-- 1. CONSTANTES -->
+    <div class="tool-panel is-active" id="panel-constantes">
       <div class="tool-header">
         <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-thermometer"/></svg></div>
         <div class="tool-header__text">
@@ -755,30 +397,7 @@
       </div>
     </div>
 
-    <!-- 5. HEMOGRAMA (solo valores con fuente enlazada) -->
-    <div class="tool-panel" id="panel-hemograma">
-      <div class="tool-header">
-        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-flask-conical"/></svg></div>
-        <div class="tool-header__text">
-          <h2>Valores hematológicos y bioquímicos</h2>
-          <p>Hematocrito · Hemoglobina · Leucocitos · Proteínas · Glucosa · Creatinina</p>
-        </div>
-        <div class="tool-header__count" id="countHemo">—</div>
-      </div>
-
-      <div class="tool-search-filter">
-        <input type="text" id="hemoFilter" placeholder="Buscar por especie o grupo..." oninput="filtrarHemograma()">
-      </div>
-
-      <div class="const-grid" id="hemoGrid"></div>
-      <p class="const-vacio" id="hemoSinDato"></p>
-
-      <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Cómo leerlo:</strong> «Verificado» significa que el valor coincide con la referencia publicada en un manual. «Estudio» es lo que midió un trabajo concreto, casi siempre con pocos animales y en un solo lugar: sirve de orientación, no como rango universal de la especie. El estrés del manejo eleva leucocitos y glucosa. Para interpretar un resultado usa el rango de tu laboratorio y la valoración de un veterinario.
-      </div>
-    </div>
-
-    <!-- 6. BCS -->
+    <!-- 2. BCS -->
     <div class="tool-panel" id="panel-bcs">
       <div class="tool-header">
         <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-ruler"/></svg></div>
@@ -813,57 +432,6 @@
       </div>
     </div>
 
-    <!-- 7. URGENCIAS -->
-    <div class="tool-panel" id="panel-urgencias">
-      <div class="tool-header">
-        <div class="tool-header__icon"><svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg></div>
-        <div class="tool-header__text">
-          <h2>Protocolos de urgencia</h2>
-          <p>RCP · Shock · Convulsiones · Envenenamiento · Hipotermia · Anafilaxia · con fuentes citadas</p>
-        </div>
-        <div class="tool-header__count">8 protocolos</div>
-      </div>
-
-      <div class="tool-form">
-        <div class="tool-field" style="grid-column: 1/-1;">
-          <label>Seleccionar emergencia</label>
-          <select id="urgSelect">
-            <option value="rcp">Paro cardiorrespiratorio (RCP)</option>
-            <option value="shock">Shock (hipovolémico/séptico)</option>
-            <option value="convulsion">Convulsiones / Status epilepticus</option>
-            <option value="hipotermia">Hipotermia severa</option>
-            <option value="hipertermia">Hipertermia / Golpe de calor</option>
-            <option value="anafilaxia">Anafilaxia</option>
-            <option value="envenenamiento">Envenenamiento (general)</option>
-            <option value="hemorragia">Hemorragia masiva</option>
-          </select>
-        </div>
-        <div class="tool-field">
-          <label>Especie</label>
-          <select id="urgGrupo">
-            <option value="perro">Perro</option>
-            <option value="gato">Gato</option>
-            <option value="aves">Aves</option>
-            <option value="reptiles">Reptiles</option>
-          </select>
-        </div>
-        <div class="tool-field">
-          <label>Peso (kg) — para dosis</label>
-          <input type="text" inputmode="decimal" autocomplete="off" id="urgPeso" placeholder="10">
-        </div>
-      </div>
-
-      <div class="tool-actions">
-        <button class="tool-btn-calc" onclick="mostrarUrgencia()"><svg class="zi" aria-hidden="true"><use href="#zi-siren"/></svg> Mostrar protocolo</button>
-      </div>
-
-      <div class="tool-result" id="urgResult"></div>
-
-      <div class="tool-disclaimer">
-        <strong><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> CRÍTICO:</strong> En emergencia real, actuar con base en ABC (Vía aérea · Respiración · Circulación). Las dosis son referenciales — ajustar a protocolos institucionales. Preparar kit de emergencia con antagonistas, epinefrina, atropina, diazepam y fluidos antes de cualquier procedimiento anestésico.
-      </div>
-    </div>
-
   </main>
 </div>
   <!-- zs:flotantes -->
@@ -876,25 +444,22 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/club-seccion.js?v=20261109-cromo"></script>
+  <script src="../assets/js/club-seccion.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
-  <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionHerramientas","seccion":"herramientas","icono":"dna","eyebrow":"Herramienta profesional","titulo":"Clínica y farmacología","acento":"de fauna silvestre.","sub":"Referencia para médicos veterinarios zoológicos y biólogos de campo. Cada dosis, protocolo y dato trae el enlace a la fuente abierta de donde se tomó (Manual Veterinario Merck, guías AAHA y RECOVER, FDA, artículos de PubMed). Lo que no se pudo verificar no aparece.","cifras":[{"id":"statFarmacos","valor":"40+","rotulo":"fármacos"},{"id":"statProtocolos","valor":"6","rotulo":"protocolos anestésicos"},{"id":"statEspecies","valor":"60+","rotulo":"especies"},{"valor":"8","rotulo":"protocolos de urgencia"}]});</script>
-  <script src="../assets/js/club.js?v=20261110-aviso"></script>
-  <script src="../assets/js/club-shell.js?v=20261116-tamanos"></script>
-  <script src="../assets/js/club-paywall.js?v=20261104"></script>
+  <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionHerramientas","seccion":"herramientas","icono":"dna","eyebrow":"Herramienta profesional","titulo":"Referencia clínica","acento":"de consulta rápida.","sub":"Valores de referencia de fauna silvestre y una equivalencia de condición corporal, cada uno con el enlace a la fuente abierta de donde se tomó. Lo que no se pudo verificar no aparece. No sustituye el criterio del médico veterinario.","cifras":[{"id":"statEspecies","valor":"50","rotulo":"especies con constantes"},{"id":"statDatos","valor":"119","rotulo":"datos con fuente"},{"valor":"1","rotulo":"escala BCS de 9 puntos"}]});</script>
+  <script src="../assets/js/club.js?v=20261124-referencia"></script>
+  <script src="../assets/js/club-shell.js?v=20261124-referencia"></script>
+  <script src="../assets/js/club-paywall.js?v=20261124-referencia"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/herramientas-dosis.js?v=20261104"></script>
-  <script src="../assets/js/herramientas-protocolos.js?v=20261104"></script>
   <script src="../assets/js/herramientas-constantes.js?v=20261104"></script>
-  <script src="../assets/js/herramientas-hemograma.js?v=20261104"></script>
-  <script src="../assets/js/herramientas-calculos.js?v=20261104"></script>
+  <script src="../assets/js/herramientas-calculos.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
 <script>
 (async () => {
   const session = await ZOORIGEN_CLUB.requireAuth();
   if (!session) return;
 
-  // Vista previa: quien no es miembro VE todas las herramientas y puede llenarlas,
+  // Vista previa: quien no es miembro VE las dos herramientas (Constantes y BCS) y puede recorrerlas,
   // pero al calcular o abrir un detalle se le pide la membresía (ZOO_PAYWALL.requiereMembresia).
   // Para miembros y administradores todo funciona igual que siempre.
   const esMiembro = ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
@@ -907,21 +472,31 @@
       '<strong>Vista previa:</strong> puedes recorrer y llenar las herramientas; para calcular y ver resultados necesitas una membresía activa. <a href="club-suscripcion.html">Ver planes</a>'));
   }
 
+  // Pestañas válidas. Los enlaces antiguos a pestañas retiradas y cualquier otro valor de ?tab= abren
+  // Constantes y dejan la dirección corregida.
+  const PESTANAS = ['constantes', 'bcs'];
+  function activarPestana(nombre) {
+    document.querySelectorAll('.tool-tab').forEach(t => t.classList.toggle('is-active', t.dataset.tab === nombre));
+    document.querySelectorAll('.tool-panel').forEach(p => p.classList.toggle('is-active', p.id === 'panel-' + nombre));
+  }
+  function ponerPestanaEnDireccion(nombre) {
+    try {
+      const u = new URL(location.href);
+      u.searchParams.set('tab', nombre);
+      history.replaceState(null, '', u.pathname + u.search + u.hash);
+    } catch (e) { /* sin historial: la pestaña activa sigue funcionando */ }
+  }
   document.querySelectorAll('.tool-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('is-active'));
-      document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('is-active'));
-      tab.classList.add('is-active');
-      document.getElementById('panel-' + tab.dataset.tab).classList.add('is-active');
+      activarPestana(tab.dataset.tab);
+      ponerPestanaEnDireccion(tab.dataset.tab);
     });
   });
-
-  // Toggle % deshidratación vs % quemadura en fluidos
-  document.getElementById('fluidsTipo').addEventListener('change', (e) => {
-    const v = e.target.value;
-    document.getElementById('fluidsDeshWrap').style.display = (v === 'desh' || v === 'gastro') ? 'flex' : 'none';
-    document.getElementById('fluidsQuemWrap').style.display = v === 'quemado' ? 'flex' : 'none';
-  });
+  let pedida = null;
+  try { pedida = new URLSearchParams(location.search).get('tab'); } catch (e) { /* sin parámetros */ }
+  const inicial = PESTANAS.indexOf(pedida) !== -1 ? pedida : 'constantes';
+  activarPestana(inicial);
+  if (pedida !== null && pedida !== inicial) ponerPestanaEnDireccion(inicial);
 
   document.querySelectorAll('.bcs-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -930,224 +505,24 @@
     });
   });
 
-  actualizarDrogas();
-  renderProtocolos();
   renderConstantes();
-  renderHemograma();
   if (!esMiembro) {
     // Tocar el detalle difuminado de una tarjeta (no el botón "Hazte miembro") pide la membresía
-    ['constGrid', 'hemoGrid'].forEach(id => {
-      const g = document.getElementById(id);
-      if (!g) return;
-      g.addEventListener('click', ev => {
-        if (ev.target.closest('a')) return;
-        const v = ev.target.closest('.pw-vista');
-        if (!v) return;
-        const tarjeta = v.closest('.const-card');
-        ZOO_PAYWALL.requiereMembresia('Ver el detalle de ' + ((tarjeta && tarjeta.dataset.esp) || 'la especie'));
-      });
+    const g = document.getElementById('constGrid');
+    if (g) g.addEventListener('click', ev => {
+      if (ev.target.closest('a')) return;
+      const v = ev.target.closest('.pw-vista');
+      if (!v) return;
+      const tarjeta = v.closest('.const-card');
+      ZOO_PAYWALL.requiereMembresia('Ver el detalle de ' + ((tarjeta && tarjeta.dataset.esp) || 'la especie'));
     });
   }
   const poner = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
-  const nDosis = Object.values(DOSIS).reduce((s, v) => s + v.entradas.length, 0);
-  poner('statFarmacos', String(Object.keys(DOSIS).length));
-  poner('descFarmacos', String(Object.keys(DOSIS).length));
-  poner('descReferencias', String(nDosis));
+  const nDatos = CONSTANTES.reduce((s, e) => s + e.datos.length, 0);
   poner('statEspecies', String(CONSTANTES.length));
+  poner('statDatos', String(nDatos));
   poner('countConst', CONSTANTES.length + ' especies');
-  poner('countHemo', HEMOGRAMA.length + ' especies con dato');
-  poner('statProtocolos', String(Object.keys(PROTO).length));
-  poner('countProto', Object.keys(PROTO).length + ' protocolos');
-  // Al abrir, el selector de % de deshidratación sigue al tipo elegido
-  document.getElementById('fluidsTipo').dispatchEvent(new Event('change'));
 })();
-
-// ═══════════════ DOSIS (solo rangos con fuente verificada · assets/js/herramientas-dosis.js) ═══════════════
-const DOSIS = ZOO_DOSIS.FARMACOS;
-
-function actualizarDrogas() {
-  const cat = document.getElementById('doseCategory').value;
-  const sel = document.getElementById('doseDrug');
-  const entries = Object.entries(DOSIS).filter(([k, v]) => cat === 'all' || v.categoria === cat);
-  sel.innerHTML = entries.map(([k, v]) => `<option value="${k}">${ZOO_CALCULOS.esc(v.nombre)}</option>`).join('');
-  document.getElementById('doseCount').textContent = entries.length + ' fármacos';
-}
-
-function calcularDosis() {
-  const C = ZOO_CALCULOS;
-  const drug = document.getElementById('doseDrug').value;
-  const peso = C.leerNumero(document.getElementById('dosePeso').value);
-  const conc = C.leerNumero(document.getElementById('doseConc').value);
-  const grupo = document.getElementById('doseEspecie').value;
-  const rEl = document.getElementById('doseResult');
-  if (usoBloqueado('Calcular dosis', rEl)) return;
-  const r = C.dosisVerificadas(DOSIS[drug], grupo, peso, conc);
-  if (r.error) { showErr(rEl, C.esc(r.error)); return; }
-
-  const rango = (a, b, u, mismo) => a == null ? 'hasta ' + C.fmt(b) + ' ' + u : (mismo ? C.fmt(a) + ' ' + u : C.fmt(a) + ' – ' + C.fmt(b) + ' ' + u);
-  const hayPequeno = r.filas.some(x => x.volumenPequeno);
-  let html = `<div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-pill"/></svg> ${C.esc(r.nombre)} · ${C.esc(C.fmt(peso))} kg · ${C.esc(C.etiquetaGrupo(grupo))}</div>`;
-  if (r.sinDatos) {
-    html += `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> <strong>No hay un rango verificado para este grupo.</strong> No se encontró una fuente abierta confiable con la dosis de ${C.esc(r.nombre)} en este grupo, y no se muestra ningún número para no dar información sin respaldo. Consulta un formulario específico de la especie.</div>`;
-  } else {
-    if (hayPequeno) html += `<div class="tool-result__aviso"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> <strong>Hay volúmenes muy pequeños</strong> (menos de 0.1 ml): son difíciles de medir con exactitud. Diluye el fármaco con solución estéril (por ejemplo 1:10), recalcula con la nueva concentración o usa jeringa de insulina.</div>`;
-    html += '<p class="tool-result__intro">Cada renglón es un rango publicado por la fuente indicada. Aplica solo a la especie y la vía que se señalan.</p>';
-    r.filas.forEach(x => {
-      html += `
-      <div class="tool-ref">
-        <div class="tool-ref__cab"><strong>${C.esc(x.aplica)}</strong>${x.via ? ` <span class="tool-ref__via">${C.esc(x.via)}</span>` : ''}</div>
-        <div class="tool-result__rows">
-          <div class="tool-result__row"><span class="tool-result__row-label">Dosis (${x.min == null ? 'hasta ' + C.fmt(x.max) : (x.mismoValor ? C.fmt(x.max) : C.fmt(x.min) + '–' + C.fmt(x.max))} mg/kg)</span><span class="tool-result__row-value">${rango(x.mgMin, x.mgMax, 'mg', x.mismoValor)}</span></div>
-          <div class="tool-result__row"><span class="tool-result__row-label">Volumen (${C.fmt(conc)} mg/ml)</span><span class="tool-result__row-value">${rango(x.mlMin, x.mlMax, 'ml', x.mismoValor)}</span></div>
-        </div>
-        <div class="tool-ref__fuente">Fuente: <a href="${C.esc(x.url)}" target="_blank" rel="noopener noreferrer">${C.esc(x.fuente)}</a></div>
-      </div>`;
-    });
-  }
-  if (r.precauciones.length) {
-    html += `<div class="tool-subsection" style="border-left-color:#D55A28;"><div class="tool-subsection__title" style="color:#D55A28;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg> Precauciones con fuente</div><ul>${
-      r.precauciones.map(p => `<li>${C.esc(p.texto)} <a href="${C.esc(p.url)}" target="_blank" rel="noopener noreferrer">${C.esc(p.fuente)}</a></li>`).join('')}</ul></div>`;
-  }
-  html += `<div class="tool-result__note">Rangos de referencia publicados, revisados el ${ZOO_DOSIS.FECHA_REVISION}. No sustituyen el criterio del médico veterinario ni la ficha del fabricante: confirma siempre la dosis, la vía y la concentración antes de aplicar.</div>`;
-  rEl.innerHTML = html;
-  rEl.className = 'tool-result is-visible' + (r.sinDatos ? ' is-warning' : '');
-  rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// ═══════════════ PROTOCOLOS ANESTÉSICOS (solo dosis publicadas · assets/js/herramientas-protocolos.js) ═══════════════
-const PROTO = ZOO_PROTOCOLOS.PROTOCOLOS;
-
-function renderProtocolos() {
-  const sel = document.getElementById('anesProto');
-  sel.innerHTML = Object.entries(PROTO).map(([k, p]) => `<option value="${k}">${ZOO_CALCULOS.esc(p.nombre)}</option>`).join('');
-  actualizarVariantes();
-  renderGases();
-}
-
-function actualizarVariantes() {
-  const p = PROTO[document.getElementById('anesProto').value];
-  const sel = document.getElementById('anesVariante');
-  sel.innerHTML = p.variantes.map((v, i) => `<option value="${i}">${ZOO_CALCULOS.esc(v.especie)}</option>`).join('');
-  // Vista previa: el resumen trae cifras de dosis, así que solo lo ven los miembros
-  document.getElementById('anesResumen').textContent = ZOO_PAYWALL.miembro()
-    ? (p.resumen || '')
-    : 'Elige el protocolo y la especie. Las dosis publicadas se muestran a los miembros.';
-  document.getElementById('anesResult').className = 'tool-result';
-}
-
-function renderGases() {
-  const C = ZOO_CALCULOS, G = ZOO_PROTOCOLOS.GASES;
-  if (!ZOO_PAYWALL.miembro()) { renderGasesVistaPrevia(); return; }
-  let html = '<div class="tool-subsection__title">' + '<svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Anestesia inhalada: porcentajes publicados</div>';
-  Object.values(G).forEach(g => {
-    html += `<table class="gas-tabla"><thead><tr><th>${C.esc(g.nombre)}</th><th>Inducción</th><th>Mantenimiento</th><th>Fuente</th></tr></thead><tbody>${
-      g.filas.map(x => `<tr><td>${C.esc(x.grupo)}</td><td>${C.esc(x.induccion)}</td><td>${C.esc(x.mantenimiento)}</td><td><a href="${C.esc(x.f.url)}" target="_blank" rel="noopener noreferrer">${C.esc(x.f.fuente)}</a></td></tr>`).join('')}</tbody></table>`;
-  });
-  html += '<p class="tool-result__intro" style="margin-top:8px;">No dependen del peso. El porcentaje real se ajusta según la respuesta del paciente y el vaporizador usado.</p>';
-  document.getElementById('anesGases').innerHTML = html;
-}
-
-// Vista previa (no miembros): se ven los gases y los grupos; los porcentajes y las fuentes van difuminados
-// con marcadores de relleno (debajo del desenfoque no hay ningún dato real).
-function renderGasesVistaPrevia() {
-  const C = ZOO_CALCULOS, G = ZOO_PROTOCOLOS.GASES;
-  const marca = () => ZOO_PAYWALL.marcadorHTML(1, [70]);
-  let html = '<div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-info"/></svg> Anestesia inhalada: porcentajes publicados</div>';
-  html += '<p class="tool-result__intro">' + Object.values(G).map(g => '<strong>' + C.esc(g.nombre) + '</strong> (' + g.filas.map(x => C.esc(x.grupo)).join(', ') + ')').join(' · ') + '</p>';
-  const tablas = Object.values(G).map(g =>
-    '<table class="gas-tabla gas-tabla--previa"><thead><tr><th>' + C.esc(g.nombre) + '</th><th>Inducción</th><th>Mantenimiento</th><th>Fuente</th></tr></thead><tbody>' +
-    g.filas.map(x => '<tr><td>' + C.esc(x.grupo) + '</td><td>' + marca() + '</td><td>' + marca() + '</td><td>' + marca() + '</td></tr>').join('') +
-    '</tbody></table>').join('');
-  html += ZOO_PAYWALL.vistaBorrosaHTML(tablas, { compacta: true, titulo: 'Porcentajes para miembros', texto: 'Inducción, mantenimiento y fuente de cada gas inhalado.' });
-  document.getElementById('anesGases').innerHTML = html;
-}
-
-let _anesCtx = null;
-function calcularAnestesia() {
-  const C = ZOO_CALCULOS;
-  const rEl = document.getElementById('anesResult');
-  if (usoBloqueado('Calcular dosis de anestesia', rEl)) return;
-  const p = PROTO[document.getElementById('anesProto').value];
-  const v = p.variantes[Number(document.getElementById('anesVariante').value)];
-  const peso = C.leerNumero(document.getElementById('anesPeso').value);
-  const r = C.anestesia(v, peso, null);
-  if (r.error) { showErr(rEl, C.esc(r.error)); return; }
-  _anesCtx = { v, peso };
-
-  let html = `<div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-syringe"/></svg> ${C.esc(p.nombre)} · ${C.esc(v.especie)} · ${C.fmt(peso)} kg</div>`;
-  html += '<p class="tool-result__intro">Dosis publicadas para esa especie. Escribe la concentración de tu frasco (mg/ml) para ver el volumen.</p>';
-  r.filas.forEach((x, i) => {
-    const dosis = x.mismoValor ? C.fmt(x.max) : C.fmt(x.min) + ' a ' + C.fmt(x.max);
-    const mg = x.mismoValor ? C.fmt(x.mgMax) : C.fmt(x.mgMin) + ' a ' + C.fmt(x.mgMax);
-    html += `
-    <div class="anes-fila">
-      <div class="anes-fila__cab"><strong>${C.esc(x.nombre)}</strong><span>${dosis} mg/kg · ${C.esc(x.via)}</span></div>
-      <div class="tool-result__rows"><div class="tool-result__row"><span class="tool-result__row-label">Cantidad total</span><span class="tool-result__row-value">${mg} mg</span></div></div>
-      <div class="anes-fila__conc"><label for="anesConc${i}">Concentración del frasco</label><input type="text" inputmode="decimal" autocomplete="off" id="anesConc${i}" placeholder="mg/ml" oninput="actualizarMlAnestesia()"> mg/ml <strong id="anesMl${i}" style="margin-left:auto;color:#B27A06;"></strong></div>
-      <div class="tool-ref__fuente">Fuente: <a href="${C.esc(x.url)}" target="_blank" rel="noopener noreferrer">${C.esc(x.fuente)}</a></div>
-    </div>`;
-  });
-  html += `<div class="tool-subsection"><div class="tool-subsection__title" style="color:var(--zoo-acc-txt, #6FBF73);"><svg class="zi" aria-hidden="true"><use href="#zi-refresh-cw"/></svg> Reversión</div><p style="margin:0;color:var(--zoo-text);">${C.esc(p.reversion)} <a href="${C.esc(p.reversionFuente.url)}" target="_blank" rel="noopener noreferrer">${C.esc(p.reversionFuente.fuente)}</a></p></div>`;
-  html += `<div class="tool-result__note">Dosis de referencia publicadas, revisadas el ${ZOO_PROTOCOLOS.FECHA_REVISION}. No sustituyen el criterio del médico veterinario: confirma dosis, vía y concentración antes de aplicar.</div>`;
-  rEl.innerHTML = html;
-  rEl.className = 'tool-result is-visible';
-  rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// Muestra los ml sin volver a dibujar la lista (así no se pierde el cursor al escribir)
-function actualizarMlAnestesia() {
-  if (!_anesCtx) return;
-  const C = ZOO_CALCULOS;
-  const concs = _anesCtx.v.componentes.map((_, i) => C.leerNumero(document.getElementById('anesConc' + i).value));
-  const r = C.anestesia(_anesCtx.v, _anesCtx.peso, concs);
-  r.filas.forEach((x, i) => {
-    const el = document.getElementById('anesMl' + i);
-    if (!el) return;
-    if (x.mlMax == null) { el.textContent = ''; return; }
-    el.textContent = (x.mismoValor ? C.fmt(x.mlMax) : C.fmt(x.mlMin) + ' a ' + C.fmt(x.mlMax)) + ' ml' + (x.volumenPequeno ? ' · volumen muy pequeño: diluye' : '');
-  });
-}
-
-// ═══════════════ FLUIDOTERAPIA ═══════════════
-function calcularFluidos() {
-  const C = ZOO_CALCULOS;
-  const rEl = document.getElementById('fluidsResult');
-  if (usoBloqueado('Calcular plan de fluidos', rEl)) return;
-  const tipo = document.getElementById('fluidsTipo').value;
-  const crudoPerd = document.getElementById('fluidsPerd').value.trim();
-  const perdidas = crudoPerd === '' ? 0 : C.leerNumero(crudoPerd);
-  if (!Number.isFinite(perdidas)) { showErr(rEl, 'Escribe las pérdidas extra en ml por día (o déjalo en 0).'); return; }
-  const r = C.fluidos({
-    grupo: document.getElementById('fluidsGroup').value,
-    peso: C.leerNumero(document.getElementById('fluidsPeso').value),
-    tipo: tipo,
-    deshPct: parseFloat(document.getElementById('fluidsDesh').value),
-    perdidas: perdidas,
-    quemadoPct: C.leerNumero(document.getElementById('fluidsQuem').value),
-    equipo: parseFloat(document.getElementById('fluidsEquipo').value)
-  });
-  if (r.error) { showErr(rEl, C.esc(r.error)); return; }
-
-  const n = (a, b) => a === b ? C.fmt(a) : C.fmt(a) + ' a ' + C.fmt(b);
-  let html = `<div class="tool-result__title"><svg class="zi" aria-hidden="true"><use href="#zi-droplet"/></svg> ${C.esc(r.titulo)} · ${C.fmt(r.peso)} kg (${C.esc(C.etiquetaGrupo(r.grupo))})</div><div class="tool-result__rows">`;
-  r.filas.forEach(x => {
-    html += `<div class="tool-result__row"${x.alerta ? ' style="background:rgba(213,90,40,0.25);"' : ''}><span class="tool-result__row-label">${C.esc(x.etiqueta)}</span><span class="tool-result__row-value">${C.esc(x.valor)}</span></div>`;
-  });
-  html += '</div><div class="tool-result__fases">';
-  r.fases.forEach(x => {
-    const dur = x.horas < 1 ? Math.round(x.horas * 60) + ' min' : (x.horas === 1 && r.modo === 'cirugia' ? '1 h' : C.fmt(x.horas) + ' h');
-    html += `<div class="tool-subsection"><div class="tool-subsection__title">${C.esc(x.titulo)}${x.alternativa ? ' (alternativa)' : ''}</div><p style="margin:0;color:var(--zoo-text);"><strong>${n(x.ml, x.mlMax)} ml</strong> en ${dur} · <strong>${n(x.mlPorHora, x.mlPorHoraMax)} ml/h</strong> · ${n(x.gotasMin, x.gotasMinMax)} gtt/min (equipo de ${r.equipo} gtt/ml)</p></div>`;
-  });
-  html += '</div>';
-  if (r.modo !== 'cirugia') {
-    html += `<div class="tool-result__rows" style="margin-top:10px;"><div class="tool-result__row"><span class="tool-result__row-label">TOTAL DEL PLAN (24 h)</span><span class="tool-result__row-value">${r.totalMax != null ? n(r.total, r.totalMax) : C.fmt(r.total)} ml</span></div></div>`;
-  }
-  html += `<div class="tool-subsection"><div class="tool-subsection__title"><svg class="zi" aria-hidden="true"><use href="#zi-clipboard-list"/></svg> Nota</div><p style="margin:0;">${C.esc(r.nota)}</p></div>`;
-  html += `<div class="tool-ref__fuente">Fuentes: ${r.fuentes.map(x => `<a href="${C.esc(x.url)}" target="_blank" rel="noopener noreferrer">${C.esc(x.texto)}</a>`).join(' · ')}</div>`;
-  rEl.innerHTML = html;
-  rEl.className = 'tool-result is-visible' + (r.modo === 'shock' || r.modo === 'quemado' ? ' is-danger' : r.modo === 'cirugia' ? ' is-warning' : '');
-  rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
 
 // ═══════════════ CONSTANTES (solo datos con fuente · assets/js/herramientas-constantes.js) ═══════════════
 const CONSTANTES = ZOO_CONSTANTES.ESPECIES;
@@ -1196,38 +571,6 @@ function tarjetaVistaPrevia(e, subtituloHTML) {
     '</div>';
 }
 
-// ═══════════════ HEMOGRAMA (solo datos con fuente · assets/js/herramientas-hemograma.js) ═══════════════
-const HEMOGRAMA = ZOO_HEMOGRAMA.ESPECIES;
-
-function renderHemograma(filter = '') {
-  const C = ZOO_CALCULOS;
-  const f = C.sinAcentos(filter);
-  const lista = HEMOGRAMA.filter(e => !f || C.sinAcentos(e.esp).includes(f) || C.sinAcentos(e.grupo).includes(f) || C.sinAcentos(e.clase).includes(f));
-  const cont = document.getElementById('hemoGrid');
-  if (lista.length === 0) {
-    cont.innerHTML = '<p class="const-vacio">Sin resultados para «' + C.esc(filter) + '».</p>';
-  } else {
-    if (!ZOO_PAYWALL.miembro()) {
-      cont.innerHTML = lista.map(e => tarjetaVistaPrevia(e, C.esc(e.clase) + ' · ' + C.esc(e.grupo))).join('');
-    } else cont.innerHTML = lista.map(e => `
-    <div class="const-card">
-      <h3>${C.esc(e.esp)}</h3>
-      <div class="const-card__grupo">${C.esc(e.clase)} · ${C.esc(e.grupo)}</div>
-      ${e.datos.map(d => `
-        <div class="const-dato">
-          <div class="const-dato__campo">${C.esc(d.campo)} <span class="const-dato__estado const-dato__estado--${d.estado}">${d.estado === 'verificado' ? 'Verificado' : 'Estudio'}</span></div>
-          <div class="const-dato__valor">${C.esc(d.valor)}</div>
-          <a href="${C.esc(d.url)}" target="_blank" rel="noopener noreferrer">${C.esc(d.fuente)}</a>
-        </div>`).join('')}
-    </div>`).join('');
-  }
-  const falta = ZOO_HEMOGRAMA.SIN_DATO.filter(n => !f || C.sinAcentos(n).includes(f));
-  document.getElementById('hemoSinDato').textContent = falta.length
-    ? 'Sin dato publicado que se haya podido verificar: ' + falta.join(', ') + '.'
-    : '';
-}
-function filtrarHemograma() { renderHemograma(document.getElementById('hemoFilter').value); }
-
 // ═══════════════ BCS ═══════════════
 function calcularBCS() {
   const C = ZOO_CALCULOS;
@@ -1254,32 +597,6 @@ function calcularBCS() {
   rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ═══════════════ URGENCIAS ═══════════════
-function mostrarUrgencia() {
-  const C = ZOO_CALCULOS;
-  const tipo = document.getElementById('urgSelect').value;
-  const grupo = document.getElementById('urgGrupo').value;
-  const crudo = document.getElementById('urgPeso').value.trim();
-  const rEl = document.getElementById('urgResult');
-  if (usoBloqueado('Mostrar protocolo de urgencia', rEl)) return;
-  const peso = crudo === '' ? NaN : C.leerNumero(crudo);
-  if (crudo !== '' && C.errorPeso(peso)) { showErr(rEl, C.esc(C.errorPeso(peso))); return; }
-  const r = C.urgencia(tipo, peso, grupo);
-  if (r.error) { showErr(rEl, C.esc(r.error)); return; }
-  rEl.innerHTML = `
-    <div class="urg-protocol">
-      <div class="urg-protocol__title">${r.title}</div>
-      <div style="color:#D55A28;font-weight:700;margin-bottom:14px;font-size:.88rem;"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> ${r.priority}</div>
-      ${r.avisos.map(a => '<div class="tool-result__aviso">' + a + '</div>').join('')}
-      <ol class="urg-steps">
-        ${r.steps.map(s => '<li>' + s + '</li>').join('')}
-      </ol>
-      <div class="tool-ref__fuente">Fuentes: Manual Veterinario Merck, guías RECOVER 2024, guías AAHA 2024, Clinician's Brief, VCA, dvm360 y fichas aprobadas. Las dosis de perro y gato no se extrapolan a otras especies.</div>
-    </div>`;
-  rEl.className = 'tool-result is-visible is-danger';
-  rEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
 // ═══════════════ Helpers ═══════════════
 // Vista previa: al intentar USAR una herramienta, quien no es miembro recibe el aviso de membresía y, en el
 // lugar del resultado, un bloque con el candado. Devuelve true si hay que detener el cálculo (no es miembro).
@@ -1298,9 +615,6 @@ function showErr(el, msg) {
   el.className = 'tool-result is-visible is-danger';
 }
 function resetearForm(which) {
-  if (which === 'dosis') { document.getElementById('dosePeso').value = ''; document.getElementById('doseConc').value = ''; document.getElementById('doseResult').className = 'tool-result'; }
-  if (which === 'anestesia') { document.getElementById('anesPeso').value = ''; document.getElementById('anesResult').className = 'tool-result'; _anesCtx = null; }
-  if (which === 'fluidos') { document.getElementById('fluidsPeso').value = ''; document.getElementById('fluidsPerd').value = '0'; document.getElementById('fluidsResult').className = 'tool-result'; }
   if (which === 'bcs') { document.querySelectorAll('.bcs-item').forEach(i => i.classList.remove('is-selected')); document.querySelector('[data-bcs="5"]').classList.add('is-selected'); document.getElementById('bcsResult').className = 'tool-result'; }
 }
 </script>
