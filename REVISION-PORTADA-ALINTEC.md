@@ -113,3 +113,23 @@ Imágenes que ya no se usan en la portada (se pueden retirar del repo): `assets/
 - **Beneficios**: el frente se desvanece por completo en 0.25 s y el panel entra opaco después (nunca hay dos textos a la vez).
 - **Imágenes de "Del estudio a la práctica"**: ahora se piden a `assets/img/landing/estudio/estudio-*.webp` y, mientras no existan, caen a las fotos de las áreas. Prompts en `PROMPTS-IMAGENES-PORTADA.md` (nota interna).
 - **Jaguarito que se asoma** (`assets/js/landing-mascota.js`): usa `assets/img/guia/guia-saludo-1.webp`; sale al detenerse 1.2 s en pasos, beneficios, estudio a la práctica o cursos (atributo `data-mascota` de cada sección). Máximo 4 por visita, 8 s de enfriamiento, una vez por sección, nunca sobre texto, sin reducir movimiento no aparece; el toque abre la guía.
+
+## 10. Sexta ronda: paleta variada
+
+El verde de marca (`#1F5F3A`) queda como acento (logo, botón principal "Crear cuenta gratis"/"Entrar al club", algún ícono). Paleta definida como variables en `:root` de `landing-secciones.css`: cielo, terracota, ámbar, índigo, teal y rosa arcilla, cada uno con su tinte; fondos arena, cielo pálido, azul profundo, índigo profundo y azul noche. Todos los pares pasan AA (la prueba los mide).
+
+| Color | Dónde |
+| --- | --- |
+| Cielo `#1E5A8A` / tinte `#E6F0F8` | cifra "cursos", paso 1, beneficio 1, área "Fauna y conservación", etiquetas, flechas, barra de progreso, botón "Informes", dudas, reverso 1 de Confianza, aviso y términos |
+| Terracota `#AE4310` / `#FBEBDD` | cifra "áreas", paso 2, beneficio 2, área "Fauna ponzoñosa", palabra destacada de Cursos |
+| Ámbar `#8A5A00` / `#FBF1D4` | cifra "alumnos", beneficio 3, área "Apicultura y polinizadores", tarjeta de Apicultura, palabra destacada de Beneficios |
+| Índigo `#4B4E9E` / `#ECECF8` | paso 3, beneficio 4, área "Investigación y monitoreo", tarjeta de campo, palabra destacada de Siguiente paso |
+| Teal `#0F766E` / `#E1F2EF` | beneficio 5, área "Manejo bajo cuidado humano", tarjeta de Conservación y manejo, canal WhatsApp, palabra destacada de Estudio a la práctica |
+| Rosa arcilla `#A83F5A` / `#F9E7EC` | beneficio 6, área "Etología", tarjeta de Comportamiento, canal Instagram, palabra destacada de Reseñas |
+| Azul profundo `#17324D` | sección "Tu plataforma", escenario del certificado |
+| Índigo profundo `#2B2F6B` | panel de Contacto |
+| Azul noche `#10243A` | pie de página (resaltan las mariposas) |
+| Cielo pálido `#F1F6FB` / `#E6F0F8` | fondo de Áreas, Estudio a la práctica y Certificación; muro de reseñas |
+| Arena `#FAF5EA` / crema `#F6F4EF` | cifras, Siguiente paso, Reseñas, Contacto, Galería, Nosotros |
+| Tinta `#1F2933` | filtros activos, pastilla de filtros, botones secundarios |
+| Azul Facebook `#1565C0` | insignia "Reseña en Facebook" (ajustado de #1877F2 para contraste AA) |

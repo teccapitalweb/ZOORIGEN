@@ -205,7 +205,7 @@ test('efectos: archivo enlazado, un solo observador, un solo puntero delegado, s
 });
 
 /* ---------------- Ronda 3: reseñas en muro, esquina que se expande, tarjetas que giran, campos que se revelan ---------------- */
-const RESENAS = bloque(INDEX, '<section class="zs-sec zs-sec--verde-cl" id="resenas"', '</section>');
+const RESENAS = bloque(INDEX, '<section class="zs-sec zs-sec--arena" id="resenas"', '</section>');
 
 test('reseñas: muro de tarjetas con el texto transcrito de las capturas y sin las capturas', () => {
   // Textos tal cual aparecen en las capturas (sin los emojis de Facebook)
@@ -379,4 +379,81 @@ test('tarjetas: sin grises ni verde fuerte de fondo en pasos, beneficios y confi
     assert.ok(m, sel);
     assert.doesNotMatch(m[0], /background:\s*var\(--zs-verde\)/, sel);
   }
+});
+
+/* ---------------- Ronda 6: paleta variada ---------------- */
+function luminancia(hex) {
+  const v = hex.replace('#', '').match(/../g).map(x => parseInt(x, 16) / 255).map(c => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)));
+  return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+}
+function contraste(a, b) {
+  const [x, y] = [luminancia(a), luminancia(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+}
+const VAR = n => { const m = CSS.match(new RegExp('--' + n + ':\\s*(#[0-9A-Fa-f]{6})')); assert.ok(m, 'falta --' + n); return m[1]; };
+
+test('paleta variada: al menos 5 acentos distintos definidos como variables y usados', () => {
+  const acentos = ['zs-cielo', 'zs-terracota', 'zs-ambar', 'zs-indigo', 'zs-teal', 'zs-rosa'];
+  const valores = acentos.map(VAR);
+  assert.equal(new Set(valores.map(v => v.toLowerCase())).size, acentos.length, 'acentos repetidos');
+  for (const a of acentos) {
+    VAR(a + '-t');
+    assert.ok(new RegExp('var\\(--' + a + '\\)').test(CSS), a + ' no se usa');
+  }
+  VAR('zs-azul-prof'); VAR('zs-indigo-prof'); VAR('zs-noche'); VAR('zs-arena'); VAR('zs-cielo-p');
+  // Sin rojo puro ni colores chillones: ninguno de los acentos supera 190 en un solo canal con los otros < 60
+  for (const v of valores) {
+    const [r, g, b] = v.replace('#', '').match(/../g).map(x => parseInt(x, 16));
+    assert.ok(!(r > 190 && g < 60 && b < 60), 'rojo puro: ' + v);
+  }
+});
+
+test('paleta variada: todos los pares de color pasan AA (4.5:1)', () => {
+  const pares = [];
+  for (const a of ['zs-cielo', 'zs-terracota', 'zs-ambar', 'zs-indigo', 'zs-teal', 'zs-rosa']) {
+    pares.push([a + ' sobre su tinte', VAR(a), VAR(a + '-t')]);
+    pares.push([a + ' sobre blanco', VAR(a), '#FFFFFF']);
+    pares.push([a + ' sobre arena', VAR(a), VAR('zs-arena')]);
+    pares.push(['blanco sobre ' + a + ' (botones, avatares)', '#FFFFFF', VAR(a)]);
+    pares.push(['tinta sobre tinte de ' + a, '#1F2933', VAR(a + '-t')]);
+  }
+  pares.push(['texto gris sobre cielo pálido', '#52606D', VAR('zs-cielo-p')]);
+  pares.push(['texto gris sobre arena', '#52606D', VAR('zs-arena')]);
+  pares.push(['texto gris sobre crema', '#52606D', '#F6F4EF']);
+  pares.push(['blanco sobre azul profundo (Tu plataforma)', '#FFFFFF', VAR('zs-azul-prof')]);
+  pares.push(['lead claro sobre azul profundo', '#DCE6F0', VAR('zs-azul-prof')]);
+  pares.push(['dorado pálido sobre azul profundo', '#F4D58D', VAR('zs-azul-prof')]);
+  pares.push(['lead claro sobre índigo profundo (Contacto)', '#E1E3F4', VAR('zs-indigo-prof')]);
+  pares.push(['dorado pálido sobre índigo profundo', '#F4D58D', VAR('zs-indigo-prof')]);
+  pares.push(['enlaces del pie sobre azul noche', '#DCE6F0', VAR('zs-noche')]);
+  pares.push(['texto del pie sobre azul noche', '#B9C8D8', VAR('zs-noche')]);
+  pares.push(['títulos del pie (dorado pálido) sobre azul noche', '#F4D58D', VAR('zs-noche')]);
+  pares.push(['insignia de Facebook', '#FFFFFF', '#1565C0']);
+  pares.push(['botón principal verde de marca', '#FFFFFF', '#1F5F3A']);
+  pares.push(['botón tinta', '#FFFFFF', '#1F2933']);
+  pares.push(['etiqueta ámbar sobre su tinte', '#7A5200', '#FBF1D9']);
+  const bajos = pares.filter(([, f, b]) => contraste(f, b) < 4.5).map(([n, f, b]) => n + ' ' + contraste(f, b).toFixed(2));
+  assert.deepEqual(bajos, [], 'pares bajo 4.5:1');
+});
+
+test('paleta variada: el verde no es el fondo de más de una sección grande; plataforma en azul y pie en azul noche', () => {
+  const secciones = [...INDEX.matchAll(/<section class="([^"]*)"/g)].map(m => m[1]);
+  const verdes = secciones.filter(c => /zs-sec--verde\b/.test(c));
+  assert.ok(verdes.length <= 1, 'secciones verdes: ' + verdes.length);
+  assert.match(INDEX, /<section class="zs-sec zs-sec--azul" id="panel"/);
+  assert.match(CSS, /\.zs-sec--azul \{ --zs-fondo: var\(--zs-azul-prof\); \}/);
+  assert.match(CSS, /footer\.zs-pie \{ background: var\(--zs-noche\)/);
+  assert.match(CSS, /\.zs-contacto \{ background: var\(--zs-indigo-prof\); \}/);
+  assert.match(CSS, /\.zs-muro \{ background: var\(--zs-cielo-t\); \}/);
+  // Fondos alternados: arena, blanco, cielo pálido y crema aparecen en la portada
+  for (const c of ['zs-sec--arena', 'zs-sec--blanco', 'zs-sec--cielo', 'zs-sec--crema']) assert.ok(secciones.some(s => s.includes(c)), c);
+  // Un acento distinto por área, por cifra y por paso
+  assert.equal((CSS.match(/#areas \.area-tw:nth-child\(\d\) \{ --acc:/g) || []).length, 6);
+  assert.equal((CSS.match(/\.zs-cifra:nth-child\(\d\) \{ --acc:/g) || []).length, 3);
+  assert.equal((CSS.match(/\.zs-paso:nth-child\(\d\) \{ --acc:/g) || []).length, 3);
+  assert.equal((CSS.match(/\.zs-beneficio:nth-child\(\d\) \{ --acc:/g) || []).length, 6);
+  // Botón principal sigue en verde de marca y los secundarios en tinta
+  assert.match(CSS, /\.zs-boton--verde \{ background: var\(--zs-verde\)/);
+  assert.match(CSS, /\.zs-chip\.is-active, \.zs-chip\.is-active:hover \{ background: var\(--zs-tinta\)/);
+  assert.match(INDEX, /zs-boton--tinta" href="https:\/\/wa\.me\/5212361113237"/);
 });
