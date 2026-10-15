@@ -96,3 +96,11 @@ Archivos: `assets/css/landing-secciones.css` (todo el estilo y movimiento), `ass
 | Botón "subir" | Pasó a la columna derecha, arriba de la guía, para no tapar enlaces del contenido |
 
 Imágenes que ya no se usan en la portada (se pueden retirar del repo): `assets/img/resenas/resena_captura_de_pantalla_2026-03-07_181351.png`, `..._181415.png`, `..._181503.png`, `..._181513.png`, `..._181529.png`, `..._181539.png` y las copias con el mismo nombre en la raíz. `data.js` aún lista las seis de `assets/img/resenas` en `reviews`.
+
+## 8. Cuarta ronda
+
+- **Apartado "Membresía Zoorigen" quitado** (sección `#club-vip`): marcado eliminado de `index.html` y reglas `club-vip-banner*`, `club-vip-card*` y `btn--club-cta` borradas de `styles.css` y de `landing-catalog/nature/premium/redesign/structure.css`. El menú ("Plataforma"), el paso 3 ("Conocer el club") y el pie ("Plataforma del club") apuntan ahora a `#panel`, la sección "Tu plataforma", que ya explica el club. Sin anclas rotas (comprobado en portada y páginas legales).
+- **Íconos de redes del pie:** círculos de 52 px (48 px en celular) que toman el color sólido de la marca al hover, foco o toque (Instagram `#DD2A7B`, Facebook `#1877F2`, WhatsApp `#128C7E`, porque `#25D366` no da contraste con el ícono blanco) y rebotan 0.4 s; con reducir movimiento solo cambia el color.
+- **Beneficios:** frente verde sólido con ícono grande y título; con puntero fino y sin reducir movimiento, al pasar el puntero o enfocar la tarjeta se inclina (-3 grados, escala 1.05), el ícono se encoge y un panel blanco con título y descripción gira hasta quedar recto (0.6 s). Sin hover, en táctil o con reducir movimiento: ícono, título y descripción visibles y estáticos. La descripción siempre está en el DOM.
+- **Del estudio a la práctica:** foto a toda la tarjeta y panel crema de 70 % de alto (radio 16 px) encima; al hover o foco el panel baja 100 % en 1 s y deja ver la foto. En táctil o sin hover: imagen arriba y texto debajo.
+- Lo de las palabras que alternan en las cifras no se hizo.

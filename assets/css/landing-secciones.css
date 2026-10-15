@@ -406,23 +406,65 @@ main .zs-flecha.carousel-arrow.is-fin { opacity: .4; }
   display: grid; gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
 }
+/* Base (táctil, sin hover o reducir movimiento): ícono, título y descripción siempre visibles y estáticos */
 .zs-beneficio {
+  position: relative;
   display: flex; align-items: flex-start; gap: 16px;
   padding: 22px;
   background: var(--zs-crema);
   border: 1px solid var(--zs-linea); border-radius: 14px;
-  transition: box-shadow .3s ease, transform .45s cubic-bezier(.2, .7, .2, 1), background-color .3s ease, border-color .3s ease;
 }
-.zs-beneficio:hover { background: var(--zs-blanco); box-shadow: var(--zs-sombra-alta); border-color: #C9D9CE; }
+.zs-beneficio__frente { display: none; }
 .zs-beneficio__icono {
   display: inline-flex; align-items: center; justify-content: center;
   width: 48px; height: 48px; flex: none; border-radius: 12px;
   background: var(--zs-verde-cl); color: var(--zs-verde); font-size: 24px;
-  transition: transform .35s cubic-bezier(.3, 1.6, .5, 1), background-color .25s ease, color .25s ease;
 }
-.zs-beneficio:hover .zs-beneficio__icono { transform: scale(1.12) rotate(-6deg); background: var(--zs-verde); color: #FFFFFF; }
 .zs-beneficio h3 { margin: 0 0 6px; font: 700 19px/1.3 var(--zs-titulo); color: var(--zs-tinta); }
 .zs-beneficio p { margin: 0; font: 400 16px/1.6 var(--zs-fuente); color: var(--zs-texto); }
+
+/* Mejora progresiva (puntero fino, con hover y sin reducir movimiento): el frente es ícono + título sobre verde sólido;
+   al pasar el puntero o enfocar, la tarjeta se inclina y un panel blanco con título y descripción gira hasta quedar recto.
+   La descripción nunca sale del DOM (los lectores de pantalla la leen siempre). */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .zs-beneficio {
+    --ease: cubic-bezier(.23, 1, .32, 1);
+    flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    min-height: 200px; padding: 24px;
+    background: var(--zs-verde); border-color: var(--zs-verde);
+    box-shadow: var(--zs-sombra);
+    cursor: default;
+    transition: transform .6s var(--ease), box-shadow .6s var(--ease);
+  }
+  .zs-beneficio:hover, .zs-beneficio:focus-visible {
+    transform: rotate(-3deg) scale(1.05);
+    box-shadow: 0 22px 32px -14px rgba(18, 53, 36, .55);
+  }
+  .zs-beneficio:focus-visible { outline: 3px solid var(--zs-dorado); outline-offset: 4px; }
+  .zs-beneficio__icono {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: #FFFFFF; color: var(--zs-verde); font-size: 36px;
+    transition: transform .6s var(--ease);
+  }
+  .zs-beneficio .zs-beneficio__frente {
+    display: block; margin: 0;
+    font: 700 19px/1.3 var(--zs-titulo); color: #FFFFFF; text-align: center;
+    transition: opacity .4s ease;
+  }
+  .zs-beneficio__panel {
+    position: absolute; inset: 8px; z-index: 1;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 16px 18px; border-radius: 10px;
+    background: #FFFFFF;
+    opacity: 0; transform: rotate(-45deg);
+    transition: transform .6s var(--ease), opacity .6s var(--ease);
+  }
+  .zs-beneficio:hover .zs-beneficio__panel, .zs-beneficio:focus-visible .zs-beneficio__panel { opacity: 1; transform: rotate(0); }
+  .zs-beneficio:hover .zs-beneficio__icono, .zs-beneficio:focus-visible .zs-beneficio__icono { transform: scale(0) rotate(-45deg); }
+  .zs-beneficio:hover .zs-beneficio__frente, .zs-beneficio:focus-visible .zs-beneficio__frente { opacity: 0; }
+  .zs-beneficio__panel h3 { margin: 0 0 6px; font-size: 19px; }
+  .zs-beneficio__panel p { font-size: 15px; line-height: 1.55; }
+}
 
 /* ---------- 6. Tu plataforma ---------- */
 .zs-panel {
@@ -466,46 +508,63 @@ main #panel .zs-recursos p { flex: 1 0 100%; margin: 6px 0 0; text-align: center
 }
 @media (min-width: 560px) { .zs-campos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }   /* tableta: 2 x 2 */
 @media (min-width: 1000px) { .zs-campos { grid-template-columns: repeat(4, minmax(0, 1fr)); } }  /* escritorio: 4 */
-/* Tarjeta que se levanta y revela: la imagen sube y se oscurece con una capa sólida translucida, aparece "Explorar" */
+/* Base (táctil, sin hover o reducir movimiento): imagen arriba y texto debajo, todo visible y estático */
 .zs-campo {
   position: relative;
   display: flex; flex-direction: column; min-width: 0;
   background: var(--zs-blanco);
-  border: 2px solid var(--zs-linea); border-radius: 14px;
+  border: 1px solid var(--zs-linea); border-radius: 16px;
   box-shadow: var(--zs-sombra); overflow: hidden;
-  transition: box-shadow .35s ease, transform .45s cubic-bezier(.2, .7, .2, 1), border-color .3s ease;
 }
-.zs-campo:hover, .zs-campo:focus-within { box-shadow: 0 28px 36px -14px rgba(18, 53, 36, .42); border-color: var(--zs-verde); }
 .zs-campo__img { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--zs-verde-cl); }
 .zs-campo__img img {
   width: 100%; height: 100%; display: block; object-fit: cover;
-  transform: translate3d(0, var(--py, 0px), 0) scale(var(--zoom, 1.1));
-  transition: transform .6s cubic-bezier(.2, .7, .2, 1);
+  transform: translate3d(0, var(--py, 0px), 0) scale(1.1);
 }
-.zs-campo:hover .zs-campo__img img, .zs-campo:focus-within .zs-campo__img img { --zoom: 1.18; }
-.zs-campo__img::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: rgba(18, 53, 36, .58);
-  opacity: 0; transition: opacity .35s ease;
-}
-.zs-campo:hover .zs-campo__img::after, .zs-campo:focus-within .zs-campo__img::after { opacity: 1; }
 .zs-campo__ver {
-  position: absolute; z-index: 1; left: 50%; top: 50%;
+  position: absolute; z-index: 2; right: 12px; bottom: 12px;
   display: inline-flex; align-items: center; gap: 8px;
-  min-height: 44px; padding: 0 20px; border-radius: 999px;
+  min-height: 40px; padding: 0 16px; border-radius: 999px;
   background: #FFFFFF; color: var(--zs-verde);
-  font: 700 15px/1 var(--zs-fuente); text-decoration: none; white-space: nowrap;
-  opacity: 0; transform: translate(-50%, calc(-50% + 14px));
-  transition: opacity .3s ease, transform .35s cubic-bezier(.2, .7, .2, 1);
+  font: 700 14px/1 var(--zs-fuente); text-decoration: none; white-space: nowrap;
+  box-shadow: var(--zs-sombra);
 }
-.zs-campo__ver .zs-i { transition: transform .3s ease; transform: translateX(-6px); }
-.zs-campo:hover .zs-campo__ver, .zs-campo:focus-within .zs-campo__ver { opacity: 1; transform: translate(-50%, -50%); }
-.zs-campo:hover .zs-campo__ver .zs-i, .zs-campo:focus-within .zs-campo__ver .zs-i { transform: translateX(0); }
-@media (hover: none) { .zs-campo__ver { opacity: 1; transform: translate(-50%, -50%); left: auto; right: 12px; top: auto; bottom: 12px; transform: none; min-height: 40px; } }
-.zs-campo__txt { padding: 18px 20px 22px; }
-.zs-campo h3 { margin: 0 0 6px; font: 700 20px/1.3 var(--zs-titulo); letter-spacing: -.01em; color: var(--zs-tinta); transition: color .3s ease; }
-.zs-campo:hover h3, .zs-campo:focus-within h3 { color: var(--zs-verde); }
+.zs-campo__ver:focus-visible { outline: 3px solid var(--zs-dorado); outline-offset: 2px; }
+.zs-campo__txt { padding: 18px 20px 22px; background: var(--zs-crema); }
+.zs-campo h3 { margin: 0 0 6px; font: 700 20px/1.3 var(--zs-titulo); letter-spacing: -.01em; color: var(--zs-tinta); }
 .zs-campo p { margin: 0; font: 400 16px/1.6 var(--zs-fuente); color: var(--zs-texto); }
+
+/* Mejora progresiva (puntero fino, con hover, sin reducir movimiento): la foto ocupa toda la tarjeta y un panel crema
+   (70 % del alto, radio de 16 px) la cubre; al pasar el puntero o enfocar, el panel baja y deja ver la foto.
+   El texto sigue en el DOM y el enlace "Explorar" sigue disponible con teclado. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .zs-campo {
+    aspect-ratio: 3 / 4; min-height: 340px;
+    display: block; border: 0;
+    box-shadow: 0 0 20px 8px rgba(18, 53, 36, .10);
+    transition: box-shadow .6s ease;
+  }
+  .zs-campo:hover, .zs-campo:focus-within { box-shadow: 0 0 24px 10px rgba(18, 53, 36, .18); }
+  .zs-campo__img { position: absolute; inset: 0; aspect-ratio: auto; }
+  .zs-campo__img img { transition: transform 1s cubic-bezier(.645, .045, .355, 1); }
+  .zs-campo:hover .zs-campo__img img, .zs-campo:focus-within .zs-campo__img img { transform: translate3d(0, var(--py, 0px), 0) scale(1.16); }
+  .zs-campo__txt {
+    position: absolute; z-index: 1; top: 0; left: 0; right: 0; height: 70%;
+    padding: 22px 22px 16px; overflow: hidden;
+    border-radius: 0 0 16px 16px;
+    background: var(--zs-crema);
+    box-shadow: 0 0 20px 8px rgba(18, 53, 36, .12);
+    transform: translateY(0);
+    transition: transform 1s cubic-bezier(.645, .045, .355, 1);
+  }
+  .zs-campo:hover .zs-campo__txt, .zs-campo:focus-within .zs-campo__txt { transform: translateY(100%); }
+  .zs-campo__ver {
+    top: 14px; right: 14px; bottom: auto;
+    opacity: 0; transform: translateY(-8px);
+    transition: opacity .4s ease .25s, transform .5s cubic-bezier(.2, .7, .2, 1) .25s;
+  }
+  .zs-campo:hover .zs-campo__ver, .zs-campo:focus-within .zs-campo__ver { opacity: 1; transform: translateY(0); }
+}
 
 /* ---------- 8. Resolvamos tus dudas ---------- */
 .zs-dudas { display: grid; align-items: start; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 64px); }
@@ -573,13 +632,20 @@ main #contacto .zs-lead { color: #DDEBE1; }
 .zs-pie__marca-z { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 10px; background: var(--zs-dorado); color: var(--zs-tinta); font: 800 20px/1 var(--zs-titulo); letter-spacing: 0; }
 .zs-pie__marca p { margin: 14px 0 0; max-width: 36ch; font: 400 15px/1.6 var(--zs-fuente); color: #C9D9CE; }
 .zs-pie__redes { display: flex; gap: 10px; list-style: none; margin: 16px 0 0; padding: 0; }
+/* Íconos de redes: círculo de 52 px; al hover, foco o toque toma el color sólido de la marca y el ícono "rebota" */
 .zs-pie__redes a {
+  --c: var(--zs-verde);
   display: inline-flex; align-items: center; justify-content: center;
-  width: 44px; height: 44px; border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, .28); color: #FFFFFF; text-decoration: none; font-size: 20px;
-  transition: background-color .2s ease, color .2s ease, transform .25s cubic-bezier(.3, 1.6, .5, 1);
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(255, 255, 255, .14); color: #FFFFFF; text-decoration: none; font-size: 24px;
+  transition: background-color .25s ease, box-shadow .25s ease;
 }
-.zs-pie__redes a:hover { background: #FFFFFF; color: var(--zs-verde); transform: translateY(-3px); }
+.zs-pie__redes .zs-red--instagram { --c: #DD2A7B; }
+.zs-pie__redes .zs-red--facebook { --c: #1877F2; }
+.zs-pie__redes .zs-red--whatsapp { --c: #128C7E; }   /* el verde #25D366 no da contraste con el ícono blanco */
+.zs-pie__redes a:hover, .zs-pie__redes a:focus-visible, .zs-pie__redes a:active { background: var(--c); box-shadow: 0 0 0 3px rgba(255, 255, 255, .85); }
+.zs-pie__redes a:hover .zs-i, .zs-pie__redes a:focus-visible .zs-i, .zs-pie__redes a:active .zs-i { animation: zs-rebote .4s linear; }
+@keyframes zs-rebote { 40% { transform: scale(1.4); } 60% { transform: scale(.8); } 80% { transform: scale(1.2); } 100% { transform: scale(1); } }
 .zs-pie__col h3 { margin: 0 0 8px; font: 700 13px/1.3 var(--zs-fuente); letter-spacing: .08em; text-transform: uppercase; color: var(--zs-dorado-cl); }
 .zs-pie__col a {
   display: block; padding: 6px 0;
@@ -779,6 +845,7 @@ main #areas { background: var(--zs-crema); }
   .zs-curso__img img, .zs-campo__img img, .zs-cifra__icono, .zs-paso__icono, .zs-beneficio__icono, .zs-canal__icono, .zs-enlace .zs-i, .zs-boton .zs-i { transition: none !important; }
   .zs-curso:hover .zs-curso__img img, .zs-campo:hover .zs-campo__img img { --zoom: 1.04; }
   .zs-logo:hover, .zs-boton:hover { transform: none; }
+  .zs-pie__redes a:hover .zs-i, .zs-pie__redes a:focus-visible .zs-i, .zs-pie__redes a:active .zs-i { animation: none; }
 }
 
 /* ============================================================ */
@@ -832,7 +899,7 @@ body[data-landing-design] { font-family: var(--zs-fuente); }
   .zs-pie__marca { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; }
   .zs-pie__marca .zs-pie__logo { grid-column: 1; grid-row: 1; }
   .zs-pie__redes { grid-column: 2; grid-row: 1; margin: 0; }
-  .zs-pie__redes a { width: 40px; height: 40px; font-size: 18px; }
+  .zs-pie__redes a { width: 48px; height: 48px; font-size: 22px; }
   .zs-pie__marca p { grid-column: 1 / -1; grid-row: 2; }
   .zs-pie__col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 14px; }
   .zs-pie__col h3 { grid-column: 1 / -1; }

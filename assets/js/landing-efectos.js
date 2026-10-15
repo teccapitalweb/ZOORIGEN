@@ -171,11 +171,19 @@
     });
   }
 
+  // Tarjetas con efecto de hover (beneficios y campos): entran al teclado solo cuando existe el efecto (puntero fino y sin reducir movimiento).
+  // La descripción siempre está en el DOM; en táctil o con reducir movimiento todo se ve estático y no hay paradas de teclado extra.
+  function iniciarFocoTarjetas() {
+    if (reducir || !conRaton) return;
+    $$('.zs-beneficio').forEach(function (t) { t.setAttribute('tabindex', '0'); });
+  }
+
   iniciarPastilla();
   iniciarConteo();
   iniciarCarrusel();
   iniciarAcordeon();
   iniciarGiro();
+  iniciarFocoTarjetas();
 
   /* ---------------------------------------------------------- */
   /* 2. Movimiento (no corre con "reducir movimiento")           */
@@ -184,7 +192,8 @@
 
   var REVELAR = ['.zs-cifra', '.zs-head', '.zs-controles', '.zs-curso', '.zs-paso', '.zs-beneficio', '.zs-panel__texto', '.zs-ventana',
     '.zs-campo', '.zs-dudas__cab', '.zs-faq details', '.zs-contacto__texto', '.zs-canal', '.zs-marquee'];
-  var INCLINAR = { '.zs-curso': 6, '.zs-cifra': 5, '.zs-paso': 5, '.zs-beneficio': 5, '.zs-campo': 5, '.zs-canal': 3, '.zs-ventana': 2.5 };
+  // Beneficios y campos tienen su propio efecto en CSS (giro del panel y panel que baja): no se inclinan con el puntero
+  var INCLINAR = { '.zs-curso': 6, '.zs-cifra': 5, '.zs-paso': 5, '.zs-canal': 3, '.zs-ventana': 2.5 };
   var OBSERVAR = ['.zs-recursos', '.zs-campo', '.zs-pasos', '.zs-muro'];   // paralaje, línea de pasos y pausa del muro fuera de pantalla
 
   var visibles = new Set();

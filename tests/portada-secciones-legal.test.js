@@ -254,10 +254,69 @@ test('Confianza: tarjetas que giran en 3D con foco y toque, caja de logo fija y 
   assert.match(CSS, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.zs-logo__giro\s*\{\s*transform:\s*none !important/);
 });
 
-test('Del estudio a la práctica: 4 columnas, 2 x 2 en tableta, 1 en celular; la imagen se oscurece y aparece Explorar', () => {
+test('Del estudio a la práctica: 4 columnas, 2 x 2 en tableta, 1 en celular; el panel crema baja con hover y foco', () => {
   assert.match(CSS, /\.zs-campos\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/);
   assert.match(CSS, /@media \(min-width: 560px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(2,/);
   assert.match(CSS, /@media \(min-width: 1000px\)\s*\{\s*\.zs-campos\s*\{\s*grid-template-columns:\s*repeat\(4,/);
-  assert.match(CSS, /\.zs-campo__img::after\s*\{[^}]*background:\s*rgba\(/);
   assert.equal((INDEX.match(/class="zs-campo__ver"/g) || []).length, 4);
+  // El efecto solo existe con puntero fino, hover y sin reducir movimiento; el panel mide 70 % y baja 100 % en 1 s
+  const mejora = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-campo \{[\s\S]*?\n\}\n/);
+  assert.ok(mejora, 'falta la mejora progresiva de campos');
+  assert.match(mejora[0], /height:\s*70%/);
+  assert.match(mejora[0], /border-radius:\s*0 0 16px 16px/);
+  assert.match(mejora[0], /cubic-bezier\(\.645, \.045, \.355, 1\)/);
+  assert.match(mejora[0], /:focus-within \.zs-campo__txt\s*\{\s*transform:\s*translateY\(100%\)/);
+  assert.match(mejora[0], /box-shadow:\s*0 0 20px 8px/);
+  // Fuera de la mejora el texto queda debajo de la imagen y sin esconderse
+  assert.doesNotMatch(CSS.split('/* Mejora progresiva (puntero fino, con hover, sin reducir movimiento): la foto')[0].split('/* Base (táctil, sin hover o reducir movimiento): imagen arriba')[1], /display:\s*none|opacity:\s*0/);
+});
+
+test('Beneficios: tarjeta que gira el panel al hover y foco solo como mejora; descripción siempre en el DOM y visible sin hover', () => {
+  const mejora = CSS.match(/@media \(hover: hover\) and \(pointer: fine\) and \(prefers-reduced-motion: no-preference\) \{\s*\.zs-beneficio \{[\s\S]*?\n\}\n/);
+  assert.ok(mejora, 'falta la mejora progresiva de beneficios');
+  assert.match(mejora[0], /transform:\s*rotate\(-3deg\) scale\(1\.05\)/);
+  assert.match(mejora[0], /transform:\s*scale\(0\) rotate\(-45deg\)/);
+  assert.match(mejora[0], /opacity:\s*0; transform:\s*rotate\(-45deg\)/);
+  assert.match(mejora[0], /opacity:\s*1; transform:\s*rotate\(0\)/);
+  assert.match(mejora[0], /\.6s var\(--ease\)/);
+  assert.match(mejora[0], /--ease:\s*cubic-bezier\(\.23, 1, \.32, 1\)/);
+  // Seis tarjetas con título y descripción en el DOM, y el título del frente oculto a lectores (no se lee dos veces)
+  const lista = bloque(INDEX, '<ul class="zs-beneficios">', '</ul>');
+  assert.equal((lista.match(/<div class="zs-beneficio__panel"><h3>[^<]+<\/h3><p>[^<]{10,}<\/p><\/div>/g) || []).length, 6);
+  assert.equal((lista.match(/<p class="zs-beneficio__frente" aria-hidden="true">/g) || []).length, 6);
+  // Fuera de la mejora no se esconde nada: el frente duplicado es lo único con display none
+  const base = CSS.split('/* Base (táctil, sin hover o reducir movimiento): ícono, título y descripción siempre visibles y estáticos */')[1].split('/* Mejora progresiva (puntero fino, con hover y sin reducir movimiento): el frente')[0];
+  assert.doesNotMatch(base.replace('.zs-beneficio__frente { display: none; }', ''), /display:\s*none|opacity:\s*0|visibility:\s*hidden/);
+});
+
+test('apartado Membresía Zoorigen quitado: sin marcado, sin CSS muerto y sin anclas rotas', () => {
+  assert.doesNotMatch(INDEX, /club-vip|Membresía Zoorigen|Resumen de la membresía/);
+  for (const f of ['styles.css', 'assets/css/landing-catalog.css', 'assets/css/landing-nature.css', 'assets/css/landing-premium.css', 'assets/css/landing-redesign.css', 'assets/css/landing-structure.css', 'assets/css/landing-secciones.css', 'assets/js/landing-polish.js']) {
+    assert.doesNotMatch(leer(f), /club-vip-banner|club-vip-card|btn--club-cta/, f);
+  }
+  for (const [nombre, h] of [['index', INDEX], ['aviso', AVISO], ['terminos', TERMINOS]]) {
+    assert.doesNotMatch(h, /#club-vip/, nombre);
+    const ids = new Set([...INDEX.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]).concat(['encuesta']));   // #encuesta lo crea encuesta-landing.js
+    const propios = new Set([...h.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]));
+    for (const m of h.matchAll(/href="#([^"]+)"/g)) assert.ok(propios.has(m[1]) || ids.has(m[1]), nombre + ': ancla rota #' + m[1]);
+    if (nombre !== 'index') for (const m of h.matchAll(/href="index\.html#([^"]+)"/g)) assert.ok(ids.has(m[1]), nombre + ': ancla a la portada rota #' + m[1]);
+  }
+  assert.match(INDEX, /<a href="#panel">Plataforma<\/a>/);
+  assert.match(INDEX, /<a class="zs-enlace" href="#panel">Conocer el club/);
+  assert.ok(INDEX.includes('id="panel"'));
+});
+
+test('íconos de redes: círculo de 48 a 56 px, color sólido de marca al hover y foco, rebote y sin degradados', () => {
+  assert.match(CSS, /\.zs-pie__redes a \{[^}]*width:\s*52px;\s*height:\s*52px;\s*border-radius:\s*50%/);
+  assert.match(CSS, /\.zs-red--instagram \{ --c: #DD2A7B; \}/);
+  assert.match(CSS, /\.zs-red--facebook \{ --c: #1877F2; \}/);
+  assert.match(CSS, /\.zs-red--whatsapp \{ --c: #128C7E; \}/);
+  assert.match(CSS, /\.zs-pie__redes a:hover, \.zs-pie__redes a:focus-visible, \.zs-pie__redes a:active \{ background: var\(--c\)/);
+  assert.match(CSS, /@keyframes zs-rebote \{ 40% \{ transform: scale\(1\.4\); \} 60% \{ transform: scale\(\.8\); \} 80% \{ transform: scale\(1\.2\); \} 100% \{ transform: scale\(1\); \} \}/);
+  assert.match(CSS, /animation:\s*zs-rebote \.4s linear/);
+  assert.equal((PIE.match(/class="zs-red zs-red--/g) || []).length, 3);
+  assert.match(PIE, /aria-label="Instagram de Zoorigen"/);
+  assert.match(AVISO, /zs-red--instagram/);
+  // Con reducir movimiento solo cambia el color
+  assert.match(CSS, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.zs-pie__redes a:hover \.zs-i[^{]*\{\s*animation:\s*none/);
 });
