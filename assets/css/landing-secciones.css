@@ -706,7 +706,7 @@ main #areas { background: var(--zs-crema); }
 /* ============================================================ */
 /* BOTONES FLOTANTES: la guía ARRIBA y el WhatsApp ABAJO, en una */
 /* sola columna a la derecha, centrados entre sí, 12 px de       */
-/* separación. "Subir" va arriba de la guía, en la misma columna. */
+/* separación. No hay botón "subir".                             */
 /* (Las reglas viejas de styles.css y landing-*.css se anulan.)  */
 /* ============================================================ */
 .floating-whatsapp {
@@ -722,13 +722,6 @@ main #areas { background: var(--zs-crema); }
   left: auto !important;
 }
 .zg-launcher__ico { flex-basis: var(--zs-guia); width: var(--zs-guia); height: var(--zs-guia); }
-/* "Subir" va en la misma columna, arriba de la guía (así no tapa enlaces del contenido a la izquierda) */
-#backToTop {
-  left: auto !important;
-  right: calc(var(--zs-flot-lado) + (var(--zs-wa) - 44px) / 2) !important;
-  bottom: calc(var(--zs-flot-abajo) + var(--zs-wa) + 12px + var(--zs-guia) + 34px) !important;
-  width: 44px !important; height: 44px !important;
-}
 @media (max-width: 560px) {
   :root { --zs-wa: 48px; --zs-guia: 56px; }
   .zg-launcher__pj { scale: .93; }
@@ -1016,173 +1009,132 @@ body.zs-legal * { box-sizing: border-box; }
 }
 
 /* ============================================================ */
-/* PALETA VARIADA (ronda 6)                                      */
-/* El verde de marca queda como acento (logo, botón principal,   */
-/* enlaces y algún ícono). Cada sección toma sus propios acentos */
-/* y tintes pálidos sólidos; los tonos son apagados y todos los  */
-/* textos pasan AA. Va al final para ganar a las reglas previas. */
+/* COLOR EN ESTADOS DE EFECTO (ronda 7)                          */
+/* En reposo la portada conserva su aspecto (crema, blanco y     */
+/* verde de marca). La paleta variada solo aparece cuando una    */
+/* tarjeta se voltea, se expande, baja su panel o cambia por     */
+/* hover, foco o toque. Tintes pálidos sólidos con texto oscuro; */
+/* todos los pares pasan AA (lo mide la prueba).                 */
 /* ============================================================ */
 
-/* Fondos de sección: crema, blanco, cielo pálido y arena se alternan; "Tu plataforma" en azul profundo */
-.zs-sec--crema { --zs-fondo: #F6F4EF; }
-.zs-sec--arena { --zs-fondo: var(--zs-arena); }
-.zs-sec--cielo { --zs-fondo: var(--zs-cielo-p); }
-.zs-sec--azul { --zs-fondo: var(--zs-azul-prof); }
-main :is(#empresas, #cursos, #como-empezar, #beneficios, #panel, #experiencia, #preguntas, #contacto, #resenas).zs-sec { background: var(--zs-fondo, var(--zs-blanco)); }
-main #areas { background: var(--zs-cielo-p); }
-main #nosotros { background: var(--zs-arena); }
-main #certificacion { background: var(--zs-cielo-p); }
-main #galeria { background: #F6F4EF; }
-.certificate-stage { background: var(--zs-azul-prof); }
-.registration-layout { background: #FFFFFF; }
-
-/* Acento por sección (etiqueta, palabra destacada del titular y detalles) */
-#empresas { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-#areas { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-#cursos { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-#como-empezar { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-#beneficios { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
-#experiencia { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
-#resenas { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
-#preguntas { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-kicker { color: var(--acc, var(--zs-verde)); }
-.zs-title em, main #areas .section-head h2 em { color: var(--acc, var(--zs-verde)); }
-main #areas .section-head .eyebrow { color: var(--acc, var(--zs-verde)); }
-main #panel .zs-kicker, main #contacto .zs-kicker { color: var(--zs-dorado-cl); }
-main #panel .zs-title em { color: var(--zs-dorado-cl); }
-
-/* Foco visible con buen contraste (el dorado no alcanzaba 3:1 sobre blanco) */
+/* Se conservan: foco visible con contraste y degradados fuera (en tono verde de siempre) */
 :is(.zs-sec, .zs-pie, .zs-cab) :is(a, button, summary, input):focus-visible,
 .zs-logo:focus-visible, .zs-carril:focus-visible, .zs-beneficio:focus-visible, .zs-campo__ver:focus-visible { outline-color: var(--zs-cielo); }
-.zs-sec--azul :is(a, button):focus-visible, .zs-pie :is(a, button):focus-visible, .zs-contacto :is(a, button):focus-visible { outline-color: #FFFFFF; }
+.zs-sec--verde :is(a, button):focus-visible, .zs-pie :is(a, button):focus-visible, .zs-contacto :is(a, button):focus-visible { outline-color: #FFFFFF; }
+main #areas .section-head h2 em { background: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: currentColor; color: var(--zs-verde); }
+.certificate-stage { background: #1E4A34; }
+.registration-layout { background: #F1F5E8; }
 
-/* 2. Cifras: un color por cifra */
-.zs-cifra:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-cifra:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-cifra:nth-child(3) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
-.zs-cifra__icono { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
-
-/* 1. Áreas: un acento distinto por área (número, etiqueta, botón y borde al hover) */
-#areas .area-tw:nth-child(1) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-#areas .area-tw:nth-child(2) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-#areas .area-tw:nth-child(3) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
-#areas .area-tw:nth-child(4) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
-#areas .area-tw:nth-child(5) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-#areas .area-tw:nth-child(6) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
-#areas .area-tw__media { background: var(--tin, var(--zs-verde-cl)); }
-#areas .area-tw__num { color: var(--acc, var(--zs-verde)); }
-#areas .area-tw__count { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
-#areas .area-tw__btn { background: var(--acc, var(--zs-verde)); box-shadow: 0 4px 8px -2px rgba(31, 41, 51, .3); }
-#areas .area-tw:hover .area-tw__btn, #areas .area-tw:focus-visible .area-tw__btn { background: var(--acc, var(--zs-verde)); filter: brightness(.9); }
-#areas .area-tw:hover, #areas .area-tw:focus-visible { box-shadow: 0 0 0 2px var(--acc, var(--zs-verde)), 0 12px 20px -6px rgba(31, 41, 51, .2); }
-#areas .area-tw.is-active { box-shadow: 0 0 0 2px var(--acc, var(--zs-verde)), 0 12px 20px -6px rgba(31, 41, 51, .2); }
-#areas .area-tw:focus-visible { outline-color: var(--zs-cielo); }
-
-/* 9. Cursos: filtros y acciones en tinta y cielo (el verde se queda en el botón principal) */
-.zs-chip:hover { border-color: var(--zs-cielo); color: var(--zs-cielo); }
-.zs-chip.is-active, .zs-chip.is-active:hover { background: var(--zs-tinta); border-color: var(--zs-tinta); color: #FFFFFF; }
-.zs-pastilla { background: var(--zs-tinta); }
-.zs-buscar:focus-within { border-color: var(--zs-cielo); box-shadow: 0 0 0 4px rgba(30, 90, 138, .18); }
-main .zs-flecha.carousel-arrow { color: var(--zs-cielo); }
-main .zs-flecha.carousel-arrow:hover { background: var(--zs-cielo-t); border-color: var(--zs-cielo); }
-.zs-progreso > span { background: var(--zs-cielo); }
-.zs-curso .zs-boton--verde { background: var(--zs-cielo); box-shadow: 0 4px 8px -2px rgba(30, 90, 138, .35); }
-.zs-curso .zs-boton--verde:hover { background: var(--zs-azul-prof); }
-.zs-curso__detalle { color: var(--zs-cielo); }
-.zs-etiqueta { background: var(--zs-cielo-t); color: var(--zs-cielo); }
-.zs-etiqueta--dorada { background: var(--zs-ambar-t); color: var(--zs-ambar); }
-.zs-curso:hover { border-color: #B9CFE3; }
-.zs-boton--tinta { background: var(--zs-tinta); color: #FFFFFF; box-shadow: 0 4px 8px -2px rgba(31, 41, 51, .3); }
-.zs-boton--tinta:hover { background: #0F1720; box-shadow: 0 12px 18px -8px rgba(31, 41, 51, .5); }
-
-/* 3. Tu siguiente paso: un color por paso */
-.zs-paso:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-paso:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-paso:nth-child(3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-paso__fondo, .zs-paso__esquina { background: var(--tin, var(--zs-salvia)); }
-.zs-paso__esquina { color: var(--acc, var(--zs-verde)); }
-.zs-paso__icono { background: var(--tin, var(--zs-salvia)); color: var(--acc, var(--zs-verde)); }
-.zs-paso:hover .zs-paso__icono, .zs-paso:focus-within .zs-paso__icono { background: #FFFFFF; }
-.zs-paso__num, .zs-paso .zs-enlace { color: var(--acc, var(--zs-verde)); }
-.zs-paso:hover .zs-paso__tarjeta, .zs-paso:focus-within .zs-paso__tarjeta { border-color: var(--acc, #C5D6CB); }
-
-/* 4. Beneficios: seis tintes distintos con ícono en su acento */
-.zs-beneficio:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-beneficio:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-beneficio:nth-child(3) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
-.zs-beneficio:nth-child(4) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-beneficio:nth-child(5) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
-.zs-beneficio:nth-child(6) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
-.zs-beneficio { background: var(--tin, var(--zs-crema-2)); border-color: var(--zs-borde-t); }
-.zs-beneficio__icono { color: var(--acc, var(--zs-verde)); }
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .zs-beneficio { background: var(--tin, var(--zs-salvia)); }
-}
-
-/* 5. Del estudio a la práctica: filo y botón del color de su tema */
-.zs-campo:nth-child(1) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
-.zs-campo:nth-child(2) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
-.zs-campo:nth-child(3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-campo:nth-child(4) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
-.zs-campo__txt { border-top: 3px solid var(--acc, var(--zs-verde)); }
-.zs-campo__ver { color: var(--acc, var(--zs-verde)); }
-.zs-campo h3 { color: var(--zs-tinta); }
-
-/* Confianza: el reverso de cada tarjeta toma un tinte distinto */
+/* Confianza: el reverso de cada tarjeta que gira toma un tinte distinto (seis que rotan) */
 .zs-logo:nth-child(6n + 1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
 .zs-logo:nth-child(6n + 2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
 .zs-logo:nth-child(6n + 3) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
 .zs-logo:nth-child(6n + 4) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
 .zs-logo:nth-child(6n + 5) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
 .zs-logo:nth-child(6n + 6) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
-.zs-logo__cara--dorso { background: var(--tin, var(--zs-salvia)); }
+.zs-logo__cara--dorso { background: var(--tin, var(--zs-salvia)); border-color: var(--acc, var(--zs-borde-t)); }
 .zs-logo__cara--dorso .zs-i { color: var(--acc, var(--zs-verde)); }
 
-/* 6. Tu plataforma en azul profundo con ventana blanca */
-.zs-ventana__barra strong { color: var(--zs-cielo); }
-.zs-ventana__lista li:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-ventana__lista li:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-ventana__lista li:nth-child(3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-ventana__icono { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
-main #panel .zs-lead { color: #DCE6F0; }
+/* Tu siguiente paso: la esquina que se expande se llena con el tinte de su paso */
+.zs-paso:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
+.zs-paso:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
+.zs-paso:nth-child(3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
+.zs-paso__fondo { background: var(--tin, var(--zs-salvia)); }
+.zs-paso:hover .zs-paso__esquina, .zs-paso:focus-within .zs-paso__esquina { background: var(--tin, var(--zs-salvia)); color: var(--acc, var(--zs-verde)); }
+.zs-paso:hover .zs-paso__num, .zs-paso:focus-within .zs-paso__num,
+.zs-paso:hover .zs-enlace, .zs-paso:focus-within .zs-enlace { color: var(--acc, var(--zs-verde)); }
+.zs-paso:hover .zs-paso__tarjeta, .zs-paso:focus-within .zs-paso__tarjeta { border-color: var(--acc, #C5D6CB); }
 
-/* Dudas: acento cielo */
-.zs-faq details[open] { border-color: var(--zs-cielo); }
-.zs-faq summary .zs-i, .zs-faq details p a { color: var(--zs-cielo); }
+/* Beneficios: seis tintes; el panel que gira (y el borde de la tarjeta) toma el suyo */
+.zs-beneficio:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
+.zs-beneficio:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
+.zs-beneficio:nth-child(3) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
+.zs-beneficio:nth-child(4) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
+.zs-beneficio:nth-child(5) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
+.zs-beneficio:nth-child(6) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .zs-beneficio:hover, .zs-beneficio:focus-visible { border-color: var(--acc, var(--zs-borde-t)); }
+  .zs-beneficio:hover .zs-beneficio__panel, .zs-beneficio:focus-visible .zs-beneficio__panel { background: var(--tin, #FFFFFF); }
+}
 
-/* Contacto: panel índigo profundo y un color por canal */
-.zs-contacto { background: var(--zs-indigo-prof); }
-main #contacto .zs-lead, .zs-contacto__estado { color: #E1E3F4; }
+/* Del estudio a la práctica: borde y panel del color de su tema al activarse */
+.zs-campo:nth-child(1) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
+.zs-campo:nth-child(2) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
+.zs-campo:nth-child(3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
+.zs-campo:nth-child(4) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .zs-campo:hover, .zs-campo:focus-within { box-shadow: 0 0 0 3px var(--acc, var(--zs-verde)), 0 0 22px 9px rgba(18, 53, 36, .14); }
+  .zs-campo:hover .zs-campo__txt, .zs-campo:focus-within .zs-campo__txt { background: var(--tin, var(--zs-crema-2)); box-shadow: inset 0 3px 0 var(--acc, var(--zs-verde)), 0 0 20px 8px rgba(18, 53, 36, .10); }
+  .zs-campo:hover .zs-campo__ver, .zs-campo:focus-within .zs-campo__ver { color: var(--acc, var(--zs-verde)); }
+}
+
+/* Áreas: un acento distinto por área al pasar el puntero, enfocar o elegir el área */
+#areas .area-tw:nth-child(1) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
+#areas .area-tw:nth-child(2) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
+#areas .area-tw:nth-child(3) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
+#areas .area-tw:nth-child(4) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
+#areas .area-tw:nth-child(5) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
+#areas .area-tw:nth-child(6) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
+#areas .area-tw:hover, #areas .area-tw:focus-visible, #areas .area-tw.is-active { box-shadow: 0 0 0 2px var(--acc, var(--zs-verde)), 0 12px 20px -6px rgba(31, 41, 51, .2); }
+#areas .area-tw:hover .area-tw__num, #areas .area-tw:focus-visible .area-tw__num, #areas .area-tw.is-active .area-tw__num { color: var(--acc, var(--zs-verde)); }
+#areas .area-tw:hover .area-tw__count, #areas .area-tw:focus-visible .area-tw__count, #areas .area-tw.is-active .area-tw__count { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
+#areas .area-tw:hover .area-tw__btn, #areas .area-tw:focus-visible .area-tw__btn, #areas .area-tw.is-active .area-tw__btn { background: var(--acc, var(--zs-verde)); }
+#areas .area-tw:focus-visible { outline-color: var(--zs-cielo); }
+
+/* Cursos: la tarjeta cambia de color al pasar el puntero (seis acentos que rotan) */
+.zs-curso:nth-child(6n + 1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
+.zs-curso:nth-child(6n + 2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
+.zs-curso:nth-child(6n + 3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
+.zs-curso:nth-child(6n + 4) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
+.zs-curso:nth-child(6n + 5) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
+.zs-curso:nth-child(6n + 6) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
+.zs-curso:hover, .zs-curso:focus-within { border-color: var(--acc, #C9D9CE); }
+.zs-curso:hover .zs-etiqueta:not(.zs-etiqueta--dorada), .zs-curso:focus-within .zs-etiqueta:not(.zs-etiqueta--dorada) { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
+.zs-curso:hover .zs-boton--verde, .zs-curso:focus-within .zs-boton--verde { background: var(--acc, var(--zs-verde)); }
+.zs-curso:hover .zs-curso__detalle, .zs-curso:focus-within .zs-curso__detalle { color: var(--acc, var(--zs-verde)); }
+
+/* Cifras: el ícono cambia de color al pasar el puntero */
+.zs-cifra:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
+.zs-cifra:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
+.zs-cifra:nth-child(3) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
+.zs-cifra:hover .zs-cifra__icono { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
+.zs-cifra:hover { border-color: var(--acc, var(--zs-linea)); }
+
+/* Reseñas: la tarjeta se marca con su acento al pasar el puntero */
+.zs-resena--a { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
+.zs-resena--b { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
+.zs-resena--c { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
+.zs-resena { transition: box-shadow .25s ease; }
+.zs-resena:hover, .zs-resena:focus-within { box-shadow: 0 0 0 2px var(--acc, var(--zs-verde)), var(--zs-sombra); }
+.zs-resena:hover .zs-resena__avatar, .zs-resena:focus-within .zs-resena__avatar { background: var(--acc, var(--zs-verde)); color: #FFFFFF; }
+.zs-resena:hover .zs-resena__ver, .zs-resena:focus-within .zs-resena__ver { color: var(--acc, var(--zs-verde)); border-color: var(--acc, #CBD2D9); }
+
+/* Contacto y plataforma: cada canal / fila toma su color al pasar el puntero */
 .zs-contacto__lista li:nth-child(1) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
 .zs-contacto__lista li:nth-child(2) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
 .zs-contacto__lista li:nth-child(3) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
 .zs-contacto__lista li:nth-child(4) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-canal__icono { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
 .zs-canal:hover .zs-canal__icono { background: var(--acc, var(--zs-verde)); color: #FFFFFF; }
-.zs-canal__flecha { color: var(--acc, var(--zs-verde)); }
+.zs-canal:hover .zs-canal__flecha { color: var(--acc, var(--zs-verde)); }
+.zs-ventana__lista li:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
+.zs-ventana__lista li:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
+.zs-ventana__lista li:nth-child(3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
+.zs-ventana__lista li:hover .zs-ventana__icono { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
 
-/* 10. Reseñas: muro en cielo pálido, tarjetas blancas e insignia azul de Facebook */
-.zs-muro { background: var(--zs-cielo-t); }
-.zs-resena__avatar { background: var(--zs-cielo); color: #FFFFFF; }
-.zs-resena--b .zs-resena__avatar { background: var(--zs-terracota); color: #FFFFFF; }
-.zs-resena--c .zs-resena__avatar { background: var(--zs-indigo); color: #FFFFFF; }
-.zs-resena__insignia { background: #1565C0; color: #FFFFFF; }
-.zs-resena__ver { color: var(--zs-cielo); }
-.zs-resena__ver:hover { background: var(--zs-cielo-t); border-color: var(--zs-cielo); }
+/* Dudas: la pregunta abierta toma un color distinto */
+.zs-faq details:nth-child(6n + 1) { --acc: var(--zs-cielo); }
+.zs-faq details:nth-child(6n + 2) { --acc: var(--zs-terracota); }
+.zs-faq details:nth-child(6n + 3) { --acc: var(--zs-indigo); }
+.zs-faq details:nth-child(6n + 4) { --acc: var(--zs-teal); }
+.zs-faq details:nth-child(6n + 5) { --acc: var(--zs-rosa); }
+.zs-faq details:nth-child(6n + 6) { --acc: var(--zs-ambar); }
+.zs-faq details[open] { border-color: var(--acc, var(--zs-verde)); }
+.zs-faq details[open] summary .zs-i { color: var(--acc, var(--zs-verde)); }
 
-/* 8. Pie de página en azul noche (las mariposas naranjas resaltan) */
-footer.zs-pie { background: var(--zs-noche); color: #DCE6F0; }
-.zs-pie__marca p, .zs-pie__base p { color: #B9C8D8; }
-.zs-pie__col a { color: #DCE6F0; }
-.zs-pie__col a:hover { color: #FFFFFF; }
-
-/* 11. Aviso de privacidad y términos: acentos en cielo */
+/* Aviso de privacidad y términos: acentos en cielo (se conservan) */
 .zs-indice h2, .zs-doc__eyebrow { color: var(--zs-cielo); }
-.zs-indice a::before { color: var(--zs-cielo); }
-.zs-indice a:hover { color: var(--zs-cielo); }
+.zs-indice a::before, .zs-indice a:hover { color: var(--zs-cielo); }
 .zs-doc__version { background: var(--zs-cielo-t); color: var(--zs-azul-prof); }
 .zs-doc a { color: var(--zs-cielo); }
 .zs-cab__nav a:hover, .zs-cab__nav a[aria-current="page"] { color: var(--zs-cielo); }
-.zs-cab__nav .zs-boton:hover, .zs-cab__nav .zs-boton { color: #FFFFFF; }
-/* El titular de Áreas traía un degradado en el texto: color sólido del acento */
-main #areas .section-head h2 em { background: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: currentColor; color: var(--acc, var(--zs-verde)); }
+.zs-cab__nav .zs-boton, .zs-cab__nav .zs-boton:hover { color: #FFFFFF; }

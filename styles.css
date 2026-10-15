@@ -153,13 +153,11 @@ p { line-height: 1.75; color: var(--muted); }
 .footer__inner { display:grid; grid-template-columns: 1.15fr .7fr .7fr; gap:26px; }
 .footer h3 { color:#fff; }
 .footer a { display:block; margin: 10px 0; color:#d9e5dd; }
-.floating-whatsapp, #backToTop {
+.floating-whatsapp {
   position: fixed; right: 20px; width: 54px; height: 54px; border-radius: 50%; display:grid; place-items:center;
   color:#fff; box-shadow: var(--shadow); z-index: 70; transition: .25s ease;
 }
 .floating-whatsapp { bottom: 90px; background:#25D366; font-size: 1.5rem; }
-#backToTop { bottom: 24px; border:0; background: var(--green-900); font-size: 1.35rem; cursor:pointer; opacity:0; visibility:hidden; }
-#backToTop.is-visible { opacity:1; visibility:visible; }
 .modal { position:fixed; inset:0; z-index:100; display:none; }
 .modal.is-open { display:block; }
 .modal__overlay { position:absolute; inset:0; background: rgba(0,0,0,.6); }

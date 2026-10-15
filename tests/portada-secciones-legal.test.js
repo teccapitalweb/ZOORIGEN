@@ -175,11 +175,10 @@ test('ritmo vertical: relleno por lado entre 24 y 38 px (separación entre secci
   assert.match(CSS, /main > section:where\(:not\(#inicio\)\)\s*\{[^}]*padding-block:\s*var\(--zs-pad\)\s*!important/);
 });
 
-test('botones flotantes: guía arriba, WhatsApp abajo, centrados, a 12 px, con zona segura de iOS; "subir" arriba de la guía', () => {
+test('botones flotantes: guía arriba y WhatsApp abajo, centrados, a 12 px, con zona segura de iOS', () => {
   assert.match(CSS, /\.floating-whatsapp\s*\{[^}]*right:\s*var\(--zs-flot-lado\)[^}]*bottom:\s*var\(--zs-flot-abajo\)/);
   assert.match(CSS, /\.zg-launcher\s*\{[^}]*bottom:\s*calc\(var\(--zs-flot-abajo\)\s*\+\s*var\(--zs-wa\)\s*\+\s*12px\)/);
   assert.match(CSS, /safe-area-inset-bottom/);
-  assert.match(CSS, /#backToTop\s*\{[^}]*right:\s*calc\(var\(--zs-flot-lado\)[^}]*bottom:\s*calc\([^}]*var\(--zs-guia\)/);
   const mov = CSS.match(/@media \(max-width: 560px\) \{\s*:root \{[^}]*\}/);
   assert.ok(mov && /--zs-wa:\s*4\dpx/.test(mov[0]) && /--zs-guia:\s*5\dpx/.test(mov[0]), 'tamaños en celular de 40 a 56 px');
 });
@@ -205,7 +204,7 @@ test('efectos: archivo enlazado, un solo observador, un solo puntero delegado, s
 });
 
 /* ---------------- Ronda 3: reseñas en muro, esquina que se expande, tarjetas que giran, campos que se revelan ---------------- */
-const RESENAS = bloque(INDEX, '<section class="zs-sec zs-sec--arena" id="resenas"', '</section>');
+const RESENAS = bloque(INDEX, '<section class="zs-sec zs-sec--verde-cl" id="resenas"', '</section>');
 
 test('reseñas: muro de tarjetas con el texto transcrito de las capturas y sin las capturas', () => {
   // Textos tal cual aparecen en las capturas (sin los emojis de Facebook)
@@ -436,24 +435,53 @@ test('paleta variada: todos los pares de color pasan AA (4.5:1)', () => {
   assert.deepEqual(bajos, [], 'pares bajo 4.5:1');
 });
 
-test('paleta variada: el verde no es el fondo de más de una sección grande; plataforma en azul y pie en azul noche', () => {
+test('en reposo la portada conserva su aspecto (crema, blanco y verde de marca); la paleta variada solo vive en estados de efecto', () => {
   const secciones = [...INDEX.matchAll(/<section class="([^"]*)"/g)].map(m => m[1]);
   const verdes = secciones.filter(c => /zs-sec--verde\b/.test(c));
-  assert.ok(verdes.length <= 1, 'secciones verdes: ' + verdes.length);
-  assert.match(INDEX, /<section class="zs-sec zs-sec--azul" id="panel"/);
-  assert.match(CSS, /\.zs-sec--azul \{ --zs-fondo: var\(--zs-azul-prof\); \}/);
-  assert.match(CSS, /footer\.zs-pie \{ background: var\(--zs-noche\)/);
-  assert.match(CSS, /\.zs-contacto \{ background: var\(--zs-indigo-prof\); \}/);
-  assert.match(CSS, /\.zs-muro \{ background: var\(--zs-cielo-t\); \}/);
-  // Fondos alternados: arena, blanco, cielo pálido y crema aparecen en la portada
-  for (const c of ['zs-sec--arena', 'zs-sec--blanco', 'zs-sec--cielo', 'zs-sec--crema']) assert.ok(secciones.some(s => s.includes(c)), c);
-  // Un acento distinto por área, por cifra y por paso
-  assert.equal((CSS.match(/#areas \.area-tw:nth-child\(\d\) \{ --acc:/g) || []).length, 6);
-  assert.equal((CSS.match(/\.zs-cifra:nth-child\(\d\) \{ --acc:/g) || []).length, 3);
-  assert.equal((CSS.match(/\.zs-paso:nth-child\(\d\) \{ --acc:/g) || []).length, 3);
-  assert.equal((CSS.match(/\.zs-beneficio:nth-child\(\d\) \{ --acc:/g) || []).length, 6);
-  // Botón principal sigue en verde de marca y los secundarios en tinta
-  assert.match(CSS, /\.zs-boton--verde \{ background: var\(--zs-verde\)/);
-  assert.match(CSS, /\.zs-chip\.is-active, \.zs-chip\.is-active:hover \{ background: var\(--zs-tinta\)/);
-  assert.match(INDEX, /zs-boton--tinta" href="https:\/\/wa\.me\/5212361113237"/);
+  assert.equal(verdes.length, 2, 'Tu plataforma y Reseñas (verde pálido) como en la ronda 5');
+  assert.match(INDEX, /<section class="zs-sec zs-sec--verde" id="panel"/);
+  assert.doesNotMatch(INDEX, /zs-sec--(azul|cielo|arena)\b|zs-boton--tinta/, 'sin clases de la ronda 6');
+  assert.doesNotMatch(CSS, /footer\.zs-pie \{ background: var\(--zs-noche\)/);
+  assert.doesNotMatch(CSS, /\.zs-contacto \{ background: var\(--zs-indigo-prof\)/);
+  assert.doesNotMatch(CSS, /\.zs-chip\.is-active, \.zs-chip\.is-active:hover \{ background: var\(--zs-tinta\)/);
+  assert.match(CSS, /\.zs-pie \{[^}]*background: var\(--zs-pie\)/);
+  assert.match(CSS, /\.zs-sec--verde \{ --zs-fondo: var\(--zs-verde\); \}/);
+  assert.match(CSS, /\.zs-paso__fondo \{[^}]*background: var\(--zs-salvia\)/);
+  // El estado de reposo de cada tarjeta usa verde o tintes de la ronda 5; el color por tarjeta se declara solo con :hover/:focus
+  const bloqueEfectos = CSS.split('COLOR EN ESTADOS DE EFECTO (ronda 7)')[1];
+  assert.ok(bloqueEfectos, 'falta el bloque de efectos');
+  // Un acento distinto por área, paso, beneficio, tarjeta de campo, cifra, curso, reseña y logo
+  assert.equal((bloqueEfectos.match(/#areas \.area-tw:nth-child\(\d\) \{ --acc:/g) || []).length, 6);
+  assert.equal((bloqueEfectos.match(/\.zs-paso:nth-child\(\d\) \{ --acc:/g) || []).length, 3);
+  assert.equal((bloqueEfectos.match(/\.zs-beneficio:nth-child\(\d\) \{ --acc:/g) || []).length, 6);
+  assert.equal((bloqueEfectos.match(/\.zs-campo:nth-child\(\d\) \{ --acc:/g) || []).length, 4);
+  assert.equal((bloqueEfectos.match(/\.zs-logo:nth-child\(6n \+ \d\) \{ --acc:/g) || []).length, 6);
+  assert.equal((bloqueEfectos.match(/\.zs-curso:nth-child\(6n \+ \d\) \{ --acc:/g) || []).length, 6);
+  // El reverso de Confianza toma el tinte de cada tarjeta (nunca un solo verde agua)
+  assert.match(bloqueEfectos, /\.zs-logo__cara--dorso \{ background: var\(--tin, var\(--zs-salvia\)\)/);
+  // La esquina que se expande y el panel de beneficios usan el tinte de su tarjeta
+  assert.match(bloqueEfectos, /\.zs-paso__fondo \{ background: var\(--tin, var\(--zs-salvia\)\)/);
+  assert.match(bloqueEfectos, /\.zs-beneficio:hover \.zs-beneficio__panel[^{]*\{ background: var\(--tin, #FFFFFF\)/);
+  // Ninguna regla de color por tarjeta se aplica en reposo: las que usan var(--acc) van con :hover, :focus o :open, o definen --acc
+  const reposo = bloqueEfectos.split('\n').filter(l => /var\(--(acc|tin)/.test(l) && !/:hover|:focus|\[open\]|\.is-active|--acc:|\.zs-paso__fondo \{|\.zs-logo__cara--dorso/.test(l));
+  assert.deepEqual(reposo, [], 'reglas con color por tarjeta fuera de un estado de efecto');
+  // Contraste de los textos que cambian de color en esos estados (acento sobre su tinte)
+  for (const a of ['cielo', 'terracota', 'ambar', 'indigo', 'teal', 'rosa']) assert.ok(contraste(VAR('zs-' + a), VAR('zs-' + a + '-t')) >= 4.5, a);
+});
+
+test('portada sin el botón flotante "subir": marcado, CSS y JS fuera', () => {
+  for (const [n, t] of [['index', INDEX], ['aviso', AVISO], ['terminos', TERMINOS], ['secciones.css', CSS], ['script.js', SCRIPT], ['efectos', leer('assets/js/landing-efectos.js')], ['styles.css', leer('styles.css')]]) {
+    assert.doesNotMatch(t, /backToTop|Regresar arriba/, n);
+  }
+  assert.doesNotMatch(INDEX, /<button[^>]*>↑<\/button>/);
+  assert.match(INDEX, /class="floating-whatsapp"/);
+});
+
+test('el botón flotante del guía muestra la imagen pensando', () => {
+  const JS = leer('assets/js/chatbot-landing.js');
+  assert.match(JS, /var EXPR_LANZADOR = 'thinking';/);
+  assert.match(JS, /imagenExpresion\(EXPR_LANZADOR\)/);
+  const G = leer('assets/js/guia-personaje.js');
+  assert.match(G, /thinking: CARPETA \+ 'guia-pensando\.webp'/);
+  assert.ok(fs.existsSync(path.join(RAIZ, 'assets/img/guia/guia-pensando.webp')));
 });

@@ -133,3 +133,11 @@ El verde de marca (`#1F5F3A`) queda como acento (logo, botón principal "Crear c
 | Arena `#FAF5EA` / crema `#F6F4EF` | cifras, Siguiente paso, Reseñas, Contacto, Galería, Nosotros |
 | Tinta `#1F2933` | filtros activos, pastilla de filtros, botones secundarios |
 | Azul Facebook `#1565C0` | insignia "Reseña en Facebook" (ajustado de #1877F2 para contraste AA) |
+
+## 11. Séptima ronda: color solo en estados de efecto
+
+- **Reposo como en la ronda 5:** fondos crema, blanco y verde pálido; "Tu plataforma", contacto y pie en verde; palabras destacadas y acentos estáticos en el verde de marca; filtros y botones como estaban.
+- **Se conservaron:** las variables de paleta (`--zs-cielo`, `--zs-terracota`, `--zs-ambar`, `--zs-indigo`, `--zs-teal`, `--zs-rosa` y sus tintes), el foco con contraste, los degradados fuera (título de Áreas y escenario del certificado, ahora sólidos en verde oscuro) y los acentos en cielo de aviso y términos.
+- **Color solo al activarse:** reverso de las tarjetas de Confianza (seis tintes que rotan), esquina que se expande en Siguiente paso (cielo, terracota, índigo), panel y borde de Beneficios, borde y panel de Estudio a la práctica, botón y borde de las tarjetas de Áreas, borde/etiqueta/botón de Cursos, ícono de cifras, tarjeta de reseñas, canales de contacto y pregunta abierta.
+- **Guía:** el botón flotante muestra `assets/img/guia/guia-pensando.webp` (sin saludo animado). No hizo falta variante de 128 px: el busto se usa a 92 px desde el archivo de 640 px, como las demás poses.
+- **Botón "subir" eliminado** de portada y hojas (queda solo la columna guía + WhatsApp).
