@@ -85,12 +85,12 @@ test('la barra lateral estática trae el menú completo, el bloque de plan y SOL
   assert.match(leer('pages/club-infusiones.html'), /class=" is-active"><span class="icon">[\s\S]*?<\/span>Referencia clínica/, 'infusiones marca lo mismo que marcará el JavaScript');
 });
 
-test('la barra superior, la inferior del celular y el botón de WhatsApp vienen escritos en el HTML', () => {
+test('la barra superior y la inferior del celular vienen escritas en el HTML (sin botón flotante de WhatsApp)', () => {
   for (const f of PANEL) {
     const h = leer('pages/' + f);
     assert.match(h, /<main class="club-main"[^>]*>\s*<header class="zs-topbar" id="zsTopbar">/, f + ': barra superior como primer hijo');
     assert.match(h, /<nav class="zs-bottom" id="zsBottom"/, f + ': barra inferior');
-    assert.match(h, /<div class="zs-wa" id="zsWa" data-vip="0">/, f + ': WhatsApp');
+    assert.doesNotMatch(h, /zsWa|zs-wa/, f + ': el Club no lleva botón flotante de WhatsApp');
     assert.equal((h.match(/id="zsTopbar"/g) || []).length, 1);
     assert.equal((h.match(/id="zsBottom"/g) || []).length, 1);
     // una pestaña marcada por cada juego de pestañas (miembro y cuenta gratuita comparten Inicio, Cursos, PDFs y Más)
@@ -103,7 +103,7 @@ test('el JavaScript completa lo estático (no lo duplica) y la sesión inválida
   const shell = leer('assets/js/club-shell.js');
   assert.match(shell, /completarBarra\(barra, sesion\)/);
   assert.match(shell, /document\.getElementById\('zsBottom'\) \? ''/);
-  assert.match(shell, /document\.getElementById\('zsWa'\) \? ''/);
+  assert.doesNotMatch(shell, /zsWa|whatsappHTML|abrirWa/, 'club-shell.js ya no arma el botón flotante de WhatsApp');
   assert.doesNotMatch(shell, /document\.getElementById\('zsTopbar'\)\) return false/, 'ya no se rinde si la barra existe');
   const club = leer('assets/js/club.js');
   assert.match(club, /if \(!user\) \{ window\.location\.href = 'club-login\.html'; return resolve\(null\); \}/);
@@ -205,7 +205,7 @@ test('el service worker precachea las fuentes críticas y su hoja', () => {
 test('View Transitions entre documentos: barras fijas, contenido con fundido corto y sin animación con "reducir movimiento"', () => {
   const css = leer('assets/css/club-shell.css');
   assert.match(css, /@media \(prefers-reduced-motion: no-preference\)\s*\{\s*@view-transition\s*\{\s*navigation:\s*auto;\s*\}\s*\}/);
-  for (const [sel, nombre] of [['.club-sidebar', 'zs-lateral'], ['.zs-topbar', 'zs-superior'], ['.zs-bottom', 'zs-inferior'], ['.zs-wa', 'zs-whatsapp']]) {
+  for (const [sel, nombre] of [['.club-sidebar', 'zs-lateral'], ['.zs-topbar', 'zs-superior'], ['.zs-bottom', 'zs-inferior']]) {
     assert.match(css, new RegExp(sel.replace('.', '\\.') + '\\s*\\{\\s*view-transition-name:\\s*' + nombre));
   }
   assert.match(css, /::view-transition-old\(root\)\s*\{\s*animation:\s*zsSale \.16s/);

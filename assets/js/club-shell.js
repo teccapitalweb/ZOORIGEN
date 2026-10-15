@@ -107,13 +107,14 @@
     return (partes.map(function (p) { return p.charAt(0); }).join('') || 'M').toUpperCase();
   }
 
-  /* ¿Tiene membresía vigente? (la sesión trae planStatus; el administrador también cuenta) */
+  /* ¿Tiene membresía vigente? Solo cuenta la membresía real (planStatus). El administrador no entra por aquí: va a su panel;
+     con "Ver como usuario" la sesión llega con rol de miembro y se ve exactamente lo que vería esa cuenta. */
   function esMiembroVip(sesion) {
     if (!sesion) return false;
     var cl = null;
     try { cl = (typeof ZOORIGEN_CLUB !== 'undefined') ? ZOORIGEN_CLUB : null; } catch (e) { cl = null; }
     if (cl && typeof cl.hasActiveMembership === 'function') { try { if (cl.hasActiveMembership(sesion)) return true; } catch (e) { /* nada */ } }
-    return sesion.planStatus === 'active' || sesion.planStatus === 'cancelled_active' || sesion.role === 'admin';
+    return sesion.planStatus === 'active' || sesion.planStatus === 'cancelled_active';
   }
 
   function enlaceSoporte(texto) {
@@ -312,7 +313,7 @@
   var API = {
     GRUPOS: GRUPOS, BARRA: BARRA, SOPORTE: SOPORTE, BREAKPOINT_MOVIL: BREAKPOINT_MOVIL,
     planos: planos, normalizar: normalizar, buscarSecciones: buscarSecciones, buscarCursos: buscarCursos,
-    pestanaActiva: pestanaActiva, primerNombre: primerNombre, iniciales: iniciales, enlaceSoporte: enlaceSoporte, esMiembroVip: esMiembroVip, whatsappHTML: whatsappHTML, modoInstalacion: modoInstalacion,
+    pestanaActiva: pestanaActiva, primerNombre: primerNombre, iniciales: iniciales, enlaceSoporte: enlaceSoporte, esMiembroVip: esMiembroVip, modoInstalacion: modoInstalacion,
     ICONOS_EXTRA: ICONOS_EXTRA, ESTADOS_PLAN: ESTADOS_PLAN, resumenPlan: resumenPlan, fechaCorta: fechaCorta, perfilMenuHTML: perfilMenuHTML, ATAJOS_PERFIL: ATAJOS_PERFIL, estadoPlan: estadoPlan, menuHTML: menuHTML,
     barraLateralHTML: barraLateralHTML, barraSuperiorHTML: barraSuperiorHTML, barraInferiorHTML: barraInferiorHTML, planEsqueletoHTML: planEsqueletoHTML
   };
@@ -436,28 +437,6 @@
       '<button type="button" class="zs-drawer__btn zs-drawer__btn--salir" id="zsSalirCajon">' + icono('logout', 17) + ' Cerrar sesión</button></div>';
   }
 
-  /* Botón flotante de WhatsApp. Quien NO es miembro VIP va directo a WhatsApp (sin menú); el menú con
-     descuento, soporte VIP, dirección y canal es solo para miembros. */
-  var MSG_SIN_MEMBRESIA = 'Hola, quiero información sobre el Club VIP de Zoorigen';
-  function ico(nombre) { return '<svg class="zi" aria-hidden="true"><use href="#zi-' + nombre + '"/></svg>'; }
-  function waMenuHTML() {
-    var item = function (icon, txt, sub, url, interno) {
-      return '<a class="zs-wa__item" href="' + esc(url) + '"' + (interno ? '' : ' target="_blank" rel="noopener"') + '>' +
-        '<span class="zs-wa__ic">' + ico(icon) + '</span><span><span class="zs-wa__tx">' + esc(txt) + '</span><span class="zs-wa__sub">' + esc(sub) + '</span></span></a>';
-    };
-    return '<div class="zs-wa__menu" id="zsWaMenu" hidden>' +
-        item('gift', 'Mi descuento 20%', 'Solicitar por WhatsApp', enlaceSoporte('Hola, quiero aplicar mi 20% de descuento VIP')) +
-        item('message-circle', 'Soporte VIP', 'Ayuda con tu cuenta', enlaceSoporte('Hola, soy miembro del Club VIP Zoorigen y necesito ayuda')) +
-        item('mail', 'Contactar dirección', 'Para temas estratégicos', enlaceSoporte('Hola, quiero hablar con la dirección de Zoorigen')) +
-        item('radio', 'Canal oficial Zoorigen', 'Únete y recibe alertas', 'club-canal.html', true) +
-      '</div>';
-  }
-  function whatsappHTML(esVip) {
-    var menu = esVip ? waMenuHTML() : '';
-    return '<div class="zs-wa" id="zsWa" data-vip="' + (esVip ? '1' : '0') + '">' + menu +
-      '<button type="button" class="zs-wa__btn" id="zsWaBtn" aria-label="Ayuda por WhatsApp" aria-expanded="false">' + icono('brandwhatsapp', 24) + '</button></div>';
-  }
-
   /* La barra superior estática trae los huecos del nombre vacíos: se llenan con la sesión (sin tocar nada más). */
   function completarBarra(barra, sesion) {
     var nombre = primerNombre(sesion && sesion.name, sesion && sesion.email);
@@ -471,14 +450,6 @@
     if (c) c.textContent = iniciales(sesion && sesion.name, sesion && sesion.email);
     var an = barra.querySelector('.zs-avatar__name');
     if (an) an.textContent = nombre;
-  }
-
-  /* Botón de WhatsApp estático: con membresía se le añade el menú; sin ella se queda como está (va directo al chat). */
-  function completarWhatsapp(esVip) {
-    var wa = document.getElementById('zsWa');
-    if (!wa) return;
-    wa.setAttribute('data-vip', esVip ? '1' : '0');
-    if (esVip && !document.getElementById('zsWaMenu')) wa.insertAdjacentHTML('afterbegin', waMenuHTML());
   }
 
   function cerrarResultados() { var r = document.getElementById('zsResults'); if (r) { r.hidden = true; r.innerHTML = ''; } }
@@ -624,7 +595,7 @@
     var activo = opciones.activo || '';
     estado.sesion = sesion;
 
-    /* La barra superior, la inferior y el botón de WhatsApp ya vienen escritos en el HTML de la página (generados con las
+    /* La barra superior y la inferior ya vienen escritas en el HTML de la página (generados con las
        mismas funciones de arriba), así que existen desde el primer pintado. Aquí solo se completan con la sesión y se les
        pone sus eventos. Si una página no las trae, se arman como siempre. */
     var barra = document.getElementById('zsTopbar');
@@ -643,10 +614,8 @@
       (document.getElementById('notifPanel') ? '' : panelNotifHTML()) +
       (document.getElementById('zsBottom') ? '' : '<nav class="zs-bottom" id="zsBottom" aria-label="Navegación principal">' + barraInferiorHTML(activo) + '</nav>') +
       '<div class="zs-velo" id="zsVelo"></div>' +
-      '<aside class="zs-drawer" id="zsDrawer" role="dialog" aria-label="Menú" aria-hidden="true">' + cajonHTML(sesion, activo) + '</aside>' +
-      (document.getElementById('zsWa') ? '' : whatsappHTML(esMiembroVip(sesion)));
+      '<aside class="zs-drawer" id="zsDrawer" role="dialog" aria-label="Menú" aria-hidden="true">' + cajonHTML(sesion, activo) + '</aside>';
     while (cuerpo.firstChild) document.body.appendChild(cuerpo.firstChild);
-    completarWhatsapp(esMiembroVip(sesion));
 
     pintarTema();
 
@@ -671,7 +640,7 @@
     document.getElementById('zsCerrarCajon').addEventListener('click', function () { abrirCajon(false); });
     document.getElementById('zsVelo').addEventListener('click', function () { abrirCajon(false); });
     document.getElementById('zsDrawer').addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) abrirCajon(false); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { abrirCajon(false); abrirWa(false); cerrarPerfil(); } });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { abrirCajon(false); cerrarPerfil(); } });
 
     /* avatar: abre "Tu espacio". Con clic medio, Ctrl o Cmd (abrir en otra pestaña) sigue siendo el enlace a Mi perfil. */
     var avatar = document.getElementById('zsAvatar') || barra.querySelector('.zs-avatar');
@@ -693,17 +662,6 @@
       e.preventDefault();
       abrirInstalar();
     });
-
-    /* WhatsApp flotante */
-    var waBtn = document.getElementById('zsWaBtn'), waMenu = document.getElementById('zsWaMenu');
-    function abrirWa(abrir) { if (!waMenu) return; waMenu.hidden = !abrir; waBtn.setAttribute('aria-expanded', abrir ? 'true' : 'false'); }
-    waBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      /* sin membresía: directo a WhatsApp, como en el sitio público */
-      if (!waMenu) { window.open(enlaceSoporte(MSG_SIN_MEMBRESIA), '_blank', 'noopener'); return; }
-      abrirWa(waMenu.hidden);
-    });
-    document.addEventListener('click', function (e) { if (waMenu && !waMenu.hidden && !document.getElementById('zsWa').contains(e.target)) abrirWa(false); });
 
     window.addEventListener('storage', function (e) { if (e.key === 'zoo_theme') { document.documentElement.setAttribute('data-theme', e.newValue === 'dark' ? 'dark' : 'light'); pintarTema(); } });
     window.addEventListener('resize', function () { if (window.innerWidth > BREAKPOINT_MOVIL) abrirCajon(false); });

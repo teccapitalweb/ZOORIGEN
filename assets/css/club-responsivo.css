@@ -72,13 +72,12 @@ img, video { height: auto; }
   .club-main { padding-top: clamp(16px, 2.4vw, 28px); }
 }
 @media (max-width: 980px) {
-  /* Deja espacio abajo para la barra inferior Y para el botón de WhatsApp: nada queda tapado al llegar al final */
+  /* Deja espacio abajo para la barra inferior y la zona segura: nada queda tapado al llegar al final */
   body .club-layout > .club-main {
-    padding: 0 var(--zoo-gutter) calc(var(--zs-bar-h, 64px) + 104px + var(--zoo-safe-b)) !important;
+    padding: 0 var(--zoo-gutter) calc(var(--zs-bar-h, 64px) + 40px + var(--zoo-safe-b)) !important;
   }
   .zs-topbar { margin: 0 calc(-1 * var(--zoo-gutter)) 16px; padding: 10px var(--zoo-gutter); }
   .zs-bottom { left: max(10px, var(--zoo-safe-l)); right: max(10px, var(--zoo-safe-r)); }
-  .zs-wa { left: max(12px, var(--zoo-safe-l)); }
   .zs-drawer { padding-right: calc(14px + var(--zoo-safe-r)); max-width: 100%; }
   .zs-drawer { height: var(--zoo-vh); }
   .zs-tab { min-width: 40px; }
@@ -121,16 +120,14 @@ img, video { height: auto; }
   .zs-tab__txt, .zs-tab.is-active .zs-tab__txt { overflow: visible; text-overflow: clip; }
 }
 
-/* Teléfono en horizontal (poco alto): barra y botón flotante más bajos para dejar ver el contenido */
+/* Teléfono en horizontal (poco alto): barra inferior más baja para dejar ver el contenido */
 @media (max-height: 480px) and (orientation: landscape) {
   :root { --zs-bar-h: 52px; }
   .zs-bottom { height: var(--zs-bar-h); bottom: calc(6px + var(--zoo-safe-b)); padding: 4px; }
   .zs-tab { gap: 0; }
   .zs-tab__txt { display: none; }
   .zs-tab.is-active .zs-tab__txt { display: inline; }
-  .zs-wa { bottom: calc(var(--zs-bar-h) + 14px + var(--zoo-safe-b)); }
-  .zs-wa__btn { width: 44px; height: 44px; }
-  body .club-layout > .club-main { padding-bottom: calc(var(--zs-bar-h) + 76px + var(--zoo-safe-b)) !important; }
+  body .club-layout > .club-main { padding-bottom: calc(var(--zs-bar-h) + 32px + var(--zoo-safe-b)) !important; }
   .zs-topbar { position: static; }
 }
 
@@ -144,11 +141,11 @@ img, video { height: auto; }
 /* El menú lateral no queda más alto que la pantalla (zoom del 200 % o pantalla baja) */
 .club-sidebar { max-height: var(--zoo-vh); }
 
-/* Avisos emergentes (toasts): arriba de la barra inferior y del botón de WhatsApp, no encima de ellos */
+/* Avisos emergentes (toasts): arriba de la barra inferior, no encima de ella */
 @media (max-width: 980px) {
-  .pw-toast, .zc-toast, .mt-toast { bottom: calc(var(--zs-bar-h, 64px) + 86px + var(--zoo-safe-b)) !important; }
-  #zoo-ach-toast { bottom: calc(var(--zs-bar-h, 64px) + 86px + var(--zoo-safe-b)) !important; }
-  .rz-toasts { bottom: calc(var(--zs-bar-h, 64px) + 86px + var(--zoo-safe-b)); right: var(--zoo-gutter); width: min(360px, calc(100vw - 2 * var(--zoo-gutter))); }
+  .pw-toast, .zc-toast, .mt-toast { bottom: calc(var(--zs-bar-h, 64px) + 24px + var(--zoo-safe-b)) !important; }
+  #zoo-ach-toast { bottom: calc(var(--zs-bar-h, 64px) + 24px + var(--zoo-safe-b)) !important; }
+  .rz-toasts { bottom: calc(var(--zs-bar-h, 64px) + 24px + var(--zoo-safe-b)); right: var(--zoo-gutter); width: min(360px, calc(100vw - 2 * var(--zoo-gutter))); }
 }
 
 /* Panel de avisos (campana): cabe en pantalla y se desplaza por dentro */
@@ -164,7 +161,7 @@ img, video { height: auto; }
 .dash-refer-copy, .dash-refer-share, .btn-small, .content-item__tag, .mt-pin, .password-toggle, .zc-btn,
 .zoo-welcome-close, .zoo-welcome-cta, .ih-btn, .ih-btn-verde, .ih-btn-oscuro, .btn-danger,
 .av-cerrar, .notif-panel__close, .av-borrar, .av-todo, .player-box__close, .pw-modal__seguir, .rdr-nav, .rdr-x, .rdr-volver, .rdr-modo,
-.mt-icono, .cuota-cat, .cites-tab, .tool-chip, .cuota-selector button, .zc-cert-btn, .zs-drawer__close, .zs-inst__x, .zs-wa__item {
+.mt-icono, .cuota-cat, .cites-tab, .tool-chip, .cuota-selector button, .zc-cert-btn, .zs-drawer__close, .zs-inst__x {
   min-height: 40px; min-width: 40px;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
 }
@@ -380,5 +377,4 @@ td.reg-acciones { white-space: normal; }
 /* ─────────────── ACCESIBILIDAD ─────────────── */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .zs-wa__btn { animation: none; }
 }

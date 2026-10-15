@@ -97,7 +97,7 @@
   transition: border-color .15s, background .15s, transform .15s;
 }
 .zs-btn:hover, .zs-actions .notif-icon:hover { border-color: var(--zoo-amber); background: rgba(232, 163, 23, 0.12); transform: none; }
-.zs-btn:focus-visible, .zs-avatar:focus-visible, .zs-tab:focus-visible, .zs-wa__btn:focus-visible { outline: 2px solid var(--zoo-amber); outline-offset: 2px; }
+.zs-btn:focus-visible, .zs-avatar:focus-visible, .zs-tab:focus-visible { outline: 2px solid var(--zoo-amber); outline-offset: 2px; }
 .zs-theme__txt { font-size: .84rem; font-weight: 600; }
 .zs-salir { display: none; color: var(--zoo-orange); border-color: rgba(213, 90, 40, 0.35); }
 .zs-actions .notif-badge { top: -3px; right: -3px; }
@@ -115,28 +115,6 @@
 /* ═══════════════ BARRA INFERIOR (CELULAR Y TABLETA) ═══════════════ */
 .zs-bottom, .zs-drawer, .zs-velo { display: none; }
 
-.zs-wa { position: fixed; left: 24px; bottom: 24px; z-index: 55; }
-.zs-wa__btn {
-  width: 56px; height: 56px; border-radius: 50%;
-  background: #25D366; color: #fff;
-  display: inline-flex; align-items: center; justify-content: center;
-  box-shadow: 0 10px 26px rgba(37, 211, 102, 0.40);
-  animation: zsPulso 2.6s ease-in-out infinite;
-}
-.zs-wa__btn:hover { transform: scale(1.06); }
-@keyframes zsPulso { 0%, 100% { box-shadow: 0 10px 26px rgba(37, 211, 102, 0.40); } 50% { box-shadow: 0 10px 34px rgba(37, 211, 102, 0.70); } }
-.zs-wa__menu {
-  position: absolute; left: 0; bottom: 68px; width: 270px;
-  background: var(--zoo-bg-card); border: 1px solid var(--zoo-border-strong);
-  border-radius: 16px; box-shadow: var(--zs-shadow); padding: 8px;
-}
-.zs-wa__menu[hidden] { display: none; }
-.zs-wa__title { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--zoo-text-dim); padding: 8px 10px 6px; }
-.zs-wa__item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; color: var(--zoo-text); font-size: .9rem; font-weight: 600; }
-.zs-wa__item:hover { background: rgba(37, 211, 102, 0.12); }
-.zs-wa__ic { width: 34px; height: 34px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; flex: none; background: rgba(37, 211, 102, 0.14); color: #1E9B50; }
-.zs-wa__ic .zi { width: 18px; height: 18px; }
-.zs-wa__tx { display: block; font-size: .85rem; font-weight: 700; line-height: 1.3; }
 /* Ventana "Instalar app" */
 .zs-inst { position: fixed; inset: 0; z-index: 100001; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .zs-inst__velo { position: absolute; inset: 0; background: rgba(15, 15, 15, .55); }
@@ -147,10 +125,9 @@
 .zs-inst__icono { width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 50%; display: grid; place-items: center; background: rgba(232, 163, 23, 0.16); color: var(--zoo-amber); }
 .zs-inst__x { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; background: transparent; border: 0; color: var(--zoo-text-muted); cursor: pointer; }
 .zs-inst__btn { display: block; width: 100%; margin-top: 8px; padding: 13px 16px; border: 0; border-radius: 12px; background: var(--zoo-amber); color: #1F1D17; font: 700 .95rem var(--zoo-font-display); cursor: pointer; }
-.zs-wa__sub { display: block; font-size: .75rem; font-weight: 500; color: var(--zoo-text-dim); margin-top: 1px; }
 
-/* el menú lateral deja espacio abajo para que el botón de WhatsApp no tape las últimas opciones */
-.club-sidebar { padding-bottom: 96px; }
+/* el menú lateral deja un respiro abajo (ya no hay botón flotante que tape las últimas opciones) */
+.club-sidebar { padding-bottom: 24px; }
 
 .badge--nuevo { background: var(--zoo-ok-txt) !important; color: #0F1215 !important; }
 [data-theme="light"] .badge--nuevo { background: var(--zoo-ok-tinte) !important; color: var(--zoo-ok-txt) !important; border: 1px solid var(--zoo-ok-borde); }
@@ -211,9 +188,6 @@
   }
   .zs-tab.is-active { color: var(--zoo-text); font-weight: 800; }
   .zs-tab.is-active .zs-tab__ico { background: #E8B431; color: #2B2000; }
-  .zs-wa { left: 14px; bottom: calc(var(--zs-bar-h) + 26px + env(safe-area-inset-bottom)); }
-  .zs-wa__btn { width: 48px; height: 48px; }
-  .zs-wa__btn svg { width: 22px; height: 22px; }
 
   .zs-velo { display: block; position: fixed; inset: 0; z-index: 90; background: rgba(0, 0, 0, 0.55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity .22s; }
   .zs-velo.is-open { opacity: 1; pointer-events: auto; }
@@ -254,7 +228,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .zs-wa__btn { animation: none; }
   .zs-drawer, .zs-velo, .zs-tab { transition: none; }
 }
 
@@ -373,13 +346,12 @@ html[data-theme="light"] { color-scheme: light; background-color: #F6F4EF; }
 .club-sidebar { view-transition-name: zs-lateral; }
 .zs-topbar { view-transition-name: zs-superior; }
 .zs-bottom { view-transition-name: zs-inferior; }
-.zs-wa { view-transition-name: zs-whatsapp; }
 ::view-transition-group(zs-lateral), ::view-transition-group(zs-superior),
-::view-transition-group(zs-inferior), ::view-transition-group(zs-whatsapp) { animation-duration: 0s; }
+::view-transition-group(zs-inferior) { animation-duration: 0s; }
 ::view-transition-old(zs-lateral), ::view-transition-old(zs-superior),
-::view-transition-old(zs-inferior), ::view-transition-old(zs-whatsapp) { display: none; }
+::view-transition-old(zs-inferior) { display: none; }
 ::view-transition-new(zs-lateral), ::view-transition-new(zs-superior),
-::view-transition-new(zs-inferior), ::view-transition-new(zs-whatsapp) { animation: none; }
+::view-transition-new(zs-inferior) { animation: none; }
 ::view-transition-old(root) { animation: zsSale .16s ease both; }
 ::view-transition-new(root) { animation: zsEntra .16s ease both; }
 @keyframes zsSale { to { opacity: 0; } }
@@ -595,3 +567,21 @@ html[data-plan="cancelled_active"] .zs-tab.is-active.zs-tab--act-libre .zs-tab__
   html[data-plan="expired"] .zs-aviso-reserva,
   html[data-plan="free"] .zs-aviso-reserva { height: 126px; }
 }
+
+/* ═══════ VER COMO USUARIO (solo para cuentas administradoras) ═══════
+   Franja discreta arriba de todo mientras la cuenta administradora ve el Club como lo vería un miembro. El script del <head>
+   pone <html data-como="user"> antes del primer pintado: la altura queda reservada (body::before) y club.js solo escribe el
+   texto y el regreso al panel encima. Color sólido, sin degradados. */
+html[data-como="user"] body { position: relative; }
+html[data-como="user"] body::before { content: ""; display: block; height: 36px; background: #FBEFD0; border-bottom: 1px solid #E3C77E; }
+html[data-como="user"][data-theme="dark"] body::before { background: #2A2415; border-bottom-color: #4D4126; }
+.zs-como {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 130; height: 36px;
+  display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 12px;
+  font: 600 .8rem/1.2 var(--zoo-font-body, 'Inter', system-ui, sans-serif); color: #4A3500; text-align: center;
+}
+.zs-como a { color: #4A3500; text-decoration: underline; text-underline-offset: 3px; font-weight: 800; padding: 6px 4px; }
+.zs-como a:focus-visible { outline: 2px solid #8A5A00; outline-offset: 2px; border-radius: 4px; }
+html[data-theme="dark"] .zs-como { color: #F2D58A; }
+html[data-theme="dark"] .zs-como a { color: #F6C443; }
+@media (max-width: 420px) { .zs-como { font-size: .75rem; gap: 2px; padding: 0 8px; } }

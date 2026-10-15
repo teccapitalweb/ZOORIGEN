@@ -7,8 +7,11 @@
 /* pintaba el JavaScript después de cargar Firebase:             */
 /*   - script mínimo de tema como primer hijo de <head>          */
 /*   - tipografías autoalojadas (preload + fuentes.css)          */
-/*   - barra lateral, barra superior, barra inferior y botón de  */
-/*     WhatsApp (las mismas funciones de assets/js/club-shell.js) */
+/*   - barra lateral, barra superior y barra inferior (las      */
+/*     mismas funciones de assets/js/club-shell.js)             */
+/*   - decisión temprana de "administrador": quien administra   */
+/*     no ve el Club de miembro, va al panel (salvo "Ver como   */
+/*     usuario"); sin parpadeo porque se decide en el <head>    */
 /*   - tarjeta de título del apartado (ZOO_SECCION.html con el   */
 /*     mismo cfg que la página le pasa a montar())               */
 /* Así, al cambiar de apartado el primer pintado ya trae la      */
@@ -100,6 +103,17 @@ function scriptTema() {
     'h.setAttribute("data-theme",t==="dark"?"dark":"light");if(/^(active|cancelled_active|past_due|expired|free)$/.test(p))h.setAttribute("data-plan",p)}(document)</script>';
 }
 
+/* Solo en las páginas del Club de miembro. Quien administra el sitio NO ve lo mismo que un miembro: si este navegador ya sabe
+   que la cuenta es administradora (localStorage "zoo_admin", lo escribe club.js tras confirmarlo con el servidor) la página
+   se va al panel antes del primer pintado. "Ver como usuario" (?como=user) se recuerda solo en sessionStorage de la pestaña
+   ("zoo_como_usuario"); ?como=admin lo quita. El servidor siempre decide los permisos reales: esto solo elige qué se muestra. */
+function scriptAdmin() {
+  return '<script>/*zs-admin*/!function(){try{var s=window.sessionStorage,h=document.documentElement,q=/[?&]como=(user|admin)(?:&|#|$)/.exec(location.search);' +
+    'if(q){if(q[1]==="user")s.setItem("zoo_como_usuario","1");else s.removeItem("zoo_como_usuario")}' +
+    'if(localStorage.getItem("zoo_admin")==="1"){if(s.getItem("zoo_como_usuario")==="1")h.setAttribute("data-como","user");' +
+    'else{h.style.visibility="hidden";setTimeout(function(){h.style.visibility=""},4000);location.replace("admin-club.html")}}}catch(e){}}()</script>';
+}
+
 function bloqueFuentes(conPlayfair, imagenes) {
   return '  <!-- zs:fuentes -->\n' +
     '  <link rel="preload" href="../assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>\n' +
@@ -161,7 +175,10 @@ function procesar(html, archivo) {
 
   /* 1) Cabecera: tema primero, tipografías propias */
   h = h.replace(/<script>\/\*zs-tema\*\/[\s\S]*?<\/script>\s*/, '');
+  h = h.replace(/<script>\/\*zs-admin\*\/[\s\S]*?<\/script>\s*/, '');
   h = h.replace(/<head>\s*/, () => '<head>\n' + scriptTema() + '\n  ');
+  // La decisión de administrador va justo después de <meta charset> (que debe quedar en los primeros 1024 bytes) y antes de todo CSS.
+  if (esPanel) h = h.replace(/(<meta charset="UTF-8">(?:<meta name="viewport"[^>]*>)?)/, (m) => m + '\n  ' + scriptAdmin());
   h = h.replace(/[ \t]*<link[^>]*fonts\.(?:googleapis|gstatic)\.com[^>]*>[ \t]*\r?\n?/g, '');
   h = h.replace(/[ \t]*<!-- zs:fuentes -->[\s\S]*?<!-- \/zs:fuentes -->\r?\n?/, '');
   const conPlayfair = nombre === 'club-dashboard.html';
@@ -183,10 +200,9 @@ function procesar(html, archivo) {
   h = h.replace(/(<main class="club-main"[^>]*>)/, (m) => m + '\n      <header class="zs-topbar" id="zsTopbar">' + E.shell.barraSuperiorHTML(null) + '</header>' +
     '\n      <div class="zs-aviso-reserva" id="zsAvisoReserva" aria-hidden="true"></div>');
 
-  /* 4) Barra inferior del celular y botón de WhatsApp (fijos; después del contenedor del panel) */
+  /* 4) Barra inferior del celular (fija; después del contenedor del panel). El Club ya no lleva botón flotante de WhatsApp. */
   h = h.replace(/\s*<!-- zs:flotantes -->[\s\S]*?<!-- \/zs:flotantes -->/, '');
-  const flotantes = '\n  <!-- zs:flotantes -->\n  <nav class="zs-bottom" id="zsBottom" aria-label="Navegación principal">' + E.shell.barraInferiorHTML(activo) + '</nav>\n  ' +
-    E.shell.whatsappHTML(false) + '\n  <!-- /zs:flotantes -->';
+  const flotantes = '\n  <!-- zs:flotantes -->\n  <nav class="zs-bottom" id="zsBottom" aria-label="Navegación principal">' + E.shell.barraInferiorHTML(activo) + '</nav>\n  <!-- /zs:flotantes -->';
   const cierre = /<\/main>\s*<\/div>/.exec(h);
   if (!cierre) throw new Error(nombre + ': no encuentro el cierre del panel');
   h = h.slice(0, cierre.index + cierre[0].length) + flotantes + h.slice(cierre.index + cierre[0].length);

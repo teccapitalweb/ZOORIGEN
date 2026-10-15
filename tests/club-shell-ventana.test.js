@@ -24,23 +24,18 @@ function cargar() {
 }
 const P = cargar();
 
-test('WhatsApp flotante: sin membresía va directo a WhatsApp (sin menú); con membresía muestra las 4 opciones', () => {
-  const sin = P.whatsappHTML(false);
-  assert.ok(!sin.includes('zsWaMenu'), 'sin membresía no hay menú');
-  assert.match(sin, /id="zsWaBtn"/);
-  assert.match(sin, /data-vip="0"/);
-  const con = P.whatsappHTML(true);
-  assert.match(con, /id="zsWaMenu"/);
-  for (const t of ['Mi descuento 20%', 'Soporte VIP', 'Contactar dirección', 'Canal oficial Zoorigen']) assert.ok(con.includes(t), t);
-  assert.match(con, /href="club-canal\.html"/);
-  assert.match(con, /wa\.me\/5212361113237\?text=/);
-  assert.doesNotMatch(con, /\p{Extended_Pictographic}/u);
+test('el Club ya no arma ningún botón flotante de WhatsApp (solo sigue en la página web pública)', () => {
+  assert.equal(P.whatsappHTML, undefined);
+  const js = fs.readFileSync(path.join(RAIZ, 'assets', 'js', 'club-shell.js'), 'utf8');
+  assert.doesNotMatch(js, /zsWa|zs-wa|whatsappHTML|waMenuHTML/);
+  // los enlaces de soporte por WhatsApp dentro del contenido se conservan
+  assert.match(P.enlaceSoporte('Hola'), /^https:\/\/wa\.me\/\d+\?text=Hola$/);
 });
 
-test('esMiembroVip: membresía vigente o administrador; el resto no', () => {
+test('esMiembroVip: solo cuenta la membresía vigente; el rol de administrador no abre nada', () => {
   assert.equal(P.esMiembroVip({ planStatus: 'active' }), true);
   assert.equal(P.esMiembroVip({ planStatus: 'cancelled_active' }), true);
-  assert.equal(P.esMiembroVip({ role: 'admin', planStatus: 'pending_payment' }), true);
+  assert.equal(P.esMiembroVip({ role: 'admin', planStatus: 'pending_payment' }), false);
   for (const s of ['pending_payment', 'expired', 'past_due']) assert.equal(P.esMiembroVip({ planStatus: s }), false, s);
   assert.equal(P.esMiembroVip(null), false);
 });
@@ -53,7 +48,8 @@ test('Instalar app: el menú la trae al final y la ventana elige la explicación
   assert.equal(P.modoInstalacion({}), 'manual');
 });
 
-test('el 20% de descuento del inicio solo se pinta con membresía', () => {
+test('el 20% de descuento del inicio (y toda la columna derecha) solo se pinta con membresía vigente', () => {
   const t = fs.readFileSync(path.join(RAIZ, 'pages', 'club-dashboard.html'), 'utf8');
-  assert.match(t, /asideDescuento'\)\.innerHTML = ZOORIGEN_CLUB\.hasActiveMembership\(session\)/);
+  assert.match(t, /const verAside = ZOORIGEN_CLUB\.hasActiveMembership\(session\);/);
+  assert.match(t, /if \(verAside\) \{[\s\S]{0,700}asideDescuento'\)\.innerHTML = ZOO_INICIO\.descuentoHTML/);
 });

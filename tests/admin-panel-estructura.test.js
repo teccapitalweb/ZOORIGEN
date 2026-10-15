@@ -217,17 +217,18 @@ test('inicio de sesión: la administradora entra al panel y el resto al Club (de
   assert.equal((login.match(/ZOORIGEN_CLUB\.irTrasEntrar\(\)/g) || []).length, 3);
   assert.doesNotMatch(login, /window\.location\.href = 'club-dashboard\.html'/);
   const club = leer('assets/js/club.js');
-  assert.match(club, /async esAdministrador\(\) \{[\s\S]{0,160}\/api\/admin\/yo/);
+  assert.match(club, /async _consultarAdmin\(\) \{[\s\S]{0,160}\/api\/admin\/yo/);
+  assert.match(club, /async esAdministrador\(\) \{ return \(await this\._consultarAdmin\(\)\) === true; \}/);
   assert.match(club, /destino = 'admin-club\.html'/);
-  assert.match(club, /Promise\.race\(\[this\.esAdministrador\(\), espera\]\)/);
+  assert.match(club, /this\._espera\(this\._consultarAdmin\(\), 3500, null\)/);
 });
 
 test('"Ver como usuario" es solo cosmético: cambia lo que se pinta, no pide nada al servidor', () => {
   const club = leer('assets/js/club.js');
-  const trozo = club.slice(club.indexOf('_comoUsuario() {'), club.indexOf('_bloqueAdmin(session) {'));
+  const trozo = club.slice(club.indexOf('_comoUsuario() {'), club.indexOf('_enPanelAdmin() {'));
   assert.ok(trozo.length > 100);
   assert.doesNotMatch(trozo, /apiFetch|fetch\(|db\.collection/);
-  assert.match(club, /if \(sesion\.role === 'admin' && this\._comoUsuario\(\)\) \{ sesion\.rolReal = 'admin'; sesion\.role = 'member'; \}/);
-  // solo se ofrece el bloque a quien ya es administrador según su sesión
-  assert.match(club, /_bloqueAdmin\(session\) \{\s*if \(!session \|\| \(session\.role !== 'admin' && session\.rolReal !== 'admin'\)\) return '';/);
+  assert.match(club, /sesion\.rolReal = 'admin'; sesion\.role = 'member';/);
+  // solo se ofrece el bloque (regreso al panel) a quien ve el Club como usuario
+  assert.match(club, /_bloqueAdmin\(session\) \{\s*if \(!session \|\| session\.rolReal !== 'admin'\) return '';/);
 });

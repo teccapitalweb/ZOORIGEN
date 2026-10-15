@@ -70,7 +70,7 @@ test('comportamiento: se crea al primer toque, cierra con Esc/clic fuera/X, devu
   const js = leer('assets/js/club-shell.js');
   assert.match(js, /function crearPanelPerfil\(\)/);
   assert.match(js, /document\.getElementById\('zsPm'\) \|\| crearPanelPerfil\(\)/, 'se crea solo al abrir');
-  assert.match(js, /if \(e\.key === 'Escape'\) \{ abrirCajon\(false\); abrirWa\(false\); cerrarPerfil\(\); \}/);
+  assert.match(js, /if \(e\.key === 'Escape'\) \{ abrirCajon\(false\); cerrarPerfil\(\); \}/);
   assert.match(js, /velo\.addEventListener\('click', function \(\) \{ cerrarPerfil\(\); \}\)/);
   assert.match(js, /aria-modal="true"\], \.zob:not\(\.zob-toast\), \.zc-ov, \.pw-modal__fondo/, 'no se abre encima de otra ventana');
   assert.match(js, /if \(pm\.abierto \|\| hayVentanaAjena\(\)\) return;/);

@@ -109,3 +109,17 @@ El sitio depende de servicios externos ya configurados en los archivos JS:
 ---
 
 **Mantenido por:** TEC CAPITAL GROUP — Tehuacán, Puebla
+
+---
+
+## Administradores y vistas del Club
+
+- **Quién administra**: lo decide solo el servidor. En Railway (zoorigen-webhook) la variable `ADMIN_EMAILS` debe valer
+  exactamente `zooorigen@gmail.com,teccapitalweb@gmail.com` (correos separados por coma; no importan mayúsculas ni espacios;
+  la cuenta debe tener el correo verificado). Los correos no son secretos.
+- **El administrador no ve lo mismo que un miembro**: al abrir cualquier página del Club de miembro (`pages/club-*.html`) va al
+  panel de administración (`pages/admin-club.html`). Con **Ver como usuario** (`?como=user`, se recuerda solo en esa pestaña) ve
+  el Club con su membresía real y una franja "Estás viendo el Club como usuario · Volver al panel".
+- **Inicio del Club**: las tarjetas de la columna derecha (clases en vivo, canal de WhatsApp, descuento VIP, tu actividad y tu
+  presencia) solo las ve quien tiene membresía vigente (`active` o `cancelled_active`).
+- El botón flotante de WhatsApp ya no existe en el Club ni en el panel; solo sigue en la página web pública.

@@ -451,3 +451,12 @@
   .zs-inicio .zs-cifra { padding: 5px 6px; }
   .zs-inicio .zs-cifra__r { white-space: nowrap; }
 }
+
+/* ═══════════ COLUMNA DERECHA: SOLO PARA MIEMBROS ═══════════
+   Clases en vivo, Canal de WhatsApp, Tu descuento VIP, Tu actividad y Tu presencia en la comunidad las ve únicamente quien
+   tiene membresía vigente (<html data-plan="active"> o "cancelled_active", que el script del <head> pone desde el primer
+   pintado). Para cualquier otro estado, o si aún no se sabe, la columna no existe: no deja hueco y la rejilla vuelve a un
+   solo ancho, sin reservar altura. club-dashboard.html la oculta también con el atributo hidden. */
+#inicioAside[hidden] { display: none !important; }
+html:not([data-plan="active"]):not([data-plan="cancelled_active"]) #inicioAside { display: none !important; }
+html:not([data-plan="active"]):not([data-plan="cancelled_active"]) .dashboard-grid { grid-template-columns: minmax(0, 1fr) !important; }

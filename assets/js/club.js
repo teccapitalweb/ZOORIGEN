@@ -1247,8 +1247,29 @@ const ZOORIGEN_CLUB = {
   // ============== ADMINISTRACIÓN ==============
   // ¿Esta cuenta administra el sitio? Lo decide SOLO el servidor (GET /api/admin/yo responde 200 únicamente a
   // administradores: ADMIN_EMAILS o marca en Firestore). Nada de esto confía en datos del navegador.
-  async esAdministrador() {
-    try { await this.apiFetch('/api/admin/yo'); return true; } catch (e) { return false; }
+  // Devuelve true (administra), false (el servidor dijo que no) o null (no se pudo saber: sin red o servidor caído).
+  // Usa la variante suave (?suave=1): quien no administra recibe 200 { admin: false } y no un error 403 en la consola del
+  // navegador. Un servidor anterior que no la conoce responde 403 a los miembros, y eso también cuenta como "no".
+  async _consultarAdmin() {
+    try {
+      const r = await this.apiFetch('/api/admin/yo?suave=1');
+      return !!(r && r.admin === true);
+    } catch (e) { return (e && (e.status === 401 || e.status === 403)) ? false : null; }
+  },
+
+  async esAdministrador() { return (await this._consultarAdmin()) === true; },
+
+  // Recuerda en ESTE navegador si la cuenta es administradora. Solo sirve para elegir qué mostrar antes del primer pintado
+  // (el script del <head> de cada página del Club lo lee); los permisos reales siempre los decide el servidor.
+  _marcarAdmin(esAdmin) {
+    try {
+      if (esAdmin) localStorage.setItem('zoo_admin', '1'); else localStorage.removeItem('zoo_admin');
+    } catch (e) { /* sin almacenamiento */ }
+  },
+
+  // Espera a una promesa como máximo `ms`; si tarda más, responde `valor`.
+  _espera(promesa, ms, valor) {
+    return Promise.race([promesa, new Promise(resolver => setTimeout(() => resolver(valor), ms))]);
   },
 
   // Tras iniciar sesión: la administradora va al panel de administración y el resto al Club.
@@ -1256,14 +1277,17 @@ const ZOORIGEN_CLUB = {
   async irTrasEntrar() {
     let destino = 'club-dashboard.html';
     try {
-      const espera = new Promise(resolver => setTimeout(() => resolver(false), 3500));
-      if (await Promise.race([this.esAdministrador(), espera])) destino = 'admin-club.html';
+      const r = await this._espera(this._consultarAdmin(), 3500, null);
+      if (r === true) { destino = 'admin-club.html'; this._marcarAdmin(true); }
+      else if (r === false) this._marcarAdmin(false);
     } catch (e) { /* entra al Club */ }
     window.location.href = destino;
   },
 
-  // "Ver como usuario" (solo cosmético, en este navegador): la administradora ve el Club como lo vería un miembro.
-  // Los permisos reales siguen siendo los del servidor. ?como=user lo activa y ?como=admin lo quita.
+  // "Ver como usuario" (solo cosmético, en esta pestaña): la administradora ve el Club como lo vería un miembro.
+  // Se recuerda en sessionStorage de la pestaña. Los permisos reales siguen siendo los del servidor, y las funciones de
+  // miembro dependen de la membresía REAL de la cuenta (el rol de administrador no abre nada aquí).
+  // ?como=user lo activa y ?como=admin lo quita.
   _comoUsuario() {
     try {
       const q = new URLSearchParams(window.location.search).get('como');
@@ -1273,23 +1297,77 @@ const ZOORIGEN_CLUB = {
     } catch (e) { return false; }
   },
 
-  // Bloque de la barra lateral solo para administradores: enlace al panel y el interruptor "Ver como usuario".
+  // El panel de administración tiene su propio acceso: no se redirige desde él.
+  _enPanelAdmin() {
+    try { return /admin-club\.html$/i.test(window.location.pathname); } catch (e) { return false; }
+  },
+
+  // Franja discreta arriba de todo mientras se ve el Club como usuario, con el regreso al panel.
+  _mostrarFranjaComoUsuario() {
+    try {
+      if (typeof document === 'undefined' || document.getElementById('zsComo')) return;
+      const franja = document.createElement('div');
+      franja.className = 'zs-como';
+      franja.id = 'zsComo';
+      franja.setAttribute('role', 'status');
+      franja.innerHTML = '<span>Estás viendo el Club como usuario</span><span aria-hidden="true"> · </span><a href="admin-club.html">Volver al panel</a>';
+      document.body.insertBefore(franja, document.body.firstChild);
+      document.documentElement.setAttribute('data-como', 'user');
+    } catch (e) { /* sin franja */ }
+  },
+
+  // Decide si esta cuenta debe ir al panel de administración en lugar del Club de miembro (true = redirigir).
+  // - La marca role "admin" de Firestore la pone el servidor; aun así se confirma con /api/admin/yo (si el correo salió de
+  //   ADMIN_EMAILS la marca vieja se retira y la cuenta se queda como miembro).
+  // - Si Firestore aún no tiene la marca (cuenta que nunca pasó por el panel), una vez cada 12 horas se pregunta al servidor
+  //   en segundo plano; si resulta administradora, la página se va al panel.
+  async _decidirAdmin(user, sesion) {
+    if (sesion.role === 'admin') {
+      if (this._comoUsuario()) {
+        sesion.rolReal = 'admin'; sesion.role = 'member';
+        this._marcarAdmin(true);
+        return false;
+      }
+      const r = await this._espera(this._consultarAdmin(), 4000, null);
+      if (r === false) { sesion.role = 'member'; this._marcarAdmin(false); return false; }
+      this._marcarAdmin(true);
+      return true;
+    }
+    let toca = false;
+    try {
+      const previo = String(localStorage.getItem('zoo_admin_chk') || '').split(':');
+      toca = !(previo[0] === user.uid && Date.now() - Number(previo[1]) < 12 * 3600 * 1000);
+      if (toca) localStorage.setItem('zoo_admin_chk', user.uid + ':' + Date.now());
+    } catch (e) { toca = false; }
+    if (toca) {
+      this._consultarAdmin().then((r) => {
+        if (r === true) {
+          this._marcarAdmin(true);
+          if (!this._comoUsuario()) window.location.replace('admin-club.html');
+        } else if (r === null) {
+          try { localStorage.removeItem('zoo_admin_chk'); } catch (e) { /* nada */ }
+        }
+      });
+    }
+    return false;
+  },
+
+  // Bloque de la barra lateral mientras se ve el Club como usuario: el regreso al panel de administración.
   _bloqueAdmin(session) {
-    if (!session || (session.role !== 'admin' && session.rolReal !== 'admin')) return '';
-    const comoUsuario = session.rolReal === 'admin' && session.role !== 'admin';
-    const aqui = (window.location.pathname.split('/').pop() || 'club-dashboard.html');
-    const alterna = comoUsuario ? aqui + '?como=admin' : aqui + '?como=user';
+    if (!session || session.rolReal !== 'admin') return '';
     return `
       <div class="club-sidebar__admin" style="margin:0 0 14px;padding:10px;border:1px solid var(--zoo-border-strong,#3A424C);border-radius:12px;background:var(--zoo-bg-card-2,#1E2329);">
-        <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--zoo-text-muted,#A3ABB5);margin:0 0 8px;">${comoUsuario ? 'Vista como usuario' : 'Administración'}</div>
+        <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--zoo-text-muted,#A3ABB5);margin:0 0 8px;">Vista como usuario</div>
         <a href="admin-club.html" style="display:flex;align-items:center;min-height:40px;padding:8px 10px;border-radius:10px;font-weight:700;font-size:.9rem;color:var(--zoo-text,#E7EAEE);text-decoration:none;">Volver al panel de administración</a>
-        <a href="${alterna}" style="display:flex;align-items:center;min-height:40px;padding:8px 10px;border-radius:10px;font-size:.86rem;color:var(--zoo-text-muted,#A3ABB5);text-decoration:none;">${comoUsuario ? 'Ver como administrador' : 'Ver como usuario'}</a>
       </div>`;
   },
 
   logout() {
     // El estado de la membresía que se guardó para pintar la barra lateral al instante no debe quedar para quien entre después.
-    try { localStorage.removeItem('zoo_plan'); document.documentElement.removeAttribute('data-plan'); } catch (e) { /* sin almacenamiento */ }
+    try {
+      localStorage.removeItem('zoo_plan'); document.documentElement.removeAttribute('data-plan');
+      localStorage.removeItem('zoo_admin'); localStorage.removeItem('zoo_admin_chk'); sessionStorage.removeItem('zoo_como_usuario');
+    } catch (e) { /* sin almacenamiento */ }
     auth.signOut().then(() => { window.location.href = 'club-login.html'; });
   },
 
@@ -1318,8 +1396,13 @@ const ZOORIGEN_CLUB = {
             streak: data.streak || 0,
             planStatus: this.calculateStatus(data)
           };
-          // "Ver como usuario" de la administración: solo cambia lo que se pinta en este navegador.
-          if (sesion.role === 'admin' && this._comoUsuario()) { sesion.rolReal = 'admin'; sesion.role = 'member'; }
+          // El administrador NO ve lo mismo que un miembro: va a su panel. Con "Ver como usuario" (solo cosmético) ve el Club
+          // con su membresía real (el rol de administrador no abre nada). El panel mismo no se redirige.
+          if (!this._enPanelAdmin()) {
+            const alPanel = await this._decidirAdmin(user, sesion);
+            if (alPanel) { window.location.replace('admin-club.html'); return; }
+            if (sesion.rolReal === 'admin') this._mostrarFranjaComoUsuario();
+          }
           // Cuentas nuevas con correo y contraseña: no entran al club hasta confirmar el correo.
           // (Google ya viene confirmado; las cuentas anteriores a la fecha de corte y las que ya pagan siguen como siempre.)
           if (this.verificacionObligatoria(user, sesion)) {
@@ -1504,8 +1587,6 @@ const ZOORIGEN_CLUB = {
   _guardarEstadoPlan(session) {
     const validos = ['active', 'cancelled_active', 'past_due', 'expired'];
     let estado = validos.includes(session && session.planStatus) ? session.planStatus : 'free';
-    // El administrador ve el Club completo: cuenta como miembro para la barra inferior y el bloque de plan.
-    if (session && session.role === 'admin' && estado !== 'active' && estado !== 'cancelled_active') estado = 'active';
     try {
       localStorage.setItem('zoo_plan', estado);
       document.documentElement.setAttribute('data-plan', estado);
