@@ -56,8 +56,31 @@ test('tarjeta "solo título" para elegir: botón activo o deshabilitado con su m
 test('banner de la prueba gratuita', () => {
   const b = U.bannerPruebaHTML();
   assert.match(b, /Selecciona el curso de tu preferencia para obtener tu prueba gratuita/);
-  assert.equal(b.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(), 'Selecciona el curso de tu preferencia para obtener tu prueba gratuita', 'el aviso dice SOLO eso');
+  assert.equal(b.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
+    'Gratis Tu prueba gratuita Selecciona el curso de tu preferencia para obtener tu prueba gratuita Solo puedes elegir un curso y después no se puede cambiar.');
   assert.match(b, /id="prueba-card"/);
+  // Diseño de alintecfood: abanico de tres portadas con la pastilla "Gratis" (decorativo, sin texto para lectores de pantalla)
+  assert.equal((b.match(/class="zpg-cover zpg-cover--\d"/g) || []).length, 3);
+  assert.match(b, /<span class="zpg-badge">Gratis<\/span>/);
+  assert.match(b, /class="zpg-art zpg-art--mini" aria-hidden="true"/);
+  assert.match(b, /curso-[a-z-]+-4x3\.webp/, 'usa portadas reales de los cursos');
+  assert.doesNotMatch(b, /gradient/);
+  // con las portadas de los cursos que se le pasan, las usa primero
+  const con = U.bannerPruebaHTML(null, ['../assets/img/cursos/portadas/curso-mariposarios-4x3.webp']);
+  assert.match(con, /curso-mariposarios-4x3\.webp/);
+  assert.equal((con.match(/zpg-cover zpg-cover--/g) || []).length, 3, 'siempre tres');
+});
+
+test('ventanas de la prueba: aviso con abanico y confirmación con portada grande y "Gratis"', () => {
+  const a = U.avisoPruebaHTML();
+  assert.match(a, /zpg-art/);
+  assert.match(a, /Elige el curso de tu preferencia para poder ver el contenido de los cursos\./);
+  const c = U.confirmarPruebaHTML('Sanidad <b>apícola</b>', '../assets/img/cursos/portadas/curso-fototrampeo.webp');
+  assert.match(c, /zpg-portada/);
+  assert.match(c, /zpg-badge--esquina">Gratis</);
+  assert.match(c, /Sanidad &lt;b&gt;apícola&lt;\/b&gt;/, 'escapa el título');
+  assert.match(c, /Solo puedes elegir uno y después no se puede cambiar\./);
+  assert.match(c, /curso-fototrampeo\.webp/);
 });
 
 /* ── estados de clase ── */

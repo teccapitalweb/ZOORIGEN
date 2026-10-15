@@ -196,7 +196,7 @@ test('tarjeta pendiente: destaca el curso sugerido; sin sugerencia el HTML es el
 
 test('aviso de la prueba: sin sugerencia dice solo lo de siempre; con ella ofrece "Elegir este curso"', () => {
   const normal = UI.bannerPruebaHTML();
-  assert.equal(normal.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(), 'Selecciona el curso de tu preferencia para obtener tu prueba gratuita');
+  assert.match(normal.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(), /^Gratis Tu prueba gratuita Selecciona el curso de tu preferencia para obtener tu prueba gratuita Solo puedes elegir un curso/);
   assert.equal(UI.bannerPruebaHTML(null), normal);
   const con = UI.bannerPruebaHTML({ id: 'c1', titulo: 'Sanidad <i>apícola</i>' });
   assert.match(con, /Elegiste <b>Sanidad &lt;i&gt;apícola&lt;\/i&gt;<\/b> en la guía/);

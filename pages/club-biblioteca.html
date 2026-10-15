@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <script>/*zs-tema*/!function(d){var t,p,h=d.documentElement;try{t=localStorage.getItem("zoo_theme");p=localStorage.getItem("zoo_plan")}catch(e){}h.setAttribute("data-theme",t==="dark"?"dark":"light");if(/^(active|cancelled_active|past_due|expired|free)$/.test(p))h.setAttribute("data-plan",p)}(document)</script>
+  <script>/*zs-prueba*/!function(d){try{var m=localStorage.getItem("zoo_prueba");if(m==="pendiente"||m==="elegida")d.documentElement.setAttribute("data-prueba",m)}catch(e){}}(document)</script>
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
@@ -24,10 +25,11 @@
   <link rel="stylesheet" href="../assets/css/club.css?v=20261110-aviso">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261110-aviso">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261114-prueba">
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261114-prueba">
+  <link rel="stylesheet" href="../assets/css/club-prueba.css?v=20261114-prueba">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
   <style>
@@ -390,7 +392,7 @@
   <script src="../assets/js/club.js?v=20261110-aviso"></script>
   <script src="../assets/js/club-paywall.js?v=20261104"></script>
   <script src="../assets/js/club-progreso.js?v=20261111-nombre"></script>
-  <script src="../assets/js/club-shell.js?v=20261110-aviso"></script>
+  <script src="../assets/js/club-shell.js?v=20261114-prueba"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/club-juegos.js?v=20261104"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
@@ -398,7 +400,8 @@
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261104"></script>
+  <script src="../assets/js/club-prueba-arte.js?v=20261114-prueba"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261114-prueba"></script>
   <script src="../assets/js/club-premios.js?v=20261108-paleta"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261104"></script>
   <script src="../assets/js/club-nombre-cert.js?v=20261111-nombre"></script>
@@ -571,18 +574,33 @@
       };
       window.__zooCursosLista = cursos;
 
+      // Portadas reales del abanico: las de los cursos que se pueden elegir como prueba (si no hay, las de respaldo)
+      const portadasAbanico = () => {
+        const elegibles = (window.__zooPrueba && window.__zooPrueba.cursosElegibles) || [];
+        const orden = cursos.filter(c => elegibles.includes(c.id)).concat(cursos.filter(c => !elegibles.includes(c.id)));
+        return window.ZOO_PRUEBA_ARTE ? window.ZOO_PRUEBA_ARTE.portadas({ cursos: orden, base: '../' }) : [];
+      };
+
       const avisoSuperior = (modo, dias) => {
         const caja = document.getElementById('unlockInfo');
         const aviso = document.getElementById('lockedNotice');
         const p = window.__zooPrueba;
         caja.innerHTML = '';
+        // Marca para el próximo primer pintado: el hueco de arriba nace con el alto que tendrá (o sin alto si ya eligió).
+        try {
+          if (modo === 'pendiente' || modo === 'prueba') {
+            const marca = modo === 'pendiente' ? 'pendiente' : 'elegida';
+            localStorage.setItem('zoo_prueba', marca); document.documentElement.setAttribute('data-prueba', marca);
+          } else { localStorage.removeItem('zoo_prueba'); document.documentElement.removeAttribute('data-prueba'); }
+        } catch (e) { /* sin almacenamiento */ }
         if (modo === 'pendiente') {
           const pref = window.__zooPref && p.cursosElegibles.includes(window.__zooPref.id) ? cursos.find(c => c.id === window.__zooPref.id) : null;
-          caja.innerHTML = window.ZOO_CURSOS_UI.bannerPruebaHTML(pref ? { id: pref.id, titulo: pref.title } : null);
+          caja.innerHTML = window.ZOO_CURSOS_UI.bannerPruebaHTML(pref ? { id: pref.id, titulo: pref.title } : null, portadasAbanico());
           aviso.innerHTML = '';
         } else if (modo === 'prueba') {
-          const elegido = cursos.find(c => c.id === p.elegida);
-          aviso.innerHTML = `<div class="status-banner" style="margin-bottom:20px;"><span><svg class="zi" aria-hidden="true"><use href="#zi-gift"/></svg></span>Tu prueba gratuita: <strong>${escHtml(elegido ? elegido.title : 'curso elegido')}</strong>. <a href="club-suscripcion.html" style="color:inherit;text-decoration:underline;margin-left:6px;">Ver planes →</a></div>`;
+          // Ya eligió su curso: la tarjeta de selección y la nota "Tu prueba gratuita: ... Ver planes" desaparecen.
+          // El curso elegido queda identificado en la lista con su insignia "Tu prueba gratuita".
+          aviso.innerHTML = '';
         } else if (modo === 'miembro') {
           const lista = cursos;
           if (p.elegida && lista.some(c => c.id === p.elegida)) {
@@ -769,7 +787,7 @@
       const elegible = cursoId && window.__zooPrueba.cursosElegibles.includes(cursoId);
       ZOO_CURSOS_UI.ventana({
         titulo: 'Selecciona tu prueba gratuita',
-        cuerpoHTML: '<p>Elige el curso de tu preferencia para poder ver el contenido de los cursos.</p>',
+        cuerpoHTML: ZOO_CURSOS_UI.avisoPruebaHTML(window.ZOO_PRUEBA_ARTE ? ZOO_PRUEBA_ARTE.portadas({ cursos: window.__zooCursosLista || [], base: '../' }) : []),
         botones: [{ texto: 'Cerrar' }].concat(elegible
           ? [{ texto: 'Elegir este curso', clase: 'zc-btn--main', alPulsar: () => { setTimeout(() => confirmarPrueba(cursoId), 0); } }]
           : [])
@@ -783,9 +801,7 @@
       ZOO_CURSOS_UI.ventana({
         titulo: '¿Seguro que deseas este curso?',
         subtitulo: 'Tu prueba gratuita',
-        cuerpoHTML: `<div class="zc-conf"><span class="zc-conf__img"${img ? ` style="--zc-img:url('${ZOO_CURSOS_UI.esc(img)}')"` : ''}></span><strong>${ZOO_CURSOS_UI.esc(curso.title)}</strong></div>
-          <p>Será tu <b>prueba gratuita</b>.</p>
-          <p><b>Solo puedes elegir uno y después no se puede cambiar.</b></p>`,
+        cuerpoHTML: ZOO_CURSOS_UI.confirmarPruebaHTML(curso.title, img),
         botones: [
           { texto: 'No, ver otros cursos' },
           { texto: 'Sí, es mi prueba gratuita', clase: 'zc-btn--main', alPulsar: async ({ boton }) => {

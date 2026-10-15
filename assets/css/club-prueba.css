@@ -1,0 +1,78 @@
+/* ============================================================ */
+/* PRUEBA GRATUITA · abanico de portadas y tarjeta de selección  */
+/* Mismo diseño que alintecfood (abanico de tres portadas con la  */
+/* pastilla "Gratis"), en color SÓLIDO y con los tokens del Club. */
+/* Lo usan la bienvenida (Inicio) y Cursos. El tamaño baja con    */
+/* el ancho de la pantalla (clamp) para que en celular no ocupe   */
+/* media pantalla.                                                */
+/* ============================================================ */
+
+/* ── Abanico ── */
+.zpg-art {
+  --zpg-w: clamp(82px, 27vw, 116px);
+  position: relative; width: min(100%, calc(var(--zpg-w) * 2.4));
+  height: calc(var(--zpg-w) * .75 + 40px); margin: 8px auto 10px;
+}
+.zpg-cover {
+  position: absolute; top: 8px; left: 50%; display: block; width: var(--zpg-w); aspect-ratio: 4 / 3; margin-left: calc(var(--zpg-w) / -2);
+  border-radius: 12px; border: 3px solid var(--zoo-bg-card, #171B20);
+  background-color: var(--zoo-tint, #EAF2EC); background-position: center; background-size: cover; background-repeat: no-repeat;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .26);
+}
+.zpg-cover--0 { transform: translateX(calc(var(--zpg-w) * -.62)) rotate(-10deg) scale(.92); animation: zpgAbreI .7s cubic-bezier(.2, 1.2, .4, 1) .15s both, zpgFlota 5.5s ease-in-out 1.2s infinite; }
+.zpg-cover--1 { z-index: 2; transform: translateY(-6px); animation: zpgSube .6s cubic-bezier(.2, 1.2, .4, 1) .05s both, zpgFlota 5s ease-in-out 1.3s infinite reverse; }
+.zpg-cover--2 { transform: translateX(calc(var(--zpg-w) * .62)) rotate(10deg) scale(.92); animation: zpgAbreD .7s cubic-bezier(.2, 1.2, .4, 1) .25s both, zpgFlota 6s ease-in-out 1s infinite; }
+.zpg-badge {
+  position: absolute; z-index: 3; left: 50%; bottom: 0; transform: translateX(-50%);
+  display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 999px;
+  background: var(--zoo-amber, #E8A317); color: #1F1D17;
+  font: 800 .75rem/1 'JetBrains Mono', ui-monospace, Consolas, monospace; letter-spacing: .1em; text-transform: uppercase;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, .22); animation: zpgPop .5s cubic-bezier(.2, 1.4, .4, 1) .6s both;
+}
+/* Versión pequeña (tarjeta de Cursos) */
+.zpg-art--mini { --zpg-w: clamp(62px, 17vw, 84px); width: calc(var(--zpg-w) * 2.4); margin: 0; flex: none; }
+.zpg-art--mini .zpg-cover { border-width: 2px; border-radius: 10px; }
+.zpg-art--mini .zpg-badge { padding: 5px 11px; }
+
+/* ── Portada grande (confirmación) ── */
+.zpg-portada-caja { position: relative; }
+.zpg-portada {
+  width: 100%; height: clamp(116px, 34vw, 170px); border-radius: 14px;
+  background-color: var(--zoo-tint, #EAF2EC); background-position: center; background-size: cover; background-repeat: no-repeat;
+}
+.zpg-portada--vacia { background-color: var(--zoo-solid, #1F5F3A); }
+.zpg-badge--esquina { left: auto; right: 12px; top: 12px; bottom: auto; transform: none; animation: zpgPopEsq .5s cubic-bezier(.2, 1.4, .4, 1) .3s both; }
+
+/* ── Tarjeta "Selecciona el curso de tu preferencia" (arriba de Cursos) ── */
+.zc-banner--arte { align-items: center; gap: clamp(10px, 3vw, 18px); padding: clamp(12px, 2.6vw, 18px) clamp(14px, 3vw, 20px); border-left: 5px solid var(--zoo-amber, #E8A317); }
+.zc-banner__kick {
+  display: block; margin: 0 0 4px; color: var(--zoo-acc-txt, #2A7A4E);
+  font: 800 .75rem/1.2 'JetBrains Mono', ui-monospace, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase;
+}
+.zc-banner--arte strong { font-size: clamp(.95rem, .86rem + .5vw, 1.08rem); }
+.zc-banner--arte p { margin: 6px 0 0; }
+.zc-banner--arte .zc-elegir--pref { margin-top: 8px; color: #1F1D17; background: var(--zoo-amber, #E8A317); }
+/* En pantallas chicas el abanico se hace más pequeño y queda al lado del texto: la tarjeta ocupa poco alto */
+@media (max-width: 560px) {
+  .zc-banner--arte { flex-direction: row; align-items: center; gap: 10px; padding: 12px 12px; margin-bottom: 14px; }
+  .zc-banner--arte .zpg-art--mini { --zpg-w: 40px; margin-left: -6px; }
+  .zc-banner--arte .zpg-art--mini .zpg-badge { padding: 4px 9px; font-size: .75rem; }
+  .zc-banner--arte strong { font-size: .9rem; line-height: 1.25; }
+  .zc-banner--arte p { font-size: .78rem; line-height: 1.4; margin-top: 4px; }
+  .zc-banner__kick { font-size: .75rem; margin-bottom: 2px; }
+}
+
+/* ── Ventana de aviso y confirmación ── */
+.zc-modal .zpg-art { margin-top: 0; }
+.zc-modal__cuerpo .zpg-portada-caja { margin: 2px 0 12px; }
+.zc-modal__curso { margin: 0 0 8px; color: var(--zoo-text, #fff); font: 800 1.05rem/1.3 var(--zoo-font-display); letter-spacing: -.01em; overflow-wrap: anywhere; }
+
+@keyframes zpgAbreI { from { transform: translateX(0) rotate(0) scale(.8); opacity: 0; } }
+@keyframes zpgAbreD { from { transform: translateX(0) rotate(0) scale(.8); opacity: 0; } }
+@keyframes zpgSube { from { transform: translateY(14px) scale(.85); opacity: 0; } }
+@keyframes zpgFlota { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+@keyframes zpgPop { from { opacity: 0; transform: translateX(-50%) scale(.6); } }
+@keyframes zpgPopEsq { from { opacity: 0; transform: scale(.6); } }
+@media (prefers-reduced-motion: reduce) {
+  .zpg-cover, .zpg-badge { animation: none !important; }
+}

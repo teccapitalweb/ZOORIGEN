@@ -414,6 +414,15 @@ html[data-plan="past_due"] body[data-zoo="foro"] .zs-seccion__cifras { display: 
 
 /* Cursos: la nota de ruta/prueba y el filtro por área se llenan con datos; reservan el alto que tendrán (1280, 768 y 390 px). */
 #unlockInfo:empty { min-height: 71px; }
+/* Cursos, prueba gratuita: <html data-prueba> la pone el script del <head> con lo último que supo la página. Pendiente: nace con el
+   alto de la tarjeta de selección (más su margen). Elegida: ya no hay tarjeta ni nota, así que no se reserva nada. */
+html[data-prueba="pendiente"] #unlockInfo:empty { min-height: 141px; margin-bottom: 20px; }
+html[data-prueba="elegida"] #unlockInfo:empty { min-height: 0; }
+@media (max-width: 560px) {
+  html[data-prueba="pendiente"] #unlockInfo:empty { min-height: 135px; margin-bottom: 14px; }
+  html[data-prueba="elegida"] #unlockInfo:empty { min-height: 0; }
+}
+@media (max-width: 360px) { html[data-prueba="pendiente"] #unlockInfo:empty { min-height: 171px; } }
 #filterBar:empty { min-height: 40px; }
 @media (max-width: 980px) { #filterBar:empty { min-height: 96px; } }
 @media (max-width: 560px) { #unlockInfo:empty { min-height: 104px; } #filterBar:empty { min-height: 210px; } }

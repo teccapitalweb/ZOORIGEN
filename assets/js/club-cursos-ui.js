@@ -8,9 +8,9 @@
 /* La parte final (ventanas) solo corre en el navegador.          */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'));
-  else root.ZOO_CURSOS_UI = factory(root.ZOO_ICONOS);
-})(typeof self !== 'undefined' ? self : this, function (iconos) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'), require('./club-prueba-arte.js'));
+  else root.ZOO_CURSOS_UI = factory(root.ZOO_ICONOS, root.ZOO_PRUEBA_ARTE);
+})(typeof self !== 'undefined' ? self : this, function (iconos, arte) {
   'use strict';
 
   const ico = (n, o) => (iconos && iconos.svg ? iconos.svg(n, o) : '');
@@ -125,17 +125,36 @@
     </article>`;
   }
 
+  // Abanico de portadas (mismo diseño que alintecfood). portadas: lista de URLs ya resueltas (si falta, usa las de respaldo).
+  const abanico = (portadas, o) => (arte && arte.arteHTML ? arte.arteHTML(portadas, o) : '');
+
   // pref (opcional): { id, titulo } del curso que la persona eligió en la guía o la encuesta. Se muestra como
   // sugerencia con un botón; la elección sigue pasando por la ventana de confirmación de la biblioteca.
-  function bannerPruebaHTML(pref) {
+  // portadas (opcional): URLs del abanico. La tarjeta solo se muestra mientras la prueba está pendiente: al elegir,
+  // la biblioteca la quita.
+  function bannerPruebaHTML(pref, portadas) {
     const extra = pref && pref.id
       ? `<p>Elegiste <b>${esc(pref.titulo || 'un curso')}</b> en la guía. Lo dejamos destacado para que lo confirmes, o elige otro.</p>
         <button type="button" class="zc-elegir zc-elegir--pref" data-elegir="${esc(pref.id)}">Elegir este curso</button>`
       : '';
-    return `<div class="zc-banner" id="prueba-card" role="region" aria-label="Prueba gratuita">
-      <span class="zc-banner__ico">${ico('gift', { size: 22 })}</span>
-      <div><strong>Selecciona el curso de tu preferencia para obtener tu prueba gratuita</strong>${extra}</div>
+    return `<div class="zc-banner zc-banner--arte" id="prueba-card" role="region" aria-label="Prueba gratuita">
+      ${abanico(portadas, { clase: 'zpg-art--mini' })}
+      <div><span class="zc-banner__kick">Tu prueba gratuita</span><strong>Selecciona el curso de tu preferencia para obtener tu prueba gratuita</strong>
+        <p>Solo puedes elegir <b>un</b> curso y después no se puede cambiar.</p>${extra}</div>
     </div>`;
+  }
+
+  // Cuerpo de la ventana "Selecciona tu prueba gratuita" (al tocar un curso sin haber elegido)
+  function avisoPruebaHTML(portadas) {
+    return `${abanico(portadas)}<p>Elige el curso de tu preferencia para poder ver el contenido de los cursos.</p>`;
+  }
+
+  // Cuerpo de la ventana "¿Seguro que deseas este curso?": portada grande con "Gratis", título y la regla de una sola vez
+  function confirmarPruebaHTML(titulo, imagen) {
+    const portada = arte && arte.portadaGrandeHTML ? arte.portadaGrandeHTML(imagen) : '';
+    return `${portada}<p class="zc-modal__curso">${esc(titulo)}</p>
+      <p>Será tu <b>prueba gratuita</b>.</p>
+      <p><b>Solo puedes elegir uno y después no se puede cambiar.</b></p>`;
   }
 
   /* ───────────────────────── Detalle del curso ───────────────────────── */
@@ -239,7 +258,7 @@
 
   return {
     esc, urlSegura, colorArea, textoEspera, textoFaltan,
-    tarjetaHTML, tarjetaPendienteHTML, bannerPruebaHTML,
+    tarjetaHTML, tarjetaPendienteHTML, bannerPruebaHTML, avisoPruebaHTML, confirmarPruebaHTML,
     estadoClase, filaClaseHTML, detalleHTML, ventana
   };
 });

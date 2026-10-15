@@ -1,9 +1,11 @@
 /* ============================================================ */
 /* SECUENCIA DE BIENVENIDA · Club VIP Zoorigen                   */
 /*                                                                */
-/* Miembro nuevo : bienvenida con confeti -> nombre del           */
-/*                 certificado -> premio de bienvenida (+100 XP)  */
-/*                 -> recorrido guiado -> prueba gratuita.        */
+/* Miembro nuevo : bienvenida con confeti -> "Completa tu perfil  */
+/*                 profesional" (nombre del certificado y datos   */
+/*                 de contacto privados) -> premio de bienvenida  */
+/*                 (+100 XP) -> recorrido guiado -> prueba        */
+/*                 gratuita (abanico de portadas, como alintec).  */
 /* Miembro antiguo que nunca ha pagado: UNA tarjeta de            */
 /*                 "¡Bienvenido de nuevo!" con la prueba gratuita.*/
 /* Admins: nunca se les muestra nada.                             */
@@ -55,10 +57,28 @@
       errorGuardar: 'No pudimos guardar tu nombre. Revisa tu conexión e inténtalo de nuevo.',
       guardado: 'Nombre guardado'
     },
+    perfil: {
+      kicker: 'Bienvenido a Zoorigen',
+      titulo: 'Completa tu perfil profesional',
+      texto: 'Para que otros profesionales de la fauna silvestre te conozcan y puedan contactarte.',
+      avance: 'Tu perfil',
+      avanceCompleto: '¡Perfil completo!',
+      avancePct: '{n}% completo',
+      ayudaNombre: 'Este es el nombre que aparecerá en tus certificados. Revísalo y escríbelo completo.',
+      guardar: 'Guardar mi perfil',
+      guardando: 'Guardando...',
+      nota: 'Nadie ve tus datos hasta que tú decidas publicarlos en el Directorio.',
+      omitido: 'Puedes completar tu perfil más tarde.',
+      guardadoTodo: 'Perfil guardado',
+      guardadoParcial: 'Nombre guardado. No pudimos guardar el resto de tu perfil; inténtalo de nuevo más tarde.',
+      errorWhatsapp: 'El WhatsApp debe tener entre 8 y 15 dígitos.',
+      errorCorreo: 'Escribe un correo válido, por ejemplo nombre@correo.com.'
+    },
     pruebaNuevo: {
+      kicker: 'Una función para usuarios nuevos',
       titulo: 'Tu prueba gratuita',
-      texto: 'Al ser miembro nuevo, te damos a elegir un curso de tu interés como prueba gratuita.',
-      detalle: 'Es nuestro regalo para que conozcas cómo aprendes con Zoorigen.',
+      texto: 'Al ser un usuario nuevo, te damos a elegir un curso de tu interés como prueba gratuita.',
+      detalle: 'Lo eliges en Mis cursos.',
       elegir: 'Elegir mi curso',
       luego: 'Más tarde'
     },
@@ -176,6 +196,63 @@
     return '';
   }
 
+  /* ───────────────────────── Perfil profesional ───────────────────────── */
+
+  // Campos del formulario de bienvenida. "nombre" alimenta nombreCertificado; el resto va a la ficha privada del Directorio.
+  var PERFIL_CAMPOS = [
+    { id: 'nombre', etiqueta: 'Nombre completo', ejemplo: 'Nombre y apellidos', max: NOMBRE_MAX, completo: true, auto: 'name', icono: 'user' },
+    { id: 'profesion', etiqueta: 'Profesión o puesto', ejemplo: 'Ej. Médico veterinario', max: 80, auto: 'organization-title', icono: 'briefcase' },
+    { id: 'institucion', etiqueta: 'Institución, UMA o empresa', ejemplo: 'Ej. UMA Sierra Verde', max: 80, auto: 'organization', icono: 'building' },
+    { id: 'ciudad', etiqueta: 'Ciudad', ejemplo: 'Ej. Mérida, Yucatán', max: 80, auto: 'address-level2', icono: 'pin' },
+    { id: 'whatsapp', etiqueta: 'WhatsApp', ejemplo: 'Ej. 55 1234 5678', max: 20, tipo: 'tel', auto: 'tel', icono: 'phone' },
+    { id: 'email', etiqueta: 'Correo de contacto', ejemplo: 'correo@ejemplo.com', max: 120, completo: true, tipo: 'email', auto: 'email', icono: 'mail' }
+  ];
+  var PERFIL_IDS = PERFIL_CAMPOS.map(function (c) { return c.id; });
+  var CORREO_RE = /^[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,24}$/;
+
+  function valoresPerfil(v) {
+    var o = {};
+    PERFIL_IDS.forEach(function (id) { o[id] = limpiarNombre(v && v[id] != null ? v[id] : ''); });
+    return o;
+  }
+
+  // Avance del formulario: campos con algo escrito entre los seis. { llenos, total, pct, completo, texto }
+  function avancePerfil(valores) {
+    var v = valoresPerfil(valores);
+    var llenos = PERFIL_IDS.filter(function (id) { return !!v[id]; }).length;
+    var total = PERFIL_IDS.length;
+    var pct = Math.round((llenos / total) * 100);
+    var completo = llenos === total;
+    return { llenos: llenos, total: total, pct: pct, completo: completo,
+      texto: completo ? TEXTOS.perfil.avanceCompleto : TEXTOS.perfil.avancePct.replace('{n}', String(pct)) };
+  }
+
+  // Valida el formulario. El nombre sigue las MISMAS reglas de siempre (nombre y al menos un apellido, solo letras).
+  // WhatsApp y correo son opcionales, pero si vienen deben tener forma válida. { ok, campo, error, valores }
+  function validarPerfil(valores) {
+    var v = valoresPerfil(valores);
+    var n = validarNombre(v.nombre);
+    if (!n.ok) return { ok: false, campo: 'nombre', error: n.error, valores: v };
+    v.nombre = n.valor;
+    if (v.whatsapp) {
+      var digitos = v.whatsapp.replace(/[\s().+-]/g, '');
+      if (!/^\d{8,15}$/.test(digitos)) return { ok: false, campo: 'whatsapp', error: TEXTOS.perfil.errorWhatsapp, valores: v };
+    }
+    if (v.email && !CORREO_RE.test(v.email)) return { ok: false, campo: 'email', error: TEXTOS.perfil.errorCorreo, valores: v };
+    return { ok: true, campo: '', error: '', valores: v };
+  }
+
+  // ¿Escribió algo más que el nombre (o cambió lo que ya venía)? Solo entonces se crea la ficha del Directorio.
+  function hayExtrasPerfil(valores, inicial) {
+    var v = valoresPerfil(valores), i = valoresPerfil(inicial);
+    return PERFIL_IDS.some(function (id) { return id !== 'nombre' && v[id] !== i[id]; });
+  }
+
+  function inicialesDe(nombre) {
+    var p = limpiarNombre(nombre).split(' ').filter(Boolean).slice(0, 2);
+    return (p.map(function (x) { return x.charAt(0); }).join('') || '?').toLocaleUpperCase('es-MX');
+  }
+
   // Nombre que se propone en el campo: solo si ya parece un nombre completo real.
   function sugerirNombre(session) {
     if (!session) return '';
@@ -272,6 +349,17 @@
     return Promise.resolve().then(function () { return o.escribirRemoto({ nombreCertificado: r.valor }); })
       .then(function () { return { ok: true, valor: r.valor }; },
         function () { return { ok: false, error: TEXTOS.nombre.errorGuardar, codigo: 'red' }; });
+  }
+
+  // Guarda la ficha privada con POST /api/perfil-profesional (el servidor la mezcla con la tarjeta del Directorio y NUNCA la publica).
+  //   o: { valores, apiFetch }  →  Promise<{ ok, error? }>
+  function guardarFichaPerfil(o) {
+    o = o || {};
+    if (typeof o.apiFetch !== 'function') return Promise.resolve({ ok: false, error: 'sin-destino' });
+    var v = valoresPerfil(o.valores);
+    var cuerpo = { nombre: v.nombre, profesion: v.profesion, institucion: v.institucion, ciudad: v.ciudad, whatsapp: v.whatsapp, email: v.email };
+    return Promise.resolve().then(function () { return o.apiFetch('/api/perfil-profesional', { method: 'POST', body: cuerpo }); })
+      .then(function (r) { return { ok: !!r && r.ok !== false, datos: r }; }, function (e) { return { ok: false, error: String((e && e.message) || e) }; });
   }
 
   /* ───────────────────────── Estado de la prueba gratuita ───────────────────────── */
@@ -793,71 +881,146 @@
     });
   }
 
-  /* ── 2) Nombre del certificado ── */
-  function mostrarNombre(ctx) {
+  /* ── 2) Completa tu perfil profesional (reemplaza la ventana del nombre; el nombre sigue siendo el del certificado) ── */
+  var TRAZOS_PERFIL = {
+    user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    briefcase: '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
+    building: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+    pin: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+    phone: '<path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/>',
+    mail: '<path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/>',
+    lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    cert: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'
+  };
+  function trazoPerfil(id, tam) {
+    return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (TRAZOS_PERFIL[id] || '') + '</svg>';
+  }
+
+  function mostrarPerfil(ctx) {
     return new Promise(function (resolver) {
-      var T = TEXTOS.nombre;
+      var T = TEXTOS.perfil;
       var terminado = false;
+      var guardando = false;
+      var inicial = valoresPerfil({ nombre: sugerirNombre(ctx.session), whatsapp: ctx.session && ctx.session.phone ? ctx.session.phone : '' });
+      var tocados = {};
+      var campos = PERFIL_CAMPOS.map(function (c) {
+        return '<div class="zpf-campo' + (c.completo ? ' zpf-campo--completo' : '') + '">' +
+          '<label for="zpf-' + c.id + '">' + trazoPerfil(c.icono, 15) + '<span>' + esc(c.etiqueta) + '</span></label>' +
+          '<input id="zpf-' + c.id + '" class="zpf-input" data-campo="' + c.id + '" type="' + (c.tipo || 'text') + '" maxlength="' + c.max + '" autocomplete="' + c.auto + '" ' +
+            'placeholder="' + esc(c.ejemplo) + '" value="' + esc(inicial[c.id]) + '"' + (c.id === 'nombre' ? ' aria-describedby="zpf-ayuda-nombre"' : '') + '>' +
+          (c.id === 'nombre' ? '<div class="zpf-ayuda" id="zpf-ayuda-nombre">' + trazoPerfil('cert', 15) + '<span>' + esc(T.ayudaNombre) + '</span></div>' : '') +
+          '</div>';
+      }).join('');
       var modal = abrirModal({
-        clase: 'zob-tarjeta', titulo: 'zob-nombre-titulo', desc: 'zob-nombre-texto', enfoque: '#zob-nombre-campo',
+        clase: 'zob-perfil', titulo: 'zpf-titulo', desc: 'zpf-texto', enfoque: '#zpf-nombre',
         onEsc: function () { omitir(); },
         html:
           '<div class="zob__fondo"></div>' +
-          '<div class="zob__caja zob-tarjeta__caja">' +
-            '<div class="zob__icono zob__icono--verde">' + ico('award', 32) + '</div>' +
-            '<h2 class="zob__titulo" id="zob-nombre-titulo">' + esc(T.titulo) + '</h2>' +
-            '<p class="zob__texto" id="zob-nombre-texto">' + esc(T.texto) + '</p>' +
-            '<form class="zob-nombre__form" novalidate>' +
-              '<label class="zob-sr" for="zob-nombre-campo">Nombre completo para tus certificados</label>' +
-              '<input id="zob-nombre-campo" class="zob-campo" type="text" autocomplete="name" maxlength="' + NOMBRE_MAX + '" ' +
-                'placeholder="' + esc(T.ejemplo) + '" value="' + esc(sugerirNombre(ctx.session)) + '" aria-describedby="zob-nombre-ayuda">' +
-              '<div class="zob-nombre__ayuda" id="zob-nombre-ayuda" role="alert" aria-live="polite"></div>' +
-              '<button type="submit" class="zob-btn zob-btn--primario zob-btn--ancho" data-zob-guardar>' + esc(T.guardar) + '</button>' +
-              '<button type="button" class="zob-btn zob-btn--suave zob-btn--ancho" data-zob-omitir>' + esc(T.omitir) + '</button>' +
-            '</form>' +
-            '<p class="zob__pie">' + esc(T.pie) + '</p>' +
+          '<div class="zob__caja zpf-caja">' +
+            '<button type="button" class="zob__cerrar zpf-cerrar" data-zpf-cerrar aria-label="Cerrar y completar más tarde">' + ico('x', 18) + '</button>' +
+            '<div class="zpf-scroll">' +
+              '<div class="zpf-portada"><span class="zpf-kick">' + esc(T.kicker) + '</span><h2 id="zpf-titulo">' + esc(T.titulo) + '</h2><p id="zpf-texto">' + esc(T.texto) + '</p></div>' +
+              '<div class="zpf-fila">' +
+                '<div class="zpf-avatar" aria-hidden="true"><span class="zpf-foto" data-zpf-iniciales></span></div>' +
+                '<div class="zpf-avance"><div class="zpf-avance__f"><span>' + esc(T.avance) + '</span><b data-zpf-pct></b></div>' +
+                  '<div class="zpf-barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="' + esc(T.avance) + '"><i data-zpf-barra></i></div></div>' +
+              '</div>' +
+              '<form class="zpf-form" novalidate>' + campos + '</form>' +
+            '</div>' +
+            '<div class="zpf-pie">' +
+              '<p class="zpf-hint" id="zpf-hint" role="alert" aria-live="polite"></p>' +
+              '<button type="button" class="zob-btn zob-btn--primario zob-btn--ancho" data-zpf-guardar>' + esc(T.guardar) + '</button>' +
+              '<p class="zpf-nota">' + trazoPerfil('lock', 14) + '<span>' + esc(T.nota) + '</span></p>' +
+            '</div>' +
           '</div>'
       });
       var el = modal.el;
-      var campo = el.querySelector('#zob-nombre-campo');
-      var ayuda = el.querySelector('#zob-nombre-ayuda');
-      var botonGuardar = el.querySelector('[data-zob-guardar]');
-      var form = el.querySelector('form');
+      var hint = el.querySelector('#zpf-hint');
+      var botonGuardar = el.querySelector('[data-zpf-guardar]');
+      var inputs = {};
+      PERFIL_IDS.forEach(function (id) { inputs[id] = el.querySelector('#zpf-' + id); });
 
-      function error(texto) {
-        ayuda.textContent = texto || '';
-        ayuda.classList.toggle('is-error', !!texto);
-        if (texto) campo.setAttribute('aria-invalid', 'true'); else campo.removeAttribute('aria-invalid');
+      function leer() { var o = {}; PERFIL_IDS.forEach(function (id) { o[id] = inputs[id].value; }); return o; }
+      function error(texto, campo) {
+        hint.textContent = texto || '';
+        hint.classList.toggle('is-error', !!texto);
+        PERFIL_IDS.forEach(function (id) { if (inputs[id]) inputs[id].removeAttribute('aria-invalid'); });
+        if (texto && campo && inputs[campo]) inputs[campo].setAttribute('aria-invalid', 'true');
+      }
+      function refrescar() {
+        var v = leer();
+        var a = avancePerfil(v);
+        el.querySelector('[data-zpf-pct]').textContent = a.texto;
+        el.querySelector('[data-zpf-barra]').style.width = a.pct + '%';
+        el.querySelector('.zpf-barra').setAttribute('aria-valuenow', String(a.pct));
+        el.querySelector('[data-zpf-iniciales]').textContent = inicialesDe(v.nombre);
+        PERFIL_IDS.forEach(function (id) { inputs[id].classList.toggle('is-lleno', !!limpiarNombre(inputs[id].value)); });
       }
       function omitir() {
-        if (terminado) return;
-        terminado = true; modal.cerrar(); resolver({ como: 'omitir' });
+        if (terminado || guardando) return;
+        terminado = true; modal.cerrar();
+        aviso(T.omitido);
+        resolver({ como: 'omitir' });
       }
-      campo.addEventListener('input', function () {
-        campo.removeAttribute('aria-invalid');
-        ayuda.classList.remove('is-error');
-        ayuda.textContent = avisoLongitud(campo.value);
-      });
-      form.addEventListener('submit', function (ev) {
-        ev.preventDefault();
-        if (terminado || botonGuardar.disabled) return;
-        var r = validarNombre(campo.value);
-        if (!r.ok) { error(r.error); campo.focus(); return; }
-        error('');
-        botonGuardar.disabled = true; botonGuardar.textContent = 'Guardando...';
-        guardarNombreCertificado({ nombre: r.valor, escribirRemoto: ctx.escribirRemoto }).then(function (g) {
-          if (!g.ok) {
-            botonGuardar.disabled = false; botonGuardar.textContent = T.guardar;
-            error(g.error); campo.focus();
-            return;
-          }
-          ctx.session.nombreCertificado = g.valor;
-          terminado = true; modal.cerrar();
-          aviso(T.guardado + ': ' + g.valor);
-          resolver({ como: 'guardado', nombre: g.valor });
+      PERFIL_IDS.forEach(function (id) {
+        inputs[id].addEventListener('input', function () {
+          tocados[id] = true;
+          if (id === 'nombre') error(avisoLongitud(inputs.nombre.value), ''); else error('', '');
+          refrescar();
         });
       });
-      el.querySelector('[data-zob-omitir]').addEventListener('click', omitir);
+      el.querySelector('[data-zpf-cerrar]').addEventListener('click', omitir);
+
+      // Datos que ya se tenían (ficha privada guardada antes): se completan solo los campos que la persona aún no tocó.
+      if (typeof ctx.leerPerfil === 'function') {
+        Promise.resolve().then(function () { return ctx.leerPerfil(); }).then(function (previo) {
+          if (!previo || terminado) return;
+          PERFIL_IDS.forEach(function (id) {
+            var dato = limpiarNombre(previo[id]);
+            if (!dato || tocados[id] || limpiarNombre(inputs[id].value)) return;
+            inputs[id].value = dato; inicial[id] = dato;
+          });
+          refrescar();
+        }).catch(function () { /* sin datos previos: el formulario se queda como está */ });
+      }
+
+      function guardar() {
+        if (terminado || guardando) return;
+        var r = validarPerfil(leer());
+        if (!r.ok) { error(r.error, r.campo); inputs[r.campo].focus(); return; }
+        error('', '');
+        guardando = true;
+        botonGuardar.disabled = true; botonGuardar.textContent = T.guardando;
+        // 1) El nombre al certificado (como siempre)
+        guardarNombreCertificado({ nombre: r.valores.nombre, escribirRemoto: ctx.escribirRemoto }).then(function (g) {
+          if (!g.ok) {
+            guardando = false; botonGuardar.disabled = false; botonGuardar.textContent = T.guardar;
+            error(g.error, 'nombre'); inputs.nombre.focus();
+            return null;
+          }
+          ctx.session.nombreCertificado = g.valor;
+          r.valores.nombre = g.valor;
+          // 2) Lo demás va a la ficha privada, SOLO si escribió algo más que el nombre
+          var extras = hayExtrasPerfil(r.valores, inicial);
+          var ficha = Promise.resolve({ ok: true, omitido: true });
+          if (extras && typeof ctx.guardarPerfil === 'function') ficha = Promise.resolve().then(function () { return ctx.guardarPerfil(r.valores); });
+          else if (extras) ficha = Promise.resolve({ ok: false });
+          return ficha.then(function (f) {
+            // El WhatsApp también queda en la cuenta si todavía no tenía teléfono (best effort)
+            if (extras && r.valores.whatsapp && !(ctx.session && ctx.session.phone) && typeof ctx.escribirRemoto === 'function') {
+              try { Promise.resolve(ctx.escribirRemoto({ phone: r.valores.whatsapp })).catch(function () { /* no es necesario */ }); } catch (e) { /* nada */ }
+              if (ctx.session) ctx.session.phone = r.valores.whatsapp;
+            }
+            terminado = true; modal.cerrar();
+            if (f && f.ok === false) aviso(T.guardadoParcial);
+            else aviso(T.guardadoTodo + ': ' + g.valor);
+            resolver({ como: 'guardado', nombre: g.valor, ficha: extras ? (f && f.ok === false ? 'parcial' : 'guardada') : 'solo-nombre' });
+          });
+        });
+      }
+      botonGuardar.addEventListener('click', guardar);
+      inputs.nombre.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); guardar(); } });
+      refrescar();
     });
   }
 
@@ -881,6 +1044,15 @@
   /* ── 4) Tarjetas de la prueba gratuita (miembro nuevo / miembro que vuelve) ── */
   function irAElegirCurso() { window.location.href = URL_ELEGIR_CURSO; }
 
+  // Abanico de tres portadas con la pastilla "Gratis" (si el módulo no está cargado, la tarjeta sale sin él).
+  function arteDePrueba(ctx) {
+    var A = ctx && ctx.arte !== undefined ? ctx.arte : (typeof window !== 'undefined' ? window.ZOO_PRUEBA_ARTE : null);
+    if (!A || typeof A.arteHTML !== 'function') return '';
+    var urls = [];
+    try { urls = A.portadas({ cursos: (ctx && ctx.cursosPrueba) || [], base: '../' }); } catch (e) { urls = []; }
+    return A.arteHTML(urls);
+  }
+
   function mostrarTarjetaPrueba(ctx, modo) {
     return new Promise(function (resolver) {
       var retorno = modo === 'retorno';
@@ -890,8 +1062,8 @@
           '<ol class="zob-prueba__pasos">' + T.pasos.map(function (p, i) {
             return '<li><span class="zob-prueba__num" aria-hidden="true">' + (i + 1) + '</span><span>' + esc(p) + '</span></li>';
           }).join('') + '</ol>'
-        : '<p class="zob__texto" id="zob-prueba-texto">' + esc(T.texto) + '</p>' +
-          '<p class="zob__nota">' + esc(T.detalle) + '</p>';
+        : '<p class="zob__texto" id="zob-prueba-texto">Al ser un usuario nuevo, <strong>te damos a elegir un curso de tu interés como prueba gratuita</strong>.</p>' +
+          '<p class="zob__texto zob__texto--aparte">Lo eliges en <strong>Mis cursos</strong>.</p>';
       if (ctx.cursoPref) {
         var textoPref = ctx.cursoPref.titulo ? TEXTOS.pref.conTitulo.replace('{t}', ctx.cursoPref.titulo) : TEXTOS.pref.sinTitulo;
         cuerpo += '<p class="zob__nota zob-prueba__pref">' + esc(textoPref) + '</p>';
@@ -903,13 +1075,13 @@
         html:
           '<div class="zob__fondo"></div>' +
           '<div class="zob__caja zob-tarjeta__caja">' +
-            (retorno ? '<div class="zob-prueba__brillo" aria-hidden="true"></div>' : '') +
-            '<div class="zob__icono zob__icono--naranja' + (retorno ? ' zob__icono--grande' : '') + '">' + ico('gift', retorno ? 40 : 32) + '</div>' +
+            (T.kicker ? '<p class="zob__kicker">' + esc(T.kicker) + '</p>' : '') +
             '<h2 class="zob__titulo" id="zob-prueba-titulo">' + esc(T.titulo) + '</h2>' +
+            arteDePrueba(ctx) +
             cuerpo +
             '<div class="zob-prueba__acciones">' +
               '<button type="button" class="zob-btn zob-btn--primario zob-btn--ancho" data-zob-elegir>' + esc(T.elegir) + '</button>' +
-              '<button type="button" class="zob-btn zob-btn--suave zob-btn--ancho" data-zob-luego>' + esc(T.luego) + '</button>' +
+              '<button type="button" class="zob-btn zob-btn--texto zob-btn--ancho" data-zob-luego>' + esc(T.luego) + '</button>' +
             '</div>' +
           '</div>'
       });
@@ -1243,6 +1415,23 @@
     });
   }
 
+  // apiFetch del Club (club.js) si está en la página; null si no (entonces la ficha no se guarda y se avisa).
+  function apiClub() {
+    try {
+      var c = (typeof ZOORIGEN_CLUB !== 'undefined' && ZOORIGEN_CLUB) || (typeof window !== 'undefined' && window.ZOORIGEN_CLUB) || null;
+      return c && typeof c.apiFetch === 'function' ? function (ruta, op) { return c.apiFetch(ruta, op); } : null;
+    } catch (e) { return null; }
+  }
+  // Lee la ficha privada ya guardada (para precargar el formulario). Con tope de tiempo; sin red, devuelve null.
+  function apiPerfil() {
+    return function () {
+      var f = apiClub();
+      if (!f) return Promise.resolve(null);
+      return conLimite(Promise.resolve().then(function () { return f('/api/perfil-profesional'); }), 2500)
+        .then(function (r) { return r && r.perfil ? r.perfil : null; }, function () { return null; });
+    };
+  }
+
   // iniciar({ session, uid, estadoPrueba, db, welcome, ... })
   //   estadoPrueba: objeto del servidor, promesa, función, o undefined (entonces lo pide solo).
   function colaDe(o) {
@@ -1290,6 +1479,8 @@
         return conLimite(almacen.marcar(id), 1500).catch(function () { return false; });
       },
       irAElegir: o.irAElegir,
+      leerPerfil: o.leerPerfil || apiPerfil('GET'),
+      guardarPerfil: o.guardarPerfil || function (valores) { return guardarFichaPerfil({ valores: valores, apiFetch: apiClub() }); },
       pedirPremios: o.pedirPremios,   // pruebas: sustituye a ZOO_PREMIOS.pedir
       tarjetas: o.tarjetas            // pruebas: sustituye a ZOO_CURSO_PREMIO
     };
@@ -1326,7 +1517,7 @@
 
         var mostrar = {
           bienvenida: function () { return mostrarBienvenida(ctx).then(function (r) { return almacen.marcar('bienvenidaVista').then(function () { return r; }); }); },
-          nombre: function () { return mostrarNombre(ctx).then(function (r) { return almacen.marcar('nombreVisto').then(function () { return r; }); }); },
+          nombre: function () { return mostrarPerfil(ctx).then(function (r) { return almacen.marcar('nombreVisto').then(function () { return r; }); }); },
           premio: function () {
             return mostrarPremioBienvenida(ctx).then(function (r) { return (r && r.sinMarcar ? Promise.resolve() : almacen.marcar('premioVisto')).then(function () { return r; }); });
           },
@@ -1380,6 +1571,7 @@
     validarNombre: validarNombre, capitalizarNombre: capitalizarNombre, avisoLongitud: avisoLongitud, sugerirNombre: sugerirNombre, primerNombre: primerNombre,
     normalizarMarcas: normalizarMarcas, fusionarMarcas: fusionarMarcas, hayMarcas: hayMarcas, crearAlmacen: crearAlmacen,
     guardarNombreCertificado: guardarNombreCertificado,
+    PERFIL_CAMPOS: PERFIL_CAMPOS, avancePerfil: avancePerfil, validarPerfil: validarPerfil, hayExtrasPerfil: hayExtrasPerfil, inicialesDe: inicialesDe, guardarFichaPerfil: guardarFichaPerfil,
     normalizarEstadoPrueba: normalizarEstadoPrueba, pedirEstadoPrueba: pedirEstadoPrueba, puedeVerPrueba: puedeVerPrueba,
     esCuentaNueva: esCuentaNueva, clasificar: clasificar, planificar: planificar, ejecutarSecuencia: ejecutarSecuencia,
     reclamarPremioBienvenida: reclamarPremioBienvenida, mostrarPremioBienvenida: mostrarPremioBienvenida, RUTA_PREMIO_BIENVENIDA: RUTA_PREMIO_BIENVENIDA,
