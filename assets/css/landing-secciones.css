@@ -35,16 +35,16 @@
   --zs-crema-2: #F6F4EF;
   --zs-oro-p: #FBF1D4;
   --zs-borde-t: #DDE6DF;
-  /* Paleta variada (sólidos, apagados). Cada acento es el color del texto/ícono; "-t" es su tinte de fondo.
-     Todos los pares acento sobre tinte y sobre blanco pasan AA (4.5:1); se miden en tests/portada-secciones-legal.test.js */
-  --zs-cielo: #1E5A8A;       --zs-cielo-t: #E6F0F8;       --zs-cielo-p: #F1F6FB;
-  --zs-terracota: #AE4310;   --zs-terracota-t: #FBEBDD;
-  --zs-ambar: #8A5A00;       --zs-ambar-t: #FBF1D4;
-  --zs-indigo: #4B4E9E;      --zs-indigo-t: #ECECF8;
-  --zs-teal: #0F766E;        --zs-teal-t: #E1F2EF;
-  --zs-rosa: #A83F5A;        --zs-rosa-t: #F9E7EC;
-  --zs-arena: #FAF5EA;
-  --zs-azul-prof: #17324D;   --zs-indigo-prof: #2B2F6B;   --zs-noche: #10243A;
+  /* Dos acentos de efecto, sólidos y sobrios (la tinta y el verde de marca son los de siempre).
+       --zs-naranja:       texto, borde e ícono (el naranja de las monarcas, oscurecido para contraste AA)
+       --zs-naranja-d:     naranja decorativo, sin texto encima
+       --zs-naranja-t:     tinte pálido de fondo
+       --zs-dorado-texto:  texto, borde e ícono dorado oscuro
+       --zs-dorado:        dorado decorativo y de relleno (con texto tinta encima)
+       --zs-dorado-t:      tinte pálido de fondo
+     Todos los pares pasan AA (4.5:1); los mide tests/portada-secciones-legal.test.js */
+  --zs-naranja: #A94A04;     --zs-naranja-d: #E8761C;     --zs-naranja-t: #FBEBDD;
+  --zs-dorado-texto: #8A5A00;                            --zs-dorado-t: #FBF1D4;
   --zs-titulo: 'Outfit', 'Outfit Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --zs-fuente: 'Inter', 'Inter Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --zs-sombra: 0 4px 6px -1px rgba(31, 41, 51, .10), 0 2px 4px -1px rgba(31, 41, 51, .06);
@@ -663,10 +663,11 @@ main #contacto .zs-lead { color: #DDEBE1; }
   background: rgba(255, 255, 255, .14); color: #FFFFFF; text-decoration: none; font-size: 24px;
   transition: background-color .25s ease, box-shadow .25s ease;
 }
-.zs-pie__redes .zs-red--instagram { --c: #DD2A7B; }
-.zs-pie__redes .zs-red--facebook { --c: #1877F2; }
-.zs-pie__redes .zs-red--whatsapp { --c: #128C7E; }   /* el verde #25D366 no da contraste con el ícono blanco */
-.zs-pie__redes a:hover, .zs-pie__redes a:focus-visible, .zs-pie__redes a:active { background: var(--c); box-shadow: 0 0 0 3px rgba(255, 255, 255, .85); }
+/* Instagram y WhatsApp en naranja (ícono blanco); Facebook en dorado (ícono tinta): el contraste del ícono pasa AA en los tres */
+.zs-pie__redes .zs-red--instagram { --c: var(--zs-naranja); --ic: #FFFFFF; }
+.zs-pie__redes .zs-red--facebook { --c: var(--zs-dorado); --ic: var(--zs-tinta); }
+.zs-pie__redes .zs-red--whatsapp { --c: var(--zs-naranja); --ic: #FFFFFF; }
+.zs-pie__redes a:hover, .zs-pie__redes a:focus-visible, .zs-pie__redes a:active { background: var(--c); color: var(--ic, #FFFFFF); box-shadow: 0 0 0 3px rgba(255, 255, 255, .85); }
 .zs-pie__redes a:hover .zs-i, .zs-pie__redes a:focus-visible .zs-i, .zs-pie__redes a:active .zs-i { animation: zs-rebote .4s linear; }
 @keyframes zs-rebote { 40% { transform: scale(1.4); } 60% { transform: scale(.8); } 80% { transform: scale(1.2); } 100% { transform: scale(1); } }
 .zs-pie__col h3 { margin: 0 0 8px; font: 700 13px/1.3 var(--zs-fuente); letter-spacing: .08em; text-transform: uppercase; color: var(--zs-dorado-cl); }
@@ -1009,132 +1010,97 @@ body.zs-legal * { box-sizing: border-box; }
 }
 
 /* ============================================================ */
-/* COLOR EN ESTADOS DE EFECTO (ronda 7)                          */
+/* COLOR EN ESTADOS DE EFECTO (ronda 9)                          */
 /* En reposo la portada conserva su aspecto (crema, blanco y     */
-/* verde de marca). La paleta variada solo aparece cuando una    */
-/* tarjeta se voltea, se expande, baja su panel o cambia por     */
-/* hover, foco o toque. Tintes pálidos sólidos con texto oscuro; */
-/* todos los pares pasan AA (lo mide la prueba).                 */
+/* verde de marca). Cuando una tarjeta se voltea, se expande,    */
+/* baja su panel o cambia por hover, foco o toque, alterna entre */
+/* dos acentos: NARANJA y DORADO (pares y nones). Cada tarjeta   */
+/* declara --acc (texto/borde), --tin (tinte), --fill (relleno)  */
+/* y --on (texto sobre el relleno).                              */
 /* ============================================================ */
 
-/* Se conservan: foco visible con contraste y degradados fuera (en tono verde de siempre) */
+/* Foco visible con contraste: tinta (blanco sobre fondos oscuros) */
 :is(.zs-sec, .zs-pie, .zs-cab) :is(a, button, summary, input):focus-visible,
-.zs-logo:focus-visible, .zs-carril:focus-visible, .zs-beneficio:focus-visible, .zs-campo__ver:focus-visible { outline-color: var(--zs-cielo); }
+.zs-logo:focus-visible, .zs-carril:focus-visible, .zs-beneficio:focus-visible, .zs-campo__ver:focus-visible { outline-color: var(--zs-tinta); }
 .zs-sec--verde :is(a, button):focus-visible, .zs-pie :is(a, button):focus-visible, .zs-contacto :is(a, button):focus-visible { outline-color: #FFFFFF; }
+/* Degradados fuera (en tono verde de siempre) */
 main #areas .section-head h2 em { background: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: currentColor; color: var(--zs-verde); }
 .certificate-stage { background: #1E4A34; }
 .registration-layout { background: #F1F5E8; }
 
-/* Confianza: el reverso de cada tarjeta que gira toma un tinte distinto (seis que rotan) */
-.zs-logo:nth-child(6n + 1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-logo:nth-child(6n + 2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-logo:nth-child(6n + 3) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
-.zs-logo:nth-child(6n + 4) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-logo:nth-child(6n + 5) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
-.zs-logo:nth-child(6n + 6) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
+/* Los dos acentos (se asignan por posición: nones naranja, pares dorado) */
+.zs-logo:nth-child(odd), .zs-paso:nth-child(odd), .zs-beneficio:nth-child(odd), .zs-campo:nth-child(odd), #areas .area-tw:nth-child(odd),
+.zs-curso:nth-child(odd), .zs-cifra:nth-child(odd), .zs-resena--a, .zs-resena--c, .zs-contacto__lista li:nth-child(odd),
+.zs-ventana__lista li:nth-child(odd), .zs-faq details:nth-child(odd) {
+  --acc: var(--zs-naranja); --tin: var(--zs-naranja-t); --fill: var(--zs-naranja); --on: #FFFFFF;
+}
+.zs-logo:nth-child(even), .zs-paso:nth-child(even), .zs-beneficio:nth-child(even), .zs-campo:nth-child(even), #areas .area-tw:nth-child(even),
+.zs-curso:nth-child(even), .zs-cifra:nth-child(even), .zs-resena--b, .zs-contacto__lista li:nth-child(even),
+.zs-ventana__lista li:nth-child(even), .zs-faq details:nth-child(even) {
+  --acc: var(--zs-dorado-texto); --tin: var(--zs-dorado-t); --fill: var(--zs-dorado); --on: var(--zs-tinta);
+}
+
+/* Confianza: el reverso de cada tarjeta que gira toma el tinte de su posición */
 .zs-logo__cara--dorso { background: var(--tin, var(--zs-salvia)); border-color: var(--acc, var(--zs-borde-t)); }
 .zs-logo__cara--dorso .zs-i { color: var(--acc, var(--zs-verde)); }
 
 /* Tu siguiente paso: la esquina que se expande se llena con el tinte de su paso */
-.zs-paso:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-paso:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-paso:nth-child(3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
 .zs-paso__fondo { background: var(--tin, var(--zs-salvia)); }
 .zs-paso:hover .zs-paso__esquina, .zs-paso:focus-within .zs-paso__esquina { background: var(--tin, var(--zs-salvia)); color: var(--acc, var(--zs-verde)); }
 .zs-paso:hover .zs-paso__num, .zs-paso:focus-within .zs-paso__num,
 .zs-paso:hover .zs-enlace, .zs-paso:focus-within .zs-enlace { color: var(--acc, var(--zs-verde)); }
 .zs-paso:hover .zs-paso__tarjeta, .zs-paso:focus-within .zs-paso__tarjeta { border-color: var(--acc, #C5D6CB); }
 
-/* Beneficios: seis tintes; el panel que gira (y el borde de la tarjeta) toma el suyo */
-.zs-beneficio:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-beneficio:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-beneficio:nth-child(3) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
-.zs-beneficio:nth-child(4) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-beneficio:nth-child(5) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
-.zs-beneficio:nth-child(6) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
+/* Beneficios: el panel que gira (y el borde de la tarjeta) toma su tinte */
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .zs-beneficio:hover, .zs-beneficio:focus-visible { border-color: var(--acc, var(--zs-borde-t)); }
   .zs-beneficio:hover .zs-beneficio__panel, .zs-beneficio:focus-visible .zs-beneficio__panel { background: var(--tin, #FFFFFF); }
 }
 
-/* Del estudio a la práctica: borde y panel del color de su tema al activarse */
-.zs-campo:nth-child(1) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
-.zs-campo:nth-child(2) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
-.zs-campo:nth-child(3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-campo:nth-child(4) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
+/* Del estudio a la práctica: borde y panel del color de su posición al activarse */
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .zs-campo:hover, .zs-campo:focus-within { box-shadow: 0 0 0 3px var(--acc, var(--zs-verde)), 0 0 22px 9px rgba(18, 53, 36, .14); }
   .zs-campo:hover .zs-campo__txt, .zs-campo:focus-within .zs-campo__txt { background: var(--tin, var(--zs-crema-2)); box-shadow: inset 0 3px 0 var(--acc, var(--zs-verde)), 0 0 20px 8px rgba(18, 53, 36, .10); }
   .zs-campo:hover .zs-campo__ver, .zs-campo:focus-within .zs-campo__ver { color: var(--acc, var(--zs-verde)); }
 }
 
-/* Áreas: un acento distinto por área al pasar el puntero, enfocar o elegir el área */
-#areas .area-tw:nth-child(1) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-#areas .area-tw:nth-child(2) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-#areas .area-tw:nth-child(3) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
-#areas .area-tw:nth-child(4) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
-#areas .area-tw:nth-child(5) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-#areas .area-tw:nth-child(6) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
+/* Áreas: borde, número, etiqueta y botón al pasar el puntero, enfocar o elegir el área */
 #areas .area-tw:hover, #areas .area-tw:focus-visible, #areas .area-tw.is-active { box-shadow: 0 0 0 2px var(--acc, var(--zs-verde)), 0 12px 20px -6px rgba(31, 41, 51, .2); }
 #areas .area-tw:hover .area-tw__num, #areas .area-tw:focus-visible .area-tw__num, #areas .area-tw.is-active .area-tw__num { color: var(--acc, var(--zs-verde)); }
 #areas .area-tw:hover .area-tw__count, #areas .area-tw:focus-visible .area-tw__count, #areas .area-tw.is-active .area-tw__count { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
-#areas .area-tw:hover .area-tw__btn, #areas .area-tw:focus-visible .area-tw__btn, #areas .area-tw.is-active .area-tw__btn { background: var(--acc, var(--zs-verde)); }
-#areas .area-tw:focus-visible { outline-color: var(--zs-cielo); }
+#areas .area-tw:hover .area-tw__btn, #areas .area-tw:focus-visible .area-tw__btn, #areas .area-tw.is-active .area-tw__btn { background: var(--fill, var(--zs-verde)); color: var(--on, #FFFFFF); }
+#areas .area-tw:focus-visible { outline-color: var(--zs-tinta); }
 
-/* Cursos: la tarjeta cambia de color al pasar el puntero (seis acentos que rotan) */
-.zs-curso:nth-child(6n + 1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-curso:nth-child(6n + 2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-curso:nth-child(6n + 3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-curso:nth-child(6n + 4) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
-.zs-curso:nth-child(6n + 5) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
-.zs-curso:nth-child(6n + 6) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
+/* Cursos: la tarjeta cambia de color al pasar el puntero */
 .zs-curso:hover, .zs-curso:focus-within { border-color: var(--acc, #C9D9CE); }
 .zs-curso:hover .zs-etiqueta:not(.zs-etiqueta--dorada), .zs-curso:focus-within .zs-etiqueta:not(.zs-etiqueta--dorada) { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
-.zs-curso:hover .zs-boton--verde, .zs-curso:focus-within .zs-boton--verde { background: var(--acc, var(--zs-verde)); }
+.zs-curso:hover .zs-boton--verde, .zs-curso:focus-within .zs-boton--verde { background: var(--fill, var(--zs-verde)); color: var(--on, #FFFFFF); }
 .zs-curso:hover .zs-curso__detalle, .zs-curso:focus-within .zs-curso__detalle { color: var(--acc, var(--zs-verde)); }
 
 /* Cifras: el ícono cambia de color al pasar el puntero */
-.zs-cifra:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-cifra:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-cifra:nth-child(3) { --acc: var(--zs-ambar); --tin: var(--zs-ambar-t); }
 .zs-cifra:hover .zs-cifra__icono { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
 .zs-cifra:hover { border-color: var(--acc, var(--zs-linea)); }
 
 /* Reseñas: la tarjeta se marca con su acento al pasar el puntero */
-.zs-resena--a { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-resena--b { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-resena--c { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
 .zs-resena { transition: box-shadow .25s ease; }
 .zs-resena:hover, .zs-resena:focus-within { box-shadow: 0 0 0 2px var(--acc, var(--zs-verde)), var(--zs-sombra); }
-.zs-resena:hover .zs-resena__avatar, .zs-resena:focus-within .zs-resena__avatar { background: var(--acc, var(--zs-verde)); color: #FFFFFF; }
+.zs-resena:hover .zs-resena__avatar, .zs-resena:focus-within .zs-resena__avatar { background: var(--fill, var(--zs-verde)); color: var(--on, #FFFFFF); }
 .zs-resena:hover .zs-resena__ver, .zs-resena:focus-within .zs-resena__ver { color: var(--acc, var(--zs-verde)); border-color: var(--acc, #CBD2D9); }
 
 /* Contacto y plataforma: cada canal / fila toma su color al pasar el puntero */
-.zs-contacto__lista li:nth-child(1) { --acc: var(--zs-teal); --tin: var(--zs-teal-t); }
-.zs-contacto__lista li:nth-child(2) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-contacto__lista li:nth-child(3) { --acc: var(--zs-rosa); --tin: var(--zs-rosa-t); }
-.zs-contacto__lista li:nth-child(4) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
-.zs-canal:hover .zs-canal__icono { background: var(--acc, var(--zs-verde)); color: #FFFFFF; }
+.zs-canal:hover .zs-canal__icono { background: var(--fill, var(--zs-verde)); color: var(--on, #FFFFFF); }
 .zs-canal:hover .zs-canal__flecha { color: var(--acc, var(--zs-verde)); }
-.zs-ventana__lista li:nth-child(1) { --acc: var(--zs-cielo); --tin: var(--zs-cielo-t); }
-.zs-ventana__lista li:nth-child(2) { --acc: var(--zs-terracota); --tin: var(--zs-terracota-t); }
-.zs-ventana__lista li:nth-child(3) { --acc: var(--zs-indigo); --tin: var(--zs-indigo-t); }
 .zs-ventana__lista li:hover .zs-ventana__icono { background: var(--tin, var(--zs-verde-cl)); color: var(--acc, var(--zs-verde)); }
 
-/* Dudas: la pregunta abierta toma un color distinto */
-.zs-faq details:nth-child(6n + 1) { --acc: var(--zs-cielo); }
-.zs-faq details:nth-child(6n + 2) { --acc: var(--zs-terracota); }
-.zs-faq details:nth-child(6n + 3) { --acc: var(--zs-indigo); }
-.zs-faq details:nth-child(6n + 4) { --acc: var(--zs-teal); }
-.zs-faq details:nth-child(6n + 5) { --acc: var(--zs-rosa); }
-.zs-faq details:nth-child(6n + 6) { --acc: var(--zs-ambar); }
+/* Dudas: la pregunta abierta toma un color */
 .zs-faq details[open] { border-color: var(--acc, var(--zs-verde)); }
 .zs-faq details[open] summary .zs-i { color: var(--acc, var(--zs-verde)); }
 
-/* Aviso de privacidad y términos: acentos en cielo (se conservan) */
-.zs-indice h2, .zs-doc__eyebrow { color: var(--zs-cielo); }
-.zs-indice a::before, .zs-indice a:hover { color: var(--zs-cielo); }
-.zs-doc__version { background: var(--zs-cielo-t); color: var(--zs-azul-prof); }
-.zs-doc a { color: var(--zs-cielo); }
-.zs-cab__nav a:hover, .zs-cab__nav a[aria-current="page"] { color: var(--zs-cielo); }
+/* Aviso de privacidad y términos: acentos en naranja y dorado oscuro */
+.zs-indice h2, .zs-doc__eyebrow { color: var(--zs-naranja); }
+.zs-indice a::before { color: var(--zs-naranja); }
+.zs-indice a:hover { color: var(--zs-dorado-texto); }
+.zs-doc__version { background: var(--zs-dorado-t); color: var(--zs-tinta); }
+.zs-doc a { color: var(--zs-naranja); }
+.zs-cab__nav a:hover, .zs-cab__nav a[aria-current="page"] { color: var(--zs-naranja); }
 .zs-cab__nav .zs-boton, .zs-cab__nav .zs-boton:hover { color: #FFFFFF; }

@@ -141,3 +141,9 @@ El verde de marca (`#1F5F3A`) queda como acento (logo, botón principal "Crear c
 - **Color solo al activarse:** reverso de las tarjetas de Confianza (seis tintes que rotan), esquina que se expande en Siguiente paso (cielo, terracota, índigo), panel y borde de Beneficios, borde y panel de Estudio a la práctica, botón y borde de las tarjetas de Áreas, borde/etiqueta/botón de Cursos, ícono de cifras, tarjeta de reseñas, canales de contacto y pregunta abierta.
 - **Guía:** el botón flotante muestra `assets/img/guia/guia-pensando.webp` (sin saludo animado). No hizo falta variante de 128 px: el busto se usa a 92 px desde el archivo de 640 px, como las demás poses.
 - **Botón "subir" eliminado** de portada y hojas (queda solo la columna guía + WhatsApp).
+
+## 12. Octava y novena ronda: sin morado y solo naranja y dorado
+
+- **Sin morado:** se auditaron CSS, JS y HTML (tono HSL 255-310 con saturación > 15 %) y se reemplazó todo: apartados Infusiones, Directorio y Legal del Club, avatar y logros, KPI y juegos, y hojas heredadas sin uso. Queda un solo hallazgo que no es un color: el nombre de animal "serpiente índigo" en la tabla de dosis.
+- **Portada y páginas legales:** la paleta de efectos se reduce a **naranja** (`--zs-naranja #A94A04`, decorativo `--zs-naranja-d #E8761C`, tinte `--zs-naranja-t #FBEBDD`) y **dorado** (texto `--zs-dorado-texto #8A5A00`, relleno `--zs-dorado #E8A317`, tinte `--zs-dorado-t #FBF1D4`). Alternan por posición: nones naranja, pares dorado. Se eliminaron cielo, terracota, índigo/pizarra, teal y rosa.
+- Reposo sin cambios (verde de marca, crema y blanco). Íconos de redes del pie: Instagram y WhatsApp en naranja con ícono blanco, Facebook en dorado con ícono tinta, con rebote.

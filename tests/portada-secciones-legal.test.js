@@ -323,18 +323,17 @@ test('apartado Membresía Zoorigen quitado: sin marcado, sin CSS muerto y sin an
   assert.ok(INDEX.includes('id="panel"'));
 });
 
-test('íconos de redes: círculo de 48 a 56 px, color sólido de marca al hover y foco, rebote y sin degradados', () => {
+test('íconos de redes: círculo de 48 a 56 px, naranja y dorado al hover y foco con ícono legible, rebote y sin degradados', () => {
   assert.match(CSS, /\.zs-pie__redes a \{[^}]*width:\s*52px;\s*height:\s*52px;\s*border-radius:\s*50%/);
-  assert.match(CSS, /\.zs-red--instagram \{ --c: #DD2A7B; \}/);
-  assert.match(CSS, /\.zs-red--facebook \{ --c: #1877F2; \}/);
-  assert.match(CSS, /\.zs-red--whatsapp \{ --c: #128C7E; \}/);
-  assert.match(CSS, /\.zs-pie__redes a:hover, \.zs-pie__redes a:focus-visible, \.zs-pie__redes a:active \{ background: var\(--c\)/);
+  assert.match(CSS, /\.zs-red--instagram \{ --c: var\(--zs-naranja\); --ic: #FFFFFF; \}/);
+  assert.match(CSS, /\.zs-red--facebook \{ --c: var\(--zs-dorado\); --ic: var\(--zs-tinta\); \}/);
+  assert.match(CSS, /\.zs-red--whatsapp \{ --c: var\(--zs-naranja\); --ic: #FFFFFF; \}/);
+  assert.match(CSS, /\.zs-pie__redes a:hover, \.zs-pie__redes a:focus-visible, \.zs-pie__redes a:active \{ background: var\(--c\); color: var\(--ic/);
   assert.match(CSS, /@keyframes zs-rebote \{ 40% \{ transform: scale\(1\.4\); \} 60% \{ transform: scale\(\.8\); \} 80% \{ transform: scale\(1\.2\); \} 100% \{ transform: scale\(1\); \} \}/);
   assert.match(CSS, /animation:\s*zs-rebote \.4s linear/);
   assert.equal((PIE.match(/class="zs-red zs-red--/g) || []).length, 3);
   assert.match(PIE, /aria-label="Instagram de Zoorigen"/);
   assert.match(AVISO, /zs-red--instagram/);
-  // Con reducir movimiento solo cambia el color
   assert.match(CSS, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.zs-pie__redes a:hover \.zs-i[^{]*\{\s*animation:\s*none/);
 });
 
@@ -391,82 +390,64 @@ function contraste(a, b) {
 }
 const VAR = n => { const m = CSS.match(new RegExp('--' + n + ':\\s*(#[0-9A-Fa-f]{6})')); assert.ok(m, 'falta --' + n); return m[1]; };
 
-test('paleta variada: al menos 5 acentos distintos definidos como variables y usados', () => {
-  const acentos = ['zs-cielo', 'zs-terracota', 'zs-ambar', 'zs-indigo', 'zs-teal', 'zs-rosa'];
-  const valores = acentos.map(VAR);
-  assert.equal(new Set(valores.map(v => v.toLowerCase())).size, acentos.length, 'acentos repetidos');
-  for (const a of acentos) {
-    VAR(a + '-t');
-    assert.ok(new RegExp('var\\(--' + a + '\\)').test(CSS), a + ' no se usa');
-  }
-  VAR('zs-azul-prof'); VAR('zs-indigo-prof'); VAR('zs-noche'); VAR('zs-arena'); VAR('zs-cielo-p');
-  // Sin rojo puro ni colores chillones: ninguno de los acentos supera 190 en un solo canal con los otros < 60
-  for (const v of valores) {
-    const [r, g, b] = v.replace('#', '').match(/../g).map(x => parseInt(x, 16));
-    assert.ok(!(r > 190 && g < 60 && b < 60), 'rojo puro: ' + v);
-  }
+const ACENTOS = {
+  naranja: VAR('zs-naranja'), naranjaD: VAR('zs-naranja-d'), naranjaT: VAR('zs-naranja-t'),
+  dorado: VAR('zs-dorado'), doradoTexto: VAR('zs-dorado-texto'), doradoT: VAR('zs-dorado-t')
+};
+
+test('paleta: la portada define solo dos acentos de efecto (naranja y dorado) además del verde de marca y la tinta', () => {
+  const nombres = [...new Set([...CSS.matchAll(/--zs-(naranja|dorado|cielo|terracota|ambar|indigo|pizarra|cobre|teal|rosa|azul|arena|noche)[a-z-]*:/g)].map(m => m[0]))];
+  for (const n of nombres) assert.match(n, /^--zs-(naranja|dorado)/, 'variable de acento ajena: ' + n);
+  assert.doesNotMatch(CSS, /zs-(cielo|terracota|ambar|indigo|pizarra|cobre|teal|rosa|arena|azul-prof|noche)\b/);
+  // Nada azul, morado ni rosa en las hojas de la portada (las únicas variables de color de acento son las dos)
+  assert.ok(ACENTOS.naranja && ACENTOS.dorado);
+  assert.notEqual(ACENTOS.naranja.toLowerCase(), ACENTOS.dorado.toLowerCase());
 });
 
-test('paleta variada: todos los pares de color pasan AA (4.5:1)', () => {
-  const pares = [];
-  for (const a of ['zs-cielo', 'zs-terracota', 'zs-ambar', 'zs-indigo', 'zs-teal', 'zs-rosa']) {
-    pares.push([a + ' sobre su tinte', VAR(a), VAR(a + '-t')]);
-    pares.push([a + ' sobre blanco', VAR(a), '#FFFFFF']);
-    pares.push([a + ' sobre arena', VAR(a), VAR('zs-arena')]);
-    pares.push(['blanco sobre ' + a + ' (botones, avatares)', '#FFFFFF', VAR(a)]);
-    pares.push(['tinta sobre tinte de ' + a, '#1F2933', VAR(a + '-t')]);
-  }
-  pares.push(['texto gris sobre cielo pálido', '#52606D', VAR('zs-cielo-p')]);
-  pares.push(['texto gris sobre arena', '#52606D', VAR('zs-arena')]);
-  pares.push(['texto gris sobre crema', '#52606D', '#F6F4EF']);
-  pares.push(['blanco sobre azul profundo (Tu plataforma)', '#FFFFFF', VAR('zs-azul-prof')]);
-  pares.push(['lead claro sobre azul profundo', '#DCE6F0', VAR('zs-azul-prof')]);
-  pares.push(['dorado pálido sobre azul profundo', '#F4D58D', VAR('zs-azul-prof')]);
-  pares.push(['lead claro sobre índigo profundo (Contacto)', '#E1E3F4', VAR('zs-indigo-prof')]);
-  pares.push(['dorado pálido sobre índigo profundo', '#F4D58D', VAR('zs-indigo-prof')]);
-  pares.push(['enlaces del pie sobre azul noche', '#DCE6F0', VAR('zs-noche')]);
-  pares.push(['texto del pie sobre azul noche', '#B9C8D8', VAR('zs-noche')]);
-  pares.push(['títulos del pie (dorado pálido) sobre azul noche', '#F4D58D', VAR('zs-noche')]);
-  pares.push(['insignia de Facebook', '#FFFFFF', '#1565C0']);
-  pares.push(['botón principal verde de marca', '#FFFFFF', '#1F5F3A']);
-  pares.push(['botón tinta', '#FFFFFF', '#1F2933']);
-  pares.push(['etiqueta ámbar sobre su tinte', '#7A5200', '#FBF1D9']);
+test('paleta: todos los pares de color naranja/dorado pasan AA (4.5:1)', () => {
+  const A = ACENTOS;
+  const pares = [
+    ['naranja sobre su tinte', A.naranja, A.naranjaT],
+    ['naranja sobre blanco', A.naranja, '#FFFFFF'],
+    ['naranja sobre crema', A.naranja, '#F6F4EF'],
+    ['blanco sobre naranja (botón, avatar, ícono de red)', '#FFFFFF', A.naranja],
+    ['dorado oscuro sobre su tinte', A.doradoTexto, A.doradoT],
+    ['dorado oscuro sobre blanco', A.doradoTexto, '#FFFFFF'],
+    ['tinta sobre dorado (relleno, ícono de Facebook)', '#1F2933', A.dorado],
+    ['tinta sobre tinte naranja', '#1F2933', A.naranjaT],
+    ['tinta sobre tinte dorado', '#1F2933', A.doradoT],
+    ['texto gris sobre tinte naranja', '#52606D', A.naranjaT],
+    ['botón principal verde de marca', '#FFFFFF', '#1F5F3A']
+  ];
   const bajos = pares.filter(([, f, b]) => contraste(f, b) < 4.5).map(([n, f, b]) => n + ' ' + contraste(f, b).toFixed(2));
   assert.deepEqual(bajos, [], 'pares bajo 4.5:1');
+  // El naranja decorativo (sin texto encima) solo necesita 3:1 contra el fondo blanco
+  assert.ok(contraste(A.naranjaD, '#FFFFFF') >= 2.5);
 });
 
-test('en reposo la portada conserva su aspecto (crema, blanco y verde de marca); la paleta variada solo vive en estados de efecto', () => {
+test('en reposo la portada conserva su aspecto (crema, blanco y verde de marca); naranja y dorado solo viven en estados de efecto', () => {
   const secciones = [...INDEX.matchAll(/<section class="([^"]*)"/g)].map(m => m[1]);
-  const verdes = secciones.filter(c => /zs-sec--verde\b/.test(c));
-  assert.equal(verdes.length, 2, 'Tu plataforma y Reseñas (verde pálido) como en la ronda 5');
+  assert.equal(secciones.filter(c => /zs-sec--verde\b/.test(c)).length, 2, 'Tu plataforma y Reseñas (verde pálido) como en la ronda 5');
   assert.match(INDEX, /<section class="zs-sec zs-sec--verde" id="panel"/);
-  assert.doesNotMatch(INDEX, /zs-sec--(azul|cielo|arena)\b|zs-boton--tinta/, 'sin clases de la ronda 6');
-  assert.doesNotMatch(CSS, /footer\.zs-pie \{ background: var\(--zs-noche\)/);
-  assert.doesNotMatch(CSS, /\.zs-contacto \{ background: var\(--zs-indigo-prof\)/);
-  assert.doesNotMatch(CSS, /\.zs-chip\.is-active, \.zs-chip\.is-active:hover \{ background: var\(--zs-tinta\)/);
+  assert.doesNotMatch(INDEX, /zs-sec--(azul|cielo|arena)\b|zs-boton--tinta/);
   assert.match(CSS, /\.zs-pie \{[^}]*background: var\(--zs-pie\)/);
   assert.match(CSS, /\.zs-sec--verde \{ --zs-fondo: var\(--zs-verde\); \}/);
   assert.match(CSS, /\.zs-paso__fondo \{[^}]*background: var\(--zs-salvia\)/);
-  // El estado de reposo de cada tarjeta usa verde o tintes de la ronda 5; el color por tarjeta se declara solo con :hover/:focus
-  const bloqueEfectos = CSS.split('COLOR EN ESTADOS DE EFECTO (ronda 7)')[1];
-  assert.ok(bloqueEfectos, 'falta el bloque de efectos');
-  // Un acento distinto por área, paso, beneficio, tarjeta de campo, cifra, curso, reseña y logo
-  assert.equal((bloqueEfectos.match(/#areas \.area-tw:nth-child\(\d\) \{ --acc:/g) || []).length, 6);
-  assert.equal((bloqueEfectos.match(/\.zs-paso:nth-child\(\d\) \{ --acc:/g) || []).length, 3);
-  assert.equal((bloqueEfectos.match(/\.zs-beneficio:nth-child\(\d\) \{ --acc:/g) || []).length, 6);
-  assert.equal((bloqueEfectos.match(/\.zs-campo:nth-child\(\d\) \{ --acc:/g) || []).length, 4);
-  assert.equal((bloqueEfectos.match(/\.zs-logo:nth-child\(6n \+ \d\) \{ --acc:/g) || []).length, 6);
-  assert.equal((bloqueEfectos.match(/\.zs-curso:nth-child\(6n \+ \d\) \{ --acc:/g) || []).length, 6);
-  // El reverso de Confianza toma el tinte de cada tarjeta (nunca un solo verde agua)
-  assert.match(bloqueEfectos, /\.zs-logo__cara--dorso \{ background: var\(--tin, var\(--zs-salvia\)\)/);
-  // La esquina que se expande y el panel de beneficios usan el tinte de su tarjeta
-  assert.match(bloqueEfectos, /\.zs-paso__fondo \{ background: var\(--tin, var\(--zs-salvia\)\)/);
-  assert.match(bloqueEfectos, /\.zs-beneficio:hover \.zs-beneficio__panel[^{]*\{ background: var\(--tin, #FFFFFF\)/);
-  // Ninguna regla de color por tarjeta se aplica en reposo: las que usan var(--acc) van con :hover, :focus o :open, o definen --acc
-  const reposo = bloqueEfectos.split('\n').filter(l => /var\(--(acc|tin)/.test(l) && !/:hover|:focus|\[open\]|\.is-active|--acc:|\.zs-paso__fondo \{|\.zs-logo__cara--dorso/.test(l));
+  const efectos = CSS.split('COLOR EN ESTADOS DE EFECTO (ronda 9)')[1];
+  assert.ok(efectos, 'falta el bloque de efectos');
+  // Alternan naranja (nones) y dorado (pares) en todas las tarjetas con efecto
+  for (const sel of ['.zs-logo:nth-child(odd)', '.zs-paso:nth-child(odd)', '.zs-beneficio:nth-child(odd)', '.zs-campo:nth-child(odd)', '#areas .area-tw:nth-child(odd)', '.zs-curso:nth-child(odd)', '.zs-cifra:nth-child(odd)', '.zs-contacto__lista li:nth-child(odd)', '.zs-faq details:nth-child(odd)']) {
+    assert.ok(efectos.includes(sel), 'falta ' + sel + ' entre los naranjas');
+    assert.ok(efectos.includes(sel.replace('odd', 'even')) || sel.includes('--a'), 'falta el par dorado de ' + sel);
+  }
+  assert.match(efectos, /--acc: var\(--zs-naranja\); --tin: var\(--zs-naranja-t\); --fill: var\(--zs-naranja\); --on: #FFFFFF;/);
+  assert.match(efectos, /--acc: var\(--zs-dorado-texto\); --tin: var\(--zs-dorado-t\); --fill: var\(--zs-dorado\); --on: var\(--zs-tinta\);/);
+  assert.match(efectos, /\.zs-logo__cara--dorso \{ background: var\(--tin, var\(--zs-salvia\)\)/);
+  assert.match(efectos, /\.zs-paso__fondo \{ background: var\(--tin, var\(--zs-salvia\)\)/);
+  assert.match(efectos, /\.zs-beneficio:hover \.zs-beneficio__panel[^{]*\{ background: var\(--tin, #FFFFFF\)/);
+  // Ninguna regla de color por tarjeta se aplica en reposo
+  const reposo = efectos.split('\n').filter(l => /var\(--(acc|tin|fill)/.test(l) && !/:hover|:focus|\[open\]|\.is-active|--acc:|\.zs-paso__fondo \{|\.zs-logo__cara--dorso/.test(l));
   assert.deepEqual(reposo, [], 'reglas con color por tarjeta fuera de un estado de efecto');
-  // Contraste de los textos que cambian de color en esos estados (acento sobre su tinte)
-  for (const a of ['cielo', 'terracota', 'ambar', 'indigo', 'teal', 'rosa']) assert.ok(contraste(VAR('zs-' + a), VAR('zs-' + a + '-t')) >= 4.5, a);
 });
 
 test('portada sin el botón flotante "subir": marcado, CSS y JS fuera', () => {
@@ -484,4 +465,42 @@ test('el botón flotante del guía muestra la imagen pensando', () => {
   const G = leer('assets/js/guia-personaje.js');
   assert.match(G, /thinking: CARPETA \+ 'guia-pensando\.webp'/);
   assert.ok(fs.existsSync(path.join(RAIZ, 'assets/img/guia/guia-pensando.webp')));
+});
+
+/* ---------------- Ronda 8: sin morado, violeta, lila ni índigo ---------------- */
+function tono(hex) {
+  const v = hex.replace('#', '').match(/../g).map(x => parseInt(x, 16) / 255);
+  const mx = Math.max(...v), mn = Math.min(...v), l = (mx + mn) / 2;
+  if (mx === mn) return { h: 0, s: 0 };
+  const d = mx - mn, s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+  const h = mx === v[0] ? (v[1] - v[2]) / d + (v[1] < v[2] ? 6 : 0) : mx === v[1] ? (v[2] - v[0]) / d + 2 : (v[0] - v[1]) / d + 4;
+  return { h: h * 60, s: s * 100 };
+}
+test('sin morado: ningún color de la portada, las páginas legales ni el Club cae entre 255 y 310 de tono (HSL, saturación > 15 %)', () => {
+  const dirs = ['assets/css', 'assets/js', 'pages', '.', 'css'];
+  const hallazgos = [];
+  for (const d of dirs) {
+    for (const f of fs.readdirSync(path.join(RAIZ, d))) {
+      if (!/\.(css|js|html)$/.test(f)) continue;
+      const ruta = path.join(RAIZ, d, f);
+      if (!fs.statSync(ruta).isFile()) continue;
+      const texto = fs.readFileSync(ruta, 'utf8');
+      for (const m of texto.matchAll(/#([0-9a-fA-F]{6})\b/g)) {
+        const { h, s } = tono(m[1]);
+        if (h >= 255 && h <= 310 && s > 15) hallazgos.push(d + '/' + f + ' #' + m[1]);
+      }
+      for (const m of texto.matchAll(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/g)) {
+        const hex = [m[1], m[2], m[3]].map(n => Number(n).toString(16).padStart(2, '0')).join('');
+        const { h, s } = tono(hex);
+        if (h >= 255 && h <= 310 && s > 15) hallazgos.push(d + '/' + f + ' ' + m[0] + ')');
+      }
+    }
+  }
+  assert.deepEqual(hallazgos, [], 'tonos morados: ' + hallazgos.join(' | '));
+});
+
+test('sin índigo, cielo, terracota, pizarra, teal ni rosa en la portada, el aviso y los términos', () => {
+  assert.doesNotMatch(INDEX + AVISO + TERMINOS, /indigo|índigo/i);
+  assert.doesNotMatch(CSS, /--zs-(indigo|cielo|terracota|ambar|pizarra|teal|rosa)/);
+  assert.doesNotMatch(CSS, /#(4B4E9E|ECECF8|2B2F6B|1E5A8A|E6F0F8|AE4310|0F766E|E1F2EF|A64550|F8E6E4|3C5A73|E7EDF2)\b/i);
 });
