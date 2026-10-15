@@ -138,7 +138,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261124-referencia"></script>
+  <script src="../assets/js/club.js?v=20261125-admin"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script>
     // Llegó desde la guía o la encuesta de la portada con ?curso=<id>: queda como curso sugerido para la prueba
@@ -146,7 +146,8 @@
     try { if (window.ZOO_CURSO_PREF) ZOO_CURSO_PREF.adoptarDeUrl(window.localStorage, window.location.search); } catch (e) { /* sin almacenamiento */ }
     // Mientras se decide si la cuenta de Google ya existía, no se redirige solo.
     let googleEnCurso = false;
-    auth.onAuthStateChanged((user) => { if (user && !googleEnCurso) window.location.href = 'club-dashboard.html'; });
+    // Quien administra el sitio entra al panel de administración; el resto, al Club (lo decide el servidor).
+    auth.onAuthStateChanged((user) => { if (user && !googleEnCurso) ZOORIGEN_CLUB.irTrasEntrar(); });
     const form = document.getElementById('loginForm');
     const errorMsg = document.getElementById('errorMsg');
     const successMsg = document.getElementById('successMsg');
@@ -180,7 +181,7 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Entrando...';
       const result = await ZOORIGEN_CLUB.login(document.getElementById('email').value.trim(), document.getElementById('password').value);
-      if (result.ok) window.location.href = 'club-dashboard.html';
+      if (result.ok) ZOORIGEN_CLUB.irTrasEntrar();
       else {
         showError(result.msg);
         submitBtn.disabled = false;
@@ -194,7 +195,7 @@
       // Desde "Iniciar sesión" solo entra quien YA tiene cuenta; si no la tiene, se le lleva a crearla.
       const result = await ZOORIGEN_CLUB.loginWithGoogle({ modo: 'entrar' });
       googleEnCurso = false;
-      if (result.ok) window.location.href = 'club-dashboard.html';
+      if (result.ok) ZOORIGEN_CLUB.irTrasEntrar();
       else {
         googleBtn.disabled = false;
         if (result.cancelado) return;

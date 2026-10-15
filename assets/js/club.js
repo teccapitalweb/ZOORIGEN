@@ -1244,6 +1244,49 @@ const ZOORIGEN_CLUB = {
     }
   },
 
+  // ============== ADMINISTRACIÓN ==============
+  // ¿Esta cuenta administra el sitio? Lo decide SOLO el servidor (GET /api/admin/yo responde 200 únicamente a
+  // administradores: ADMIN_EMAILS o marca en Firestore). Nada de esto confía en datos del navegador.
+  async esAdministrador() {
+    try { await this.apiFetch('/api/admin/yo'); return true; } catch (e) { return false; }
+  },
+
+  // Tras iniciar sesión: la administradora va al panel de administración y el resto al Club.
+  // Si el servidor no responde en 3.5 s, entra al Club (el panel siempre está a un clic en el menú).
+  async irTrasEntrar() {
+    let destino = 'club-dashboard.html';
+    try {
+      const espera = new Promise(resolver => setTimeout(() => resolver(false), 3500));
+      if (await Promise.race([this.esAdministrador(), espera])) destino = 'admin-club.html';
+    } catch (e) { /* entra al Club */ }
+    window.location.href = destino;
+  },
+
+  // "Ver como usuario" (solo cosmético, en este navegador): la administradora ve el Club como lo vería un miembro.
+  // Los permisos reales siguen siendo los del servidor. ?como=user lo activa y ?como=admin lo quita.
+  _comoUsuario() {
+    try {
+      const q = new URLSearchParams(window.location.search).get('como');
+      if (q === 'user') { sessionStorage.setItem('zoo_como_usuario', '1'); return true; }
+      if (q === 'admin') { sessionStorage.removeItem('zoo_como_usuario'); return false; }
+      return sessionStorage.getItem('zoo_como_usuario') === '1';
+    } catch (e) { return false; }
+  },
+
+  // Bloque de la barra lateral solo para administradores: enlace al panel y el interruptor "Ver como usuario".
+  _bloqueAdmin(session) {
+    if (!session || (session.role !== 'admin' && session.rolReal !== 'admin')) return '';
+    const comoUsuario = session.rolReal === 'admin' && session.role !== 'admin';
+    const aqui = (window.location.pathname.split('/').pop() || 'club-dashboard.html');
+    const alterna = comoUsuario ? aqui + '?como=admin' : aqui + '?como=user';
+    return `
+      <div class="club-sidebar__admin" style="margin:0 0 14px;padding:10px;border:1px solid var(--zoo-border-strong,#3A424C);border-radius:12px;background:var(--zoo-bg-card-2,#1E2329);">
+        <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--zoo-text-muted,#A3ABB5);margin:0 0 8px;">${comoUsuario ? 'Vista como usuario' : 'Administración'}</div>
+        <a href="admin-club.html" style="display:flex;align-items:center;min-height:40px;padding:8px 10px;border-radius:10px;font-weight:700;font-size:.9rem;color:var(--zoo-text,#E7EAEE);text-decoration:none;">Volver al panel de administración</a>
+        <a href="${alterna}" style="display:flex;align-items:center;min-height:40px;padding:8px 10px;border-radius:10px;font-size:.86rem;color:var(--zoo-text-muted,#A3ABB5);text-decoration:none;">${comoUsuario ? 'Ver como administrador' : 'Ver como usuario'}</a>
+      </div>`;
+  },
+
   logout() {
     // El estado de la membresía que se guardó para pintar la barra lateral al instante no debe quedar para quien entre después.
     try { localStorage.removeItem('zoo_plan'); document.documentElement.removeAttribute('data-plan'); } catch (e) { /* sin almacenamiento */ }
@@ -1275,6 +1318,8 @@ const ZOORIGEN_CLUB = {
             streak: data.streak || 0,
             planStatus: this.calculateStatus(data)
           };
+          // "Ver como usuario" de la administración: solo cambia lo que se pinta en este navegador.
+          if (sesion.role === 'admin' && this._comoUsuario()) { sesion.rolReal = 'admin'; sesion.role = 'member'; }
           // Cuentas nuevas con correo y contraseña: no entran al club hasta confirmar el correo.
           // (Google ya viene confirmado; las cuentas anteriores a la fecha de corte y las que ya pagan siguen como siempre.)
           if (this.verificacionObligatoria(user, sesion)) {
@@ -1424,6 +1469,7 @@ const ZOORIGEN_CLUB = {
           <small>${isActivePlan ? 'Club VIP' : 'Acceso gratuito'}</small>
         </div>
       </div>
+      ${this._bloqueAdmin(session)}
       ${(typeof ZOO_SHELL !== 'undefined' && ZOO_SHELL.menuHTML) ? ZOO_SHELL.menuHTML(activeId, '') : `
       <div class="club-sidebar__section">Principal</div>
       ${items.map(i => `
