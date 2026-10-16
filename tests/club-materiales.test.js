@@ -58,9 +58,10 @@ test('todo lo que viene del servidor se escapa al pintar', () => {
   const doc = M.materialCardHTML({ id: 'd', titulo: '<svg onload=1>', tipo: 'inventado', area: '"><b>', descripcion: '<i>', desbloqueado: false, faltan: 2 }, {});
   assert.ok(!/<svg onload/.test(doc));
   assert.match(doc, /Supera 2 retos más/);
-  const drive = M.driveHTML([{ title: '<x>', driveId: 'abc"><script>', url: 'javascript:alert(1)' }, { title: 'Otro', url: 'https://ok.com/a.pdf' }]);
-  assert.ok(!/<script/.test(drive) && !/javascript:/.test(drive));
-  assert.match(drive, /https:\/\/ok\.com\/a\.pdf/);
+  const fila = M.filaMaterialHTML({ id: 'a"><script>', fuente: 'drive', titulo: '<x onerror=1>', area: '<b>a</b>', cursoId: 'c1', clase: 2, cursoTitulo: '<img src=x>', desbloqueado: false, condicion: 'clase' }, {});
+  assert.ok(!/<script/.test(fila) && !/<x onerror/.test(fila) && !/<img src=x/.test(fila) && !/<b>/.test(fila));
+  const seccion = M.seccionCursosHTML(M.agruparPorCurso([{ id: 'p', titulo: 'T', cursoId: 'c"><script>', cursoTitulo: '</h3><script>', clase: 1, desbloqueado: true }]), 'club-biblioteca.html');
+  assert.ok(!/<script/.test(seccion));
   const pag = M.paginaHTML({ titulo: '<b>T</b>', parrafos: ['<img src=x onerror=1>'], lista: ['<script>'] }, 0, 3);
   assert.ok(!/<img src=x/.test(pag) && !/<script/.test(pag));
 });
@@ -190,4 +191,59 @@ test('portadas propias: el libro muestra su foto y, sin portada, conserva el íc
   assert.doesNotMatch(con, /mt-libro__icono/);
   assert.doesNotMatch(sin, /mt-libro__foto/);
   assert.match(sin, /mt-libro__icono/);
+});
+
+// ── Materiales de curso: la condición clara, con candado y avance ──
+const delCurso = (id, clase, extra) => Object.assign({ id, titulo: 'Guía ' + id, area: 'Manejo', paginas: 4, cursoId: 'tiburones', cursoTitulo: 'Tiburones y rayas', clase, condicion: clase ? 'clase' : 'curso', desbloqueado: false, soloMiembros: false, faltan: 0, requiereRetos: 0 }, extra);
+
+test('condicionTexto: dice qué falta para abrir cada material (clase, retos, solo miembros, pendiente)', () => {
+  assert.equal(M.condicionTexto(delCurso('a', 2)), 'Se desbloquea al terminar la clase 2 de «Tiburones y rayas»');
+  assert.equal(M.condicionTexto(delCurso('a', 2, { cursoTitulo: '' })), 'Se desbloquea al terminar la clase 2 del curso');
+  assert.equal(M.condicionTexto({ id: 'r', titulo: 'R', requiereRetos: 5, faltan: 3, acceso: 'retos' }), 'Resuelve 5 retos para abrirlo');
+  assert.equal(M.condicionTexto({ id: 'r', titulo: 'R', requiereRetos: 1, faltan: 1 }), 'Resuelve 1 reto para abrirlo');
+  assert.equal(M.condicionTexto(delCurso('a', 2, { soloMiembros: true })), 'Solo para miembros');
+  assert.equal(M.condicionTexto(delCurso('a', 2, { pendiente: true })), 'Disponible muy pronto');
+  assert.equal(M.condicionTexto(delCurso('a', 2, { desbloqueado: true })), '', 'abierto: sin condición');
+  assert.equal(M.reglaTexto(delCurso('a', 0)), 'Material del curso «Tiburones y rayas»');
+  assert.equal(M.textoAbierto(delCurso('a', 2, { desbloqueado: true })), 'Desbloqueado: terminaste la clase 2');
+  assert.equal(M.textoAbierto({ id: 'r', requiereRetos: 5, desbloqueado: true }), 'Desbloqueado con tus retos');
+});
+
+test('filaMaterialHTML: bloqueado muestra candado y la regla; abierto, "Abrir"; sin membresía, el chip y la regla; con retos, avance', () => {
+  const bloq = M.filaMaterialHTML(delCurso('a', 2), {});
+  assert.match(bloq, /is-bloq/);
+  assert.match(bloq, /Se desbloquea al terminar la clase 2 de «Tiburones y rayas»/);
+  assert.match(bloq, /data-fila="catalogo:a"/);
+  assert.doesNotMatch(bloq, /Abrir/);
+  const abierto = M.filaMaterialHTML(delCurso('a', 2, { desbloqueado: true }), {});
+  assert.match(abierto, /is-abierto/);
+  assert.match(abierto, /mt-fila__abrir">Abrir/);
+  assert.match(abierto, /Desbloqueado: terminaste la clase 2/);
+  assert.doesNotMatch(abierto, /is-bloq/);
+  const previa = M.filaMaterialHTML(delCurso('a', 2, { soloMiembros: true }), {});
+  assert.match(previa, /is-previa/);
+  assert.match(previa, /Solo miembros/);
+  assert.match(previa, /Se desbloquea al terminar la clase 2/, 'la regla se ve aunque falte la membresía');
+  const retos = M.filaMaterialHTML({ id: 'g', fuente: 'drive', titulo: 'Atlas', requiereRetos: 5, faltan: 2, desbloqueado: false, soloMiembros: false }, {});
+  assert.match(retos, /data-fila="drive:g"/);
+  assert.match(retos, /Resuelve 5 retos para abrirlo/);
+  assert.match(retos, /3 de 5 retos/);
+  assert.match(retos, /width:60%/);
+});
+
+test('agruparPorCurso: un bloque por curso, ordenado por clase y con cuántos están abiertos; ids raros no rompen nada', () => {
+  const g = M.agruparPorCurso([
+    delCurso('c', 3), delCurso('a', 1, { desbloqueado: true }), delCurso('z', 0, { desbloqueado: true }),
+    delCurso('o', 1, { cursoId: 'constructor', cursoTitulo: 'Otro curso' }), { id: 'suelto', titulo: 'Sin curso' }, null
+  ]);
+  assert.equal(g.length, 2);
+  assert.deepEqual(g[0].items.map(m => m.id), ['a', 'c', 'z'], 'por clase; el del curso completo al final');
+  assert.equal(g[0].abiertos, 2);
+  assert.equal(g[0].titulo, 'Tiburones y rayas');
+  assert.equal(g[1].cursoId, 'constructor');
+  assert.deepEqual(M.agruparPorCurso(null), []);
+  const html = M.seccionCursosHTML(g, 'club-biblioteca.html');
+  assert.match(html, /2 de 3 abiertos/);
+  assert.match(html, /href="club-biblioteca\.html\?curso=tiburones"/);
+  assert.equal(M.seccionCursosHTML([], 'x'), '');
 });

@@ -233,3 +233,32 @@ body.mt-noscroll { overflow: hidden; }
   .mt-banner--previa .mt-btn { width: 100%; }
   .mt-hero__kpis > div span { font-size: .75rem; letter-spacing: .03em; }
 }
+
+/* Materiales de tus cursos y materiales sueltos en filas: candado, la condición clara y, si pide retos, su avance */
+.mt-curso { margin-bottom: 24px; }
+.mt-curso__cab { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; margin: 16px 0 10px; }
+.mt-curso__cab h3 { margin: 0; font-size: 1.05rem; font-family: var(--zoo-font-heading); color: var(--zoo-text); }
+.mt-curso__cab span { font-size: .8rem; color: var(--zoo-text-muted); }
+.mt-curso__cab .mt-link { margin-left: auto; font-size: .85rem; }
+.mt-filas { display: grid; gap: 10px; }
+.mt-fila { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; background: var(--zoo-bg-card); border: 1px solid var(--zoo-border); cursor: pointer; outline: none; transition: border-color .2s, transform .2s; }
+.mt-fila:hover { border-color: var(--zoo-amber); }
+.mt-fila:focus-visible { border-color: var(--zoo-amber); box-shadow: 0 0 0 3px color-mix(in srgb, var(--zoo-amber, #E8A317) 45%, transparent); }
+.mt-fila__ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--zoo-acc-txt, #1F5F3A) 14%, transparent); color: var(--zoo-acc-txt, #1F5F3A); }
+.mt-fila.is-bloq .mt-fila__ico, .mt-fila.is-previa .mt-fila__ico { background: rgba(128, 128, 128, 0.16); color: var(--zoo-text-muted); }
+.mt-fila__cuerpo { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.mt-fila__cuerpo strong { font-size: .95rem; line-height: 1.3; color: var(--zoo-text); overflow-wrap: anywhere; }
+.mt-fila__cuerpo small { color: var(--zoo-text-muted); font-size: .78rem; }
+.mt-fila__cond { display: inline-flex; align-items: flex-start; gap: 7px; font-size: .84rem; font-weight: 600; line-height: 1.35; color: var(--zoo-text); }
+.mt-fila__cond svg { flex: none; margin-top: 2px; color: var(--zoo-orange); }
+.mt-fila__cond.is-ok { color: var(--zoo-acc-txt, #1F5F3A); }
+.mt-fila__cond.is-ok svg { color: var(--zoo-acc-txt, #1F5F3A); }
+.mt-fila__prog { max-width: 260px; }
+.mt-fila__cuenta { font-size: .76rem; color: var(--zoo-text-muted); }
+.mt-fila__abrir { display: inline-flex; align-items: center; padding: 9px 18px; border-radius: 999px; background: var(--zoo-amber, #E8A317); color: #1f1d17; font-weight: 800; font-size: .84rem; }
+@media (max-width: 520px) {
+  .mt-fila { grid-template-columns: auto minmax(0, 1fr); }
+  .mt-fila__acc { grid-column: 1 / -1; }
+  .mt-fila__abrir { width: 100%; justify-content: center; min-height: 40px; }
+  .mt-curso__cab .mt-link { margin-left: 0; }
+}

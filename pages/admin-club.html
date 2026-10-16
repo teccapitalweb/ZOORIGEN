@@ -953,6 +953,7 @@
       try {
         const snap = await db.collection('pdfs').orderBy('createdAt', 'desc').get();
         const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const cursosPdf = await cargarCursosParaPdf();
         v.innerHTML += `
           <div class="content-toolbar">
             <strong style="color:#fff;">${items.length} PDF${items.length !== 1 ? 's' : ''}</strong>
@@ -964,7 +965,7 @@
                 <div class="admin-content-item__thumb" style="background:var(--zoo-blue);">${ZOO_ICONOS.svg('file-text', { size: 24 })}</div>
                 <div class="admin-content-item__info">
                   <div class="admin-content-item__title">${x.title}</div>
-                  <div class="admin-content-item__meta">${x.area || ''} · ${x.pages || '—'} páginas</div>
+                  <div class="admin-content-item__meta">${x.area || ''} · ${x.pages || '—'} páginas${textoLigaPdf(x, cursosPdf)}</div>
                 </div>
                 <div class="admin-content-item__actions">
                   <button class="btn-small edit" onclick='formPdf(${JSON.stringify(x).replace(/'/g,"&#39;")})'>Editar</button>
@@ -975,23 +976,83 @@
       } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${err.message}</div>`; }
     }
 
-    window.formPdf = (data = {}) => {
+    // ── Ligar un PDF a un curso y a una clase (opcional) ──
+    // Sin curso: material general (se abre con la membresía, o con N retos si se pide). Con curso y clase: el servidor lo entrega
+    // solo a quien ya terminó esa clase. Con curso y sin clase: material de todo el curso (se abre con la membresía).
+    let cursosParaPdf = null;
+    async function cargarCursosParaPdf() {
+      if (cursosParaPdf) return cursosParaPdf;
+      try {
+        const snap = await db.collection('cursos').get();
+        cursosParaPdf = snap.docs.map(d => {
+          const c = d.data() || {};
+          const lec = Array.isArray(c.lecciones) ? c.lecciones : [];
+          return { id: d.id, titulo: String(c.title || c.titulo || d.id), clases: lec.map((l, k) => String((l && l.titulo) || ('Clase ' + (k + 1)))) };
+        }).sort((a, b) => a.titulo.localeCompare(b.titulo, 'es'));
+      } catch (err) { cursosParaPdf = []; }
+      return cursosParaPdf;
+    }
+    const escPdf = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    function textoLigaPdf(x, cursos) {
+      if (x.cursoId) {
+        const c = (cursos || []).find(k => k.id === x.cursoId);
+        const clase = parseInt(x.clase, 10) > 0 ? 'se abre al terminar la clase ' + parseInt(x.clase, 10) : 'material de todo el curso';
+        return ' · Curso: ' + escPdf(c ? c.titulo : x.cursoId + ' (no existe)') + ' · ' + clase;
+      }
+      return parseInt(x.requiereRetos, 10) > 0 ? ' · Se abre con ' + parseInt(x.requiereRetos, 10) + ' retos' : ' · General: se abre con la membresía';
+    }
+    // Al cambiar de curso se rehace la lista de clases y se muestran solo las casillas que aplican
+    window.pdfCursoCambio = (claseActual) => {
+      const id = document.getElementById('f_curso').value;
+      const curso = (cursosParaPdf || []).find(k => k.id === id);
+      const sel = document.getElementById('f_clase');
+      const actual = claseActual === undefined ? parseInt(sel.value, 10) || 0 : claseActual;
+      sel.innerHTML = '<option value="0">Todo el curso (se abre con la membresía)</option>' +
+        (curso ? curso.clases.map((t, k) => '<option value="' + (k + 1) + '"' + (actual === k + 1 ? ' selected' : '') + '>Clase ' + (k + 1) + ' · ' + escPdf(t) + '</option>').join('') : '');
+      document.getElementById('f_clase_caja').style.display = id ? '' : 'none';
+      document.getElementById('f_retos_caja').style.display = id ? 'none' : '';
+    };
+
+    window.formPdf = async (data = {}) => {
+      const cursos = await cargarCursosParaPdf();
+      const idActual = data.cursoId || '';
+      const huerfano = idActual && !cursos.some(k => k.id === idActual);
       openModal(`
         <h3>${data.id ? 'Editar' : 'Nuevo'} PDF</h3>
-        <div class="field"><label>Título *</label><input type="text" id="f_title" value="${data.title || ''}"></div>
+        <div class="field"><label>Título *</label><input type="text" id="f_title" value="${escPdf(data.title)}"></div>
         <div class="field"><label>Área *</label><select id="f_area">${AREAS.map(a => `<option ${data.area === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
         <div class="field"><label>Páginas</label><input type="number" id="f_pages" value="${data.pages || ''}"></div>
-        <div class="field"><label>Link o ID de Drive *</label><input type="text" id="f_drive" value="${data.driveId || ''}"><p class="hint">Drive → clic derecho al PDF → Compartir → "Cualquiera con el link"</p></div>
+        <div class="field"><label>Link o ID de Drive *</label><input type="text" id="f_drive" value="${escPdf(data.driveId)}"><p class="hint">Drive → clic derecho al PDF → Compartir → "Cualquiera con el link"</p></div>
+        <div class="field"><label>Curso (opcional)</label><select id="f_curso" onchange="pdfCursoCambio()">
+          <option value="">Ninguno: material general del Club</option>
+          ${huerfano ? `<option value="${escPdf(idActual)}" selected>(el curso ${escPdf(idActual)} ya no existe)</option>` : ''}
+          ${cursos.map(k => `<option value="${escPdf(k.id)}" ${idActual === k.id ? 'selected' : ''}>${escPdf(k.titulo)}</option>`).join('')}
+        </select><p class="hint">Si lo ligas a un curso, solo lo abren los miembros que ya terminaron la clase que elijas.</p></div>
+        <div class="field" id="f_clase_caja"><label>Clase que lo desbloquea</label><select id="f_clase"></select><p class="hint">Se abre cuando la persona marca esa clase como vista (la primera clase es la 1).</p></div>
+        <div class="field" id="f_retos_caja"><label>Retos para abrirlo (opcional)</label><input type="number" id="f_retos" min="0" max="200" value="${parseInt(data.requiereRetos, 10) > 0 ? parseInt(data.requiereRetos, 10) : ''}" placeholder="0"><p class="hint">Vacío o 0: se abre con la membresía. Solo aplica a materiales sin curso.</p></div>
         <div class="modal-actions">
           <button class="btn-cancel" onclick="closeM()">Cancelar</button>
           <button class="btn-save" onclick="savePdf('${data.id || ''}')">${data.id ? 'Guardar' : 'Crear'}</button>
         </div>`);
+      pdfCursoCambio(parseInt(data.clase, 10) || 0);
     };
 
     window.savePdf = async (id) => {
       const data = { title: document.getElementById('f_title').value.trim(), area: document.getElementById('f_area').value, pages: parseInt(document.getElementById('f_pages').value) || null, driveId: extractDriveId(document.getElementById('f_drive').value) };
       if (!data.title) { toast('Título requerido', true); return; }
       if (!data.driveId) { toast('Link requerido', true); return; }
+      // Curso, clase y retos: al quitarlos de un PDF que ya existía se borran los campos (así vuelve a ser general)
+      const cursoId = document.getElementById('f_curso').value;
+      const clase = cursoId ? (parseInt(document.getElementById('f_clase').value, 10) || 0) : 0;
+      const retos = cursoId ? 0 : Math.max(0, Math.min(200, parseInt(document.getElementById('f_retos').value, 10) || 0));
+      const borrar = firebase.firestore.FieldValue.delete();
+      if (id) {
+        data.cursoId = cursoId || borrar; data.clase = clase > 0 ? clase : borrar; data.requiereRetos = retos > 0 ? retos : borrar;
+      } else {
+        if (cursoId) data.cursoId = cursoId;
+        if (clase > 0) data.clase = clase;
+        if (retos > 0) data.requiereRetos = retos;
+      }
       try {
         if (id) await db.collection('pdfs').doc(id).update(data);
         else { data.createdAt = new Date().toISOString(); await db.collection('pdfs').add(data); }
