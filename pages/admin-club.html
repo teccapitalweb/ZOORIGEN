@@ -217,8 +217,8 @@
   <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
-  <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261127-avance">
+  <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261128-admin2">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261126-vistas">
 </head>
 <body data-zoo="inicio">
@@ -261,10 +261,13 @@
       <button class="asb-item" data-sec="retos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg><span class="asb-label">Retos y XP</span><span class="nbg" id="nb-retos" hidden>0</span></button>
       <button class="asb-item" data-sec="comunidad"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="asb-label">Foro y directorio</span><span class="nbg" id="nb-comunidad" hidden>0</span></button>
       <button class="asb-item" data-sec="referidos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 7v14" /><path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" /><path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5" /><rect x="3" y="7" width="18" height="4" rx="1" /></svg><span class="asb-label">Referidos</span><span class="nbg" id="nb-referidos" hidden>0</span></button>
+
+      <div class="asb-section">Marketing</div>
+      <button class="asb-item" data-sec="metricas"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/></svg><span class="asb-label">Métricas</span><span class="nbg" id="nb-metricas" hidden>0</span></button>
+      <button class="asb-item" data-sec="pruebas"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg><span class="asb-label">Pruebas gratuitas</span><span class="nbg" id="nb-pruebas" hidden>0</span></button>
       <button class="asb-item" data-sec="encuesta"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13 5h8" /><path d="M13 12h8" /><path d="M13 19h8" /><path d="m3 17 2 2 4-4" /><path d="m3 7 2 2 4-4" /></svg><span class="asb-label">Encuesta</span><span class="nbg" id="nb-encuesta" hidden>0</span></button>
 
       <div class="asb-section">Sistema</div>
-      <button class="asb-item" data-sec="herramientas"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span class="asb-label">Herramientas</span><span class="nbg" id="nb-herramientas" hidden>0</span></button>
       <button class="asb-item" data-sec="configuracion"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="asb-label">Configuración</span><span class="nbg" id="nb-configuracion" hidden>0</span></button>
       <button class="asb-item" data-sec="avance"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></svg><span class="asb-label">Avance de miembros</span><span class="nbg" id="nb-avance" hidden>0</span></button>
       <button class="asb-item" data-sec="estado"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg><span class="asb-label">Estado del sistema</span><span class="nbg" id="nb-estado" hidden>0</span></button>
@@ -303,10 +306,11 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261126-vistas"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261104"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261128-admin2"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/admin-panel.js?v=20261127-avance"></script>
-  <script src="../assets/js/admin-vistas.js?v=20261127-avance"></script>
+  <script src="../assets/js/admin-panel.js?v=20261128-admin2"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261128-admin2"></script>
+  <script src="../assets/js/admin-marketing.js?v=20261128-admin2"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/admin-cursos.js?v=20261123-sinmorado"></script>
@@ -314,7 +318,7 @@
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
   <script src="../assets/js/admin-noticias.js?v=20261106-noticias"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
-  <script src="../assets/js/admin-encuesta.js?v=20261104"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261128-admin2"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -516,8 +520,9 @@
       else if (sec === 'retos') V.retos();
       else if (sec === 'comunidad') V.comunidad();
       else if (sec === 'referidos') V.referidos();
+      else if (sec === 'metricas') window.ZOO_ADMIN_MARKETING.metricas();
+      else if (sec === 'pruebas') window.ZOO_ADMIN_MARKETING.pruebas();
       else if (sec === 'encuesta') loadEncuesta();
-      else if (sec === 'herramientas') V.herramientas();
       else if (sec === 'configuracion') V.configuracion();
       else if (sec === 'avance') V.avance();
       else if (sec === 'estado') V.estado();
@@ -1195,18 +1200,18 @@
     }
 
     // ═══════════ ENCUESTA DE LA PORTADA ═══════════
-    // Los datos los lee el servidor con el Admin SDK (GET /api/admin/encuesta y /api/admin/chatbot/sin-respuesta);
-    // aquí no se lee Firestore directo. La agregación está en assets/js/admin-encuesta.js.
+    // Los datos los lee el servidor con el Admin SDK (GET /api/admin/encuesta/detalle y /api/admin/chatbot/sin-respuesta/detalle, con las
+    // rutas anteriores como respaldo); aquí no se lee Firestore directo. La agregación está en assets/js/admin-encuesta.js.
     async function loadEncuesta() {
       const v = document.getElementById('secView');
       const A = window.ZOO_ADMIN_ENCUESTA;
       v.innerHTML = A.cargandoHTML();
-      const estado = await A.cargar((ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op));
+      const api = (ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op);
+      const estado = await A.cargar(api, { detalle: true });
       if (currentSec !== 'encuesta') return; // cambió de sección mientras cargaba
-      v.innerHTML = A.vistaHTML(estado);
+      const V = window.ZOO_ADMIN_VISTAS;
+      A.montar(v, estado, { api, toast, modal: V.modal, confirmar: V.confirmar, recargar: loadEncuesta });
       if (estado.encuesta.ok) { const nb = document.getElementById('nb-encuesta'); nb.textContent = A.consolidar(estado.encuesta.docs).length; nb.hidden = false; }
-      const recargar = document.getElementById('encRecargar');
-      if (recargar) recargar.addEventListener('click', loadEncuesta);
     }
 
     // ═══════════ ARRANCAR ═══════════

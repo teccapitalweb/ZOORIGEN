@@ -87,3 +87,8 @@
   .admin-stats.cols-4 { grid-template-columns: minmax(0, 1fr); }
   .enc-panel { padding: 16px 14px 14px; }
 }
+
+/* Número oculto: el botón abre WhatsApp pidiendo el número completo al servidor */
+button.enc-lead__num { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-weight: 700; font-size: .9rem; text-align: left; min-height: 40px; }
+.enc-lead.is-atendida { background: var(--c-surface-flat); }
+.enc-lead.is-atendida .enc-lead__perfil { color: var(--c-text-3); }

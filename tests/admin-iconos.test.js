@@ -62,7 +62,7 @@ test('el archivo conserva el crédito de la licencia de Lucide', () => {
 });
 
 test('todos los íconos que usa el panel existen', () => {
-  const fuentes = ['pages/admin-club.html', 'assets/js/admin-miembros.js'].map(leer).join('\n');
+  const fuentes = ['pages/admin-club.html', 'assets/js/admin-miembros.js', 'assets/js/admin-vistas.js', 'assets/js/admin-marketing.js', 'assets/js/admin-encuesta.js', 'assets/js/admin-panel.js'].map(leer).join('\n');
   const usados = new Set();
   for (const m of fuentes.matchAll(/(?:\.svg|ico)\('([a-z0-9-]+)'/g)) usados.add(m[1]);
   for (const m of fuentes.matchAll(/icono:\s*'([a-z0-9-]+)'/g)) usados.add(m[1]);
@@ -74,7 +74,7 @@ test('todos los íconos que usa el panel existen', () => {
 
 test('el menú lateral, el pie y la marca llevan ícono y el logo real', () => {
   const h = leer('pages/admin-club.html');
-  for (const sec of ['resumen', 'miembros', 'suscripciones', 'cursos', 'certificados', 'videos', 'pdfs', 'sesiones', 'noticias', 'retos', 'comunidad', 'referidos', 'encuesta', 'herramientas', 'configuracion', 'estado']) {
+  for (const sec of ['resumen', 'miembros', 'suscripciones', 'cursos', 'certificados', 'videos', 'pdfs', 'sesiones', 'noticias', 'retos', 'comunidad', 'referidos', 'metricas', 'pruebas', 'encuesta', 'configuracion', 'avance', 'estado']) {
     const m = h.match(new RegExp(`data-sec="${sec}">(<svg class="zi"[^>]*>)`));
     assert.ok(m, `el botón "${sec}" no empieza con un ícono`);
   }
