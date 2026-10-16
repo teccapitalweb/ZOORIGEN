@@ -116,7 +116,7 @@
     botonBienvenida: 'Continuar',
     tituloBienvenida: '¡Premio de bienvenida!',
     textoBienvenida: 'Por ser nuevo en Zoorigen ya empiezas a sumar para subir de nivel.',
-    notaSinMembresia: 'Tu XP queda guardado. Se suma a tu nivel cuando actives tu membresía.',
+    notaSinMembresia: 'Tu XP queda guardado y ya lo ves en Retos y en Mis logros. Para jugar y seguir sumando necesitas tu membresía.',
     cerrar: 'Cerrar'
   };
 

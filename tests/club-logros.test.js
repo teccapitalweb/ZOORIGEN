@@ -138,7 +138,7 @@ test('premios: el "faltan" que manda el servidor tiene prioridad', () => {
   assert.equal(v.length, 3);
 });
 
-test('SIN membresía: vista previa con nivel y nombres de insignias, sin XP ni detalle, y con el aviso de suscripción', () => {
+test('SIN membresía: vista previa con nivel y nombres de insignias, sin XP por insignia ni detalle, y con el aviso de suscripción', () => {
   const d = SIN_MEMBRESIA();
   const pag = L.paginaHTML(d, {});
   assert.ok(pag.includes('Vista previa.'));
@@ -150,7 +150,7 @@ test('SIN membresía: vista previa con nivel y nombres de insignias, sin XP ni d
   assert.ok(!/\+\d+ XP/.test(pag), 'sin XP por insignia');
   assert.equal((pag.match(/class="lg-ins is-ganada/g) || []).length, 0);
   assert.ok(!pag.includes('Elegir mi curso'));
-  assert.ok(!pag.includes('Te faltan'), 'no se muestran avances de XP');
+  assert.ok(pag.includes('Te faltan') && pag.includes('XP en total'), 'ven su nivel y su XP real (solo lectura), aunque no puedan sumar');
   assert.ok(pag.includes('Con suscripción'));
   assert.ok(pag.includes('—'), 'los indicadores no muestran números');
 });
@@ -224,7 +224,9 @@ test('desglose de XP: logros, retos, invitados, cursos, bienvenida y total (con 
 test('el indicador de cursos terminados sale de cursos.terminados del servidor', () => {
   const k = L.kpisHTML(norm({ cursos: { terminados: 12, lista: [] } }));
   assert.ok(k.includes('>12<') && k.includes('Cursos terminados'));
-  assert.ok(L.kpisHTML(SIN_MEMBRESIA()).includes('—'), 'sin membresía no se muestra el número');
+  const sin = L.kpisHTML(SIN_MEMBRESIA());
+  assert.ok(sin.includes('—'), 'sin membresía no se muestran los días, la racha ni los logros ganados');
+  assert.ok(sin.includes('>0<') && sin.includes('XP total'), 'pero el XP total y los cursos sí se ven (solo lectura)');
 });
 
 test('los niveles y umbrales se dibujan con lo que manda el servidor (no los copia)', () => {

@@ -125,16 +125,15 @@
     const { nivel } = d;
     const pct = porcentajeNivel(nivel, d.xp.total, nivelesDe(d));
     const racha = d.membresia ? `<div class="lg-racha" title="Días seguidos con actividad">${ico('flame', { size: 18 })}<b>${fmt(d.racha)}</b><small>${d.racha === 1 ? 'día de racha' : 'días de racha'}</small></div>` : '';
-    const cuerpo = d.membresia
-      ? medidorHTML(d, pct) + desgloseHTML(d.xp, d.cursos)
-      : `<div class="lg-orbita lg-orbita--previa"><div class="lg-orbita__txt"><span class="lg-eyebrow">Tu avance</span><strong>Empieza a sumar XP</strong><p>${esc(TEXTO_VISTA_PREVIA)}</p><a class="lg-btn lg-btn--claro" href="club-suscripcion.html">Ver suscripción</a></div></div>`;
+    // El nivel y el XP se ven SIEMPRE (también sin membresía, en solo lectura): son el mismo total que muestran Retos y el panel del perfil.
+    const cuerpo = medidorHTML(d, pct) + desgloseHTML(d.xp, d.cursos);
     return `<section class="lg-hero" aria-label="Tu nivel">
       <div class="lg-hero__cab">
         <div class="lg-hero__medalla">${ico('trophy', { size: 34 })}</div>
-        <div class="lg-hero__tit"><span class="lg-eyebrow">Nivel ${nivel.id} de ${nivelesDe(d).length}</span><h2>${esc(nivel.nombre)}</h2>${d.membresia ? `<p>${fmt(d.xp.total)} XP en total</p>` : ''}</div>
+        <div class="lg-hero__tit"><span class="lg-eyebrow">Nivel ${nivel.id} de ${nivelesDe(d).length}</span><h2>${esc(nivel.nombre)}</h2><p>${fmt(d.xp.total)} XP en total</p></div>
         ${racha}
       </div>
-      ${rutaHTML(nivel, d.membresia ? pct : 0, nivelesDe(d))}
+      ${rutaHTML(nivel, pct, nivelesDe(d))}
       ${cuerpo}</section>`;
   }
 
@@ -146,10 +145,10 @@
     const kpi = (icono, rotulo, valor, sub) => `<div class="lg-kpi"><span class="lg-kpi__ico">${ico(icono, { size: 20 })}</span><div><div class="lg-kpi__val">${valor}${sub ? `<small>${sub}</small>` : ''}</div><div class="lg-kpi__rot">${rotulo}</div></div></div>`;
     return `<div class="lg-kpis">
       ${kpi('award', 'Logros ganados', v(fmt(ganados)), d.membresia ? '/' + fmt(d.logros.length) : '')}
-      ${kpi('zap', 'XP total', v(fmt(d.xp.total)))}
+      ${kpi('zap', 'XP total', fmt(d.xp.total))}
       ${kpi('calendar', 'Días activos', v(fmt(d.diasActivos)))}
       ${kpi('flame', 'Racha', v(fmt(d.racha)), d.membresia ? (d.racha === 1 ? 'día' : 'días') : '')}
-      ${kpi('graduation-cap', 'Cursos terminados', v(fmt(d.cursos ? d.cursos.terminados : 0)))}</div>`;
+      ${kpi('graduation-cap', 'Cursos terminados', fmt(d.cursos ? d.cursos.terminados : 0))}</div>`;
   }
 
   /* ───────────── Insignias por categoría ───────────── */

@@ -225,17 +225,30 @@ select, .rdr-ir select { min-height: 40px; }
 :is(.zoo-welcome-box, .zoo-levelup-box, .zoo-rewards-box, .course-detail-box, .player-box, .reg-modal__caja, .zd-modal__caja, .zc-modal,
     .pw-modal, .nt-modal__cuerpo, .password-modal__card, .species-modal-box, .foro-modal-box, .modal-form, .webinar-popup-box, .zob-tour__dialogo, .zs-inst__caja) {
   max-height: calc(var(--zoo-vh) - 2 * var(--zoo-gutter));
-  max-width: calc(100vw - 2 * var(--zoo-gutter));
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+}
+/* Ancho: antes esta regla ponía max-width: 100vw - márgenes a TODAS y, al cargarse después, pisaba el ancho propio de cada ventana:
+   en escritorio (1920 px) el detalle del curso y la confirmación se estiraban casi a pantalla completa. Ahora el tope de pantalla
+   tiene especificidad cero (:where): cada ventana conserva su ancho y, si no tiene, nunca pasa de la pantalla menos los márgenes. */
+:where(.zoo-welcome-box, .zoo-levelup-box, .zoo-rewards-box, .course-detail-box, .player-box, .reg-modal__caja, .zd-modal__caja, .zc-modal,
+    .pw-modal, .nt-modal__cuerpo, .password-modal__card, .species-modal-box, .foro-modal-box, .modal-form, .webinar-popup-box, .zob-tour__dialogo, .zs-inst__caja) {
+  max-width: calc(100vw - 2 * var(--zoo-gutter));
 }
 .mt-visor__ventana { height: min(calc(var(--zoo-vh) - 2 * var(--zoo-gutter)), 900px); }
 :is(#zoo-welcome-modal, #zoo-levelup-modal, #zoo-rewards-modal, #speciesModal, .zs-inst, .zc-ov, .zd-modal, .nt-modal, .mt-visor, .pw-modal__fondo, .modal-overlay, .course-detail-modal, .player-overlay, .reg-modal, .password-modal, .foro-modal, .webinar-popup-bg) {
   padding: max(var(--zoo-gutter), var(--zoo-safe-t)) max(var(--zoo-gutter), var(--zoo-safe-r)) max(var(--zoo-gutter), var(--zoo-safe-b)) max(var(--zoo-gutter), var(--zoo-safe-l));
 }
-.zoo-welcome-box { max-width: min(520px, 100%); }
 .player-box { max-height: calc(var(--zoo-vh) - 2 * var(--zoo-gutter)); overflow-y: auto; }
+
+/* Anchos por tamaño (todas centradas por su fondo; en celular ocupan el ancho libre menos los márgenes y se desplazan por dentro):
+     aviso y confirmación 560 · bienvenida y perfil 640 · detalle del curso (y reproductor) 960 · recorrido guiado 440 (este último y
+     el perfil profesional de la bienvenida se definen en club-onboarding.css) */
+.zc-modal { max-width: min(560px, 100%); }
+.zoo-welcome-box { max-width: min(640px, 100%); }
+.zd-modal__caja { max-width: min(640px, 100%); }
+.player-box { max-width: min(960px, 100%); }
 
 /* ─────────────── 6. COMPONENTES ─────────────── */
 /* Tarjeta de título único (club-seccion): sin cortes de palabra a 320 px, y subtítulo legible */

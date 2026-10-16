@@ -22,10 +22,10 @@
   <link rel="stylesheet" href="../assets/css/fuentes.css?v=20261109-cromo">
   <link rel="preload" href="../assets/img/guia/secciones/seccion-inventario.webp" as="image" type="image/webp" fetchpriority="high">
   <!-- /zs:fuentes -->
-<link rel="stylesheet" href="../assets/css/club.css?v=20261126-vistas">
+<link rel="stylesheet" href="../assets/css/club.css?v=20261128-arreglos">
 <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
 <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261126-vistas">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261128-arreglos">
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
 <style>
@@ -170,13 +170,6 @@
   .reg-grupo__cab em { color: var(--zoo-text-muted, #a0a8a4); font-size: .85rem; overflow-wrap: anywhere; }
   .reg-grupo__cuenta { margin-left: auto; color: #E8A317; font-size: .78rem; font-weight: 700; }
   .reg-tabla td small { display: block; color: var(--zoo-text-muted, #a0a8a4); font-size: .76rem; margin-top: 2px; }
-  .reg-tabla--inv { table-layout: fixed; min-width: 680px; }
-  .reg-tabla--inv th:nth-child(1) { width: 19%; }
-  .reg-tabla--inv th:nth-child(2) { width: 11%; }
-  .reg-tabla--inv th:nth-child(3) { width: 22%; }
-  .reg-tabla--inv th:nth-child(4) { width: 15%; }
-  .reg-tabla--inv th:nth-child(5) { width: 12%; }
-  .reg-tabla--inv th:nth-child(6) { width: 21%; }
   .reg-tabla .reg-acciones { text-align: right; }
   .reg-solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .reg-btn {
@@ -282,19 +275,7 @@
 
   /* Celular: la tabla se vuelve tarjetas, nada se sale de la pantalla */
   @media (max-width: 700px) {
-    .reg-tabla--inv { min-width: 0; table-layout: auto; }
-    .reg-tabla thead { display: none; }
-    .reg-tabla, .reg-tabla tbody, .reg-tabla tr, .reg-tabla td { display: block; width: 100%; box-sizing: border-box; }
-    .reg-tabla tr { border: 1px solid var(--zoo-border, #2A3038); border-radius: 12px; margin: 0 0 10px; padding: 6px 12px; background: rgba(255,255,255,0.03); }
-    .reg-tabla td { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border: 0 !important; padding: 6px 0; text-align: right; }
-    .reg-tabla td::before { content: attr(data-label); color: var(--zoo-text-muted, #a0a8a4); font-weight: 700; text-align: left; flex: 0 0 34%; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; padding-top: 2px; }
-    .reg-tabla td > small { text-align: right; }
-    .reg-tabla .reg-acciones { justify-content: flex-start; flex-wrap: wrap; white-space: normal; text-align: left; }
-    .reg-tabla .reg-acciones::before { content: none; }
-    .reg-tabla .reg-acciones .reg-btn { margin: 0 6px 0 0; }
-    .reg-tabla--informe td.reg-num { text-align: right; }
-    .reg-tabla--informe .reg-total { background: rgba(232,163,23,0.10); }
-    .tool-table-wrap { border: 0; overflow: visible; }
+    /* las tablas pasan a tarjetas con @container (más abajo): cuenta el ancho de la caja de la tabla, no el de la pantalla */
     .reg-evento { grid-template-columns: minmax(0, 1fr); }
     .reg-evento__acciones { justify-content: flex-start; }
     .reg-grupo__cuenta { margin-left: 0; width: 100%; }
@@ -309,8 +290,67 @@
     .reg-modal__pie .tool-btn-calc, .reg-modal__pie .tool-btn-reset { flex: 1 1 100%; justify-content: center; }
     .tool-actions .tool-btn-calc, .tool-actions .tool-btn-reset { flex: 1 1 100%; justify-content: center; }
   }
+  /* ── Tablas del Libro de registro (inventario, informe anual y movimientos) ──
+     Anchos mínimos por columna, ninguna palabra se parte a la mitad (solo se parte una palabra que ella sola no cabe), acciones que
+     se envuelven completas y, cuando la CAJA de la tabla mide menos de 900 px (no la pantalla: cuenta el menú lateral), cada fila
+     pasa a tarjeta apilada. Encabezados sobrios con contraste AA (texto del tema sobre el fondo de tarjeta secundario, sin amarillo). */
+  .reg-tabla-caja { container-type: inline-size; container-name: regtabla; }
+  .reg-tabla { table-layout: auto; min-width: 0; }
+  .reg-tabla th {
+    background: var(--zoo-bg-card-2, #EFEBE2); color: var(--zoo-text-muted, #52606D); border-bottom: 1px solid var(--zoo-border-strong, #D8D2C4);
+    font-size: .78rem; font-weight: 800; letter-spacing: .05em; white-space: nowrap; padding: 10px 14px;
+  }
+  .reg-tabla td { padding: 12px 14px; overflow-wrap: break-word; word-break: normal; hyphens: manual; }
+  .reg-tabla--inv th:nth-child(1), .reg-tabla--inv td:nth-child(1) { min-width: 150px; }
+  .reg-tabla--inv th:nth-child(2), .reg-tabla--inv td:nth-child(2) { min-width: 118px; white-space: nowrap; }
+  .reg-tabla--inv th:nth-child(3), .reg-tabla--inv td:nth-child(3) { min-width: 160px; }
+  .reg-tabla--inv th:nth-child(4), .reg-tabla--inv td:nth-child(4) { min-width: 120px; }
+  .reg-tabla--inv th:nth-child(5), .reg-tabla--inv td:nth-child(5) { min-width: 104px; }
+  .reg-tabla--inv th:nth-child(6), .reg-tabla--inv td:nth-child(6) { min-width: 210px; }
+  .reg-tabla td .reg-chip, .reg-tabla td:nth-child(2) { white-space: nowrap; }
+  .reg-tabla td.reg-acciones { white-space: normal; }
+  .reg-tabla .reg-acciones .reg-btn { margin: 2px 0 2px 6px; white-space: nowrap; }
+  .reg-tabla--informe th, .reg-tabla--informe td.reg-num { white-space: nowrap; text-align: right; }
+  .reg-tabla--informe th:first-child { text-align: left; }
+  .reg-tabla--informe td:first-child { min-width: 160px; }
+  .reg-grupo__cuenta { color: var(--zoo-text-muted, #52606D); }
+
+  @container regtabla (max-width: 899px) {
+    .reg-tabla, .reg-tabla tbody, .reg-tabla tr, .reg-tabla td { display: block; width: 100%; box-sizing: border-box; }
+    .reg-tabla thead { display: none; }
+    .reg-tabla--inv th, .reg-tabla--inv td { min-width: 0 !important; }
+    .reg-tabla tr {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 18px; align-items: start;
+      margin: 0 0 12px; padding: 14px 16px; border: 1px solid var(--zoo-border, #2A3038); border-radius: 12px; background: var(--zoo-bg-card, transparent);
+    }
+    .reg-tabla td { display: block; padding: 0; border: 0 !important; text-align: left; min-width: 0; }
+    .reg-tabla td::before {
+      content: attr(data-label); display: block; margin: 0 0 2px; padding: 0; flex: none;
+      color: var(--zoo-text-muted, #52606D); font-size: .78rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+    }
+    .reg-tabla td:first-child, .reg-tabla td.reg-acciones, .reg-tabla--mov td:last-child { grid-column: 1 / -1; }
+    .reg-tabla td:first-child::before, .reg-tabla td.reg-acciones::before { display: none; }
+    .reg-tabla td:first-child { font-size: 1rem; }
+    .reg-tabla td.reg-acciones { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; text-align: left; padding-top: 4px; }
+    .reg-tabla .reg-acciones .reg-btn { margin: 0; }
+    .reg-tabla td > small { text-align: left; }
+    .reg-tabla--informe tr { grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); }
+    .reg-tabla--informe td.reg-num { text-align: left; font-variant-numeric: tabular-nums; }
+    .reg-tabla--informe .reg-total { background: rgba(232,163,23,0.10); }
+    .tool-table-wrap { border: 0; overflow: visible; }
+  }
+  @container regtabla (max-width: 420px) {
+    .reg-tabla tr { grid-template-columns: minmax(0, 1fr); }
+    .reg-tabla--informe tr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  /* Bitácora: la fecha pasa arriba y las acciones abajo cuando la lista es angosta */
+  .reg-bitacora { container-type: inline-size; container-name: regbit; }
+  @container regbit (max-width: 560px) {
+    .reg-evento { grid-template-columns: minmax(0, 1fr); }
+    .reg-evento__acciones { justify-content: flex-start; }
+  }
 </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261126-vistas">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="registro">
 <div class="club-layout">
@@ -456,10 +496,10 @@
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionRegistro","seccion":"registro","icono":"clipboard-list","eyebrow":"Para UMA y PIMVS","titulo":"Libro de registro","acento":"de ejemplares.","sub":"Anota tus ejemplares y lo que les pasa (nacimientos, bajas, muertes, traslados y notas). La herramienta arma tu inventario actual y el borrador de tu informe anual.","cifras":[{"id":"statActivos","valor":"—","rotulo":"ejemplares activos"},{"id":"statEspecies","valor":"—","rotulo":"especies"},{"id":"statEventos","valor":"—","rotulo":"eventos en la bitácora"}]});</script>
   <script src="../assets/js/club.js?v=20261126-vistas"></script>
-  <script src="../assets/js/club-shell.js?v=20261126-vistas"></script>
+  <script src="../assets/js/club-shell.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-paywall.js?v=20261124-referencia"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/registro-ejemplares-ui.js?v=20261104"></script>
+  <script src="../assets/js/registro-ejemplares-ui.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
 <script>
 (async () => {

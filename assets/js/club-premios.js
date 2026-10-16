@@ -105,16 +105,17 @@
       };
     });
     const disponibles = Number.isFinite(Number(resp.disponibles)) ? Math.max(0, Math.round(Number(resp.disponibles))) : premios.filter(p => p.disponible).length;
-    // Cursos terminados con su XP (solo con membresía), en el orden cronológico en que llegan.
+    // Cursos terminados con su XP, en el orden cronológico en que llegan. Sin membresía también se ven (solo lectura): el servidor da
+    // el MISMO total de XP a Retos, Logros y el panel del perfil.
     const c = objeto(resp.cursos);
-    const lista = (membresia && Array.isArray(c.lista) ? c.lista : []).filter(k => k && typeof k === 'object' && txt(k.courseId)).map(k => ({
+    const lista = (Array.isArray(c.lista) ? c.lista : []).filter(k => k && typeof k === 'object' && txt(k.courseId)).map(k => ({
       courseId: String(k.courseId), n: Math.max(1, Math.round(num(k.n, 1))), xp: Math.max(0, num(k.xp)), fecha: k.fecha == null ? null : k.fecha
     }));
-    const terminados = !membresia ? 0 : Number.isFinite(Number(c.terminados)) ? Math.max(0, Math.round(Number(c.terminados))) : lista.length;
+    const terminados = Number.isFinite(Number(c.terminados)) ? Math.max(0, Math.round(Number(c.terminados))) : lista.length;
     const b = objeto(resp.bienvenida);
     return {
       membresia, nivel, niveles,
-      xp: { total: xpTotal, logros: Math.max(0, num(x.logros)), retos: Math.max(0, num(x.retos)), referidos: Math.max(0, num(x.referidos)), cursos: membresia ? Math.max(0, num(x.cursos)) : 0, bienvenida: membresia ? Math.max(0, num(x.bienvenida)) : 0 },
+      xp: { total: xpTotal, logros: Math.max(0, num(x.logros)), retos: Math.max(0, num(x.retos)), referidos: Math.max(0, num(x.referidos)), cursos: Math.max(0, num(x.cursos)), bienvenida: Math.max(0, num(x.bienvenida)) },
       cursos: { terminados, lista },
       bienvenida: { disponible: b.disponible === true && b.reclamado !== true, xp: Math.max(0, num(b.xp, 100)), reclamado: membresia && b.reclamado === true },
       racha: Math.max(0, Math.round(num(resp.racha))), diasActivos: Math.max(0, Math.round(num(resp.diasActivos))),

@@ -513,6 +513,7 @@ html[data-plan="cancelled_active"] .zs-tab.is-active.zs-tab--act-libre .zs-tab__
 .zs-pm__stats > div:first-child { border-left: 0; }
 .zs-pm__stats b { display: block; color: var(--zoo-text, #fff); font: 800 1.2rem/1.2 var(--zoo-font-display); overflow-wrap: anywhere; }
 .zs-pm__stats span { color: var(--zoo-text-muted, #aab); font: 600 .75rem/1.2 var(--zoo-font-body); letter-spacing: .08em; text-transform: uppercase; }
+.zs-pm__stats + .zs-pm__libre { margin-top: 12px; }
 .zs-pm__libre { padding: 14px; border-radius: 14px; background: var(--zoo-tint, #1E2329); border: 1px solid var(--zoo-border, #2b323a); border-left: 5px solid var(--zoo-amber, #E8A317); }
 .zs-pm__libre strong { display: block; font: 800 1rem/1.25 var(--zoo-font-display); }
 .zs-pm__libre p { margin: 6px 0 12px; color: var(--zoo-text-muted, #aab); font-size: .86rem; line-height: 1.5; }

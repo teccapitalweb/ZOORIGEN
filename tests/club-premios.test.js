@@ -420,10 +420,10 @@ test('normalizar: cursos terminados con su XP en orden y sin filas inválidas', 
   assert.equal(P.normalizar({ ok: true, membresia: true, cursos: { terminados: -4 } }).cursos.terminados, 0);
 });
 
-test('normalizar: bienvenida (disponible / reclamado) y sin membresía no revela nada más', () => {
-  const nueva = P.normalizar({ ok: true, membresia: false, bienvenida: { disponible: true, xp: 100 }, xp: { total: 0, cursos: 99, bienvenida: 100 }, cursos: { terminados: 5, lista: [] } });
+test('normalizar: bienvenida (disponible / reclamado); sin membresía el XP que manda el servidor se ve tal cual (solo lectura)', () => {
+  const nueva = P.normalizar({ ok: true, membresia: false, bienvenida: { disponible: true, xp: 100 }, xp: { total: 199, cursos: 99, bienvenida: 100 }, cursos: { terminados: 5, lista: [] } });
   assert.deepEqual(nueva.bienvenida, { disponible: true, xp: 100, reclamado: false });
-  assert.deepEqual([nueva.xp.cursos, nueva.xp.bienvenida, nueva.cursos.terminados, nueva.cursos.lista.length], [0, 0, 0, 0], 'sin membresía: nada de cursos ni XP guardado');
+  assert.deepEqual([nueva.xp.total, nueva.xp.cursos, nueva.xp.bienvenida, nueva.cursos.terminados], [199, 99, 100, 5], 'el mismo XP que muestran Retos y el panel');
   assert.equal(P.normalizar({ ok: true, membresia: true, bienvenida: { disponible: true, reclamado: true } }).bienvenida.disponible, false, 'reclamado manda sobre disponible');
   assert.deepEqual(P.normalizar({ ok: true, membresia: true }).bienvenida, { disponible: false, xp: 100, reclamado: false });
 });

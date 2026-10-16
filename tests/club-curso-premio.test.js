@@ -207,7 +207,7 @@ test('la tarjeta de bienvenida trae los textos pedidos y el botón Continuar', (
   assert.doesNotMatch(h, /zcp__nota/);
   assert.match(h, /<svg/, 'regalo como SVG');
   const sin = C.bienvenidaHTML(C.calcularBienvenida({ ok: true, xp: 100, xpTotal: 100, nivel: nivelDe(100) }), { sinMembresia: true });
-  assert.match(sinTags(sin), /Tu XP queda guardado\. Se suma a tu nivel cuando actives tu membresía\./);
+  assert.match(sinTags(sin), /Tu XP queda guardado y ya lo ves en Retos y en Mis logros\. Para jugar y seguir sumando necesitas tu membresía\./);
 });
 
 /* ───────────── flujo: nunca bloquea el certificado ───────────── */
