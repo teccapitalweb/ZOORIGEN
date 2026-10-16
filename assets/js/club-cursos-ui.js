@@ -224,6 +224,7 @@
       <div class="zc-sec"><h3>${ico('clapperboard', { size: 14 })}CLASES DEL CURSO</h3><span>${hechas}/${total} · ${pct}%</span></div>
       <div class="zc-bar"><span style="width:${pct}%"></span></div>
       <ol class="zc-lista">${(d.filas || []).map(f => filaClaseHTML(f, d.imagen)).join('')}</ol>
+      ${d.materialesHTML || ''}
     </div>`;
   }
 

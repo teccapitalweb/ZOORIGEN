@@ -29,6 +29,10 @@
 //    (pages/admin-club.html) verifica el acceso con GET /api/admin/yo y ya no lleva ninguna clave en el navegador.
 //    adminAcciones (NUEVA, sin publicar): bitacora de las acciones del equipo; la escribe y lee SOLO el servidor,
 //    asi que la regla comodin del final ya la niega al navegador (no hace falta una regla nueva).
+//  - pdfs (CAMBIO PROPUESTO, sin publicar): ya NO la lee cualquier cuenta con sesion; solo el administrador (lo necesita el panel).
+//    El sitio nuevo pide los PDF al servidor (GET /api/materiales/drive y GET /api/materiales/drive/:id/enlace), que entrega el enlace de Drive
+//    solo a quien cumple la regla del material (membresia, clase terminada del curso o retos). Con la regla anterior, cualquier cuenta con sesion
+//    podia leer el enlace de Drive directamente desde Firestore y saltarse esa regla. Publicar junto con el servidor y el sitio nuevos.
 // ============================================================================
 rules_version = '2';
 service cloud.firestore {
@@ -106,8 +110,8 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     match /pdfs/{pdfId} {
-      allow read: if isAuthed();
-      allow write: if isAdmin();
+      // Solo el administrador: el enlace de Drive de cada PDF lo entrega el servidor a quien cumple la regla del material
+      allow read, write: if isAdmin();
     }
     match /sesiones/{sesionId} {
       allow read: if isAuthed();

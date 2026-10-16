@@ -132,12 +132,6 @@
       border-color: rgba(213,90,40,0.6);
       transform: scale(1.06);
     }
-    /* En modo cine el botón ampliar se resalta para indicar que está activo */
-    .player-box.is-cinema .player-box__fs {
-      background: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 32%, transparent);
-      border-color: color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 60%, transparent);
-    }
-
     /* Video container 16:9 */
     .player-box__video {
       position: relative;
@@ -168,20 +162,6 @@
       background: radial-gradient(ellipse at top right, #000 0%, #000 38%, rgba(0,0,0,0) 78%);
     }
 
-    /* Botón ampliar (modo cine) — estilos base compartidos arriba */
-    .player-box__fs:hover { transform: scale(1.06); }
-
-    /* Modo cine: el video ocupa toda la altura disponible y se oculta el resto */
-    .player-box.is-cinema { height: calc(100vh - 80px); }
-    .player-box.is-cinema .player-box__video {
-      aspect-ratio: auto;
-      flex: 1;
-      height: auto;
-      min-height: 0;
-    }
-    .player-box.is-cinema .player-box__info,
-    .player-box.is-cinema .classes-list-box { display: none !important; }
-
     .player-box__info {
       padding: 14px 20px 18px;
       flex-shrink: 0;
@@ -192,6 +172,78 @@
       margin: 0;
       line-height: 1.5;
     }
+
+    /* ═══ Ventana de la clase (reproductor), con la estructura del visor de Alintec ═══
+       Oscura y limpia siempre (modo día y noche): encabezado con el título, la insignia "Ya vista", el botón de abrir en
+       pestaña nueva (solo videos de Drive) y cerrar; video grande 16:9; y abajo el botón "Marcar como vista" (que pasa a
+       "Ya vista" y ofrece "Siguiente clase"). El detalle del curso (lista de clases) sigue con su aspecto de siempre. */
+    .player-box.is-player {
+      --pb-fondo: #0F1812; --pb-cab: #16241B; --pb-linea: rgba(255,255,255,.12); --pb-txt: #EEF5EF; --pb-suave: #B4C2B8;
+      --pb-verde: #2A7A4E; --pb-verde-claro: #348F5C; --pb-ok: #7FD08A; --pb-ambar: #E8A317;
+      /* Ancho: 960 como máximo; en pantallas bajas se achica para que el video, el encabezado y el pie quepan sin desplazar */
+      width: min(100%, max(520px, min(960px, calc((var(--zoo-vh, 100vh) - 2 * var(--zoo-gutter, 20px) - 175px) * 16 / 9))));
+      background: var(--pb-fondo); color: var(--pb-txt);
+      border: 1px solid var(--pb-linea); border-radius: 16px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+      outline: none;
+    }
+    .player-box.is-player .player-box__header { background: var(--pb-cab); border-bottom: 1px solid var(--pb-linea); padding: 12px 16px; }
+    .player-box.is-player .player-box__header h3 { font-size: 1rem; }
+    .player-box__estado {
+      display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+      min-height: 32px; padding: 0 12px; border-radius: 999px;
+      background: rgba(127,208,138,.14); border: 1px solid rgba(127,208,138,.5); color: var(--pb-ok, #7FD08A);
+      font-size: .78rem; font-weight: 700; white-space: nowrap;
+    }
+    .player-box__estado[hidden], .player-box__fs[hidden] { display: none; }
+    .player-box__estado .zi, .pb-btn .zi { width: 16px; height: 16px; flex: none; }
+    a.player-box__fs { text-decoration: none; }
+    .player-box__close:focus-visible, .player-box__fs:focus-visible, .pb-btn:focus-visible {
+      outline: 3px solid var(--pb-ambar, #E8A317); outline-offset: 2px;
+    }
+    .player-box.is-player .player-box__video { flex-shrink: 0; }
+    /* Mensajes dentro del cuadro del video (preparando, error, clase vista) */
+    .pb-vacio {
+      position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; text-align: center;
+      color: var(--pb-txt, #fff); background: #000;
+    }
+    .pb-vacio__in { display: grid; gap: 10px; justify-items: center; max-width: 460px; }
+    .pb-vacio strong { font-size: 1.05rem; }
+    .pb-vacio p { margin: 0; color: var(--pb-suave, #B4C2B8); font-size: .9rem; line-height: 1.5; overflow-wrap: anywhere; }
+    .pb-vacio .zi { width: 34px; height: 34px; }
+    .pb-vacio--ok .zi { color: var(--pb-ok, #7FD08A); }
+    .pb-vacio--error .zi { color: var(--pb-ambar, #E8A317); }
+
+    .player-box.is-player .player-box__info { padding: 0; background: var(--pb-fondo); }
+    .player-box.is-player .player-box__info > div { display: flex; flex-direction: column; flex: 1; }
+    .player-box:focus, .player-box:focus-visible { outline: none; }
+    .pb-pie {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 20px;
+      padding: 14px 20px 18px;
+    }
+    .pb-info { min-width: 0; flex: 1 1 260px; }
+    .pb-info strong { display: block; font-size: .98rem; line-height: 1.3; color: var(--pb-txt, #fff); }
+    .pb-info span { display: block; margin-top: 2px; font-size: .84rem; color: var(--pb-suave, #B4C2B8); overflow-wrap: anywhere; }
+    .pb-puntos { display: flex; gap: 4px; margin-top: 10px; max-width: 340px; }
+    .pb-punto { flex: 1 1 0; height: 5px; border-radius: 4px; background: rgba(255,255,255,.18); }
+    .pb-punto.is-hecha { background: var(--pb-ok, #7FD08A); }
+    .pb-punto.is-actual { background: var(--pb-ambar, #E8A317); }
+    .pb-acc { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; }
+    .pb-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 46px; padding: 0 20px; border-radius: 10px; border: 1px solid transparent;
+      font-family: inherit; font-size: .95rem; font-weight: 700; line-height: 1.1; cursor: pointer; text-decoration: none;
+      transition: background-color .15s, border-color .15s, transform .15s;
+    }
+    .pb-btn--main { background: var(--pb-verde, #2A7A4E); color: #fff; }
+    .pb-btn--main:hover:not(:disabled) { background: var(--pb-verde-claro, #348F5C); transform: translateY(-1px); }
+    .pb-btn--ghost { background: transparent; color: var(--pb-txt, #fff); border-color: var(--pb-linea, rgba(255,255,255,.2)); font-weight: 600; }
+    .pb-btn--ghost:hover { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.3); }
+    .pb-btn--hecho { background: rgba(127,208,138,.12); color: var(--pb-ok, #7FD08A); border-color: rgba(127,208,138,.45); cursor: default; }
+    .pb-btn:disabled { cursor: progress; opacity: .85; }
+    .pb-nota { flex-basis: 100%; margin: 0; font-size: .82rem; color: var(--pb-suave, #B4C2B8); }
+    .pb-nota:empty { display: none; }
+    html.pb-sin-scroll, html.pb-sin-scroll body { overflow: hidden; }
 
     /* Lista de clases — compacta y scrolleable */
     .classes-list-box {
@@ -342,13 +394,33 @@
         border-radius: 0;
         border: 0;
       }
-      /* En modo cine el video llena toda la pantalla disponible */
-      .player-box.is-cinema { height: 100vh; }
       .player-box__header { padding: 12px 16px; }
       .player-box__header h3 { font-size: .95rem; }
       .classes-list-box { padding: 14px 16px; }
     }
+    /* Celular: la ventana de la clase ocupa casi toda la pantalla, con la zona segura (muesca y barra de inicio) respetada.
+       El selector con id gana a la regla común de ventanas de club-responsivo.css. */
+    @media (max-width: 640px) {
+      #playerOverlay.player-overlay {
+        padding: max(6px, var(--zoo-safe-t)) max(6px, var(--zoo-safe-r)) max(6px, var(--zoo-safe-b)) max(6px, var(--zoo-safe-l));
+        align-items: stretch;
+      }
+      #playerOverlay .player-box.is-player {
+        width: 100%; max-width: 100%; margin: 0; border-radius: 14px; border: 1px solid var(--pb-linea);
+        min-height: calc(var(--zoo-vh) - max(6px, var(--zoo-safe-t)) - max(6px, var(--zoo-safe-b)));
+        max-height: none; overflow: visible;
+      }
+      .player-box.is-player .player-box__header { padding: 10px 12px 10px 14px; }
+      .player-box.is-player .player-box__header h3 { font-size: .95rem; }
+      .player-box.is-player .player-box__info { flex: 1; display: flex; flex-direction: column; }
+      .pb-pie { flex: 1; flex-direction: column; align-items: stretch; flex-wrap: nowrap; padding: 14px 14px max(16px, var(--zoo-safe-b)); }
+      .pb-info { flex: 0 0 auto; }
+      .pb-acc { flex-direction: column-reverse; align-items: stretch; margin-top: auto; }
+      .pb-btn { width: 100%; min-height: 52px; font-size: 1rem; }
+      .pb-btn--ghost { min-height: 46px; }
+    }
   </style>
+  <link rel="stylesheet" href="../assets/css/club-materiales.css?v=20261129-video-materiales">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="cursos">
@@ -369,14 +441,16 @@
   <nav class="zs-bottom" id="zsBottom" aria-label="Navegación principal"><a class="zs-tab" href="club-dashboard.html"><span class="zs-tab__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/></svg></span><span class="zs-tab__txt">Inicio</span></a><a class="zs-tab is-active" href="club-biblioteca.html"><span class="zs-tab__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6v13"/><path d="M12 6v13"/><path d="M21 6v13"/></svg></span><span class="zs-tab__txt">Cursos</span></a><a class="zs-tab" href="club-pdfs.html"><span class="zs-tab__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11"/><path d="M8 8l4 0"/><path d="M8 12l4 0"/><path d="M8 16l4 0"/></svg></span><span class="zs-tab__txt">PDFs</span></a><a class="zs-tab zs-tab--solo-vip" href="club-sesiones.html"><span class="zs-tab__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="12" r="1"/><path d="M16.243 16.243a6 6 0 1 0 -8.486 0"/><path d="M19.071 19.071a10 10 0 1 0 -14.142 0"/></svg></span><span class="zs-tab__txt">Vivo</span><span class="zs-tab__pronto">Pronto</span></a><a class="zs-tab zs-tab--solo-vip" href="club-herramientas.html"><span class="zs-tab__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5"/></svg></span><span class="zs-tab__txt">Pro</span></a><a class="zs-tab zs-tab--solo-libre" href="club-retos.html"><span class="zs-tab__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="zs-tab__txt">Retos</span></a><a class="zs-tab zs-tab--solo-libre" href="club-logros.html"><span class="zs-tab__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1 -10 0z"/><path d="M17 4h4v2a3 3 0 0 1 -3 3h-1"/><path d="M7 4h-4v2a3 3 0 0 0 3 3h1"/></svg></span><span class="zs-tab__txt">Logros</span></a><button type="button" class="zs-tab" id="zsMas" aria-label="Más opciones" aria-haspopup="dialog"><span class="zs-tab__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0;"><path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/></svg></span><span class="zs-tab__txt">Más</span></button></nav>
   <!-- /zs:flotantes -->
 
-  <div class="player-overlay" id="playerOverlay">
-    <div class="player-box">
+  <div class="player-overlay" id="playerOverlay" role="dialog" aria-modal="true" aria-labelledby="playerTitle">
+    <div class="player-box" id="playerBox" tabindex="-1">
       <div class="player-box__header">
         <h3 id="playerTitle">—</h3>
-        <button class="player-box__close" onclick="closePlayer()">×</button>
+        <span class="player-box__estado" id="playerEstado" hidden><svg class="zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Ya vista</span>
+        <a class="player-box__fs" id="playerAbrir" href="#" target="_blank" rel="noopener noreferrer" title="Abrir en pestaña nueva" aria-label="Abrir en pestaña nueva" hidden><svg class="zi" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+        <button type="button" class="player-box__close" id="playerCerrar" onclick="closePlayer()" aria-label="Cerrar"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       </div>
       <div class="player-box__video" id="playerVideo"></div>
-      <div class="player-box__info"><p id="playerDesc"></p></div>
+      <div class="player-box__info"><div id="playerDesc"></div></div>
     </div>
   </div>
 
@@ -400,7 +474,8 @@
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
   <script src="../assets/js/club-prueba-arte.js?v=20261114-prueba"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261123-sinmorado"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261129-video-materiales"></script>
+  <script src="../assets/js/club-materiales.js?v=20261129-video-materiales"></script>
   <script src="../assets/js/club-premios.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-nombre-cert.js?v=20261111-nombre"></script>
@@ -518,6 +593,7 @@
       const progress = await ZOORIGEN_CLUB.getCourseProgress(session.uid);
       window.__zooCourseProgress = progress;
       window.__zooSession = session;
+      window.__zooMatPromesa = cargarMaterialesCursos();
       if (progress.__desdeCache === true) zcToast('No pudimos conectar con el servidor. Mostramos tu último avance guardado; se actualiza cuando vuelva la conexión.', true);
 
       // Convertir URL de Google Drive a URL directa de imagen
@@ -702,8 +778,17 @@
       });
       grid.addEventListener('keydown', (ev) => {
         const card = ev.target.closest && ev.target.closest('.zc-card');
-        if (card && ev.target === card && card.dataset.id) openCourseCard(ev, card.dataset.id);
+        if (card && ev.target === card && card.dataset.id) openCourseCard({ type: 'keydown', key: ev.key, target: ev.target, currentTarget: card, preventDefault: () => ev.preventDefault() }, card.dataset.id);
       });
+
+      // "Ir al curso" desde PDFs y materiales (?curso=<id>): abre el detalle de ese curso, con las mismas reglas de siempre
+      try {
+        const pedido = new URLSearchParams(window.location.search).get('curso');
+        if (pedido) await window.__zooMatPromesa;
+        if (pedido && window.__zooCourseCards && window.__zooCourseCards[pedido]) {
+          openCourseCard({ type: 'click', target: document.body, currentTarget: document.body }, pedido);
+        }
+      } catch (e) { /* sin parámetro: nada */ }
 
       // El botón "Elegir este curso" del aviso (curso sugerido por la guía) abre la MISMA confirmación de siempre
       document.getElementById('unlockInfo').addEventListener('click', (ev) => {
@@ -746,6 +831,32 @@
         return { ok: r.ok, status: r.status, datos };
       } finally { clearTimeout(corte); }
     }
+
+    // Materiales ligados a un curso y a una clase (GET /api/materiales/cursos): { [cursoId]: [material...] } con el estado que decide el
+    // servidor (desbloqueado / Se desbloquea al terminar la clase N). Si el servidor no responde, no hay materiales y todo sigue igual.
+    window.__zooMatCursos = {};
+    async function cargarMaterialesCursos() {
+      try {
+        const r = await ZOORIGEN_CLUB.apiFetch('/api/materiales/cursos');
+        window.__zooMatCursos = (r && r.cursos && typeof r.cursos === 'object') ? r.cursos : {};
+      } catch (e) { window.__zooMatCursos = window.__zooMatCursos || {}; }
+      // Si el detalle de un curso ya estaba abierto (sin reproductor), se vuelve a dibujar con los materiales
+      const ov = document.getElementById('playerOverlay');
+      if (ov && ov.classList.contains('is-open') && !pbEstado && ov.querySelector('.classes-list-box') && window.__currentCourse) renderCourseModal();
+      return window.__zooMatCursos;
+    }
+    // Abre un material desde el detalle del curso. El servidor decide si se abre; aquí solo se explica por qué no.
+    function zcAbrirMaterial(par) {
+      const curso = window.__currentCourse;
+      const dos = String(par || '');
+      const fuente = dos.slice(0, dos.indexOf(':')), id = dos.slice(dos.indexOf(':') + 1);
+      const m = ((window.__zooMatCursos || {})[curso && curso.id] || []).find(x => x.id === id && (x.fuente === 'drive' ? 'drive' : 'catalogo') === fuente);
+      if (!m || !window.ZOO_MATERIALES) return;
+      if (m.soloMiembros) { mostrarPaywallCurso(); return; }
+      if (!m.desbloqueado) { aviso('Material bloqueado', '<p>' + escHtml(ZOO_MATERIALES.condicionTexto(m)) + '.</p>'); return; }
+      ZOO_MATERIALES.abrirMaterial(ZOORIGEN_CLUB, m, fuente);
+    }
+    window.zcAbrirMaterial = zcAbrirMaterial;
 
     // Estado de la prueba gratuita. Si el servidor no responde, la prueba "no aplica" y todo sigue como antes.
     async function cargarEstadoPrueba() {
@@ -919,6 +1030,7 @@
         : (todas ? '<button type="button" class="zc-cert-btn" data-zc="cert">Terminar curso y pedir mi certificado</button>' : '');
 
       const modal = document.getElementById('playerOverlay');
+      salirDelReproductor();
       document.getElementById('playerTitle').textContent = 'Detalle del curso';
       document.getElementById('playerVideo').innerHTML = '';
       document.getElementById('playerDesc').textContent = '';
@@ -933,10 +1045,12 @@
       listEl.className = 'classes-list-box';
       listEl.innerHTML = UI.detalleHTML({
         curso: { ...course, description: course.description }, imagen, completadas: hechas.length, total, filas, espera,
-        accionPrincipal, certificadoHTML, etiquetaPrueba: enPrueba ? 'Prueba gratuita' : ''
+        accionPrincipal, certificadoHTML, etiquetaPrueba: enPrueba ? 'Prueba gratuita' : '',
+        materialesHTML: window.ZOO_MATERIALES ? ZOO_MATERIALES.seccionDetalleCursoHTML((window.__zooMatCursos || {})[course.id]) : ''
       });
       box.appendChild(listEl);
-      modal.classList.add('is-open');
+      mostrarVentanaClase();
+      box.focus({ preventScroll: true });
     }
 
     // Un solo juego de eventos para la lista de clases y los botones del detalle
@@ -945,13 +1059,17 @@
       ov.addEventListener('click', (ev) => {
         const fila = ev.target.closest('.zc-fila');
         if (fila) { zcClickClase(parseInt(fila.dataset.i, 10), fila.dataset.accion); return; }
+        const mat = ev.target.closest('.mt-fila[data-fila]');
+        if (mat) { zcAbrirMaterial(mat.getAttribute('data-fila')); return; }
         const b = ev.target.closest('[data-zc]');
         if (b) zcAccion(b.dataset.zc);
       });
       ov.addEventListener('keydown', (ev) => {
         if (ev.key !== 'Enter' && ev.key !== ' ') return;
         const fila = ev.target.closest && ev.target.closest('.zc-fila');
-        if (fila && ev.target === fila) { ev.preventDefault(); zcClickClase(parseInt(fila.dataset.i, 10), fila.dataset.accion); }
+        if (fila && ev.target === fila) { ev.preventDefault(); zcClickClase(parseInt(fila.dataset.i, 10), fila.dataset.accion); return; }
+        const mat = ev.target.closest && ev.target.closest('.mt-fila[data-fila]');
+        if (mat && ev.target === mat) { ev.preventDefault(); zcAbrirMaterial(mat.getAttribute('data-fila')); }
       });
     })();
 
@@ -1095,59 +1213,65 @@
     }
     window.openLessonByIndex = openLessonByIndex;
 
-    async function openPlayer(lessonOrId, title, desc, courseId, lessonIdx) {
-      const lesson = typeof lessonOrId === 'object' && lessonOrId !== null
-        ? lessonOrId
-        : { driveId: lessonOrId };
+    // ═══════════════ VENTANA DE LA CLASE (reproductor) ═══════════════
+    // Estructura del visor de Alintec con la identidad de Zoorigen: encabezado (título, insignia "Ya vista", abrir en pestaña
+    // nueva solo para Drive y cerrar), video 16:9 y, abajo, "Marcar como vista", que pasa a "Ya vista" y ofrece "Siguiente clase".
+    // La lógica no cambia: el servidor firma el video (Bunny), revisa el orden, las preguntas y el juego, y registra el avance.
+    const PB_SVG = (trazos, extra) => '<svg class="zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (extra || 2.4) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + trazos + '</svg>';
+    const PB_ICO = {
+      check: PB_SVG('<path d="M20 6 9 17l-5-5"/>', 2.6),
+      siguiente: PB_SVG('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>'),
+      lista: PB_SVG('<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>', 2),
+      play: PB_SVG('<polygon points="6 3 20 12 6 21 6 3"/>', 2),
+      espera: '<svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg>',
+      aviso: '<svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg>'
+    };
+    // Estado de la clase abierta: { courseId, lessonIdx, lesson, desc, title, videoDetenido }
+    let pbEstado = null;
+    let pbToken = 0;          // invalida cargas de video que terminan cuando ya se cerró o se cambió de clase
+    let pbFocoPrevio = null;  // quién tenía el foco antes de abrir la ventana (se le devuelve al cerrar)
 
-      // Una sola clase es gratuita en toda la plataforma. Todas las demás
-      // muestran el paywall por encima del detalle antes de cargar el video.
-      if (!tieneMembresiaActiva() && !esClaseGratis(lesson, window.__currentCourse, lessonIdx)) {
-        mostrarPaywallCurso();
-        return;
-      }
+    // ¿La clase ya cuenta como vista? Misma regla que guardarClaseVista: la última solo si el curso ya se completó.
+    function claseVista(courseId, idx) {
+      const previa = (window.__zooCourseProgress || {})[courseId];
+      const total = (window.__currentLecciones || []).length;
+      const esUltima = total > 0 && idx === total - 1;
+      return !!(previa && previa.completedLessons.includes(idx) && (previa.isCompleted === true || !esUltima));
+    }
+
+    // Muestra la ventana (reproductor o detalle del curso) y guarda quién tenía el foco.
+    function mostrarVentanaClase() {
       const modal = document.getElementById('playerOverlay');
-      const box = modal.querySelector('.player-box');
-
-      const oldList = box.querySelector('.classes-list-box');
-      if (oldList) oldList.remove();
-
-      box.querySelector('.player-box__video').style.display = '';
-      box.querySelector('.player-box__info').style.display = '';
-
-      document.getElementById('playerTitle').textContent = title;
-
-      // Info del player con detalle + botón volver a lista
-      const descDiv = document.getElementById('playerDesc');
-      descDiv.innerHTML = '';
-
-      const infoContent = document.createElement('div');
-      infoContent.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;';
-      const hayLista = courseId !== undefined && window.__currentLecciones?.length > 1;
-      const esUltimaClase = lessonIdx !== undefined && lessonIdx === (window.__currentLecciones?.length || 0) - 1;
-      const puedeCompletar = courseId !== undefined && lessonIdx !== undefined;
-      infoContent.innerHTML = `
-        <span style="color:var(--zoo-text-muted);font-size:.88rem;">
-          ${desc ? '' + desc : ''}
-          ${courseId !== undefined && lessonIdx !== undefined ? `${desc ? ' · ' : ''}Clase ${lessonIdx + 1} de ${window.__currentLecciones?.length || 1}` : ''}
-        </span>
-        ${hayLista || puedeCompletar ? `
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${hayLista ? `<button onclick="renderCourseModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;font-size:.8rem;">
-              ← Lista de clases
-            </button>` : ''}
-            ${puedeCompletar ? `<button id="zooBtnCompletarClase" onclick="marcarYSiguiente('${courseId}', ${lessonIdx})" style="background:var(--zoo-solid-mid, #2A7A4E);border:0;color:#fff;padding:7px 14px;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:.8rem;">
-              ${esUltimaClase ? 'Terminar curso' : 'Completada, siguiente →'}
-            </button>` : ''}
-          </div>
-        ` : ''}
-      `;
-      descDiv.appendChild(infoContent);
-
-      const playerVideo = document.getElementById('playerVideo');
-      playerVideo.innerHTML = '<div style="display:grid;place-items:center;min-height:420px;color:#fff;font-weight:700;"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Preparando reproducción segura…</div>';
+      if (!modal.classList.contains('is-open')) {
+        pbFocoPrevio = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+      }
       modal.classList.add('is-open');
+      document.documentElement.classList.add('pb-sin-scroll');
+    }
 
+    function mensajeEnVideo(clase, icono, titulo, texto, botonHTML) {
+      const cont = document.getElementById('playerVideo');
+      cont.innerHTML = '<div class="pb-vacio ' + clase + '" role="status"><div class="pb-vacio__in">' + icono +
+        '<strong>' + escHtml(titulo) + '</strong>' + (texto ? '<p>' + escHtml(texto) + '</p>' : '') + (botonHTML || '') + '</div></div>';
+    }
+
+    // Pone el video en la ventana. Un token evita que una carga lenta pise a otra clase o a una ventana ya cerrada.
+    async function cargarVideo(lesson, titulo) {
+      const token = ++pbToken;
+      const contenedor = document.getElementById('playerVideo');
+      const abrir = document.getElementById('playerAbrir');
+      abrir.hidden = true;
+      if (pbEstado) pbEstado.videoDetenido = false;
+      mensajeEnVideo('pb-vacio--espera', PB_ICO.espera, 'Preparando reproducción segura…');
+      const poner = (url) => {
+        const f = document.createElement('iframe');
+        f.src = url;
+        f.title = 'Video de la clase' + (titulo ? ': ' + titulo : '');
+        f.allow = 'accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;';
+        f.allowFullscreen = true;
+        contenedor.innerHTML = '';
+        contenedor.appendChild(f);
+      };
       try {
         if (lesson.videoId) {
           const currentUser = firebase.auth().currentUser;
@@ -1166,21 +1290,123 @@
           if (!response.ok || !payload.embedUrl) {
             throw new Error(payload.error || `No se pudo abrir la clase (HTTP ${response.status})`);
           }
-          playerVideo.innerHTML = `<iframe src="${payload.embedUrl}" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe>`;
+          if (token !== pbToken) return;
+          poner(payload.embedUrl);
         } else if (lesson.driveId) {
           // Compatibilidad temporal para cursos que todavía no se hayan sincronizado.
-          playerVideo.innerHTML = `<iframe src="https://drive.google.com/file/d/${lesson.driveId}/preview" allow="autoplay" allowfullscreen></iframe><div class="drive-popout-blocker"></div>`;
+          const id = encodeURIComponent(String(lesson.driveId));
+          if (token !== pbToken) return;
+          poner('https://drive.google.com/file/d/' + id + '/preview');
+          contenedor.insertAdjacentHTML('beforeend', '<div class="drive-popout-blocker"></div>');
+          abrir.href = 'https://drive.google.com/file/d/' + id + '/view';
+          abrir.hidden = false;
         } else {
           throw new Error('Esta clase todavía no tiene un video vinculado.');
         }
       } catch (error) {
+        if (token !== pbToken) return;
         console.error('[Bunny player]', error);
-        playerVideo.innerHTML = `<div style="display:grid;place-items:center;min-height:420px;padding:28px;text-align:center;color:#fff;"><div><div style="font-size:2rem;margin-bottom:12px;"><svg class="zi" aria-hidden="true"><use href="#zi-triangle-alert"/></svg></div><strong>No se pudo reproducir la clase</strong><p style="color:var(--zoo-text-muted);margin-top:8px;">${String(error.message || error)}</p></div></div>`;
+        mensajeEnVideo('pb-vacio--error', PB_ICO.aviso, 'No se pudo reproducir la clase', String(error.message || error),
+          '<button type="button" class="pb-btn pb-btn--ghost" onclick="reintentarVideo()">Reintentar</button>');
       }
+    }
+    function reintentarVideo() { if (pbEstado) cargarVideo(pbEstado.lesson, pbEstado.title); }
+
+    // Quita el video (y su sonido) mientras se contestan las actividades de la clase.
+    function detenerVideo(titulo, texto) {
+      pbToken++;
+      if (pbEstado) pbEstado.videoDetenido = true;
+      document.getElementById('playerAbrir').hidden = true;
+      mensajeEnVideo('pb-vacio--espera', PB_ICO.check, titulo, texto);
+    }
+    function videoDeNuevo() { if (pbEstado) cargarVideo(pbEstado.lesson, pbEstado.title); }
+
+    // Dibuja el pie de la ventana y la insignia del encabezado según el estado de la clase (pendiente o ya vista).
+    function pintarReproductor(opc) {
+      const e = pbEstado;
+      const desc = document.getElementById('playerDesc');
+      const insignia = document.getElementById('playerEstado');
+      if (!e) { insignia.hidden = true; return; }
+      const lecciones = window.__currentLecciones || [];
+      const total = lecciones.length;
+      const curso = window.__currentCourse || {};
+      const conCurso = e.courseId !== undefined && e.lessonIdx !== undefined;
+      const vista = conCurso && claseVista(e.courseId, e.lessonIdx);
+      const esUltima = conCurso && e.lessonIdx === total - 1;
+      const progreso = conCurso ? ((window.__zooCourseProgress || {})[e.courseId] || {}) : {};
+      insignia.hidden = !vista;
+
+      const textos = [e.desc, curso.title].filter(Boolean).map(escHtml).join(' · ');
+      const puntos = conCurso && total > 1
+        ? '<div class="pb-puntos" aria-hidden="true">' + lecciones.map((_, i) =>
+          '<i class="pb-punto' + (claseVista(e.courseId, i) ? ' is-hecha' : '') + (i === e.lessonIdx ? ' is-actual' : '') + '"></i>').join('') + '</div>' : '';
+      const info = '<div class="pb-info">' + (conCurso ? '<strong>Clase ' + (e.lessonIdx + 1) + ' de ' + total + '</strong>' : '') +
+        (textos ? '<span>' + textos + '</span>' : '') + puntos + '</div>';
+
+      let acc = '';
+      if (conCurso && total > 1) acc += '<button type="button" class="pb-btn pb-btn--ghost" id="zooBtnLista" onclick="renderCourseModal()">' + PB_ICO.lista + 'Lista de clases</button>';
+      let nota = '';
+      if (conCurso) {
+        if (vista) {
+          acc += '<span class="pb-btn pb-btn--hecho" id="zooBtnVista" role="status">' + PB_ICO.check + 'Ya vista</span>';
+          if (!esUltima) acc += '<button type="button" class="pb-btn pb-btn--main" id="zooBtnSiguiente" onclick="siguienteClase()">Siguiente clase' + PB_ICO.siguiente + '</button>';
+          else if (progreso.certificateFolio) acc += '<button type="button" class="pb-btn pb-btn--main" id="zooBtnSiguiente" onclick="verCertificado(\'' + escHtml(String(e.courseId)) + '\')">Ver certificado</button>';
+        } else {
+          acc += '<button type="button" class="pb-btn pb-btn--main" id="zooBtnCompletarClase" onclick="marcarYSiguiente(\'' + escHtml(String(e.courseId)) + '\', ' + e.lessonIdx + ')">' + PB_ICO.check + 'Marcar como vista</button>';
+          if (esUltima) nota = 'Es la última clase: al marcarla se termina el curso y se genera tu certificado.';
+        }
+      }
+      desc.innerHTML = '<div class="pb-pie">' + info + (acc ? '<div class="pb-acc">' + acc + '</div>' : '') +
+        '<p class="pb-nota" id="pbNota" aria-live="polite">' + escHtml(nota) + '</p></div>';
+      if (opc && opc.enfocar) {
+        const b = document.getElementById('zooBtnSiguiente') || document.getElementById('zooBtnLista');
+        if (b) b.focus({ preventScroll: true });
+      }
+    }
+
+    // "Siguiente clase": abre la que sigue (si era la última, vuelve a la lista del curso).
+    function siguienteClase() {
+      if (!pbEstado) return;
+      const lecciones = window.__currentLecciones || [];
+      const n = pbEstado.lessonIdx + 1;
+      if (n < lecciones.length) {
+        const l = lecciones[n];
+        openPlayer(l, l.titulo || 'Clase ' + (n + 1), l.duration || '', pbEstado.courseId, n);
+      } else renderCourseModal();
+    }
+
+    async function openPlayer(lessonOrId, title, desc, courseId, lessonIdx) {
+      const lesson = typeof lessonOrId === 'object' && lessonOrId !== null
+        ? lessonOrId
+        : { driveId: lessonOrId };
+
+      // Una sola clase es gratuita en toda la plataforma. Todas las demás
+      // muestran el paywall por encima del detalle antes de cargar el video.
+      if (!tieneMembresiaActiva() && !esClaseGratis(lesson, window.__currentCourse, lessonIdx)) {
+        mostrarPaywallCurso();
+        return;
+      }
+      const modal = document.getElementById('playerOverlay');
+      const box = modal.querySelector('.player-box');
+
+      const oldList = box.querySelector('.classes-list-box');
+      if (oldList) oldList.remove();
+
+      box.classList.add('is-player');
+      box.querySelector('.player-box__video').style.display = '';
+      box.querySelector('.player-box__info').style.display = '';
+
+      document.getElementById('playerTitle').textContent = title;
+      pbEstado = { courseId, lessonIdx, lesson, desc, title, videoDetenido: false };
+      mostrarVentanaClase();
+      pintarReproductor();
+      box.focus({ preventScroll: true });
+      cargarVideo(lesson, title);
 
       clearTimeout(window.__autoCompleteTimer);
       // Una clase sin preguntas ni juego se registra sola a los 30 s, pero la ÚLTIMA nunca: terminar el curso (y
-      // recibir el certificado) es siempre una acción explícita con el botón "Terminar curso".
+      // recibir el certificado) es siempre una acción explícita con el botón "Marcar como vista".
+      // El registro automático es discreto: no cambia la pantalla; el botón pasa a "Ya vista" cuando la persona lo pulsa.
       const totalClases = window.__currentLecciones?.length || 0;
       if (courseId !== undefined && lessonIdx !== undefined && !leccionTieneActividad(lesson) && lessonIdx < totalClases - 1) {
         window.__autoCompleteTimer = setTimeout(() => {
@@ -1194,21 +1420,37 @@
       return cantidadPreguntas(lesson) > 0 || !!nombreJuegoDeClase(lesson);
     }
 
+    // Tras marcar una clase, el servidor puede haber abierto materiales ligados a ella: se vuelve a pedir la lista y se avisa.
+    async function avisarMaterialesDesbloqueados(courseId, lessonIdx) {
+      const ligados = () => ((window.__zooMatCursos || {})[courseId] || []).filter(m => m.clase === lessonIdx + 1);
+      if (!ligados().some(m => !m.desbloqueado)) return;
+      await cargarMaterialesCursos();
+      const nuevos = ligados().filter(m => m.desbloqueado).length;
+      if (!nuevos) return;
+      const abierta = document.getElementById('playerOverlay').classList.contains('is-open');
+      if (pbEstado && pbEstado.lessonIdx === lessonIdx && String(pbEstado.courseId) === String(courseId)) {
+        const nota = document.getElementById('pbNota');
+        if (nota) nota.textContent = nuevos === 1 ? 'Se desbloqueó 1 material de esta clase. Lo encuentras en la lista de clases del curso.' : 'Se desbloquearon ' + nuevos + ' materiales de esta clase. Los encuentras en la lista de clases del curso.';
+      } else if (!pbEstado && abierta) renderCourseModal();
+    }
+
     async function marcarYSiguiente(courseId, lessonIdx) {
       const lecciones = window.__currentLecciones;
-      const nextIdx = lessonIdx + 1;
       const clave = courseId + ':' + lessonIdx;
       const boton = document.getElementById('zooBtnCompletarClase');
+      // ¿La ventana abierta es justo la de esta clase? (el botón "Terminar curso" del detalle llega aquí sin reproductor)
+      const enReproductor = () => !!pbEstado && String(pbEstado.courseId) === String(courseId) && pbEstado.lessonIdx === lessonIdx &&
+        document.getElementById('playerOverlay').classList.contains('is-open');
 
+      // La clase queda "Ya vista" y se ofrece "Siguiente clase": la persona decide cuándo pasar a la que sigue.
       const continuar = () => {
-        if (nextIdx < lecciones.length) {
-          // Abrir siguiente clase
-          const l = lecciones[nextIdx];
-          openPlayer(l, l.titulo || 'Clase ' + (nextIdx + 1), l.duration || '', courseId, nextIdx);
-        } else {
-          // Era la última: volver a la lista del curso
-          renderCourseModal();
+        avisarMaterialesDesbloqueados(courseId, lessonIdx);
+        if (!enReproductor()) { renderCourseModal(); return; }
+        if (pbEstado.videoDetenido) {
+          mensajeEnVideo('pb-vacio--ok', PB_ICO.check, 'Clase vista', lessonIdx === lecciones.length - 1 ? '' : 'Ya puedes pasar a la siguiente clase.',
+            '<button type="button" class="pb-btn pb-btn--ghost" onclick="videoDeNuevo()">' + PB_ICO.play + 'Ver la clase de nuevo</button>');
         }
+        pintarReproductor({ enfocar: true });
       };
 
       // La clase se registra en el servidor (que revisa el orden y las preguntas). Si falla, el error ya se
@@ -1218,8 +1460,10 @@
         let r = null;
         try { r = await guardarClaseVista(courseId, lessonIdx); }
         finally {
-          const b = document.getElementById('zooBtnCompletarClase');
-          if (b && !r) { b.disabled = false; b.textContent = lessonIdx === lecciones.length - 1 ? 'Terminar curso' : 'Completada, siguiente →'; }
+          if (!r && enReproductor()) {
+            pintarReproductor();
+            if (pbEstado.videoDetenido) cargarVideo(pbEstado.lesson, pbEstado.title);
+          }
         }
         if (!r) return;
         if (r.nuevoCompletado) { await celebrarCursoCompletado(courseId, r); return; }
@@ -1234,7 +1478,9 @@
       if (yaVista || quizzesValidados.has(clave)) { await registrar(); return; }
 
       // Como en alintecfood: si la clase trae preguntas o juego, hay que completarlos (no se pueden cerrar)
-      // y SOLO entonces la clase se manda al servidor y se avanza. Sin actividad, se manda de inmediato.
+      // y SOLO entonces la clase se manda al servidor. Sin actividad, se manda de inmediato.
+      // Mientras se contestan, el video se quita para que no siga sonando debajo.
+      if (leccionTieneActividad(lecciones[lessonIdx]) && enReproductor()) detenerVideo('Clase terminada', 'Responde para completarla.');
       abrirActividadesDeClase(lessonIdx, async () => {
         await registrar();
       }, { obligatorio: true });
@@ -1295,9 +1541,22 @@
       });
     }
 
+    // Deja la ventana lista para mostrar el detalle del curso (sin reproductor): quita el modo oscuro, la insignia y el video.
+    function salirDelReproductor() {
+      pbToken++;
+      pbEstado = null;
+      clearTimeout(window.__autoCompleteTimer);
+      const box = document.querySelector('#playerOverlay .player-box');
+      if (box) box.classList.remove('is-player');
+      document.getElementById('playerEstado').hidden = true;
+      document.getElementById('playerAbrir').hidden = true;
+    }
+
     function closePlayer() {
       const modal = document.getElementById('playerOverlay');
       modal.classList.remove('is-open');
+      document.documentElement.classList.remove('pb-sin-scroll');
+      salirDelReproductor();
       document.getElementById('playerVideo').innerHTML = '';
       // Limpiar lista de clases si existe
       const oldList = modal.querySelector('.classes-list-box');
@@ -1305,15 +1564,33 @@
       // Restaurar display del video y info para la próxima
       modal.querySelector('.player-box__video').style.display = '';
       modal.querySelector('.player-box__info').style.display = '';
-      const box = modal.querySelector('.player-box');
-      if (box) box.classList.remove('is-cinema');
-    }
-    function togglePlayerCine() {
-      const box = document.querySelector('#playerOverlay .player-box');
-      if (box) box.classList.toggle('is-cinema');
+      // El foco vuelve a quien abrió la ventana
+      const previo = pbFocoPrevio;
+      pbFocoPrevio = null;
+      if (previo && previo.isConnected && typeof previo.focus === 'function') { try { previo.focus({ preventScroll: true }); } catch (e) { /* nada */ } }
     }
     document.getElementById('playerOverlay').addEventListener('click', (e) => {
       if (e.target.id === 'playerOverlay') closePlayer();
+    });
+    // Teclado: Esc cierra (salvo que haya encima otra ventana: preguntas, juego, aviso o planes) y Tab no se escapa de la ventana.
+    document.addEventListener('keydown', (ev) => {
+      const ov = document.getElementById('playerOverlay');
+      if (!ov.classList.contains('is-open')) return;
+      const otra = Array.from(document.querySelectorAll('.mt-visor, .jg-overlay, .zc-ov, .pw-modal__fondo, .zoo-welcome-box, #zoo-welcome-modal, #zoo-levelup-modal, #zoo-rewards-modal'))
+        .some(n => n.isConnected);
+      if (otra) return;
+      if (ev.key === 'Escape') { ev.preventDefault(); closePlayer(); return; }
+      if (ev.key !== 'Tab') return;
+      const foco = Array.from(ov.querySelectorAll('button:not([disabled]), a[href], iframe, [tabindex]:not([tabindex="-1"])'))
+        .filter(n => !n.hidden && n.getClientRects().length);
+      if (!foco.length) { ev.preventDefault(); return; }
+      const primero = foco[0], ultimo = foco[foco.length - 1];
+      if (!ov.contains(document.activeElement) || document.activeElement === ov.querySelector('.player-box')) {
+        if (ev.shiftKey) { ev.preventDefault(); ultimo.focus(); } else if (!ov.contains(document.activeElement)) { ev.preventDefault(); primero.focus(); }
+        return;
+      }
+      if (ev.shiftKey && document.activeElement === primero) { ev.preventDefault(); ultimo.focus(); }
+      else if (!ev.shiftKey && document.activeElement === ultimo) { ev.preventDefault(); primero.focus(); }
     });
   </script>
 <script>

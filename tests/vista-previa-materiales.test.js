@@ -53,7 +53,8 @@ test('tarjeta de material en vista previa: portada, tipo, área, chip y guardar'
   assert.match(html, /data-guardar="doc:intro-nom-059"/);
   assert.match(html, /data-doc="intro-nom-059"/);
   const conRetos = M.materialCardHTML(material('x', { soloMiembros: false, acceso: 'retos', requiereRetos: 5, faltan: 2 }), {});
-  assert.match(conRetos, /Supera 2 retos más/);
+  assert.match(conRetos, /Resuelve 5 retos para abrirlo/, 'la condición se dice completa: cuántos retos hay que resolver');
+  assert.match(conRetos, /mt-prog--bloq[^>]*aria-label="3 de 5 retos"/, 'con su avance');
   assert.doesNotMatch(conRetos, /pw-chip/);
 });
 
@@ -145,19 +146,29 @@ test('club-materiales.js: abrir libro o material revisa la vista previa ANTES de
   const libroCuerpo = src.slice(libroIni, src.indexOf('function cerrarLector', libroIni));
   assert.ok(libroCuerpo.indexOf('esVistaPrevia(meta)') > -1);
   assert.ok(libroCuerpo.indexOf('esVistaPrevia(meta)') < libroCuerpo.indexOf("apiFetch('/api/libros/'"), 'primero el aviso, después (solo miembros) la API');
-  const docIni = src.indexOf('function abrirDoc(id)');
-  const docCuerpo = src.slice(docIni, src.indexOf('document.addEventListener(\'keydown\'', docIni));
-  assert.ok(docCuerpo.indexOf('esVistaPrevia(m)') > -1);
-  assert.ok(docCuerpo.indexOf('esVistaPrevia(m)') < docCuerpo.indexOf('apiBlob('), 'primero el aviso, después la descarga');
+  for (const firma of ['function abrirDoc(id)', 'function abrirFila(fuente, id)']) {
+    const docIni = src.indexOf(firma);
+    assert.ok(docIni > 0, firma);
+    const docCuerpo = src.slice(docIni, src.indexOf('\n    }\n', docIni));
+    assert.ok(docCuerpo.indexOf('esVistaPrevia(m)') > -1, firma);
+    assert.ok(docCuerpo.indexOf('esVistaPrevia(m)') < docCuerpo.indexOf('abrirVisorMaterial('), 'primero el aviso, después la descarga: ' + firma);
+  }
+  // el visor es lo único que llama al contenido (archivo o enlace), y solo se llega a él tras la revisión de arriba
+  const visor = src.slice(src.indexOf('function abrirVisorMaterial'), src.indexOf('function montar(o)'));
+  assert.match(visor, /apiBlob\('\/api\/materiales\/' \+ encodeURIComponent\(m\.id\) \+ '\/archivo'\)/);
+  assert.match(visor, /apiFetch\('\/api\/materiales\/drive\/' \+ encodeURIComponent\(m\.id\) \+ '\/enlace'\)/);
   assert.match(src, /modalPaywall/);
   assert.match(src, /requiereMembresia/);
   // guardar pide membresía en la vista previa
   assert.match(src, /if \(estado\.previa\) \{ pedirMembresiaFuncion\(/);
 });
 
-test('club-materiales.js: los materiales sueltos de Drive no se muestran a quien no es miembro', () => {
+test('club-materiales.js: los PDF de Drive vienen del servidor SIN enlace (ya no se leen de Firestore) y al no ser miembro se ven con el candado', () => {
   const src = leer('assets/js/club-materiales.js');
-  assert.match(src, /estado\.drive = previa \? \[\] : d;/);
+  assert.match(src, /club\.apiFetch\('\/api\/materiales\/drive'\)/);
+  assert.doesNotMatch(src, /getPdfs/, 'el sitio ya no lee la colección pdfs: el enlace de Drive lo da el servidor');
+  assert.doesNotMatch(src, /drive\.google\.com\/file\/d\/' \+/, 'el enlace de Drive nunca se arma en el navegador');
+  assert.match(src, /var DRIVE_URL = /, 'solo se acepta una dirección de Drive con la forma esperada');
 });
 
 test('club-materiales.js se sigue cargando en Node sin document y devuelve su API', () => {

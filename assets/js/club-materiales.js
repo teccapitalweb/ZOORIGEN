@@ -65,7 +65,7 @@
     presentacion: { nombre: 'Presentación', color: '#D4A017' }
   };
 
-  var PESTANAS = [['todo', 'Todo'], ['guardados', 'Guardados'], ['libros', 'Libros'], ['guias', 'Guías y plantillas'], ['presentaciones', 'Presentaciones'], ['oficiales', 'Documentos oficiales'], ['mas', 'Más materiales']];
+  var PESTANAS = [['todo', 'Todo'], ['guardados', 'Guardados'], ['libros', 'Libros'], ['guias', 'Guías y plantillas'], ['presentaciones', 'Presentaciones'], ['cursos', 'De tus cursos'], ['oficiales', 'Documentos oficiales'], ['mas', 'Más materiales']];
 
   /* ───── funciones puras ───── */
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -333,7 +333,10 @@
     var t = TIPOS[m.tipo] || { nombre: 'Material', color: '#2F7A4F' };
     var abierto = !!m.desbloqueado;
     var previa = !abierto && esVistaPrevia(m);
-    var etiq = abierto ? '' : (previa ? '<div class="mt-previa">' + chipMiembrosHTML('Solo miembros') + '</div>' : '<span class="mt-doc__lock">' + CANDADO + esc(textoBloqueo(m)) + '</span>');
+    var req = entero(m.requiereRetos, 0), hechos = Math.max(0, req - entero(m.faltan, req));
+    var bloqueo = req > 0 ? condicionTexto(m) : textoBloqueo(m);
+    var etiq = abierto ? '' : (previa ? '<div class="mt-previa">' + chipMiembrosHTML('Solo miembros') + '</div>' : '<span class="mt-doc__lock">' + CANDADO + esc(bloqueo) + '</span>' +
+      (req > 0 ? '<div class="mt-prog mt-prog--bloq" role="img" aria-label="' + hechos + ' de ' + req + ' retos"><i style="width:' + Math.min(100, Math.round(hechos * 100 / req)) + '%"></i></div>' : ''));
     var pags = m.paginas ? entero(m.paginas, 0) + (entero(m.paginas, 0) === 1 ? ' página' : ' páginas') : '';
     return '<article class="mt-doc' + (abierto ? '' : (previa ? ' is-previa' : ' is-bloq')) + '" data-doc="' + esc(m.id) + '" tabindex="0" role="button" aria-label="' + esc(m.titulo) + (abierto ? '' : (previa ? ' (solo miembros)' : ' (bloqueado)')) + '">' +
       '<div class="mt-doc__portada" style="--mt-c:' + esc(t.color) + '"><img class="mt-doc__foto" src="' + esc(fotoDeMaterial(m)) + '" alt="" width="300" height="411" loading="lazy" decoding="async">' +
@@ -344,20 +347,107 @@
       '<div class="mt-doc__area">' + FOLDER + esc(m.area || '') + '</div>' + etiq + '</article>';
   }
 
+  /* ───── materiales de curso, por retos y para miembros: la condición, clara, y la fila con candado y avance ─────
+     El servidor manda en cada material: desbloqueado, soloMiembros, faltan, requiereRetos y, si va ligado a un curso,
+     condicion ('clase' | 'curso'), cursoId, clase (1 = primera) y cursoTitulo. Aquí solo se redacta; quien decide es el servidor. */
+  function reglaTexto(item) {
+    if (!item) return '';
+    var c = item.condicion || '';
+    var clase = entero(item.clase, 0);
+    if (c === 'clase' || (item.cursoId && clase > 0)) {
+      return 'Se desbloquea al terminar la clase ' + (clase || 1) + (item.cursoTitulo ? ' de «' + item.cursoTitulo + '»' : ' del curso');
+    }
+    var req = entero(item.requiereRetos, 0);
+    if (req > 0) return 'Resuelve ' + (req === 1 ? '1 reto' : req + ' retos') + ' para abrirlo';
+    if (item.cursoId) return 'Material del curso' + (item.cursoTitulo ? ' «' + item.cursoTitulo + '»' : '');
+    return 'Disponible con tu membresía';
+  }
+  function condicionTexto(item) {
+    if (!item || item.desbloqueado) return '';
+    if (item.soloMiembros) return 'Solo para miembros';
+    if (item.pendiente) return 'Disponible muy pronto';
+    return reglaTexto(item);
+  }
+  /* Lo que se lee en un material ya abierto */
+  function textoAbierto(item) {
+    if (!item) return '';
+    var c = item.condicion || '', clase = entero(item.clase, 0);
+    if (c === 'clase' || (item.cursoId && clase > 0)) return 'Desbloqueado: terminaste la clase ' + (clase || 1);
+    if (item.cursoId) return 'Material del curso';
+    if (entero(item.requiereRetos, 0) > 0) return 'Desbloqueado con tus retos';
+    return 'Disponible con tu membresía';
+  }
+
+  var ICO_ARCHIVO = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>';
+  var ICO_OK = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  /* Fila de un material (de curso o suelto): título, condición con candado y, si pide retos, su avance. */
+  function filaMaterialHTML(m, ctx) {
+    ctx = ctx || {};
+    var fuente = m && m.fuente === 'drive' ? 'drive' : 'catalogo';
+    var abierto = !!m.desbloqueado, previa = !abierto && esVistaPrevia(m);
+    var texto = abierto ? textoAbierto(m) : (previa ? reglaTexto(m) : condicionTexto(m));
+    var meta = [m.area, entero(m.paginas, 0) ? entero(m.paginas, 0) + (entero(m.paginas, 0) === 1 ? ' página' : ' páginas') : ''].filter(Boolean).map(esc).join(' · ');
+    var req = entero(m.requiereRetos, 0), progreso = '';
+    if (!abierto && !previa && !m.pendiente && !m.cursoId && req > 0) {
+      var hechos = Math.max(0, req - entero(m.faltan, req));
+      progreso = '<div class="mt-prog mt-prog--bloq mt-fila__prog" role="img" aria-label="' + hechos + ' de ' + req + ' retos"><i style="width:' + Math.min(100, Math.round(hechos * 100 / req)) + '%"></i></div>' +
+        '<span class="mt-fila__cuenta">' + hechos + ' de ' + req + ' retos</span>';
+    }
+    return '<article class="mt-fila' + (abierto ? ' is-abierto' : (previa ? ' is-previa' : ' is-bloq')) + '" data-fila="' + fuente + ':' + esc(m.id) + '" tabindex="0" role="button" aria-label="' +
+      esc(m.titulo) + (abierto ? '' : (previa ? ' (solo miembros)' : ' (bloqueado)')) + '">' +
+      '<span class="mt-fila__ico">' + ICO_ARCHIVO + '</span>' +
+      '<div class="mt-fila__cuerpo"><strong>' + esc(m.titulo) + '</strong>' + (meta ? '<small>' + meta + '</small>' : '') +
+        '<span class="mt-fila__cond' + (abierto ? ' is-ok' : '') + '">' + (abierto ? ICO_OK : CANDADO) + '<span>' + esc(texto) + '</span></span>' + progreso + '</div>' +
+      '<span class="mt-fila__acc">' + (abierto ? '<span class="mt-fila__abrir">Abrir</span>' : (previa ? chipMiembrosHTML('Solo miembros') : '')) + '</span></article>';
+  }
+
+  /* Agrupa por curso (en el orden en que aparecen); dentro de cada curso, por clase y luego por título. */
+  function agruparPorCurso(items) {
+    var mapa = Object.create(null), orden = [];
+    (Array.isArray(items) ? items : []).forEach(function (m) {
+      if (!m || typeof m.cursoId !== 'string' || !m.cursoId) return;
+      if (!mapa[m.cursoId]) { mapa[m.cursoId] = { cursoId: m.cursoId, titulo: '', items: [] }; orden.push(m.cursoId); }
+      if (!mapa[m.cursoId].titulo && m.cursoTitulo) mapa[m.cursoId].titulo = m.cursoTitulo;
+      mapa[m.cursoId].items.push(m);
+    });
+    return orden.map(function (k) {
+      var g = mapa[k];
+      g.items.sort(function (a, b) { return ((entero(a.clase, 0) || 999) - (entero(b.clase, 0) || 999)) || String(a.titulo).localeCompare(String(b.titulo), 'es'); });
+      g.abiertos = g.items.filter(function (x) { return x.desbloqueado; }).length;
+      if (!g.titulo) g.titulo = 'Curso';
+      return g;
+    });
+  }
+
+  /* "Materiales de tus cursos": un bloque por curso con sus filas y la liga para ir al curso. */
+  function seccionCursosHTML(grupos, hrefCursos) {
+    var base = esc(hrefCursos || 'club-biblioteca.html');
+    if (!grupos || !grupos.length) return '';
+    return '<p class="mt-nota">Estos materiales se abren al terminar la clase que indica cada uno: en el curso, marca la clase como vista y el material se desbloquea.</p>' +
+      grupos.map(function (g) {
+        return '<div class="mt-curso"><div class="mt-curso__cab"><h3>' + esc(g.titulo) + '</h3><span>' + g.abiertos + ' de ' + g.items.length + ' abiertos</span>' +
+          '<a class="mt-link" href="' + base + '?curso=' + encodeURIComponent(g.cursoId) + '">Ir al curso</a></div>' +
+          '<div class="mt-filas">' + g.items.map(function (m) { return filaMaterialHTML(m, {}); }).join('') + '</div></div>';
+      }).join('');
+  }
+
+  /* Bloque "Material de este curso" del detalle de un curso (club-biblioteca.html): las filas con su estado. */
+  function seccionDetalleCursoHTML(lista) {
+    var items = (Array.isArray(lista) ? lista : []).filter(Boolean);
+    if (!items.length) return '';
+    var abiertos = items.filter(function (x) { return x.desbloqueado; }).length;
+    return '<div class="zc-sec zc-sec--material"><h3>MATERIAL DE ESTE CURSO</h3><span>' + abiertos + '/' + items.length + ' abiertos</span></div>' +
+      '<div class="mt-filas mt-filas--curso">' + items.map(function (m) { return filaMaterialHTML(m, {}); }).join('') + '</div>';
+  }
+
+  /* Los materiales sueltos (sin curso) también se ven como filas; los de curso, en su bloque. */
+  function esDeCurso(m) { return !!(m && typeof m.cursoId === 'string' && m.cursoId); }
+
   function oficialesHTML() {
     return '<div class="mt-oficiales">' + OFICIALES.map(function (o) {
       return '<a class="mt-ofi" href="' + esc(o.url) + '" target="_blank" rel="noopener noreferrer"><span class="mt-ofi__tipo">' + esc(o.tipo) + '</span><strong>' + esc(o.titulo) + '</strong><small>' + esc(o.detalle) + '</small><span class="mt-ofi__ir">Abrir fuente oficial <svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></span></a>';
     }).join('') + '</div><p class="mt-nota">Estos documentos son textos oficiales. Se abren en el sitio de la autoridad que los publica, así siempre ves la versión vigente.</p>';
-  }
-
-  function driveHTML(lista) {
-    return '<div class="mt-oficiales">' + lista.map(function (p) {
-      var id = String(p.driveId || '').replace(/[^A-Za-z0-9_-]/g, '');
-      var url = id ? 'https://drive.google.com/file/d/' + id + '/view' : urlHttps(p.url);
-      return (url ? '<a class="mt-ofi" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' : '<div class="mt-ofi">') +
-        '<span class="mt-ofi__tipo">' + esc(p.category || p.area || 'Material') + '</span><strong>' + esc(p.title || 'Material') + '</strong><small>' + (p.pages ? esc(p.pages) + ' páginas' : 'Material de apoyo') + '</small>' +
-        (url ? '<span class="mt-ofi__ir">Abrir <svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></span></a>' : '<span class="mt-ofi__ir">Sin enlace</span></div>');
-    }).join('') + '</div>';
   }
 
   /* Una página del libro. */
@@ -375,13 +465,66 @@
     filtrarMateriales: filtrarMateriales, filtrarLibros: filtrarLibros,
     leerGuardados: leerGuardados, alternarGuardado: alternarGuardado, leerPagina: leerPagina, guardarPagina: guardarPagina, claveGuardados: claveGuardados, claveLectura: claveLectura,
     vistaPaginas: vistaPaginas, libroCardHTML: libroCardHTML, libroDestacadoHTML: libroDestacadoHTML, bannerRetosHTML: bannerRetosHTML,
-    materialCardHTML: materialCardHTML, oficialesHTML: oficialesHTML, driveHTML: driveHTML, paginaHTML: paginaHTML,
+    materialCardHTML: materialCardHTML, oficialesHTML: oficialesHTML, paginaHTML: paginaHTML,
+    condicionTexto: condicionTexto, reglaTexto: reglaTexto, textoAbierto: textoAbierto, filaMaterialHTML: filaMaterialHTML, agruparPorCurso: agruparPorCurso,
+    seccionCursosHTML: seccionCursosHTML, seccionDetalleCursoHTML: seccionDetalleCursoHTML, esDeCurso: esDeCurso,
     esVistaPrevia: esVistaPrevia, hayVistaPrevia: hayVistaPrevia, respaldoLibros: respaldoLibros, respaldoMateriales: respaldoMateriales,
     resumenCatalogo: resumenCatalogo, textoPaywallRecurso: textoPaywallRecurso, chipMiembrosHTML: chipMiembrosHTML,
     textoAvisoPrevia: textoAvisoPrevia, bannerVistaPreviaHTML: bannerVistaPreviaHTML, RUTA_PLANES: RUTA_PLANES
   };
 
   if (typeof document === 'undefined') return API;
+
+  /* ============================================================ */
+  /* VISOR DE UN MATERIAL (lo usan esta pantalla y el detalle de un curso) */
+  /* ============================================================ */
+  /* El archivo o el enlace los entrega SOLO el servidor, y solo a quien cumple la regla del material:
+       · material del catálogo de archivos → GET /api/materiales/:id/archivo (el PDF; aquí se muestra con una URL de blob)
+       · PDF de Drive del panel → GET /api/materiales/drive/:id/enlace (la dirección de Drive; se muestra su vista previa). */
+  var visorActivo = null;
+  var DRIVE_URL = /^https:\/\/drive\.google\.com\/file\/d\/[A-Za-z0-9_-]{10,200}\/(view|preview)$/;
+  function cerrarVisorMaterial() {
+    if (!visorActivo) return;
+    if (visorActivo.url) URL.revokeObjectURL(visorActivo.url);
+    visorActivo.nodo.remove(); document.body.classList.remove('mt-noscroll'); visorActivo = null;
+  }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarVisorMaterial(); });
+
+  /* club: ZOORIGEN_CLUB (apiFetch / apiBlob) · m: el resumen que mandó el servidor · fuente: 'catalogo' | 'drive' */
+  function abrirVisorMaterial(club, m, fuente) {
+    cerrarVisorMaterial();
+    var esDrive = fuente === 'drive';
+    var nodo = document.createElement('div'); nodo.className = 'mt-visor'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-label', m.titulo);
+    nodo.innerHTML = '<div class="mt-visor__ventana"><div class="mt-visor__cab"><strong>' + esc(m.titulo) + '</strong><div class="mt-visor__acc"><a class="mt-icono" id="mvDescargar" hidden title="Descargar PDF" aria-label="Descargar PDF"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg></a><a class="mt-icono" id="mvAbrir" hidden target="_blank" rel="noopener noreferrer" title="Abrir en otra pestaña" aria-label="Abrir en otra pestaña"><svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></a><button type="button" class="mt-icono" id="mvX" aria-label="Cerrar"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button></div></div>' +
+      '<div class="mt-visor__cuerpo" id="mvCuerpo"><div class="mt-vacio">Preparando el documento…</div></div></div>';
+    document.body.appendChild(nodo); document.body.classList.add('mt-noscroll');
+    visorActivo = { nodo: nodo, url: '' };
+    nodo.querySelector('#mvX').onclick = cerrarVisorMaterial;
+    nodo.addEventListener('click', function (e) { if (e.target === nodo) cerrarVisorMaterial(); });
+    var pedir = esDrive
+      ? Promise.resolve().then(function () { return club.apiFetch('/api/materiales/drive/' + encodeURIComponent(m.id) + '/enlace'); })
+      : Promise.resolve().then(function () { return club.apiBlob('/api/materiales/' + encodeURIComponent(m.id) + '/archivo'); });
+    return pedir.then(function (r) {
+      if (!visorActivo || visorActivo.nodo !== nodo) return;
+      var cuerpo = nodo.querySelector('#mvCuerpo'), ab = nodo.querySelector('#mvAbrir');
+      if (esDrive) {
+        var vista = r && DRIVE_URL.test(String(r.vista || '')) ? r.vista : '', ver = r && DRIVE_URL.test(String(r.url || '')) ? r.url : '';
+        if (!vista) throw new Error('El enlace del material no es válido.');
+        cuerpo.innerHTML = '<iframe title="' + esc(m.titulo) + '" src="' + esc(vista) + '" allow="autoplay"></iframe>';
+        if (ver) { ab.href = ver; ab.hidden = false; }
+        return;
+      }
+      visorActivo.url = URL.createObjectURL(r);
+      var d = nodo.querySelector('#mvDescargar'); d.href = visorActivo.url; d.download = m.id + '.pdf'; d.hidden = false; ab.href = visorActivo.url; ab.hidden = false;
+      var chico = window.innerWidth < 760;
+      cuerpo.innerHTML = chico
+        ? '<div class="mt-vacio"><strong>Tu documento está listo</strong><span>En el celular es mejor abrirlo o descargarlo.</span><a class="mt-btn" href="' + esc(visorActivo.url) + '" target="_blank" rel="noopener">Abrir PDF</a></div>'
+        : '<iframe title="' + esc(m.titulo) + '" src="' + esc(visorActivo.url) + '#navpanes=0"></iframe>';
+    }).catch(function (e) {
+      if (!visorActivo || visorActivo.nodo !== nodo) return;
+      nodo.querySelector('#mvCuerpo').innerHTML = '<div class="mt-vacio"><strong>No se pudo abrir</strong><span>' + esc(e && e.message ? e.message : 'Inténtalo de nuevo.') + '</span></div>';
+    });
+  }
 
   /* ============================================================ */
   /* PANTALLA                                                      */
@@ -412,7 +555,14 @@
     function pintar() {
       var g = guardados(), p = estado.pestana, q = estado.texto;
       var libros = filtrarLibros(estado.libros, { pestana: p, texto: q, guardados: g });
-      var docs = filtrarMateriales(estado.materiales, { pestana: p, texto: q, guardados: g });
+      /* Los materiales ligados a un curso van en su propio bloque ("De tus cursos"); aquí, los sueltos. Los PDF de Drive del panel
+         (estado.drive) vienen del servidor SIN enlace: el enlace se pide al abrir. */
+      var docs = filtrarMateriales(estado.materiales.filter(function (m) { return !esDeCurso(m); }), { pestana: p, texto: q, guardados: g });
+      var nq = normalizar(q);
+      var coincide = function (m) { return !nq || normalizar([m.titulo, m.area, m.cursoTitulo].join(' ')).indexOf(nq) !== -1; };
+      var deCurso = estado.materiales.filter(esDeCurso).concat(estado.drive.filter(esDeCurso));
+      var gruposCurso = agruparPorCurso(deCurso.filter(coincide));
+      var sueltosDrive = estado.drive.filter(function (m) { return !esDeCurso(m); }).filter(coincide);
       var meta = siguienteMeta(estado.libros, estado.superados);
       var verLibros = p === 'todo' || p === 'libros' || p === 'guardados';
       var verDocs = p === 'todo' || p === 'guias' || p === 'presentaciones' || p === 'guardados';
@@ -426,7 +576,7 @@
       var subtitulo = previa
         ? 'Explora los libros, guías y plantillas del Club. Con tu membresía los abres, los descargas y los guardas; los libros se desbloquean con tus retos.'
         : 'Libros que se desbloquean con tus retos, guías y plantillas para descargar, presentaciones y los textos oficiales de la normatividad.';
-      var cifras = resumenCatalogo(estado.libros, estado.materiales, previa, estado.superados);
+      var cifras = resumenCatalogo(estado.libros, estado.materiales.concat(estado.drive), previa, estado.superados);
       var SEC = typeof window !== 'undefined' ? window.ZOO_SECCION : null;
       if (SEC && typeof SEC.html === 'function') {
         html += SEC.html({
@@ -440,7 +590,7 @@
             return '<div><strong>' + esc(k.valor) + '</strong><span>' + esc(k.etiqueta) + '</span></div>'; }).join('') + '</div></section>';
       }
 
-      html += '<div class="mt-barra"><div class="mt-tabs" role="tablist">' + PESTANAS.filter(function (t) { return t[0] !== 'mas' || estado.drive.length; }).map(function (t) {
+      html += '<div class="mt-barra"><div class="mt-tabs" role="tablist">' + PESTANAS.filter(function (t) { return (t[0] !== 'mas' || estado.drive.some(function (m) { return !esDeCurso(m); })) && (t[0] !== 'cursos' || deCurso.length); }).map(function (t) {
         return '<button type="button" role="tab" class="mt-tab' + (p === t[0] ? ' is-active' : '') + '" data-pestana="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
         '<div class="mt-buscar"><input type="search" id="mtBuscar" placeholder="Buscar…" value="' + esc(q) + '" aria-label="Buscar"></div></div>';
 
@@ -472,8 +622,12 @@
           : '<div class="mt-vacio">' + (estado.materiales.length ? 'No hay materiales con ese filtro.' : (estado.cargando ? 'Cargando…' : 'Todavía no hay materiales publicados.')) + '</div>';
         html += '</section>';
       }
+      if ((p === 'todo' || p === 'cursos') && deCurso.length) {
+        html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Materiales de tus cursos</h2></div>' +
+          (gruposCurso.length ? seccionCursosHTML(gruposCurso, o.hrefCursos) : '<div class="mt-vacio">No hay materiales con ese filtro.</div>') + '</section>';
+      }
       if (p === 'todo' || p === 'oficiales') html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Documentos oficiales</h2></div>' + oficialesHTML() + '</section>';
-      if ((p === 'todo' || p === 'mas') && estado.drive.length) html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Más materiales</h2></div>' + driveHTML(estado.drive) + '</section>';
+      if ((p === 'todo' || p === 'mas') && sueltosDrive.length) html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Más materiales</h2></div><div class="mt-filas">' + sueltosDrive.map(function (m) { return filaMaterialHTML(m, {}); }).join('') + '</div></section>';
       cont.innerHTML = html;
     }
 
@@ -607,35 +761,22 @@
     }
 
     /* ───── visor de PDF ───── */
-    var visor = null;
-    function cerrarVisor() { if (!visor) return; if (visor.url) URL.revokeObjectURL(visor.url); visor.nodo.remove(); document.body.classList.remove('mt-noscroll'); visor = null; }
     function abrirDoc(id) {
       var m = estado.materiales.filter(function (x) { return x.id === id; })[0];
       if (!m) return;
       if (esVistaPrevia(m)) { pedirMembresiaRecurso(m, false); return; }
       if (!m.desbloqueado) { toast(mensajeBloqueo(m), true); return; }
-      cerrarVisor();
-      var nodo = document.createElement('div'); nodo.className = 'mt-visor'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-label', m.titulo);
-      nodo.innerHTML = '<div class="mt-visor__ventana"><div class="mt-visor__cab"><strong>' + esc(m.titulo) + '</strong><div class="mt-visor__acc"><a class="mt-icono" id="mvDescargar" hidden title="Descargar PDF" aria-label="Descargar PDF"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg></a><a class="mt-icono" id="mvAbrir" hidden target="_blank" rel="noopener" title="Abrir en otra pestaña" aria-label="Abrir en otra pestaña"><svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></a><button type="button" class="mt-icono" id="mvX" aria-label="Cerrar"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button></div></div>' +
-        '<div class="mt-visor__cuerpo" id="mvCuerpo"><div class="mt-vacio">Preparando el documento…</div></div></div>';
-      document.body.appendChild(nodo); document.body.classList.add('mt-noscroll');
-      visor = { nodo: nodo, url: '' };
-      nodo.querySelector('#mvX').onclick = cerrarVisor;
-      nodo.addEventListener('click', function (e) { if (e.target === nodo) cerrarVisor(); });
-      Promise.resolve().then(function () { return club.apiBlob('/api/materiales/' + encodeURIComponent(id) + '/archivo'); }).then(function (blob) {
-        if (!visor || visor.nodo !== nodo) return;
-        visor.url = URL.createObjectURL(blob);
-        var d = nodo.querySelector('#mvDescargar'); d.href = visor.url; d.download = id + '.pdf'; d.hidden = false; var ab = nodo.querySelector('#mvAbrir'); ab.href = visor.url; ab.hidden = false;
-        var chico = window.innerWidth < 760;
-        nodo.querySelector('#mvCuerpo').innerHTML = chico
-          ? '<div class="mt-vacio"><strong>Tu documento está listo</strong><span>En el celular es mejor abrirlo o descargarlo.</span><a class="mt-btn" href="' + esc(visor.url) + '" target="_blank" rel="noopener">Abrir PDF</a></div>'
-          : '<iframe title="' + esc(m.titulo) + '" src="' + esc(visor.url) + '#navpanes=0"></iframe>';
-      }).catch(function (e) {
-        if (!visor || visor.nodo !== nodo) return;
-        nodo.querySelector('#mvCuerpo').innerHTML = '<div class="mt-vacio"><strong>No se pudo abrir</strong><span>' + esc(e && e.message ? e.message : 'Inténtalo de nuevo.') + '</span></div>';
-      });
+      abrirVisorMaterial(club, m, 'catalogo');
     }
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarVisor(); });
+    /* Una fila (material de curso o suelto de Drive): el servidor decide si abre */
+    function abrirFila(fuente, id) {
+      var lista = fuente === 'drive' ? estado.drive : estado.materiales;
+      var m = lista.filter(function (x) { return x.id === id; })[0];
+      if (!m) return;
+      if (esVistaPrevia(m)) { pedirMembresiaRecurso(m, false); return; }
+      if (!m.desbloqueado) { toast('«' + m.titulo + '»: ' + condicionTexto(m) + '.', true); return; }
+      abrirVisorMaterial(club, m, fuente === 'drive' ? 'drive' : 'catalogo');
+    }
 
     /* ───── eventos de la página ───── */
     cont.addEventListener('click', function (e) {
@@ -654,12 +795,15 @@
       var libro = t.closest && t.closest('[data-libro]');
       if (libro) { abrirLibro(libro.getAttribute('data-libro')); return; }
       var doc = t.closest && t.closest('[data-doc]');
-      if (doc) abrirDoc(doc.getAttribute('data-doc'));
+      if (doc) { abrirDoc(doc.getAttribute('data-doc')); return; }
+      var fila = t.closest && t.closest('[data-fila]');
+      if (fila) { var par = String(fila.getAttribute('data-fila')); abrirFila(par.slice(0, par.indexOf(':')), par.slice(par.indexOf(':') + 1)); }
     });
     cont.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      var libro = e.target.closest && e.target.closest('.mt-libro[data-libro]'), doc = e.target.closest && e.target.closest('.mt-doc[data-doc]');
+      var libro = e.target.closest && e.target.closest('.mt-libro[data-libro]'), doc = e.target.closest && e.target.closest('.mt-doc[data-doc]'), fila = e.target.closest && e.target.closest('.mt-fila[data-fila]');
       if (libro) { e.preventDefault(); abrirLibro(libro.getAttribute('data-libro')); } else if (doc) { e.preventDefault(); abrirDoc(doc.getAttribute('data-doc')); }
+      else if (fila) { e.preventDefault(); var par = String(fila.getAttribute('data-fila')); abrirFila(par.slice(0, par.indexOf(':')), par.slice(par.indexOf(':') + 1)); }
     });
     cont.addEventListener('input', function (e) {
       if (e.target && e.target.id === 'mtBuscar') { estado.texto = e.target.value; var pos = e.target.selectionStart; pintar(); var n = document.getElementById('mtBuscar'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (x) { /* nada */ } } }
@@ -669,10 +813,11 @@
       estado.cargando = true; estado.errorServidor = ''; pintar();
       var libros = Promise.resolve().then(function () { return club.apiFetch('/api/libros'); });
       var mats = Promise.resolve().then(function () { return club.apiFetch('/api/materiales'); });
-      /* Los materiales sueltos de Drive son solo para miembros: se piden en paralelo solo si la sesión parece de miembro
-         y, en cualquier caso, se descartan si el servidor dice que no lo es. */
-      var pideDrive = function () { return Promise.resolve().then(function () { return club.getPdfs(); }).then(function (l) { return Array.isArray(l) ? l : []; }).catch(function () { return []; }); };
-      var driveAntes = creeMiembro() ? pideDrive() : null;
+      /* Los PDF de Drive que carga el administrador (con su curso y clase, si los tienen) también vienen del servidor, SIN enlace:
+         el enlace se pide al abrir y solo se entrega a quien cumple la regla. Si el servidor todavía no los ofrece, se omiten. */
+      var drive = Promise.resolve().then(function () { return club.apiFetch('/api/materiales/drive'); })
+        .then(function (r) { return r && Array.isArray(r.materiales) ? r.materiales.map(function (m) { return Object.assign({}, m, { fuente: 'drive' }); }) : []; })
+        .catch(function () { return []; });
       return Promise.all([libros.then(function (r) { return { ok: true, r: r }; }, function (e) { return { ok: false, e: e }; }),
         mats.then(function (r) { return { ok: true, r: r }; }, function (e) { return { ok: false, e: e }; })]).then(function (res) {
         var a = res[0], b = res[1];
@@ -689,9 +834,8 @@
         estado.previa = previa;
         estado.errorServidor = usoRespaldo ? 'No se pudo actualizar el catálogo; te mostramos una versión resumida.'
           : ((!a.ok || !b.ok) ? ((a.e || b.e) && (a.e || b.e).message || 'No se pudieron cargar los libros y materiales.') : '');
-        var drive = previa ? Promise.resolve([]) : (driveAntes || pideDrive());
         return drive.then(function (d) {
-          estado.drive = previa ? [] : d;
+          estado.drive = d;
           estado.cargando = false; pintar();
         });
       });
@@ -702,5 +846,6 @@
   }
 
   API.montar = montar;
+  API.abrirMaterial = abrirVisorMaterial;
   return API;
 });
