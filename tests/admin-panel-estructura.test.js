@@ -62,7 +62,7 @@ test('las vistas nuevas leen todo por el servidor: nada de Firestore directo ni 
 
 test('los endpoints que usa el panel son los del servidor (inventario)', () => {
   const rutas = new Set([...vistas.matchAll(/'(\/api\/admin\/[a-z0-9/-]+)/g)].map(m => m[1].replace(/\/$/, '')));
-  for (const r of ['/api/admin/resumen', '/api/admin/miembros', '/api/admin/retos', '/api/admin/comunidad', '/api/admin/referidos', '/api/admin/estado']) {
+  for (const r of ['/api/admin/resumen', '/api/admin/miembros', '/api/admin/retos', '/api/admin/comunidad', '/api/admin/referidos', '/api/admin/estado', '/api/admin/progreso-legado']) {
     assert.ok(rutas.has(r), 'falta ' + r);
   }
 });
@@ -70,7 +70,7 @@ test('los endpoints que usa el panel son los del servidor (inventario)', () => {
 /* ───────── estructura ───────── */
 
 test('cada sección del panel tiene botón en la barra lateral con ícono y se dibuja desde renderSection', () => {
-  assert.equal(P.SECCIONES.length, 16);
+  assert.equal(P.SECCIONES.length, 17);
   for (const s of P.SECCIONES) {
     assert.match(html, new RegExp(`data-sec="${s.id}"><svg class="zi"`), 'botón de ' + s.id);
     assert.match(html, new RegExp(`sec === '${s.id}'`), 'renderSection de ' + s.id);

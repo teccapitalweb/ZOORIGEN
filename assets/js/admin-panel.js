@@ -32,6 +32,7 @@
     { id: 'encuesta', grupo: 'Comunidad', titulo: 'Encuesta', icono: 'list-checks', zoo: 'canal', origen: 'club' },
     { id: 'herramientas', grupo: 'Sistema', titulo: 'Herramientas', icono: 'wrench', zoo: 'herramientas', origen: 'pronto' },
     { id: 'configuracion', grupo: 'Sistema', titulo: 'Configuración', icono: 'settings', zoo: 'perfil', origen: 'servidor' },
+    { id: 'avance', grupo: 'Sistema', titulo: 'Avance de miembros', icono: 'graduation-cap', zoo: 'certificados', origen: 'servidor' },
     { id: 'estado', grupo: 'Sistema', titulo: 'Estado del sistema', icono: 'activity', zoo: 'pdfs', origen: 'servidor' }
   ];
 
@@ -180,6 +181,81 @@
     });
   }
 
+  /* ── Avance de miembros: lo que dice el ensayo del servidor (GET /api/admin/progreso-legado) ──
+     El avance del sitio anterior (courseProgress) se importa solo, una vez, cuando la persona entra. Estas ayudas solo
+     traducen el veredicto del servidor a insignias, botones y frases en lenguaje llano. */
+  function estadoAvance(f) {
+    var v = f && f.veredicto;
+    if (v === 'ya-importado') {
+      if (f.clasesFaltantes > 0) return { id: 'faltan', tono: 'aviso', icono: 'triangle-alert', texto: 'Importado, faltan clases', accion: 'reparar' };
+      if (f.clasesPerdidas > 0) return { id: 'importado-con-bajas', tono: 'aviso', icono: 'info', texto: 'Importado; algunas clases ya no existen', accion: null };
+      return { id: 'importado', tono: 'ok', icono: 'circle-check', texto: 'Importado y verificado', accion: null };
+    }
+    if (v === 'completo') return { id: 'completo', tono: 'info', icono: 'download', texto: 'Completo, por importar', accion: 'importar' };
+    if (v === 'parcial') return { id: 'parcial', tono: 'aviso', icono: 'triangle-alert', texto: 'Parcial', accion: 'importar' };
+    if (v === 'no-elegible') return { id: 'no-elegible', tono: 'error', icono: 'lock', texto: 'No elegible', accion: 'forzar' };
+    return { id: 'sin-avance', tono: 'neutro', icono: 'circle-dashed', texto: 'Sin avance anterior', accion: null };
+  }
+
+  function insigniaAvance(f) {
+    var e = estadoAvance(f);
+    return '<span class="ap-badge ap-badge--' + e.tono + '">' + ico(e.icono, { size: 14 }) + '<span>' + esc(e.texto) + '</span></span>';
+  }
+
+  var MOTIVOS_NO_ELEGIBLE = {
+    'sin-corte': 'La importación automática está apagada (falta la fecha de corte en el servidor).',
+    'sin-fecha-cuenta': 'No se pudo leer la fecha en que se creó la cuenta.',
+    'cuenta-posterior': 'La cuenta se creó después de la fecha de corte.'
+  };
+  function textoMotivoNoElegible(m) { return MOTIVOS_NO_ELEGIBLE[m] || 'La cuenta no cumple la regla de fecha.'; }
+
+  var TEXTOS_CURSO_AVANCE = {
+    'ok': 'Todo se conserva',
+    'listo-para-certificado': 'Terminó el curso sin certificado: queda la última clase para que el servidor lo emita',
+    'fuera-de-rango': 'Algunas clases ya no existen en el curso',
+    'curso-eliminado': 'El curso ya no existe',
+    'sin-clases': 'El curso ya no tiene clases',
+    'id-invalido': 'Identificador de curso no válido',
+    'excede-limite': 'Hay más cursos de los que se importan',
+    'datos-invalidos': 'Dato ilegible en el sitio anterior'
+  };
+  function textoEstadoCurso(estado) { return TEXTOS_CURSO_AVANCE[estado] || 'Sin revisar'; }
+
+  // Dos líneas bajo la insignia: qué pasa con esta persona (en lenguaje llano)
+  function detalleAvance(f) {
+    var e = estadoAvance(f);
+    var partes = [];
+    if (e.id === 'no-elegible') partes.push(textoMotivoNoElegible(f.motivoNoElegible));
+    if (e.id === 'faltan') partes.push('Faltan ' + fmtNum(f.clasesFaltantes) + ' clases por guardar.');
+    if (f.clasesPerdidas > 0) partes.push(fmtNum(f.clasesPerdidas) + (f.clasesPerdidas === 1 ? ' clase ya no existe en el curso.' : ' clases ya no existen en el curso.'));
+    if (f.listosParaCertificado > 0) partes.push(fmtNum(f.listosParaCertificado) + (f.listosParaCertificado === 1 ? ' curso espera su certificado.' : ' cursos esperan su certificado.'));
+    if (f.formatoInvalido) partes.push('El dato anterior no se puede leer.');
+    return partes.join(' ');
+  }
+
+  // Frase de arriba de la tabla. resumen = el que entrega el servidor.
+  function resumenAvance(r) {
+    var x = r || {};
+    var n = x.conAvanceViejo || 0;
+    if (!n) {
+      return { tono: 'neutro', icono: 'circle-dashed', titulo: 'Ningún miembro tiene avance del sitio anterior por importar',
+        detalle: 'Cuando alguien tenga cursos empezados en el sitio anterior, aparecerá aquí.' };
+    }
+    var ver = x.verificados || 0;
+    var rev = x.requierenRevision || 0;
+    var titulo = fmtNum(ver) + ' de ' + fmtNum(n) + (n === 1 ? ' miembro con avance verificado' : ' miembros con avance verificado');
+    var detalle = [];
+    if (rev === 0) detalle.push('Nadie perdería nada de lo que llevaba en el sitio anterior.');
+    else detalle.push(fmtNum(rev) + (rev === 1 ? ' necesita tu revisión' : ' necesitan tu revisión') + ': está marcado en amarillo o rojo en la tabla.');
+    if (x.completos > 0) detalle.push(fmtNum(x.completos) + (x.completos === 1 ? ' se importará solo cuando entre al sitio' : ' se importarán solos cuando entren al sitio') + '; si prefieres, impórtalos ahora desde la tabla.');
+    if (x.clasesViejas > 0) {
+      var linea = 'Clases del sitio anterior: ' + fmtNum(x.clasesViejas) + '. Se conservan ' + fmtNum(x.clasesImportables) + '.';
+      if (x.clasesPerdidas > 0) linea += ' ' + fmtNum(x.clasesPerdidas) + ' ya no existen en su curso.';
+      detalle.push(linea);
+    }
+    return { tono: rev === 0 ? 'ok' : 'aviso', icono: rev === 0 ? 'circle-check' : 'triangle-alert', titulo: titulo, detalle: detalle.join(' ') };
+  }
+
   /* ── Gráficas simples en SVG propio ──
      Las barras y la línea son SVG (viewBox sin texto, para que no se encojan las letras); los valores y las
      etiquetas van en HTML debajo, con letra de 12 px como mínimo. Colores: clases CSS (sólidos, sin degradados). */
@@ -282,6 +358,8 @@
     duracion: duracion, iniciales: iniciales, insignia: insignia, etiquetaEstado: etiquetaEstado,
     contarPorFiltro: contarPorFiltro, filtrarMiembros: filtrarMiembros, ordenarMiembros: ordenarMiembros,
     graficaBarras: graficaBarras, graficaLinea: graficaLinea, barraReparto: barraReparto,
-    tarjetaTitulo: tarjetaTitulo, bloqueProntoHTML: bloqueProntoHTML
+    tarjetaTitulo: tarjetaTitulo, bloqueProntoHTML: bloqueProntoHTML,
+    estadoAvance: estadoAvance, insigniaAvance: insigniaAvance, detalleAvance: detalleAvance, resumenAvance: resumenAvance,
+    textoEstadoCurso: textoEstadoCurso, textoMotivoNoElegible: textoMotivoNoElegible
   };
 });

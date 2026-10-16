@@ -752,6 +752,194 @@
     } catch (e) { return '—'; }
   }
 
+  /* ───────── AVANCE DE MIEMBROS ─────────
+     Ensayo (sin escribir nada) de la importación del avance que cada miembro llevaba en el sitio anterior, e importación
+     persona por persona. GET /api/admin/progreso-legado y POST /api/admin/progreso-legado/:uid/importar. */
+  var avance = { pagina: 1, datos: null };
+
+  function filaDeAvance(uid) {
+    var l = avance.datos && avance.datos.miembros;
+    return (l || []).filter(function (m) { return m.uid === uid; })[0] || null;
+  }
+
+  function celdaImportadas(f) {
+    if (f.veredicto === 'sin-progreso-viejo') return '<span class="ap-sub">—</span>';
+    var guardadas = f.importado ? Math.max(0, f.clasesImportables - f.clasesFaltantes) : f.clasesImportables;
+    return '<span class="ap-num">' + esc(P.fmtNum(guardadas)) + '</span><span class="ap-sub">' + (f.importado ? 'ya guardadas' : 'por importar') + '</span>';
+  }
+
+  function filaAvance(f) {
+    var e = P.estadoAvance(f);
+    var uid = esc(f.uid);
+    var acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="detalle" data-uid="' + uid + '">' + ico('eye', { size: 16 }) + 'Ver detalle</button>';
+    if (e.accion === 'importar') acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--primario" data-accion="importar" data-uid="' + uid + '">' + ico('download', { size: 16 }) + 'Importar ahora</button>' + acc;
+    else if (e.accion === 'reparar') acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--primario" data-accion="reparar" data-uid="' + uid + '">' + ico('refresh-cw', { size: 16 }) + 'Reparar</button>' + acc;
+    else if (e.accion === 'forzar') acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--peligro-suave" data-accion="forzar" data-uid="' + uid + '">' + ico('download', { size: 16 }) + 'Importar de todos modos</button>' + acc;
+    var sub = P.detalleAvance(f);
+    var plan = f.planTipo === 'anual' ? 'Anual' : f.planTipo === 'mensual' ? 'Mensual' : '';
+    return '<tr class="ap-fila" data-uid="' + uid + '">' +
+      '<td class="ap-celda-miembro" data-label="Miembro"><div class="ap-persona"><span class="ap-avatar ap-avatar--' + esc(f.estadoPlan) + '" aria-hidden="true">' + esc(P.iniciales(f.nombre || f.correo)) + '</span>' +
+      '<div class="ap-persona__txt"><strong>' + esc(f.nombre || 'Sin nombre') + '</strong><span>' + esc(f.correo || '—') + '</span></div></div></td>' +
+      '<td data-label="Plan">' + P.insignia(f.estadoPlan) + (plan ? '<span class="ap-sub">' + esc(plan) + '</span>' : '') + '</td>' +
+      '<td data-label="Cursos con avance"><span class="ap-num">' + esc(P.fmtNum(f.cursosConAvance)) + '</span></td>' +
+      '<td data-label="Clases del sitio anterior"><span class="ap-num">' + esc(P.fmtNum(f.clasesViejas)) + '</span></td>' +
+      '<td data-label="Clases importadas">' + celdaImportadas(f) + '</td>' +
+      '<td class="ap-celda-estado" data-label="Estado">' + P.insigniaAvance(f) + (sub ? '<span class="ap-sub ap-sub--texto">' + esc(sub) + '</span>' : '') + '</td>' +
+      '<td class="ap-celda-acciones">' + acc + '</td></tr>';
+  }
+
+  function avisosAvance(r) {
+    var c = r.configuracion || {};
+    var html = '';
+    if (!c.importacionActiva) {
+      html += '<div class="ap-aviso ap-tono-error" role="alert">' + ico('triangle-alert', { size: 20 }) + '<div><strong>La importación automática está apagada</strong>' +
+        '<p>Falta la variable <code>LEGACY_PROGRESS_IMPORT_BEFORE</code> en el servidor, así que nadie recupera su avance al entrar. Puedes importarlo a mano aquí, persona por persona.</p></div></div>';
+    } else {
+      html += '<div class="ap-aviso ap-tono-info" role="note">' + ico('info', { size: 20 }) + '<div><p>Se importa solo el avance de las cuentas creadas antes del <strong>' + esc(P.fmtFecha(c.corte)) + '</strong>. ' +
+        'El avance del sitio anterior no se borra nunca: queda en cada cuenta como respaldo.</p></div></div>';
+    }
+    if (c.certificados === 'limite-invalido') {
+      html += '<div class="ap-aviso ap-tono-error" role="alert">' + ico('triangle-alert', { size: 20 }) + '<div><strong>Los certificados anteriores no se están aceptando</strong>' +
+        '<p>La variable <code>CERTIFICADOS_ANTERIORES_HASTA</code> no es una fecha válida. Corrígela o quítala para que se acepten los certificados del sitio anterior.</p></div></div>';
+    }
+    if (!c.firmaConfigurada) {
+      html += '<div class="ap-aviso ap-tono-error" role="alert">' + ico('triangle-alert', { size: 20 }) + '<div><strong>Los certificados no están configurados</strong>' +
+        '<p>Falta <code>CERTIFICATE_SIGNING_KEY</code>: sin ella no se reconocen ni se emiten certificados.</p></div></div>';
+    }
+    if (r.truncado) {
+      html += '<div class="ap-aviso ap-tono-info" role="note">' + ico('info', { size: 20 }) + '<div><p>Hay más cuentas de las que se revisan a la vez; la lista muestra las primeras.</p></div></div>';
+    }
+    return html;
+  }
+
+  async function avanceMiembros(forzar) {
+    var mi = ++contador;
+    vista().innerHTML = cargando('Avance de miembros');
+    var r;
+    try { r = await ctx.api('/api/admin/progreso-legado?pagina=' + avance.pagina + '&limite=25' + (forzar ? '&refrescar=1' : '')); } catch (e) {
+      if (mi !== contador) return;
+      vista().innerHTML = errorHTML('Avance de miembros', e, 'recargar');
+      vista().onclick = function (ev) { acciones(ev, { recargar: function () { avanceMiembros(true); } }); };
+      return;
+    }
+    if (mi !== contador) return;
+    avance.datos = r;
+    avance.pagina = r.pagina;
+    var s = r.resumen;
+    var frase = P.resumenAvance(s);
+    var cuerpo;
+    if (!r.miembros.length) {
+      cuerpo = vacio('Nadie tiene avance del sitio anterior', 'Si alguien traía cursos empezados, aparecerá aquí con lo que se conserva.', 'graduation-cap');
+    } else {
+      var desde = (r.pagina - 1) * r.limite + 1;
+      var hasta = Math.min(r.total, r.pagina * r.limite);
+      cuerpo = '<div class="ap-tabla-envoltura"><table class="ap-tabla"><thead><tr><th scope="col">Miembro</th><th scope="col">Plan</th><th scope="col">Cursos con avance</th>' +
+        '<th scope="col">Clases del sitio anterior</th><th scope="col">Clases importadas</th><th scope="col">Estado</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
+        r.miembros.map(filaAvance).join('') + '</tbody></table></div>' +
+        '<div class="ap-paginas"><p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(desde) + ' a ' + P.fmtNum(hasta) + ' de ' + P.fmtNum(r.total) + '</p>' +
+        (r.paginas > 1
+          ? '<div class="ap-paginas__botones"><button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="anterior"' + (r.pagina <= 1 ? ' disabled' : '') + '>' + ico('arrow-up', { size: 16 }) + 'Anterior</button>' +
+            '<span>Página ' + P.fmtNum(r.pagina) + ' de ' + P.fmtNum(r.paginas) + '</span>' +
+            '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="siguiente"' + (r.pagina >= r.paginas ? ' disabled' : '') + '>' + ico('arrow-down', { size: 16 }) + 'Siguiente</button></div>'
+          : '') + '</div>';
+    }
+    vista().innerHTML = P.tarjetaTitulo({
+      icono: 'graduation-cap', eyebrow: 'Panel de administración', titulo: 'Que nadie pierda', acento: 'su avance.',
+      sub: 'Compara lo que cada miembro llevaba en el sitio anterior con lo que guarda el servidor. Esta revisión no cambia nada: solo el botón «Importar ahora» guarda datos.',
+      cifras: [
+        { valor: P.fmtNum(s.conAvanceViejo), rotulo: 'con avance del sitio anterior' },
+        { valor: P.fmtNum(s.verificados), rotulo: 'con avance verificado' },
+        { valor: P.fmtNum(s.requierenRevision), rotulo: 'por revisar' }
+      ],
+      acciones: [{ id: 'recargar', texto: 'Revisar de nuevo', icono: 'refresh-cw' }]
+    }) +
+      '<div class="ap-aviso ap-tono-' + esc(frase.tono) + ' ap-aviso--resumen" role="status">' + ico(frase.icono, { size: 22 }) +
+      '<div><strong>' + esc(frase.titulo) + '</strong><p>' + esc(frase.detalle) + '</p></div></div>' +
+      avisosAvance(r) + cuerpo;
+    vista().onclick = function (ev) {
+      acciones(ev, {
+        recargar: function () { avanceMiembros(true); },
+        anterior: function () { avance.pagina = Math.max(1, avance.pagina - 1); avanceMiembros(false); },
+        siguiente: function () { avance.pagina += 1; avanceMiembros(false); },
+        detalle: function (b) { abrirDetalleAvance(b.dataset.uid); },
+        importar: function (b) { importarAvance(b.dataset.uid, 'importar'); },
+        reparar: function (b) { importarAvance(b.dataset.uid, 'reparar'); },
+        forzar: function (b) { importarAvance(b.dataset.uid, 'forzar'); }
+      });
+    };
+  }
+
+  function filaCursoAvance(c) {
+    var perdida = c.clasesPerdidas > 0;
+    var tono = c.estado === 'ok' ? 'ok' : (c.estado === 'listo-para-certificado' ? 'info' : 'aviso');
+    var nombre = c.curso || (c.estado === 'curso-eliminado' ? 'Curso que ya no existe' : 'Curso sin nombre');
+    var cert = c.certificado === 'firmado' ? 'Certificado firmado' : c.certificado === 'aceptable' ? 'Certificado anterior, aceptado por el servidor'
+      : c.certificado === 'no-aceptable' ? 'Certificado anterior que el servidor no acepta' : '';
+    return '<li class="ap-curso-avance"><div class="ap-curso-avance__t"><strong>' + esc(nombre) + '</strong>' +
+      '<span class="ap-badge ap-badge--' + tono + '">' + esc(P.textoEstadoCurso(c.estado)) + '</span>' +
+      (cert ? '<small>' + esc(cert) + '</small>' : '') + (c.completadoViejo ? '<small>Lo tenía marcado como terminado.</small>' : '') + '</div>' +
+      '<div class="ap-curso-avance__n"><span class="ap-num">' + esc(P.fmtNum(c.clasesImportables)) + ' de ' + esc(P.fmtNum(c.clasesViejas)) + '</span>' +
+      '<small>' + (perdida ? esc(P.fmtNum(c.clasesPerdidas)) + ' no se pueden importar' : 'clases se conservan') + '</small></div></li>';
+  }
+
+  function abrirDetalleAvance(uid) {
+    var f = filaDeAvance(uid);
+    if (!f) return;
+    var cs = f.certificados || { total: 0, firmados: 0, aceptables: 0, noAceptables: 0 };
+    var certs = cs.total
+      ? 'Certificados anteriores: ' + P.fmtNum(cs.total) + ' (' + P.fmtNum(cs.firmados) + ' firmados, ' + P.fmtNum(cs.aceptables) + ' aceptados por el servidor, ' + P.fmtNum(cs.noAceptables) + ' no aceptados).'
+      : 'No tiene certificados anteriores.';
+    var cuerpo = '<div class="ap-ficha"><div class="ap-ficha__cab"><span class="ap-avatar ap-avatar--grande ap-avatar--' + esc(f.estadoPlan) + '" aria-hidden="true">' + esc(P.iniciales(f.nombre || f.correo)) + '</span>' +
+      '<div><strong>' + esc(f.nombre || 'Sin nombre') + '</strong><span>' + esc(f.correo || '—') + '</span>' + P.insigniaAvance(f) + '</div></div>' +
+      (P.detalleAvance(f) ? '<p class="ap-modal__texto">' + esc(P.detalleAvance(f)) + '</p>' : '') +
+      '<dl class="ap-datos">' +
+      '<div class="ap-dato"><dt>Cursos con avance</dt><dd>' + esc(P.fmtNum(f.cursosConAvance)) + '</dd></div>' +
+      '<div class="ap-dato"><dt>Clases del sitio anterior</dt><dd>' + esc(P.fmtNum(f.clasesViejas)) + '</dd></div>' +
+      '<div class="ap-dato"><dt>Clases que se conservan</dt><dd>' + esc(P.fmtNum(f.clasesImportables)) + '</dd></div>' +
+      '<div class="ap-dato"><dt>Cursos terminados</dt><dd>' + esc(P.fmtNum(f.cursosCompletadosViejos)) + '</dd></div></dl>' +
+      '<h3>Por curso</h3>' +
+      (f.cursos.length ? '<ul class="ap-cursos-avance">' + f.cursos.map(filaCursoAvance).join('') + '</ul>' : '<p class="ap-nada">No hay cursos con avance legible.</p>') +
+      (f.detalleRecortado ? '<p class="ap-nada">Se muestran los primeros cursos; hay más.</p>' : '') +
+      '<h3>Certificados</h3><p class="ap-modal__texto">' + esc(certs) + '</p>' +
+      '<p class="ap-modal__texto">El avance del sitio anterior no se borra: queda como respaldo en la cuenta.</p></div>';
+    var e = P.estadoAvance(f);
+    var botones = [{ id: 'cerrar', texto: 'Cerrar', tipo: 'suave' }];
+    if (e.accion === 'importar') botones.push({ id: 'importar', texto: 'Importar ahora', tipo: 'primario' });
+    else if (e.accion === 'reparar') botones.push({ id: 'reparar', texto: 'Reparar', tipo: 'primario' });
+    return modal({ titulo: 'Avance de ' + (f.nombre || 'la persona'), cuerpo: cuerpo, botones: botones, ancho: 'ancho' }).then(function (elegido) {
+      if (elegido === 'importar' || elegido === 'reparar') return importarAvance(uid, elegido);
+    });
+  }
+
+  async function importarAvance(uid, modo) {
+    var f = filaDeAvance(uid);
+    if (!f) return;
+    var quien = '<strong>' + esc(f.nombre || f.correo || 'esta persona') + '</strong>';
+    var textos = {
+      importar: { titulo: 'Importar el avance anterior', aceptar: 'Sí, importar', peligro: false,
+        texto: 'Se guardará en la cuenta de ' + quien + ' el avance que llevaba en el sitio anterior (' + esc(P.fmtNum(f.clasesImportables)) + ' clases en ' + esc(P.fmtNum(f.cursosConAvance)) + ' cursos). ' +
+          (f.clasesPerdidas > 0 ? esc(P.fmtNum(f.clasesPerdidas)) + ' clases no se pueden importar porque ya no existen en su curso. ' : '') +
+          'No borra nada del sitio anterior y repetirlo no duplica nada.' },
+      reparar: { titulo: 'Completar el avance importado', aceptar: 'Sí, completar', peligro: false,
+        texto: 'A ' + quien + ' le faltan ' + esc(P.fmtNum(f.clasesFaltantes)) + ' clases por guardar. Se volverá a unir su avance del sitio anterior con lo que ya tiene: nunca se quita nada.' },
+      forzar: { titulo: 'Importar aunque la cuenta no cumple la fecha', aceptar: 'Sí, importar de todos modos', peligro: true,
+        texto: 'La cuenta de ' + quien + ' normalmente no importa sola. ' + esc(P.textoMotivoNoElegible(f.motivoNoElegible)) + ' Hazlo solo si estás seguro de que ese avance es suyo. Quedará anotado en la bitácora del panel.' }
+    };
+    var t = textos[modo];
+    if (!t) return;
+    var ok = await confirmar({ titulo: t.titulo, texto: t.texto, aceptar: t.aceptar, cancelar: 'Mejor no', peligro: t.peligro });
+    if (!ok) return;
+    var cuerpoPeticion = modo === 'reparar' ? { reintentar: true } : modo === 'forzar' ? { aceptarCuentaPosterior: true } : {};
+    try {
+      var r = await ctx.api('/api/admin/progreso-legado/' + encodeURIComponent(uid) + '/importar', { method: 'POST', body: cuerpoPeticion });
+      var res = r.resultado || {};
+      if (res.estado === 'importado') ctx.toast('Avance importado: ' + res.clasesImportadas + ' clases en ' + res.cursosImportados + ' cursos.');
+      else if (res.estado === 'ya-importado') ctx.toast('Ya estaba importado; no se cambió nada.');
+      else ctx.toast('No tenía avance anterior que importar.');
+      await avanceMiembros(true);
+    } catch (e) { ctx.toast(e.message || 'No se pudo importar el avance.', true); }
+  }
+
   /* ───────── CERTIFICADOS: verificación por folio (ruta pública del servidor) ───────── */
   function agregarVerificadorFolio() {
     var cont = vista();
@@ -790,7 +978,7 @@
 
   root.ZOO_ADMIN_VISTAS = {
     iniciar: iniciar, resumen: resumen, miembros: miembros, suscripciones: suscripciones, retos: retos, comunidad: comunidad,
-    referidos: referidos, herramientas: herramientas, configuracion: configuracion, estado: estadoSistema,
+    referidos: referidos, herramientas: herramientas, configuracion: configuracion, estado: estadoSistema, avance: avanceMiembros,
     agregarVerificadorFolio: agregarVerificadorFolio, modal: modal, confirmar: confirmar
   };
 })(typeof self !== 'undefined' ? self : this);
