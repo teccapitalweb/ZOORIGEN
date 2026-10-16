@@ -256,16 +256,6 @@ button.ap-lista__fila:hover { background: var(--c-row-hover); }
 .ap-aviso--resumen p { margin: 0; }
 .ap-num { display: block; font: 800 1.05rem/1.2 var(--zoo-font-display); color: var(--c-text); font-variant-numeric: tabular-nums; }
 .ap-sub--texto { white-space: normal; max-width: 36ch; line-height: 1.4; }
-.ap-tabla.ap-tabla--avance th, .ap-tabla.ap-tabla--avance td { padding: 14px 8px; }
-.ap-tabla.ap-tabla--avance th:first-child, .ap-tabla.ap-tabla--avance td:first-child { padding-left: 16px; }
-.ap-tabla.ap-tabla--avance th:last-child, .ap-tabla.ap-tabla--avance td:last-child { padding-right: 16px; }
-.ap-tabla.ap-tabla--avance th { white-space: normal; line-height: 1.3; letter-spacing: .02em; }
-.ap-tabla.ap-tabla--avance .ap-persona { gap: 10px; }
-.ap-tabla.ap-tabla--avance .ap-badge { white-space: normal; }
-.ap-tabla.ap-tabla--avance .ap-celda-estado { min-width: 170px; }
-.ap-tabla.ap-tabla--avance .ap-celda-acciones { min-width: 170px; width: 170px; }
-.ap-tabla.ap-tabla--avance .ap-celda-acciones .ap-acciones { flex-direction: column; align-items: stretch; }
-.ap-tabla.ap-tabla--avance .ap-celda-acciones .ap-btn { width: 100%; justify-content: center; white-space: normal; text-align: center; }
 .ap-aviso b { color: var(--c-text); }
 .ap-paginas { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 12px; }
 .ap-paginas .ap-pie-tabla { margin: 0; }
@@ -279,17 +269,6 @@ button.ap-lista__fila:hover { background: var(--c-row-hover); }
 .ap-curso-avance small { font-size: .8rem; color: var(--c-text-2); line-height: 1.4; }
 .ap-curso-avance__n { text-align: right; flex: none; }
 .ap-curso-avance__n small { display: block; }
-@container tabla (max-width: 1000px) {
-  .ap-tabla.ap-tabla--avance .ap-celda-miembro, .ap-tabla.ap-tabla--avance .ap-celda-estado, .ap-tabla.ap-tabla--avance .ap-celda-acciones { min-width: 0; width: 100%; }
-  .ap-tabla.ap-tabla--avance td { padding: 8px 0; }
-  .ap-tabla.ap-tabla--avance .ap-celda-miembro { padding: 0 0 10px; }
-  .ap-tabla.ap-tabla--avance .ap-celda-acciones { padding-top: 12px; }
-  .ap-tabla.ap-tabla--avance .ap-celda-acciones .ap-acciones { flex-direction: row; }
-  .ap-tabla.ap-tabla--avance .ap-celda-acciones .ap-btn { width: auto; flex: 1 1 130px; }
-  .ap-sub--texto { max-width: none; text-align: right; }
-  .ap-tabla td.ap-celda-estado { flex-wrap: wrap; }
-  .ap-curso-avance__n { text-align: left; }
-}
 @media (max-width: 860px) {
   .ap-curso-avance__n { text-align: left; }
 }
@@ -310,51 +289,175 @@ button.ap-lista__fila:hover { background: var(--c-row-hover); }
 .ap-buscar input:focus, .ap-orden select:focus, .ap-campo input:focus, .ap-campo select:focus { outline: 3px solid #F7CB62; outline-offset: 0; border-color: var(--c-accent); }
 :root[data-modo="claro"] .ap-buscar input:focus, :root[data-modo="claro"] .ap-orden select:focus, :root[data-modo="claro"] .ap-campo input:focus { outline-color: #1F5F8F; }
 
-/* El contenedor (no la ventana) decide si la tabla se ve como tabla o como tarjetas (ver @container tabla más abajo).
-   Causa del nombre «C-l-a-u-d-i-a» en vertical: overflow-wrap: anywhere reduce el ancho mínimo de la columna a una letra,
-   así que la tabla la estrechaba. Ahora las columnas tienen ancho mínimo y solo el correo puede partirse en cualquier punto. */
+/* ─────────────── Tablas compactas ───────────────
+   Filas bajas (unos 56 a 60 px), una línea principal y una pequeña, insignia de estado y UN menú «…».
+   Nunca pasan a tarjetas grandes: cuando el CONTENEDOR se angosta se esconden primero las columnas secundarias
+   (.ap-col-2) y luego las terciarias (.ap-col-3); su detalle está en la ventana que abre la fila.
+   Los nombres nunca se parten letra por letra: solo el correo puede partirse (overflow-wrap: anywhere). */
 .ap-tabla-zona { container: tabla / inline-size; min-width: 0; width: 100%; }
-.ap-tabla-envoltura { width: 100%; overflow-x: auto; background: var(--c-surface); border: 1px solid var(--c-line); border-radius: 20px; box-shadow: var(--c-card-shadow); }
+.ap-tabla-envoltura { width: 100%; overflow-x: auto; background: var(--c-surface); border: 1px solid var(--c-line); border-radius: 18px; box-shadow: var(--c-card-shadow); }
 .ap-tabla { width: 100%; border-collapse: collapse; }
-.ap-tabla .ap-celda-miembro { min-width: 250px; }
-.ap-tabla .ap-celda-estado { min-width: 150px; }
-.ap-tabla td[data-label="Vence"], .ap-tabla td[data-label="Registro"] { min-width: 112px; }
-.ap-tabla th { padding: 14px 12px; text-align: left; font: 700 .75rem/1.2 var(--zoo-font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--c-text-2); background: var(--c-row-hover); border-bottom: 1px solid var(--c-line); white-space: nowrap; }
-.ap-tabla td { padding: 14px 12px; vertical-align: middle; border-bottom: 1px solid var(--c-line-soft); font-size: .9rem; color: var(--c-text); }
-.ap-tabla th:first-child, .ap-tabla td:first-child { padding-left: 18px; }
-.ap-tabla th:last-child, .ap-tabla td:last-child { padding-right: 18px; }
+.ap-tabla .ap-celda-miembro { min-width: 220px; }
+.ap-tabla th { padding: 10px 12px; text-align: left; font: 700 .75rem/1.2 var(--zoo-font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--c-text-2); background: var(--c-row-hover); border-bottom: 1px solid var(--c-line); white-space: nowrap; }
+.ap-tabla td { padding: 8px 12px; vertical-align: middle; border-bottom: 1px solid var(--c-line-soft); font-size: .88rem; line-height: 1.3; color: var(--c-text); }
+.ap-tabla th:first-child, .ap-tabla td:first-child { padding-left: 16px; }
+.ap-tabla th:last-child, .ap-tabla td:last-child { padding-right: 16px; }
 .ap-tabla tr:last-child td { border-bottom: 0; }
 .ap-tabla td code { overflow-wrap: normal; white-space: nowrap; }
-.ap-tabla td[data-label="WhatsApp"] { white-space: nowrap; }
+.ap-tabla td[data-label="WhatsApp"], .ap-tabla td[data-label="Fecha"] { white-space: nowrap; }
 .ap-tabla tbody tr:hover td { background: var(--c-row-hover); }
-.ap-persona { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.ap-persona__txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ap-persona { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ap-persona__txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .ap-persona__txt strong {
-  font: 700 .94rem/1.25 var(--zoo-font-display); color: var(--c-text);
+  font: 700 .92rem/1.25 var(--zoo-font-display); color: var(--c-text);
   overflow-wrap: normal; word-break: normal; hyphens: manual;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
 }
-.ap-persona__txt span { font-size: .82rem; color: var(--c-text-2); overflow-wrap: normal; }
+.ap-persona__txt span { font-size: .8rem; color: var(--c-text-2); overflow-wrap: normal; }
 .ap-persona__txt .ap-correo { overflow-wrap: anywhere; word-break: normal; }
-.ap-avatar { flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; font: 700 .82rem var(--zoo-font-display); background: var(--c-avatar); color: var(--c-avatar-ink); border: 3px solid var(--t-solido, var(--c-line-strong)); box-sizing: border-box; }
+.ap-avatar { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; font: 700 .78rem var(--zoo-font-display); background: var(--c-avatar); color: var(--c-avatar-ink); border: 3px solid var(--t-solido, var(--c-line-strong)); box-sizing: border-box; }
 .ap-avatar--grande { width: 56px; height: 56px; font-size: 1rem; }
 .ap-avatar--activo { --t-solido: var(--ap-solido-ok); }
 .ap-avatar--cancelado-vigente { --t-solido: var(--ap-solido-aviso); }
 .ap-avatar--pago-pendiente { --t-solido: var(--ap-solido-error); }
 .ap-avatar--vencido, .ap-avatar--sin-plan { --t-solido: var(--ap-solido-apagado); }
-.ap-sub { display: block; margin-top: 4px; font-size: .78rem; color: var(--c-text-3); }
+.ap-sub { display: block; margin-top: 2px; font-size: .78rem; color: var(--c-text-3); }
 .ap-sub--aviso { color: var(--c-warn-ink); font-weight: 700; }
 .ap-fecha { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.ap-celda-acciones { text-align: right; white-space: normal; min-width: 290px; }
+.ap-celda-acciones { width: 1%; text-align: right; white-space: nowrap; }
 .ap-acciones { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .ap-acciones .ap-btn { white-space: nowrap; }
-.ap-tabla--pruebas td[data-label="Curso elegido"] { min-width: 160px; font-size: .86rem; }
-.ap-tabla--pruebas .ap-celda-miembro { min-width: 225px; }
-.ap-tabla--simple .ap-celda-acciones, .ap-tabla--pruebas .ap-celda-acciones { min-width: 150px; }
+.ap-tabla--pruebas td[data-label="Curso elegido"] { min-width: 150px; font-size: .86rem; }
+.ap-tabla .ap-celda-estado { min-width: 150px; }
 .ap-tabla .ap-celda-estado .ap-badge { margin: 2px 6px 2px 0; }
+.ap-tabla--simple th, .ap-tabla--simple td { overflow-wrap: break-word; }
+.ap-tabla--simple th { white-space: normal; vertical-align: bottom; }
 .ap-pie-tabla { margin: 12px 4px 0; font-size: .84rem; color: var(--c-text-2); }
 .ap-mas { margin-top: 12px; }
-.ap-tabla--simple td, .ap-tabla--simple th { padding: 12px 12px; }
+/* Fila de tabla que se abre al tocarla: el título es un botón y su ::after cubre toda la fila */
+.ap-fila-t { position: relative; }
+.ap-fila-t--toca { cursor: pointer; }
+.ap-fila-t .ap-titulo-fila { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; padding: 0; border: 0; background: none; color: var(--c-text); font: 700 .92rem/1.25 var(--zoo-font-display); text-align: left; cursor: pointer; overflow-wrap: normal; word-break: normal; }
+.ap-fila-t .ap-titulo-fila::after { content: ''; position: absolute; inset: 0; }
+.ap-fila-t .ap-titulo-fila:focus-visible { outline: none; }
+.ap-fila-t .ap-titulo-fila:focus-visible::after { outline: 3px solid #F7CB62; outline-offset: -3px; border-radius: 8px; }
+:root[data-modo="claro"] .ap-fila-t .ap-titulo-fila:focus-visible::after { outline-color: #1F5F8F; }
+.ap-fila-t td.ap-celda-acciones { position: relative; z-index: 2; }
+.ap-tabla td.ap-col-num, .ap-tabla th.ap-col-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ap-tabla--simple td { padding: 9px 12px; }
+.ap-tabla--simple td strong { overflow-wrap: normal; }
+@container tabla (max-width: 899px) {
+  .ap-tabla .ap-col-2 { display: none; }
+}
+@container tabla (max-width: 639px) {
+  .ap-tabla .ap-col-3 { display: none; }
+  .ap-tabla--simple th.ap-num-der, .ap-tabla--simple td.ap-num-der { width: 1%; }
+  .ap-tabla th, .ap-tabla td { padding-left: 6px; padding-right: 6px; }
+  .ap-tabla th { letter-spacing: 0; text-transform: none; font-size: .78rem; }
+  .ap-tabla th:first-child, .ap-tabla td:first-child { padding-left: 12px; }
+  .ap-tabla th:last-child, .ap-tabla td:last-child { padding-right: 8px; }
+  .ap-tabla .ap-celda-miembro { min-width: 0; }
+  .ap-tabla .ap-celda-estado { min-width: 0; }
+  .ap-tabla .ap-celda-estado .ap-badge { white-space: normal; }
+}
+
+/* ─────────────── Filas compactas (listas) y menú «…» ───────────────
+   Estilo de la lista de miembros de Alintec: avatar, nombre en negrita, una línea pequeña, insignias a la derecha y
+   un solo menú de acciones. El contenedor (no la ventana) decide qué columnas se ven. */
+.ap-fc-zona { container: fc / inline-size; min-width: 0; width: 100%; }
+.ap-fc-caja { background: var(--c-surface); border: 1px solid var(--c-line); border-radius: 18px; box-shadow: var(--c-card-shadow); }
+.ap-fc-lista { list-style: none; margin: 0; padding: 0; }
+.ap-fc, .ap-fc-cab { --c-sec: ; --c-est: ; --c-fin: ; display: grid; grid-template-columns: 40px minmax(0, 1fr) var(--c-sec) var(--c-est) var(--c-fin); column-gap: 12px; align-items: center; padding: 8px 14px; }
+.ap-fc { position: relative; min-height: 58px; }
+.ap-fc + .ap-fc { border-top: 1px solid var(--c-line-soft); }
+.ap-fc:first-child { border-radius: 18px 18px 0 0; }
+.ap-fc:last-child { border-radius: 0 0 18px 18px; }
+.ap-fc:only-child { border-radius: 18px; }
+.ap-fc:hover { background: var(--c-row-hover); }
+.ap-fc--col { --c-sec: 150px; }
+.ap-fc--col2 { --c-sec: 250px 112px; }
+.ap-fc--est { --c-est: 190px; }
+.ap-fc--fin { --c-fin: 40px; }
+.ap-fc--lead.ap-fc--est { --c-est: 300px; }
+.ap-fc--meta-flex.ap-fc--est { --c-est: 260px; }
+.ap-fc__av { grid-column: 1; grid-row: 1 / span 2; display: grid; place-items: center; }
+.ap-fc__titulo { grid-column: 2; grid-row: 1; align-self: end; min-width: 0; margin: 0; padding: 0; border: 0; background: none; color: var(--c-text); font: 700 .94rem/1.25 var(--zoo-font-display); text-align: left; text-decoration: none; overflow-wrap: normal; word-break: normal; hyphens: manual; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.ap-fc__titulo--texto { cursor: default; }
+.am a.ap-fc__titulo, .am a.ap-fc__titulo:visited { color: var(--c-text); }
+button.ap-fc__titulo, a.ap-fc__titulo { cursor: pointer; }
+.ap-fc--toca .ap-fc__titulo::after { content: ''; position: absolute; inset: 0; }
+.ap-fc__titulo:focus-visible { outline: none; }
+.ap-fc__titulo:focus-visible::after { outline: 3px solid #F7CB62; outline-offset: -3px; border-radius: 14px; }
+:root[data-modo="claro"] .ap-fc__titulo:focus-visible::after { outline-color: #1F5F8F; }
+.ap-fc__meta { grid-column: 2; grid-row: 2; align-self: start; min-width: 0; font-size: .8rem; line-height: 1.35; color: var(--c-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ap-fc__meta:empty { display: none; }
+.ap-fc--meta2 .ap-fc__meta { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+.ap-fc--variable .ap-fc__titulo { font-family: ui-monospace, Consolas, monospace; font-size: .86rem; }
+.ap-fc--meta-flex .ap-fc__meta { display: flex; flex-wrap: wrap; gap: 0 12px; max-height: 1.4em; overflow: hidden; white-space: normal; }
+.ap-fc--meta-flex .ap-fc__meta > * { flex: none; }
+.ap-fc__meta .zi { vertical-align: -2px; margin-right: 4px; color: var(--c-text-3); }
+.ap-fc__meta code { white-space: nowrap; }
+.ap-fc__chico { display: none; }
+.ap-fc__col { grid-row: 1 / span 2; min-width: 0; display: flex; flex-direction: column; gap: 1px; font-size: .86rem; line-height: 1.3; color: var(--c-text); }
+.ap-fc__col .ap-fc__v { font-weight: 600; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-fc__col .ap-fc__s { font-size: .75rem; color: var(--c-text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-fc__col .ap-fc__s--aviso { color: var(--c-warn-ink); font-weight: 700; }
+.ap-fc__estado { grid-row: 1 / span 2; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; min-width: 0; }
+.ap-fc__estado .ap-fc__s { flex-basis: 100%; text-align: right; font-size: .75rem; color: var(--c-text-3); }
+.ap-fc__fin { grid-row: 1 / span 2; display: grid; place-items: center; position: relative; z-index: 2; }
+.ap-fc__chevron { display: grid; place-items: center; width: 40px; height: 40px; color: var(--c-text-3); }
+.ap-fc__menu { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 10px; border: 1px solid var(--c-line); background: transparent; color: var(--c-text-2); cursor: pointer; }
+.ap-fc__menu:hover, .ap-fc__menu[aria-expanded="true"] { background: var(--c-surface); color: var(--c-text); border-color: var(--c-line-strong); }
+.ap-ico-tile { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--t-bg, var(--c-ghost-bg)); color: var(--t-ink, var(--c-ghost-ink)); border: 1px solid var(--t-line, var(--c-ghost-line)); }
+.ap-ico-miniatura { display: block; width: 38px; height: 38px; border-radius: 12px; background-size: cover; background-position: center; background-color: var(--c-avatar); border: 1px solid var(--c-line); }
+.ap-fc--atenuada { opacity: .72; }
+.ap-fc-cab { padding-top: 9px; padding-bottom: 9px; background: var(--c-row-hover); border-bottom: 1px solid var(--c-line); border-radius: 18px 18px 0 0; font: 700 .75rem/1.2 var(--zoo-font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--c-text-2); }
+.ap-fc-cab > span:nth-child(2) { grid-column: 2; }
+.ap-fc-cab + .ap-fc-lista > .ap-fc:first-child { border-radius: 0; }
+.ap-fc-cab .ap-fc__col, .ap-fc-cab .ap-fc__estado { grid-row: auto; flex-direction: row; font: inherit; }
+.ap-fc-cab .ap-fc__estado { justify-content: flex-end; }
+@container fc (max-width: 959px) {
+  .ap-fc--col2 { --c-sec: ; }
+  .ap-fc--col2 .ap-fc__col, .ap-fc-cab.ap-fc--col2 .ap-fc__col { display: none; }
+  .ap-fc--col2 .ap-fc__chico { display: inline; }
+}
+@container fc (max-width: 899px) {
+  .ap-fc--col { --c-sec: ; }
+  .ap-fc--col .ap-fc__col, .ap-fc-cab.ap-fc--col .ap-fc__col { display: none; }
+  .ap-fc--col .ap-fc__chico { display: inline; }
+}
+@container fc (max-width: 579px) {
+  .ap-fc-cab { display: none; }
+  .ap-fc, .ap-fc--est, .ap-fc--fin { --c-est: ; --c-fin: ; grid-template-columns: 38px auto minmax(0, 1fr) auto; column-gap: 10px; padding: 8px 10px; min-height: 56px; }
+  .ap-fc__titulo { grid-column: 2 / 4; }
+  .ap-fc__meta { grid-column: 3; }
+  .ap-fc:not(.ap-fc--est) .ap-fc__meta { grid-column: 2 / 4; }
+  .ap-fc--est .ap-fc__estado { grid-column: 2; grid-row: 2; justify-content: flex-start; align-self: start; }
+  .ap-fc--est .ap-fc__estado .ap-badge { padding: 2px 8px; }
+  .ap-fc__fin { grid-column: 4; }
+  .ap-fc--lead .ap-fc__meta { grid-column: 2 / 4; }
+  .ap-fc--lead.ap-fc--est .ap-fc__estado { grid-column: 2 / 4; grid-row: 3; }
+  .ap-fc--lead .ap-fc__av, .ap-fc--lead .ap-fc__fin { grid-row: 1 / span 3; }
+  .ap-fc--lead .ap-fc__estado .ap-fc__s { display: none; }
+  .ap-fc--lead .enc-chip:not(.enc-chip--caliente):not(.enc-chip--ok):not(.enc-chip--aviso) { display: none; }
+  .ap-fc--est-solo .ap-fc__meta { display: none; }
+  .ap-fc--est-solo.ap-fc--est .ap-fc__estado { grid-column: 2 / 4; }
+  .ap-fc--meta-ancho .ap-fc__meta { display: none; }
+  .ap-fc--meta-ancho.ap-fc--est .ap-fc__estado { grid-column: 2 / 4; }
+  .ap-fc__folio { display: none; }
+  .ap-fc__reg, .ap-fc__correo, .ap-fc__sep, .ap-fc__estado .ap-fc__s { display: none; }
+}
+
+/* Menú de acciones «…» (se abre sobre el contenido y hacia arriba si abajo no cabe) */
+.ap-menu { position: fixed; z-index: 2300; min-width: 232px; max-width: min(92vw, 320px); overflow-y: auto; padding: 6px; background: var(--c-modal); color: var(--c-text); border: 1px solid var(--c-line-strong); border-radius: 14px; box-shadow: 0 14px 40px rgba(0, 0, 0, .3); }
+.ap-menu__item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 42px; padding: 8px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--c-text); font: 600 .9rem/1.2 var(--zoo-font-body); text-align: left; text-decoration: none; cursor: pointer; }
+.ap-menu__item .zi { flex: none; color: var(--c-text-2); }
+.ap-menu__item:hover, .ap-menu__item:focus { background: var(--c-row-hover); outline: none; }
+.ap-menu__item:focus-visible { outline: 3px solid #F7CB62; outline-offset: -3px; }
+:root[data-modo="claro"] .ap-menu__item:focus-visible { outline-color: #1F5F8F; }
+.ap-menu__item--peligro, .ap-menu__item--peligro .zi { color: var(--c-bad-ink); }
+.ap-menu__item--peligro:hover, .ap-menu__item--peligro:focus { background: var(--c-bad-bg); }
+.ap-menu__sep { height: 1px; margin: 6px 4px; background: var(--c-line); }
 
 /* Vacíos, avisos y esqueleto de carga */
 .ap-vacio { margin: 0; }
@@ -439,26 +542,6 @@ body.ap-sin-scroll { overflow: hidden; }
 .ap-controles .zs-chip, .am .cc-chip { min-height: 40px; }
 .am .an-check { min-height: 40px; display: flex; align-items: center; gap: 10px; }
 
-/* Tablas: tarjetas apiladas cuando el CONTENEDOR mide menos de 1000 px (con la barra lateral abierta a 970 px de ventana ya es así) */
-@container tabla (max-width: 1000px) {
-  .ap-tabla-envoltura { background: transparent; border: 0; box-shadow: none; overflow: visible; }
-  .ap-tabla thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
-  .ap-tabla, .ap-tabla tbody, .ap-tabla tr, .ap-tabla td { display: block; width: 100%; }
-  .ap-tabla tr { margin: 0 0 12px; padding: 14px 16px; background: var(--c-surface); border: 1px solid var(--c-line); border-radius: 18px; }
-  .ap-tabla tbody tr:hover td { background: transparent; }
-  .ap-tabla td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border: 0; text-align: right; }
-  .ap-tabla td::before { content: attr(data-label); flex: none; font: 700 .75rem/1.2 var(--zoo-font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--c-text-3); text-align: left; }
-  .ap-tabla td.ap-celda-miembro { display: block; text-align: left; padding-top: 0; padding-bottom: 10px; border-bottom: 1px solid var(--c-line-soft); margin-bottom: 4px; }
-  .ap-tabla td.ap-celda-miembro::before, .ap-tabla td.ap-celda-acciones::before { display: none; }
-  .ap-tabla td.ap-celda-acciones { display: block; text-align: left; padding-top: 12px; min-width: 0; }
-  .ap-tabla td.ap-celda-acciones .ap-acciones { justify-content: flex-start; }
-  .ap-tabla td.ap-celda-acciones .ap-btn { flex: 1 1 130px; }
-  .ap-tabla td > .ap-badge { margin-left: auto; }
-  .ap-tabla td.ap-celda-estado { flex-wrap: wrap; justify-content: flex-start; }
-  .ap-tabla td.ap-celda-estado .ap-badge { margin-left: 0; }
-  .ap-tabla td code { white-space: normal; overflow-wrap: anywhere; }
-  .ap-tabla .ap-celda-miembro, .ap-tabla .ap-celda-estado, .ap-tabla td[data-label="Vence"], .ap-tabla td[data-label="Registro"] { min-width: 0; }
-}
 /* ─────────────── Tamaños: tableta y celular ─────────────── */
 @media (max-width: 1100px) {
   .admin-shell { grid-template-columns: 236px minmax(0, 1fr); }

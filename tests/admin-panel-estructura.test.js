@@ -135,11 +135,11 @@ test('letra mínima de 12 px y objetivos táctiles de 40 px o más en la hoja de
   assert.match(css, /\.asb-item \{[^}]*min-height: 40px/);
 });
 
-test('respeta prefers-reduced-motion y muestra las tablas como tarjetas cuando el CONTENEDOR es angosto (no la ventana)', () => {
+test('respeta prefers-reduced-motion y las tablas son compactas: el CONTENEDOR (no la ventana) esconde columnas', () => {
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /\.ap-tabla-zona \{ container: tabla \/ inline-size;/);
-  assert.match(css, /@container tabla \(max-width: 1000px\) \{[^@]*\.ap-tabla td::before \{ content: attr\(data-label\)/);
-  // el paso a tarjetas ya no depende del ancho de la ventana
+  assert.match(css, /@container tabla \(max-width: 899px\)/);
+  assert.doesNotMatch(css, /content: attr\(data-label\)/, 'sin tarjetas grandes');
   assert.doesNotMatch(css, /@media[^{]*\{[^@]*\.ap-tabla td::before/);
 });
 

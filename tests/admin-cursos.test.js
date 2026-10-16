@@ -132,7 +132,8 @@ test('tarjeta: muestra clases, duración y juegos solo cuando existen', () => {
 test('lista vacía muestra un mensaje; la vista lista y la cuadrícula usan estructuras distintas', () => {
   assert.ok(C.listaHTML([], 'grid').includes('No hay cursos'));
   assert.ok(C.listaHTML([curso()], 'grid').includes('cc-grid'));
-  assert.ok(C.listaHTML([curso()], 'lista').includes('cc-lista'));
+  assert.ok(C.listaHTML([curso()], 'lista').includes('ap-fc-lista'));
+  assert.ok(!C.listaHTML([curso()], 'lista').includes('cc-grid'));
 });
 
 test('kpisHTML() y chips muestran los números reales', () => {

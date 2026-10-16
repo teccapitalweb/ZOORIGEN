@@ -7,9 +7,9 @@
 /* se prueban en tests/admin-marketing.test.js.                   */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-panel.js'), require('./admin-iconos.js'), null);
-  else root.ZOO_ADMIN_MARKETING = factory(root.ZOO_ADMIN_PANEL, root.ZOO_ICONOS, root.ZOO_ADMIN_VISTAS);
-})(typeof self !== 'undefined' ? self : this, function (P, I, V) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-panel.js'), require('./admin-iconos.js'), null, require('./admin-filas.js'));
+  else root.ZOO_ADMIN_MARKETING = factory(root.ZOO_ADMIN_PANEL, root.ZOO_ICONOS, root.ZOO_ADMIN_VISTAS, root.ZOO_ADMIN_FILAS);
+})(typeof self !== 'undefined' ? self : this, function (P, I, V, F) {
   'use strict';
 
   var esc = P.esc;
@@ -64,12 +64,12 @@
 
   function cohortesHTML(filas) {
     if (!filas.length) return vacio('Sin registros todavía', 'Cuando haya cuentas nuevas aparecerá cada mes aquí.', 'users');
-    return tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Mes de registro</th><th scope="col" class="ap-num-der">Se registraron</th><th scope="col" class="ap-num-der">Tuvieron membresía</th>' +
-      '<th scope="col" class="ap-num-der">Conversión</th><th scope="col" class="ap-num-der">Con acceso hoy</th><th scope="col" class="ap-num-der">Retención</th></tr></thead><tbody>' +
+    return tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Mes de registro</th><th scope="col" class="ap-num-der">Se registraron</th><th scope="col" class="ap-num-der ap-col-3">Tuvieron membresía</th>' +
+      '<th scope="col" class="ap-num-der">Conversión</th><th scope="col" class="ap-num-der ap-col-3">Con acceso hoy</th><th scope="col" class="ap-num-der">Retención</th></tr></thead><tbody>' +
       filas.map(function (f) {
         return '<tr><td data-label="Mes"><strong>' + esc(P.fmtMes(f.mes)) + '</strong></td><td class="ap-num-der" data-label="Se registraron">' + esc(num(f.registrados)) + '</td>' +
-          '<td class="ap-num-der" data-label="Tuvieron membresía">' + esc(num(f.conPlanAlgunaVez)) + '</td><td class="ap-num-der" data-label="Conversión">' + esc(P.fmtPct(f.conversion)) + '</td>' +
-          '<td class="ap-num-der" data-label="Con acceso hoy">' + esc(num(f.conAccesoHoy)) + '</td><td class="ap-num-der" data-label="Retención">' + esc(P.fmtPct(f.retencion)) + '</td></tr>';
+          '<td class="ap-num-der ap-col-3" data-label="Tuvieron membresía">' + esc(num(f.conPlanAlgunaVez)) + '</td><td class="ap-num-der" data-label="Conversión">' + esc(P.fmtPct(f.conversion)) + '</td>' +
+          '<td class="ap-num-der ap-col-3" data-label="Con acceso hoy">' + esc(num(f.conAccesoHoy)) + '</td><td class="ap-num-der" data-label="Retención">' + esc(P.fmtPct(f.retencion)) + '</td></tr>';
       }).join('') + '</tbody></table>');
   }
 
@@ -198,34 +198,42 @@
     return h.join(' ');
   }
 
+  // Fila compacta de una prueba gratuita: persona, curso elegido y avance (en pantallas anchas), insignias de estado. Tocarla abre la ficha.
   function filaPrueba(f) {
-    var avance = f.avance === null ? '<span class="ap-sub">—</span>'
+    var avance = f.avance === null ? '<span class="ap-fc__s">—</span>'
       : '<div class="ap-mini"><span class="ap-mini__b" aria-hidden="true"><i style="width:' + f.avance + '%"></i></span><span class="ap-mini__n">' + esc(num(Math.min(f.clasesVistas, f.clasesGratis))) + ' de ' + esc(num(f.clasesGratis)) + '</span></div>';
-    return '<tr class="ap-fila" data-uid="' + esc(f.uid) + '">' +
-      '<td class="ap-celda-miembro" data-label="Persona"><div class="ap-persona"><span class="ap-avatar ap-avatar--' + (f.conAcceso ? 'activo' : 'sin-plan') + '" aria-hidden="true">' + esc(P.iniciales(f.nombre || f.correo)) + '</span>' +
-      '<div class="ap-persona__txt"><strong>' + esc(f.nombre || 'Sin nombre') + '</strong><span class="ap-correo">' + esc(f.correo || '—') + '</span></div></div></td>' +
-      '<td data-label="Curso elegido"><strong>' + esc(f.curso) + '</strong></td>' +
-      '<td data-label="Elegida"><span class="ap-fecha">' + esc(P.fmtFecha(f.elegidoEn)) + '</span><span class="ap-sub">' + esc(P.relativo(f.elegidoEn)) + '</span></td>' +
-      '<td data-label="Avance en las gratis">' + avance + '</td>' +
-      '<td class="ap-celda-estado" data-label="Estado">' + insigniasPrueba(f) + '</td>' +
-      '<td class="ap-celda-acciones"><div class="ap-acciones">' + (f.cuentaExiste ? '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="ficha" data-uid="' + esc(f.uid) + '">' + ico('eye', { size: 16 }) + 'Ver ficha</button>' : '') + '</div></td></tr>';
+    return F.fila({
+      clase: 'ap-fc--est-solo',
+      avatar: '<span class="ap-avatar ap-avatar--' + (f.conAcceso ? 'activo' : 'sin-plan') + '" aria-hidden="true">' + esc(P.iniciales(f.nombre || f.correo)) + '</span>',
+      titulo: f.nombre || 'Sin nombre', accion: f.cuentaExiste ? { a: 'ficha', datos: { uid: f.uid } } : null,
+      meta: '<span class="ap-fc__correo">' + esc(f.correo || '—') + '</span>',
+      metaChico: '<span class="ap-fc__sep"> · </span>' + esc(f.curso),
+      cols: [
+        { html: '<span class="ap-fc__v" title="' + esc(f.curso) + '">' + esc(f.curso) + '</span><span class="ap-fc__s">Elegida ' + esc(P.fmtFecha(f.elegidoEn)) + ' · ' + esc(P.relativo(f.elegidoEn)) + '</span>' },
+        { html: avance }
+      ],
+      estado: insigniasPrueba(f), chevron: f.cuentaExiste, reservarFin: true
+    });
   }
 
   function tablaPruebas(filas, visibles) {
     if (!filas.length) return vacio('Nadie coincide con ese filtro', 'Quita el filtro o prueba con otro nombre.', 'search-x');
     var mostrar = filas.slice(0, visibles);
-    return tablaZona('<table class="ap-tabla ap-tabla--pruebas"><thead><tr><th scope="col">Persona</th><th scope="col">Curso elegido</th><th scope="col">Elegida</th><th scope="col">Avance</th><th scope="col">Estado</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
-      mostrar.map(filaPrueba).join('') + '</tbody></table>') +
+    return F.lista(mostrar.map(filaPrueba), { etiqueta: 'Pruebas gratuitas', cab: { principal: 'Persona', cols: ['Curso elegido', 'Avance'], estado: 'Estado' } }) +
       '<p class="ap-pie-tabla" role="status">Mostrando ' + esc(num(mostrar.length)) + ' de ' + esc(num(filas.length)) + '</p>' +
       (filas.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="mas">Mostrar ' + Math.min(25, filas.length - mostrar.length) + ' más</button>' : '');
   }
 
   function sinElegirHTML(se) {
     if (!se.total) return vacio('Todos ya eligieron', 'No hay cuentas sin membresía pendientes de elegir su prueba.', 'circle-check');
-    return '<ul class="ap-lista">' + se.lista.map(function (x) {
-      return '<li><button type="button" class="ap-lista__fila" data-accion="ficha" data-uid="' + esc(x.uid) + '"><span class="ap-lista__t"><strong>' + esc(x.nombre || 'Sin nombre') + '</strong><span class="ap-correo">' + esc(x.correo || '—') + '</span></span>' +
-        '<span class="ap-lista__d">' + esc(P.fmtFecha(x.registro)) + '<small>' + esc(P.relativo(x.registro)) + '</small></span></button></li>';
-    }).join('') + '</ul>' + (se.total > se.lista.length ? '<p class="ap-pie-tabla">Se muestran las ' + esc(num(se.lista.length)) + ' más recientes de ' + esc(num(se.total)) + '.</p>' : '');
+    return F.lista(se.lista.map(function (x) {
+      return F.fila({
+        avatar: '<span class="ap-avatar ap-avatar--sin-plan" aria-hidden="true">' + esc(P.iniciales(x.nombre || x.correo)) + '</span>',
+        titulo: x.nombre || 'Sin nombre', accion: { a: 'ficha', datos: { uid: x.uid } },
+        meta: '<span class="ap-fc__correo">' + esc(x.correo || '—') + '</span>', metaChico: '<span class="ap-fc__sep"> · </span>Registro ' + esc(P.fmtFecha(x.registro)),
+        cols: [{ html: '<span class="ap-fc__v"><span class="sr-only">Registro </span>' + esc(P.fmtFecha(x.registro)) + '</span><span class="ap-fc__s">' + esc(P.relativo(x.registro)) + '</span>' }], chevron: true
+      });
+    }), { etiqueta: 'Cuentas sin elegir' }) + (se.total > se.lista.length ? '<p class="ap-pie-tabla">Se muestran las ' + esc(num(se.lista.length)) + ' más recientes de ' + esc(num(se.total)) + '.</p>' : '');
   }
 
   // d = respuesta de GET /api/admin/pruebas · ui = { texto, curso, filtro, visibles, pestana }
@@ -249,9 +257,9 @@
       kpiTend({ icono: 'user-plus', rotulo: 'Cuentas sin elegir', valor: num(d.sinElegir.total), tono: d.sinElegir.total ? 'aviso' : 'neutro', nota: 'Sin membresía y sin curso de prueba' })
     ].join('') + '</div>';
     var porCurso = d.porCurso.length
-      ? tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Curso</th><th scope="col" class="ap-num-der">Eligieron</th><th scope="col" class="ap-num-der">Terminaron las clases gratis</th><th scope="col" class="ap-num-der">Ya son miembros</th></tr></thead><tbody>' +
+      ? tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Curso</th><th scope="col" class="ap-num-der">Eligieron</th><th scope="col" class="ap-num-der ap-col-3">Terminaron las clases gratis</th><th scope="col" class="ap-num-der">Ya son miembros</th></tr></thead><tbody>' +
         d.porCurso.map(function (c) {
-          return '<tr><td data-label="Curso"><strong>' + esc(c.curso) + '</strong></td><td class="ap-num-der" data-label="Eligieron">' + esc(num(c.elegidas)) + '</td><td class="ap-num-der" data-label="Terminaron las clases gratis">' + esc(num(c.terminaronGratis)) + '</td><td class="ap-num-der" data-label="Ya son miembros">' + esc(num(c.seHicieronMiembro)) + '</td></tr>';
+          return '<tr><td data-label="Curso"><strong>' + esc(c.curso) + '</strong></td><td class="ap-num-der" data-label="Eligieron">' + esc(num(c.elegidas)) + '</td><td class="ap-num-der ap-col-3" data-label="Terminaron las clases gratis">' + esc(num(c.terminaronGratis)) + '</td><td class="ap-num-der" data-label="Ya son miembros">' + esc(num(c.seHicieronMiembro)) + '</td></tr>';
         }).join('') + '</tbody></table>')
       : vacio('Nadie ha elegido todavía', 'Cuando alguien elija su curso de prueba aparecerá aquí con su avance.', 'flask-conical');
 

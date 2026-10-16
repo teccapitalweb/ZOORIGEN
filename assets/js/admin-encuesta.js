@@ -15,11 +15,12 @@
 /* sola fuente de verdad con la pantalla de la portada).          */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./encuesta-motor.js'), require('./admin-iconos.js'));
-  else root.ZOO_ADMIN_ENCUESTA = factory(root.ZOO_ENCUESTA, root.ZOO_ICONOS);
-})(typeof self !== 'undefined' ? self : this, function (motor, iconos) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./encuesta-motor.js'), require('./admin-iconos.js'), require('./admin-filas.js'));
+  else root.ZOO_ADMIN_ENCUESTA = factory(root.ZOO_ENCUESTA, root.ZOO_ICONOS, root.ZOO_ADMIN_FILAS);
+})(typeof self !== 'undefined' ? self : this, function (motor, iconos, filas) {
   'use strict';
 
+  var F = filas;
   var M = motor || { CLAVES: [], ETIQUETAS_PREGUNTA: {}, URGENTE: 'Lo antes posible', ultimaRespondida: function () { return null; }, esNumeroFalso: function () { return false; } };
   var MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
@@ -180,7 +181,7 @@
       return {
         sessionId: s.sessionId, fecha: s.fecha, perfil: r.p1 || '', grupo: r.grupo || '', reto: r.p2 || '', urgencia: r.urgencia || '', origen: r.origen || '',
         completada: s.completada, tieneContacto: Boolean(s.numero || s.tieneContacto), mascara: s.mascara || enmascarar(s.numero),
-        avisoAceptado: s.avisoAceptado === true, atendida: s.atendida === true, ids: s.ids || [], idContacto: s.idContacto || ''
+        avisoAceptado: s.avisoAceptado === true, atendida: s.atendida === true, ids: s.ids || [], idContacto: s.idContacto || '', respuestas: r
       };
     }).sort(function (a, b) { return (b.fecha ? b.fecha.getTime() : 0) - (a.fecha ? a.fecha.getTime() : 0); });
   }
@@ -400,6 +401,8 @@
     return '<button type="button" class="ap-btn ap-btn--chico ap-btn--' + (clase || 'suave') + '" data-enc="' + accion + '" ' + atributos + '>' + ico(icono, 16) + texto + '</button>';
   }
 
+  function tile(icono, tono) { return '<span class="ap-ico-tile ap-tono-' + tono + '" aria-hidden="true">' + ico(icono, 18) + '</span>'; }
+
   function leadsHTML(r, detalle) {
     if (!r.leads.length) {
       return '<section class="enc-panel enc-panel--ancho"><h3>Personas que pidieron que un asesor las escriba</h3><p class="enc-vacio">Nadie ha dejado su WhatsApp todavía.</p></section>';
@@ -415,33 +418,51 @@
       if (l.atendida) chips.push('<span class="enc-chip enc-chip--ok">' + ico('check', 13) + 'Atendida</span>');
       var perfil = [l.perfil, l.grupo].filter(Boolean).join(' · ');
       // El número completo no está en la pantalla: se pide al servidor solo cuando se quiere escribir (queda anotado)
-      var escribir = detalle && l.idContacto
-        ? '<button type="button" class="enc-lead__num" data-enc="wa" data-id="' + esc(l.idContacto) + '">' + ico('message-circle', 15) + esc(l.mascara) + '</button>'
-        : '<a class="enc-lead__num" href="' + esc(l.wa) + '" target="_blank" rel="noopener">' + ico('message-circle', 15) + esc(l.mascara) + '</a>';
-      return '<li class="enc-lead' + (l.caliente ? ' is-caliente' : '') + (l.atendida ? ' is-atendida' : '') + '">' + escribir +
-        '<span class="enc-lead__perfil">' + esc(perfil || 'Sin perfil') + (l.completada ? '' : ' <small>(encuesta incompleta)</small>') + '</span>' +
-        '<span class="enc-lead__chips">' + chips.join('') + '</span>' +
-        '<span class="enc-lead__fecha">' + esc(formatoFecha(l.fecha)) + '</span></li>';
-    }).join('');
+      var puedeWa = detalle && l.idContacto;
+      var ids = (l.ids || []).join(',');
+      var acc = [];
+      if (puedeWa) acc.push({ t: 'Escribir por WhatsApp', i: 'message-circle', d: { enc: 'wa', id: l.idContacto } });
+      else if (l.wa) acc.push({ t: 'Escribir por WhatsApp', i: 'message-circle', h: l.wa });
+      if (detalle && ids) acc.push({ t: l.atendida ? 'Quitar marca de atendida' : 'Marcar atendida', i: l.atendida ? 'rotate-ccw' : 'check-check', d: { enc: 'atender', atendida: l.atendida ? '0' : '1' } });
+      return F.fila({
+        clase: 'ap-fc--lead' + (l.atendida ? ' ap-fc--atenuada' : ''),
+        avatar: tile(l.caliente ? 'flame' : 'message-circle', l.caliente ? 'aviso' : 'ok'),
+        titulo: l.mascara || 'Sin número',
+        accion: puedeWa ? { attr: 'enc', a: 'wa', datos: { id: l.idContacto } } : (l.wa ? { h: l.wa } : null),
+        meta: esc(perfil || 'Sin perfil') + (l.completada ? '' : ' (encuesta incompleta)'),
+        cols: [{ html: '<span class="ap-fc__v">' + esc(formatoFecha(l.fecha)) + '</span>' }],
+        estado: chips.join(''), reservarFin: true,
+        acciones: acc, etiquetaMenu: 'Acciones de ' + (l.mascara || 'esta persona'), datos: { ids: ids }
+      });
+    });
     return '<section class="enc-panel enc-panel--ancho"><h3>Personas que pidieron que un asesor las escriba</h3>' +
       '<p class="enc-nota">Los calientes (quieren empezar lo antes posible) van primero. Escríbeles solo si aceptaron el aviso de privacidad. ' +
       (detalle ? 'El número se muestra oculto; al pulsarlo se abre WhatsApp y la consulta queda anotada.' : '') + '</p>' +
-      '<ul class="enc-leads">' + filas + '</ul></section>';
+      F.lista(filas, { etiqueta: 'Personas que pidieron contacto' }) + '</section>';
   }
 
   function ramasHTML(r) {
     if (!r.ramas.length) return '';
     var d = function (x) { return x ? esc(x.valor) + ' <small>(' + num(x.n) + ')</small>' : '<span class="ap-sub">—</span>'; };
     var tabla = '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Perfil (rama)</th><th scope="col" class="ap-num-der">Empezaron</th><th scope="col" class="ap-num-der">Terminaron</th>' +
-      '<th scope="col" class="ap-num-der">Calientes</th><th scope="col" class="ap-num-der">Dejaron WhatsApp</th><th scope="col">Reto más frecuente</th><th scope="col">Dónde se quedan</th></tr></thead><tbody>' +
+      '<th scope="col" class="ap-num-der ap-col-3">Calientes</th><th scope="col" class="ap-num-der ap-col-3">Dejaron WhatsApp</th><th scope="col" class="ap-col-2">Reto más frecuente</th><th scope="col" class="ap-col-2">Dónde se quedan</th></tr></thead><tbody>' +
       r.ramas.map(function (x) {
         return '<tr><td data-label="Perfil"><strong>' + esc(x.perfil) + '</strong></td><td class="ap-num-der" data-label="Empezaron">' + num(x.total) + '</td>' +
-          '<td class="ap-num-der" data-label="Terminaron">' + num(x.completas) + ' <small>(' + x.pctCompletas + '%)</small></td><td class="ap-num-der" data-label="Calientes">' + num(x.calientes) + '</td>' +
-          '<td class="ap-num-der" data-label="Dejaron WhatsApp">' + num(x.conWhatsapp) + '</td><td data-label="Reto más frecuente">' + d(x.reto) + '</td>' +
-          '<td data-label="Dónde se quedan">' + (x.abandono ? esc(x.abandono.etiqueta) + ' <small>(' + num(x.abandono.n) + ')</small>' : '<span class="ap-sub">Nadie abandona</span>') + '</td></tr>';
+          '<td class="ap-num-der" data-label="Terminaron">' + num(x.completas) + ' <small>(' + x.pctCompletas + '%)</small></td><td class="ap-num-der ap-col-3" data-label="Calientes">' + num(x.calientes) + '</td>' +
+          '<td class="ap-num-der ap-col-3" data-label="Dejaron WhatsApp">' + num(x.conWhatsapp) + '</td><td class="ap-col-2" data-label="Reto más frecuente">' + d(x.reto) + '</td>' +
+          '<td class="ap-col-2" data-label="Dónde se quedan">' + (x.abandono ? esc(x.abandono.etiqueta) + ' <small>(' + num(x.abandono.n) + ')</small>' : '<span class="ap-sub">Nadie abandona</span>') + '</td></tr>';
       }).join('') + '</tbody></table></div></div>';
     return '<section class="enc-panel enc-panel--ancho"><h3>Resumen por rama del flujo</h3>' +
       '<p class="enc-nota">La rama es el perfil que la persona elige al principio. Muestra cuántas la empezaron, cuántas llegaron al final y en qué pregunta se quedan las demás.</p>' + tabla + '</section>';
+  }
+
+  function accionesRespuesta(f, detalle) {
+    var a = [{ t: 'Ver detalle', i: 'eye', d: { enc: 'detalle' } }];
+    if (detalle && f.ids.length) {
+      if (f.tieneContacto) a.push({ t: f.atendida ? 'Quitar marca de atendida' : 'Marcar atendida', i: f.atendida ? 'rotate-ccw' : 'check-check', d: { enc: 'atender', atendida: f.atendida ? '0' : '1' } });
+      a.push({ t: 'Borrar respuesta', i: 'trash-2', d: { enc: 'borrar' }, p: true, sep: true });
+    }
+    return a;
   }
 
   function respuestasHTML(r, detalle) {
@@ -454,28 +475,47 @@
     var cuerpo;
     if (!filas.length) cuerpo = '<p class="enc-vacio">Nadie coincide con ese filtro.</p>';
     else {
-      cuerpo = '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Fecha</th><th scope="col">Perfil</th><th scope="col">Reto</th><th scope="col">Cuándo quiere empezar</th><th scope="col">Estado</th><th scope="col">WhatsApp</th>' +
-        (detalle ? '<th scope="col"><span class="sr-only">Acciones</span></th>' : '') + '</tr></thead><tbody>' +
+      cuerpo = '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple ap-tabla--respuestas"><thead><tr><th scope="col">Perfil</th><th scope="col" class="ap-col-2">Fecha</th><th scope="col" class="ap-col-2">Reto</th><th scope="col" class="ap-col-3">Cuándo quiere empezar</th><th scope="col">Estado</th><th scope="col" class="ap-col-3">WhatsApp</th>' +
+        '<th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
         mostrar.map(function (f) {
-          var acc = '';
-          if (detalle) {
-            acc = '<td class="ap-celda-acciones"><div class="ap-acciones">' +
-              (f.tieneContacto ? botonAcc('atender', 'data-ids="' + esc(f.ids.join(',')) + '" data-atendida="' + (f.atendida ? '0' : '1') + '"', f.atendida ? 'rotate-ccw' : 'check-check', f.atendida ? 'Quitar marca' : 'Marcar atendida') : '') +
-              botonAcc('borrar', 'data-ids="' + esc(f.ids.join(',')) + '"', 'trash-2', 'Borrar', 'peligro-suave') + '</div></td>';
-          }
-          return '<tr><td data-label="Fecha"><span class="ap-fecha">' + esc(formatoFecha(f.fecha)) + '</span></td>' +
-            '<td data-label="Perfil"><strong>' + esc(f.perfil || 'Sin perfil') + '</strong>' + (f.grupo ? '<span class="ap-sub">' + esc(f.grupo) + '</span>' : '') + '</td>' +
-            '<td data-label="Reto">' + esc(f.reto || '—') + '</td><td data-label="Cuándo quiere empezar">' + esc(f.urgencia || '—') + '</td>' +
+          var acc = accionesRespuesta(f, detalle);
+          var datos = { sid: f.sessionId, ids: f.ids.join(',') };
+          var fin = acc.length > 1 ? F.botonMenu({ acciones: acc, etiqueta: 'Acciones de la respuesta de ' + (f.perfil || 'una persona'), datos: datos }) : '<span class="ap-fc__chevron" aria-hidden="true">' + ico('chevron-right', 18) + '</span>';
+          return '<tr class="ap-fila ap-fila-t ap-fila-t--toca">' +
+            '<td data-label="Perfil"><button type="button" class="ap-titulo-fila" data-enc="detalle" data-sid="' + esc(f.sessionId) + '">' + esc(f.perfil || 'Sin perfil') + '</button>' + (f.grupo ? '<span class="ap-sub">' + esc(f.grupo) + '</span>' : '') + '</td>' +
+            '<td class="ap-col-2" data-label="Fecha"><span class="ap-fecha">' + esc(formatoFecha(f.fecha)) + '</span></td>' +
+            '<td class="ap-col-2" data-label="Reto">' + esc(f.reto || '—') + '</td><td class="ap-col-3" data-label="Cuándo quiere empezar">' + esc(f.urgencia || '—') + '</td>' +
             '<td data-label="Estado"><span class="ap-badge ap-badge--' + (f.completada ? 'ok' : 'neutro') + '">' + ico(f.completada ? 'circle-check' : 'clock', 14) + '<span>' + (f.completada ? 'Terminó' : 'No terminó') + '</span></span></td>' +
-            '<td data-label="WhatsApp">' + (f.tieneContacto ? esc(f.mascara) + (f.atendida ? '<span class="ap-sub">Atendida</span>' : '<span class="ap-sub ap-sub--aviso">Por atender</span>') : '<span class="ap-sub">No dejó</span>') + '</td>' + acc + '</tr>';
+            '<td class="ap-col-3" data-label="WhatsApp">' + (f.tieneContacto ? esc(f.mascara) + (f.atendida ? '<span class="ap-sub">Atendida</span>' : '<span class="ap-sub ap-sub--aviso">Por atender</span>') : '<span class="ap-sub">No dejó</span>') + '</td>' +
+            '<td class="ap-celda-acciones">' + fin + '</td></tr>';
         }).join('') + '</tbody></table></div></div>' +
         '<p class="ap-pie-tabla" role="status">Mostrando ' + num(mostrar.length) + ' de ' + num(filas.length) + '</p>' +
         (filas.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-enc="mas">Mostrar ' + Math.min(25, filas.length - mostrar.length) + ' más</button>' : '');
     }
     return '<section class="enc-panel enc-panel--ancho"><div class="ap-acciones-lote" style="justify-content:space-between"><h3>Respuestas, una por persona</h3>' +
       botonAcc('csv-respuestas', filas.length ? '' : 'disabled', 'download', 'Descargar lista (CSV)') + '</div>' +
-      '<p class="enc-nota">Datos mínimos: el WhatsApp aparece oculto y la lista descargada también. ' + (detalle ? '' : 'Para marcar como atendida o borrar hace falta publicar el servidor nuevo.') + '</p>' +
+      '<p class="enc-nota">Datos mínimos: el WhatsApp aparece oculto y la lista descargada también. Toca una fila para ver todas sus respuestas. ' + (detalle ? '' : 'Para marcar como atendida o borrar hace falta publicar el servidor nuevo.') + '</p>' +
       '<div class="zs-chips" role="group" aria-label="Filtrar respuestas">' + chips + '</div>' + cuerpo + '</section>';
+  }
+
+  // Ventana con todas las respuestas de una persona (sin el número completo).
+  function detalleRespuestaHTML(f) {
+    var dato = function (t, v) { return '<div class="ap-dato"><dt>' + esc(t) + '</dt><dd>' + (v || '—') + '</dd></div>'; };
+    var etiquetas = M.ETIQUETAS_PREGUNTA || {};
+    var claves = (M.CLAVES || []).filter(function (k) { return f.respuestas && f.respuestas[k]; });
+    return '<div class="ap-ficha"><div class="ap-ficha__cab"><span class="ap-ico-tile" aria-hidden="true">' + ico('list-checks', 20) + '</span><div><strong>' + esc(f.perfil || 'Sin perfil') + '</strong>' +
+      '<span class="ap-badge ap-badge--' + (f.completada ? 'ok' : 'neutro') + '">' + ico(f.completada ? 'circle-check' : 'clock', 14) + '<span>' + (f.completada ? 'Terminó la encuesta' : 'No terminó') + '</span></span></div></div>' +
+      '<dl class="ap-datos">' + dato('Fecha', esc(formatoFecha(f.fecha))) + dato('Cuándo quiere empezar', esc(f.urgencia)) +
+      dato('WhatsApp', f.tieneContacto ? esc(f.mascara) + ' · ' + (f.atendida ? 'atendida' : 'por atender') : 'No dejó') +
+      dato('Aviso de privacidad', f.tieneContacto ? (f.avisoAceptado ? 'Aceptado' : 'Sin constancia') : '—') + '</dl>' +
+      '<h3>Sus respuestas</h3>' +
+      (claves.length ? '<dl class="ap-datos">' + claves.map(function (k) { return dato(etiquetas[k] || k, esc(f.respuestas[k])); }).join('') + '</dl>' : '<p class="ap-nada">No contestó ninguna pregunta.</p>') + '</div>';
+  }
+
+  function accionesPregunta(x) {
+    return [{ t: 'Ver detalle', i: 'eye', d: { enc: 'pregunta-detalle' } },
+      { t: x.atendida ? 'Quitar marca de atendida' : 'Marcar atendida', i: x.atendida ? 'rotate-ccw' : 'check-check', d: { enc: 'pregunta-atender', atendida: x.atendida ? '0' : '1' } },
+      { t: 'Borrar pregunta', i: 'trash-2', d: { enc: 'pregunta-borrar' }, p: true, sep: true }];
   }
 
   function preguntasHTML(estadoPreguntas) {
@@ -486,15 +526,16 @@
     var p = calcularPreguntas(estadoPreguntas.preguntas);
     var items = UI.ocultarAtendidas ? p.items.filter(function (x) { return !x.atendida; }) : p.items;
     var cuerpo = items.length
-      ? '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Pregunta</th><th scope="col">Tipo</th><th scope="col" class="ap-num-der">Veces</th><th scope="col">Última vez</th>' +
-        (detalle ? '<th scope="col">Estado</th><th scope="col"><span class="sr-only">Acciones</span></th>' : '') + '</tr></thead><tbody>' +
+      ? '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple ap-tabla--preguntas"><thead><tr><th scope="col">Pregunta</th><th scope="col" class="ap-col-3">Tipo</th><th scope="col" class="ap-col-num">Veces</th><th scope="col" class="ap-col-2">Última vez</th>' +
+        (detalle ? '<th scope="col" class="ap-col-3">Estado</th><th scope="col"><span class="sr-only">Acciones</span></th>' : '') + '</tr></thead><tbody>' +
         items.map(function (x) {
-          var acc = detalle && x.clave
-            ? '<td data-label="Estado">' + (x.atendida ? '<span class="ap-badge ap-badge--ok">' + ico('check-check', 14) + '<span>Atendida</span></span>' : '<span class="ap-badge ap-badge--aviso">' + ico('clock', 14) + '<span>Por atender</span></span>') + '</td>' +
-              '<td class="ap-celda-acciones"><div class="ap-acciones">' + botonAcc('pregunta-atender', 'data-id="' + esc(x.clave) + '" data-atendida="' + (x.atendida ? '0' : '1') + '"', x.atendida ? 'rotate-ccw' : 'check-check', x.atendida ? 'Quitar marca' : 'Marcar atendida') +
-              botonAcc('pregunta-borrar', 'data-id="' + esc(x.clave) + '"', 'trash-2', 'Borrar', 'peligro-suave') + '</div></td>'
-            : (detalle ? '<td></td><td></td>' : '');
-          return '<tr><td data-label="Pregunta">' + esc(x.texto) + '</td><td data-label="Tipo">' + (x.tipo === 'animal' ? 'Animal' : 'Otra') + '</td><td class="ap-num-der" data-label="Veces">' + num(x.veces) + '</td><td data-label="Última vez">' + esc(formatoFecha(x.ultimaVez)) + '</td>' + acc + '</tr>';
+          var conAcciones = detalle && x.clave;
+          var titulo = conAcciones ? '<button type="button" class="ap-titulo-fila" data-enc="pregunta-detalle" data-id="' + esc(x.clave) + '">' + esc(x.texto) + '</button>' : esc(x.texto);
+          var acc = detalle
+            ? '<td class="ap-col-3" data-label="Estado">' + (x.atendida ? '<span class="ap-badge ap-badge--ok">' + ico('check-check', 14) + '<span>Atendida</span></span>' : '<span class="ap-badge ap-badge--aviso">' + ico('clock', 14) + '<span>Por atender</span></span>') + '</td>' +
+              '<td class="ap-celda-acciones">' + (conAcciones ? F.botonMenu({ acciones: accionesPregunta(x), etiqueta: 'Acciones de la pregunta ' + x.texto.slice(0, 40), datos: { id: x.clave } }) : '') + '</td>'
+            : '';
+          return '<tr class="ap-fila ap-fila-t' + (conAcciones ? ' ap-fila-t--toca' : '') + '"><td data-label="Pregunta">' + titulo + '</td><td class="ap-col-3" data-label="Tipo">' + (x.tipo === 'animal' ? 'Animal' : 'Otra') + '</td><td class="ap-col-num" data-label="Veces">' + num(x.veces) + '</td><td class="ap-col-2" data-label="Última vez">' + esc(formatoFecha(x.ultimaVez)) + '</td>' + acc + '</tr>';
         }).join('') + '</tbody></table></div></div>'
       : '<p class="enc-vacio">' + (p.items.length ? 'Todas las preguntas están atendidas.' : 'La guía no ha tenido preguntas sin respuesta.') + '</p>';
     var controles = '<div class="ap-acciones-lote">' +
@@ -558,7 +599,7 @@
     var detalle = enc.ok && enc.detalle === true;
     var calculado = enc.ok ? calcular(enc.docs) : null;
     var repintar = function () { montar(contenedor, estado, deps); };
-    var ids = function (b) { return String(b.dataset.ids || '').split(',').filter(Boolean); };
+    var ids = function (ds) { return String(ds.ids || '').split(',').filter(Boolean); };
 
     async function pedirNumero(id) {
       var r = await deps.api('/api/admin/encuesta/' + encodeURIComponent(id) + '/contacto');
@@ -568,9 +609,12 @@
     contenedor.onclick = async function (ev) {
       var b = ev.target.closest('[data-enc]');
       if (!b || b.disabled) return;
-      var acc = b.dataset.enc;
+      await hacer(b.dataset.enc, b.dataset);
+    };
+
+    async function hacer(acc, ds) {
       try {
-        if (acc === 'filtro') { UI.filtro = b.dataset.id; UI.visibles = 25; repintar(); return; }
+        if (acc === 'filtro') { UI.filtro = ds.id; UI.visibles = 25; repintar(); return; }
         if (acc === 'mas') { UI.visibles += 25; repintar(); return; }
         if (acc === 'ocultar-atendidas') { UI.ocultarAtendidas = !UI.ocultarAtendidas; repintar(); return; }
         if (acc === 'csv-respuestas') {
@@ -586,46 +630,69 @@
           deps.toast('Se descargó la lista de preguntas.');
           return;
         }
+        if (acc === 'detalle') {
+          var fila = (calculado ? calculado.filas : []).filter(function (x) { return x.sessionId === ds.sid; })[0];
+          if (!fila) return;
+          var botones = [{ id: 'cerrar', texto: 'Cerrar', tipo: 'suave' }];
+          if (detalle && fila.ids.length && fila.tieneContacto) botones.push({ id: 'atender', texto: fila.atendida ? 'Quitar marca de atendida' : 'Marcar atendida', tipo: 'primario' });
+          var elegido = await deps.modal({ titulo: 'Respuesta de la encuesta', cuerpo: detalleRespuestaHTML(fila), botones: botones, ancho: 'ancho' });
+          if (elegido === 'atender') await hacer('atender', { ids: fila.ids.join(','), atendida: fila.atendida ? '0' : '1' });
+          return;
+        }
+        if (acc === 'pregunta-detalle') {
+          var preg = calcularPreguntas(estado.preguntas.preguntas || []).items.filter(function (x) { return x.clave === ds.id; })[0];
+          if (!preg) return;
+          var cuerpoP = '<div class="ap-ficha"><p class="ap-modal__texto">' + esc(preg.texto) + '</p><dl class="ap-datos">' +
+            '<div class="ap-dato"><dt>Tipo</dt><dd>' + (preg.tipo === 'animal' ? 'Animal' : 'Otra') + '</dd></div>' +
+            '<div class="ap-dato"><dt>Veces</dt><dd>' + num(preg.veces) + '</dd></div>' +
+            '<div class="ap-dato"><dt>Última vez</dt><dd>' + esc(formatoFecha(preg.ultimaVez)) + '</dd></div>' +
+            '<div class="ap-dato"><dt>Estado</dt><dd>' + (preg.atendida ? 'Atendida' : 'Por atender') + '</dd></div></dl></div>';
+          var eleg = await deps.modal({ titulo: 'Pregunta sin respuesta', cuerpo: cuerpoP, ancho: 'ancho',
+            botones: [{ id: 'cerrar', texto: 'Cerrar', tipo: 'suave' }, { id: 'borrar', texto: 'Borrar', tipo: 'peligro' }, { id: 'atender', texto: preg.atendida ? 'Quitar marca de atendida' : 'Marcar atendida', tipo: 'primario' }] });
+          if (eleg === 'atender') await hacer('pregunta-atender', { id: preg.clave, atendida: preg.atendida ? '0' : '1' });
+          else if (eleg === 'borrar') await hacer('pregunta-borrar', { id: preg.clave });
+          return;
+        }
         if (acc === 'wa') {
           // Se abre la ventana en el clic (para que no la bloquee el navegador) y se llena cuando llega el número
           var ventana = window.open('', '_blank');
           if (ventana) ventana.opener = null;
           try {
-            var numero = await pedirNumero(b.dataset.id);
+            var numero = await pedirNumero(ds.id);
             if (!numero) throw new Error('Esa respuesta no tiene número.');
             if (ventana) ventana.location.href = 'https://wa.me/' + numero; else window.location.href = 'https://wa.me/' + numero;
           } catch (e) { if (ventana) ventana.close(); throw e; }
           return;
         }
         if (acc === 'atender') {
-          await deps.api('/api/admin/encuesta/atender', { method: 'POST', body: { ids: ids(b), atendida: b.dataset.atendida === '1' } });
-          deps.toast(b.dataset.atendida === '1' ? 'Marcada como atendida.' : 'Se quitó la marca.');
+          await deps.api('/api/admin/encuesta/atender', { method: 'POST', body: { ids: ids(ds), atendida: ds.atendida === '1' } });
+          deps.toast(ds.atendida === '1' ? 'Marcada como atendida.' : 'Se quitó la marca.');
           await deps.recargar();
           return;
         }
         if (acc === 'borrar') {
           var si = await deps.confirmar({ titulo: 'Borrar respuesta', texto: 'Se borrará esta respuesta de la encuesta. El servidor guarda una copia en <code>adminPapelera</code> por si fue un error.', aceptar: 'Sí, borrar', cancelar: 'Mejor no', peligro: true });
           if (!si) return;
-          await deps.api('/api/admin/encuesta/borrar', { method: 'POST', body: { ids: ids(b) } });
+          await deps.api('/api/admin/encuesta/borrar', { method: 'POST', body: { ids: ids(ds) } });
           deps.toast('Respuesta borrada.');
           await deps.recargar();
           return;
         }
         if (acc === 'pregunta-atender') {
-          await deps.api('/api/admin/chatbot/sin-respuesta/atender', { method: 'POST', body: { claves: [b.dataset.id], atendida: b.dataset.atendida === '1' } });
-          deps.toast(b.dataset.atendida === '1' ? 'Pregunta marcada como atendida.' : 'Se quitó la marca.');
+          await deps.api('/api/admin/chatbot/sin-respuesta/atender', { method: 'POST', body: { claves: [ds.id], atendida: ds.atendida === '1' } });
+          deps.toast(ds.atendida === '1' ? 'Pregunta marcada como atendida.' : 'Se quitó la marca.');
           await deps.recargar();
           return;
         }
         if (acc === 'pregunta-borrar') {
           var ok = await deps.confirmar({ titulo: 'Borrar pregunta', texto: 'Se borrará esta pregunta de la lista. El servidor guarda una copia en <code>adminPapelera</code>.', aceptar: 'Sí, borrar', cancelar: 'Mejor no', peligro: true });
           if (!ok) return;
-          await deps.api('/api/admin/chatbot/sin-respuesta/borrar', { method: 'POST', body: { claves: [b.dataset.id] } });
+          await deps.api('/api/admin/chatbot/sin-respuesta/borrar', { method: 'POST', body: { claves: [ds.id] } });
           deps.toast('Pregunta borrada.');
           await deps.recargar();
         }
       } catch (e) { deps.toast((e && e.message) || 'No se pudo completar la acción.', true); }
-    };
+    }
     var recargar = contenedor.querySelector('#encRecargar');
     if (recargar) recargar.addEventListener('click', function () { deps.recargar(); });
     void detalle;
@@ -634,6 +701,7 @@
   return {
     UI: UI, enmascarar: enmascarar, ramas: ramas, filasRespuestas: filasRespuestas, FILTROS_RESPUESTAS: FILTROS_RESPUESTAS, filtrarRespuestas: filtrarRespuestas,
     csvRespuestas: csvRespuestas, csvPreguntas: csvPreguntas, celdaCsv: celdaCsv, ramasHTML: ramasHTML, respuestasHTML: respuestasHTML, montar: montar,
+    detalleRespuestaHTML: detalleRespuestaHTML, accionesRespuesta: accionesRespuesta, accionesPregunta: accionesPregunta,
     esc: esc, aFecha: aFecha, formatoFecha: formatoFecha, contactoDe: contactoDe, consolidar: consolidar, numeroDudoso: numeroDudoso,
     distribucion: distribucion, calcular: calcular, calcularPreguntas: calcularPreguntas,
     mensajeError: mensajeError, cargar: cargar,

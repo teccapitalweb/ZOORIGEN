@@ -74,6 +74,9 @@
   /* PANTALLA                                                      */
   /* ============================================================ */
   var $ = function (id) { return document.getElementById(id); };
+  // Filas compactas con UN menú «…» (ZOO_ADMIN_FILAS). Cada acción lleva el mismo data-* que ya escuchan los clics de cada pestaña.
+  function tileFila(icono, tono) { var I = window.ZOO_ICONOS; return '<span class="ap-ico-tile ap-tono-' + tono + '" aria-hidden="true">' + (I && I.svg ? I.svg(icono, { size: 18 }) : '') + '</span>'; }
+  function listaFilas(filas, etiqueta) { return window.ZOO_ADMIN_FILAS.lista(filas, { etiqueta: etiqueta }); }
   function opciones(lista, actual) { return lista.map(function (x) { return '<option value="' + esc(x[0]) + '"' + (x[0] === actual ? ' selected' : '') + '>' + esc(x[1]) + '</option>'; }).join(''); }
   function fecha(v) {
     var d = v ? new Date(v) : null;
@@ -141,12 +144,16 @@
           '<div class="an-card"><h3>Así se verá</h3><div id="anPrevia" class="an-previa"></div><p class="an-nota">Las noticias automáticas llegan solas cada mañana. Las que publiques aquí no caducan.</p></div>' +
         '</div>' +
         '<h3 class="an-subtitulo">Noticias publicadas (' + lista.length + ')</h3>' +
-        '<div class="admin-content-list">' + (lista.length ? lista.map(function (n) {
-          return '<div class="admin-content-item"><div class="admin-content-item__info"><div class="admin-content-item__title">' + esc(n.titulo) + '</div>' +
-            '<div class="admin-content-item__meta">' + esc(n.fuente || '—') + ' · ' + esc(n.categoriaNombre || n.categoria || '') + ' · ' + esc(fecha(n.fecha || n.creadoEn)) + ' · ' + esc(origenTexto(n.origen)) +
-            (n.link ? ' · <a href="' + esc(n.link) + '" target="_blank" rel="noopener noreferrer" style="color:var(--zoo-green-500);">Ver nota</a>' : '') + '</div></div>' +
-            '<div class="admin-content-item__actions"><button class="btn-small delete" data-borrar-noticia="' + esc(n.id) + '">Eliminar</button></div></div>';
-        }).join('') : '<div class="no-data">Todavía no hay noticias. Pulsa “Buscar noticias ahora” o publica la primera.</div>') + '</div>';
+        (lista.length ? listaFilas(lista.map(function (n) {
+          var acc = [];
+          if (n.link) acc.push({ t: 'Ver la nota original', i: 'external-link', h: n.link });
+          acc.push({ t: 'Eliminar noticia', i: 'trash-2', d: { borrarNoticia: n.id }, p: true, sep: !!n.link });
+          return window.ZOO_ADMIN_FILAS.fila({
+            clase: 'ap-fc--meta2', avatar: tileFila('newspaper', 'info'), titulo: n.titulo,
+            meta: esc(n.fuente || '—') + ' · ' + esc(n.categoriaNombre || n.categoria || '') + ' · ' + esc(fecha(n.fecha || n.creadoEn)) + ' · ' + esc(origenTexto(n.origen)),
+            acciones: acc, etiquetaMenu: 'Acciones de la noticia ' + n.titulo
+          });
+        }), 'Noticias publicadas') : '<div class="no-data">Todavía no hay noticias. Pulsa “Buscar noticias ahora” o publica la primera.</div>');
       ['anTitulo', 'anResumen', 'anCat', 'anFuente', 'anLink', 'anImg'].forEach(function (id) { $(id).addEventListener('input', previaNoticia); });
       $('anPlantillas').addEventListener('click', function (e) {
         var b = e.target.closest('.an-plantilla'); if (!b) return; plantilla = b.dataset.p;
@@ -187,11 +194,20 @@
           '<div class="modal-actions" style="justify-content:flex-start;"><button class="btn-save" id="anAgregarDato">Agregar</button></div></div>' +
         '<div class="an-card"><h3>Cómo funciona</h3><p class="an-nota">Se envía un dato por notificación cada <strong>martes y viernes</strong>. Se elige el que menos veces se ha enviado. Hoy hay <strong>' + activos + '</strong> activos de ' + lista.length + '. Pausa un dato si dejó de ser exacto. <strong>Solo agrega datos que hayas verificado.</strong></p></div></div>' +
         '<h3 class="an-subtitulo">Banco de datos (' + lista.length + ')</h3>' +
-        '<div class="admin-content-list">' + (lista.length ? lista.map(function (d) {
-          return '<div class="admin-content-item' + (d.activo === false ? ' an-pausado' : '') + '"><div class="admin-content-item__info"><div class="admin-content-item__title">' + esc(d.texto) + '</div>' +
-            '<div class="admin-content-item__meta">' + esc(d.tema || 'General') + (d.fuente ? ' · ' + esc(d.fuente) : '') + ' · enviado ' + (d.veces || 0) + ' vez/veces' + (d.ultimoEnvio ? ' · último: ' + esc(d.ultimoEnvio) : '') + (d.activo === false ? ' · <strong>en pausa</strong>' : '') + '</div></div>' +
-            '<div class="admin-content-item__actions"><button class="btn-small" data-dato-enviar="' + esc(d.id) + '">Enviar ahora</button> <button class="btn-small" data-dato-pausa="' + esc(d.id) + '" data-activo="' + (d.activo === false ? '1' : '0') + '">' + (d.activo === false ? 'Activar' : 'Pausar') + '</button> <button class="btn-small delete" data-dato-borrar="' + esc(d.id) + '">Eliminar</button></div></div>';
-        }).join('') : '<div class="no-data">El banco está vacío.</div>') + '</div>';
+        (lista.length ? listaFilas(lista.map(function (d) {
+          var pausado = d.activo === false;
+          return window.ZOO_ADMIN_FILAS.fila({
+            clase: 'ap-fc--meta2', avatar: tileFila('sparkles', pausado ? 'neutro' : 'ok'), titulo: d.texto,
+            meta: esc(d.tema || 'General') + (d.fuente ? ' · ' + esc(d.fuente) : '') + ' · enviado ' + (d.veces || 0) + ' vez/veces' + (d.ultimoEnvio ? ' · último: ' + esc(d.ultimoEnvio) : ''),
+            estado: pausado ? '<span class="ap-badge ap-badge--apagado"><span>En pausa</span></span>' : '<span class="ap-badge ap-badge--ok"><span>Activo</span></span>',
+            acciones: [
+              { t: 'Enviar ahora a todos', i: 'send', d: { datoEnviar: d.id } },
+              { t: pausado ? 'Activar dato' : 'Pausar dato', i: pausado ? 'play' : 'pause', d: { datoPausa: d.id, activo: pausado ? '1' : '0' } },
+              { t: 'Eliminar dato', i: 'trash-2', d: { datoBorrar: d.id }, p: true, sep: true }
+            ],
+            etiquetaMenu: 'Acciones del dato curioso'
+          });
+        }), 'Banco de datos curiosos') : '<div class="no-data">El banco está vacío.</div>');
       var area = $('anDato'); area.addEventListener('input', function () { $('anCont').textContent = area.value.length + ' / 300'; });
       $('anAgregarDato').addEventListener('click', function () {
         var v = validarDato({ texto: area.value, tema: $('anTema').value, fuente: $('anDFuente').value, enviarYa: $('anYa').checked });
@@ -219,10 +235,13 @@
           '<div class="modal-actions" style="justify-content:flex-start;"><button class="btn-save" id="avEnviar">Enviar a todos</button></div></div>' +
         '<div class="an-card"><h3>Vista previa</h3><div class="an-aviso" id="avPrevia"></div><p class="an-nota">Aparece en la campana de todos los miembros. Cada persona puede borrarlo de su lista.</p></div></div>' +
         '<h3 class="an-subtitulo">Avisos recientes (' + lista.length + ')</h3>' +
-        '<div class="admin-content-list">' + (lista.length ? lista.map(function (a) {
-          return '<div class="admin-content-item"><div class="admin-content-item__info"><div class="admin-content-item__title">' + esc(a.titulo) + '</div><div class="admin-content-item__meta">' + esc(a.descripcion || a.texto || '') + ' · ' + esc(a.tipo || '') + ' · ' + esc(fecha(a.fecha || a.creadoEn)) + '</div></div>' +
-            '<div class="admin-content-item__actions"><button class="btn-small delete" data-aviso-borrar="' + esc(a.id) + '">Eliminar</button></div></div>';
-        }).join('') : '<div class="no-data">Todavía no hay avisos.</div>') + '</div>';
+        (lista.length ? listaFilas(lista.map(function (a) {
+          return window.ZOO_ADMIN_FILAS.fila({
+            clase: 'ap-fc--meta2', avatar: tileFila('bell', 'aviso'), titulo: a.titulo,
+            meta: esc(a.descripcion || a.texto || '') + ' · ' + esc(a.tipo || '') + ' · ' + esc(fecha(a.fecha || a.creadoEn)),
+            acciones: [{ t: 'Eliminar aviso', i: 'trash-2', d: { avisoBorrar: a.id }, p: true }], etiquetaMenu: 'Acciones del aviso ' + a.titulo
+          });
+        }), 'Avisos recientes') : '<div class="no-data">Todavía no hay avisos.</div>');
       function previa() { $('avPrevia').innerHTML = '<strong>' + esc($('avTitulo').value || 'Título del aviso') + '</strong><span>' + esc($('avDesc').value || 'Aquí va la descripción.') + '</span>'; }
       ['avTitulo', 'avDesc'].forEach(function (id) { $(id).addEventListener('input', previa); }); previa();
       $('avEnviar').addEventListener('click', function () {

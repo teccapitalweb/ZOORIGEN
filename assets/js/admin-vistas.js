@@ -12,6 +12,7 @@
 
   var P = root.ZOO_ADMIN_PANEL;
   var I = root.ZOO_ICONOS;
+  var F = root.ZOO_ADMIN_FILAS;
   var esc = P.esc;
   var ico = function (n, o) { return I && I.svg ? I.svg(n, o) : ''; };
 
@@ -63,6 +64,18 @@
 
   // Toda tabla va dentro de .ap-tabla-zona: el CONTENEDOR (no la ventana) decide si se ve como tabla o como tarjetas apiladas.
   function tablaZona(tabla) { return '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura">' + tabla + '</div></div>'; }
+
+  // Fila de persona con su vencimiento (Resumen y Suscripciones): título = nombre, línea pequeña, vence a la derecha y ficha al tocar.
+  function filaPersonaVence(m, nota) {
+    var vence = m.vence ? '<span class="ap-fc__v"><span class="sr-only">Vence </span>' + esc(P.fmtFecha(m.vence)) + '</span><span class="ap-fc__s">' + esc(P.relativo(m.vence)) + '</span>' : '<span class="ap-fc__v">—</span>';
+    return F.fila({
+      avatar: '<span class="ap-avatar ap-avatar--' + esc(m.estado || 'activo') + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span>',
+      titulo: m.nombre || 'Sin nombre', accion: { a: 'ficha', datos: { uid: m.uid } },
+      meta: '<span class="ap-fc__correo">' + esc(nota || m.correo || '—') + '</span>',
+      metaChico: m.vence ? '<span class="ap-fc__sep"> · </span>Vence ' + esc(P.fmtFecha(m.vence)) : '',
+      cols: [{ html: vence }], chevron: true
+    });
+  }
 
   function acciones(e, mapa) {
     var b = e.target.closest('[data-accion]');
@@ -191,10 +204,7 @@
     ]);
 
     var venc = r.proximosVencimientos.length
-      ? '<ul class="ap-lista">' + r.proximosVencimientos.map(function (v) {
-        return '<li><button type="button" class="ap-lista__fila" data-accion="ficha" data-uid="' + esc(v.uid) + '"><span class="ap-lista__t"><strong>' + esc(v.nombre || 'Sin nombre') + '</strong><span>' + esc(v.correo) + '</span></span>' +
-          '<span class="ap-lista__d">' + esc(P.fmtFecha(v.vence)) + '<small>' + esc(P.relativo(v.vence)) + '</small></span></button></li>';
-      }).join('') + '</ul>'
+      ? F.lista(r.proximosVencimientos.map(function (v) { return filaPersonaVence(v); }), { etiqueta: 'Próximos vencimientos' })
       : vacio('Nadie vence esta semana', 'Cuando una membresía esté por vencer, aparecerá aquí.', 'calendar-clock');
 
     var act = r.actividadReciente.length
@@ -228,30 +238,34 @@
     return [plan, origen].filter(Boolean).join(' · ');
   }
 
-  // Botones de una fila de la tabla. Las cuentas de administración solo tienen «Ver ficha» (no se regalan ni se eliminan).
-  function botonesMiembro(m) {
-    var uid = esc(m.uid);
-    var btn = function (accion, clase, icono, texto) {
-      return '<button type="button" class="ap-btn ap-btn--chico ap-btn--' + clase + '" data-accion="' + accion + '" data-uid="' + uid + '">' + ico(icono, { size: 16 }) + texto + '</button>';
-    };
-    var html = btn('ficha', 'primario', 'eye', 'Ver ficha');
-    if (m.esAdmin) return html;
-    html += btn('activar', 'suave', m.conAcceso ? 'calendar-plus' : 'badge-check', m.conAcceso ? 'Ampliar' : 'Activar');
-    html += btn('regalar', 'suave', 'gift', 'Regalar');
-    if (m.conAcceso && m.estado !== 'cancelado-vigente') html += btn('cancelar', 'peligro-suave', 'ban', 'Cancelar');
-    html += btn('eliminar', 'peligro-suave', 'trash-2', 'Eliminar');
-    return html;
+  // Acciones del menú «…» de cada miembro. Las cuentas de administración solo tienen «Ver ficha» (no se regalan ni se eliminan).
+  function accionesMiembro(m) {
+    var a = [{ t: 'Ver ficha', i: 'eye', a: 'ficha' }];
+    if (m.esAdmin) return a;
+    a.push({ t: m.conAcceso ? 'Ampliar membresía' : 'Activar membresía', i: m.conAcceso ? 'calendar-plus' : 'badge-check', a: 'activar' });
+    a.push({ t: 'Regalar 1 mes o 1 año', i: 'gift', a: 'regalar' });
+    if (m.conAcceso && m.estado !== 'cancelado-vigente') a.push({ t: 'Cancelar membresía', i: 'ban', a: 'cancelar' });
+    a.push({ t: 'Eliminar miembro', i: 'trash-2', a: 'eliminar', p: true, sep: true });
+    return a;
   }
 
   function filaMiembro(m) {
     var pronto = m.conAcceso && m.vence && (new Date(m.vence).getTime() - Date.now()) < 7 * 86400000;
-    return '<tr class="ap-fila" data-uid="' + esc(m.uid) + '">' +
-      '<td class="ap-celda-miembro" data-label="Miembro"><div class="ap-persona"><span class="ap-avatar ap-avatar--' + esc(m.estado) + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span>' +
-      '<div class="ap-persona__txt"><strong>' + esc(m.nombre || 'Sin nombre') + (m.esAdmin ? ' <span class="ap-etiqueta">Admin</span>' : '') + '</strong><span class="ap-correo">' + esc(m.correo || '—') + '</span></div></div></td>' +
-      '<td data-label="Estado">' + P.insignia(m.estado) + (planTexto(m) ? '<span class="ap-sub">' + esc(planTexto(m)) + '</span>' : '') + '</td>' +
-      '<td data-label="Vence">' + (m.vence ? '<span class="ap-fecha">' + esc(P.fmtFecha(m.vence)) + '</span><span class="ap-sub' + (pronto ? ' ap-sub--aviso' : '') + '">' + esc(P.relativo(m.vence)) + '</span>' : '<span class="ap-sub">—</span>') + '</td>' +
-      '<td data-label="Registro"><span class="ap-fecha">' + esc(P.fmtFecha(m.registro)) + '</span></td>' +
-      '<td class="ap-celda-acciones"><div class="ap-acciones">' + botonesMiembro(m) + '</div></td></tr>';
+    var vence = m.vence
+      ? '<span class="ap-fc__v"><span class="sr-only">Vence </span>' + esc(P.fmtFecha(m.vence)) + '</span><span class="ap-fc__s' + (pronto ? ' ap-fc__s--aviso' : '') + '">' + esc(P.relativo(m.vence)) + '</span>'
+      : '<span class="ap-fc__v">—</span>';
+    return F.fila({
+      avatar: '<span class="ap-avatar ap-avatar--' + esc(m.estado) + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span>',
+      titulo: m.nombre || 'Sin nombre', etiqueta: m.esAdmin ? 'Admin' : '',
+      accion: { a: 'ficha', datos: { uid: m.uid } },
+      meta: '<span class="ap-fc__correo">' + ico('mail', { size: 12 }) + '<span class="ap-correo">' + esc(m.correo || '—') + '</span></span>' +
+        (m.registro ? '<span class="ap-fc__reg"> · Registro ' + esc(P.fmtFecha(m.registro)) + '</span>' : ''),
+      metaChico: m.vence ? '<span class="ap-fc__sep"> · </span>Vence ' + esc(P.fmtFecha(m.vence)) : '',
+      cols: [{ html: vence }],
+      estado: P.insignia(m.estado) + (planTexto(m) ? '<span class="ap-fc__s">' + esc(planTexto(m)) + '</span>' : ''),
+      acciones: accionesMiembro(m), etiquetaMenu: 'Acciones de ' + (m.nombre || m.correo || 'este miembro'), datos: { uid: m.uid },
+      atributos: { uid: m.uid }
+    });
   }
 
   function pintarListaMiembros() {
@@ -267,8 +281,7 @@
       return;
     }
     var mostrar = lista.slice(0, estado.visibles);
-    cont.innerHTML = tablaZona('<table class="ap-tabla"><thead><tr><th scope="col">Miembro</th><th scope="col">Estado</th><th scope="col">Vence</th><th scope="col">Registro</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
-      mostrar.map(filaMiembro).join('') + '</tbody></table>') +
+    cont.innerHTML = F.lista(mostrar.map(filaMiembro), { cab: { principal: 'Miembro', cols: ['Vence'], estado: 'Estado' }, etiqueta: 'Miembros' }) +
       '<p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(mostrar.length) + ' de ' + P.fmtNum(lista.length) + '</p>' +
       (lista.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="mas">Mostrar ' + Math.min(25, lista.length - mostrar.length) + ' más</button>' : '');
   }
@@ -530,20 +543,25 @@
   }
 
   function filaEliminado(e) {
-    var boton = e.restaurable
-      ? '<button type="button" class="ap-btn ap-btn--chico ap-btn--primario" data-accion="restaurar" data-uid="' + esc(e.uid) + '">' + ico('rotate-ccw', { size: 16 }) + 'Restaurar</button>'
+    var estadoE = e.restaurable ? ''
       : '<span class="ap-badge ap-badge--' + (e.estado === 'restaurado' ? 'ok' : 'apagado') + '">' + ico(e.estado === 'restaurado' ? 'circle-check' : 'circle-x', { size: 14 }) +
         '<span>' + esc(e.estado === 'restaurado' ? 'Ya restaurado' : e.motivo === 'vencido' ? 'Pasaron los 30 días' : 'No restaurable') + '</span></span>';
-    return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(e.nombre || 'Sin nombre') + '</strong><span class="ap-correo">' + esc(e.correo || '—') + '</span>' +
-      '<span>Eliminada el ' + esc(P.fmtFecha(e.eliminadoEn)) + (e.restaurable ? ' · se puede restaurar hasta el ' + esc(P.fmtFecha(e.restaurableHasta)) : '') + ' · ' + esc(P.fmtNum(e.cursosConAvance)) + ' cursos con avance</span></span>' +
-      '<span class="ap-lista__d">' + boton + '</span></div></li>';
+    return F.fila({
+      clase: 'ap-fc--meta2',
+      avatar: '<span class="ap-avatar ap-avatar--vencido" aria-hidden="true">' + esc(P.iniciales(e.nombre || e.correo)) + '</span>',
+      titulo: e.nombre || 'Sin nombre', accion: e.restaurable ? { a: 'restaurar', datos: { uid: e.uid } } : null,
+      meta: '<span class="ap-correo">' + esc(e.correo || '—') + '</span> · Eliminada el ' + esc(P.fmtFecha(e.eliminadoEn)) + (e.restaurable ? ' · restaurable hasta el ' + esc(P.fmtFecha(e.restaurableHasta)) : '') + ' · ' + esc(P.fmtNum(e.cursosConAvance)) + ' cursos con avance',
+      estado: estadoE, reservarFin: true,
+      acciones: e.restaurable ? [{ t: 'Restaurar miembro', i: 'rotate-ccw', a: 'restaurar' }] : [],
+      etiquetaMenu: 'Acciones de ' + (e.nombre || e.correo || 'esta persona'), datos: { uid: e.uid }
+    });
   }
 
   async function abrirEliminados() {
     var r;
     try { r = await ctx.api('/api/admin/eliminados'); } catch (e) { ctx.toast(e.message || 'No se pudo abrir la lista.', true); return; }
     var cuerpo = r.eliminados.length
-      ? '<p class="ap-modal__texto">Estas cuentas se eliminaron con una copia completa. Puedes restaurarlas durante ' + esc(P.fmtNum(r.diasParaRestaurar)) + ' días; la persona debe usar «Olvidé mi contraseña» para entrar de nuevo.</p><ul class="ap-lista">' + r.eliminados.map(filaEliminado).join('') + '</ul>'
+      ? '<p class="ap-modal__texto">Estas cuentas se eliminaron con una copia completa. Puedes restaurarlas durante ' + esc(P.fmtNum(r.diasParaRestaurar)) + ' días; la persona debe usar «Olvidé mi contraseña» para entrar de nuevo.</p>' + F.lista(r.eliminados.map(filaEliminado), { etiqueta: 'Eliminados recientemente' })
       : vacio('Nadie eliminado', 'Cuando elimines a un miembro, aparecerá aquí para que puedas restaurarlo.', 'archive-restore');
     var elegido = null;
     await modal({
@@ -597,12 +615,9 @@
     var pendientes = lista.filter(function (m) { return m.estado === 'pago-pendiente'; });
     var manuales = lista.filter(function (m) { return m.origen === 'manual' && m.conAcceso; });
 
-    var fila = function (m) {
-      return '<li><button type="button" class="ap-lista__fila" data-accion="ficha" data-uid="' + esc(m.uid) + '"><span class="ap-lista__t"><strong>' + esc(m.nombre || 'Sin nombre') + '</strong><span>' + esc(planTexto(m) || m.correo) + '</span></span>' +
-        '<span class="ap-lista__d">' + esc(P.fmtFecha(m.vence)) + '<small>' + esc(P.relativo(m.vence)) + '</small></span></button></li>';
-    };
+    var fila = function (m) { return filaPersonaVence(m, planTexto(m) || m.correo); };
     var bloque = function (arr, vacioT, vacioX) {
-      return arr.length ? '<ul class="ap-lista">' + arr.slice(0, 8).map(fila).join('') + '</ul>' + (arr.length > 8 ? '<p class="ap-pie-tabla">Y ' + (arr.length - 8) + ' más. Búscalos en Miembros.</p>' : '') : vacio(vacioT, vacioX, 'circle-check');
+      return arr.length ? F.lista(arr.slice(0, 8).map(fila)) + (arr.length > 8 ? '<p class="ap-pie-tabla">Y ' + (arr.length - 8) + ' más. Búscalos en Miembros.</p>' : '') : vacio(vacioT, vacioX, 'circle-check');
     };
 
     vista().innerHTML = P.tarjetaTitulo({
@@ -703,11 +718,15 @@
       ? P.barraReparto(d.porSector.map(function (s, i) { return { etiqueta: s.sector, valor: s.n, tono: ['info', 'ok', 'aviso', 'neutro'][i % 4] }; }))
       : vacio('Sin tarjetas todavía', 'Cuando los miembros creen su tarjeta aparecerán sus sectores aquí.', 'users');
     var discusiones = r.discusiones.length
-      ? '<ul class="ap-lista">' + r.discusiones.map(function (p) {
-        return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(p.titulo || 'Sin título') + '</strong><span>' + esc(p.autor || 'Anónimo') + ' · ' + esc(P.fmtFecha(p.creado)) + '</span>' +
-          (p.extracto ? '<span class="ap-extracto">' + esc(p.extracto) + '</span>' : '') + '</span>' +
-          '<span class="ap-lista__d">' + esc(P.fmtNum(p.respuestas)) + ' resp.<small>' + esc(P.fmtNum(p.me_gusta)) + ' me gusta</small></span></div></li>';
-      }).join('') + '</ul>'
+      ? F.lista(r.discusiones.map(function (p) {
+        return F.fila({
+          clase: 'ap-fc--meta2', avatar: '<span class="ap-ico-tile ap-tono-info" aria-hidden="true">' + ico('message-square', { size: 18 }) + '</span>',
+          titulo: p.titulo || 'Sin título',
+          meta: esc(p.autor || 'Anónimo') + ' · ' + esc(P.fmtFecha(p.creado)) + (p.extracto ? ' · ' + esc(p.extracto) : ''),
+          cols: [{ html: '<span class="ap-fc__v">' + esc(P.fmtNum(p.respuestas)) + ' resp.</span><span class="ap-fc__s">' + esc(P.fmtNum(p.me_gusta)) + ' me gusta</span>' }],
+          metaChico: '<span class="ap-fc__sep"> · </span>' + esc(P.fmtNum(p.respuestas)) + ' resp.'
+        });
+      }), { etiqueta: 'Discusiones recientes' })
       : vacio('Aún no hay discusiones', 'Las discusiones del foro aparecerán aquí, de la más reciente a la más antigua.', 'message-square');
     vista().innerHTML = P.tarjetaTitulo({
       icono: 'message-square', eyebrow: 'Panel de administración', titulo: 'Foro', acento: 'y directorio.',
@@ -748,7 +767,10 @@
         r.anfitriones.map(function (a) { return '<tr><td data-label="Persona"><strong>' + esc(a.nombre) + '</strong></td><td data-label="Invitados">' + esc(P.fmtNum(a.invitados)) + '</td><td data-label="Válidos">' + esc(P.fmtNum(a.validos)) + '</td></tr>'; }).join('') + '</tbody></table>')
       : vacio('Aún no hay invitaciones', 'Cuando un miembro invite a alguien y esa persona se registre, aparecerá aquí.', 'gift');
     var motivos = r.motivosRechazo.length
-      ? '<ul class="ap-lista">' + r.motivosRechazo.map(function (m) { return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(m.motivo) + '</strong></span><span class="ap-lista__d">' + esc(P.fmtNum(m.n)) + '</span></div></li>'; }).join('') + '</ul>'
+      ? F.lista(r.motivosRechazo.map(function (m) {
+        return F.fila({ clase: 'ap-fc--meta2', avatar: '<span class="ap-ico-tile ap-tono-error" aria-hidden="true">' + ico('circle-x', { size: 18 }) + '</span>', titulo: m.motivo,
+          cols: [{ html: '<span class="ap-fc__v">' + esc(P.fmtNum(m.n)) + '</span>' }] });
+      }), { etiqueta: 'Motivos de rechazo' })
       : vacio('Sin rechazos', 'No hay invitaciones rechazadas.', 'circle-check');
     vista().innerHTML = P.tarjetaTitulo({
       icono: 'gift', eyebrow: 'Panel de administración', titulo: 'Invitaciones', acento: 'entre miembros.',
@@ -823,10 +845,11 @@
       '<p class="ap-nota">El servidor ya lo guarda y lo entrega en <code>GET /api/config-publica</code>. Falta que el Club lo consulte al abrir para pintarlo; hasta entonces, guardar el aviso no cambia lo que ven los miembros.</p>';
 
     var lista = function (arr, vacioT) {
-      return arr.length ? '<ul class="ap-lista">' + arr.join('') + '</ul>' : '<p class="ap-nada">' + esc(vacioT) + '</p>';
+      return arr.length ? F.lista(arr) : '<p class="ap-nada">' + esc(vacioT) + '</p>';
     };
-    var porCorreo = lista(admins.porCorreo.map(function (a) { return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong class="ap-correo">' + esc(a) + '</strong><span>Correo de ADMIN_EMAILS (parcialmente oculto)</span></span></div></li>'; }), 'No hay correos en ADMIN_EMAILS: solo funcionan las cuentas con la marca de administrador.');
-    var porDoc = lista(admins.porDocumento.map(function (a) { return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(a.nombre) + '</strong><span class="ap-correo">' + esc(a.correo || 'Sin correo') + '</span><span>Marca de administrador en su ficha</span></span></div></li>'; }), 'Ninguna cuenta tiene la marca de administrador en su ficha.');
+    var tileAdmin = '<span class="ap-ico-tile" aria-hidden="true">' + ico('shield-check', { size: 18 }) + '</span>';
+    var porCorreo = lista(admins.porCorreo.map(function (a) { return F.fila({ clase: 'ap-fc--meta2', avatar: tileAdmin, titulo: a, meta: 'Correo de ADMIN_EMAILS (parcialmente oculto)' }); }), 'No hay correos en ADMIN_EMAILS: solo funcionan las cuentas con la marca de administrador.');
+    var porDoc = lista(admins.porDocumento.map(function (a) { return F.fila({ clase: 'ap-fc--meta2', avatar: tileAdmin, titulo: a.nombre, meta: esc(a.correo || 'Sin correo') + ' · Marca de administrador en su ficha' }); }), 'Ninguna cuenta tiene la marca de administrador en su ficha.');
 
     var servicios = '';
     if (est) {
@@ -856,11 +879,11 @@
       '</div><div class="ap-columnas">' +
       tarjeta('Quién administra', '<h3 class="ap-subtitulo">Por correo</h3>' + porCorreo + '<h3 class="ap-subtitulo">Por marca en su ficha</h3>' + porDoc +
         '<p class="ap-nota">Los correos se definen en la variable <code>ADMIN_EMAILS</code> del servidor (Railway). El panel no puede cambiarlos: por seguridad, solo el equipo técnico lo hace.</p>', { nota: 'Cuentas con acceso a este panel.' }) +
-      tarjeta('Qué no se cambia desde aquí', '<ul class="ap-lista">' + [
+      tarjeta('Qué no se cambia desde aquí', F.lista([
         ['Precios de la membresía', 'Se definen en Stripe y en las variables STRIPE_PRICE_MENSUAL y STRIPE_PRICE_ANUAL del servidor.'],
         ['WhatsApp, Instagram y correo de contacto', 'Están escritos en las páginas del sitio; cambiarlos requiere publicar el sitio.'],
         ['Claves de Stripe, Bunny, correo y certificados', 'Son secretos: solo se guardan en Railway y nunca aparecen en el panel.']
-      ].map(function (f) { return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(f[0]) + '</strong><span>' + esc(f[1]) + '</span></span></div></li>'; }).join('') + '</ul>') +
+      ].map(function (x) { return F.fila({ clase: 'ap-fc--meta2', avatar: '<span class="ap-ico-tile ap-tono-neutro" aria-hidden="true">' + ico('lock', { size: 18 }) + '</span>', titulo: x[0], meta: x[1] }); }))) +
       '</div>';
 
     var guardar = async function (cuerpo, okTexto, boton) {
@@ -938,12 +961,12 @@
       servicio('Certificados', sv.certificados.configurado, sv.certificados.configurado ? 'Firma configurada' : 'Falta CERTIFICATE_SIGNING_KEY', 'award')
     ].join('') + '</div>';
 
-    var variables = tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Variable</th><th scope="col">Para qué sirve</th><th scope="col">Estado</th></tr></thead><tbody>' +
-      r.variables.map(function (v) {
-        var estadoV = v.definida ? '<span class="ap-badge ap-badge--ok">' + ico('circle-check', { size: 14 }) + '<span>Definida</span></span>'
-          : '<span class="ap-badge ap-badge--' + (v.critica ? 'error' : 'neutro') + '">' + ico(v.critica ? 'triangle-alert' : 'circle-dashed', { size: 14 }) + '<span>' + (v.critica ? 'Falta' : 'No definida') + '</span></span>';
-        return '<tr><td data-label="Variable"><code>' + esc(v.nombre) + '</code></td><td data-label="Para qué sirve">' + esc(v.para) + '</td><td data-label="Estado">' + estadoV + '</td></tr>';
-      }).join('') + '</tbody></table>');
+    var variables = F.lista(r.variables.map(function (v) {
+      var estadoV = v.definida ? '<span class="ap-badge ap-badge--ok">' + ico('circle-check', { size: 14 }) + '<span>Definida</span></span>'
+        : '<span class="ap-badge ap-badge--' + (v.critica ? 'error' : 'neutro') + '">' + ico(v.critica ? 'triangle-alert' : 'circle-dashed', { size: 14 }) + '<span>' + (v.critica ? 'Falta' : 'No definida') + '</span></span>';
+      return F.fila({ clase: 'ap-fc--meta2 ap-fc--variable', avatar: '<span class="ap-ico-tile ap-tono-' + (v.definida ? 'ok' : (v.critica ? 'error' : 'neutro')) + '" aria-hidden="true">' + ico('server', { size: 18 }) + '</span>',
+        titulo: v.nombre, meta: esc(v.para), estado: estadoV });
+    }), { etiqueta: 'Variables del servidor' });
 
     var errores = r.errores.recientes.length
       ? '<ol class="ap-linea-tiempo">' + r.errores.recientes.map(function (e) {
@@ -1005,27 +1028,32 @@
   function celdaImportadas(f) {
     if (f.veredicto === 'sin-progreso-viejo') return '<span class="ap-sub">—</span>';
     var guardadas = f.importado ? Math.max(0, f.clasesImportables - f.clasesFaltantes) : f.clasesImportables;
-    return '<span class="ap-num">' + esc(P.fmtNum(guardadas)) + '</span><span class="ap-sub">' + (f.importado ? 'ya guardadas' : 'por importar') + '</span>';
+    return '<span class="ap-num">' + esc(P.fmtNum(guardadas)) + '</span><span class="ap-sub">' + (f.importado ? 'guardadas' : 'por importar') + '</span>';
+  }
+
+  // Acciones del menú «…» de una fila de avance: siempre «Ver detalle» y, según el veredicto del servidor, importar, reparar o forzar.
+  function accionesAvance(f) {
+    var e = P.estadoAvance(f);
+    var a = [{ t: 'Ver detalle', i: 'eye', a: 'detalle' }];
+    if (e.accion === 'importar') a.push({ t: 'Importar ahora', i: 'download', a: 'importar' });
+    else if (e.accion === 'reparar') a.push({ t: 'Reparar', i: 'refresh-cw', a: 'reparar' });
+    else if (e.accion === 'forzar') a.push({ t: 'Importar de todos modos', i: 'download', a: 'forzar', p: true, sep: true });
+    return a;
   }
 
   function filaAvance(f) {
-    var e = P.estadoAvance(f);
     var uid = esc(f.uid);
-    var acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="detalle" data-uid="' + uid + '">' + ico('eye', { size: 16 }) + 'Ver detalle</button>';
-    if (e.accion === 'importar') acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--primario" data-accion="importar" data-uid="' + uid + '">' + ico('download', { size: 16 }) + 'Importar ahora</button>' + acc;
-    else if (e.accion === 'reparar') acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--primario" data-accion="reparar" data-uid="' + uid + '">' + ico('refresh-cw', { size: 16 }) + 'Reparar</button>' + acc;
-    else if (e.accion === 'forzar') acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--peligro-suave" data-accion="forzar" data-uid="' + uid + '">' + ico('download', { size: 16 }) + 'Importar de todos modos</button>' + acc;
     var sub = P.detalleAvance(f);
     var plan = f.planTipo === 'anual' ? 'Anual' : f.planTipo === 'mensual' ? 'Mensual' : '';
-    return '<tr class="ap-fila" data-uid="' + uid + '">' +
+    return '<tr class="ap-fila ap-fila-t ap-fila-t--toca" data-uid="' + uid + '">' +
       '<td class="ap-celda-miembro" data-label="Miembro"><div class="ap-persona"><span class="ap-avatar ap-avatar--' + esc(f.estadoPlan) + '" aria-hidden="true">' + esc(P.iniciales(f.nombre || f.correo)) + '</span>' +
-      '<div class="ap-persona__txt"><strong>' + esc(f.nombre || 'Sin nombre') + '</strong><span>' + esc(f.correo || '—') + '</span></div></div></td>' +
-      '<td data-label="Plan">' + P.insignia(f.estadoPlan) + (plan ? '<span class="ap-sub">' + esc(plan) + '</span>' : '') + '</td>' +
-      '<td data-label="Cursos con avance"><span class="ap-num">' + esc(P.fmtNum(f.cursosConAvance)) + '</span></td>' +
-      '<td data-label="Clases del sitio anterior"><span class="ap-num">' + esc(P.fmtNum(f.clasesViejas)) + '</span></td>' +
-      '<td data-label="Clases importadas">' + celdaImportadas(f) + '</td>' +
-      '<td class="ap-celda-estado" data-label="Estado">' + P.insigniaAvance(f) + (sub ? '<span class="ap-sub ap-sub--texto">' + esc(sub) + '</span>' : '') + '</td>' +
-      '<td class="ap-celda-acciones">' + acc + '</td></tr>';
+      '<div class="ap-persona__txt"><button type="button" class="ap-titulo-fila" data-accion="detalle" data-uid="' + uid + '">' + esc(f.nombre || 'Sin nombre') + '</button><span class="ap-correo">' + esc(f.correo || '—') + '</span></div></div></td>' +
+      '<td class="ap-col-2" data-label="Plan">' + P.insignia(f.estadoPlan) + (plan ? '<span class="ap-sub">' + esc(plan) + '</span>' : '') + '</td>' +
+      '<td class="ap-col-2 ap-col-num" data-label="Cursos con avance">' + esc(P.fmtNum(f.cursosConAvance)) + '</td>' +
+      '<td class="ap-col-2 ap-col-num" data-label="Clases del sitio anterior">' + esc(P.fmtNum(f.clasesViejas)) + '</td>' +
+      '<td class="ap-col-3 ap-col-num" data-label="Clases importadas">' + celdaImportadas(f) + '</td>' +
+      '<td class="ap-celda-estado" data-label="Estado"' + (sub ? ' title="' + esc(sub) + '"' : '') + '>' + P.insigniaAvance(f) + '</td>' +
+      '<td class="ap-celda-acciones">' + F.botonMenu({ acciones: accionesAvance(f), etiqueta: 'Acciones de ' + (f.nombre || f.correo || 'esta persona'), datos: { uid: f.uid } }) + '</td></tr>';
   }
 
   function avisosAvance(r) {
@@ -1073,8 +1101,8 @@
     } else {
       var desde = (r.pagina - 1) * r.limite + 1;
       var hasta = Math.min(r.total, r.pagina * r.limite);
-      cuerpo = tablaZona('<table class="ap-tabla ap-tabla--avance"><thead><tr><th scope="col">Miembro</th><th scope="col">Plan</th><th scope="col">Cursos con avance</th>' +
-        '<th scope="col">Clases del sitio anterior</th><th scope="col">Clases importadas</th><th scope="col">Estado</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
+      cuerpo = tablaZona('<table class="ap-tabla ap-tabla--avance"><thead><tr><th scope="col">Miembro</th><th scope="col" class="ap-col-2">Plan</th><th scope="col" class="ap-col-2 ap-col-num">Cursos</th>' +
+        '<th scope="col" class="ap-col-2 ap-col-num">Clases anteriores</th><th scope="col" class="ap-col-3 ap-col-num">Importadas</th><th scope="col">Estado</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
         r.miembros.map(filaAvance).join('') + '</tbody></table>') +
         '<div class="ap-paginas"><p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(desde) + ' a ' + P.fmtNum(hasta) + ' de ' + P.fmtNum(r.total) + '</p>' +
         (r.paginas > 1
