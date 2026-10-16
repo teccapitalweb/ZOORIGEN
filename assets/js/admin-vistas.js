@@ -13,6 +13,8 @@
   var P = root.ZOO_ADMIN_PANEL;
   var I = root.ZOO_ICONOS;
   var F = root.ZOO_ADMIN_FILAS;
+  var G = root.ZOO_ADMIN_GRAFICAS;
+  var C = root.ZOO_ADMIN_CONFIG;
   var esc = P.esc;
   var ico = function (n, o) { return I && I.svg ? I.svg(n, o) : ''; };
 
@@ -52,7 +54,8 @@
       '<span class="ap-kpi__ico">' + ico(o.icono, { size: 20 }) + '</span>' +
       '<div class="ap-kpi__txt"><p class="ap-kpi__rot">' + esc(o.rotulo) + '</p>' +
       '<p class="ap-kpi__val">' + (o.valor === null || o.valor === undefined ? '<span class="ap-kpi__nd">Sin datos</span>' : esc(o.valor)) + '</p>' +
-      (o.nota ? '<p class="ap-kpi__nota">' + esc(o.nota) + '</p>' : '') + '</div></article>';
+      (o.nota ? '<p class="ap-kpi__nota">' + esc(o.nota) + '</p>' : '') +
+      (o.spark ? '<div class="ap-kpi__spark">' + o.spark + '</div>' : '') + '</div></article>';
   }
 
   function tarjeta(titulo, cuerpo, o) {
@@ -182,26 +185,39 @@
     var tarjetas = '<div class="ap-kpis">' + [
       kpi({ icono: 'users', rotulo: 'Miembros totales', valor: P.fmtNum(k.miembros), nota: k.administradores ? P.fmtNum(k.administradores) + ' de administración' : 'Cuentas registradas', tono: 'info' }),
       kpi({ icono: 'badge-check', rotulo: 'Membresías activas', valor: P.fmtNum(k.activos), nota: k.cancelados ? P.fmtNum(k.cancelados) + ' ya cancelaron y siguen con acceso' : 'Con acceso hoy', tono: 'ok' }),
-      kpi({ icono: 'user-plus', rotulo: 'Nuevos esta semana', valor: P.fmtNum(k.nuevosSemana), nota: 'Registros de los últimos 7 días', tono: 'info' }),
+      kpi({ icono: 'user-plus', rotulo: 'Nuevos esta semana', valor: P.fmtNum(k.nuevosSemana), nota: 'Registros de los últimos 7 días', tono: 'info', spark: G.sparkline(r.altasSemanales.map(function (s) { return s.n; }), { color: 2 }) }),
       kpi({ icono: 'calendar-clock', rotulo: 'Vencen pronto', valor: P.fmtNum(k.vencenPronto), nota: 'En los próximos 7 días', tono: k.vencenPronto ? 'aviso' : 'neutro' }),
-      kpi({ icono: 'credit-card', rotulo: 'Ingresos estimados del mes', valor: k.ingresosMesEstimado === null ? null : '$' + P.fmtNum(k.ingresosMesEstimado), nota: k.ingresosMesEstimado === null ? 'Aún no hay pagos registrados' : 'MXN · ' + P.fmtNum(k.pagosMes) + ' pagos · estimación', tono: 'ok' }),
+      kpi({ icono: 'credit-card', rotulo: 'Ingresos estimados del mes', valor: k.ingresosMesEstimado === null ? null : '$' + P.fmtNum(k.ingresosMesEstimado), nota: k.ingresosMesEstimado === null ? 'Aún no hay pagos registrados' : 'MXN · ' + P.fmtNum(k.pagosMes) + ' pagos · estimación', tono: 'ok', spark: G.sparkline(r.ingresosMensuales.map(function (m) { return m.estimado; }), { color: 1 }) }),
       kpi({ icono: 'award', rotulo: 'Certificados emitidos', valor: P.fmtNum(k.certificadosEmitidos), nota: 'Con folio verificable', tono: 'info' }),
       kpi({ icono: 'graduation-cap', rotulo: 'Cursos completados', valor: P.fmtNum(k.cursosCompletados), nota: 'Terminados en la plataforma', tono: 'ok' }),
       kpi({ icono: 'triangle-alert', rotulo: 'Pago pendiente', valor: P.fmtNum(k.pagoPendiente), nota: k.vencidos ? P.fmtNum(k.vencidos) + ' vencidos' : 'Sin vencidos', tono: k.pagoPendiente ? 'error' : 'neutro' })
     ].join('') + '</div>';
 
-    var altas = P.graficaLinea(r.altasSemanales.map(function (s) { return { etiqueta: P.fmtFecha(s.desde).replace(/ \d{4}$/, ''), valor: s.n }; }),
-      { titulo: 'Altas por semana', descripcion: 'Altas semanales de miembros de las últimas 12 semanas' });
-    var ingresos = P.graficaBarras(r.ingresosMensuales.map(function (m) { return { etiqueta: P.fmtMes(m.mes).split(' ')[0], valor: m.estimado }; }),
-      { titulo: 'Ingresos estimados por mes', formato: function (v) { return '$' + Math.round(v).toLocaleString('es-MX'); }, descripcion: 'Ingresos estimados de los últimos 6 meses' });
+    var altas = G.serie({
+      titulo: 'Altas por semana', tipo: 'area', unidad: 'cuentas nuevas en 12 semanas', alto: 220,
+      etiquetas: r.altasSemanales.map(function (x) { return P.fmtFecha(x.desde).replace(/ \d{4}$/, ''); }),
+      titulos: r.altasSemanales.map(function (x) { return 'Semana del ' + P.fmtFecha(x.desde); }),
+      series: [{ nombre: 'Cuentas nuevas', valores: r.altasSemanales.map(function (x) { return x.n; }), color: 1 }],
+      vacio: { titulo: 'Sin altas en 12 semanas', texto: 'Cuando alguien cree su cuenta aparecerá aquí.' }
+    });
+    var ingresos = G.serie({
+      titulo: 'Ingresos estimados por mes', tipo: 'barras', formato: 'mxn', unidad: 'estimados en 6 meses', alto: 220,
+      etiquetas: r.ingresosMensuales.map(function (m) { return P.fmtMes(m.mes).split(' ')[0]; }),
+      titulos: r.ingresosMensuales.map(function (m) { return P.fmtMes(m.mes) + ' · ' + P.fmtNum(m.pagos) + ' pagos'; }),
+      series: [{ nombre: 'Ingresos estimados (MXN)', valores: r.ingresosMensuales.map(function (m) { return m.estimado; }), color: 3 }],
+      vacio: { titulo: 'Sin pagos registrados', texto: 'Cuando haya pagos aparecerá la estimación de cada mes.' }
+    });
 
-    var estados = P.barraReparto([
-      { etiqueta: 'Activos', valor: r.porEstado.activo, tono: 'ok' },
-      { etiqueta: 'Cancelados con acceso', valor: r.porEstado['cancelado-vigente'], tono: 'aviso' },
-      { etiqueta: 'Pago pendiente', valor: r.porEstado['pago-pendiente'], tono: 'error' },
-      { etiqueta: 'Vencidos', valor: r.porEstado.vencido, tono: 'apagado' },
-      { etiqueta: 'Sin membresía', valor: r.porEstado['sin-plan'], tono: 'neutro' }
-    ]);
+    var estados = G.anillo({
+      titulo: 'Estado de las cuentas', centro: { valor: P.fmtNum(k.miembros), rotulo: 'cuentas' },
+      partes: [
+        { etiqueta: 'Activos', valor: r.porEstado.activo, color: 1 },
+        { etiqueta: 'Cancelados con acceso', valor: r.porEstado['cancelado-vigente'], color: 3 },
+        { etiqueta: 'Pago pendiente', valor: r.porEstado['pago-pendiente'], color: 4 },
+        { etiqueta: 'Vencidos', valor: r.porEstado.vencido, color: 8 },
+        { etiqueta: 'Sin membresía', valor: r.porEstado['sin-plan'], color: 2 }
+      ]
+    });
 
     var venc = r.proximosVencimientos.length
       ? F.lista(r.proximosVencimientos.map(function (v) { return filaPersonaVence(v); }), { etiqueta: 'Próximos vencimientos' })
@@ -223,6 +239,7 @@
       tarjeta('Estado de las cuentas', estados, { nota: 'Cómo se reparten hoy los ' + P.fmtNum(k.miembros) + ' miembros.' }) +
       tarjeta('Próximos vencimientos', venc, { nota: 'Quienes vencen en los próximos 7 días.' }) +
       '</div>' + tarjeta('Actividad reciente', act, { nota: 'Registros, pagos, certificados y acciones del equipo.' });
+    G.activar(vista());
     vista().onclick = function (e) {
       acciones(e, {
         recargar: function () { resumen(true); },
@@ -637,23 +654,26 @@
         kpi({ icono: 'hourglass', rotulo: 'Cancelados con acceso', valor: P.fmtNum(k.cancelados), nota: 'No renovarán', tono: k.cancelados ? 'aviso' : 'neutro' })
       ].join('') + '</div>' +
       '<div class="ap-columnas">' +
-      tarjeta('Ingresos estimados por mes', P.graficaBarras(r.ingresosMensuales.map(function (m) { return { etiqueta: P.fmtMes(m.mes).split(' ')[0], valor: m.estimado }; }),
-        { titulo: 'Ingresos estimados por mes', formato: function (v) { return '$' + Math.round(v).toLocaleString('es-MX'); } }), { nota: r.notas.ingresos }) +
-      tarjeta('Planes y origen', P.barraReparto([
-        { etiqueta: 'Mensual', valor: r.porPlan.mensual, tono: 'info' },
-        { etiqueta: 'Anual', valor: r.porPlan.anual, tono: 'ok' },
-        { etiqueta: 'Sin tipo de plan', valor: r.porPlan.otro, tono: 'neutro' }
-      ]) + '<div class="ap-separador"></div>' + P.barraReparto([
-        { etiqueta: 'Stripe', valor: r.porOrigen.stripe, tono: 'info' },
-        { etiqueta: 'Manual', valor: r.porOrigen.manual, tono: 'aviso' },
-        { etiqueta: 'Heredado', valor: r.porOrigen.heredado, tono: 'neutro' },
-        { etiqueta: 'Otro', valor: r.porOrigen.otro, tono: 'apagado' }
-      ]), { nota: 'Solo cuentan quienes tienen acceso hoy.' }) +
+      tarjeta('Ingresos estimados por mes', G.serie({
+        titulo: 'Ingresos estimados por mes', tipo: 'barras', formato: 'mxn', unidad: 'estimados en 6 meses', alto: 220,
+        etiquetas: r.ingresosMensuales.map(function (m) { return P.fmtMes(m.mes).split(' ')[0]; }),
+        titulos: r.ingresosMensuales.map(function (m) { return P.fmtMes(m.mes) + ' · ' + P.fmtNum(m.pagos) + ' pagos'; }),
+        series: [{ nombre: 'Ingresos estimados (MXN)', valores: r.ingresosMensuales.map(function (m) { return m.estimado; }), color: 3 }],
+        vacio: { titulo: 'Sin pagos registrados', texto: 'Cuando haya pagos aparecerá la estimación de cada mes.' }
+      }), { nota: r.notas.ingresos }) +
+      tarjeta('Planes y origen', '<h3 class="ap-subtitulo">Plan</h3>' + G.anillo({
+        titulo: 'Reparto por plan', centro: { valor: P.fmtNum(k.activos), rotulo: 'con acceso' },
+        partes: [{ etiqueta: 'Mensual', valor: r.porPlan.mensual, color: 2 }, { etiqueta: 'Anual', valor: r.porPlan.anual, color: 1 }, { etiqueta: 'Sin tipo de plan', valor: r.porPlan.otro, color: 8 }]
+      }) + '<div class="ap-separador"></div><h3 class="ap-subtitulo">Origen del acceso</h3>' + G.anillo({
+        titulo: 'Reparto por origen del acceso', centro: { valor: P.fmtNum(k.activos), rotulo: 'con acceso' },
+        partes: [{ etiqueta: 'Stripe', valor: r.porOrigen.stripe, color: 2 }, { etiqueta: 'Manual', valor: r.porOrigen.manual, color: 3 }, { etiqueta: 'Regalo', valor: r.porOrigen.regalo, color: 7 }, { etiqueta: 'Heredado', valor: r.porOrigen.heredado, color: 5 }, { etiqueta: 'Otro', valor: r.porOrigen.otro, color: 8 }]
+      }), { nota: 'Solo cuentan quienes tienen acceso hoy.' }) +
       '</div><div class="ap-columnas">' +
       tarjeta('Vencen en los próximos 30 días', bloque(en30, 'Nadie vence pronto', 'Cuando una membresía esté por vencer aparecerá aquí.')) +
       tarjeta('Pago pendiente', bloque(pendientes, 'Sin pagos pendientes', 'Todos los cobros recientes se confirmaron.')) +
       '</div>' +
       tarjeta('Activaciones manuales vigentes', bloque(manuales, 'Sin activaciones manuales', 'Las membresías que actives a mano aparecerán aquí.'), { nota: 'Transferencias, efectivo y cortesías.' });
+    G.activar(vista());
     vista().onclick = function (e) {
       acciones(e, {
         recargar: function () { suscripciones(true); },
@@ -715,7 +735,7 @@
     if (mi !== contador) return;
     var d = r.directorio;
     var sectores = d.porSector.length
-      ? P.barraReparto(d.porSector.map(function (s, i) { return { etiqueta: s.sector, valor: s.n, tono: ['info', 'ok', 'aviso', 'neutro'][i % 4] }; }))
+      ? G.anillo({ titulo: 'Tarjetas por sector', centro: { valor: P.fmtNum(d.porSector.reduce(function (t, s) { return t + s.n; }, 0)), rotulo: 'tarjetas' }, partes: d.porSector.map(function (s, i) { return { etiqueta: s.sector, valor: s.n, color: i + 1 }; }) })
       : vacio('Sin tarjetas todavía', 'Cuando los miembros creen su tarjeta aparecerán sus sectores aquí.', 'users');
     var discusiones = r.discusiones.length
       ? F.lista(r.discusiones.map(function (p) {
@@ -746,6 +766,7 @@
       ].join('') + '</div>' +
       '<div class="ap-columnas">' + tarjeta('Tarjetas por sector', sectores, { nota: 'Las doce áreas más frecuentes.' }) +
       tarjeta('Discusiones recientes', discusiones, { nota: 'Las últimas 30 del foro.' }) + '</div>';
+    G.activar(vista());
     vista().onclick = function (e) { acciones(e, { recargar: function () { comunidad(true); } }); };
   }
 
@@ -811,10 +832,10 @@
     var mi = ++contador;
     var enVivoSitio = !!(root.ZOO_CONFIG && root.ZOO_CONFIG.enVivoPronto && root.ZOO_CONFIG.enVivoPronto());
     vista().innerHTML = cargando('Configuración');
-    var cfg; var est = null;
+    var cfg; var est = null; var cal = null; var mie = null;
     try {
-      var par = await Promise.all([ctx.api('/api/admin/config'), ctx.api('/api/admin/estado').catch(function () { return null; })]);
-      cfg = par[0]; est = par[1];
+      var par = await Promise.all([ctx.api('/api/admin/config'), ctx.api('/api/admin/estado').catch(function () { return null; }), ctx.api('/api/admin/calendario').catch(function () { return null; }), ctx.api('/api/admin/miembros').catch(function () { return null; })]);
+      cfg = par[0]; est = par[1]; cal = par[2]; mie = par[3];
     } catch (e) {
       if (mi !== contador) return;
       vista().innerHTML = errorHTML('Configuración', e, 'recargar');
@@ -826,7 +847,7 @@
     var admins = cfg.administradores;
     var visitasTexto = (c.contadorVisitas ? 'Encendido. ' : 'Apagado. ') + 'Solo suma cuántas visitas hubo por día y por página: sin cookies, sin dirección IP y sin identificar a nadie. ' +
       (c.contadorVisitas ? P.fmtNum(cfg.visitas.ultimos7Dias) + ' visitas en los últimos 7 días. ' : '') +
-      'Antes de encenderlo, agrega un párrafo al aviso de privacidad.';
+      'Antes de encenderlo, agrega un párrafo al aviso de privacidad. Ojo: el sitio todavía no envía las visitas al servidor, así que por ahora el conteo seguiría en cero.';
     var vivoValor = c.clasesEnVivoPronto === null ? 'auto' : (c.clasesEnVivoPronto ? 'si' : 'no');
     var interruptores = '<ul class="ap-interruptores">' +
       filaInterruptor({ titulo: 'Contador de visitas de la portada', texto: esc(visitasTexto) + ' <button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="parrafo">' + ico('file-text', { size: 16 }) + 'Ver el párrafo para el aviso de privacidad</button>',
@@ -851,40 +872,41 @@
     var porCorreo = lista(admins.porCorreo.map(function (a) { return F.fila({ clase: 'ap-fc--meta2', avatar: tileAdmin, titulo: a, meta: 'Correo de ADMIN_EMAILS (parcialmente oculto)' }); }), 'No hay correos en ADMIN_EMAILS: solo funcionan las cuentas con la marca de administrador.');
     var porDoc = lista(admins.porDocumento.map(function (a) { return F.fila({ clase: 'ap-fc--meta2', avatar: tileAdmin, titulo: a.nombre, meta: esc(a.correo || 'Sin correo') + ' · Marca de administrador en su ficha' }); }), 'Ninguna cuenta tiene la marca de administrador en su ficha.');
 
-    var servicios = '';
-    if (est) {
-      var sv = est.servicios;
-      var ok = [sv.baseDeDatos.ok, sv.stripe.configurado, sv.videos.configurado, sv.correo.configurado, sv.certificados.configurado];
-      var buenos = ok.filter(Boolean).length;
-      var criticas = est.variables.filter(function (v) { return v.critica; });
-      var faltan = criticas.filter(function (v) { return !v.definida; });
-      servicios = '<p class="ap-modal__texto"><span class="ap-badge ap-badge--' + (buenos === ok.length ? 'ok' : 'aviso') + '">' + ico(buenos === ok.length ? 'circle-check' : 'triangle-alert', { size: 14 }) + '<span>' + buenos + ' de ' + ok.length + ' servicios en orden</span></span> ' +
-        '<span class="ap-badge ap-badge--' + (faltan.length ? 'error' : 'ok') + '">' + ico(faltan.length ? 'triangle-alert' : 'circle-check', { size: 14 }) + '<span>' + (criticas.length - faltan.length) + ' de ' + criticas.length + ' variables críticas definidas</span></span></p>' +
-        (faltan.length ? '<p class="ap-nota">Faltan: ' + faltan.map(function (v) { return '<code>' + esc(v.nombre) + '</code>'; }).join(' ') + '</p>' : '') +
-        '<p class="ap-nota">Solo se ve el nombre de cada variable y si está definida; los valores nunca salen del servidor.</p>' +
-        '<a class="ap-btn ap-btn--suave" href="#/estado">' + ico('activity', { size: 16 }) + 'Ver el estado del sistema</a>';
-    } else {
-      servicios = '<p class="ap-nada">No se pudo leer el estado de los servicios. Ábrelo en «Estado del sistema».</p>';
-    }
+    var listaServicios = C.servicios(est, cal);
 
     vista().innerHTML = P.tarjetaTitulo({
       icono: 'settings', eyebrow: 'Panel de administración', titulo: 'Ajustes', acento: 'del sitio.',
-      sub: 'Interruptores que guarda el servidor, quién administra y el resumen de servicios. Lo que implica claves, precios o textos públicos del sitio no se edita desde aquí.',
+      sub: 'Estado de los servicios, interruptores que guarda el servidor, el calendario de cursos, quién administra y las copias de seguridad. Lo que implica claves, precios o textos públicos del sitio no se edita desde aquí.',
+      cifras: listaServicios.length ? [
+        { valor: listaServicios.filter(function (x) { return x.nivel === 'ok'; }).length + ' de ' + listaServicios.length, rotulo: 'servicios en orden' },
+        { valor: P.fmtNum(admins.porCorreo.length + admins.porDocumento.length), rotulo: 'administran el panel' }
+      ] : [],
       acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }]
     }) +
+      tarjeta('Estado de los servicios', C.semaforoHTML(listaServicios) +
+        (listaServicios.length ? '<div class="ap-acciones-lote"><button type="button" class="ap-btn ap-btn--suave" data-accion="recargar">' + ico('refresh-cw', { size: 16 }) + 'Revisar ahora</button>' +
+          '<button type="button" class="ap-btn ap-btn--suave" data-accion="copiar-reporte">' + ico('copy', { size: 16 }) + 'Copiar reporte</button>' +
+          '<a class="ap-btn ap-btn--suave" href="#/estado">' + ico('activity', { size: 16 }) + 'Ver el estado del sistema</a></div>' +
+          '<p class="ap-nota">Solo se ve el nombre de cada variable y si está definida; los valores nunca salen del servidor. El reporte se puede pegar en un mensaje para pedir ayuda.</p>' : ''),
+        { nota: 'Semáforo de lo que revisa «Estado del sistema». Revisar no cobra ni envía nada.' }) +
       tarjeta('Interruptores', interruptores, { nota: 'Los cambios se guardan al instante y quedan anotados en la bitácora de acciones.' }) +
       '<div class="ap-columnas">' +
       tarjeta('Aviso para todo el Club', avisoCard, { nota: 'Un mensaje corto, por ejemplo de mantenimiento.' }) +
-      tarjeta('Servicios y variables', servicios, { nota: 'Resumen de lo que revisa «Estado del sistema».' }) +
+      tarjeta('Calendario de cursos del servidor', C.calendarioHTML(cal), { nota: 'Solo lectura: así abre el servidor los cursos de cada miembro.' }) +
       '</div><div class="ap-columnas">' +
       tarjeta('Quién administra', '<h3 class="ap-subtitulo">Por correo</h3>' + porCorreo + '<h3 class="ap-subtitulo">Por marca en su ficha</h3>' + porDoc +
         '<p class="ap-nota">Los correos se definen en la variable <code>ADMIN_EMAILS</code> del servidor (Railway). El panel no puede cambiarlos: por seguridad, solo el equipo técnico lo hace.</p>', { nota: 'Cuentas con acceso a este panel.' }) +
+      tarjeta('Versiones', C.versionesHTML(est, versionDelPanel()), { nota: 'Para saber exactamente qué está publicado.' }) +
+      '</div><div class="ap-columnas">' +
+      tarjeta('Enlaces útiles', C.enlacesHTML(), { nota: 'Atajos a los servicios que usa el Club. Se abren en otra pestaña.' }) +
+      tarjeta('Exportar datos', C.exportacionesHTML(mie && mie.miembros ? mie.miembros.length : 0), { nota: 'Copias en CSV de lo que ya ves en el panel.' }) +
+      '</div>' +
+      tarjeta('Respaldo recomendado', C.respaldoHTML(), { nota: 'Qué guardar y dónde vive cada cosa. Este panel no hace copias por sí solo.' }) +
       tarjeta('Qué no se cambia desde aquí', F.lista([
-        ['Precios de la membresía', 'Se definen en Stripe y en las variables STRIPE_PRICE_MENSUAL y STRIPE_PRICE_ANUAL del servidor.'],
+        ['Precios de la membresía', 'Se definen en Stripe y en las variables STRIPE_PRICE_MENSUAL y STRIPE_PRICE_ANUAL del servidor. Cambiarlos desde el panel implicaría tocar los cobros, y por seguridad no se hace.'],
         ['WhatsApp, Instagram y correo de contacto', 'Están escritos en las páginas del sitio; cambiarlos requiere publicar el sitio.'],
         ['Claves de Stripe, Bunny, correo y certificados', 'Son secretos: solo se guardan en Railway y nunca aparecen en el panel.']
-      ].map(function (x) { return F.fila({ clase: 'ap-fc--meta2', avatar: '<span class="ap-ico-tile ap-tono-neutro" aria-hidden="true">' + ico('lock', { size: 18 }) + '</span>', titulo: x[0], meta: x[1] }); }))) +
-      '</div>';
+      ].map(function (x) { return F.fila({ clase: 'ap-fc--meta2', avatar: '<span class="ap-ico-tile ap-tono-neutro" aria-hidden="true">' + ico('lock', { size: 18 }) + '</span>', titulo: x[0], meta: x[1] }); })));
 
     var guardar = async function (cuerpo, okTexto, boton) {
       if (boton) boton.disabled = true;
@@ -901,6 +923,19 @@
     v.onclick = function (ev) {
       acciones(ev, {
         recargar: function () { configuracion(); },
+        'copiar-reporte': async function () {
+          var texto = C.reporteTexto(listaServicios, est, new Date().toISOString());
+          try { await navigator.clipboard.writeText(texto); ctx.toast('Reporte copiado. Pégalo en un mensaje para pedir ayuda.'); } catch (e) { ctx.toast('No se pudo copiar el reporte.', true); }
+        },
+        'csv-miembros': function () {
+          if (!mie || !mie.miembros) { ctx.toast('No se pudo leer la lista de miembros.', true); return; }
+          var blob = new Blob(['﻿' + C.csvMiembros(mie.miembros)], { type: 'text/csv;charset=utf-8' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob); a.download = 'miembros-zoorigen-' + new Date().toISOString().slice(0, 10) + '.csv';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+          ctx.toast('Lista de miembros descargada.');
+        },
         visitas: function (b) {
           var encender = b.getAttribute('aria-checked') !== 'true';
           if (!encender) { guardar({ contadorVisitas: false }, 'Contador de visitas apagado.', b); return; }

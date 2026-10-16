@@ -122,7 +122,9 @@
     if (portada) return portada;
     var propia = imagenSegura(curso && curso.image);
     if (propia) return propia;
-    var area = String((curso && (curso.area || curso.title)) || '');
+    /* Sin portada propia ni por título: la portada por defecto de la marca (la misma de toda la plataforma). */
+    if (typeof ZOO_PORTADAS !== 'undefined' && ZOO_PORTADAS && ZOO_PORTADAS.defecto) return ZOO_PORTADAS.defecto('../');
+    var area =String((curso && (curso.area || curso.title)) || '');
     for (var i = 0; i < FOTO_POR_AREA.length; i++) if (FOTO_POR_AREA[i][0].test(area)) return '../' + FOTO_POR_AREA[i][1];
     return '../' + FOTO_GENERAL;
   }

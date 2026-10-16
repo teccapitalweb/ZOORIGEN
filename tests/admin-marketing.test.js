@@ -48,43 +48,39 @@ test('rangos rápidos: 7, 30, 90 y 365 días terminan hoy; «todo» lo decide el
   assert.deepEqual(P.rangoRapido('raro', '2026-10-16'), P.rangoRapido('30', '2026-10-16'));
 });
 
-test('graficaSerie: SVG sin texto ni degradados, ejes y pico en HTML, valores escapados', () => {
-  const g = P.graficaSerie(P.agruparSerie(dias(30), 'dia'), { titulo: 'Cuentas nuevas', unidad: 'cuentas' });
-  assert.match(g, /<svg class="ap-grafica__svg"[^>]*role="img"/);
-  assert.equal((g.match(/<rect class="ap-barra/g) || []).length, 30);
-  assert.match(g, /ap-serie__ejes/);
-  assert.doesNotMatch(g, /gradient|<script|<text/i);
-  const l = P.graficaSerie(P.agruparSerie(dias(10), 'dia'), { tipo: 'linea', titulo: 'x' });
-  assert.match(l, /class="ap-linea"/);
-  assert.equal(P.graficaSerie([]), '');
-  assert.doesNotMatch(P.graficaSerie([{ etiqueta: '<img onerror=1>', valor: 3 }]), /<img/);
-  const vacia = P.graficaSerie(P.agruparSerie(dias(5).map(d => ({ dia: d.dia, n: 0 })), 'dia'), { titulo: 'x' });
-  assert.match(vacia, /Máximo 0/);
-});
-
-test('barrasHorizontales y CSV: escapan texto y protegen contra fórmulas de hoja de cálculo', () => {
-  assert.equal(P.barrasHorizontales([]), '');
-  assert.match(P.barrasHorizontales([{ etiqueta: '<b>x</b>', valor: 3 }]), /&lt;b&gt;x/);
+test('CSV: escapa comillas y protege contra fórmulas de hoja de cálculo', () => {
   assert.equal(P.celdaCsv('=SUMA(A1)'), "'=SUMA(A1)");
   assert.equal(P.celdaCsv('a,b'), '"a,b"');
   assert.equal(P.celdaCsv('di "hola"'), '"di ""hola"""');
   assert.equal(P.aCsv([{ clave: 'a', titulo: 'A' }], [{ a: 1 }, { a: '@x' }]), "A\r\n1\r\n'@x");
 });
 
+test('rangos rápidos: incluyen 6 meses (180 días) y terminan hoy', () => {
+  assert.deepEqual(P.RANGOS.map(r => r.id), ['7', '30', '90', '180', '365', 'todo']);
+  assert.deepEqual(P.rangoRapido('180', '2026-10-16'), { desde: '2026-04-20', hasta: '2026-10-16' });
+});
+
 /* ───────── constructores de HTML ───────── */
 
 const metricas = () => ({
   rango: { desde: '2026-09-17', hasta: '2026-10-16', dias: 30 },
-  totales: { altas: 7, pruebas: 3, certificados: 2, pagos: 5 },
-  anterior: { altas: 4, pruebas: 0, certificados: 2, pagos: 6 },
-  series: { altas: dias(30), pruebas: dias(30), certificados: dias(30), pagos: dias(30) },
-  cuentas: { total: 60, activos: 30, cancelados: 2, pagoPendiente: 1, vencidos: 8, sinMembresia: 19, conAccesoHoy: 32, conPlanAlgunaVez: 41, sinAccesoConPlan: 9, retencion: 78 },
+  totales: { altas: 7, pruebas: 3, certificados: 2, pagos: 5, ingresos: 995 },
+  anterior: { altas: 4, pruebas: 0, certificados: 2, pagos: 6, ingresos: 1194 },
+  series: { altas: dias(30), pruebas: dias(30), certificados: dias(30), pagos: dias(30), ingresos: dias(30).map(d => ({ dia: d.dia, n: d.n * 199 })) },
+  seriesAnterior: { altas: dias(30), pruebas: dias(30) },
+  embudo: {
+    rango: { personas: 12, etapas: [{ clave: 'registro', etiqueta: 'Se registraron', valor: 12 }, { clave: 'prueba', etiqueta: 'Eligieron su prueba gratuita', valor: 8 }, { clave: 'clases', etiqueta: 'Vieron al menos una clase', valor: 6 }, { clave: 'pago', etiqueta: 'Tuvieron membresía de pago', valor: 3 }, { clave: 'curso', etiqueta: 'Terminaron un curso', valor: 1 }], pagaronSinPrueba: 2 },
+    total: { personas: 60, etapas: [{ clave: 'registro', etiqueta: 'Se registraron', valor: 60 }, { clave: 'prueba', etiqueta: 'Eligieron su prueba gratuita', valor: 20 }, { clave: 'clases', etiqueta: 'Vieron al menos una clase', valor: 15 }, { clave: 'pago', etiqueta: 'Tuvieron membresía de pago', valor: 9 }, { clave: 'curso', etiqueta: 'Terminaron un curso', valor: 4 }], pagaronSinPrueba: 20 },
+    nota: 'Cada paso cuenta solo a quien llegó a los anteriores.'
+  },
+  actividad: { total: 30, mapa: Array.from({ length: 7 }, (_, d) => Array.from({ length: 24 }, (_, h) => (d === 2 && h === 17 ? 9 : 0))), porDiaSemana: [0, 0, 9, 0, 0, 0, 0], diasPorSemana: [5, 5, 4, 4, 4, 4, 4], porHora: Array.from({ length: 24 }, (_, h) => (h === 17 ? 9 : 0)), horaPico: 17, nota: 'No incluye visitas.' },
+  cuentas: { total: 60, activos: 30, cancelados: 2, pagoPendiente: 1, vencidos: 8, sinMembresia: 19, conAccesoHoy: 32, conPlanAlgunaVez: 41, sinAccesoConPlan: 9, retencion: 78, planes: { mensual: 20, anual: 10, otro: 2 }, origenes: { stripe: 20, manual: 5, regalo: 2, heredado: 3, otro: 2 } },
   cohortes: [{ mes: '2026-09', registrados: 12, conPlanAlgunaVez: 7, conAccesoHoy: 6, conversion: 58, retencion: 86 }],
   conversion: { eligieronRango: 8, seHicieronMiembroRango: 2, tasaRango: 25, eligieronTotal: 20, seHicieronMiembroTotal: 6, tasaTotal: 30 },
   cursos: { masElegidos: [{ cursoId: 'c1', curso: 'Fototrampeo <x>', n: 5 }], masCompletados: [], masEmpezados: [{ cursoId: 'c2', curso: 'Mariposarios', n: 9 }] },
   retos: { personas: 40, conActividad: 30, retosSuperados: 150, xpTotal: 6000, xpPromedio: 200, bandas: [{ banda: '0', n: 10 }, { banda: '1 a 99', n: 5 }, { banda: '100 a 499', n: 20 }, { banda: '500 o más', n: 5 }], actividadPorDia: dias(30) },
   visitas: { activo: false, total: 0, porDia: [], porPagina: [] },
-  notas: { pagos: 'Cuenta el último pago.', retencion: 'De quienes alguna vez tuvieron plan.', retos: 'Sin fecha por intento.' }
+  notas: { pagos: 'Cuenta el último pago.', ingresos: 'Estimación.', retencion: 'De quienes alguna vez tuvieron plan.', retos: 'Sin fecha por intento.' }
 });
 
 test('metricasHTML: tarjetas, tendencias, gráficas, cohortes, cursos y retos; texto del servidor escapado', () => {
@@ -101,6 +97,17 @@ test('metricasHTML: tarjetas, tendencias, gráficas, cohortes, cursos y retos; t
   assert.doesNotMatch(h, /Fototrampeo <x>/);
   assert.match(h, /Cursos más completados/);
   assert.match(h, /Aún no hay cursos completados/);
+  // gráficas nuevas: eje, tooltip, anillo, embudo, mapa de calor y exportación
+  assert.match(h, /class="zg zg--lineas"/);
+  assert.match(h, /zg-anillo/);
+  assert.match(h, /zg-emb/);
+  assert.match(h, /zg-hm__rejilla/);
+  assert.match(h, /zg-spark/);
+  assert.match(h, /data-accion="csv"/);
+  assert.match(h, /data-accion="csv-cohortes"/);
+  assert.match(h, /Ingresos estimados/);
+  assert.match(h, /data-embudo="rango" aria-pressed="true"/);
+  assert.match(h, /6 meses/);
   assert.match(h, /El contador de visitas está apagado/);
   assert.match(h, /href="#\/configuracion"/);
   assert.doesNotMatch(h, /gradient\(|[\p{Extended_Pictographic}]/u);
@@ -168,4 +175,29 @@ test('admin-marketing.js solo habla con el servidor: nada de Firestore directo n
   assert.doesNotMatch(js, /db\.collection|getDocs|firebase\.firestore|method: 'POST'|method: 'DELETE'/);
   assert.match(js, /\/api\/admin\/metricas\?desde=/);
   assert.match(js, /\/api\/admin\/pruebas/);
+});
+
+test('csvHistorial: una fila por día con las columnas del panel y sin datos personales', () => {
+  const csv = M.csvHistorial(metricas());
+  const filas = csv.split('\r\n');
+  assert.equal(filas[0], 'fecha,cuentas_nuevas,pruebas_elegidas,certificados,ultimos_pagos,ingresos_estimados_mxn,personas_que_jugaron_retos');
+  assert.equal(filas.length, 31);
+  assert.match(filas[1], /^2026-09-17,0,0,0,0,0,0$/);
+  assert.doesNotMatch(csv, /@/);
+  const d = metricas(); d.visitas = { activo: true, total: 3, porDia: dias(30), porPagina: [] };
+  assert.match(M.csvHistorial(d).split('\r\n')[0], /,visitas_a_la_portada$/);
+});
+
+test('csvCohortes: porcentajes vacíos cuando no hay base', () => {
+  const csv = M.csvCohortes([{ mes: '2026-09', registrados: 12, conPlanAlgunaVez: 7, conAccesoHoy: 6, conversion: 58, retencion: null }]);
+  assert.equal(csv, 'mes_de_registro,se_registraron,tuvieron_membresia,conversion_pct,con_acceso_hoy,retencion_pct\r\n2026-09,12,7,58,6,');
+});
+
+test('metricasHTML: con el embudo de «todas las cuentas» y el periodo anterior solo en vista diaria', () => {
+  const d = metricas();
+  const todo = M.metricasHTML(d, { embudo: 'total' });
+  assert.match(todo, /data-embudo="total" aria-pressed="true"/);
+  assert.match(todo, /60/);
+  assert.match(M.metricasHTML(d, { agrupar: 'dia' }), /Periodo anterior/);
+  assert.doesNotMatch(M.metricasHTML(d, { agrupar: 'semana' }), /Periodo anterior/);
 });

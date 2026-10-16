@@ -218,7 +218,7 @@
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
-  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261129-tablas">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261201-graficas">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="inicio">
@@ -306,20 +306,23 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261129-acceso"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261129-tablas"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261201-graficas"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/admin-panel.js?v=20261129-tablas"></script>
-  <script src="../assets/js/admin-filas.js?v=20261129-tablas"></script>
-  <script src="../assets/js/admin-vistas.js?v=20261129-tablas"></script>
-  <script src="../assets/js/admin-marketing.js?v=20261129-tablas"></script>
+  <script src="../assets/js/admin-panel.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-graficas.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-filas.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-config.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-marketing.js?v=20261201-graficas"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261129-tablas"></script>
-  <script src="../assets/js/admin-certificados.js?v=20261129-tablas"></script>
+  <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261201-graficas"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/admin-noticias.js?v=20261129-tablas"></script>
+  <script src="../assets/js/admin-noticias.js?v=20261201-graficas"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
-  <script src="../assets/js/admin-encuesta.js?v=20261129-tablas"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261201-graficas"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -622,7 +625,29 @@
       document.getElementById('modalForm').classList.add('ce-host');
       renderLeccionesForm();
       enlazarLecciones();
+      enlazarPortada();
     };
+
+    // Vista previa de la portada: se actualiza al escribir el enlace o el título (la portada automática depende del título).
+    function enlazarPortada() {
+      const campo = document.getElementById('f_image');
+      const titulo = document.getElementById('f_title');
+      const vista = document.getElementById('f_image_vista');
+      const estado = document.getElementById('f_image_estado');
+      const auto = document.getElementById('f_image_auto');
+      if (!campo || !vista || !estado) return;
+      const pintar = () => {
+        const vp = CURSOS.vistaPortada(campo.value, { title: titulo ? titulo.value : '' });
+        vista.style.backgroundImage = vp.src ? `url('${vp.src.replace(/'/g, '%27')}')` : '';
+        vista.dataset.origen = vp.origen;
+        estado.textContent = vp.texto;
+        estado.classList.toggle('is-error', !vp.valido);
+        if (auto) auto.hidden = !campo.value.trim();
+      };
+      campo.addEventListener('input', pintar);
+      if (titulo) titulo.addEventListener('input', pintar);
+      if (auto) auto.addEventListener('click', () => { campo.value = ''; pintar(); campo.focus(); });
+    }
 
     window.renderLeccionesForm = () => {
       const cont = document.getElementById('leccionesContainer');
@@ -772,12 +797,16 @@
         totalClases: lecciones.length,
         // Mantener driveId de primera clase para retrocompatibilidad
         driveId: lecciones[0]?.driveId || '',
-        image: document.getElementById('f_image').value.trim(),
         description: document.getElementById('f_desc').value.trim(),
         tag: document.getElementById('f_tag').value.trim()
       };
       // Orden de desbloqueo: solo para cursos nuevos (o los que antes no hacían fila). Los de siempre no se mueven.
       const actual = id ? (cursosEstado.items || []).find(c => c.id === id) : null;
+      // Portada: sin tocar el campo no cambia nada; con enlace se fija como propia; vacío usa la portada por título o la de la marca.
+      const campoImagen = document.getElementById('f_image');
+      const errorImagen = CURSOS.errorPortada(campoImagen.value);
+      if (errorImagen) { toast(errorImagen, true); return; }
+      Object.assign(data, CURSOS.cambiosPortada(actual, campoImagen.value, campoImagen.dataset.mostrado));
       const ordenVip = CURSOS.calcularOrdenVip(cursosEstado.items, actual, { disponibleSiempre, cursoMuestraGratis });
       if (ordenVip !== undefined) data.ordenVip = ordenVip;
       if (!data.title) { toast('Título requerido', true); return; }

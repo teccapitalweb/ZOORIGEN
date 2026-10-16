@@ -5,9 +5,9 @@
 /* real: se prueba en tests/admin-cursos.test.js                 */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'), require('./club-juegos.js'), require('./club-quiz.js'), require('./admin-filas.js'));
-  else root.ZOO_ADMIN_CURSOS = factory(root.ZOO_ICONOS, root.ZOO_JUEGOS, root.ZOO_QUIZ, root.ZOO_ADMIN_FILAS);
-})(typeof self !== 'undefined' ? self : this, function (iconos, juegos, quiz, filas) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'), require('./club-juegos.js'), require('./club-quiz.js'), require('./admin-filas.js'), require('./club-portadas.js'));
+  else root.ZOO_ADMIN_CURSOS = factory(root.ZOO_ICONOS, root.ZOO_JUEGOS, root.ZOO_QUIZ, root.ZOO_ADMIN_FILAS, root.ZOO_PORTADAS);
+})(typeof self !== 'undefined' ? self : this, function (iconos, juegos, quiz, filas, portadas) {
   'use strict';
 
   const ico = (nombre, opciones) => (iconos && iconos.svg ? iconos.svg(nombre, opciones) : '');
@@ -106,6 +106,79 @@
     return null;
   }
 
+  /* ───────────────────────── Portada del curso ───────────────────────── */
+  // Jerarquía (la misma de todo el sitio, ver club-portadas.js): imagen que fijó el administrador > portada por título >
+  // imagen que el curso ya traía > portada por defecto de la marca. Las rutas de assets/ se muestran desde pages/ ('../').
+  const BASE_PAGINAS = '../';
+
+  function portadaDe(c) {
+    return portadas && portadas.resolver ? portadas.resolver(c || {}, BASE_PAGINAS) : (urlPortada(c && c.image) || '');
+  }
+  function origenPortada(c) { return portadas && portadas.origenDe ? portadas.origenDe(c || {}) : (urlPortada(c && c.image) ? 'propia' : 'defecto'); }
+
+  const TEXTO_ORIGEN = {
+    propia: 'Se muestra la imagen del curso.',
+    titulo: 'Sin imagen propia: se muestra la portada de la marca que le toca por su título.',
+    defecto: 'Sin imagen propia: se muestra la portada por defecto de Zoorigen.'
+  };
+  const AYUDA_IMAGEN = 'Enlace que empiece con https:// o una ruta de este sitio como assets/img/cursos/mi-curso.jpg. Medida ideal: 800×450 px horizontal, JPG de menos de 300 KB.';
+
+  // Lo que el campo muestra al abrir el curso: solo si la imagen es propia (así los cursos con portada por título no cambian al guardar).
+  function valorCampoPortada(c) { return c && origenPortada(c) === 'propia' ? String(c.image || '').trim() : ''; }
+
+  // Vista previa de lo que verán los miembros según lo escrito en el campo. { src, origen, valido, texto }
+  function vistaPortada(valor, curso) {
+    const v = String(valor == null ? '' : valor).trim();
+    const base = curso && typeof curso === 'object' ? curso : {};
+    if (v) {
+      const propia = portadas && portadas.imagenPropia ? portadas.imagenPropia(v, BASE_PAGINAS) : '';
+      if (propia) return { src: propia, origen: 'propia', valido: true, texto: TEXTO_ORIGEN.propia };
+      const auto = portadas ? (portadas.paraCurso({ title: base.title }, BASE_PAGINAS) || portadas.defecto(BASE_PAGINAS)) : '';
+      return { src: auto, origen: 'invalida', valido: false, texto: 'Ese enlace no sirve: debe empezar con https:// o ser una ruta de assets/. Mientras tanto se usaría la portada automática.' };
+    }
+    const porTitulo = portadas ? portadas.paraCurso({ title: base.title }, BASE_PAGINAS) : '';
+    const origen = porTitulo ? 'titulo' : 'defecto';
+    return { src: porTitulo || (portadas ? portadas.defecto(BASE_PAGINAS) : ''), origen, valido: true, texto: TEXTO_ORIGEN[origen] };
+  }
+
+  // Qué guardar en el documento del curso (solo las claves que cambian).
+  //   original: el curso antes de editar (null si es nuevo) · campo: lo que quedó escrito · mostrado: lo que el campo mostraba al abrir
+  //   Sin tocar el campo no se cambia nada (los cursos con portada por título siguen igual).
+  //   Campo vacío  → image '' y portadaPropia false (se usa la portada por título o la de la marca).
+  //   Campo con URL → image y portadaPropia true (gana a la portada por título).
+  function cambiosPortada(original, campo, mostrado) {
+    const nuevo = String(campo == null ? '' : campo).trim();
+    if (original && nuevo === String(mostrado == null ? '' : mostrado).trim()) return {};
+    if (!nuevo) return { image: '', portadaPropia: false };
+    return { image: nuevo, portadaPropia: true };
+  }
+
+  // Revisa lo escrito antes de guardar. Devuelve '' si está bien o el mensaje del problema.
+  function errorPortada(valor) {
+    const v = String(valor == null ? '' : valor).trim();
+    if (!v) return '';
+    if (portadas && portadas.imagenPropia && portadas.imagenPropia(v, BASE_PAGINAS)) return '';
+    return 'La imagen de portada debe ser un enlace que empiece con https:// o una ruta del sitio como assets/img/cursos/mi-curso.jpg.';
+  }
+
+  function portadaFormHTML(d) {
+    const dato = d || {};
+    const campo = valorCampoPortada(dato);
+    const vp = vistaPortada(campo, dato);
+    return `<div class="ce-campo ce-campo--full ce-portada">
+        <label for="f_image"><span>Imagen de portada (opcional)</span></label>
+        <div class="ce-portada__fila">
+          <div class="ce-portada__vista" id="f_image_vista" role="img" aria-label="Vista previa de la portada" style="background-image:url('${esc(vp.src)}')" data-origen="${esc(vp.origen)}"></div>
+          <div class="ce-portada__datos">
+            <input type="text" class="ce-input" id="f_image" value="${esc(campo)}" data-mostrado="${esc(campo)}" placeholder="https://… o assets/img/cursos/mi-curso.jpg" maxlength="500" autocomplete="off" aria-describedby="f_image_estado">
+            <p class="ce-portada__estado" id="f_image_estado" role="status" aria-live="polite">${esc(vp.texto)}</p>
+            <button type="button" class="ce-mas ce-portada__auto" id="f_image_auto"${campo ? '' : ' hidden'}>${ico('rotate-ccw', { size: 14 })}Quitar la imagen y usar la portada automática</button>
+          </div>
+        </div>
+        <small class="ce-ayuda">${esc(AYUDA_IMAGEN)} Si no pones ninguna, el curso usa la portada que le toca por su título o, si no hay, la portada por defecto de Zoorigen.</small>
+      </div>`;
+  }
+
   /* ───────────────────────── Tarjetas y filtros (HTML) ───────────────────────── */
 
   function kpisHTML(r) {
@@ -148,9 +221,9 @@
 
   function medioHTML(c) {
     const color = colorArea(c.area);
-    const img = urlPortada(c.image);
+    const img = portadaDe(c);
     const fondo = img ? `background-image:url('${esc(img)}');` : '';
-    return `<div class="cc-media${img ? '' : ' is-vacio'}" style="--cc:${color};${fondo}">
+    return `<div class="cc-media${img ? '' : ' is-vacio'}" style="--cc:${color};${fondo}" data-portada="${esc(origenPortada(c))}">
         ${img ? '' : `<span class="cc-media__ico">${ico('graduation-cap', { size: 34 })}</span>`}
         <span class="cc-tag cc-tag--area">${esc(c.area || 'Sin área')}</span>
         ${c.level ? `<span class="cc-tag cc-tag--nivel">${esc(c.level)}</span>` : ''}
@@ -179,13 +252,13 @@
 
   // Fila compacta (como la lista de miembros): portada pequeña, título, línea de datos, área y nivel a la derecha y UN menú «…».
   function tarjetaListaHTML(c) {
-    const img = urlPortada(c.image);
+    const img = portadaDe(c);
     const avatar = img
-      ? `<span class="ap-ico-miniatura" style="background-image:url('${esc(img)}')" aria-hidden="true"></span>`
+      ? `<span class="ap-ico-miniatura ap-ico-miniatura--portada" style="background-image:url('${esc(img)}')" aria-hidden="true"></span>`
       : `<span class="ap-ico-tile" style="--t-bg:${colorArea(c.area)};--t-ink:#FFFFFF;--t-line:${colorArea(c.area)}" aria-hidden="true">${ico('graduation-cap', { size: 18 })}</span>`;
     const estado = `<span class="ap-badge ap-badge--neutro">${esc(c.area || 'Sin área')}</span>` + (c.level ? `<span class="ap-badge ap-badge--info">${esc(c.level)}</span>` : '');
     return filas.fila({
-      clase: 'ap-fc--meta-flex ap-fc--meta-ancho',
+      clase: 'ap-fc--meta-flex ap-fc--meta-ancho ap-fc--portada',
       avatar, titulo: c.title || 'Sin título', accion: { a: 'editar', datos: { id: c.id } },
       meta: metaHTML(c) + (c.videoProvider === 'bunny' ? `<span class="cc-m">${ico('badge-check', { size: 14 })}Bunny</span>` : ''),
       estado,
@@ -617,8 +690,7 @@
         <label class="ce-campo ce-campo--full"><span>Instructor (opcional)</span><input type="text" class="ce-input" id="f_instructor" value="${esc(d.instructor)}" placeholder="Ej. Dra. Ana Martínez" maxlength="120"></label>
         <label class="ce-campo"><span>Duración total</span><input type="text" class="ce-input" id="f_duration" value="${esc(d.duration)}" placeholder="Ej. 6 h" maxlength="40"></label>
         <label class="ce-campo"><span>Etiqueta destacada (opcional)</span><input type="text" class="ce-input" id="f_tag" value="${esc(d.tag)}" placeholder="Ej. Nuevo, Popular" maxlength="30"></label>
-        <label class="ce-campo ce-campo--full"><span>URL de portada (opcional)</span><input type="text" class="ce-input" id="f_image" value="${esc(d.image)}" placeholder="Pega un enlace a la imagen" maxlength="500">
-          <small class="ce-ayuda">Medida ideal: 800×450 px horizontal · JPG de menos de 300 KB. Puedes subirla a <code>assets/img/</code> del sitio.</small></label>
+        ${portadaFormHTML(d)}
         <fieldset class="ce-campo ce-campo--full ce-disp">
           <legend>Disponibilidad para los miembros</legend>
           <label class="ce-opt"><input type="radio" name="f_disp" value="progresivo"${d.disponibleSiempre === true ? '' : ' checked'}>
@@ -648,6 +720,7 @@
   return {
     AREAS, NIVELES, esc, colorArea, parseHoras, leccionesDe, contarClases, contarJuegos, contarPreguntas, resumenCursos,
     ordenarCursos, filtrarCursos, areasConConteo, urlPortada,
+    portadaDe, origenPortada, vistaPortada, cambiosPortada, errorPortada, valorCampoPortada, portadaFormHTML,
     kpisHTML, chipsAreasHTML, ordenHTML, vistaHTML, tarjetaGridHTML, tarjetaListaHTML, listaHTML,
     FILAS_MINIMAS, leccionVacia, nuevoJuego, agregarFila, quitarFila, asignarRuta, moverLeccion,
     limpiarLecciones, migrarLecciones, normalizarFuente,

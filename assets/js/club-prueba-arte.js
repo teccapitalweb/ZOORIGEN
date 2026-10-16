@@ -50,7 +50,7 @@
       vistas[s] = true; salida.push(s);
     }
     if (P && typeof P.paraCurso === 'function') {
-      (Array.isArray(o.cursos) ? o.cursos : []).forEach(function (c) { agrega(P.paraCurso(c, base, '4x3')); });
+      (Array.isArray(o.cursos) ? o.cursos : []).forEach(function (c) { agrega(P.paraCurso(c, base, '4x3') || (typeof P.propia === 'function' ? P.propia(c, base) : '')); });
     }
     PREFERIDAS.concat(P && typeof P.todas === 'function' ? P.todas() : []).forEach(function (k) {
       agrega(absoluta(base + RUTA + k + '-4x3.webp'));
