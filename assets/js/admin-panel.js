@@ -14,8 +14,7 @@
   var ico = function (nombre, opciones) { return iconos && iconos.svg ? iconos.svg(nombre, opciones) : ''; };
 
   /* ── Secciones del panel ──
-     origen: 'servidor' = endpoint propio de la administración · 'club' = módulo anterior que lee Firestore o sus rutas
-     · 'pronto' = diseño completo, sin backend todavía. zoo = clave de color del apartado (club-seccion.css). */
+     origen: 'servidor' = endpoint propio de la administración · 'club' = módulo anterior que lee Firestore o sus rutas. zoo = clave de color del apartado (club-seccion.css). */
   var SECCIONES = [
     { id: 'resumen', grupo: 'Panel', titulo: 'Resumen', icono: 'chart-column', zoo: 'inicio', origen: 'servidor' },
     { id: 'miembros', grupo: 'Panel', titulo: 'Miembros', icono: 'users', zoo: 'directorio', origen: 'servidor' },
@@ -29,9 +28,11 @@
     { id: 'retos', grupo: 'Comunidad', titulo: 'Retos y XP', icono: 'target', zoo: 'retos', origen: 'servidor' },
     { id: 'comunidad', grupo: 'Comunidad', titulo: 'Foro y directorio', icono: 'message-square', zoo: 'foro', origen: 'servidor' },
     { id: 'referidos', grupo: 'Comunidad', titulo: 'Referidos', icono: 'gift', zoo: 'referidos', origen: 'servidor' },
-    { id: 'encuesta', grupo: 'Comunidad', titulo: 'Encuesta', icono: 'list-checks', zoo: 'canal', origen: 'club' },
-    { id: 'herramientas', grupo: 'Sistema', titulo: 'Herramientas', icono: 'wrench', zoo: 'herramientas', origen: 'pronto' },
+    { id: 'metricas', grupo: 'Marketing', titulo: 'Métricas', icono: 'chart-line', zoo: 'videos', origen: 'servidor' },
+    { id: 'pruebas', grupo: 'Marketing', titulo: 'Pruebas gratuitas', icono: 'flask-conical', zoo: 'registro', origen: 'servidor' },
+    { id: 'encuesta', grupo: 'Marketing', titulo: 'Encuesta', icono: 'list-checks', zoo: 'canal', origen: 'servidor' },
     { id: 'configuracion', grupo: 'Sistema', titulo: 'Configuración', icono: 'settings', zoo: 'perfil', origen: 'servidor' },
+    { id: 'avance', grupo: 'Sistema', titulo: 'Avance de miembros', icono: 'graduation-cap', zoo: 'certificados', origen: 'servidor' },
     { id: 'estado', grupo: 'Sistema', titulo: 'Estado del sistema', icono: 'activity', zoo: 'pdfs', origen: 'servidor' }
   ];
 
@@ -118,7 +119,7 @@
     'vencido': { texto: 'Vencido', icono: 'circle-x', tono: 'apagado' },
     'sin-plan': { texto: 'Sin membresía', icono: 'circle-dashed', tono: 'neutro' }
   };
-  var ORIGENES = { stripe: 'Stripe', manual: 'Manual', heredado: 'Heredado', otro: 'Otro', ninguno: '—' };
+  var ORIGENES = { stripe: 'Stripe', manual: 'Manual', regalo: 'Regalo', heredado: 'Heredado', otro: 'Otro', ninguno: '—' };
 
   function insignia(estado) {
     var e = ESTADOS[estado] || ESTADOS['sin-plan'];
@@ -178,6 +179,81 @@
       if (a.conAcceso) return (va === null ? Infinity : va) - (vb === null ? Infinity : vb);
       return (vb || 0) - (va || 0);
     });
+  }
+
+  /* ── Avance de miembros: lo que dice el ensayo del servidor (GET /api/admin/progreso-legado) ──
+     El avance del sitio anterior (courseProgress) se importa solo, una vez, cuando la persona entra. Estas ayudas solo
+     traducen el veredicto del servidor a insignias, botones y frases en lenguaje llano. */
+  function estadoAvance(f) {
+    var v = f && f.veredicto;
+    if (v === 'ya-importado') {
+      if (f.clasesFaltantes > 0) return { id: 'faltan', tono: 'aviso', icono: 'triangle-alert', texto: 'Importado, faltan clases', accion: 'reparar' };
+      if (f.clasesPerdidas > 0) return { id: 'importado-con-bajas', tono: 'aviso', icono: 'info', texto: 'Importado; algunas clases ya no existen', accion: null };
+      return { id: 'importado', tono: 'ok', icono: 'circle-check', texto: 'Importado y verificado', accion: null };
+    }
+    if (v === 'completo') return { id: 'completo', tono: 'info', icono: 'download', texto: 'Completo, por importar', accion: 'importar' };
+    if (v === 'parcial') return { id: 'parcial', tono: 'aviso', icono: 'triangle-alert', texto: 'Parcial', accion: 'importar' };
+    if (v === 'no-elegible') return { id: 'no-elegible', tono: 'error', icono: 'lock', texto: 'No elegible', accion: 'forzar' };
+    return { id: 'sin-avance', tono: 'neutro', icono: 'circle-dashed', texto: 'Sin avance anterior', accion: null };
+  }
+
+  function insigniaAvance(f) {
+    var e = estadoAvance(f);
+    return '<span class="ap-badge ap-badge--' + e.tono + '">' + ico(e.icono, { size: 14 }) + '<span>' + esc(e.texto) + '</span></span>';
+  }
+
+  var MOTIVOS_NO_ELEGIBLE = {
+    'sin-corte': 'La importación automática está apagada (falta la fecha de corte en el servidor).',
+    'sin-fecha-cuenta': 'No se pudo leer la fecha en que se creó la cuenta.',
+    'cuenta-posterior': 'La cuenta se creó después de la fecha de corte.'
+  };
+  function textoMotivoNoElegible(m) { return MOTIVOS_NO_ELEGIBLE[m] || 'La cuenta no cumple la regla de fecha.'; }
+
+  var TEXTOS_CURSO_AVANCE = {
+    'ok': 'Todo se conserva',
+    'listo-para-certificado': 'Terminó el curso sin certificado: queda la última clase para que el servidor lo emita',
+    'fuera-de-rango': 'Algunas clases ya no existen en el curso',
+    'curso-eliminado': 'El curso ya no existe',
+    'sin-clases': 'El curso ya no tiene clases',
+    'id-invalido': 'Identificador de curso no válido',
+    'excede-limite': 'Hay más cursos de los que se importan',
+    'datos-invalidos': 'Dato ilegible en el sitio anterior'
+  };
+  function textoEstadoCurso(estado) { return TEXTOS_CURSO_AVANCE[estado] || 'Sin revisar'; }
+
+  // Dos líneas bajo la insignia: qué pasa con esta persona (en lenguaje llano)
+  function detalleAvance(f) {
+    var e = estadoAvance(f);
+    var partes = [];
+    if (e.id === 'no-elegible') partes.push(textoMotivoNoElegible(f.motivoNoElegible));
+    if (e.id === 'faltan') partes.push('Faltan ' + fmtNum(f.clasesFaltantes) + ' clases por guardar.');
+    if (f.clasesPerdidas > 0) partes.push(fmtNum(f.clasesPerdidas) + (f.clasesPerdidas === 1 ? ' clase ya no existe en el curso.' : ' clases ya no existen en el curso.'));
+    if (f.listosParaCertificado > 0) partes.push(fmtNum(f.listosParaCertificado) + (f.listosParaCertificado === 1 ? ' curso espera su certificado.' : ' cursos esperan su certificado.'));
+    if (f.formatoInvalido) partes.push('El dato anterior no se puede leer.');
+    return partes.join(' ');
+  }
+
+  // Frase de arriba de la tabla. resumen = el que entrega el servidor.
+  function resumenAvance(r) {
+    var x = r || {};
+    var n = x.conAvanceViejo || 0;
+    if (!n) {
+      return { tono: 'neutro', icono: 'circle-dashed', titulo: 'Ningún miembro tiene avance del sitio anterior por importar',
+        detalle: 'Cuando alguien tenga cursos empezados en el sitio anterior, aparecerá aquí.' };
+    }
+    var ver = x.verificados || 0;
+    var rev = x.requierenRevision || 0;
+    var titulo = fmtNum(ver) + ' de ' + fmtNum(n) + (n === 1 ? ' miembro con avance verificado' : ' miembros con avance verificado');
+    var detalle = [];
+    if (rev === 0) detalle.push('Nadie perdería nada de lo que llevaba en el sitio anterior.');
+    else detalle.push(fmtNum(rev) + (rev === 1 ? ' necesita tu revisión' : ' necesitan tu revisión') + ': está marcado en amarillo o rojo en la tabla.');
+    if (x.completos > 0) detalle.push(fmtNum(x.completos) + (x.completos === 1 ? ' se importará solo cuando entre al sitio; si prefieres, impórtalo ahora desde la tabla.' : ' se importarán solos cuando entren al sitio; si prefieres, impórtalos ahora desde la tabla.'));
+    if (x.clasesViejas > 0) {
+      var linea = 'Clases del sitio anterior: ' + fmtNum(x.clasesViejas) + '. Se conservan ' + fmtNum(x.clasesImportables) + '.';
+      if (x.clasesPerdidas > 0) linea += ' ' + fmtNum(x.clasesPerdidas) + ' ya no existen en su curso.';
+      detalle.push(linea);
+    }
+    return { tono: rev === 0 ? 'ok' : 'aviso', icono: rev === 0 ? 'circle-check' : 'triangle-alert', titulo: titulo, detalle: detalle.join(' ') };
   }
 
   /* ── Gráficas simples en SVG propio ──
@@ -245,6 +321,121 @@
     return '<div class="ap-reparto"><div class="ap-reparto__barra" role="img" aria-label="' + esc(partes.map(function (p) { return p.etiqueta + ' ' + p.valor; }).join(', ')) + '">' + segmentos + '</div><ul class="ap-reparto__leyenda">' + leyenda + '</ul></div>';
   }
 
+  /* ── Métricas: series por día, agrupación, comparación con el periodo anterior y rangos rápidos ──
+     Todo es puro (sin red ni DOM) y se prueba en tests/admin-metricas.test.js. Las claves de día son AAAA-MM-DD en hora de México. */
+  function sumarDiasClave(clave, n) {
+    var p = String(clave).split('-').map(Number);
+    return new Date(Date.UTC(p[0], p[1] - 1, p[2] + n)).toISOString().slice(0, 10);
+  }
+  function lunesDe(clave) {
+    var p = String(clave).split('-').map(Number);
+    var dow = (new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay() + 6) % 7;
+    return sumarDiasClave(clave, -dow);
+  }
+  function diaCorto(clave) { var p = String(clave).split('-').map(Number); return p[2] + ' ' + MESES[p[1] - 1]; }
+  function mesCorto(clave) { var p = String(clave).split('-').map(Number); return MESES[p[1] - 1] + ' ' + String(p[0]).slice(2); }
+
+  // serie: [{ dia, n }] → [{ clave, etiqueta, valor }] por día, por semana (lunes a domingo) o por mes.
+  function agruparSerie(serie, modo) {
+    var lista = Array.isArray(serie) ? serie : [];
+    if (modo !== 'semana' && modo !== 'mes') return lista.map(function (d) { return { clave: d.dia, etiqueta: diaCorto(d.dia), valor: Number(d.n) || 0 }; });
+    var orden = []; var mapa = {};
+    lista.forEach(function (d) {
+      var clave = modo === 'semana' ? lunesDe(d.dia) : String(d.dia).slice(0, 7);
+      if (!mapa[clave]) { mapa[clave] = { clave: clave, etiqueta: modo === 'semana' ? diaCorto(clave) : mesCorto(clave + '-01'), valor: 0 }; orden.push(clave); }
+      mapa[clave].valor += Number(d.n) || 0;
+    });
+    return orden.map(function (c) { return mapa[c]; });
+  }
+
+  function sumaSerie(serie) { return (Array.isArray(serie) ? serie : []).reduce(function (t, d) { return t + (Number(d.n != null ? d.n : d.valor) || 0); }, 0); }
+
+  // Compara con el periodo anterior de igual largo. Devuelve { tono, icono, texto }.
+  function variacion(actual, anterior) {
+    var a = Number(actual) || 0; var b = Number(anterior) || 0;
+    if (a === 0 && b === 0) return { tono: 'neutro', icono: 'minus', texto: 'Sin cambios (0 en ambos periodos)' };
+    if (b === 0) return { tono: 'ok', icono: 'trending-up', texto: 'Antes eran 0' };
+    if (a === b) return { tono: 'neutro', icono: 'minus', texto: 'Igual que el periodo anterior (' + fmtNum(b) + ')' };
+    var pct = Math.round(((a - b) / b) * 100);
+    return a > b
+      ? { tono: 'ok', icono: 'trending-up', texto: '+' + pct + ' % frente a ' + fmtNum(b) + ' del periodo anterior' }
+      : { tono: 'aviso', icono: 'trending-down', texto: pct + ' % frente a ' + fmtNum(b) + ' del periodo anterior' };
+  }
+
+  // Rangos rápidos del selector. hoy = clave AAAA-MM-DD de hoy (México).
+  var RANGOS = [
+    { id: '7', texto: '7 días', dias: 7 }, { id: '30', texto: '30 días', dias: 30 }, { id: '90', texto: '90 días', dias: 90 },
+    { id: '365', texto: '12 meses', dias: 365 }, { id: 'todo', texto: 'Todo', dias: null }
+  ];
+  function rangoRapido(id, hoy) {
+    var r = RANGOS.filter(function (x) { return x.id === id; })[0] || RANGOS[1];
+    if (r.dias === null) return { desde: 'todo', hasta: hoy };
+    return { desde: sumarDiasClave(hoy, -(r.dias - 1)), hasta: hoy };
+  }
+
+  function fmtPct(n) { return n === null || n === undefined || !isFinite(Number(n)) ? '—' : Math.round(Number(n)) + ' %'; }
+
+  // Gráfica de una serie larga (30 a 731 puntos): SVG sin texto, tres etiquetas de eje, tope y pico en HTML.
+  // datos: [{ etiqueta, valor, clave }] · opciones: { tipo: 'barras' | 'linea', titulo, unidad }
+  function graficaSerie(datos, o) {
+    var op = o || {};
+    var n = datos.length;
+    if (!n) return '';
+    var valores = datos.map(function (d) { return Math.max(0, Number(d.valor) || 0); });
+    var max = Math.max.apply(null, valores.concat([1]));
+    var total = valores.reduce(function (t, v) { return t + v; }, 0);
+    var pico = 0; valores.forEach(function (v, i) { if (v > valores[pico]) pico = i; });
+    var ancho = 10; var alto = 100;
+    var cuerpo;
+    if (op.tipo === 'linea') {
+      var pts = valores.map(function (v, i) { return { x: i * ancho + ancho / 2, y: alto - 4 - Math.round((v / max) * 88) }; });
+      var trazo = pts.map(function (q, i) { return (i ? 'L' : 'M') + q.x + ' ' + q.y; }).join(' ');
+      cuerpo = '<path class="ap-area" d="' + trazo + ' L' + pts[n - 1].x + ' ' + alto + ' L' + pts[0].x + ' ' + alto + ' Z"/><path class="ap-linea" d="' + trazo + '"/>';
+    } else {
+      cuerpo = valores.map(function (v, i) {
+        var h = Math.round((v / max) * 92);
+        var texto = datos[i].etiqueta + ': ' + fmtNum(v);
+        return '<rect class="ap-barra' + (i === pico && v > 0 ? ' is-ultima' : '') + '" x="' + (i * ancho + 1) + '" y="' + (alto - h) + '" width="' + (ancho - 2) + '" height="' + Math.max(h, v > 0 ? 2 : 0) + '" rx="1.5"><title>' + esc(texto) + '</title></rect>';
+      }).join('');
+    }
+    var guias = [25, 50, 75].map(function (y) { return '<line class="ap-guia" x1="0" x2="' + (n * ancho) + '" y1="' + y + '" y2="' + y + '"/>'; }).join('');
+    var medio = datos[Math.floor((n - 1) / 2)].etiqueta;
+    var resumen = (op.titulo || 'Gráfica') + ': total ' + fmtNum(total) + (total ? ', el valor más alto fue ' + fmtNum(valores[pico]) + ' el ' + datos[pico].etiqueta : '');
+    return '<figure class="ap-serie" role="group" aria-label="' + esc(op.titulo || 'Gráfica') + '">' +
+      '<div class="ap-serie__tope"><span>Máximo ' + esc(fmtNum(total ? max : 0)) + '</span></div>' +
+      '<svg class="ap-grafica__svg" viewBox="0 0 ' + (n * ancho) + ' ' + alto + '" preserveAspectRatio="none" role="img" aria-label="' + esc(resumen) + '" focusable="false">' +
+      guias + '<line class="ap-base" x1="0" x2="' + (n * ancho) + '" y1="' + alto + '" y2="' + alto + '"/>' + cuerpo + '</svg>' +
+      '<div class="ap-serie__ejes"><span>' + esc(datos[0].etiqueta) + '</span>' + (n > 2 ? '<span>' + esc(medio) + '</span>' : '') + (n > 1 ? '<span>' + esc(datos[n - 1].etiqueta) + '</span>' : '') + '</div>' +
+      '<figcaption class="ap-serie__pie"><strong>' + esc(fmtNum(total)) + '</strong> ' + esc(op.unidad || 'en total') +
+      (total ? ' · valor más alto: <strong>' + esc(fmtNum(valores[pico])) + '</strong> (' + esc(datos[pico].etiqueta) + ')' : '') + '</figcaption></figure>';
+  }
+
+  // Lista de barras horizontales (cursos más elegidos, páginas más vistas...). filas: [{ etiqueta, valor, nota }]
+  function barrasHorizontales(filas, o) {
+    var op = o || {};
+    if (!filas || !filas.length) return '';
+    var max = Math.max.apply(null, filas.map(function (f) { return Number(f.valor) || 0; }).concat([1]));
+    return '<ol class="ap-ranking">' + filas.map(function (f) {
+      var v = Number(f.valor) || 0;
+      var ancho = v > 0 ? Math.max(3, Math.round((v / max) * 100)) : 0;
+      return '<li><span class="ap-ranking__t">' + esc(f.etiqueta) + (f.nota ? '<small>' + esc(f.nota) + '</small>' : '') + '</span>' +
+        '<span class="ap-ranking__b" aria-hidden="true"><i class="' + esc(op.clase || '') + '" style="width:' + ancho + '%"></i></span>' +
+        '<span class="ap-ranking__n">' + esc(fmtNum(v)) + '</span></li>';
+    }).join('') + '</ol>';
+  }
+
+  /* ── CSV (exportar listas): comillas dobles escapadas y protección contra fórmulas de hoja de cálculo ── */
+  function celdaCsv(v) {
+    var t = String(v == null ? '' : v).replace(/\r?\n/g, ' ');
+    if (/^[=+\-@\t]/.test(t)) t = "'" + t;
+    return /[",;]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+  }
+  function aCsv(columnas, filas) {
+    var cab = columnas.map(function (c) { return celdaCsv(c.titulo); }).join(',');
+    var cuerpo = filas.map(function (f) { return columnas.map(function (c) { return celdaCsv(f[c.clave]); }).join(','); });
+    return [cab].concat(cuerpo).join('\r\n');
+  }
+
   /* ── Tarjeta de título de sección (la misma del Club: zs-seccion, color sólido del apartado) ── */
   function tarjetaTitulo(c) {
     var cifras = (c.cifras || []).map(function (x) {
@@ -282,6 +473,11 @@
     duracion: duracion, iniciales: iniciales, insignia: insignia, etiquetaEstado: etiquetaEstado,
     contarPorFiltro: contarPorFiltro, filtrarMiembros: filtrarMiembros, ordenarMiembros: ordenarMiembros,
     graficaBarras: graficaBarras, graficaLinea: graficaLinea, barraReparto: barraReparto,
-    tarjetaTitulo: tarjetaTitulo, bloqueProntoHTML: bloqueProntoHTML
+    sumarDiasClave: sumarDiasClave, lunesDe: lunesDe, diaCorto: diaCorto, mesCorto: mesCorto, agruparSerie: agruparSerie, sumaSerie: sumaSerie,
+    variacion: variacion, RANGOS: RANGOS, rangoRapido: rangoRapido, fmtPct: fmtPct, graficaSerie: graficaSerie, barrasHorizontales: barrasHorizontales,
+    celdaCsv: celdaCsv, aCsv: aCsv,
+    tarjetaTitulo: tarjetaTitulo, bloqueProntoHTML: bloqueProntoHTML,
+    estadoAvance: estadoAvance, insigniaAvance: insigniaAvance, detalleAvance: detalleAvance, resumenAvance: resumenAvance,
+    textoEstadoCurso: textoEstadoCurso, textoMotivoNoElegible: textoMotivoNoElegible
   };
 });

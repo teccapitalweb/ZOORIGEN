@@ -1,7 +1,7 @@
 /* ============================================================ */
 /* PANEL DE ADMINISTRACIÓN · VISTAS                              */
 /* Dibuja las secciones nuevas (Resumen, Miembros, Suscripciones,*/
-/* Retos, Foro y directorio, Referidos, Herramientas,            */
+/* Retos, Foro y directorio, Referidos,                         */
 /* Configuración y Estado) con los datos que entrega el          */
 /* servidor (GET /api/admin/*). Nunca lee Firestore directo y    */
 /* nunca inventa cifras: sin datos, muestra un vacío amable.     */
@@ -60,6 +60,9 @@
       '<header class="ap-card__cab"><h2>' + esc(titulo) + '</h2>' + (op.nota ? '<p>' + esc(op.nota) + '</p>' : '') + '</header>' +
       '<div class="ap-card__cuerpo">' + cuerpo + '</div></section>';
   }
+
+  // Toda tabla va dentro de .ap-tabla-zona: el CONTENEDOR (no la ventana) decide si se ve como tabla o como tarjetas apiladas.
+  function tablaZona(tabla) { return '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura">' + tabla + '</div></div>'; }
 
   function acciones(e, mapa) {
     var b = e.target.closest('[data-accion]');
@@ -225,18 +228,30 @@
     return [plan, origen].filter(Boolean).join(' · ');
   }
 
+  // Botones de una fila de la tabla. Las cuentas de administración solo tienen «Ver ficha» (no se regalan ni se eliminan).
+  function botonesMiembro(m) {
+    var uid = esc(m.uid);
+    var btn = function (accion, clase, icono, texto) {
+      return '<button type="button" class="ap-btn ap-btn--chico ap-btn--' + clase + '" data-accion="' + accion + '" data-uid="' + uid + '">' + ico(icono, { size: 16 }) + texto + '</button>';
+    };
+    var html = btn('ficha', 'primario', 'eye', 'Ver ficha');
+    if (m.esAdmin) return html;
+    html += btn('activar', 'suave', m.conAcceso ? 'calendar-plus' : 'badge-check', m.conAcceso ? 'Ampliar' : 'Activar');
+    html += btn('regalar', 'suave', 'gift', 'Regalar');
+    if (m.conAcceso && m.estado !== 'cancelado-vigente') html += btn('cancelar', 'peligro-suave', 'ban', 'Cancelar');
+    html += btn('eliminar', 'peligro-suave', 'trash-2', 'Eliminar');
+    return html;
+  }
+
   function filaMiembro(m) {
-    var accionPlan = '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="activar" data-uid="' + esc(m.uid) + '">' + ico(m.conAcceso ? 'calendar-plus' : 'badge-check', { size: 16 }) + (m.conAcceso ? 'Ampliar' : 'Activar') + '</button>';
-    var accionCancelar = m.conAcceso && m.estado !== 'cancelado-vigente'
-      ? '<button type="button" class="ap-btn ap-btn--chico ap-btn--peligro-suave" data-accion="cancelar" data-uid="' + esc(m.uid) + '">' + ico('ban', { size: 16 }) + 'Cancelar</button>' : '';
     var pronto = m.conAcceso && m.vence && (new Date(m.vence).getTime() - Date.now()) < 7 * 86400000;
     return '<tr class="ap-fila" data-uid="' + esc(m.uid) + '">' +
       '<td class="ap-celda-miembro" data-label="Miembro"><div class="ap-persona"><span class="ap-avatar ap-avatar--' + esc(m.estado) + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span>' +
-      '<div class="ap-persona__txt"><strong>' + esc(m.nombre || 'Sin nombre') + (m.esAdmin ? ' <span class="ap-etiqueta">Admin</span>' : '') + '</strong><span>' + esc(m.correo || '—') + '</span></div></div></td>' +
+      '<div class="ap-persona__txt"><strong>' + esc(m.nombre || 'Sin nombre') + (m.esAdmin ? ' <span class="ap-etiqueta">Admin</span>' : '') + '</strong><span class="ap-correo">' + esc(m.correo || '—') + '</span></div></div></td>' +
       '<td data-label="Estado">' + P.insignia(m.estado) + (planTexto(m) ? '<span class="ap-sub">' + esc(planTexto(m)) + '</span>' : '') + '</td>' +
       '<td data-label="Vence">' + (m.vence ? '<span class="ap-fecha">' + esc(P.fmtFecha(m.vence)) + '</span><span class="ap-sub' + (pronto ? ' ap-sub--aviso' : '') + '">' + esc(P.relativo(m.vence)) + '</span>' : '<span class="ap-sub">—</span>') + '</td>' +
       '<td data-label="Registro"><span class="ap-fecha">' + esc(P.fmtFecha(m.registro)) + '</span></td>' +
-      '<td class="ap-celda-acciones"><button type="button" class="ap-btn ap-btn--chico ap-btn--primario" data-accion="ficha" data-uid="' + esc(m.uid) + '">' + ico('eye', { size: 16 }) + 'Ver ficha</button>' + accionPlan + accionCancelar + '</td></tr>';
+      '<td class="ap-celda-acciones"><div class="ap-acciones">' + botonesMiembro(m) + '</div></td></tr>';
   }
 
   function pintarListaMiembros() {
@@ -252,8 +267,8 @@
       return;
     }
     var mostrar = lista.slice(0, estado.visibles);
-    cont.innerHTML = '<div class="ap-tabla-envoltura"><table class="ap-tabla"><thead><tr><th scope="col">Miembro</th><th scope="col">Estado</th><th scope="col">Vence</th><th scope="col">Registro</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
-      mostrar.map(filaMiembro).join('') + '</tbody></table></div>' +
+    cont.innerHTML = tablaZona('<table class="ap-tabla"><thead><tr><th scope="col">Miembro</th><th scope="col">Estado</th><th scope="col">Vence</th><th scope="col">Registro</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
+      mostrar.map(filaMiembro).join('') + '</tbody></table>') +
       '<p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(mostrar.length) + ' de ' + P.fmtNum(lista.length) + '</p>' +
       (lista.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="mas">Mostrar ' + Math.min(25, lista.length - mostrar.length) + ' más</button>' : '');
   }
@@ -279,7 +294,7 @@
         { valor: P.fmtNum(conteo.activo + conteo['cancelado-vigente']), rotulo: 'con acceso hoy' },
         { valor: P.fmtNum(conteo['pago-pendiente'] + conteo.vencido), rotulo: 'vencidos o con pago pendiente' }
       ],
-      acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }]
+      acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }, { id: 'eliminados', texto: 'Eliminados', icono: 'archive-restore' }]
     }) +
       '<div class="ap-controles"><div class="zs-chips" id="apMiembrosChips" role="group" aria-label="Filtrar por estado del plan"></div>' +
       '<div class="ap-controles__der"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por nombre o correo</span>' +
@@ -299,14 +314,20 @@
         mas: function () { estado.visibles += 25; pintarListaMiembros(); },
         ficha: function (b) { abrirFicha(b.dataset.uid); },
         activar: function (b) { abrirActivar(b.dataset.uid); },
-        cancelar: function (b) { abrirCancelar(b.dataset.uid); }
+        cancelar: function (b) { abrirCancelar(b.dataset.uid); },
+        regalar: function (b) { abrirRegalar(b.dataset.uid); },
+        eliminar: function (b) { abrirEliminar(b.dataset.uid); },
+        eliminados: function () { abrirEliminados(); }
       });
     };
   }
 
+  // La lista de la sección o, si se llegó desde otra sección (Pruebas gratuitas, Resumen...), la ficha recién abierta.
   function miembroLocal(uid) {
     var l = estado.miembros && estado.miembros.miembros;
-    return (l || []).filter(function (m) { return m.uid === uid; })[0] || null;
+    var local = (l || []).filter(function (m) { return m.uid === uid; })[0];
+    if (local) return local;
+    return estado.fichaActual && estado.fichaActual.uid === uid ? estado.fichaActual : null;
   }
 
   async function abrirFicha(uid) {
@@ -316,6 +337,7 @@
       return;
     }
     var m = r.miembro;
+    estado.fichaActual = m;
     var dato = function (t, v) { return '<div class="ap-dato"><dt>' + esc(t) + '</dt><dd>' + v + '</dd></div>'; };
     var progreso = r.progreso.length
       ? '<ul class="ap-progreso">' + r.progreso.map(function (p) {
@@ -329,7 +351,7 @@
       : '<p class="ap-nada">Sin certificados.</p>';
     var cuerpo = '<div class="ap-ficha">' +
       '<div class="ap-ficha__cab"><span class="ap-avatar ap-avatar--grande ap-avatar--' + esc(m.estado) + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span>' +
-      '<div><strong>' + esc(m.nombre || 'Sin nombre') + '</strong><span>' + esc(m.correo || '—') + '</span>' + P.insignia(m.estado) + '</div></div>' +
+      '<div><strong>' + esc(m.nombre || 'Sin nombre') + '</strong><span class="ap-correo">' + esc(m.correo || '—') + '</span>' + P.insignia(m.estado) + '</div></div>' +
       '<dl class="ap-datos">' +
       dato('Plan', esc(planTexto(m) || 'Sin plan')) +
       dato('Vence', m.vence ? esc(P.fmtFecha(m.vence)) + ' · ' + esc(P.relativo(m.vence)) : '—') +
@@ -347,11 +369,15 @@
       dato('XP de retos', esc(P.fmtNum(r.retos.xp))) +
       '</dl></div>';
     var botones = [{ id: 'cerrar', texto: 'Cerrar', tipo: 'suave' }];
-    if (miembroLocal(uid)) {
+    if (!m.esAdmin) {
+      botones.push({ id: 'eliminar', texto: 'Eliminar', tipo: 'peligro' });
+      botones.push({ id: 'regalar', texto: 'Regalar tiempo', tipo: 'suave' });
       botones.push({ id: 'activar', texto: m.conAcceso ? 'Ampliar plan' : 'Activar plan', tipo: 'primario' });
     }
     var elegido = await modal({ titulo: 'Ficha del miembro', cuerpo: cuerpo, botones: botones, ancho: 'ancho' });
     if (elegido === 'activar') abrirActivar(uid);
+    else if (elegido === 'regalar') abrirRegalar(uid);
+    else if (elegido === 'eliminar') abrirEliminar(uid);
   }
 
   async function abrirActivar(uid) {
@@ -408,6 +434,142 @@
       ctx.toast('Membresía cancelada. Conserva el acceso hasta su vencimiento.');
       await miembros(true);
     } catch (e) { ctx.toast(e.message || 'No se pudo cancelar.', true); }
+  }
+
+  /* ───────── REGALAR, ELIMINAR Y RESTAURAR ───────── */
+  // Recarga la tabla de Miembros solo si es la que se está viendo.
+  function recargarSiMiembros() { if (document.getElementById('apMiembrosLista')) return miembros(true); }
+
+  async function abrirRegalar(uid) {
+    var m = miembroLocal(uid) || { nombre: '', correo: '' };
+    var base = m.conAcceso && m.vence && new Date(m.vence).getTime() > Date.now() ? new Date(m.vence) : new Date();
+    var vence = function (dias) { return P.fmtFecha(new Date(base.getTime() + dias * 86400000).toISOString()); };
+    var cuerpo = '<p class="ap-modal__texto">Le regalarás tiempo de acceso a <strong>' + esc(m.nombre || m.correo || 'esta persona') + '</strong>. ' +
+      (base.getTime() > Date.now() + 60000 ? 'Se suma a su vencimiento actual (' + esc(P.fmtFecha(base.toISOString())) + ').' : 'Empieza hoy porque ahora no tiene acceso vigente.') +
+      ' No cuenta como pago y no toca Stripe.</p>' +
+      (m.stripeActiva ? '<div class="ap-aviso ap-aviso--error" role="note">' + ico('triangle-alert', { size: 20 }) + '<div><strong>Sigue cobrándose en Stripe</strong><p>Esta persona tiene una suscripción de Stripe activa. El regalo no la detiene y, en su próximo cobro, Stripe vuelve a fijar la fecha de vencimiento.</p></div></div>' : '') +
+      '<div class="ap-opciones" role="group" aria-label="Duración del regalo">' +
+      '<button type="button" class="ap-opcion" data-opcion="30" aria-pressed="true"><strong>1 mes</strong><span>30 días · hasta el ' + esc(vence(30)) + '</span></button>' +
+      '<button type="button" class="ap-opcion" data-opcion="365" aria-pressed="false"><strong>1 año</strong><span>365 días · hasta el ' + esc(vence(365)) + '</span></button></div>' +
+      '<div class="ap-campo"><label for="apRegaloNota">Nota <small>(opcional, solo para tu registro)</small></label><textarea id="apRegaloNota" maxlength="200" placeholder="Por ejemplo: cortesía por su ayuda en el foro"></textarea></div>' +
+      '<p class="ap-error" id="apRegaloError" role="alert" hidden></p>';
+    var dias = 30;
+    var hecho = await modal({
+      titulo: 'Regalar acceso', cuerpo: cuerpo,
+      alAbrir: function (caja) {
+        caja.querySelectorAll('[data-opcion]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            dias = Number(b.dataset.opcion);
+            caja.querySelectorAll('[data-opcion]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+          });
+        });
+      },
+      botones: [{ id: 'cerrar', texto: 'Cancelar', tipo: 'suave' }, { id: 'guardar', texto: 'Regalar', tipo: 'primario' }],
+      alElegir: async function (id, caja, cerrar) {
+        if (id !== 'guardar') return cerrar(null);
+        var err = caja.querySelector('#apRegaloError'); var boton = caja.querySelector('[data-modal="guardar"]');
+        boton.disabled = true; err.hidden = true;
+        try {
+          var r = await ctx.api('/api/admin/miembros/' + encodeURIComponent(uid) + '/regalar', { method: 'POST', body: { dias: dias, nota: caja.querySelector('#apRegaloNota').value } });
+          cerrar(r);
+        } catch (e) {
+          err.textContent = e.message || 'No se pudo regalar el acceso.';
+          err.hidden = false; boton.disabled = false;
+        }
+      }
+    });
+    if (hecho && hecho.ok) {
+      ctx.toast((hecho.dias === 365 ? 'Se regaló un año' : 'Se regaló un mes') + '. Vence el ' + P.fmtFecha(hecho.vence) + '.' + (hecho.stripeActiva ? ' Ojo: sigue cobrándose en Stripe.' : ''));
+      await recargarSiMiembros();
+    }
+  }
+
+  async function abrirEliminar(uid) {
+    var m = miembroLocal(uid) || { nombre: '', correo: '' };
+    var esperado = (m.correo || '').trim().toLowerCase();
+    var cuerpo = '<p class="ap-modal__texto">Vas a eliminar a <strong>' + esc(m.nombre || m.correo || 'esta persona') + '</strong>' + (m.correo ? ' (<span class="ap-correo">' + esc(m.correo) + '</span>)' : '') + '.</p>' +
+      '<div class="ap-peligro"><strong>Esto quita su cuenta del Club</strong><ul>' +
+      '<li>Ya no podrá iniciar sesión.</li>' +
+      '<li>Se quitan su ficha de miembro, su tarjeta del directorio y sus retos y XP.</li>' +
+      '<li>Se conservan sus certificados y el avance de sus cursos.</li>' +
+      '<li>Antes de borrar, el servidor guarda una copia completa. Durante 30 días puedes restaurarla desde «Eliminados».</li></ul></div>' +
+      (m.stripeActiva ? '<div class="ap-aviso ap-aviso--error" role="alert">' + ico('triangle-alert', { size: 20 }) + '<div><strong>Tiene una suscripción de Stripe activa</strong><p>Eliminar la cuenta NO detiene los cobros. Cancela primero su suscripción en Stripe (Clientes, Suscripciones).</p></div></div>' +
+        '<label class="ap-casilla"><input type="checkbox" id="apElimStripe"><span>Entiendo que debo cancelar su suscripción en Stripe yo mismo.</span></label>' : '') +
+      '<div class="ap-campo"><label for="apElimCorreo">Para confirmar, escribe ' + (esperado ? 'su correo' : 'su identificador') + ': <code>' + esc(esperado || uid) + '</code></label>' +
+      '<input type="text" id="apElimCorreo" data-foco autocomplete="off" spellcheck="false" inputmode="email" placeholder="' + esc(esperado ? 'correo@ejemplo.com' : 'identificador') + '"></div>' +
+      '<p class="ap-error" id="apElimError" role="alert" hidden></p>';
+    var hecho = await modal({
+      titulo: 'Eliminar miembro', cuerpo: cuerpo,
+      alAbrir: function (caja) {
+        var campo = caja.querySelector('#apElimCorreo'); var boton = caja.querySelector('[data-modal="eliminar"]'); var casilla = caja.querySelector('#apElimStripe');
+        var objetivo = (esperado || uid).toLowerCase();
+        var revisar = function () { boton.disabled = !(campo.value.trim().toLowerCase() === objetivo && (!casilla || casilla.checked)); };
+        campo.addEventListener('input', revisar);
+        if (casilla) casilla.addEventListener('change', revisar);
+        boton.disabled = true;
+      },
+      botones: [{ id: 'cerrar', texto: 'Mejor no', tipo: 'suave' }, { id: 'eliminar', texto: 'Eliminar miembro', tipo: 'peligro' }],
+      alElegir: async function (id, caja, cerrar) {
+        if (id !== 'eliminar') return cerrar(null);
+        var err = caja.querySelector('#apElimError'); var boton = caja.querySelector('[data-modal="eliminar"]');
+        var casilla = caja.querySelector('#apElimStripe');
+        boton.disabled = true; err.hidden = true;
+        try {
+          var r = await ctx.api('/api/admin/miembros/' + encodeURIComponent(uid), { method: 'DELETE', body: { confirmarCorreo: caja.querySelector('#apElimCorreo').value, confirmarStripe: Boolean(casilla && casilla.checked) } });
+          cerrar(r);
+        } catch (e) {
+          err.textContent = e.message || 'No se pudo eliminar al miembro.';
+          err.hidden = false; boton.disabled = false;
+        }
+      }
+    });
+    if (hecho && hecho.ok) {
+      ctx.toast((hecho.yaEliminado ? 'Esa persona ya estaba eliminada.' : 'Miembro eliminado. Se puede restaurar durante 30 días.') + (hecho.aviso ? ' ' + hecho.aviso : ''));
+      await recargarSiMiembros();
+    }
+  }
+
+  function filaEliminado(e) {
+    var boton = e.restaurable
+      ? '<button type="button" class="ap-btn ap-btn--chico ap-btn--primario" data-accion="restaurar" data-uid="' + esc(e.uid) + '">' + ico('rotate-ccw', { size: 16 }) + 'Restaurar</button>'
+      : '<span class="ap-badge ap-badge--' + (e.estado === 'restaurado' ? 'ok' : 'apagado') + '">' + ico(e.estado === 'restaurado' ? 'circle-check' : 'circle-x', { size: 14 }) +
+        '<span>' + esc(e.estado === 'restaurado' ? 'Ya restaurado' : e.motivo === 'vencido' ? 'Pasaron los 30 días' : 'No restaurable') + '</span></span>';
+    return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(e.nombre || 'Sin nombre') + '</strong><span class="ap-correo">' + esc(e.correo || '—') + '</span>' +
+      '<span>Eliminada el ' + esc(P.fmtFecha(e.eliminadoEn)) + (e.restaurable ? ' · se puede restaurar hasta el ' + esc(P.fmtFecha(e.restaurableHasta)) : '') + ' · ' + esc(P.fmtNum(e.cursosConAvance)) + ' cursos con avance</span></span>' +
+      '<span class="ap-lista__d">' + boton + '</span></div></li>';
+  }
+
+  async function abrirEliminados() {
+    var r;
+    try { r = await ctx.api('/api/admin/eliminados'); } catch (e) { ctx.toast(e.message || 'No se pudo abrir la lista.', true); return; }
+    var cuerpo = r.eliminados.length
+      ? '<p class="ap-modal__texto">Estas cuentas se eliminaron con una copia completa. Puedes restaurarlas durante ' + esc(P.fmtNum(r.diasParaRestaurar)) + ' días; la persona debe usar «Olvidé mi contraseña» para entrar de nuevo.</p><ul class="ap-lista">' + r.eliminados.map(filaEliminado).join('') + '</ul>'
+      : vacio('Nadie eliminado', 'Cuando elimines a un miembro, aparecerá aquí para que puedas restaurarlo.', 'archive-restore');
+    var elegido = null;
+    await modal({
+      titulo: 'Eliminados recientemente', cuerpo: cuerpo, ancho: 'ancho',
+      alAbrir: function (caja) {
+        caja.addEventListener('click', function (ev) {
+          var b = ev.target.closest('[data-accion="restaurar"]');
+          if (b) { elegido = b.dataset.uid; var cierre = caja.querySelector('[data-modal="cerrar"]'); if (cierre) cierre.click(); }
+        });
+      }
+    });
+    if (elegido) await restaurarMiembro(elegido, r.eliminados.filter(function (x) { return x.uid === elegido; })[0]);
+  }
+
+  async function restaurarMiembro(uid, e) {
+    var ok = await confirmar({
+      titulo: 'Restaurar miembro',
+      texto: '¿Restaurar a <strong>' + esc((e && (e.nombre || e.correo)) || 'esta persona') + '</strong>? Se vuelve a crear su cuenta de acceso con el mismo correo y se reescribe su ficha, su tarjeta, sus retos y su avance.',
+      aceptar: 'Sí, restaurar', cancelar: 'Mejor no', peligro: false
+    });
+    if (!ok) return;
+    try {
+      var r = await ctx.api('/api/admin/eliminados/' + encodeURIComponent(uid) + '/restaurar', { method: 'POST', body: {} });
+      ctx.toast('Miembro restaurado. ' + (r.aviso || ''));
+      await recargarSiMiembros();
+    } catch (err) { ctx.toast(err.message || 'No se pudo restaurar.', true); }
   }
 
   /* ───────── SUSCRIPCIONES Y PAGOS ───────── */
@@ -476,12 +638,7 @@
       tarjeta('Vencen en los próximos 30 días', bloque(en30, 'Nadie vence pronto', 'Cuando una membresía esté por vencer aparecerá aquí.')) +
       tarjeta('Pago pendiente', bloque(pendientes, 'Sin pagos pendientes', 'Todos los cobros recientes se confirmaron.')) +
       '</div>' +
-      tarjeta('Activaciones manuales vigentes', bloque(manuales, 'Sin activaciones manuales', 'Las membresías que actives a mano aparecerán aquí.'), { nota: 'Transferencias, efectivo y cortesías.' }) +
-      P.bloqueProntoHTML({
-        icono: 'credit-card', titulo: 'Historial de cobros de Stripe',
-        texto: 'Aquí verás cada cobro, reembolso y factura. Hoy el servidor guarda el estado del plan de cada persona, pero no un libro de cobros.',
-        faltan: ['GET /api/admin/pagos (cobros, reembolsos y facturas de Stripe)']
-      });
+      tarjeta('Activaciones manuales vigentes', bloque(manuales, 'Sin activaciones manuales', 'Las membresías que actives a mano aparecerán aquí.'), { nota: 'Transferencias, efectivo y cortesías.' });
     vista().onclick = function (e) {
       acciones(e, {
         recargar: function () { suscripciones(true); },
@@ -505,9 +662,9 @@
     var t = r.totales;
     var top = r.top.filter(function (f) { return f.xp > 0 || f.superados > 0; });
     var tabla = top.length
-      ? '<div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">#</th><th scope="col">Persona</th><th scope="col">Retos superados</th><th scope="col">XP</th></tr></thead><tbody>' +
+      ? tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">#</th><th scope="col">Persona</th><th scope="col">Retos superados</th><th scope="col">XP</th></tr></thead><tbody>' +
         top.map(function (f, i) { return '<tr><td data-label="Lugar">' + (i + 1) + '</td><td data-label="Persona"><strong>' + esc(f.nombre) + '</strong></td><td data-label="Retos superados">' + esc(P.fmtNum(f.superados)) + '</td><td data-label="XP">' + esc(P.fmtNum(f.xp)) + '</td></tr>'; }).join('') +
-        '</tbody></table></div>'
+        '</tbody></table>')
       : vacio('Aún nadie ha jugado retos', 'Cuando los miembros superen retos, aparecerán aquí con su XP.', 'target');
     vista().innerHTML = P.tarjetaTitulo({
       icono: 'target', eyebrow: 'Panel de administración', titulo: 'Retos', acento: 'y XP.',
@@ -525,12 +682,7 @@
         kpi({ icono: 'zap', rotulo: 'XP acumulado', valor: P.fmtNum(t.xpTotal), tono: 'aviso' }),
         kpi({ icono: 'trophy', rotulo: 'XP promedio', valor: P.fmtNum(t.xpPromedio), nota: 'Por persona con actividad', tono: 'neutro' })
       ].join('') + '</div>' +
-      tarjeta('Quiénes van al frente', tabla, { nota: 'Las diez personas con más XP de retos.' }) +
-      P.bloqueProntoHTML({
-        icono: 'target', titulo: 'Editar el catálogo de retos y su XP',
-        texto: 'Hoy los retos y su XP viven en el código del servidor. Desde aquí podrás activar, pausar y ajustar cada reto sin publicar.',
-        faltan: ['GET y POST /api/admin/retos/catalogo (editar retos, XP y vigencia)']
-      });
+      tarjeta('Quiénes van al frente', tabla, { nota: 'Las diez personas con más XP de retos.' });
     vista().onclick = function (e) { acciones(e, { recargar: function () { retos(true); } }); };
   }
 
@@ -574,12 +726,7 @@
         kpi({ icono: 'shield-check', rotulo: 'Con cédula visible', valor: P.fmtNum(d.conCedulaVisible), nota: 'Eligieron mostrarla', tono: 'info' })
       ].join('') + '</div>' +
       '<div class="ap-columnas">' + tarjeta('Tarjetas por sector', sectores, { nota: 'Las doce áreas más frecuentes.' }) +
-      tarjeta('Discusiones recientes', discusiones, { nota: 'Las últimas 30 del foro.' }) + '</div>' +
-      P.bloqueProntoHTML({
-        icono: 'shield-check', titulo: 'Moderación: reportes y ocultar publicaciones',
-        texto: 'Aquí verás las tarjetas y discusiones reportadas por la comunidad y podrás ocultarlas o devolverlas con un clic. Hoy el foro no tiene reportes ni acciones de moderación en el servidor.',
-        faltan: ['Campo de reportes en foroPosts y directorio', 'POST /api/admin/foro/:id/ocultar', 'POST /api/admin/directorio/:uid/ocultar']
-      });
+      tarjeta('Discusiones recientes', discusiones, { nota: 'Las últimas 30 del foro.' }) + '</div>';
     vista().onclick = function (e) { acciones(e, { recargar: function () { comunidad(true); } }); };
   }
 
@@ -597,8 +744,8 @@
     if (mi !== contador) return;
     var t = r.totales;
     var tabla = r.anfitriones.length
-      ? '<div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Persona que invita</th><th scope="col">Invitados</th><th scope="col">Válidos</th></tr></thead><tbody>' +
-        r.anfitriones.map(function (a) { return '<tr><td data-label="Persona"><strong>' + esc(a.nombre) + '</strong></td><td data-label="Invitados">' + esc(P.fmtNum(a.invitados)) + '</td><td data-label="Válidos">' + esc(P.fmtNum(a.validos)) + '</td></tr>'; }).join('') + '</tbody></table></div>'
+      ? tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Persona que invita</th><th scope="col">Invitados</th><th scope="col">Válidos</th></tr></thead><tbody>' +
+        r.anfitriones.map(function (a) { return '<tr><td data-label="Persona"><strong>' + esc(a.nombre) + '</strong></td><td data-label="Invitados">' + esc(P.fmtNum(a.invitados)) + '</td><td data-label="Válidos">' + esc(P.fmtNum(a.validos)) + '</td></tr>'; }).join('') + '</tbody></table>')
       : vacio('Aún no hay invitaciones', 'Cuando un miembro invite a alguien y esa persona se registre, aparecerá aquí.', 'gift');
     var motivos = r.motivosRechazo.length
       ? '<ul class="ap-lista">' + r.motivosRechazo.map(function (m) { return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(m.motivo) + '</strong></span><span class="ap-lista__d">' + esc(P.fmtNum(m.n)) + '</span></div></li>'; }).join('') + '</ul>'
@@ -624,50 +771,143 @@
     vista().onclick = function (e) { acciones(e, { recargar: function () { referidos(true); } }); };
   }
 
-  /* ───────── HERRAMIENTAS ───────── */
-  function herramientas() {
-    ++contador;
-    vista().innerHTML = P.tarjetaTitulo({
-      icono: 'wrench', eyebrow: 'Panel de administración', titulo: 'Herramientas', acento: 'del Club.',
-      sub: 'Referencia clínica y legal que ven los miembros. Aquí se revisará el estado de cada una.'
-    }) +
-      P.bloqueProntoHTML({
-        icono: 'wrench', titulo: 'Estado de cada herramienta',
-        texto: 'Verás de cada herramienta si está activa, cuántas veces se usó y cuándo se revisaron sus datos. Hoy las herramientas se administran desde el código del sitio y no reportan uso al servidor.',
-        faltan: ['GET /api/admin/herramientas (estado y uso de cada herramienta)', 'Registro de uso por herramienta (sin datos personales)']
-      }) +
-      '<div class="ap-aviso ap-aviso--info" role="note">' + ico('info', { size: 20 }) + '<div><p>Mientras tanto, revisa las herramientas tal como las ve un miembro.</p>' +
-      '<a class="ap-btn ap-btn--suave" href="club-herramientas.html?como=user">' + ico('external-link', { size: 16 }) + 'Abrir Herramientas en el Club</a></div></div>';
-    vista().onclick = null;
+  /* ───────── CONFIGURACIÓN ───────── */
+  // Interruptores guardados por el servidor (GET y POST /api/admin/config). Nada de claves ni secretos: solo ajustes seguros.
+  var PARRAFO_PRIVACIDAD = 'Contador de visitas. Para saber cuántas personas visitan nuestro sitio, contamos de forma agregada las visitas a cada página por día. ' +
+    'Este conteo no usa cookies, no guarda tu dirección IP, no te identifica ni te sigue entre sitios y no se comparte con terceros. ' +
+    'Si tu navegador envía la señal «No rastrear» o «Control global de privacidad», no contamos tu visita. Solo se guarda un número por página y por día.';
+
+  function filaInterruptor(o) {
+    return '<li><div class="ap-interruptores__t"><strong>' + esc(o.titulo) + '</strong><span>' + o.texto + '</span></div>' + o.control + '</li>';
   }
 
-  /* ───────── CONFIGURACIÓN ───────── */
+  function controlSi(accion, activo, etiqueta) {
+    return '<button type="button" class="ap-interruptor" role="switch" aria-checked="' + (activo ? 'true' : 'false') + '" aria-label="' + esc(etiqueta) + '" data-accion="' + accion + '"></button>';
+  }
+
   async function configuracion() {
     var mi = ++contador;
-    var enVivo = !!(root.ZOO_CONFIG && root.ZOO_CONFIG.enVivoPronto && root.ZOO_CONFIG.enVivoPronto());
-    var admins = null; var fallo = null;
+    var enVivoSitio = !!(root.ZOO_CONFIG && root.ZOO_CONFIG.enVivoPronto && root.ZOO_CONFIG.enVivoPronto());
     vista().innerHTML = cargando('Configuración');
-    try { admins = (await ctx.api('/api/admin/estado')).administradores; } catch (e) { fallo = e; }
+    var cfg; var est = null;
+    try {
+      var par = await Promise.all([ctx.api('/api/admin/config'), ctx.api('/api/admin/estado').catch(function () { return null; })]);
+      cfg = par[0]; est = par[1];
+    } catch (e) {
+      if (mi !== contador) return;
+      vista().innerHTML = errorHTML('Configuración', e, 'recargar');
+      vista().onclick = function (ev) { acciones(ev, { recargar: function () { configuracion(); } }); };
+      return;
+    }
     if (mi !== contador) return;
-    var listaAdmins = admins && admins.length
-      ? '<ul class="ap-lista">' + admins.map(function (a) { return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(a) + '</strong><span>Correo de administración (parcialmente oculto)</span></span></div></li>'; }).join('') + '</ul>'
-      : '<p class="ap-nada">' + (fallo ? 'No se pudo leer la lista.' : 'No hay correos en ADMIN_EMAILS: las cuentas con marca de administrador en Firestore siguen funcionando.') + '</p>';
+    var c = cfg.config;
+    var admins = cfg.administradores;
+    var visitasTexto = (c.contadorVisitas ? 'Encendido. ' : 'Apagado. ') + 'Solo suma cuántas visitas hubo por día y por página: sin cookies, sin dirección IP y sin identificar a nadie. ' +
+      (c.contadorVisitas ? P.fmtNum(cfg.visitas.ultimos7Dias) + ' visitas en los últimos 7 días. ' : '') +
+      'Antes de encenderlo, agrega un párrafo al aviso de privacidad.';
+    var vivoValor = c.clasesEnVivoPronto === null ? 'auto' : (c.clasesEnVivoPronto ? 'si' : 'no');
+    var interruptores = '<ul class="ap-interruptores">' +
+      filaInterruptor({ titulo: 'Contador de visitas de la portada', texto: esc(visitasTexto) + ' <button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="parrafo">' + ico('file-text', { size: 16 }) + 'Ver el párrafo para el aviso de privacidad</button>',
+        control: controlSi('visitas', c.contadorVisitas, 'Contador de visitas') }) +
+      filaInterruptor({ titulo: 'Clases en vivo (webinars)', texto: 'Hoy el sitio decide con <code>club-config.js</code>: ' + (enVivoSitio ? 'muestra «Próximamente»' : 'las muestra activas') + '. Aquí puedes dejar guardado un valor en el servidor; el Club empezará a leerlo cuando se publique ese cambio del sitio.',
+        control: '<div class="ap-selector"><label class="sr-only" for="apVivo">Clases en vivo</label><select id="apVivo" data-accion-cambio="vivo"><option value="auto"' + (vivoValor === 'auto' ? ' selected' : '') + '>Que decida el sitio</option><option value="si"' + (vivoValor === 'si' ? ' selected' : '') + '>Mostrar Próximamente</option><option value="no"' + (vivoValor === 'no' ? ' selected' : '') + '>Mostrar activas</option></select></div>' }) +
+      '</ul>';
+
+    var aviso = c.avisoGlobal;
+    var avisoCard = '<div class="ap-campo"><label for="apAvisoTexto">Texto del aviso <small>(hasta 240 letras)</small></label><textarea id="apAvisoTexto" maxlength="240" placeholder="Por ejemplo: Esta noche habrá mantenimiento de 11 a 12.">' + esc(aviso.texto) + '</textarea></div>' +
+      '<div class="ap-campo ap-selector"><label for="apAvisoTono">Tono</label><select id="apAvisoTono"><option value="info"' + (aviso.tono === 'info' ? ' selected' : '') + '>Informativo</option><option value="aviso"' + (aviso.tono === 'aviso' ? ' selected' : '') + '>Importante</option></select></div>' +
+      '<label class="ap-casilla"><input type="checkbox" id="apAvisoActivo"' + (aviso.activo ? ' checked' : '') + '><span>Mostrar el aviso a todo el Club</span></label>' +
+      '<p class="ap-error" id="apAvisoError" role="alert" hidden></p>' +
+      '<div class="ap-acciones-lote"><button type="button" class="ap-btn ap-btn--primario" data-accion="guardar-aviso">' + ico('check', { size: 16 }) + 'Guardar aviso</button>' +
+      '<span class="ap-badge ap-badge--info">' + ico('info', { size: 14 }) + '<span>El Club aún no lo muestra</span></span></div>' +
+      '<p class="ap-nota">El servidor ya lo guarda y lo entrega en <code>GET /api/config-publica</code>. Falta que el Club lo consulte al abrir para pintarlo; hasta entonces, guardar el aviso no cambia lo que ven los miembros.</p>';
+
+    var lista = function (arr, vacioT) {
+      return arr.length ? '<ul class="ap-lista">' + arr.join('') + '</ul>' : '<p class="ap-nada">' + esc(vacioT) + '</p>';
+    };
+    var porCorreo = lista(admins.porCorreo.map(function (a) { return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong class="ap-correo">' + esc(a) + '</strong><span>Correo de ADMIN_EMAILS (parcialmente oculto)</span></span></div></li>'; }), 'No hay correos en ADMIN_EMAILS: solo funcionan las cuentas con la marca de administrador.');
+    var porDoc = lista(admins.porDocumento.map(function (a) { return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(a.nombre) + '</strong><span class="ap-correo">' + esc(a.correo || 'Sin correo') + '</span><span>Marca de administrador en su ficha</span></span></div></li>'; }), 'Ninguna cuenta tiene la marca de administrador en su ficha.');
+
+    var servicios = '';
+    if (est) {
+      var sv = est.servicios;
+      var ok = [sv.baseDeDatos.ok, sv.stripe.configurado, sv.videos.configurado, sv.correo.configurado, sv.certificados.configurado];
+      var buenos = ok.filter(Boolean).length;
+      var criticas = est.variables.filter(function (v) { return v.critica; });
+      var faltan = criticas.filter(function (v) { return !v.definida; });
+      servicios = '<p class="ap-modal__texto"><span class="ap-badge ap-badge--' + (buenos === ok.length ? 'ok' : 'aviso') + '">' + ico(buenos === ok.length ? 'circle-check' : 'triangle-alert', { size: 14 }) + '<span>' + buenos + ' de ' + ok.length + ' servicios en orden</span></span> ' +
+        '<span class="ap-badge ap-badge--' + (faltan.length ? 'error' : 'ok') + '">' + ico(faltan.length ? 'triangle-alert' : 'circle-check', { size: 14 }) + '<span>' + (criticas.length - faltan.length) + ' de ' + criticas.length + ' variables críticas definidas</span></span></p>' +
+        (faltan.length ? '<p class="ap-nota">Faltan: ' + faltan.map(function (v) { return '<code>' + esc(v.nombre) + '</code>'; }).join(' ') + '</p>' : '') +
+        '<p class="ap-nota">Solo se ve el nombre de cada variable y si está definida; los valores nunca salen del servidor.</p>' +
+        '<a class="ap-btn ap-btn--suave" href="#/estado">' + ico('activity', { size: 16 }) + 'Ver el estado del sistema</a>';
+    } else {
+      servicios = '<p class="ap-nada">No se pudo leer el estado de los servicios. Ábrelo en «Estado del sistema».</p>';
+    }
+
     vista().innerHTML = P.tarjetaTitulo({
       icono: 'settings', eyebrow: 'Panel de administración', titulo: 'Ajustes', acento: 'del sitio.',
-      sub: 'Quién administra y los interruptores que cambian lo que ven los miembros.'
+      sub: 'Interruptores que guarda el servidor, quién administra y el resumen de servicios. Lo que implica claves, precios o textos públicos del sitio no se edita desde aquí.',
+      acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }]
     }) +
+      tarjeta('Interruptores', interruptores, { nota: 'Los cambios se guardan al instante y quedan anotados en la bitácora de acciones.' }) +
       '<div class="ap-columnas">' +
-      tarjeta('Clases en vivo (webinars)', '<div class="ap-ajuste"><span class="ap-badge ap-badge--' + (enVivo ? 'aviso' : 'ok') + '">' + ico(enVivo ? 'hourglass' : 'circle-check', { size: 14 }) + '<span>' + (enVivo ? 'Se muestran como Próximamente' : 'Activas para los miembros') + '</span></span>' +
-        '<p>Valor actual de <code>clasesEnVivoPronto</code>: <strong>' + (enVivo ? 'sí' : 'no') + '</strong>. Mientras sea «sí», el Club dice Próximamente en Webinars, el widget de próximo webinar y el menú.</p>' +
-        '<p class="ap-nota">Hoy se cambia en el archivo <code>assets/js/club-config.js</code> y se publica el sitio. Editarlo desde aquí queda Próximamente.</p></div>', { nota: 'Interruptor global del Club.' }) +
-      tarjeta('Quién administra', listaAdmins + '<p class="ap-nota">Los correos se definen en la variable <code>ADMIN_EMAILS</code> del servidor (Railway). El panel no puede cambiarlos: por seguridad, solo el equipo técnico lo hace.</p>', { nota: 'Cuentas con acceso a este panel.' }) +
-      '</div>' +
-      P.bloqueProntoHTML({
-        icono: 'settings', titulo: 'Textos y avisos del sitio',
-        texto: 'Podrás editar los mensajes generales del Club (banners, avisos de mantenimiento y textos de ayuda) sin publicar el sitio.',
-        faltan: ['GET y POST /api/admin/config (interruptores y textos)']
+      tarjeta('Aviso para todo el Club', avisoCard, { nota: 'Un mensaje corto, por ejemplo de mantenimiento.' }) +
+      tarjeta('Servicios y variables', servicios, { nota: 'Resumen de lo que revisa «Estado del sistema».' }) +
+      '</div><div class="ap-columnas">' +
+      tarjeta('Quién administra', '<h3 class="ap-subtitulo">Por correo</h3>' + porCorreo + '<h3 class="ap-subtitulo">Por marca en su ficha</h3>' + porDoc +
+        '<p class="ap-nota">Los correos se definen en la variable <code>ADMIN_EMAILS</code> del servidor (Railway). El panel no puede cambiarlos: por seguridad, solo el equipo técnico lo hace.</p>', { nota: 'Cuentas con acceso a este panel.' }) +
+      tarjeta('Qué no se cambia desde aquí', '<ul class="ap-lista">' + [
+        ['Precios de la membresía', 'Se definen en Stripe y en las variables STRIPE_PRICE_MENSUAL y STRIPE_PRICE_ANUAL del servidor.'],
+        ['WhatsApp, Instagram y correo de contacto', 'Están escritos en las páginas del sitio; cambiarlos requiere publicar el sitio.'],
+        ['Claves de Stripe, Bunny, correo y certificados', 'Son secretos: solo se guardan en Railway y nunca aparecen en el panel.']
+      ].map(function (f) { return '<li><div class="ap-lista__fila ap-lista__fila--texto"><span class="ap-lista__t"><strong>' + esc(f[0]) + '</strong><span>' + esc(f[1]) + '</span></span></div></li>'; }).join('') + '</ul>') +
+      '</div>';
+
+    var guardar = async function (cuerpo, okTexto, boton) {
+      if (boton) boton.disabled = true;
+      try {
+        await ctx.api('/api/admin/config', { method: 'POST', body: cuerpo });
+        ctx.toast(okTexto);
+        await configuracion();
+      } catch (e) {
+        ctx.toast(e.message || 'No se pudo guardar.', true);
+        if (boton) boton.disabled = false;
+      }
+    };
+    var v = vista();
+    v.onclick = function (ev) {
+      acciones(ev, {
+        recargar: function () { configuracion(); },
+        visitas: function (b) {
+          var encender = b.getAttribute('aria-checked') !== 'true';
+          if (!encender) { guardar({ contadorVisitas: false }, 'Contador de visitas apagado.', b); return; }
+          confirmar({
+            titulo: 'Encender el contador de visitas',
+            texto: 'El contador solo suma visitas por día y por página, sin cookies ni dirección IP. Antes de encenderlo conviene agregar al aviso de privacidad este párrafo:<br><br><em>' + esc(PARRAFO_PRIVACIDAD) + '</em>',
+            aceptar: 'Ya lo agregué, encender', cancelar: 'Todavía no', peligro: false
+          }).then(function (si) { if (si) guardar({ contadorVisitas: true }, 'Contador de visitas encendido.', b); });
+        },
+        parrafo: function () {
+          modal({ titulo: 'Párrafo para el aviso de privacidad', cuerpo: '<p class="ap-modal__texto">' + esc(PARRAFO_PRIVACIDAD) + '</p><p class="ap-nota">Agrégalo al aviso de privacidad del sitio antes de encender el contador.</p>',
+            botones: [{ id: 'copiar', texto: 'Copiar el texto', tipo: 'primario' }, { id: 'cerrar', texto: 'Cerrar', tipo: 'suave' }],
+            alElegir: async function (id, caja, cerrar) {
+              if (id !== 'copiar') return cerrar(null);
+              try { await navigator.clipboard.writeText(PARRAFO_PRIVACIDAD); ctx.toast('Texto copiado.'); } catch (e) { ctx.toast('No se pudo copiar. Selecciona el texto y cópialo.', true); }
+            } });
+        },
+        'guardar-aviso': function (b) {
+          var texto = document.getElementById('apAvisoTexto').value; var activo = document.getElementById('apAvisoActivo').checked;
+          var err = document.getElementById('apAvisoError'); err.hidden = true;
+          if (activo && texto.trim().length < 4) { err.textContent = 'Escribe el texto del aviso o desmarca «Mostrar».'; err.hidden = false; return; }
+          guardar({ avisoGlobal: { activo: activo, texto: texto, tono: document.getElementById('apAvisoTono').value } }, activo ? 'Aviso guardado.' : 'Aviso guardado (apagado).', b);
+        }
       });
-    vista().onclick = null;
+    };
+    v.onchange = function (ev) {
+      var sel = ev.target.closest('[data-accion-cambio="vivo"]');
+      if (!sel) return;
+      guardar({ clasesEnVivoPronto: sel.value === 'auto' ? null : sel.value === 'si' }, 'Ajuste de clases en vivo guardado.', sel);
+    };
   }
 
   /* ───────── ESTADO DEL SISTEMA ───────── */
@@ -698,12 +938,12 @@
       servicio('Certificados', sv.certificados.configurado, sv.certificados.configurado ? 'Firma configurada' : 'Falta CERTIFICATE_SIGNING_KEY', 'award')
     ].join('') + '</div>';
 
-    var variables = '<div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Variable</th><th scope="col">Para qué sirve</th><th scope="col">Estado</th></tr></thead><tbody>' +
+    var variables = tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Variable</th><th scope="col">Para qué sirve</th><th scope="col">Estado</th></tr></thead><tbody>' +
       r.variables.map(function (v) {
         var estadoV = v.definida ? '<span class="ap-badge ap-badge--ok">' + ico('circle-check', { size: 14 }) + '<span>Definida</span></span>'
           : '<span class="ap-badge ap-badge--' + (v.critica ? 'error' : 'neutro') + '">' + ico(v.critica ? 'triangle-alert' : 'circle-dashed', { size: 14 }) + '<span>' + (v.critica ? 'Falta' : 'No definida') + '</span></span>';
         return '<tr><td data-label="Variable"><code>' + esc(v.nombre) + '</code></td><td data-label="Para qué sirve">' + esc(v.para) + '</td><td data-label="Estado">' + estadoV + '</td></tr>';
-      }).join('') + '</tbody></table></div>';
+      }).join('') + '</tbody></table>');
 
     var errores = r.errores.recientes.length
       ? '<ol class="ap-linea-tiempo">' + r.errores.recientes.map(function (e) {
@@ -752,6 +992,194 @@
     } catch (e) { return '—'; }
   }
 
+  /* ───────── AVANCE DE MIEMBROS ─────────
+     Ensayo (sin escribir nada) de la importación del avance que cada miembro llevaba en el sitio anterior, e importación
+     persona por persona. GET /api/admin/progreso-legado y POST /api/admin/progreso-legado/:uid/importar. */
+  var avance = { pagina: 1, datos: null };
+
+  function filaDeAvance(uid) {
+    var l = avance.datos && avance.datos.miembros;
+    return (l || []).filter(function (m) { return m.uid === uid; })[0] || null;
+  }
+
+  function celdaImportadas(f) {
+    if (f.veredicto === 'sin-progreso-viejo') return '<span class="ap-sub">—</span>';
+    var guardadas = f.importado ? Math.max(0, f.clasesImportables - f.clasesFaltantes) : f.clasesImportables;
+    return '<span class="ap-num">' + esc(P.fmtNum(guardadas)) + '</span><span class="ap-sub">' + (f.importado ? 'ya guardadas' : 'por importar') + '</span>';
+  }
+
+  function filaAvance(f) {
+    var e = P.estadoAvance(f);
+    var uid = esc(f.uid);
+    var acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="detalle" data-uid="' + uid + '">' + ico('eye', { size: 16 }) + 'Ver detalle</button>';
+    if (e.accion === 'importar') acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--primario" data-accion="importar" data-uid="' + uid + '">' + ico('download', { size: 16 }) + 'Importar ahora</button>' + acc;
+    else if (e.accion === 'reparar') acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--primario" data-accion="reparar" data-uid="' + uid + '">' + ico('refresh-cw', { size: 16 }) + 'Reparar</button>' + acc;
+    else if (e.accion === 'forzar') acc = '<button type="button" class="ap-btn ap-btn--chico ap-btn--peligro-suave" data-accion="forzar" data-uid="' + uid + '">' + ico('download', { size: 16 }) + 'Importar de todos modos</button>' + acc;
+    var sub = P.detalleAvance(f);
+    var plan = f.planTipo === 'anual' ? 'Anual' : f.planTipo === 'mensual' ? 'Mensual' : '';
+    return '<tr class="ap-fila" data-uid="' + uid + '">' +
+      '<td class="ap-celda-miembro" data-label="Miembro"><div class="ap-persona"><span class="ap-avatar ap-avatar--' + esc(f.estadoPlan) + '" aria-hidden="true">' + esc(P.iniciales(f.nombre || f.correo)) + '</span>' +
+      '<div class="ap-persona__txt"><strong>' + esc(f.nombre || 'Sin nombre') + '</strong><span>' + esc(f.correo || '—') + '</span></div></div></td>' +
+      '<td data-label="Plan">' + P.insignia(f.estadoPlan) + (plan ? '<span class="ap-sub">' + esc(plan) + '</span>' : '') + '</td>' +
+      '<td data-label="Cursos con avance"><span class="ap-num">' + esc(P.fmtNum(f.cursosConAvance)) + '</span></td>' +
+      '<td data-label="Clases del sitio anterior"><span class="ap-num">' + esc(P.fmtNum(f.clasesViejas)) + '</span></td>' +
+      '<td data-label="Clases importadas">' + celdaImportadas(f) + '</td>' +
+      '<td class="ap-celda-estado" data-label="Estado">' + P.insigniaAvance(f) + (sub ? '<span class="ap-sub ap-sub--texto">' + esc(sub) + '</span>' : '') + '</td>' +
+      '<td class="ap-celda-acciones">' + acc + '</td></tr>';
+  }
+
+  function avisosAvance(r) {
+    var c = r.configuracion || {};
+    var html = '';
+    if (!c.importacionActiva) {
+      html += '<div class="ap-aviso ap-tono-error" role="alert">' + ico('triangle-alert', { size: 20 }) + '<div><strong>La importación automática está apagada</strong>' +
+        '<p>Falta la variable <code>LEGACY_PROGRESS_IMPORT_BEFORE</code> en el servidor, así que nadie recupera su avance al entrar. Puedes importarlo a mano aquí, persona por persona.</p></div></div>';
+    } else {
+      html += '<div class="ap-aviso ap-tono-info" role="note">' + ico('info', { size: 20 }) + '<div><p>Se importa solo el avance de las cuentas creadas antes del <b>' + esc(P.fmtFecha(c.corte)) + '</b>. ' +
+        'El avance del sitio anterior no se borra nunca: queda en cada cuenta como respaldo.</p></div></div>';
+    }
+    if (c.certificados === 'limite-invalido') {
+      html += '<div class="ap-aviso ap-tono-error" role="alert">' + ico('triangle-alert', { size: 20 }) + '<div><strong>Los certificados anteriores no se están aceptando</strong>' +
+        '<p>La variable <code>CERTIFICADOS_ANTERIORES_HASTA</code> no es una fecha válida. Corrígela o quítala para que se acepten los certificados del sitio anterior.</p></div></div>';
+    }
+    if (!c.firmaConfigurada) {
+      html += '<div class="ap-aviso ap-tono-error" role="alert">' + ico('triangle-alert', { size: 20 }) + '<div><strong>Los certificados no están configurados</strong>' +
+        '<p>Falta <code>CERTIFICATE_SIGNING_KEY</code>: sin ella no se reconocen ni se emiten certificados.</p></div></div>';
+    }
+    if (r.truncado) {
+      html += '<div class="ap-aviso ap-tono-info" role="note">' + ico('info', { size: 20 }) + '<div><p>Hay más cuentas de las que se revisan a la vez; la lista muestra las primeras.</p></div></div>';
+    }
+    return html;
+  }
+
+  async function avanceMiembros(forzar) {
+    var mi = ++contador;
+    vista().innerHTML = cargando('Avance de miembros');
+    var r;
+    try { r = await ctx.api('/api/admin/progreso-legado?pagina=' + avance.pagina + '&limite=25' + (forzar ? '&refrescar=1' : '')); } catch (e) {
+      if (mi !== contador) return;
+      vista().innerHTML = errorHTML('Avance de miembros', e, 'recargar');
+      vista().onclick = function (ev) { acciones(ev, { recargar: function () { avanceMiembros(true); } }); };
+      return;
+    }
+    if (mi !== contador) return;
+    avance.datos = r;
+    avance.pagina = r.pagina;
+    var s = r.resumen;
+    var frase = P.resumenAvance(s);
+    var cuerpo;
+    if (!r.miembros.length) {
+      cuerpo = vacio('Nadie tiene avance del sitio anterior', 'Si alguien traía cursos empezados, aparecerá aquí con lo que se conserva.', 'graduation-cap');
+    } else {
+      var desde = (r.pagina - 1) * r.limite + 1;
+      var hasta = Math.min(r.total, r.pagina * r.limite);
+      cuerpo = tablaZona('<table class="ap-tabla ap-tabla--avance"><thead><tr><th scope="col">Miembro</th><th scope="col">Plan</th><th scope="col">Cursos con avance</th>' +
+        '<th scope="col">Clases del sitio anterior</th><th scope="col">Clases importadas</th><th scope="col">Estado</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
+        r.miembros.map(filaAvance).join('') + '</tbody></table>') +
+        '<div class="ap-paginas"><p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(desde) + ' a ' + P.fmtNum(hasta) + ' de ' + P.fmtNum(r.total) + '</p>' +
+        (r.paginas > 1
+          ? '<div class="ap-paginas__botones"><button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="anterior"' + (r.pagina <= 1 ? ' disabled' : '') + '>' + ico('arrow-up', { size: 16 }) + 'Anterior</button>' +
+            '<span>Página ' + P.fmtNum(r.pagina) + ' de ' + P.fmtNum(r.paginas) + '</span>' +
+            '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="siguiente"' + (r.pagina >= r.paginas ? ' disabled' : '') + '>' + ico('arrow-down', { size: 16 }) + 'Siguiente</button></div>'
+          : '') + '</div>';
+    }
+    vista().innerHTML = P.tarjetaTitulo({
+      icono: 'graduation-cap', eyebrow: 'Panel de administración', titulo: 'Que nadie pierda', acento: 'su avance.',
+      sub: 'Compara lo que cada miembro llevaba en el sitio anterior con lo que guarda el servidor. Esta revisión no cambia nada: solo el botón «Importar ahora» guarda datos.',
+      cifras: [
+        { valor: P.fmtNum(s.conAvanceViejo), rotulo: 'con avance del sitio anterior' },
+        { valor: P.fmtNum(s.verificados), rotulo: 'con avance verificado' },
+        { valor: P.fmtNum(s.requierenRevision), rotulo: 'por revisar' }
+      ],
+      acciones: [{ id: 'recargar', texto: 'Revisar de nuevo', icono: 'refresh-cw' }]
+    }) +
+      '<div class="ap-aviso ap-tono-' + esc(frase.tono) + ' ap-aviso--resumen" role="status">' + ico(frase.icono, { size: 22 }) +
+      '<div><strong>' + esc(frase.titulo) + '</strong><p>' + esc(frase.detalle) + '</p></div></div>' +
+      avisosAvance(r) + cuerpo;
+    vista().onclick = function (ev) {
+      acciones(ev, {
+        recargar: function () { avanceMiembros(true); },
+        anterior: function () { avance.pagina = Math.max(1, avance.pagina - 1); avanceMiembros(false); },
+        siguiente: function () { avance.pagina += 1; avanceMiembros(false); },
+        detalle: function (b) { abrirDetalleAvance(b.dataset.uid); },
+        importar: function (b) { importarAvance(b.dataset.uid, 'importar'); },
+        reparar: function (b) { importarAvance(b.dataset.uid, 'reparar'); },
+        forzar: function (b) { importarAvance(b.dataset.uid, 'forzar'); }
+      });
+    };
+  }
+
+  function filaCursoAvance(c) {
+    var perdida = c.clasesPerdidas > 0;
+    var tono = c.estado === 'ok' ? 'ok' : (c.estado === 'listo-para-certificado' ? 'info' : 'aviso');
+    var nombre = c.curso || (c.estado === 'curso-eliminado' ? 'Curso que ya no existe' : 'Curso sin nombre');
+    var cert = c.certificado === 'firmado' ? 'Certificado firmado' : c.certificado === 'aceptable' ? 'Certificado anterior, aceptado por el servidor'
+      : c.certificado === 'no-aceptable' ? 'Certificado anterior que el servidor no acepta' : '';
+    return '<li class="ap-curso-avance"><div class="ap-curso-avance__t"><strong>' + esc(nombre) + '</strong>' +
+      '<span class="ap-badge ap-badge--' + tono + '">' + esc(P.textoEstadoCurso(c.estado)) + '</span>' +
+      (cert ? '<small>' + esc(cert) + '</small>' : '') + (c.completadoViejo ? '<small>Lo tenía marcado como terminado.</small>' : '') + '</div>' +
+      '<div class="ap-curso-avance__n"><span class="ap-num">' + esc(P.fmtNum(c.clasesImportables)) + ' de ' + esc(P.fmtNum(c.clasesViejas)) + '</span>' +
+      '<small>' + (perdida ? esc(P.fmtNum(c.clasesPerdidas)) + ' no se pueden importar' : 'clases se conservan') + '</small></div></li>';
+  }
+
+  function abrirDetalleAvance(uid) {
+    var f = filaDeAvance(uid);
+    if (!f) return;
+    var cs = f.certificados || { total: 0, firmados: 0, aceptables: 0, noAceptables: 0 };
+    var certs = cs.total
+      ? 'Certificados anteriores: ' + P.fmtNum(cs.total) + ' (' + P.fmtNum(cs.firmados) + ' firmados, ' + P.fmtNum(cs.aceptables) + ' aceptados por el servidor, ' + P.fmtNum(cs.noAceptables) + ' no aceptados).'
+      : 'No tiene certificados anteriores.';
+    var cuerpo = '<div class="ap-ficha"><div class="ap-ficha__cab"><span class="ap-avatar ap-avatar--grande ap-avatar--' + esc(f.estadoPlan) + '" aria-hidden="true">' + esc(P.iniciales(f.nombre || f.correo)) + '</span>' +
+      '<div><strong>' + esc(f.nombre || 'Sin nombre') + '</strong><span>' + esc(f.correo || '—') + '</span>' + P.insigniaAvance(f) + '</div></div>' +
+      (P.detalleAvance(f) ? '<p class="ap-modal__texto">' + esc(P.detalleAvance(f)) + '</p>' : '') +
+      '<dl class="ap-datos">' +
+      '<div class="ap-dato"><dt>Cursos con avance</dt><dd>' + esc(P.fmtNum(f.cursosConAvance)) + '</dd></div>' +
+      '<div class="ap-dato"><dt>Clases del sitio anterior</dt><dd>' + esc(P.fmtNum(f.clasesViejas)) + '</dd></div>' +
+      '<div class="ap-dato"><dt>Clases que se conservan</dt><dd>' + esc(P.fmtNum(f.clasesImportables)) + '</dd></div>' +
+      '<div class="ap-dato"><dt>Cursos terminados</dt><dd>' + esc(P.fmtNum(f.cursosCompletadosViejos)) + '</dd></div></dl>' +
+      '<h3>Por curso</h3>' +
+      (f.cursos.length ? '<ul class="ap-cursos-avance">' + f.cursos.map(filaCursoAvance).join('') + '</ul>' : '<p class="ap-nada">No hay cursos con avance legible.</p>') +
+      (f.detalleRecortado ? '<p class="ap-nada">Se muestran los primeros cursos; hay más.</p>' : '') +
+      '<h3>Certificados</h3><p class="ap-modal__texto">' + esc(certs) + '</p>' +
+      '<p class="ap-modal__texto">El avance del sitio anterior no se borra: queda como respaldo en la cuenta.</p></div>';
+    var e = P.estadoAvance(f);
+    var botones = [{ id: 'cerrar', texto: 'Cerrar', tipo: 'suave' }];
+    if (e.accion === 'importar') botones.push({ id: 'importar', texto: 'Importar ahora', tipo: 'primario' });
+    else if (e.accion === 'reparar') botones.push({ id: 'reparar', texto: 'Reparar', tipo: 'primario' });
+    return modal({ titulo: 'Avance de ' + (f.nombre || 'la persona'), cuerpo: cuerpo, botones: botones, ancho: 'ancho' }).then(function (elegido) {
+      if (elegido === 'importar' || elegido === 'reparar') return importarAvance(uid, elegido);
+    });
+  }
+
+  async function importarAvance(uid, modo) {
+    var f = filaDeAvance(uid);
+    if (!f) return;
+    var quien = '<strong>' + esc(f.nombre || f.correo || 'esta persona') + '</strong>';
+    var textos = {
+      importar: { titulo: 'Importar el avance anterior', aceptar: 'Sí, importar', peligro: false,
+        texto: 'Se guardará en la cuenta de ' + quien + ' el avance que llevaba en el sitio anterior (' + esc(P.fmtNum(f.clasesImportables)) + ' clases en ' + esc(P.fmtNum(f.cursosConAvance)) + ' cursos). ' +
+          (f.clasesPerdidas > 0 ? esc(P.fmtNum(f.clasesPerdidas)) + ' clases no se pueden importar porque ya no existen en su curso. ' : '') +
+          'No borra nada del sitio anterior y repetirlo no duplica nada.' },
+      reparar: { titulo: 'Completar el avance importado', aceptar: 'Sí, completar', peligro: false,
+        texto: 'A ' + quien + ' le faltan ' + esc(P.fmtNum(f.clasesFaltantes)) + ' clases por guardar. Se volverá a unir su avance del sitio anterior con lo que ya tiene: nunca se quita nada.' },
+      forzar: { titulo: 'Importar aunque la cuenta no cumple la fecha', aceptar: 'Sí, importar de todos modos', peligro: true,
+        texto: 'La cuenta de ' + quien + ' normalmente no importa sola. ' + esc(P.textoMotivoNoElegible(f.motivoNoElegible)) + ' Hazlo solo si estás seguro de que ese avance es suyo. Quedará anotado en la bitácora del panel.' }
+    };
+    var t = textos[modo];
+    if (!t) return;
+    var ok = await confirmar({ titulo: t.titulo, texto: t.texto, aceptar: t.aceptar, cancelar: 'Mejor no', peligro: t.peligro });
+    if (!ok) return;
+    var cuerpoPeticion = modo === 'reparar' ? { reintentar: true } : modo === 'forzar' ? { aceptarCuentaPosterior: true } : {};
+    try {
+      var r = await ctx.api('/api/admin/progreso-legado/' + encodeURIComponent(uid) + '/importar', { method: 'POST', body: cuerpoPeticion });
+      var res = r.resultado || {};
+      if (res.estado === 'importado') ctx.toast('Avance importado: ' + res.clasesImportadas + ' clases en ' + res.cursosImportados + ' cursos.');
+      else if (res.estado === 'ya-importado') ctx.toast('Ya estaba importado; no se cambió nada.');
+      else ctx.toast('No tenía avance anterior que importar.');
+      await avanceMiembros(true);
+    } catch (e) { ctx.toast(e.message || 'No se pudo importar el avance.', true); }
+  }
+
   /* ───────── CERTIFICADOS: verificación por folio (ruta pública del servidor) ───────── */
   function agregarVerificadorFolio() {
     var cont = vista();
@@ -790,7 +1218,13 @@
 
   root.ZOO_ADMIN_VISTAS = {
     iniciar: iniciar, resumen: resumen, miembros: miembros, suscripciones: suscripciones, retos: retos, comunidad: comunidad,
-    referidos: referidos, herramientas: herramientas, configuracion: configuracion, estado: estadoSistema,
-    agregarVerificadorFolio: agregarVerificadorFolio, modal: modal, confirmar: confirmar
+    referidos: referidos, configuracion: configuracion, estado: estadoSistema, avance: avanceMiembros,
+    agregarVerificadorFolio: agregarVerificadorFolio, modal: modal, confirmar: confirmar,
+    abrirFicha: function (uid) { return abrirFicha(uid); },
+    // Piezas que reutilizan las vistas de Marketing (admin-marketing.js)
+    util: {
+      contexto: function () { return ctx; }, vista: vista, cargando: cargando, errorHTML: errorHTML, vacio: vacio, kpi: kpi, tarjeta: tarjeta,
+      tablaZona: tablaZona, acciones: acciones, nuevoContador: function () { return ++contador; }, contadorActual: function () { return contador; }
+    }
   };
 })(typeof self !== 'undefined' ? self : this);

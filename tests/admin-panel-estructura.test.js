@@ -62,7 +62,7 @@ test('las vistas nuevas leen todo por el servidor: nada de Firestore directo ni 
 
 test('los endpoints que usa el panel son los del servidor (inventario)', () => {
   const rutas = new Set([...vistas.matchAll(/'(\/api\/admin\/[a-z0-9/-]+)/g)].map(m => m[1].replace(/\/$/, '')));
-  for (const r of ['/api/admin/resumen', '/api/admin/miembros', '/api/admin/retos', '/api/admin/comunidad', '/api/admin/referidos', '/api/admin/estado']) {
+  for (const r of ['/api/admin/resumen', '/api/admin/miembros', '/api/admin/retos', '/api/admin/comunidad', '/api/admin/referidos', '/api/admin/estado', '/api/admin/progreso-legado', '/api/admin/eliminados', '/api/admin/config']) {
     assert.ok(rutas.has(r), 'falta ' + r);
   }
 });
@@ -70,7 +70,7 @@ test('los endpoints que usa el panel son los del servidor (inventario)', () => {
 /* ───────── estructura ───────── */
 
 test('cada sección del panel tiene botón en la barra lateral con ícono y se dibuja desde renderSection', () => {
-  assert.equal(P.SECCIONES.length, 16);
+  assert.equal(P.SECCIONES.length, 18);
   for (const s of P.SECCIONES) {
     assert.match(html, new RegExp(`data-sec="${s.id}"><svg class="zi"`), 'botón de ' + s.id);
     assert.match(html, new RegExp(`sec === '${s.id}'`), 'renderSection de ' + s.id);
@@ -78,7 +78,12 @@ test('cada sección del panel tiene botón en la barra lateral con ícono y se d
     assert.match(s.zoo, /^[a-z]+$/);
     assert.match(leer('assets/css/club-seccion.css'), new RegExp(`body\\[data-zoo="${s.zoo}"\\]`), 'paleta del apartado ' + s.zoo);
   }
-  assert.deepEqual([...new Set(P.SECCIONES.map(s => s.grupo))], ['Panel', 'Contenido', 'Comunidad', 'Sistema']);
+  assert.deepEqual([...new Set(P.SECCIONES.map(s => s.grupo))], ['Panel', 'Contenido', 'Comunidad', 'Marketing', 'Sistema']);
+  // «Herramientas (Próximamente)» se quitó: no tenía servidor detrás y el Club ya tiene la página
+  assert.equal(P.seccion('herramientas'), null);
+  assert.doesNotMatch(html, /data-sec="herramientas"|V\.herramientas/);
+  assert.equal(P.seccionDeHash('#/herramientas'), 'resumen');
+  for (const id of ['metricas', 'pruebas']) assert.ok(P.seccion(id), id);
 });
 
 test('barra lateral: marca real, "Ver como usuario", ir al Club y cerrar sesión; menú móvil accesible', () => {
@@ -108,7 +113,7 @@ test('el panel usa el sistema de diseño del Club: fuentes propias, tokens, tarj
 });
 
 test('sin degradados y sin emojis en el panel nuevo', () => {
-  for (const [n, t] of [['admin-club.css', css], ['admin-club.html', html], ['admin-vistas.js', vistas], ['admin-panel.js', panelJs]]) {
+  for (const [n, t] of [['admin-club.css', css], ['admin-club.html', html], ['admin-vistas.js', vistas], ['admin-panel.js', panelJs], ['admin-marketing.js', leer('assets/js/admin-marketing.js')], ['admin-encuesta.js', leer('assets/js/admin-encuesta.js')], ['admin-encuesta.css', leer('assets/css/admin-encuesta.css')]]) {
     assert.doesNotMatch(t, /gradient\(/i, n + ': degradado');
     assert.doesNotMatch(t, /[\p{Extended_Pictographic}\u{FE0F}]/u, n + ': emoji');
   }
@@ -130,9 +135,12 @@ test('letra mínima de 12 px y objetivos táctiles de 40 px o más en la hoja de
   assert.match(css, /\.asb-item \{[^}]*min-height: 40px/);
 });
 
-test('respeta prefers-reduced-motion y muestra las tablas como tarjetas en celular', () => {
+test('respeta prefers-reduced-motion y muestra las tablas como tarjetas cuando el CONTENEDOR es angosto (no la ventana)', () => {
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
-  assert.match(css, /@media \(max-width: 860px\)[\s\S]*\.ap-tabla td::before \{ content: attr\(data-label\)/);
+  assert.match(css, /\.ap-tabla-zona \{ container: tabla \/ inline-size;/);
+  assert.match(css, /@container tabla \(max-width: 1000px\) \{[^@]*\.ap-tabla td::before \{ content: attr\(data-label\)/);
+  // el paso a tarjetas ya no depende del ancho de la ventana
+  assert.doesNotMatch(css, /@media[^{]*\{[^@]*\.ap-tabla td::before/);
 });
 
 /* ───────── ayudas puras ───────── */
