@@ -272,7 +272,7 @@
     { id: 'logros', label: 'Mis logros', sub: 'Nivel y premios', href: 'club-logros.html', icon: 'trophy' }
   ];
 
-  /* Contenido del panel. datos (opcional, solo miembros): { xp, nivel, cursos } del servidor. */
+  /* Contenido del panel. datos (opcional): { xp, nivel, cursos } del servidor (el mismo total que Retos y Logros; quien no es miembro también lo ve). */
   function perfilMenuHTML(sesion, datos) {
     var s = sesion || {};
     var plan = resumenPlan(s);
@@ -280,12 +280,13 @@
     var correo = s.email || '';
     var d = datos || {};
     var num = function (v) { return isFinite(Number(v)) && v !== null && v !== '' && v !== undefined ? Number(v).toLocaleString('es-MX') : '—'; };
-    var estadisticas = plan.miembro
-      ? '<div class="zs-pm__stats" data-pm-stats>' +
+    var cifras = '<div class="zs-pm__stats" data-pm-stats>' +
           '<div><b data-pm-xp>' + esc(num(d.xp)) + '</b><span>XP</span></div>' +
           '<div><b data-pm-nivel>' + esc(d.nivel ? String(d.nivel) : '—') + '</b><span>Nivel</span></div>' +
-          '<div><b data-pm-cursos>' + esc(num(d.cursos)) + '</b><span>Cursos</span></div></div>'
-      : '<div class="zs-pm__libre"><strong>Tu cuenta es gratuita</strong>' +
+          '<div><b data-pm-cursos>' + esc(num(d.cursos)) + '</b><span>Cursos</span></div></div>';
+    var estadisticas = plan.miembro
+      ? cifras
+      : cifras + '<div class="zs-pm__libre"><strong>Tu cuenta es gratuita</strong>' +
           '<p>Con la membresía abres todos los cursos, retos y herramientas, y puedes invitar amigos.</p>' +
           '<a class="zs-pm__sus" href="club-suscripcion.html">' + icono('creditcard', 17) + '<span>Suscribirme</span></a></div>';
     var atajos = ATAJOS_PERFIL.map(function (a) {
@@ -534,13 +535,13 @@
     return panel;
   }
 
-  /* XP, nivel y cursos terminados solo se piden a los miembros (los demás no tienen esas cifras). */
+  /* XP, nivel y cursos terminados se piden a todos: el servidor da el mismo total a Retos, Logros y a este panel
+     (quien no es miembro lo ve en solo lectura, por ejemplo con los +100 de bienvenida). */
   function cargarCifrasPerfil(panel) {
-    var plan = resumenPlan(estado.sesion);
     var cl = club();
-    if (!plan.miembro || !cl || typeof cl.apiFetch !== 'function') return;
+    if (!cl || typeof cl.apiFetch !== 'function') return;
     Promise.resolve().then(function () { return cl.apiFetch('/api/premios'); }).then(function (r) {
-      if (!r || r.membresia === false || !panel.isConnected) return;
+      if (!r || !panel.isConnected) return;
       var q = function (s) { return panel.querySelector(s); };
       if (r.xp && isFinite(Number(r.xp.total)) && q('[data-pm-xp]')) q('[data-pm-xp]').textContent = Number(r.xp.total).toLocaleString('es-MX');
       if (r.nivel && r.nivel.nombre && q('[data-pm-nivel]')) q('[data-pm-nivel]').textContent = String(r.nivel.nombre);

@@ -43,13 +43,16 @@ test('panel de un miembro: nombre, correo, plan, cifras y los accesos pedidos', 
   assert.doesNotMatch(h, /zs-pm__libre/, 'un miembro no ve el bloque de cuenta gratuita');
 });
 
-test('panel de una cuenta gratuita: aviso con botón Suscribirme y sin cifras inventadas', () => {
+test('panel de una cuenta gratuita: aviso con botón Suscribirme y sus cifras (guiones hasta que el servidor responde)', () => {
   const h = S.perfilMenuHTML({ name: 'Beto', email: 'beto@correo.com', planStatus: 'free' });
   assert.match(h, /Cuenta gratuita/);
   assert.match(h, /zs-pm__libre/);
   assert.match(h, /<a class="zs-pm__sus" href="club-suscripcion\.html">/);
   assert.match(h, />Suscribirme</);
-  assert.doesNotMatch(h, /data-pm-xp/);
+  assert.match(h, /data-pm-xp>—</, 'sin datos todavía: un guion, nunca un número inventado');
+  const con = S.perfilMenuHTML({ name: 'Beto', email: 'beto@correo.com', planStatus: 'free' }, { xp: 100, nivel: 'Aprendiz', cursos: 0 });
+  assert.match(con, /data-pm-xp>100</);
+  assert.match(con, /Aprendiz/);
 });
 
 test('panel: escapa nombre y correo, y no promete nada de lo que no hay', () => {
