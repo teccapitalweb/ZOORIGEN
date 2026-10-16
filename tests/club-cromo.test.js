@@ -13,13 +13,13 @@ const leer = rel => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
 const GEN = require('../tools/generar-cromo-club.js');
 const SHELL = require('../assets/js/club-shell.js');
 
-const TODAS = fs.readdirSync(path.join(RAIZ, 'pages')).filter(f => /^(club-.*|admin-club|verificar-correo)\.html$/.test(f) && !['club.html', 'club-noticias.html'].includes(f));
+const TODAS = fs.readdirSync(path.join(RAIZ, 'pages')).filter(f => /^(club-.*|admin-club|verificar-correo)\.html$/.test(f) && !['club.html', 'club-noticias.html', 'club-registro.html'].includes(f));
 const PANEL = TODAS.filter(f => /<aside class="club-sidebar" id="sidebar"/.test(leer('pages/' + f)));
 const AUTH = TODAS.filter(f => !PANEL.includes(f));
 
 test('hay páginas del panel y de acceso que revisar', () => {
   assert.ok(PANEL.length >= 18, 'páginas con barra lateral: ' + PANEL.length);
-  assert.deepEqual(AUTH.sort(), ['admin-club.html', 'club-gracias.html', 'club-login.html', 'club-registro.html', 'verificar-correo.html']);
+  assert.deepEqual(AUTH.sort(), ['admin-club.html', 'club-gracias.html', 'club-login.html', 'verificar-correo.html']);
 });
 
 /* ───── A) Tema sin destello ───── */

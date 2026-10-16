@@ -182,7 +182,7 @@
       patron: /invit|referid|recomendar a|amigos|codigo de invitacion|adelant/,
       texto: function () {
         return [
-          'En **Invitar amigos** de tu panel tienes tu código. Cuando 4 amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha.'
+          'En **Invitar amigos** de tu panel tienes tu enlace de invitación. Cuando 4 amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha.'
         ];
       }
       // Verificado: pages/club-dashboard.html ("Invita a 4 amigos y adelanta un curso: ... se registren con él y confirmen su correo...")

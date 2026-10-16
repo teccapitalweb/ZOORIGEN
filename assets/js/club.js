@@ -1109,9 +1109,22 @@ const ZOORIGEN_CLUB = {
   },
 
   // ============== AUTH CON FIREBASE ==============
+  // Versión de los Términos y condiciones y del Aviso de privacidad que la persona acepta al crear su cuenta
+  // (la "Versión" que muestran terminos-y-condiciones.html y aviso-de-privacidad.html; tests/club-ingreso.test.js lo vigila).
+  TERMINOS_VERSION: '1.0',
+  MSG_TERMINOS: 'Para crear tu cuenta debes aceptar los Términos y condiciones y el Aviso de privacidad.',
+
+  // Lo que se guarda en la ficha del miembro al aceptar los términos: fecha (ISO) y versión aceptadas.
+  _datosTerminos() {
+    return { terminosAceptadosEn: new Date().toISOString(), terminosVersion: this.TERMINOS_VERSION };
+  },
+
+  // Crea la cuenta con correo y contraseña. Aceptar los términos es OBLIGATORIO (data.terminos === true): sin eso no se
+  // crea nada. El teléfono ya no se pide al registrarse (se puede añadir después en el perfil).
   async register(data) {
-    if (!data.email || !data.password || !data.name) return { ok: false, msg: 'Todos los campos son obligatorios' };
-    if (data.password.length < 6) return { ok: false, msg: 'La contraseña debe tener al menos 6 caracteres' };
+    if (!data || !data.email || !data.password || !data.name) return { ok: false, codigo: 'faltan-datos', msg: 'Escribe tu nombre, tu correo y una contraseña.' };
+    if (data.terminos !== true) return { ok: false, codigo: 'sin-terminos', msg: this.MSG_TERMINOS };
+    if (data.password.length < 8) return { ok: false, codigo: 'clave-corta', msg: 'La contraseña debe tener al menos 8 caracteres.' };
     try {
       const cred = await auth.createUserWithEmailAndPassword(data.email.toLowerCase().trim(), data.password);
       await cred.user.updateProfile({ displayName: data.name });
@@ -1129,7 +1142,8 @@ const ZOORIGEN_CLUB = {
         planVence: null,
         ultimoPago: null,
         streak: 0,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        ...this._datosTerminos()
       };
 
       // Ya NO se escribe referredBy desde el navegador (no cuenta): el referido se registra en el servidor.
@@ -1143,37 +1157,46 @@ const ZOORIGEN_CLUB = {
       ]);
       return { ok: true, uid: cred.user.uid, correoEnviado, referido };
     } catch (err) {
-      console.error('Register error:', err);
+      if (!err || !/^auth\/(email-already-in-use|invalid-email|weak-password|network-request-failed)$/.test(err.code || '')) console.error('Register error:', err);
       const map = {
-        'auth/email-already-in-use': 'Este correo ya está registrado. Intenta iniciar sesión.',
-        'auth/invalid-email': 'El correo no es válido',
-        'auth/weak-password': 'La contraseña es muy débil',
-        'auth/network-request-failed': 'Error de conexión. Revisa tu internet.'
+        'auth/email-already-in-use': ['correo-existente', 'Este correo ya tiene una cuenta. Inicia sesión con él; si no recuerdas tu contraseña, puedes recuperarla.'],
+        'auth/invalid-email': ['correo-invalido', 'El correo no es válido.'],
+        'auth/weak-password': ['clave-corta', 'La contraseña es muy débil. Usa al menos 8 caracteres.'],
+        'auth/network-request-failed': ['sin-red', 'Error de conexión. Revisa tu internet.']
       };
-      return { ok: false, msg: map[err.code] || err.message };
+      const m = map[err && err.code];
+      return m ? { ok: false, codigo: m[0], msg: m[1] } : { ok: false, codigo: 'error', msg: (err && err.message) || 'No pudimos crear tu cuenta. Inténtalo de nuevo.' };
     }
   },
 
+  // Solo entra quien YA tiene cuenta. codigo 'sin-cuenta' = ese correo no existe; 'credenciales' = correo o contraseña
+  // incorrectos (Firebase, con la protección contra listas de correos, no distingue cuál de los dos falla). La pantalla
+  // ofrece ir a "Crear cuenta" en ambos casos.
   async login(email, password) {
     try {
       await auth.signInWithEmailAndPassword(email.toLowerCase().trim(), password);
       return { ok: true };
     } catch (err) {
       const map = {
-        'auth/wrong-password': 'Contraseña incorrecta',
-        'auth/user-not-found': 'No existe cuenta con ese correo',
-        'auth/invalid-credential': 'Correo o contraseña incorrectos',
-        'auth/too-many-requests': 'Demasiados intentos. Intenta en unos minutos.',
-        'auth/network-request-failed': 'Error de conexión.'
+        'auth/wrong-password': ['clave', 'Contraseña incorrecta.'],
+        'auth/user-not-found': ['sin-cuenta', 'Ese correo todavía no tiene una cuenta en Zoorigen. Primero crea tu cuenta.'],
+        'auth/invalid-credential': ['credenciales', 'Correo o contraseña incorrectos. Si todavía no tienes cuenta, créala primero.'],
+        'auth/invalid-email': ['correo-invalido', 'El correo no es válido.'],
+        'auth/user-disabled': ['deshabilitada', 'Esta cuenta está deshabilitada. Escríbenos para ayudarte.'],
+        'auth/too-many-requests': ['demasiados', 'Demasiados intentos. Intenta en unos minutos.'],
+        'auth/network-request-failed': ['sin-red', 'Error de conexión. Revisa tu internet.']
       };
-      return { ok: false, msg: map[err.code] || err.message };
+      const m = map[err && err.code];
+      return m ? { ok: false, codigo: m[0], msg: m[1] } : { ok: false, codigo: 'error', msg: (err && err.message) || 'No pudimos iniciar sesión. Inténtalo de nuevo.' };
     }
   },
 
   // modo 'entrar' (pantalla de iniciar sesión): solo entra quien YA tiene cuenta; si Google la acaba de crear, se deshace.
   // modo 'crear' (pantalla de crear cuenta): solo crea cuentas nuevas; si el correo ya existe, no entra y se le pide iniciar sesión.
+  //   En modo 'crear' hay que haber aceptado los términos (opciones.terminos === true): sin eso ni siquiera se abre Google.
   async loginWithGoogle(opciones) {
     const modo = opciones && opciones.modo === 'crear' ? 'crear' : 'entrar';
+    if (modo === 'crear' && !(opciones && opciones.terminos === true)) return { ok: false, codigo: 'sin-terminos', msg: this.MSG_TERMINOS };
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
       try { provider.setCustomParameters({ prompt: 'select_account' }); } catch (e) { /* nada */ }
@@ -1188,7 +1211,7 @@ const ZOORIGEN_CLUB = {
       }
       if (modo === 'crear' && !esNuevaEnAuth) {
         try { await auth.signOut(); } catch (errSalir) { /* nada */ }
-        return { ok: false, codigo: 'ya-existe', msg: 'Ya existe una cuenta con ese correo. Inicia sesión.' };
+        return { ok: false, codigo: 'ya-existe', msg: 'Ya existe una cuenta con ese correo. Inicia sesión para entrar.' };
       }
       const docRef = db.collection('miembros').doc(user.uid);
       const doc = await docRef.get();
@@ -1209,7 +1232,10 @@ const ZOORIGEN_CLUB = {
           ultimoPago: null,
           streak: 0,
           createdAt: new Date().toISOString(),
-          authProvider: 'google'
+          authProvider: 'google',
+          // Quien crea su cuenta con Google acepta los términos antes de pulsar el botón (se exige arriba). Una ficha que solo
+          // se completa al entrar (cuenta anterior que no tenía ficha) no lleva esta marca.
+          ...(modo === 'crear' ? this._datosTerminos() : {})
         });
       }
       // Solo una cuenta NUEVA puede contar como invitada (Google ya trae el correo confirmado).

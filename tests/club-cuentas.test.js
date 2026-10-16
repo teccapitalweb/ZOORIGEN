@@ -70,7 +70,7 @@ test('Google en "Iniciar sesión" con cuenta existente: entra', async () => {
 
 test('Google en "Crear cuenta" con un correo que YA existe: no entra y pide iniciar sesión', async () => {
   const { club, registro } = crearClub({ resultadoGoogle: cuentaGoogle(false), docExiste: true });
-  const r = await club.loginWithGoogle({ modo: 'crear' });
+  const r = await club.loginWithGoogle({ modo: 'crear', terminos: true });
   assert.equal(r.ok, false);
   assert.equal(r.codigo, 'ya-existe');
   assert.match(r.msg, /Ya existe una cuenta con ese correo/);
@@ -80,7 +80,7 @@ test('Google en "Crear cuenta" con un correo que YA existe: no entra y pide inic
 
 test('Google en "Crear cuenta" con un correo nuevo: crea la cuenta y el documento de miembro', async () => {
   const { club, registro } = crearClub({ resultadoGoogle: cuentaGoogle(true) });
-  const r = await club.loginWithGoogle({ modo: 'crear' });
+  const r = await club.loginWithGoogle({ modo: 'crear', terminos: true });
   assert.equal(r.ok, true);
   assert.equal(r.nuevo, true);
   assert.equal(registro.docs.length, 1);
@@ -143,11 +143,10 @@ test('enviarCorreoVerificacion: usa el servidor (plantilla de Zoorigen) y, si no
 
 test('las páginas usan los modos de Google y la pantalla de confirmación existe', () => {
   const login = fs.readFileSync(path.join(RAIZ, 'pages', 'club-login.html'), 'utf8');
-  const registro = fs.readFileSync(path.join(RAIZ, 'pages', 'club-registro.html'), 'utf8');
   const verificar = fs.readFileSync(path.join(RAIZ, 'pages', 'verificar-correo.html'), 'utf8');
   assert.match(login, /loginWithGoogle\(\{ modo: 'entrar' \}\)/);
   assert.match(login, /googleEnCurso/);
-  assert.match(registro, /loginWithGoogle\(\{ modo: 'crear' \}\)/);
+  assert.match(login, /loginWithGoogle\(\{ modo: 'crear', terminos: true \}\)/);
   assert.match(verificar, /applyActionCode\(code\)/);
   assert.match(verificar, /¡Correo confirmado!/);
   assert.match(verificar, /Este enlace ya no sirve/);

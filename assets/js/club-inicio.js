@@ -309,10 +309,10 @@
   function urlRegistroConCodigo(codigo) {
     return 'https://www.zoorigen.com/pages/club-registro.html?ref=' + encodeURIComponent(String(codigo || ''));
   }
+  // Se comparte solo el enlace de invitación (no hay un código que escribir en ningún lado).
   function mensajeCompartir(codigo) {
-    var c = String(codigo || '');
-    return '¡Hola! Te invito al Club VIP Zoorigen, la comunidad científica de fauna más completa de México. Únete con mi código ' + c +
-      ' y obtén todos los beneficios VIP: cursos, webinars en vivo, certificados y más. Regístrate aquí: ' + urlRegistroConCodigo(c);
+    return '¡Hola! Te invito al Club VIP Zoorigen, la comunidad científica de fauna más completa de México. Regístrate con mi enlace' +
+      ' y obtén todos los beneficios VIP: cursos, webinars en vivo, certificados y más: ' + urlRegistroConCodigo(codigo);
   }
   function urlWhatsapp(codigo) { return 'https://wa.me/?text=' + encodeURIComponent(mensajeCompartir(codigo)); }
 
@@ -324,7 +324,7 @@
       '<div class="inv__cuerpo">' +
         '<p class="inv__etq">Invitar amigos</p>' +
         '<h2 class="inv__titulo">Invitar amigos es para miembros</h2>' +
-        '<p class="inv__sub">Con tu membresía recibes tu código y tu enlace de invitación. Cuando ' + META_REFERIDOS +
+        '<p class="inv__sub">Con tu membresía recibes tu enlace de invitación. Cuando ' + META_REFERIDOS +
           ' amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha.</p>' +
         '<div class="inv__acciones">' +
           '<a class="inv__sus" href="club-suscripcion.html">' + svg('regalo', 18) + '<span>Suscribirme</span></a>' +
@@ -339,7 +339,8 @@
     if (o.soloMiembros) return invitaSoloMiembrosHTML();
     var e = o.estado || null;
     var cargando = !e && !o.error;
-    var codigo = esc(o.codigo || 'ZOO-XXXXXX');
+    // El enlace de invitación (sin "https://") es lo único que se muestra y se copia: el código va dentro del enlace.
+    var enlaceCorto = esc(urlRegistroConCodigo(o.codigo || 'ZOO-XXXXXX').replace(/^https?:\/\//, ''));
     var meta = e ? e.meta : META_REFERIDOS;
     var llenas = e ? e.llenas : 0;
     var huellas = '';
@@ -355,10 +356,10 @@
       '<div class="inv__cuerpo">' +
         '<p class="inv__etq">Invita amigos y gana cursos antes de tiempo</p>' +
         '<h2 class="inv__titulo">Invita a ' + meta + ' amigos y adelanta un curso</h2>' +
-        '<p class="inv__sub">Comparte tu código. Cuando ' + meta + ' amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha.</p>' +
+        '<p class="inv__sub">Comparte tu enlace. Cuando ' + meta + ' amigos se registren con él y confirmen su correo, eliges un curso y lo abres antes de su fecha.</p>' +
         '<div class="inv__fila">' +
-          '<div class="inv__boleto"><span class="inv__boleto-etq">Tu código</span><code class="inv__codigo" id="dashRefCode">' + codigo + '</code>' +
-            '<button type="button" class="inv__copiar" data-copiar>' + svg('copiar', 16) + '<span>Copiar</span></button></div>' +
+          '<div class="inv__boleto"><span class="inv__boleto-etq">Tu enlace de invitación</span><code class="inv__codigo inv__codigo--enlace" id="dashRefLink">' + enlaceCorto + '</code>' +
+            '<button type="button" class="inv__copiar" data-copiar>' + svg('copiar', 16) + '<span>Copiar enlace</span></button></div>' +
           '<div class="inv__progreso">' +
             '<ol class="inv__huellas" aria-label="' + llenas + ' de ' + meta + ' amigos confirmados">' + huellas + '</ol>' +
             '<p class="inv__leyenda' + (e && (e.listo || e.usado || e.faltan === 0) ? ' is-listo' : '') + '" role="status">' + esc(leyenda) + '</p>' +
@@ -629,12 +630,12 @@
       var c = ev.target.closest && ev.target.closest('[data-copiar]');
       if (c && contenedor.contains(c)) {
         var rot = c.querySelector('span');
-        copiarTexto(codigo).then(function () {
+        copiarTexto(urlRegistroConCodigo(codigo)).then(function () {
           if (!rot) return;
-          c.classList.add('is-ok'); rot.textContent = 'Copiado';
+          c.classList.add('is-ok'); rot.textContent = 'Enlace copiado';
           clearTimeout(tCopiado);
-          tCopiado = setTimeout(function () { c.classList.remove('is-ok'); rot.textContent = 'Copiar'; }, 1500);
-        }).catch(function () { if (rot) { rot.textContent = 'Copia a mano'; setTimeout(function () { rot.textContent = 'Copiar'; }, 1800); } });
+          tCopiado = setTimeout(function () { c.classList.remove('is-ok'); rot.textContent = 'Copiar enlace'; }, 1500);
+        }).catch(function () { if (rot) { rot.textContent = 'Copia a mano'; setTimeout(function () { rot.textContent = 'Copiar enlace'; }, 1800); } });
         return;
       }
       var s = ev.target.closest && ev.target.closest('[data-compartir]');
