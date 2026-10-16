@@ -247,7 +247,7 @@
     var detalle = [];
     if (rev === 0) detalle.push('Nadie perdería nada de lo que llevaba en el sitio anterior.');
     else detalle.push(fmtNum(rev) + (rev === 1 ? ' necesita tu revisión' : ' necesitan tu revisión') + ': está marcado en amarillo o rojo en la tabla.');
-    if (x.completos > 0) detalle.push(fmtNum(x.completos) + (x.completos === 1 ? ' se importará solo cuando entre al sitio' : ' se importarán solos cuando entren al sitio') + '; si prefieres, impórtalos ahora desde la tabla.');
+    if (x.completos > 0) detalle.push(fmtNum(x.completos) + (x.completos === 1 ? ' se importará solo cuando entre al sitio; si prefieres, impórtalo ahora desde la tabla.' : ' se importarán solos cuando entren al sitio; si prefieres, impórtalos ahora desde la tabla.'));
     if (x.clasesViejas > 0) {
       var linea = 'Clases del sitio anterior: ' + fmtNum(x.clasesViejas) + '. Se conservan ' + fmtNum(x.clasesImportables) + '.';
       if (x.clasesPerdidas > 0) linea += ' ' + fmtNum(x.clasesPerdidas) + ' ya no existen en su curso.';

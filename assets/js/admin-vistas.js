@@ -795,7 +795,7 @@
       html += '<div class="ap-aviso ap-tono-error" role="alert">' + ico('triangle-alert', { size: 20 }) + '<div><strong>La importación automática está apagada</strong>' +
         '<p>Falta la variable <code>LEGACY_PROGRESS_IMPORT_BEFORE</code> en el servidor, así que nadie recupera su avance al entrar. Puedes importarlo a mano aquí, persona por persona.</p></div></div>';
     } else {
-      html += '<div class="ap-aviso ap-tono-info" role="note">' + ico('info', { size: 20 }) + '<div><p>Se importa solo el avance de las cuentas creadas antes del <strong>' + esc(P.fmtFecha(c.corte)) + '</strong>. ' +
+      html += '<div class="ap-aviso ap-tono-info" role="note">' + ico('info', { size: 20 }) + '<div><p>Se importa solo el avance de las cuentas creadas antes del <b>' + esc(P.fmtFecha(c.corte)) + '</b>. ' +
         'El avance del sitio anterior no se borra nunca: queda en cada cuenta como respaldo.</p></div></div>';
     }
     if (c.certificados === 'limite-invalido') {
@@ -833,7 +833,7 @@
     } else {
       var desde = (r.pagina - 1) * r.limite + 1;
       var hasta = Math.min(r.total, r.pagina * r.limite);
-      cuerpo = '<div class="ap-tabla-envoltura"><table class="ap-tabla"><thead><tr><th scope="col">Miembro</th><th scope="col">Plan</th><th scope="col">Cursos con avance</th>' +
+      cuerpo = '<div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--avance"><thead><tr><th scope="col">Miembro</th><th scope="col">Plan</th><th scope="col">Cursos con avance</th>' +
         '<th scope="col">Clases del sitio anterior</th><th scope="col">Clases importadas</th><th scope="col">Estado</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>' +
         r.miembros.map(filaAvance).join('') + '</tbody></table></div>' +
         '<div class="ap-paginas"><p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(desde) + ' a ' + P.fmtNum(hasta) + ' de ' + P.fmtNum(r.total) + '</p>' +

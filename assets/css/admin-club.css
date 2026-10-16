@@ -256,7 +256,18 @@ button.ap-lista__fila:hover { background: var(--c-row-hover); }
 .ap-aviso--resumen p { margin: 0; }
 .ap-num { display: block; font: 800 1.05rem/1.2 var(--zoo-font-display); color: var(--c-text); font-variant-numeric: tabular-nums; }
 .ap-sub--texto { white-space: normal; max-width: 36ch; line-height: 1.4; }
-.ap-celda-estado { min-width: 200px; }
+.ap-tabla.ap-tabla--avance th, .ap-tabla.ap-tabla--avance td { padding: 14px 8px; }
+.ap-tabla.ap-tabla--avance th:first-child, .ap-tabla.ap-tabla--avance td:first-child { padding-left: 16px; }
+.ap-tabla.ap-tabla--avance th:last-child, .ap-tabla.ap-tabla--avance td:last-child { padding-right: 16px; }
+.ap-tabla.ap-tabla--avance th { white-space: normal; line-height: 1.3; letter-spacing: .02em; }
+.ap-tabla.ap-tabla--avance .ap-persona { gap: 10px; }
+.ap-tabla.ap-tabla--avance .ap-badge { white-space: normal; }
+.ap-tabla.ap-tabla--avance .ap-celda-miembro { min-width: 180px; }
+.ap-tabla.ap-tabla--avance .ap-celda-estado { min-width: 150px; }
+.ap-tabla.ap-tabla--avance .ap-celda-acciones { min-width: 150px; width: 150px; }
+.ap-tabla.ap-tabla--avance .ap-celda-acciones .ap-btn { display: flex; width: 100%; margin: 0 0 6px; justify-content: center; white-space: normal; text-align: center; }
+.ap-tabla.ap-tabla--avance .ap-celda-acciones .ap-btn:last-child { margin-bottom: 0; }
+.ap-aviso b { color: var(--c-text); }
 .ap-paginas { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 12px; }
 .ap-paginas .ap-pie-tabla { margin: 0; }
 .ap-paginas__botones { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--c-text-2); }
@@ -270,6 +281,11 @@ button.ap-lista__fila:hover { background: var(--c-row-hover); }
 .ap-curso-avance__n { text-align: right; flex: none; }
 .ap-curso-avance__n small { display: block; }
 @media (max-width: 860px) {
+  .ap-tabla.ap-tabla--avance .ap-celda-miembro, .ap-tabla.ap-tabla--avance .ap-celda-estado, .ap-tabla.ap-tabla--avance .ap-celda-acciones { min-width: 0; width: 100%; }
+  .ap-tabla.ap-tabla--avance td { padding: 8px 0; }
+  .ap-tabla.ap-tabla--avance .ap-celda-miembro { padding: 0 0 10px; }
+  .ap-tabla.ap-tabla--avance .ap-celda-acciones { padding-top: 12px; }
+  .ap-tabla.ap-tabla--avance .ap-celda-acciones .ap-btn { width: auto; flex: 1 1 130px; margin: 0; }
   .ap-sub--texto { max-width: none; text-align: right; }
   .ap-tabla td.ap-celda-estado { flex-wrap: wrap; }
   .ap-curso-avance__n { text-align: left; }
