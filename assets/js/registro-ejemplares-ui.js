@@ -622,9 +622,9 @@
         '<header class="reg-grupo__cab"><h3>' + esc(g.especie) + '</h3>' +
         (g.nombreCientifico ? '<em>' + esc(g.nombreCientifico) + '</em>' : '') +
         '<span class="reg-grupo__cuenta">' + esc(cuentaGrupo(g)) + '</span></header>' +
-        '<div class="tool-table-wrap reg-tabla-wrap"><table class="tool-table reg-tabla reg-tabla--inv">' +
+        '<div class="reg-tabla-caja"><div class="tool-table-wrap reg-tabla-wrap"><table class="tool-table reg-tabla reg-tabla--inv">' +
         '<thead><tr><th>Ejemplar</th><th>Sexo</th><th>Origen</th><th>Ingreso</th><th>Estado</th><th><span class="reg-solo-lector">Acciones</span></th></tr></thead>' +
-        '<tbody>' + filas + '</tbody></table></div></section>';
+        '<tbody>' + filas + '</tbody></table></div></div></section>';
     }).join('');
   }
 
@@ -660,13 +660,13 @@
         }).join('') + '</tr>';
     }
     var filas = informe.porEspecie.map(function (f) { return fila(f.especie || '(sin nombre)', f.nombreCientifico, f, false); }).join('');
-    return '<div class="tool-table-wrap reg-tabla-wrap"><table class="tool-table reg-tabla reg-tabla--informe"><thead>' + cab + '</thead><tbody>' +
-      filas + fila('TOTAL', '', informe.total, true) + '</tbody></table></div>';
+    return '<div class="reg-tabla-caja"><div class="tool-table-wrap reg-tabla-wrap"><table class="tool-table reg-tabla reg-tabla--informe"><thead>' + cab + '</thead><tbody>' +
+      filas + fila('TOTAL', '', informe.total, true) + '</tbody></table></div></div>';
   }
 
   function htmlMovimientos(informe) {
     if (!informe.movimientos.length) return '';
-    return '<div class="tool-table-wrap reg-tabla-wrap"><table class="tool-table reg-tabla">' +
+    return '<div class="reg-tabla-caja"><div class="tool-table-wrap reg-tabla-wrap"><table class="tool-table reg-tabla reg-tabla--mov">' +
       '<thead><tr><th>Fecha</th><th>Movimiento</th><th>Especie</th><th>Marca</th><th>Detalle</th></tr></thead><tbody>' +
       informe.movimientos.map(function (m) {
         var detalle = [m.origen ? 'Origen: ' + m.origen : '', m.causa ? (m.tipo === 'muerte' ? 'Causa: ' : 'Motivo: ') + m.causa : '', m.destino ? 'Destino: ' + m.destino : ''].filter(Boolean).join(' · ');
@@ -675,7 +675,7 @@
           '<td data-label="Especie">' + esc(m.especie || '(sin nombre)') + '</td>' +
           '<td data-label="Marca">' + esc(m.marca || '—') + '</td>' +
           '<td data-label="Detalle">' + esc(detalle || '—') + '</td></tr>';
-      }).join('') + '</tbody></table></div>';
+      }).join('') + '</tbody></table></div></div>';
   }
 
   function htmlError(mensaje) {
