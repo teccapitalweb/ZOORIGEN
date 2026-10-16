@@ -32,6 +32,7 @@
   <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261114-prueba">
   <link rel="stylesheet" href="../assets/css/club-prueba.css?v=20261116-tamanos">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261116-tamanos">
+  <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261129-calendario">
   <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
@@ -464,19 +465,20 @@
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261129-acceso"></script>
   <script src="../assets/js/club-paywall.js?v=20261124-referencia"></script>
-  <script src="../assets/js/club-progreso.js?v=20261111-nombre"></script>
+  <script src="../assets/js/club-progreso.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-shell.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
-  <script src="../assets/js/club-acceso.js?v=20261104"></script>
+  <script src="../assets/js/club-acceso.js?v=20261129"></script>
+  <script src="../assets/js/club-calendario.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
   <script src="../assets/js/club-prueba-arte.js?v=20261114-prueba"></script>
-  <script src="../assets/js/club-cursos-ui.js?v=20261129-video-materiales"></script>
+  <script src="../assets/js/club-cursos-ui.js?v=20261129-integrado"></script>
   <script src="../assets/js/club-materiales.js?v=20261129-video-materiales"></script>
-  <script src="../assets/js/club-premios.js?v=20261128-arreglos"></script>
+  <script src="../assets/js/club-premios.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-nombre-cert.js?v=20261111-nombre"></script>
   <script>
@@ -562,9 +564,12 @@
       }
 
       // Estado de la prueba gratuita y cursos que el miembro ya abrió con un premio (en paralelo; si el servidor no responde, sin adelantados)
-      const [estadoPrueba, adelantados] = await Promise.all([cargarEstadoPrueba(), cargarAdelantados(session)]);
+      // y el calendario que calcula el servidor (cursos abiertos, "Restan N días" y los 15 retos para abrir el siguiente curso).
+      // Si el servidor no responde, la página usa la regla de siempre (club-acceso.js): nadie pierde un curso abierto.
+      const [estadoPrueba, adelantados, calServidor] = await Promise.all([cargarEstadoPrueba(), cargarAdelantados(session), cargarCalendarioServidor(session)]);
       window.__zooPrueba = estadoPrueba;
       window.__zooAdelantados = adelantados;
+      window.__zooCal = calServidor;
       // Curso que la persona eligió en la guía o la encuesta de la portada (localStorage "zoo_curso_pref"):
       // solo se DESTACA, nunca se elige solo. Si ya eligió, tiene membresía o el curso ya no es elegible, se borra.
       window.__zooPref = window.ZOO_CURSO_PREF
@@ -645,7 +650,23 @@
         const dias = diasComoMiembro();
         const i = cursos.findIndex(x => x.id === curso.id);
         if (!isActive || !window.ZOO_ACCESO) return { desbloqueado: true, diasFalta: 0, motivo: null };
-        return ZOO_ACCESO.desbloqueoCurso({ lista: cursos, i, dias, prueba: window.__zooPrueba, progreso: window.__zooCourseProgress, adelantados: window.__zooAdelantados });
+        // Lo que dice el servidor manda; si no respondió, la regla local (con prueba elegida cuenta desde el inicio del plan)
+        const srv = window.__zooCal && window.ZOO_CALENDARIO ? ZOO_CALENDARIO.desbloqueo(window.__zooCal, curso.id) : null;
+        if (srv) return srv;
+        return ZOO_ACCESO.desbloqueoCurso({ lista: cursos, i, dias, prueba: window.__zooPrueba, progreso: window.__zooCourseProgress, adelantados: window.__zooAdelantados, inicioMs: ZOO_ACCESO.inicioPlanMs(session) });
+      };
+      // Resumen de la ruta (abiertos, cerrados y el que se abre primero) con la hora actual
+      window.__zooResumenRuta = () => {
+        if (window.__zooCal && window.ZOO_CALENDARIO) return ZOO_CALENDARIO.resumen(window.__zooCal);
+        let abiertos = 0, cerrados = 0, proximo = null;
+        cursos.forEach(c => {
+          const d = window.__zooDesbloqueo(c);
+          if (d.desbloqueado) { abiertos++; return; }
+          cerrados++;
+          if (Number.isFinite(d.diasFalta) && (proximo === null || d.diasFalta < proximo.diasFalta)) proximo = { cursoId: c.id, titulo: c.title, diasFalta: d.diasFalta };
+        });
+        const inicio = ZOO_ACCESO.desdeMiembroMs(session);
+        return { total: cursos.length, abiertos, cerrados, proximo, diasComoMiembro: inicio === null ? diasComoMiembro() : Math.max(0, Math.floor((Date.now() - inicio) / 86400000)) };
       };
       window.__zooCursosLista = cursos;
 
@@ -677,28 +698,13 @@
           // El curso elegido queda identificado en la lista con su insignia "Tu prueba gratuita".
           aviso.innerHTML = '';
         } else if (modo === 'miembro') {
-          const lista = cursos;
-          if (p.elegida && lista.some(c => c.id === p.elegida)) {
-            const fin = window.ZOO_ACCESO.terminoPruebaEn((window.__zooCourseProgress || {})[p.elegida]);
-            caja.innerHTML = fin === null
-              ? `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon"><svg class="zi" aria-hidden="true"><use href="#zi-lock-open"/></svg></div><div class="unlock-schedule-banner__text">Termina tu curso de prueba para empezar tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. El conteo empieza cuando lo termines.</div></div>`
-              : `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon"><svg class="zi" aria-hidden="true"><use href="#zi-lock-open"/></svg></div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong> desde que terminaste tu curso de prueba.</div></div>`;
-          } else {
-            const maxIdx = ZOO_ACCESO.maxDesbloqueado(dias);
-            const enFila = ZOO_ACCESO.cursosEnFila(lista);
-            // Sin premios usados la cuenta es la de siempre; con premios se cuentan también los cursos adelantados.
-            let ruta = null;
-            if ((window.__zooAdelantados || []).length) {
-              const r = ZOO_ACCESO.resumenDesbloqueo({ lista, dias, adelantados: window.__zooAdelantados });
-              if (r.bloqueados > 0) ruta = { disponibles: r.disponibles, faltan: r.faltan };
-            } else if (enFila > maxIdx + 1) {
-              ruta = { disponibles: Math.min(enFila, maxIdx + 1) + (lista.length - enFila), faltan: Math.max(0, ((maxIdx + 1) * 8) - dias) };
-            }
-            if (ruta) {
-              const faltan = ruta.faltan;
-              caja.innerHTML = `<div class="unlock-schedule-banner"><div class="unlock-schedule-banner__icon"><svg class="zi" aria-hidden="true"><use href="#zi-lock-open"/></svg></div><div class="unlock-schedule-banner__text">Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong>. Llevas <strong>${dias} día${dias !== 1 ? 's' : ''}</strong> como miembro, tienes <strong>${ruta.disponibles}</strong> de ${lista.length} cursos disponibles.${faltan > 0 ? ` El siguiente se desbloquea en <strong>${faltan} día${faltan !== 1 ? 's' : ''}</strong>.` : ''}</div></div>`;
-            }
-          }
+          // Ruta VIP: 1 curso nuevo cada 8 días desde que se hizo miembro (el curso de prueba, si lo hay, es el primero).
+          // Con todo abierto no hay nada que anunciar; con cursos cerrados se ve "El siguiente se desbloquea en N días".
+          const cal = window.__zooCal;
+          const resumen = window.__zooResumenRuta();
+          const franja = window.ZOO_CALENDARIO ? ZOO_CALENDARIO.bannerRutaHTML(resumen, { modo: cal ? cal.modo : (p.elegida ? 'prueba' : 'legado') }) : '';
+          const retos = cal && cal.primerCurso && window.ZOO_CALENDARIO ? ZOO_CALENDARIO.tarjetaRetosHTML(cal.primerCurso, { href: 'club-retos.html' }) : '';
+          caja.innerHTML = franja + retos;
         }
       };
 
@@ -751,7 +757,8 @@
             imagen, modo, completadas: prog.completedLessons.length, certificado: prog.isCompleted === true,
             desbloqueo: isActive ? window.__zooDesbloqueo(c) : null,
             esPrueba: modo === 'prueba' && c.id === p.elegida, clasesGratis,
-            abrible: hasContent
+            abrible: hasContent,
+            retosHTML: isActive && window.__zooCal && window.__zooCal.primerCurso && window.__zooCal.primerCurso.cursoId === c.id && window.ZOO_CALENDARIO ? ZOO_CALENDARIO.tiraRetosHTML(window.__zooCal.primerCurso) : ''
           });
         }).join('');
       };
@@ -869,6 +876,18 @@
       }
     }
 
+    // Calendario de cursos que calcula el servidor (GET /api/calendario). Solo con membresía vigente y con tiempo de espera corto:
+    // si no responde, devuelve null y la biblioteca funciona con la regla de siempre.
+    async function cargarCalendarioServidor(session) {
+      try {
+        if (!window.ZOO_CALENDARIO || !ZOORIGEN_CLUB.hasActiveMembership(session)) return null;
+        return await ZOO_CALENDARIO.cargar((ruta) => ZOORIGEN_CLUB.apiFetch(ruta), 6000);
+      } catch (e) {
+        console.warn('[calendario] sin respuesta del servidor:', e.message || e);
+        return null;
+      }
+    }
+
     // Cursos que el miembro ya abrió con un premio (GET /api/premios). Solo con membresía vigente y con un tiempo corto de espera:
     // si el servidor no responde, no hay adelantados y la biblioteca funciona exactamente como siempre.
     async function cargarAdelantados(session) {
@@ -976,7 +995,9 @@
         if (desbloqueo.motivo === 'termina-prueba') {
           aviso('Termina primero tu curso de prueba', '<p>Cuando termines tu curso de prueba con tu membresía activa empieza tu ruta VIP: tu siguiente curso se abre 8 días después y los demás cada 8 días.</p>');
         } else {
-          aviso(ZOO_CURSOS_UI.textoFaltan(desbloqueo), '<p>Este curso se abre pronto. Los cursos se desbloquean uno cada 8 días. Mientras tanto puedes ver de qué trata y qué clases incluye.</p>');
+          const pcr = window.__zooCal && window.__zooCal.primerCurso && window.__zooCal.primerCurso.cursoId === window.__currentCourse.id ? window.__zooCal.primerCurso : null;
+          aviso(ZOO_CURSOS_UI.textoFaltan(desbloqueo), '<p>Este curso se abre pronto. Los cursos se desbloquean uno cada 8 días desde que te hiciste miembro. Mientras tanto puedes ver de qué trata y qué clases incluye.</p>' +
+            (pcr ? '<p>También puedes abrirlo antes resolviendo ' + pcr.meta + ' retos (llevas ' + pcr.hechos + '). <a href="club-retos.html">Ir a los retos</a></p>' : ''));
         }
         return;
       }
@@ -988,6 +1009,7 @@
       if (id === 'continuar') { if (Number.isInteger(window.__zcSiguiente)) openLessonByIndex(window.__zcSiguiente); }
       else if (id === 'cert') terminarCurso(curso.id);
       else if (id === 'vercert') verCertificado(curso.id);
+      else if (id === 'retos') window.location.href = 'club-retos.html';
     }
 
     function renderCourseModal() {
@@ -1046,7 +1068,8 @@
       listEl.innerHTML = UI.detalleHTML({
         curso: { ...course, description: course.description }, imagen, completadas: hechas.length, total, filas, espera,
         accionPrincipal, certificadoHTML, etiquetaPrueba: enPrueba ? 'Prueba gratuita' : '',
-        materialesHTML: window.ZOO_MATERIALES ? ZOO_MATERIALES.seccionDetalleCursoHTML((window.__zooMatCursos || {})[course.id]) : ''
+        materialesHTML: window.ZOO_MATERIALES ? ZOO_MATERIALES.seccionDetalleCursoHTML((window.__zooMatCursos || {})[course.id]) : '',
+        retosHTML: esMiembro && window.__zooCal && window.__zooCal.primerCurso && window.__zooCal.primerCurso.cursoId === course.id && window.ZOO_CALENDARIO ? ZOO_CALENDARIO.avisoRetosHTML(window.__zooCal.primerCurso) : ''
       });
       box.appendChild(listEl);
       mostrarVentanaClase();

@@ -59,7 +59,8 @@
 
   /* ───────────────────────── Tarjetas ───────────────────────── */
 
-  // ctx: { imagen, completadas, certificado, desbloqueo, modo, clasesGratis, esPrueba, abrible }
+  // ctx: { imagen, completadas, certificado, desbloqueo, modo, clasesGratis, esPrueba, abrible, retosHTML }
+  //   retosHTML: tira "Ábrelo antes con 15 retos" ya armada (ZOO_CALENDARIO.tiraRetosHTML); solo se muestra en un curso cerrado
   //   modo: 'miembro' | 'prueba' | 'pendiente' | 'libre'
   function tarjetaHTML(c, ctx) {
     const x = ctx || {};
@@ -71,6 +72,8 @@
     let insignia = '';
     if (bloqueado) insignia = `<span class="zc-badge zc-badge--lock">${ico('lock', { size: 13 })}${esc(textoEspera(x.desbloqueo))}</span>`;
     else if (x.modo === 'miembro' && x.desbloqueo && x.desbloqueo.porPremio === true) insignia = `<span class="zc-badge zc-badge--premio">${ico('trophy', { size: 13 })}Abierto por premio</span>`;
+    else if (x.modo === 'miembro' && x.desbloqueo && x.desbloqueo.porRetos === true) insignia = `<span class="zc-badge zc-badge--premio">${ico('zap', { size: 13 })}Abierto con 15 retos</span>`;
+    else if (x.modo === 'miembro' && x.desbloqueo && x.desbloqueo.esPrueba === true) insignia = `<span class="zc-badge zc-badge--free">${ico('gift', { size: 13 })}Tu curso de prueba</span>`;
     else if (x.esPrueba) insignia = `<span class="zc-badge zc-badge--free">${ico('gift', { size: 13 })}${x.clasesGratis ? esc(plural(x.clasesGratis, 'CLASE GRATIS', 'CLASES GRATIS')) : 'TU PRUEBA GRATUITA'}</span>`;
     else if (x.modo === 'libre' && x.clasesGratis) insignia = `<span class="zc-badge zc-badge--free">${ico('gift', { size: 13 })}${esc(plural(x.clasesGratis, 'CLASE GRATIS', 'CLASES GRATIS'))}</span>`;
     else if (c && c.disponibleSiempre === true) insignia = '<span class="zc-badge zc-badge--ok">DISPONIBLE</span>';
@@ -95,7 +98,7 @@
       <div class="zc-body">
         <h3 class="zc-title">${esc(c.title)}</h3>
         <div class="zc-meta">${meta}</div>
-        ${cert}${barra}
+        ${cert}${barra}${bloqueado && typeof x.retosHTML === 'string' ? x.retosHTML : ''}
         <span class="zc-cta">Ver curso →</span>
       </div>
     </article>`;
@@ -207,6 +210,8 @@
     const aviso = d.espera && !d.espera.desbloqueado
       ? `<div class="zc-aviso">${ico('lock', { size: 18 })}<span><b>${esc(textoFaltan(d.espera))}.</b> Mientras tanto puedes ver de qué trata y qué clases incluye.</span></div>`
       : (d.avisoHTML ? `<div class="zc-aviso zc-aviso--info"><span>${d.avisoHTML}</span></div>` : '');
+    // Curso cerrado que se puede abrir antes con 15 retos (HTML armado por ZOO_CALENDARIO.avisoRetosHTML)
+    const retos = d.espera && !d.espera.desbloqueado && typeof d.retosHTML === 'string' ? d.retosHTML : '';
     const principal = d.accionPrincipal
       ? `<button type="button" class="zc-continuar" data-zc="${esc(d.accionPrincipal.id)}">${esc(d.accionPrincipal.texto)}</button>` : '';
     return `<div class="zc-detail">
@@ -220,7 +225,7 @@
         </div>
       </section>
       ${c.description ? `<p class="zc-desc">${esc(c.description)}</p>` : ''}
-      ${aviso}
+      ${aviso}${retos}
       <div class="zc-sec"><h3>${ico('clapperboard', { size: 14 })}CLASES DEL CURSO</h3><span>${hechas}/${total} · ${pct}%</span></div>
       <div class="zc-bar"><span style="width:${pct}%"></span></div>
       <ol class="zc-lista">${(d.filas || []).map(f => filaClaseHTML(f, d.imagen)).join('')}</ol>

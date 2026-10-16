@@ -167,7 +167,8 @@ test('la biblioteca pide los premios solo con membresía, con tiempo corto, y pa
   // un solo punto calcula el desbloqueo y recibe los adelantados; tarjetas, detalle, clases y banner pasan por ahí
   assert.equal((bib.match(/ZOO_ACCESO\.desbloqueoCurso\(/g) || []).length, 1);
   assert.match(bib, /adelantados: window\.__zooAdelantados/);
-  assert.match(bib, /resumenDesbloqueo\(\{ lista, dias, adelantados: window\.__zooAdelantados \}\)/);
+  // el resumen de la ruta (banner) sale del servidor o, sin él, de ese mismo cálculo por curso
+  assert.match(bib, /window\.__zooResumenRuta = \(\) =>/);
   assert.ok((bib.match(/window\.__zooDesbloqueo\(/g) || []).length >= 4, 'tarjetas, detalle, clase y apertura de clase usan el mismo cálculo');
 });
 

@@ -153,6 +153,24 @@
     return Math.floor((t - new Date(desde).getTime()) / (1000 * 60 * 60 * 24));
   }
 
+  // Cuándo empezó el plan de la persona (ms), según lo que guarda el servidor en su ficha (planInicio / planActivadoEn). Acepta
+  // Timestamp de Firestore, texto ISO o milisegundos. null si no se sabe.
+  function inicioPlanMs(session) {
+    const s = session || {};
+    for (const v of [s.planInicio, s.planActivadoEn]) {
+      if (v === null || v === undefined || v === '') continue;
+      let t = null;
+      if (typeof v === 'number') t = v;
+      else if (typeof v.toMillis === 'function') t = v.toMillis();
+      else if (typeof v.toDate === 'function') t = v.toDate().getTime();
+      else if (typeof v.seconds === 'number') t = v.seconds * 1000;
+      else if (typeof v._seconds === 'number') t = v._seconds * 1000;
+      else t = new Date(v).getTime();
+      if (Number.isFinite(t)) return t;
+    }
+    return null;
+  }
+
   // Desde cuándo cuenta el reloj de desbloqueo (ms): la fecha de activación o, si no hay, la de registro.
   function desdeMiembroMs(session) {
     const s = session || {};
@@ -198,8 +216,10 @@
   //   motivo: null | 'tiempo' | 'termina-prueba'  (diasFalta = null cuando todavía no empieza el conteo)
   // Sin prueba elegida: exactamente la regla de siempre (1 curso cada 8 días desde que se hizo miembro).
   // Con prueba elegida (y ya con membresía): el curso de prueba y los "siempre disponibles" quedan fuera de la fila.
-  // El conteo empieza cuando termina el curso de prueba; el primero de la fila (el curso de siempre) se abre
-  // 8 días después y cada siguiente 8 días más.
+  // El curso de prueba cuenta como el primero (abierto): el primero de la fila se abre 8 días después de que la persona se hizo
+  // miembro y cada siguiente 8 días más, AUNQUE la prueba todavía no esté terminada (el conteo es desde el inicio del plan,
+  // `inicioMs`; el servidor calcula lo mismo en GET /api/calendario). Solo si no se conoce el inicio del plan se usa el respaldo
+  // anterior: el conteo espera a que termine el curso de prueba ('termina-prueba').
   //
   // PREMIOS: `adelantados` es un arreglo de ids de curso que el miembro abrió con un premio. Esos cursos quedan ABIERTOS
   // (con porPremio:true) y NADA más cambia: los demás conservan su lugar en la fila (el adelanto no corre el turno de nadie).
@@ -218,13 +238,20 @@
     }
     if (!curso) return { desbloqueado: false, diasFalta: null, motivo: null };
     if (curso.id === elegida || siempreDisponible(curso)) return { desbloqueado: true, diasFalta: 0, motivo: null };
-    const fin = terminoPruebaEn(o.progreso && o.progreso[elegida]);
-    if (fin === null) return { desbloqueado: false, diasFalta: null, motivo: 'termina-prueba' };
     const cola = lista.filter(c => c && c.id !== elegida && !siempreDisponible(c));
     const pos = cola.findIndex(c => c.id === curso.id);
-    if (pos < 0) return { desbloqueado: false, diasFalta: null, motivo: null };
     const ahora = Number.isFinite(o.ahora) ? o.ahora : Date.now();
-    const base = fin === 0 ? ahora : fin;
+    let base;
+    if (Number.isFinite(o.inicioMs)) {
+      // Desde que se hizo miembro (nunca más tarde que el conteo anterior, que esperaba al fin de la prueba)
+      if (pos < 0) return { desbloqueado: false, diasFalta: null, motivo: null };
+      base = o.inicioMs;
+    } else {
+      const fin = terminoPruebaEn(o.progreso && o.progreso[elegida]);
+      if (fin === null) return { desbloqueado: false, diasFalta: null, motivo: 'termina-prueba' };
+      if (pos < 0) return { desbloqueado: false, diasFalta: null, motivo: null };
+      base = fin === 0 ? ahora : fin;
+    }
     const faltaMs = (pos + 1) * DIAS_POR_CURSO * 86400000 - (ahora - base);
     if (faltaMs <= 0) return { desbloqueado: true, diasFalta: 0, motivo: null };
     return { desbloqueado: false, diasFalta: Math.ceil(faltaMs / 86400000), motivo: 'tiempo' };
@@ -236,6 +263,6 @@
     siempreDisponible, esClaseGratis, cursoTieneClaseGratis,
     posicionDesbloqueo, cursosEnFila, maxDesbloqueado, desbloqueadoPorTiempo, diasParaDesbloquear,
     normalizarAdelantados, esAdelantado, adelantadosDeRespuesta, diasComoMiembro, ordenParaDesbloqueo, resumenDesbloqueo,
-    desdeMiembroMs, msParaDesbloquear
+    desdeMiembroMs, msParaDesbloquear, inicioPlanMs
   };
 });

@@ -12,9 +12,9 @@
 /*   se pintan. El contenido está en club-retos-datos.js.         */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./club-retos-datos.js'), null);
-  else root.ZOO_RETOS = factory(root.ZOO_RETOS_DATOS, root.ZOO_ICONOS || null);
-})(typeof self !== 'undefined' ? self : this, function (DATOS, ICONOS) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./club-retos-datos.js'), null, require('./club-calendario.js'));
+  else root.ZOO_RETOS = factory(root.ZOO_RETOS_DATOS, root.ZOO_ICONOS || null, root.ZOO_CALENDARIO || null);
+})(typeof self !== 'undefined' ? self : this, function (DATOS, ICONOS, CAL) {
   'use strict';
 
   /* ───────────────────────── Constantes ───────────────────────── */
@@ -40,7 +40,7 @@
   const TIPOS = [
     { id: 'quiz', titulo: 'Quiz relámpago', desc: 'Preguntas cortas de tres opciones sobre manejo, bioseguridad y legislación. Cada reto se abre al superar el anterior.',
       icono: 'zap', color: '#C75402', texto: 'var(--rz-naranja-txt)', tiempo: 'Un minuto por reto', imagen: 'assets/img/landing/area-manejo.webp', camino: true },
-    { id: 'detective', titulo: 'Detective de campo', desc: 'Observa la escena y toca los tres errores de seguridad antes de que sea tarde.',
+    { id: 'detective', titulo: 'Detective de campo', desc: 'Observa la escena y marca las tres pistas correctas entre las seis observaciones.',
       icono: 'search', color: '#037BC9', texto: 'var(--rz-azul-txt)', tiempo: 'Tres minutos por escena', imagen: 'assets/img/landing/area-monitoreo.webp', camino: true },
     { id: 'orden', titulo: 'Ordena el procedimiento', desc: 'Coloca cada paso en el orden correcto y refuerza los protocolos de campo.',
       icono: 'list-checks', color: '#95A303', texto: 'var(--rz-verde-txt)', tiempo: 'Dos minutos por reto', imagen: 'assets/img/landing/area-conservacion.webp', camino: true },
@@ -214,10 +214,28 @@
     return (Array.isArray(zonas) ? zonas : []).filter(z => z && [z.x, z.y, z.r].every(v => typeof v === 'number' && Number.isFinite(v)) &&
       z.x >= 0 && z.x <= 1 && z.y >= 0 && z.y <= 1 && z.r >= MIN_ZONA && z.r <= MAX_ZONA);
   }
-  // Una escena solo se muestra con imagen y sus 3 zonas, y activada a propósito.
-  function escenaActiva(e) {
-    return !!(e && e.activo === true && typeof e.imagen === 'string' && e.imagen.trim() &&
+  // Forma 1 (con zonas): imagen y 3 zonas táctiles { x, y, r } sobre la imagen.
+  function escenaConZonas(e) {
+    return !!(e && typeof e.imagen === 'string' && e.imagen.trim() &&
       Array.isArray(e.riesgos) && e.riesgos.length === 3 && limpiarZonas(e.zonas).length === 3 && e.zonas.length === 3);
+  }
+  // Forma 2 (con pistas): descripción de la escena y 6 observaciones, exactamente 3 correctas. Funciona aunque la imagen aún no
+  // exista: la descripción hace de respaldo y la imagen, si carga, solo acompaña.
+  function escenaConPistas(e) {
+    return !!(e && typeof e.escena === 'string' && e.escena.trim() && Array.isArray(e.pistas) && e.pistas.length === 6 &&
+      e.pistas.every(x => x && typeof x.t === 'string' && x.t.trim() && typeof x.ok === 'boolean' && typeof x.why === 'string' && x.why.trim()) &&
+      e.pistas.filter(x => x.ok).length === 3);
+  }
+  // Una escena se juega si está activada a propósito y tiene una de las dos formas completas.
+  function escenaActiva(e) {
+    return !!(e && e.activo === true && (escenaConZonas(e) || escenaConPistas(e)));
+  }
+  // Pistas barajadas (sin que se vean siempre en el mismo orden)
+  function pistasBarajadas(e, rng) { return barajar(e && e.pistas, rng); }
+  // Puntaje de una escena de pistas: cuántas de las 3 correctas marcó (cada marca equivocada ocupa un lugar de las 3).
+  function puntajePistas(pistas, marcadas) {
+    const ids = marcadas instanceof Set ? marcadas : new Set(marcadas || []);
+    return (pistas || []).reduce((n, x, i) => n + (x && x.ok && ids.has(i) ? 1 : 0), 0);
   }
   function escenasActivas(lista) { return (Array.isArray(lista) ? lista : []).filter(escenaActiva); }
   function escenasPendientes(lista) { return (Array.isArray(lista) ? lista : []).length - escenasActivas(lista).length; }
@@ -302,11 +320,11 @@
     const ids = [];
 
     if (!d) return ['sin datos'];
-    if (!Array.isArray(d.quiz) || d.quiz.length !== 22) p.push('quiz: deben ser 22 preguntas');
+    if (!Array.isArray(d.quiz) || d.quiz.length < 15) p.push('quiz: deben ser al menos 15 preguntas');
     (d.quiz || []).forEach((q, i) => { const w = 'quiz ' + (i + 1); ids.push(q.id); texto(w + ' pregunta', q.q); texto(w + ' explicación', q.why); tresOpciones(w, q); });
     dup(d.quiz || [], q => q.q).forEach(x => p.push('quiz: pregunta repetida: ' + x));
 
-    if (!Array.isArray(d.orden) || d.orden.length !== 18) p.push('orden: deben ser 18 secuencias');
+    if (!Array.isArray(d.orden) || d.orden.length < 15) p.push('orden: deben ser al menos 15 secuencias');
     (d.orden || []).forEach((o, i) => {
       const w = 'orden ' + (i + 1); ids.push(o.id); texto(w + ' título', o.titulo);
       if (!Array.isArray(o.pasos) || o.pasos.length < 4 || o.pasos.length > 6) p.push(w + ': debe tener de 4 a 6 pasos');
@@ -315,7 +333,7 @@
     });
     dup(d.orden || [], o => o.titulo).forEach(x => p.push('orden: título repetido: ' + x));
 
-    if (!Array.isArray(d.flashcards) || d.flashcards.length !== 40) p.push('flashcards: deben ser 40');
+    if (!Array.isArray(d.flashcards) || d.flashcards.length < 15) p.push('flashcards: deben ser al menos 15');
     (d.flashcards || []).forEach((f, i) => { ids.push(f.id); texto('flashcard ' + (i + 1) + ' frente', f.front); texto('flashcard ' + (i + 1) + ' reverso', f.back); });
     dup(d.flashcards || [], f => String(f.front).toLowerCase()).forEach(x => p.push('flashcards: concepto repetido: ' + x));
 
@@ -332,14 +350,22 @@
     (d.historia || []).forEach(m => (m.casos || []).forEach(c => escenas.push(c.escena)));
     dup(escenas.map(e => ({ e })), x => x.e).forEach(x => p.push('historia: escena repetida: ' + x));
 
-    if (!Array.isArray(d.detective) || d.detective.length !== 13) p.push('detective: deben ser 13 escenas');
+    if (!Array.isArray(d.detective) || d.detective.length < 15) p.push('detective: deben ser al menos 15 escenas');
     (d.detective || []).forEach((e, i) => {
       const w = 'detective ' + (i + 1); ids.push(e.id); texto(w + ' título', e.titulo);
-      if (!/^assets\/img\/retos\/detective-[a-z-]+\.webp$/.test(String(e.imagen))) p.push(w + ': imagen con ruta inesperada');
+      if (!/^assets\/img\/retos\/detective-[a-z0-9-]+\.webp$/.test(String(e.imagen))) p.push(w + ': imagen con ruta inesperada');
       if (!Array.isArray(e.riesgos) || e.riesgos.length !== 3) p.push(w + ': deben ser 3 riesgos');
       (e.riesgos || []).forEach((r, k) => texto(w + ' riesgo ' + (k + 1), r));
       if (e.activo !== true && e.activo !== false) p.push(w + ': activo debe ser true o false');
-      if (e.activo === true && !escenaActiva(e)) p.push(w + ': activa sin 3 zonas válidas');
+      if (e.activo === true && !escenaActiva(e)) p.push(w + ': activa sin zonas válidas ni descripción con 6 pistas');
+      if (Array.isArray(e.pistas)) {
+        texto(w + ' escena', e.escena); texto(w + ' consigna', e.consigna);
+        e.pistas.forEach((x, k) => { texto(w + ' pista ' + (k + 1), x && x.t); texto(w + ' pista ' + (k + 1) + ' explicación', x && x.why); });
+        const buenas = e.pistas.filter(x => x && x.ok).map(x => x.why);
+        if (e.pistas.length !== 6 || buenas.length !== 3) p.push(w + ': deben ser 6 pistas y exactamente 3 correctas');
+        else if (JSON.stringify(buenas) !== JSON.stringify(e.riesgos)) p.push(w + ': los riesgos no coinciden con las pistas correctas');
+        if (new Set(e.pistas.map(x => String(x && x.t).trim().toLowerCase())).size !== e.pistas.length) p.push(w + ': pistas repetidas');
+      }
     });
 
     dup(ids.map(id => ({ id })), x => x.id).forEach(x => p.push('id repetido: ' + x));
@@ -385,7 +411,7 @@
     const reducir = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     const img = ruta => (/^(https?:|\/|data:)/.test(ruta) ? ruta : base + ruta);
 
-    const estado = { cargado: false, error: false, membresia: sesionMiembro, nivel: null, xp: 0, superados: 0, camino: { quiz: 0, detective: 0, orden: 0 }, caminoHechos: { quiz: [], detective: [], orden: [] }, totales: {}, retosHoy: [], porReto: {} };
+    const estado = { primerCurso: null, cargado: false, error: false, membresia: sesionMiembro, nivel: null, xp: 0, superados: 0, camino: { quiz: 0, detective: 0, orden: 0 }, caminoHechos: { quiz: [], detective: [], orden: [] }, totales: {}, retosHoy: [], porReto: {} };
     let nivelAnterior = null;
 
     /* ── Red ── */
@@ -413,6 +439,7 @@
       estado.membresia = n.membresia; estado.nivel = n.nivel; estado.xp = n.xp; estado.superados = n.superados;
       estado.camino = n.camino; estado.caminoHechos = n.caminoHechos; estado.totales = n.totales; estado.retosHoy = n.retosHoy; estado.porReto = n.porReto;
       estado.cargado = true; estado.error = false;
+      avisarPrimerCurso(r && r.primerCurso);
     }
     async function cargarEstado() {
       try { aplicarEstado(await pedir('/api/retos')); }
@@ -425,6 +452,7 @@
     app.innerHTML =
       '<div id="rzAviso" class="rz-aviso-zona" aria-live="polite"></div>' +
       '<div id="rzHero"></div>' +
+      '<div id="rzPrimer"></div>' +
       '<div class="rz-atajos"><div id="rzHistoria"></div><div id="rzDia"></div></div>' +
       '<h2 class="rz-h2">Elige tu reto</h2><div id="rzTarjetas" class="rz-grid"></div>' +
       '<section id="rzEscenario" class="rz-escenario" aria-live="polite" tabindex="-1" hidden></section>' +
@@ -448,6 +476,26 @@
       el.innerHTML = '<span class="rz-toast__ic">' + ic(tipo === 'error' ? 'circle-alert' : tipo === 'info' ? 'info' : 'award', 20) + '</span><div><strong>' + esc(titulo) + '</strong>' + (texto ? '<span>' + esc(texto) + '</span>' : '') + '</div>';
       toasts.appendChild(el);
       setTimeout(() => { el.classList.add('is-saliendo'); setTimeout(() => el.remove(), 400); }, 5200);
+    }
+
+    /* ── Primer curso: "Abre tu siguiente curso resolviendo 15 retos" ──
+       El servidor cuenta los retos del camino (mínimo 4 de cada tipo y 3 más) y decide cuándo se abre; aquí solo se pinta. */
+    let primerCursoAvisado = false;
+    function pintarPrimerCurso() {
+      const caja = q('rzPrimer');
+      if (!caja) return;
+      caja.innerHTML = CAL && esMiembro() && estado.primerCurso ? CAL.tarjetaRetosHTML(estado.primerCurso, { href: '#rzTarjetas' }) : '';
+    }
+    function avisarPrimerCurso(pc) {
+      const n = CAL ? CAL.primerCurso(pc) : null;
+      if (n && n.abierto) {
+        estado.primerCurso = null;
+        if (!primerCursoAvisado) {
+          primerCursoAvisado = true;
+          toast('Tu curso está abierto', 'Resolviste ' + n.meta + ' retos y abriste ' + (n.titulo ? '«' + n.titulo + '»' : 'tu siguiente curso') + '. Ya puedes empezar desde Cursos.');
+        }
+      } else estado.primerCurso = n;
+      if (typeof pintarPrimerCurso === 'function' && q('rzPrimer')) pintarPrimerCurso();
     }
 
     /* ── Hero de nivel ── */
@@ -594,6 +642,7 @@
       }
       if (r.aceptado === false) toast('Este reto ya estaba superado', 'Puedes elegir otro reto del camino.', 'info');
       else avisarRecompensa(r, 'Reto del camino superado', true);
+      if (r.primerCurso) avisarPrimerCurso(r.primerCurso);
       cargarEstado().then(() => { revisarSubida(); pintarHero(); pintarDia(); pintarTarjetas(); });   // el nivel lo recalcula el servidor
       return r;
     }
@@ -613,7 +662,7 @@
           stage.hidden = true; stage.innerHTML = '';
           return;
         }
-        pintarHero(); pintarTarjetas();
+        pintarHero(); pintarPrimerCurso(); pintarTarjetas();
         if (!esMiembro()) { verBloqueado(); return; }
       }
       verCamino(modo);
@@ -623,7 +672,7 @@
     function metaDe(modo, it) {
       if (modo === 'quiz') return { titulo: it.q, sub: it.tema };
       if (modo === 'orden') return { titulo: it.titulo, sub: it.pasos.length + ' pasos' };
-      return { titulo: it.titulo, sub: 'Escena de campo' };
+      return { titulo: it.titulo, sub: it.tipo === 'identificacion' ? 'Identificación de rastros' : it.tipo === 'legal' ? 'Señales de alerta' : it.tipo === 'bienestar' ? 'Bienestar animal' : 'Seguridad en campo' };
     }
 
     function verCamino(modo) {
@@ -734,6 +783,7 @@
     /* ── Detective ── */
     function abrirDetective(indice, repaso) {
       const esc3 = detectivesActivos()[indice];
+      if (!escenaConZonas(esc3)) { abrirDetectivePistas(indice, repaso, esc3); return; }
       const zonas = limpiarZonas(esc3.zonas);
       const encontradas = new Set();
       let fallos = 0, terminado = false, mira = { x: 0.5, y: 0.5 };
@@ -812,6 +862,66 @@
         const mapa = { ArrowLeft: [-paso, 0], ArrowRight: [paso, 0], ArrowUp: [0, -paso], ArrowDown: [0, paso] };
         if (mapa[ev.key]) { ev.preventDefault(); mira.x = Math.max(0, Math.min(1, mira.x + mapa[ev.key][0])); mira.y = Math.max(0, Math.min(1, mira.y + mapa[ev.key][1])); ponerMira(); }
         else if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); inspeccionar(mira.x, mira.y); }
+      });
+    }
+
+    /* ── Detective con pistas: observa la escena y marca las 3 pistas correctas entre 6 ── */
+    function abrirDetectivePistas(indice, repaso, e) {
+      const pistas = pistasBarajadas(e);
+      const marcadas = new Set();
+      let terminado = false;
+      const consigna = e.consigna || 'Observa la escena y marca las 3 pistas correctas.';
+      abrirEscenario('<div class="rz-panel">' + cabecera('Detective de campo · reto ' + (indice + 1) + (repaso ? ' · repaso' : ''), e.titulo, esc(consigna), '<span id="rzCuenta">0/3</span>') +
+        '<figure class="rz-escena-p"><div class="rz-escena-p__img"><img src="' + esc(img(e.imagen)) + '" alt="" loading="lazy" draggable="false"></div>' +
+          '<figcaption class="rz-escena-p__texto"><strong>La escena</strong><span>' + esc(e.escena) + '</span></figcaption></figure>' +
+        '<div class="rz-pistas" role="group" aria-label="Observaciones: marca exactamente tres">' + pistas.map((x, i) =>
+          '<button type="button" class="rz-pista" data-pista="' + i + '" aria-pressed="false"><span class="rz-pista__marca" aria-hidden="true"></span><span class="rz-pista__t">' + esc(x.t) + '</span></button>').join('') + '</div>' +
+        '<div class="rz-detalle" id="rzDetalle" role="status"><span class="rz-detalle__ic">' + ic('info', 18) + '</span><span>Marca exactamente 3 observaciones y pulsa Comprobar.</span></div>' +
+        '<div class="rz-acciones"><button type="button" class="rz-btn" id="rzComprobarP" disabled>Comprobar</button></div>' +
+        '<div class="rz-feedback" id="rzFb" hidden role="status"></div></div>');
+      const botones = Array.from(stage.querySelectorAll('[data-pista]'));
+      const comprobar = q2('#rzComprobarP'), cuenta = q2('#rzCuenta'), detalle = q2('#rzDetalle');
+      function refrescar() {
+        cuenta.textContent = marcadas.size + '/3';
+        comprobar.disabled = marcadas.size !== 3;
+        botones.forEach((b, i) => { const on = marcadas.has(i); b.classList.toggle('is-marcada', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+      }
+      botones.forEach((b, i) => b.addEventListener('click', () => {
+        if (terminado) return;
+        if (marcadas.has(i)) marcadas.delete(i);
+        else if (marcadas.size >= 3) { detalle.className = 'rz-detalle'; detalle.innerHTML = '<span class="rz-detalle__ic">' + ic('info', 18) + '</span><span>Ya marcaste 3. Quita una para cambiar tu elección.</span>'; return; }
+        else marcadas.add(i);
+        refrescar();
+      }));
+      comprobar.addEventListener('click', () => {
+        if (terminado || marcadas.size !== 3) return;
+        terminado = true; comprobar.hidden = true;
+        const puntaje = puntajePistas(pistas, marcadas);
+        const aprueba = apruebaCamino(puntaje, 3);
+        botones.forEach((b, i) => {
+          const x = pistas[i], marcada = marcadas.has(i);
+          b.disabled = true;
+          // Si aprobó se revela todo; si no, solo se señalan sus marcas equivocadas (para que repita sin tener la respuesta servida)
+          if (marcada && x.ok) b.classList.add('is-correcta');
+          else if (marcada && !x.ok) b.classList.add('is-mala');
+          else if (aprueba && x.ok) b.classList.add('is-falta');
+          if (aprueba || marcada) b.insertAdjacentHTML('beforeend', '<span class="rz-pista__why">' + esc(x.why) + '</span>');
+        });
+        const fb = q2('#rzFb'); fb.hidden = false; fb.className = 'rz-feedback ' + (aprueba ? 'is-ok' : 'is-mal');
+        fb.innerHTML = '<strong>' + (aprueba ? 'Escena resuelta' : 'Revisa tus observaciones') + '</strong><span>Marcaste ' + puntaje + ' de 3 pistas correctas.' +
+          (aprueba ? (puntaje === 3 ? ' Ojo de naturalista.' : ' Te faltó alguna: míralas marcadas en la lista.') : ' Necesitas al menos 2 de 3 para superar la escena. Lee las explicaciones y vuelve a intentarlo.') + '</span>' +
+          (aprueba ? '<button type="button" class="rz-btn" id="rzSigP">' + (repaso ? 'Volver al camino' : 'Continuar') + '</button>'
+            : '<div class="rz-acciones"><button type="button" class="rz-btn" id="rzRepetirP">Intentar de nuevo</button><button type="button" class="rz-btn rz-btn--sec" id="rzCaminoP">Volver al camino</button></div>');
+        if (aprueba) {
+          const sig = q2('#rzSigP'); sig.focus();
+          sig.addEventListener('click', async () => {
+            if (!repaso) { sig.disabled = true; try { await enviarCamino('detective', indice, puntaje, 3); } catch (err) { errorEnvio(err); sig.disabled = false; return; } }
+            verCamino('detective');
+          });
+        } else {
+          q2('#rzRepetirP').addEventListener('click', () => abrirDetectivePistas(indice, repaso, e));
+          q2('#rzCaminoP').addEventListener('click', () => verCamino('detective'));
+        }
       });
     }
 
@@ -982,7 +1092,7 @@
       else if (a === 'reintentar-ranking') pintarRanking();
     });
 
-    function pintarTodo() { pintarAviso(); pintarHero(); pintarBannerHistoria(); pintarDia(); pintarTarjetas(); }
+    function pintarTodo() { pintarAviso(); pintarHero(); pintarPrimerCurso(); pintarBannerHistoria(); pintarDia(); pintarTarjetas(); }
 
     /* ── Arranque ── */
     pintarTodo();
@@ -999,7 +1109,7 @@
     esc, barajar, nivelPorXp, xpTotal, resumenNivel, normalizarEstado,
     retoDelDia, estadoNodo, primerPendiente, apruebaCamino,
     barajarOpciones, barajarOrden, moverPaso, aciertosOrden, ordenCorrecto,
-    limpiarZonas, escenaActiva, escenasActivas, escenasPendientes, tocaZona, buscarZona, puntajeDetective,
+    limpiarZonas, escenaConZonas, escenaConPistas, escenaActiva, escenasActivas, escenasPendientes, tocaZona, buscarZona, puntajeDetective, pistasBarajadas, puntajePistas,
     estrellasHistoria, leerHistoria, historiaAbierta, historiaGuardar,
     tarjetasFlash, tieneEmoji, revisarContenido,
     iniciar
