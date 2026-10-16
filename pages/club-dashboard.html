@@ -30,6 +30,7 @@
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/club-inicio.css?v=20261126-vistas">
+  <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261129-calendario">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261128-arreglos">
   <link rel="stylesheet" href="../assets/css/club-prueba.css?v=20261116-tamanos">
@@ -466,18 +467,19 @@
   <script src="../assets/js/club-seccion.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261126-vistas"></script>
-  <script src="../assets/js/club-progreso.js?v=20261111-nombre"></script>
+  <script src="../assets/js/club-progreso.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-shell.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261104"></script>
-  <script src="../assets/js/club-acceso.js?v=20261104"></script>
+  <script src="../assets/js/club-acceso.js?v=20261129"></script>
+  <script src="../assets/js/club-calendario.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
   <script src="../assets/js/guia-personaje.js?v=20261105-inicio"></script>
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
-  <script src="../assets/js/club-inicio.js?v=20261124-referencia"></script>
-  <script src="../assets/js/club-premios.js?v=20261128-arreglos"></script>
+  <script src="../assets/js/club-inicio.js?v=20261129-calendario"></script>
+  <script src="../assets/js/club-premios.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-prueba-arte.js?v=20261114-prueba"></script>
   <script src="../assets/js/club-onboarding.js?v=20261124-referencia"></script>
@@ -967,15 +969,19 @@
           return;
         }
         try {
-          const [progreso, premios, prueba, mats] = await Promise.all([
+          const [progreso, premios, prueba, mats, calendario] = await Promise.all([
             ZOORIGEN_CLUB.getCourseProgress(session.uid).catch(() => ({})),
             ZOORIGEN_CLUB.fetchPremios(false).catch(() => null),
             ZOORIGEN_CLUB.apiFetch('/api/prueba-gratuita').catch(() => null),
-            ZOORIGEN_CLUB.apiFetch('/api/materiales').catch(() => null)
+            ZOORIGEN_CLUB.apiFetch('/api/materiales').catch(() => null),
+            // El calendario lo calcula el servidor: se ve desde que la persona es miembro, aunque su prueba no haya terminado
+            ZOO_CALENDARIO.cargar(ruta => ZOORIGEN_CLUB.apiFetch(ruta), 6000)
           ]);
           const est = ZOO_ACCESO.estadoPrueba(prueba);
           let hero;
-          if (est.aplica) {
+          if (calendario) {
+            hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), progreso, calendario });
+          } else if (est.aplica) {
             // Con prueba gratuita elegida la ruta de desbloqueo es otra: aquí solo se muestra el curso elegido o se manda a Cursos.
             const elegido = cursos.find(c => c.id === est.elegida);
             const av = elegido ? ZOO_INICIO.avanceDe(progreso, elegido.id) : null;

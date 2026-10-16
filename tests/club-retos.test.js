@@ -22,13 +22,20 @@ const MX = (iso) => Date.parse(iso);   // las fechas de prueba se dan en UTC
 
 /* ───────── contenido ───────── */
 
-test('cantidades de contenido: 22 / 18 / 40 / 6x4 / 13', () => {
-  assert.equal(D.quiz.length, 22);
-  assert.equal(D.orden.length, 18);
-  assert.equal(D.flashcards.length, 40);
+test('cantidades de contenido: al menos 15 de cada tipo (hoy 32 quiz / 24 orden / 55 flashcards / 21 detective / 6x4 historia)', () => {
+  assert.equal(D.quiz.length, 32);
+  assert.equal(D.orden.length, 24);
+  assert.equal(D.flashcards.length, 55);
   assert.equal(D.historia.length, 6);
   D.historia.forEach(m => assert.equal(m.casos.length, 4));
-  assert.equal(D.detective.length, 13);
+  assert.equal(D.detective.length, 21);
+  for (const tipo of ['quiz', 'orden', 'flashcards', 'detective']) assert.ok(D[tipo].length >= 15, tipo + ' debe tener al menos 15');
+});
+
+test('el camino (quiz + detective + orden) supera ampliamente los 15 retos que abren el primer curso', () => {
+  const camino = D.quiz.length + D.detective.length + D.orden.length;
+  assert.ok(camino >= 60, 'camino: ' + camino);
+  for (const m of ['quiz', 'detective', 'orden']) assert.ok(D[m].length >= 4, 'el mínimo de 4 por tipo debe poder cumplirse: ' + m);
 });
 
 test('revisarContenido() no encuentra problemas', () => {
@@ -43,17 +50,18 @@ test('revisarContenido() sí detecta contenido roto', () => {
   malo.orden[0].pasos = ['a', 'b', 'c'];
   malo.flashcards[0].back = '   ';
   malo.historia[0].casos.pop();
-  malo.detective[0].activo = true;      // activa pero sin zonas
+  malo.detective[0].pistas.pop();       // activa con 5 pistas
+  malo.detective[1].riesgos[0] = 'Otro texto';   // riesgos que no coinciden con las pistas
   malo.quiz[4].why = 'Muy bien \u{1F600}';
   const p = R.revisarContenido(malo);
-  ['3 opciones', 'no es 0, 1 o 2', 'pregunta repetida', '4 a 6 pasos', 'texto vacío', '4 casos', 'sin 3 zonas', 'emoji'].forEach(t => {
+  ['3 opciones', 'no es 0, 1 o 2', 'pregunta repetida', '4 a 6 pasos', 'texto vacío', '4 casos', 'activa sin zonas válidas', 'no coinciden', 'emoji'].forEach(t => {
     assert.ok(p.some(x => x.includes(t)), 'debería avisar: ' + t + ' en ' + JSON.stringify(p));
   });
 });
 
 test('quiz e historia: 3 opciones distintas, una sola correcta, textos con contenido', () => {
   const casos = D.quiz.concat(...D.historia.map(m => m.casos));
-  assert.equal(casos.length, 22 + 24);
+  assert.equal(casos.length, 32 + 24);
   casos.forEach(c => {
     assert.equal(c.a.length, 3);
     assert.equal(new Set(c.a).size, 3);
@@ -106,17 +114,36 @@ test('historia: mundos con nombre, descripción, fondo y color', () => {
     ['historia-selva.jpg', 'historia-humedal.jpg', 'historia-arrecife.jpg', 'historia-desierto.jpg', 'historia-bosque-niebla.jpg', 'historia-centro-rescate.jpg']);
 });
 
-test('detective: 13 escenas, inactivas por ahora, con 3 riesgos y ruta de imagen webp', () => {
+test('detective: 21 escenas jugables, todas con imagen webp definida Y respaldo de texto (escena y 6 pistas), 3 riesgos', () => {
   D.detective.forEach(e => {
-    assert.match(e.imagen, /^assets\/img\/retos\/detective-[a-z-]+\.webp$/);
+    assert.match(e.imagen, /^assets\/img\/retos\/detective-[a-z0-9-]+\.webp$/);
     assert.equal(e.riesgos.length, 3);
     e.riesgos.forEach(r => assert.ok(r.trim().length > 10));
     assert.ok(Array.isArray(e.zonas));
-    assert.equal(typeof e.activo, 'boolean');
-    assert.equal(R.escenaActiva(e), false, 'sin zonas no debe activarse: ' + e.id);
+    assert.equal(e.activo, true);
+    // Sin imagen (o con ella) la escena se resuelve con su descripción y sus pistas: no hay hueco ni error
+    assert.equal(R.escenaConPistas(e), true, 'respaldo de texto: ' + e.id);
+    assert.equal(R.escenaActiva(e), true, 'jugable: ' + e.id);
+    assert.ok(e.escena.length > 60 && e.consigna.length > 20);
+    assert.equal(e.pistas.length, 6);
+    assert.equal(e.pistas.filter(x => x.ok).length, 3);
+    assert.deepEqual(e.pistas.filter(x => x.ok).map(x => x.why), e.riesgos);
   });
-  assert.equal(R.escenasActivas(D.detective).length, 0);
-  assert.equal(R.escenasPendientes(D.detective), 13);
+  assert.equal(R.escenasActivas(D.detective).length, 21);
+  assert.equal(R.escenasPendientes(D.detective), 0);
+  // los 8 nombres de imagen nuevos siguen assets/img/retos/detective-<tema>-<n>.webp
+  assert.equal(D.detective.filter(e => /-\d\.webp$/.test(e.imagen)).length, 8);
+});
+
+test('detective con pistas: el puntaje es cuántas de las 3 correctas se marcaron; se baraja sin perder pistas', () => {
+  const e = D.detective[13];
+  const buenas = e.pistas.map((x, i) => (x.ok ? i : -1)).filter(i => i >= 0);
+  assert.equal(R.puntajePistas(e.pistas, new Set(buenas)), 3);
+  assert.equal(R.puntajePistas(e.pistas, new Set([buenas[0], buenas[1], e.pistas.findIndex(x => !x.ok)])), 2);
+  assert.equal(R.puntajePistas(e.pistas, []), 0);
+  assert.equal(R.apruebaCamino(R.puntajePistas(e.pistas, new Set([buenas[0], buenas[1]])), 3), true);
+  const b = R.pistasBarajadas(e);
+  assert.deepEqual(b.map(x => x.t).sort(), e.pistas.map(x => x.t).sort());
 });
 
 test('ningún texto del contenido ni de la pantalla lleva emoji', () => {

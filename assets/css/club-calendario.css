@@ -1,0 +1,98 @@
+/* ============================================================ */
+/* CALENDARIO DE CURSOS · tarjetas del Club VIP Zoorigen          */
+/* Tarjeta "Abre tu siguiente curso resolviendo 15 retos", tira   */
+/* dentro del curso cerrado, aviso del detalle y "Próximo         */
+/* desbloqueo" del Inicio. Colores sólidos, modo día y noche.     */
+/* Las construye assets/js/club-calendario.js                     */
+/* ============================================================ */
+.zcal-retos, .zcal-tira, .zcal-aviso, .zcal-prox {
+  --zcal-acc: #C75402;
+  --zcal-acc-txt: #FF8A3D;
+  --zcal-ok: #2E9E5B;
+  --zcal-card: var(--zoo-bg-card, #171B20);
+  --zcal-text: var(--zoo-text, #ffffff);
+  --zcal-muted: var(--zoo-text-muted, rgba(255, 255, 255, 0.72));
+  --zcal-line: var(--zoo-border, rgba(127, 127, 127, 0.3));
+  --zcal-track: rgba(127, 127, 127, 0.28);
+  font-family: var(--zoo-font-body, 'Inter', system-ui, sans-serif);
+}
+[data-theme="light"] .zcal-retos, [data-theme="light"] .zcal-tira, [data-theme="light"] .zcal-aviso, [data-theme="light"] .zcal-prox {
+  --zcal-acc-txt: #A94700;
+  --zcal-ok: #1E7F46;
+  --zcal-track: rgba(25, 25, 25, 0.14);
+}
+.zcal-ic { flex: none; }
+.zcal-eyebrow { margin: 0 0 4px; font: 700 .75rem/1 var(--zoo-font-body, 'Inter', sans-serif); letter-spacing: .12em; text-transform: uppercase; color: var(--zcal-acc-txt); }
+
+/* ── Tarjeta grande (Retos y Cursos) ── */
+.zcal-retos {
+  display: flex; gap: 16px; align-items: flex-start; margin: 0 0 20px; padding: 18px 20px;
+  background: var(--zcal-card); color: var(--zcal-text); border: 1px solid var(--zcal-line); border-left: 5px solid var(--zcal-acc); border-radius: 16px;
+}
+.zcal-retos__ic { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--zcal-acc); color: #fff; }
+.zcal-retos__cuerpo { min-width: 0; flex: 1 1 auto; }
+.zcal-retos__t { margin: 0 0 6px; font: 700 1.2rem/1.25 var(--zoo-font-display, 'Outfit', sans-serif); color: var(--zcal-text); overflow-wrap: anywhere; }
+.zcal-retos__txt { margin: 0 0 12px; font-size: .92rem; line-height: 1.5; color: var(--zcal-muted); }
+.zcal-barra { height: 12px; border-radius: 99px; background: var(--zcal-track); overflow: hidden; }
+.zcal-barra > span { display: block; height: 100%; min-width: 4px; border-radius: 99px; background: var(--zcal-acc); transition: width .5s ease; }
+.zcal-retos__n { margin: 8px 0 12px; font-size: .9rem; color: var(--zcal-muted); }
+.zcal-retos__n b { color: var(--zcal-text); font-size: 1rem; }
+.zcal-tipos { list-style: none; margin: 0 0 14px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; }
+.zcal-tipo { display: grid; grid-template-columns: minmax(0, 1fr) 70px 38px; align-items: center; gap: 10px; font-size: .84rem; color: var(--zcal-muted); }
+.zcal-tipo__n { min-width: 0; overflow-wrap: anywhere; }
+.zcal-tipo__n small { color: var(--zcal-muted); opacity: .85; }
+.zcal-tipo__b { height: 7px; border-radius: 99px; background: var(--zcal-track); overflow: hidden; }
+.zcal-tipo__b > i { display: block; height: 100%; background: var(--zcal-acc); }
+.zcal-tipo__c { justify-self: end; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--zcal-text); }
+.zcal-tipo.is-ok .zcal-tipo__b > i { background: var(--zcal-ok); }
+.zcal-tipo.is-ok .zcal-tipo__c { color: var(--zcal-ok); }
+.zcal-btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 12px; border: 0;
+  background: var(--zcal-acc); color: #fff; font: 700 .95rem var(--zoo-font-display, 'Outfit', sans-serif); text-decoration: none; cursor: pointer;
+}
+.zcal-btn:hover { background: #A94700; }
+.zcal-btn:focus-visible, .zcal-enlace:focus-visible, .zcal-prox__retos:focus-visible { outline: 3px solid #037BC9; outline-offset: 2px; }
+
+/* ── Tira dentro de la tarjeta del curso cerrado ── */
+.zcal-tira {
+  position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 10px 0 0; padding: 8px 10px 12px;
+  background: rgba(20, 24, 20, 0.88); color: #fff; border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 12px; font-size: .78rem;
+}
+.zcal-tira__t { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-weight: 600; color: #FFB27A; }
+.zcal-tira > b { margin-left: auto; font-variant-numeric: tabular-nums; }
+.zcal-tira__b { position: absolute; left: 10px; right: 10px; bottom: 5px; height: 4px; border-radius: 99px; background: rgba(255, 255, 255, 0.25); overflow: hidden; }
+.zcal-tira__b > i { display: block; height: 100%; background: #FF8A3D; }
+
+/* ── Aviso del detalle del curso ── */
+.zcal-aviso {
+  display: flex; gap: 10px; align-items: flex-start; margin: 0 0 14px; padding: 12px 14px; border-radius: 12px;
+  background: var(--zcal-card); color: var(--zcal-text); border: 1px solid var(--zcal-acc); font-size: .9rem; line-height: 1.45;
+}
+.zcal-aviso .zcal-ic { margin-top: 2px; color: var(--zcal-acc-txt); }
+.zcal-enlace { padding: 0; border: 0; background: none; color: var(--zcal-acc-txt); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+
+/* ── Próximo desbloqueo (Inicio) ── */
+.zcal-prox {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; width: 100%; padding: 10px 12px; border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.24); color: #fff;
+}
+.zcal-prox__ic { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--zcal-acc); color: #fff; }
+.zcal-prox__txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 180px; }
+.zcal-prox__txt small { font: 700 .75rem/1 var(--zoo-font-body, 'Inter', sans-serif); letter-spacing: .12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.72); }
+.zcal-prox__txt b { font-size: .92rem; overflow-wrap: anywhere; }
+.zcal-prox__txt span { font-size: .82rem; color: rgba(255, 255, 255, 0.85); }
+.zcal-prox__retos {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 99px; background: var(--zcal-acc); color: #fff;
+  font: 700 .76rem var(--zoo-font-body, 'Inter', sans-serif); text-decoration: none;
+}
+
+/* ── Móvil ── */
+@media (max-width: 640px) {
+  .zcal-retos { flex-direction: column; gap: 12px; padding: 16px; }
+  .zcal-tipos { grid-template-columns: minmax(0, 1fr); }
+  .zcal-btn { width: 100%; justify-content: center; }
+}
+@media (max-width: 360px) {
+  .zcal-tipo { grid-template-columns: minmax(0, 1fr) 48px 34px; gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .zcal-barra > span { transition: none; } }

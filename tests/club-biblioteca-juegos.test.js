@@ -66,7 +66,7 @@ test('la biblioteca carga las preguntas y las reglas de acceso, y las usa', () =
   assert.ok(pagina.indexOf('club-quiz.js') > pagina.indexOf('club-juegos.js'), 'el quiz usa la ventana del módulo de juegos');
   assert.ok(fs.existsSync(path.join(RAIZ, 'assets', 'js', 'club-quiz.js')));
   assert.ok(fs.existsSync(path.join(RAIZ, 'assets', 'js', 'club-acceso.js')));
-  assert.match(pagina, /ZOO_ACCESO\.desbloqueoCurso\(\{ lista: cursos, i, dias, prueba: window\.__zooPrueba, progreso: window\.__zooCourseProgress, adelantados: window\.__zooAdelantados \}\)/);
+  assert.match(pagina, /ZOO_ACCESO\.desbloqueoCurso\(\{ lista: cursos, i, dias, prueba: window\.__zooPrueba, progreso: window\.__zooCourseProgress, adelantados: window\.__zooAdelantados(?:, inicioMs: [^}]+)? \}\)/);
   assert.match(pagina, /ZOO_ACCESO\.esClaseGratis\(lesson, curso, prueba, idx\)/);
 });
 

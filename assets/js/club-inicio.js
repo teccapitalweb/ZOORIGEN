@@ -6,9 +6,9 @@
 /* La parte pura se prueba en Node.                               */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./club-acceso.js'), require('./club-seccion.js'), require('./guia-personaje.js'));
-  else root.ZOO_INICIO = factory(root.ZOO_ACCESO, root.ZOO_SECCION, root.ZOO_GUIA);
-})(typeof self !== 'undefined' ? self : this, function (ACCESO, SECCION, GUIA_MOD) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./club-acceso.js'), require('./club-seccion.js'), require('./guia-personaje.js'), require('./club-calendario.js'));
+  else root.ZOO_INICIO = factory(root.ZOO_ACCESO, root.ZOO_SECCION, root.ZOO_GUIA, root.ZOO_CALENDARIO);
+})(typeof self !== 'undefined' ? self : this, function (ACCESO, SECCION, GUIA_MOD, CAL) {
   'use strict';
 
   /* Personaje guía: si el módulo no está cargado, siempre la pose de bienvenida. */
@@ -47,8 +47,10 @@
   }
 
   /* Decide qué mostrar y resume los números del inicio.
-     entrada: { cursos, dias, adelantados, progreso }
+     entrada: { cursos, dias, adelantados, progreso, calendario }
+              calendario = lo que dice el servidor (ZOO_CALENDARIO.normalizar de GET /api/calendario); si viene, manda sobre la regla local.
      salida:  { tipo: 'sin-cursos' | 'continuar' | 'proximo' | 'terminado' | 'elegir-prueba', curso?, hechas?, total?, diasFalta?,
+                siguiente? (en 'continuar': el curso cerrado que se abre primero, con su cuenta regresiva), primerCurso? (avance de los 15 retos),
                 ('elegir-prueba' no sale de aquí: la arma el Inicio cuando la prueba gratuita aún no se elige)
                 resumen: { cursosAbiertos, cursosTotal, clasesHechas, clasesTotal } } */
   function elegirHero(entrada) {
@@ -63,11 +65,17 @@
     var lista = ACCESO.ordenParaDesbloqueo(cursos);
     var abiertos = [], cerrados = [];
     var ahoraMs = Number.isFinite(o.ahoraMs) ? o.ahoraMs : Date.now();
+    var cal = o.calendario && CAL ? o.calendario : null;
     lista.forEach(function (c, i) {
-      var r = ACCESO.desbloqueoCurso({ lista: lista, i: i, dias: o.dias, adelantados: o.adelantados });
-      var ms = r.desbloqueado ? 0 : ACCESO.msParaDesbloquear(lista, i, o.desdeMs, ahoraMs);
-      (r.desbloqueado ? abiertos : cerrados).push({ curso: c, diasFalta: r.diasFalta, msFalta: ms });
+      var srv = cal ? CAL.desbloqueo(cal, c.id, ahoraMs) : null;
+      var r = srv ? { desbloqueado: srv.desbloqueado, diasFalta: srv.diasFalta } : ACCESO.desbloqueoCurso({ lista: lista, i: i, dias: o.dias, adelantados: o.adelantados });
+      var ms = r.desbloqueado ? 0 : (srv ? (srv.msFalta != null ? srv.msFalta : null) : ACCESO.msParaDesbloquear(lista, i, o.desdeMs, ahoraMs));
+      (r.desbloqueado ? abiertos : cerrados).push({ curso: c, diasFalta: r.diasFalta, msFalta: ms, desbloqueoEn: srv ? srv.desbloqueoEn : null });
     });
+    var primerCurso = cal && cal.primerCurso ? cal.primerCurso : null;
+    var masCercano = cerrados.filter(function (x) { return Number.isFinite(Number(x.diasFalta)) && x.diasFalta !== null; })
+      .sort(function (a, b) { return (Number.isFinite(a.msFalta) && Number.isFinite(b.msFalta) ? a.msFalta - b.msFalta : a.diasFalta - b.diasFalta); })[0];
+    var siguiente = masCercano ? { curso: masCercano.curso, diasFalta: Math.max(0, Math.ceil(Number(masCercano.diasFalta))), msFalta: Number.isFinite(masCercano.msFalta) ? masCercano.msFalta : null, desbloqueoEn: masCercano.desbloqueoEn } : null;
     resumen.cursosAbiertos = abiertos.length;
     // 1) el primer curso abierto que aún no termina (el que ya empezó va antes que uno sin tocar)
     var pendientes = abiertos.map(function (x) {
@@ -76,12 +84,12 @@
     }).filter(function (x) { return !x.terminado && x.total > 0; });
     var empezado = pendientes.filter(function (x) { return x.hechas > 0; })[0];
     var elegido = empezado || pendientes[0];
-    if (elegido) return { tipo: 'continuar', curso: elegido.curso, hechas: elegido.hechas, total: elegido.total, resumen: resumen };
+    if (elegido) return { tipo: 'continuar', curso: elegido.curso, hechas: elegido.hechas, total: elegido.total, resumen: resumen, siguiente: siguiente, primerCurso: primerCurso };
     // 2) si no hay nada por continuar, el próximo curso que se abre (el que menos días falte)
     var conFecha = cerrados.filter(function (x) { return Number.isFinite(Number(x.diasFalta)) && x.diasFalta !== null; })
       .sort(function (a, b) { return (Number.isFinite(a.msFalta) && Number.isFinite(b.msFalta) ? a.msFalta - b.msFalta : a.diasFalta - b.diasFalta); })[0];
-    if (conFecha) return { tipo: 'proximo', curso: conFecha.curso, diasFalta: Math.max(0, Math.ceil(Number(conFecha.diasFalta))), msFalta: Number.isFinite(conFecha.msFalta) ? conFecha.msFalta : null, resumen: resumen };
-    if (cerrados.length) return { tipo: 'proximo', curso: cerrados[0].curso, diasFalta: null, resumen: resumen };
+    if (conFecha) return { tipo: 'proximo', curso: conFecha.curso, diasFalta: Math.max(0, Math.ceil(Number(conFecha.diasFalta))), msFalta: Number.isFinite(conFecha.msFalta) ? conFecha.msFalta : null, desbloqueoEn: conFecha.desbloqueoEn, resumen: resumen, primerCurso: primerCurso };
+    if (cerrados.length) return { tipo: 'proximo', curso: cerrados[0].curso, diasFalta: null, resumen: resumen, primerCurso: primerCurso };
     return { tipo: 'terminado', resumen: resumen };
   }
 
@@ -372,6 +380,14 @@
       '</div>';
   }
 
+  /* "Próximo desbloqueo" dentro de la tarjeta de un curso en marcha: el calendario se ve desde que la persona es miembro. */
+  function proximoDe(h) {
+    if (!h || !h.siguiente || !CAL) return '';
+    var s = h.siguiente;
+    var cuando = Number.isFinite(s.desbloqueoEn) ? s.desbloqueoEn : (Number.isFinite(s.msFalta) ? Date.now() + s.msFalta : null);
+    return CAL.proximoHTML({ titulo: s.curso && s.curso.title, diasFalta: s.diasFalta, desbloqueoEn: cuando }, h.primerCurso && h.primerCurso.cursoId === (s.curso && s.curso.id) ? h.primerCurso : null);
+  }
+
   /* HTML de la tarjeta principal + "Tu siguiente meta" + accesos. opciones: { ahora, pdfsAbiertos, pdfsTotal, hrefCursos } */
   function widgetHTML(h, opciones) {
     opciones = opciones || {};
@@ -397,12 +413,13 @@
     } else if (espera) {
       var caja = h.diasFalta === null || h.diasFalta === undefined ? '' :
         '<div class="ih-card__caja"><small>Se abre en</small><strong>' + esc(textoApertura(h.diasFalta, h.msFalta)) + ' · ' + esc(fechaDiaMes(opciones.ahora, h.diasFalta, h.msFalta)) + '</strong></div>';
-      tarjeta = '<div class="ih-card"><div class="ih-card__etq">Próximo desbloqueo</div><div class="ih-card__nombre">' + esc(h.curso.title) + '</div>' + caja + boton + '</div>';
+      var retosProx = h.primerCurso && h.primerCurso.estado === 'pendiente' && CAL && h.primerCurso.cursoId === h.curso.id ? CAL.tiraRetosHTML(h.primerCurso) : '';
+      tarjeta = '<div class="ih-card"><div class="ih-card__etq">Próximo desbloqueo</div><div class="ih-card__nombre">' + esc(h.curso.title) + '</div>' + caja + retosProx + boton + '</div>';
     } else {
       var pct = h.total ? Math.round(h.hechas * 100 / h.total) : 0;
       tarjeta = '<div class="ih-card"><div class="ih-card__etq">' + (h.hechas > 0 ? 'Tu curso en marcha' : 'Listo para empezar') + '</div><div class="ih-card__nombre">' + esc(h.curso.title) + '</div>' +
         '<div class="ih-card__caja"><small>Tu avance</small><strong>' + h.hechas + ' de ' + h.total + ' clases · ' + pct + '%</strong>' +
-        '<div class="ih-card__prog" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + pct + '%"></i></div></div>' + boton + '</div>';
+        '<div class="ih-card__prog" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + pct + '%"></i></div></div>' + proximoDe(h) + boton + '</div>';
     }
     var m = pasosDe(h);
     var meta = '<div class="ih-meta"><div class="ih-meta__etq">' + svg('foco', 14) + 'Tu siguiente meta</div><h3>' + esc(m.titulo) + '</h3><ol>' +

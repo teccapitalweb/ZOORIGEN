@@ -17,9 +17,9 @@
 /* prueba en Node: tests/club-premios.test.js                     */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./club-acceso.js'));
-  else root.ZOO_PREMIOS = factory(root.ZOO_ACCESO);
-})(typeof self !== 'undefined' ? self : this, function (ACCESO) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./club-acceso.js'), require('./club-calendario.js'));
+  else root.ZOO_PREMIOS = factory(root.ZOO_ACCESO, root.ZOO_CALENDARIO || null);
+})(typeof self !== 'undefined' ? self : this, function (ACCESO, CAL) {
   'use strict';
 
   const root = typeof window !== 'undefined' ? window : {};   // solo se usa en el navegador
@@ -138,7 +138,9 @@
     const salida = [];
     lista.forEach((c, i) => {
       if (!tieneClases(c)) return;
-      const r = ACCESO.desbloqueoCurso({ lista, i, dias, prueba: o.prueba, progreso: o.progreso, adelantados, ahora: o.ahora });
+      // Si el servidor ya calculó el calendario (o.calendario, normalizado por ZOO_CALENDARIO) manda lo que él dice
+      const srv = o.calendario && CAL ? CAL.desbloqueo(o.calendario, c.id, o.ahora) : null;
+      const r = srv || ACCESO.desbloqueoCurso({ lista, i, dias, prueba: o.prueba, progreso: o.progreso, adelantados, ahora: o.ahora, inicioMs: ACCESO.inicioPlanMs(o.session) });
       if (r.desbloqueado) return;
       salida.push({ id: String(c.id), titulo: txt(c.title) || 'Curso sin nombre', diasFalta: Number.isFinite(r.diasFalta) ? r.diasFalta : null, motivo: r.motivo || null });
     });
@@ -241,7 +243,9 @@
         return false;
       }
       const adelantados = ACCESO.adelantadosDeRespuesta(c.crudo);
-      const canjeables = cursosCanjeables({ cursos, session, prueba, progreso, adelantados });
+      let calendario = null;
+      try { if (CAL) { const rc = await d.pedir('/api/calendario', 'GET', null, 6000); calendario = rc.ok ? CAL.normalizar(rc.datos) : null; } } catch (e) { calendario = null; }
+      const canjeables = cursosCanjeables({ cursos, session, prueba, progreso, adelantados, calendario });
 
       return new Promise(resolve => {
         let canjeado = false;

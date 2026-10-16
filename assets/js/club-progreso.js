@@ -124,6 +124,8 @@
     if (status === 0 || (!status && /network|fetch|conexi/i.test(msg))) return 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo. Tu avance no se pierde.';
     if (status === 401) return 'Tu sesión expiró. Vuelve a iniciar sesión para continuar.';
     if (status === 403) {
+      // El servidor dice cuándo se abre el curso todavía cerrado (calendario del miembro): se muestra tal cual
+      if (c.esMiembro !== false && /todavía no está abierto/i.test(msg)) return msg;
       if (c.esMiembro === false) return 'Esta clase no está incluida en tu prueba gratuita. Activa tu membresía para continuar con el curso.';
       return 'Esta clase todavía está bloqueada para tu cuenta. Revisa que tu membresía esté vigente y que el curso ya esté disponible en tu ruta.';
     }
