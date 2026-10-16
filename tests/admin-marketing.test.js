@@ -149,7 +149,9 @@ test('pruebasHTML: totales, por curso, tabla con avance y escapado; sin acción 
   const h = M.pruebasHTML(pruebas(), {});
   assert.match(h, /Pruebas/);
   assert.match(h, /ap-tabla-zona/);
-  assert.match(h, /class="ap-persona__txt"><strong>Claudia Gabriela Caballero Rodríguez<\/strong><span class="ap-correo">/);
+  // filas compactas: nombre en el título, correo en la línea pequeña y tocar la fila abre la ficha
+  assert.match(h, /class="ap-fc__titulo" data-accion="ficha" data-uid="[^"]*">Claudia Gabriela Caballero Rodríguez<\/button>/);
+  assert.match(h, /class="ap-fc__correo">/);
   assert.match(h, /Beto &lt;b&gt;/);
   assert.match(h, /Terminó las clases gratis/);
   assert.match(h, /Cuenta eliminada/);

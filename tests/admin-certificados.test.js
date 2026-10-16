@@ -5,6 +5,7 @@
 const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const F = require(path.join(__dirname, '..', 'assets', 'js', 'admin-filas.js'));
 const K = require(path.join(__dirname, '..', 'assets', 'js', 'admin-certificados.js'));
 
 const AHORA = Date.UTC(2026, 9, 8, 12);
@@ -122,7 +123,12 @@ test('filaHTML(): muestra alumno, correo, curso, fecha, folio y acciones', () =>
   const h = K.filaHTML(cert(), AHORA);
   for (const t of ['Ana López', 'ana@example.com', 'Manejo de colmenas', 'Apicultura', '5 clases', '6 h', 'ZOO-2026-11111', 'hace 3 días']) assert.ok(h.includes(t), t);
   assert.ok(h.includes('href="ver-certificado.html?folio=ZOO-2026-11111"'));
-  assert.ok(h.includes('data-accion="copiar" data-folio="ZOO-2026-11111"'));
+  // las tres acciones viven en UN menú «…»: ver, copiar el enlace y verificar
+  const acc = F.accionesDeHTML(h);
+  assert.deepEqual(acc.map(a => a.t), ['Ver certificado', 'Copiar enlace de verificación', 'Verificar (vista pública)']);
+  assert.equal(acc[1].a, 'copiar');
+  assert.ok(h.includes('data-folio="ZOO-2026-11111"'));
+  assert.match(h, /aria-haspopup="menu"/);
   assert.ok(h.includes('https://www.zoorigen.com/pages/verificar.html?folio=ZOO-2026-11111'));
   assert.ok(h.includes('rel="noopener"'));
 });
@@ -160,8 +166,8 @@ test('iniciales(): dos letras, tolera vacío y espacios', () => {
 
 test('listaHTML(): mensaje cuando no hay resultados y lista cuando sí', () => {
   assert.ok(K.listaHTML([], AHORA).includes('No hay certificados'));
-  assert.ok(K.listaHTML(LISTA(), AHORA).includes('cf-lista'));
-  assert.equal((K.listaHTML(LISTA(), AHORA).match(/<article/g) || []).length, 4);
+  assert.ok(K.listaHTML(LISTA(), AHORA).includes('ap-fc-lista'));
+  assert.equal((K.listaHTML(LISTA(), AHORA).match(/<li class="ap-fc /g) || []).length, 4);
 });
 
 test('kpisHTML(), opcionesCursoHTML() y ordenHTML() muestran los números y marcan la selección', () => {

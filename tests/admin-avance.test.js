@@ -13,6 +13,7 @@ const RAIZ = path.resolve(__dirname, '..');
 const leer = rel => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
 const P = require(path.join(RAIZ, 'assets', 'js', 'admin-panel.js'));
 const I = require(path.join(RAIZ, 'assets', 'js', 'admin-iconos.js'));
+const F = require(path.join(RAIZ, 'assets', 'js', 'admin-filas.js'));
 const html = leer('pages/admin-club.html');
 const vistasJs = leer('assets/js/admin-vistas.js');
 const css = leer('assets/css/admin-club.css');
@@ -107,6 +108,7 @@ function cargarVistas() {
   sandbox.self = sandbox;
   sandbox.ZOO_ADMIN_PANEL = P;
   sandbox.ZOO_ICONOS = I;
+  sandbox.ZOO_ADMIN_FILAS = F;
   sandbox.document = { createElement: () => ({}), body: {}, querySelector: () => null, addEventListener() {}, removeEventListener() {} };
   vm.createContext(sandbox);
   vm.runInContext(vistasJs, sandbox);
@@ -128,7 +130,7 @@ function datos(extra = {}) {
   };
 }
 
-test('la sección dibuja resumen, tabla con etiquetas para celular, botones por estado y escapa el texto del servidor', async () => {
+test('la sección dibuja resumen, tabla compacta, acciones por estado en el menú «…» y escapa el texto del servidor', async () => {
   const { V, contenedor } = cargarVistas();
   const llamadas = [];
   V.iniciar({ api: async ruta => { llamadas.push(ruta); return datos(); }, toast() {}, contenedor: () => contenedor });
@@ -140,9 +142,15 @@ test('la sección dibuja resumen, tabla con etiquetas para celular, botones por 
   for (const etiqueta of ['Miembro', 'Plan', 'Cursos con avance', 'Clases del sitio anterior', 'Clases importadas', 'Estado']) {
     assert.ok(h.includes(`data-label="${etiqueta}"`), etiqueta);
   }
-  assert.equal((h.match(/data-accion="importar"/g) || []).length, 2, 'completo y parcial');
-  assert.equal((h.match(/data-accion="forzar"/g) || []).length, 1, 'no elegible');
-  assert.equal((h.match(/data-accion="detalle"/g) || []).length, 4);
+  // las acciones de cada fila viven en UN menú «…» (no hay botones sueltos por fila)
+  const menus = [...h.matchAll(/<button type="button" class="ap-fc__menu"[^>]*>/g)].map(m => F.accionesDeHTML(m[0]).map(a => a.a));
+  assert.equal(menus.length, 4, 'un menú por fila');
+  assert.equal(menus.filter(a => a.includes('importar')).length, 2, 'completo y parcial');
+  assert.equal(menus.filter(a => a.includes('forzar')).length, 1, 'no elegible');
+  assert.equal(menus.filter(a => a.includes('detalle')).length, 4, 'todas pueden abrir el detalle');
+  assert.doesNotMatch(h, /<button[^>]*class="ap-btn[^>]*data-accion="(importar|reparar|forzar)"/, 'sin botones de importar en la fila');
+  // tocar la fila abre el detalle
+  assert.equal((h.match(/class="ap-titulo-fila" data-accion="detalle"/g) || []).length, 4);
   assert.equal(h.includes('Luis <b>Mora</b>'), false);
   assert.ok(h.includes('Luis &lt;b&gt;Mora&lt;/b&gt;'));
   assert.match(h, /Mostrando 1 a 4 de 4/);
@@ -198,7 +206,7 @@ test('la sección solo habla con el servidor: GET del ensayo y POST de importar,
   assert.doesNotMatch(vistasJs, /location\.hash\s*=.*uid/);
 });
 
-test('hoja de estilos: sin degradados, letra de 12 px o más, y la tabla pasa a tarjetas en celular', () => {
+test('hoja de estilos: sin degradados, letra de 12 px o más, y la tabla sigue compacta en celular', () => {
   const trozo = css.slice(css.indexOf('Avance de miembros'), css.indexOf('Miembros: controles y tabla'));
   assert.ok(trozo.length > 200);
   assert.doesNotMatch(trozo, /gradient\(/i);

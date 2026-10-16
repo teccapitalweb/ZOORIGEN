@@ -5,9 +5,9 @@
 /* real: se prueba en tests/admin-cursos.test.js                 */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'), require('./club-juegos.js'), require('./club-quiz.js'));
-  else root.ZOO_ADMIN_CURSOS = factory(root.ZOO_ICONOS, root.ZOO_JUEGOS, root.ZOO_QUIZ);
-})(typeof self !== 'undefined' ? self : this, function (iconos, juegos, quiz) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'), require('./club-juegos.js'), require('./club-quiz.js'), require('./admin-filas.js'));
+  else root.ZOO_ADMIN_CURSOS = factory(root.ZOO_ICONOS, root.ZOO_JUEGOS, root.ZOO_QUIZ, root.ZOO_ADMIN_FILAS);
+})(typeof self !== 'undefined' ? self : this, function (iconos, juegos, quiz, filas) {
   'use strict';
 
   const ico = (nombre, opciones) => (iconos && iconos.svg ? iconos.svg(nombre, opciones) : '');
@@ -177,21 +177,27 @@
     </article>`;
   }
 
+  // Fila compacta (como la lista de miembros): portada pequeña, título, línea de datos, área y nivel a la derecha y UN menú «…».
   function tarjetaListaHTML(c) {
-    return `<article class="cc-fila" data-id="${esc(c.id)}">
-      ${medioHTML(c).replace('cc-media', 'cc-media cc-media--mini')}
-      <div class="cc-fila__info">
-        <h3 class="cc-title">${esc(c.title || 'Sin título')}</h3>
-        <div class="cc-meta">${metaHTML(c)}${c.videoProvider === 'bunny' ? `<span class="cc-prov">${ico('badge-check', { size: 13 })}Bunny</span>` : ''}</div>
-      </div>
-      ${accionesHTML(c)}
-    </article>`;
+    const img = urlPortada(c.image);
+    const avatar = img
+      ? `<span class="ap-ico-miniatura" style="background-image:url('${esc(img)}')" aria-hidden="true"></span>`
+      : `<span class="ap-ico-tile" style="--t-bg:${colorArea(c.area)};--t-ink:#FFFFFF;--t-line:${colorArea(c.area)}" aria-hidden="true">${ico('graduation-cap', { size: 18 })}</span>`;
+    const estado = `<span class="ap-badge ap-badge--neutro">${esc(c.area || 'Sin área')}</span>` + (c.level ? `<span class="ap-badge ap-badge--info">${esc(c.level)}</span>` : '');
+    return filas.fila({
+      clase: 'ap-fc--meta-flex ap-fc--meta-ancho',
+      avatar, titulo: c.title || 'Sin título', accion: { a: 'editar', datos: { id: c.id } },
+      meta: metaHTML(c) + (c.videoProvider === 'bunny' ? `<span class="cc-m">${ico('badge-check', { size: 14 })}Bunny</span>` : ''),
+      estado,
+      acciones: [{ t: 'Editar curso', i: 'pencil', a: 'editar' }, { t: 'Eliminar curso', i: 'trash-2', a: 'eliminar', p: true, sep: true }],
+      etiquetaMenu: 'Acciones de ' + (c.title || 'este curso'), datos: { id: c.id }, atributos: { id: c.id }
+    });
   }
 
   function listaHTML(cursos, vista) {
     if (!cursos.length) return `<div class="no-data cc-vacio">${ico('search-x', { size: 28 })}<p>No hay cursos que coincidan con la búsqueda.</p></div>`;
     return vista === 'lista'
-      ? `<div class="cc-lista">${cursos.map(tarjetaListaHTML).join('')}</div>`
+      ? filas.lista(cursos.map(tarjetaListaHTML), { etiqueta: 'Cursos' })
       : `<div class="cc-grid">${cursos.map(tarjetaGridHTML).join('')}</div>`;
   }
 

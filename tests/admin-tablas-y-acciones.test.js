@@ -13,6 +13,9 @@ const css = leer('assets/css/admin-club.css');
 const vistas = leer('assets/js/admin-vistas.js');
 const html = leer('pages/admin-club.html');
 const A = require(path.join(RAIZ, 'assets', 'js', 'admin-encuesta.js'));
+const F = require(path.join(RAIZ, 'assets', 'js', 'admin-filas.js'));
+// todas las acciones de todos los menús «…» de un trozo de HTML
+const accionesDe = h => [...h.matchAll(/<button type="button" class="ap-fc__menu"[^>]*>/g)].flatMap(m => F.accionesDeHTML(m[0]));
 const sinComentarios = t => t.replace(/\/\*[\s\S]*?\*\//g, '');
 
 /* ───────── tablas ───────── */
@@ -25,46 +28,60 @@ test('los nombres nunca se parten letra por letra: sin overflow-wrap: anywhere e
   assert.match(nombre, /-webkit-line-clamp: 2/);
   assert.doesNotMatch(nombre, /anywhere|break-all|break-word/);
   assert.match(c, /\.ap-persona__txt \.ap-correo \{ overflow-wrap: anywhere;/);
-  // la columna del miembro tiene ancho mínimo (así la tabla no la estrecha)
-  assert.match(c, /\.ap-tabla \.ap-celda-miembro \{ min-width: 250px; \}/);
-  assert.match(c, /\.ap-celda-acciones \{[^}]*min-width: 290px/);
-  assert.match(c, /\.ap-acciones \{ display: flex; flex-wrap: wrap;/);
-  assert.match(c, /\.ap-acciones \.ap-btn \{ white-space: nowrap; \}/);
+  // el título de las filas compactas tampoco parte palabras
+  const titulo = c.match(/\.ap-fc__titulo \{[^}]*\}/)[0];
+  assert.match(titulo, /overflow-wrap: normal/);
+  assert.match(titulo, /word-break: normal/);
+  assert.doesNotMatch(titulo, /anywhere|break-all|break-word/);
+  assert.match(c, /\.ap-tabla \.ap-celda-miembro \{ min-width: 220px; \}/);
 });
 
-test('el paso a tarjetas lo decide el contenedor de la tabla, no la ventana', () => {
+test('las tablas y listas NO pasan a tarjetas grandes: el contenedor esconde columnas secundarias y la fila sigue compacta', () => {
   assert.match(css, /\.ap-tabla-zona \{ container: tabla \/ inline-size;/);
-  assert.match(css, /@container tabla \(max-width: 1000px\)/);
-  // dentro de @media no queda ninguna regla de tarjetas de tabla
+  assert.match(css, /\.ap-fc-zona \{ container: fc \/ inline-size;/);
+  assert.match(css, /@container tabla \(max-width: 899px\) \{\s*\.ap-tabla \.ap-col-2 \{ display: none; \}/);
+  assert.match(css, /@container tabla \(max-width: 639px\) \{\s*\.ap-tabla \.ap-col-3 \{ display: none; \}/);
+  assert.match(css, /@container fc \(max-width: 579px\)/);
+  // ya no existe el paso a tarjetas con etiqueta por celda
+  assert.doesNotMatch(css, /content: attr\(data-label\)/);
+  assert.doesNotMatch(css, /@container tabla \(max-width: 1000px\)/);
   const medias = [...css.matchAll(/@media[^{]*\{([\s\S]*?)\n\}/g)].map(m => m[1]).join('\n');
   assert.doesNotMatch(medias, /\.ap-tabla (td|thead|tr)/);
+  // altura de fila baja
+  assert.match(css, /\.ap-fc \{ position: relative; min-height: 58px; \}/);
+  assert.match(css, /\.ap-tabla td \{ padding: 8px 12px;/);
 });
 
-test('toda tabla del panel va dentro de .ap-tabla-zona y las celdas llevan data-label', () => {
+test('toda tabla del panel va dentro de .ap-tabla-zona y las columnas secundarias llevan ap-col-2 / ap-col-3', () => {
   for (const [nombre, texto] of [['admin-vistas.js', vistas], ['admin-marketing.js', leer('assets/js/admin-marketing.js')], ['admin-encuesta.js', leer('assets/js/admin-encuesta.js')]]) {
     const tablas = (texto.match(/<table class="ap-tabla/g) || []).length;
     const zonas = (texto.match(/ap-tabla-zona/g) || []).length;
     assert.ok(zonas >= 1 || tablas === 0, nombre + ' sin zona');
     assert.doesNotMatch(texto, /'<div class="ap-tabla-envoltura"><table/, nombre + ': tabla sin .ap-tabla-zona');
   }
-  // las filas de miembros llevan etiqueta en cada celda de datos
-  assert.match(vistas, /data-label="Estado"/);
-  assert.match(vistas, /data-label="Vence"/);
-  assert.match(vistas, /data-label="Registro"/);
+  assert.match(vistas, /class="ap-col-2" data-label="Plan"/);
+  assert.match(vistas, /class="ap-col-3 ap-col-num" data-label="Clases importadas"/);
+  assert.match(leer('assets/js/admin-encuesta.js'), /class="ap-col-3" data-label="WhatsApp"/);
 });
 
-test('las filas de miembros ponen el correo en .ap-correo y envuelven los botones en .ap-acciones', () => {
-  assert.match(vistas, /<span class="ap-correo">' \+ esc\(m\.correo/);
-  assert.match(vistas, /<div class="ap-acciones">' \+ botonesMiembro\(m\)/);
+test('la fila de un miembro es compacta: nombre en el título, correo en la línea pequeña, vence en su columna y UN menú «…»', () => {
+  assert.match(vistas, /<span class="ap-fc__correo">' \+ ico\('mail', \{ size: 12 \}\) \+ '<span class="ap-correo">' \+ esc\(m\.correo/);
+  assert.match(vistas, /acciones: accionesMiembro\(m\)/);
+  assert.match(vistas, /F\.lista\(mostrar\.map\(filaMiembro\)/);
+  // ya no hay cinco botones por fila
+  assert.doesNotMatch(vistas, /function botonesMiembro|<div class="ap-acciones">' \+ botonesMiembro/);
 });
 
 /* ───────── acciones de miembros ───────── */
 
-test('Miembros: Ver ficha, Ampliar/Activar, Regalar, Cancelar y Eliminar; las cuentas de administración solo tienen Ver ficha', () => {
-  const trozo = vistas.slice(vistas.indexOf('function botonesMiembro'), vistas.indexOf('function filaMiembro'));
-  for (const a of ['ficha', 'activar', 'regalar', 'cancelar', 'eliminar']) assert.match(trozo, new RegExp(`btn\\('${a}'`));
-  assert.match(trozo, /if \(m\.esAdmin\) return html;/);
+test('Miembros: Ver ficha, Ampliar/Activar, Regalar, Cancelar y Eliminar en el menú «…»; las cuentas de administración solo tienen Ver ficha', () => {
+  const trozo = vistas.slice(vistas.indexOf('function accionesMiembro'), vistas.indexOf('function filaMiembro'));
+  for (const a of ['ficha', 'activar', 'regalar', 'cancelar', 'eliminar']) assert.match(trozo, new RegExp("a: '" + a + "'"));
+  assert.match(trozo, /if \(m\.esAdmin\) return a;/);
+  assert.match(trozo, /a: 'eliminar', p: true, sep: true/, 'Eliminar va al final, separado y en rojo');
   assert.match(vistas, /eliminados: function \(\) \{ abrirEliminados\(\); \}/);
+  // los mismos nombres de acción que escucha la vista de Miembros
+  for (const a of ['ficha', 'activar', 'cancelar', 'regalar', 'eliminar']) assert.match(vistas, new RegExp('\\b' + a + ': function \\(b\\) \\{ abrir'));
 });
 
 test('Regalar: 1 mes (30) o 1 año (365), nota opcional, aviso de Stripe y POST /regalar', () => {
@@ -154,15 +171,16 @@ test('encuesta: ramas por perfil, filas, filtros y CSV con WhatsApp enmascarado'
   assert.equal(A.enmascarar('123'), '');
 });
 
-test('encuesta: el número completo no aparece en pantalla cuando el servidor entrega el detalle', () => {
+test('encuesta: el número completo no aparece en pantalla cuando el servidor entrega el detalle (acciones en el menú «…»)', () => {
   const estado = { encuesta: { ok: true, detalle: true, docs: [sesion('a1', { tieneContacto: true, contactoMascara: '••• ••• 0100', avisoAceptado: true })] }, preguntas: { ok: true, detalle: true, preguntas: [{ texto: 'axolote', veces: 2, tipo: 'animal', clave: 'axolote', atendida: false }] } };
   const h = A.vistaHTML(estado);
   assert.match(h, /••• ••• 0100/);
   assert.match(h, /data-enc="wa" data-id="a1"/);
   assert.doesNotMatch(h, /wa\.me/);
-  assert.match(h, /data-enc="atender"/);
-  assert.match(h, /data-enc="borrar"/);
-  assert.match(h, /data-enc="pregunta-atender" data-id="axolote"/);
+  const acc = accionesDe(h).map(a => a.d && a.d.enc).filter(Boolean);
+  for (const a of ['atender', 'borrar', 'detalle', 'wa', 'pregunta-atender', 'pregunta-borrar', 'pregunta-detalle']) assert.ok(acc.includes(a), 'falta en el menú: ' + a);
+  assert.match(h, /data-enc="pregunta-detalle" data-id="axolote"/);
+  assert.doesNotMatch(h, /<button[^>]*class="ap-btn[^>]*data-enc="(atender|borrar|pregunta-atender|pregunta-borrar)"/, 'sin botones sueltos en la fila');
   assert.match(h, /Resumen por rama del flujo/);
   assert.match(h, /Descargar lista \(CSV\)/);
 });

@@ -7,9 +7,9 @@
 /* servidor). Se prueba en tests/admin-certificados.test.js       */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'));
-  else root.ZOO_ADMIN_CERTS = factory(root.ZOO_ICONOS);
-})(typeof self !== 'undefined' ? self : this, function (iconos) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'), require('./admin-filas.js'));
+  else root.ZOO_ADMIN_CERTS = factory(root.ZOO_ICONOS, root.ZOO_ADMIN_FILAS);
+})(typeof self !== 'undefined' ? self : this, function (iconos, filas) {
   'use strict';
 
   const ico = (nombre, opciones) => (iconos && iconos.svg ? iconos.svg(nombre, opciones) : '');
@@ -130,37 +130,34 @@
     return o.map(([id, nombre, icono]) => `<button type="button" class="zoo-chip${actual === id ? ' is-active' : ''}" data-orden="${id}" aria-pressed="${actual === id}">${ico(icono, { size: 14 })}${esc(nombre)}</button>`).join('');
   }
 
+  // Fila compacta: alumno y correo, curso y fecha (en pantallas anchas), insignias y UN menú «…». Tocar la fila abre el certificado.
   function filaHTML(c, ahora) {
     const t = ahora == null ? Date.now() : ahora;
     const ver = urlVer(c.folio);
-    return `<article class="cf-fila" data-folio="${esc(c.folio)}">
-      <div class="cf-alumno">
-        <span class="cf-av">${esc(iniciales(c.alumno))}</span>
-        <div class="cf-alumno__txt">
-          <div class="cf-nombre">${esc(c.alumno || 'Sin nombre')}${c.prueba ? ' <span class="cf-prueba">Prueba</span>' : ''}${!c.verificado && !c.prueba ? ' <span class="cf-validacion" title="Anterior a la validación del servidor">En validación</span>' : ''}</div>
-          <div class="cf-correo">${esc(c.correo || 'Sin correo')}</div>
-        </div>
-      </div>
-      <div class="cf-curso">
-        <div class="cf-curso__t">${esc(c.curso || 'Curso sin nombre')}</div>
-        <div class="cf-curso__m">${[c.area, c.clases ? `${c.clases} clase${c.clases === 1 ? '' : 's'}` : '', c.duracion].filter(Boolean).map(esc).join(' · ') || '—'}</div>
-      </div>
-      <div class="cf-fecha">
-        <div class="cf-fecha__d">${esc(formatoFecha(c.fecha))}</div>
-        <div class="cf-fecha__r">${esc(relativo(c.fecha, t))}</div>
-      </div>
-      <div class="cf-folio"><code>${esc(c.folio)}</code></div>
-      <div class="cf-acciones">
-        <a class="cc-icono" href="${esc(ver)}" target="_blank" rel="noopener" aria-label="Ver certificado ${esc(c.folio)}" title="Ver certificado">${ico('eye', { size: 16 })}</a>
-        <button type="button" class="cc-icono" data-accion="copiar" data-folio="${esc(c.folio)}" aria-label="Copiar enlace de verificación de ${esc(c.folio)}" title="Copiar enlace de verificación">${ico('copy', { size: 16 })}</button>
-        <a class="cc-icono" href="${esc(urlVerificar(c.folio))}" target="_blank" rel="noopener" aria-label="Verificar ${esc(c.folio)} como lo vería el público" title="Verificar (vista pública)">${ico('shield-check', { size: 16 })}</a>
-      </div>
-    </article>`;
+    const detalleCurso = [c.area, c.clases ? `${c.clases} clase${c.clases === 1 ? '' : 's'}` : '', c.duracion].filter(Boolean).map(esc).join(' · ');
+    const estado = (c.prueba ? '<span class="ap-badge ap-badge--aviso">Prueba</span>' : '') +
+      (!c.verificado && !c.prueba ? '<span class="ap-badge ap-badge--neutro" title="Anterior a la validación del servidor">En validación</span>' : '');
+    return filas.fila({
+      avatar: `<span class="ap-avatar" aria-hidden="true">${esc(iniciales(c.alumno))}</span>`,
+      titulo: c.alumno || 'Sin nombre', accion: { h: ver },
+      meta: `<span class="ap-fc__correo">${esc(c.correo || 'Sin correo')}</span>` + (estado ? ' ' + estado : '') + `<span class="ap-fc__folio"> · <code>${esc(c.folio)}</code></span>`,
+      metaChico: `<span class="ap-fc__sep"> · </span>${esc(c.curso || 'Curso sin nombre')}`,
+      cols: [
+        { html: `<span class="ap-fc__v" title="${esc(c.curso || 'Curso sin nombre')}">${esc(c.curso || 'Curso sin nombre')}</span><span class="ap-fc__s">${detalleCurso || '—'}</span>` },
+        { html: `<span class="ap-fc__v">${esc(formatoFecha(c.fecha))}</span><span class="ap-fc__s">${esc(relativo(c.fecha, t))}</span>` }
+      ],
+      acciones: [
+        { t: 'Ver certificado', i: 'eye', h: ver },
+        { t: 'Copiar enlace de verificación', i: 'copy', a: 'copiar' },
+        { t: 'Verificar (vista pública)', i: 'shield-check', h: urlVerificar(c.folio) }
+      ],
+      etiquetaMenu: `Acciones del certificado ${c.folio} de ${c.alumno || 'sin nombre'}`, datos: { folio: c.folio }, atributos: { folio: c.folio }
+    });
   }
 
   function listaHTML(lista, ahora) {
     if (!lista.length) return `<div class="no-data cc-vacio">${ico('award', { size: 28 })}<p>No hay certificados que coincidan con la búsqueda.</p></div>`;
-    return `<div class="cf-lista">${lista.map(c => filaHTML(c, ahora)).join('')}</div>`;
+    return filas.lista(lista.map(c => filaHTML(c, ahora)), { etiqueta: 'Certificados emitidos', cab: { principal: 'Alumno', cols: ['Curso', 'Emitido'] } });
   }
 
   /* ───────── Emisión manual (POST /api/admin/certificados) ───────── */

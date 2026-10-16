@@ -218,7 +218,7 @@
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
-  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261128-admin2">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261129-tablas">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="inicio">
@@ -306,19 +306,20 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261126-vistas"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261128-admin2"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261129-tablas"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/admin-panel.js?v=20261128-admin2"></script>
-  <script src="../assets/js/admin-vistas.js?v=20261128-admin2"></script>
-  <script src="../assets/js/admin-marketing.js?v=20261128-admin2"></script>
+  <script src="../assets/js/admin-panel.js?v=20261129-tablas"></script>
+  <script src="../assets/js/admin-filas.js?v=20261129-tablas"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261129-tablas"></script>
+  <script src="../assets/js/admin-marketing.js?v=20261129-tablas"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/admin-certificados.js?v=20261104"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261129-tablas"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261129-tablas"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/admin-noticias.js?v=20261106-noticias"></script>
+  <script src="../assets/js/admin-noticias.js?v=20261129-tablas"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
-  <script src="../assets/js/admin-encuesta.js?v=20261128-admin2"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261129-tablas"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -530,7 +531,7 @@
 
     // ═══════════ CURSOS ═══════════
     const CURSOS = window.ZOO_ADMIN_CURSOS;
-    const cursosEstado = { items: [], texto: '', area: 'todas', orden: 'recientes', vista: 'grid' };
+    const cursosEstado = { items: [], texto: '', area: 'todas', orden: 'recientes', vista: 'lista' };
     try {
       const vistaGuardada = localStorage.getItem('zoo_admin_cursos_vista');
       if (vistaGuardada === 'lista' || vistaGuardada === 'grid') cursosEstado.vista = vistaGuardada;
@@ -893,6 +894,31 @@
       }
     };
 
+    // ═══════════ LISTAS DE CONTENIDO (videos, PDFs y webinars): filas compactas con UN menú «…» ═══════════
+    const contenidoCache = {};
+    function listaContenido(coleccion, items, icono, tono, meta, etiqueta) {
+      const F = window.ZOO_ADMIN_FILAS;
+      contenidoCache[coleccion] = items;
+      return F.lista(items.map(x => F.fila({
+        avatar: '<span class="ap-ico-tile ap-tono-' + tono + '" aria-hidden="true">' + ZOO_ICONOS.svg(icono, { size: 18 }) + '</span>',
+        titulo: x.title || 'Sin título', accion: { a: 'editar', datos: { col: coleccion, id: x.id } },
+        meta: meta(x),
+        acciones: [{ t: 'Editar', i: 'pencil', a: 'editar' }, { t: 'Eliminar', i: 'trash-2', a: 'eliminar', p: true, sep: true }],
+        etiquetaMenu: 'Acciones de ' + (x.title || 'este elemento'), datos: { col: coleccion, id: x.id }
+      })), { etiqueta });
+    }
+    function enlazarContenido() {
+      document.getElementById('secView').onclick = (ev) => {
+        const b = ev.target.closest('[data-accion]');
+        if (!b || !b.dataset.col) return;
+        const x = (contenidoCache[b.dataset.col] || []).find(i => i.id === b.dataset.id);
+        if (!x) return;
+        if (b.dataset.accion === 'editar') ({ videos: window.formVideo, pdfs: window.formPdf, sesiones: window.formSesion })[b.dataset.col](x);
+        else if (b.dataset.accion === 'eliminar') window.delDoc(b.dataset.col, x.id, x.title || '');
+      };
+    }
+    const esc = (v) => ZOO_ADMIN_FILAS.esc(v);
+
     // ═══════════ VIDEOS ═══════════
     async function loadVideos() {
       const v = document.getElementById('secView');
@@ -905,20 +931,9 @@
             <strong style="color:#fff;">${items.length} video${items.length !== 1 ? 's' : ''}</strong>
             <button class="btn-add" onclick="formVideo()">+ Nuevo video</button>
           </div>
-          <div class="admin-content-list">
-            ${items.length === 0 ? '<div class="no-data">Aún no hay videos.</div>' : items.map(x => `
-              <div class="admin-content-item">
-                <div class="admin-content-item__thumb" style="background:var(--zoo-orange);">${ZOO_ICONOS.svg('clapperboard', { size: 24 })}</div>
-                <div class="admin-content-item__info">
-                  <div class="admin-content-item__title">${x.title}</div>
-                  <div class="admin-content-item__meta">${x.area || ''} · ${x.duration || '—'}</div>
-                </div>
-                <div class="admin-content-item__actions">
-                  <button class="btn-small edit" onclick='formVideo(${JSON.stringify(x).replace(/'/g,"&#39;")})'>Editar</button>
-                  <button class="btn-small delete" onclick="delDoc('videos','${x.id}','${(x.title||'').replace(/'/g,"\\'")}')">Eliminar</button>
-                </div>
-              </div>`).join('')}
-          </div>`;
+          ${items.length === 0 ? '<div class="no-data">Aún no hay videos.</div>' : listaContenido('videos', items, 'clapperboard', 'aviso', x => esc(x.area || '') + ' · ' + esc(x.duration || '—'), 'Videos')}
+        `;
+        enlazarContenido();
       } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${err.message}</div>`; }
     }
 
@@ -958,20 +973,9 @@
             <strong style="color:#fff;">${items.length} PDF${items.length !== 1 ? 's' : ''}</strong>
             <button class="btn-add" onclick="formPdf()">+ Nuevo PDF</button>
           </div>
-          <div class="admin-content-list">
-            ${items.length === 0 ? '<div class="no-data">Aún no hay PDFs.</div>' : items.map(x => `
-              <div class="admin-content-item">
-                <div class="admin-content-item__thumb" style="background:var(--zoo-blue);">${ZOO_ICONOS.svg('file-text', { size: 24 })}</div>
-                <div class="admin-content-item__info">
-                  <div class="admin-content-item__title">${x.title}</div>
-                  <div class="admin-content-item__meta">${x.area || ''} · ${x.pages || '—'} páginas</div>
-                </div>
-                <div class="admin-content-item__actions">
-                  <button class="btn-small edit" onclick='formPdf(${JSON.stringify(x).replace(/'/g,"&#39;")})'>Editar</button>
-                  <button class="btn-small delete" onclick="delDoc('pdfs','${x.id}','${(x.title||'').replace(/'/g,"\\'")}')">Eliminar</button>
-                </div>
-              </div>`).join('')}
-          </div>`;
+          ${items.length === 0 ? '<div class="no-data">Aún no hay PDFs.</div>' : listaContenido('pdfs', items, 'file-text', 'info', x => esc(x.area || '') + ' · ' + esc(x.pages || '—') + ' páginas', 'PDFs')}
+        `;
+        enlazarContenido();
       } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${err.message}</div>`; }
     }
 
@@ -1011,20 +1015,9 @@
             <strong style="color:#fff;">${items.length} webinar${items.length !== 1 ? 's' : ''}</strong>
             <button class="btn-add" onclick="formSesion()">+ Nuevo webinar</button>
           </div>
-          <div class="admin-content-list">
-            ${items.length === 0 ? '<div class="no-data">Aún no hay webinars programados.</div>' : items.map(x => `
-              <div class="admin-content-item">
-                <div class="admin-content-item__thumb" style="background:var(--zoo-orange);">${ZOO_ICONOS.svg('radio', { size: 24 })}</div>
-                <div class="admin-content-item__info">
-                  <div class="admin-content-item__title">${x.title}</div>
-                  <div class="admin-content-item__meta">${x.speaker || '—'} · ${ZOORIGEN_CLUB.formatShort(x.date)} · ${x.time || '19:00'} · Google Meet</div>
-                </div>
-                <div class="admin-content-item__actions">
-                  <button class="btn-small edit" onclick='formSesion(${JSON.stringify(x).replace(/'/g,"&#39;")})'>Editar</button>
-                  <button class="btn-small delete" onclick="delDoc('sesiones','${x.id}','${(x.title||'').replace(/'/g,"\\'")}')">Eliminar</button>
-                </div>
-              </div>`).join('')}
-          </div>`;
+          ${items.length === 0 ? '<div class="no-data">Aún no hay webinars programados.</div>' : listaContenido('sesiones', items, 'radio', 'aviso', x => esc(x.speaker || '—') + ' · ' + esc(ZOORIGEN_CLUB.formatShort(x.date)) + ' · ' + esc(x.time || '19:00') + ' · Google Meet', 'Webinars en vivo')}
+        `;
+        enlazarContenido();
       } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${err.message}</div>`; }
     }
 
