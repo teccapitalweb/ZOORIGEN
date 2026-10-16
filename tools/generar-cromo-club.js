@@ -32,7 +32,7 @@ const RAIZ = path.resolve(__dirname, '..');
 const VERSION_FUENTES = '20261109-cromo';
 
 /* Páginas con barra lateral (panel completo) y su apartado de menú cuando no se puede leer del código. */
-const OTRAS_CABECERA = ['club-login.html', 'club-registro.html', 'club-gracias.html', 'verificar-correo.html', 'admin-club.html'];
+const OTRAS_CABECERA = ['club-login.html', 'club-gracias.html', 'verificar-correo.html', 'admin-club.html'];
 
 /* ───── Entorno de Node para ejecutar el marcado puro de club-shell.js, club-seccion.js y club-inicio.js ───── */
 function prepararEntorno() {

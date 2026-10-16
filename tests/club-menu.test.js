@@ -100,10 +100,11 @@ test('canal: la dirección está en la constante ZOO_CANAL_URL y el panel lleva 
 });
 
 test('registro: sin referredBy, con código saneado, deviceId y aviso de correo de confirmación', () => {
-  const reg = leer('pages/club-registro.html');
+  const reg = leer('pages/club-login.html'); // "Crear cuenta" vive en la pantalla única de acceso
   assert.doesNotMatch(reg, /referredBy\s*:|\.referredBy\b|\['referredBy'\]/);
   assert.match(reg, /getDeviceId\(\)/);
-  assert.match(reg, /replace\(\/\[\^A-Za-z0-9-\]\/g, ''\)/);
+  assert.match(leer('assets/js/club-ingreso.js'), /replace\(\/\[\^A-Za-z0-9-\]\/g, ''\)/, 'el código de la URL se sanea');
+  assert.match(reg, /I\.refDeUrl\(location\.search\)/);
   assert.match(reg, /correo para confirmar tu dirección/);
   assert.doesNotMatch(reg, /\$\{refCode\}/, 'el código ya no se mete en innerHTML');
 });

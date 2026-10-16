@@ -26,9 +26,9 @@
     sinMembresia: 'El premio se canjea con membresía activa. Tus invitados ya cuentan, y el premio te espera cuando actives tu membresía.',
     motivoGenerico: 'No cumplió las reglas de invitación.',
     soloMiembrosTitulo: 'Invitar amigos es para miembros',
-    soloMiembros: 'Con tu membresía recibes tu enlace y tu código de invitación. Cuando tus amigos se unan y confirmen su correo, ganas un curso antes de su fecha y puntos para tu nivel.',
+    soloMiembros: 'Con tu membresía recibes tu enlace de invitación. Cuando tus amigos se unan y confirmen su correo, ganas un curso antes de su fecha y puntos para tu nivel.',
     soloMiembrosPasos: [
-      'Activa tu membresía: es lo que te da tu enlace y tu código.',
+      'Activa tu membresía: es lo que te da tu enlace de invitación.',
       'Comparte tu enlace por WhatsApp, Facebook, X o correo.',
       'Tus amigos se registran con él y confirman su correo.',
       'Con 4 amigos válidos eliges un curso y lo abres antes de su fecha.'

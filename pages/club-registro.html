@@ -1,258 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script>/*zs-tema*/!function(d){var t,p,h=d.documentElement;try{t=localStorage.getItem("zoo_theme");p=localStorage.getItem("zoo_plan")}catch(e){}h.setAttribute("data-theme",t==="dark"?"dark":"light");if(/^(active|cancelled_active|past_due|expired|free)$/.test(p))h.setAttribute("data-plan",p)}(document)</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#1F5F3A">
-  <meta name="description" content="Crea tu cuenta gratuita y explora el Club VIP Zoorigen.">
+  <meta name="robots" content="noindex">
+  <meta http-equiv="refresh" content="0; url=club-login.html?tab=crear">
+  <link rel="canonical" href="https://www.zoorigen.com/pages/club-login.html?tab=crear">
   <title>Crear cuenta | Club VIP Zoorigen</title>
-  <!-- ===== PWA ===== -->
-  <link rel="manifest" href="/manifest.json">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Zoorigen">
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
-  <!-- zs:fuentes -->
-  <link rel="preload" href="../assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="../assets/fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../assets/css/fuentes.css?v=20261109-cromo">
-  <!-- /zs:fuentes -->
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261128-arreglos">
-  <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
-  <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
-  <link rel="stylesheet" href="../assets/css/auth-redesign.css?v=20261104">
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
-</head>
-<body class="auth-page auth-page--register">
-  <main class="auth-shell">
-    <section class="auth-story" aria-label="Lo que puedes explorar en Zoorigen">
-      <a class="auth-back" href="../index.html" aria-label="Volver al sitio principal">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-        Volver al sitio
-      </a>
-      <div class="auth-story__content">
-        <div class="auth-story__brand">
-          <img src="../assets/img/logo/zoorigen-logo-remaster-v1.png" alt="Zoorigen" width="196" height="100">
-          <span>Club VIP</span>
-        </div>
-        <p class="auth-story__eyebrow">Explora antes de decidir</p>
-        <h1>Crea tu cuenta y entra <span>sin pagar.</span></h1>
-        <p class="auth-story__lead">Recorre el catálogo, conoce los temarios y elige un curso de tu interés como prueba gratuita. Tú decides cuándo dar el siguiente paso.</p>
-
-        <div class="auth-story__benefits">
-          <article class="auth-benefit">
-            <span class="auth-benefit__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4Z"/></svg></span>
-            <strong>Prueba gratuita de un curso</strong>
-            <small>Elige el que más te interese y empieza a aprender.</small>
-          </article>
-          <article class="auth-benefit">
-            <span class="auth-benefit__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
-            <strong>Catálogo visible</strong>
-            <small>Consulta cursos, temarios y recursos disponibles.</small>
-          </article>
-          <article class="auth-benefit">
-            <span class="auth-benefit__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
-            <strong>Registro sin tarjeta</strong>
-            <small>Crear tu cuenta es gratuito y toma menos de un minuto.</small>
-          </article>
-        </div>
-
-        <div class="auth-story__footer">
-          <div class="auth-proof">
-            <div class="auth-proof__faces" aria-hidden="true">
-              <img src="../assets/img/alumnos/556039285_122117027300987474_4460183418776072849_n.jpg" alt="" width="34" height="34">
-              <img src="../assets/img/alumnos/615273200_122137628114987474_3621861705781586279_n.jpg" alt="" width="34" height="34">
-              <img src="../assets/img/alumnos/634770068_122141837270987474_8112416961223197975_n.jpg" alt="" width="34" height="34">
-              <img src="../assets/img/alumnos/648735330_122144899250987474_3241618098984782913_n.jpg" alt="" width="34" height="34">
-            </div>
-            <p><strong>+2,000 alumnos</strong>ya aprendieron con Zoorigen</p>
-          </div>
-          <div class="auth-story__course-stack" aria-hidden="true">
-            <img src="../assets/img/cursos/rescate_fauna_silvestre.jpg" alt="" width="54" height="69">
-            <img src="../assets/img/cursos/manejo_integral_colmenas.jpg" alt="" width="54" height="69">
-            <img src="../assets/img/cursos/fototrampeo_monitoreo_mamiferos.jpg" alt="" width="54" height="69">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="auth-access auth-wrapper__form" aria-label="Formulario para crear una cuenta">
-      <div class="auth-card">
-        <header class="auth-card__header">
-          <p class="auth-card__eyebrow">Cuenta gratuita</p>
-          <h2>Empieza a explorar</h2>
-          <p class="lead">Crea tu perfil. No necesitas tarjeta ni elegir un plan.</p>
-        </header>
-
-        <div class="error-msg" id="errorMsg" role="alert"></div>
-        <div class="success-msg" id="successMsg" role="status"></div>
-
-        <form class="auth-form" id="registerForm" autocomplete="on">
-          <button type="button" id="googleBtn" class="auth-google">
-            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC04" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Crear cuenta con Google
-          </button>
-
-          <div class="auth-divider"><span>o con tus datos</span></div>
-
-          <div class="auth-fields">
-            <div class="field">
-              <label for="name">Nombre completo</label>
-              <div class="auth-input-wrap">
-                <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
-                <input type="text" id="name" name="name" placeholder="Ej. Jorge Pérez" required autocomplete="name">
-              </div>
-            </div>
-            <div class="field">
-              <label for="email">Correo electrónico</label>
-              <div class="auth-input-wrap">
-                <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
-                <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required autocomplete="email">
-              </div>
-            </div>
-            <div class="auth-field-row">
-              <div class="field">
-                <label for="phone">WhatsApp</label>
-                <div class="auth-input-wrap">
-                  <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.4c-1.5 0-2.9-.4-4.1-1L3 20l1.2-5.2A8.4 8.4 0 1 1 21 11.5z"/></svg></span>
-                  <input type="tel" id="phone" name="phone" placeholder="10 dígitos" required autocomplete="tel" inputmode="tel">
-                </div>
-              </div>
-              <div class="field">
-                <label for="password">Contraseña</label>
-                <div class="auth-input-wrap">
-                  <span class="auth-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
-                  <input type="password" id="password" name="password" placeholder="Mínimo 6 caracteres" required autocomplete="new-password" minlength="6">
-                  <button class="password-toggle" type="button" aria-label="Mostrar contraseña" data-password-toggle="password">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" class="auth-submit" id="submitBtn">Crear mi cuenta gratis <span aria-hidden="true">→</span></button>
-          <a href="club-login.html" class="auth-secondary">Ya tengo una cuenta</a>
-          <p class="auth-legal">Al crear tu cuenta aceptas los <a href="../terminos-y-condiciones.html" target="_blank" rel="noopener">Términos y condiciones</a> y el <a href="../aviso-de-privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a> de Zoorigen.</p>
-        </form>
-
-        <div class="auth-trust" aria-label="Ventajas del registro">
-          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Sin tarjeta</span>
-          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Datos protegidos</span>
-          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Menos de un minuto</span>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261126-vistas"></script>
-  <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
+  <!-- Crear cuenta ahora es una pestaña de la pantalla única de acceso (club-login.html). Esta página solo redirige y conserva
+       lo que traía el enlace (?ref= de una invitación, ?curso= de la guía o la encuesta, #crear), para que los enlaces ya compartidos sigan sirviendo. -->
   <script>
-    // Llegó desde la guía o la encuesta de la portada con ?curso=<id>: queda como curso sugerido para la prueba
-    // gratuita. Solo se guarda como preferencia; nunca elige por la persona (lo confirma en Cursos).
-    try { if (window.ZOO_CURSO_PREF) ZOO_CURSO_PREF.adoptarDeUrl(window.localStorage, window.location.search); } catch (e) { /* sin almacenamiento */ }
-    const form = document.getElementById('registerForm');
-    const errorMsg = document.getElementById('errorMsg');
-    const successMsg = document.getElementById('successMsg');
-    const submitBtn = document.getElementById('submitBtn');
-    const googleBtn = document.getElementById('googleBtn');
-
-    const showError = (msg) => {
-      errorMsg.textContent = msg;
-      errorMsg.classList.add('show');
-      successMsg.classList.remove('show');
-    };
-
-    document.querySelectorAll('[data-password-toggle]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const input = document.getElementById(button.dataset.passwordToggle);
-        const showing = input.type === 'text';
-        input.type = showing ? 'password' : 'text';
-        button.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
-      });
-    });
-
-    // Este dispositivo recibe su identificador desde la primera visita (sirve para el control de invitaciones).
-    try { ZOORIGEN_CLUB.getDeviceId(); } catch (e) { /* sin almacenamiento: no pasa nada */ }
-
-    const urlParams = new URLSearchParams(window.location.search);
-    // Solo letras, números y guion (el código es del tipo ZOO-A1B2C3): nada más se guarda ni se muestra.
-    const refCode = (urlParams.get('ref') || '').replace(/[^A-Za-z0-9-]/g, '').toUpperCase().slice(0, 40);
-    if (refCode) {
-      try { localStorage.setItem('zoo_refCode', refCode); } catch (e) { /* sin almacenamiento */ }
-      const banner = document.createElement('div');
-      banner.className = 'referral-banner';
-      banner.innerHTML = `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 1.5 1.5 3 3 3zM12 8a3 3 0 1 1 3-3c0 1.5-1.5 3-3 3z"/></svg><div><strong>Vienes recomendado por un amigo</strong><span class="referral-banner__codigo"></span></div>`;
-      banner.querySelector('.referral-banner__codigo').textContent = 'Código de invitación: ' + refCode;
-      const header = document.querySelector('.auth-card__header');
-      if (header) header.insertAdjacentElement('afterend', banner);
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorMsg.classList.remove('show');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Creando tu cuenta...';
-
-      const data = {
-        name: document.getElementById('name').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        phone: document.getElementById('phone').value.trim(),
-        password: document.getElementById('password').value
-        // El código de invitación ya no se manda desde aquí: register() lo registra en el servidor.
-      };
-
-      const result = await ZOORIGEN_CLUB.register(data);
-      if (result.ok) {
-        // Para entrar al club hay que confirmar el correo: la siguiente pantalla lo explica y deja reenviarlo.
-        successMsg.textContent = result.correoEnviado
-          ? 'Cuenta creada. Te enviamos un correo para confirmar tu dirección (revisa también la carpeta de spam).'
-          : 'Cuenta creada. No pudimos enviar el correo de confirmación ahora; en la siguiente pantalla podrás pedirlo de nuevo.';
-        successMsg.classList.add('show');
-        setTimeout(() => { window.location.href = 'club-dashboard.html?welcome=1'; }, result.correoEnviado ? 3200 : 2200);
-      } else {
-        showError(result.msg);
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Crear mi cuenta gratis <span aria-hidden="true">→</span>';
-      }
-    });
-
-    googleBtn.addEventListener('click', async () => {
-      googleBtn.disabled = true;
-      googleBtn.textContent = 'Conectando con Google...';
-      // Desde "Crear cuenta" solo se crean cuentas nuevas; si el correo ya existe, no se entra: se pide iniciar sesión.
-      const result = await ZOORIGEN_CLUB.loginWithGoogle({ modo: 'crear' });
-      if (!result.ok) {
-        if (!result.cancelado) showError(result.msg);
-        googleBtn.disabled = false;
-        googleBtn.textContent = 'Crear cuenta con Google';
-        return;
-      }
-
-      // Si la cuenta es nueva y llegó con un código, loginWithGoogle() ya la registró como invitada en el servidor
-      // (Google trae el correo confirmado). Ya no se escribe referredBy desde el navegador.
-      successMsg.textContent = 'Entrando al club...';
-      successMsg.classList.add('show');
-      setTimeout(() => { window.location.href = 'club-dashboard.html?welcome=1'; }, 1200);
-    });
+    (function () {
+      var resto = window.location.search.replace(/^\?/, '').split('&').filter(function (p) { return p && !/^tab=/.test(p); });
+      resto.unshift('tab=crear');
+      window.location.replace('club-login.html?' + resto.join('&') + window.location.hash);
+    })();
   </script>
-<script>
-  // ===== PWA: registro del service worker =====
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .catch(function (err) { console.warn('SW no registrado:', err); });
-    });
-  }
-</script>
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      background: #0f1215;
+      color: #fff;
+      font: 600 16px/1.5 system-ui, sans-serif;
+    }
+    a { color: #f2a900; }
+  </style>
+</head>
+<body>
+  <p>Llevándote a crear tu cuenta… <a href="club-login.html?tab=crear">Crear cuenta</a></p>
 </body>
 </html>

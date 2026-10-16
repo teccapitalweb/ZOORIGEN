@@ -96,8 +96,8 @@ test('el pie enlaza a ambas páginas legales, a las redes oficiales y al contact
 });
 
 test('registro, inicio de sesión, suscripción, encuesta y directorio enlazan a los documentos', () => {
-  const REG = leer('pages/club-registro.html');
-  assert.match(REG, /Al crear tu cuenta aceptas los[\s\S]{0,200}terminos-y-condiciones\.html[\s\S]{0,200}aviso-de-privacidad\.html/);
+  const REG = leer('pages/club-login.html'); // "Crear cuenta" es una pestaña de la pantalla única de acceso
+  assert.match(REG, /Acepto los[\s\S]{0,200}terminos-y-condiciones\.html[\s\S]{0,200}aviso-de-privacidad\.html/);
   assert.doesNotMatch(REG, /index\.html#terminos|index\.html#privacidad/);
   assert.match(leer('pages/club-login.html'), /terminos-y-condiciones\.html[\s\S]{0,200}aviso-de-privacidad\.html/);
   const SUB = leer('pages/club-suscripcion.html');

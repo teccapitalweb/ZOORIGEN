@@ -229,7 +229,7 @@ test('biblioteca: destaca y preselecciona, pero NO elige nada sola', () => {
 });
 
 test('registro, login y panel: cargan el módulo y adoptan ?curso= antes de cualquier redirección', () => {
-  for (const f of ['pages/club-registro.html', 'pages/club-login.html']) {
+  for (const f of ['pages/club-login.html']) {
     const html = leer(f);
     assert.match(html, /club-curso-pref\.js\?v=/);
     assert.match(html, /ZOO_CURSO_PREF\.adoptarDeUrl\(window\.localStorage, window\.location\.search\)/);

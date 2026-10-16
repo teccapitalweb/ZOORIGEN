@@ -233,12 +233,14 @@ test('invitación: huellas llenas 0..4, aviso de lo que falta y premio listo', (
   assert.equal(I.estadoInvitados({ validos: 1 }, 6).huellas.length, 6, 'la meta se puede cambiar');
 });
 
-test('invitaHTML: boleto con código, copiar, huellas, tres cifras, WhatsApp y enlace a invitados', () => {
+test('invitaHTML: boleto con el ENLACE (sin código aparte), copiar enlace, huellas, tres cifras, WhatsApp y enlace a invitados', () => {
   const est = I.estadoInvitados({ validos: 2, pendientes: 1, puntosTotales: 0 });
   const h = I.invitaHTML({ codigo: 'ZOO-VIP8K2', estado: est });
   assert.match(h, /Invita a 4 amigos y adelanta un curso/);
-  assert.match(h, /id="dashRefCode">ZOO-VIP8K2</);
-  assert.match(h, /data-copiar/);
+  assert.match(h, /id="dashRefLink">www\.zoorigen\.com\/pages\/club-registro\.html\?ref=ZOO-VIP8K2</);
+  assert.match(h, /Tu enlace de invitación/);
+  assert.match(h, /data-copiar[\s\S]*Copiar enlace/);
+  assert.doesNotMatch(h, /Tu código|dashRefCode/, 'el código ya no se muestra por separado: nadie lo escribe en ningún lado');
   assert.equal((h.match(/inv__huella is-llena/g) || []).length, 2);
   assert.equal((h.match(/class="inv__huella[ "]/g) || []).length, 4);
   assert.match(h, /aria-label="2 de 4 amigos confirmados"/);
@@ -252,10 +254,11 @@ test('invitaHTML: boleto con código, copiar, huellas, tres cifras, WhatsApp y e
   assert.doesNotMatch(I.invitaHTML({ codigo: '"><img src=x onerror=1>' }), /<img src=x/);
 });
 
-test('compartir por WhatsApp: mismo texto y enlace de registro con el código', () => {
+test('compartir por WhatsApp: el texto lleva solo el enlace de registro (con ?ref=), sin pedir escribir un código', () => {
   assert.equal(I.urlRegistroConCodigo('ZOO-VIP8K2'), 'https://www.zoorigen.com/pages/club-registro.html?ref=ZOO-VIP8K2');
   const t = I.mensajeCompartir('ZOO-VIP8K2');
-  assert.match(t, /Únete con mi código ZOO-VIP8K2/);
+  assert.match(t, /Regístrate con mi enlace/);
+  assert.doesNotMatch(t, /mi código/);
   assert.ok(t.includes('club-registro.html?ref=ZOO-VIP8K2'));
   assert.ok(I.urlWhatsapp('ZOO-VIP8K2').startsWith('https://wa.me/?text='));
 });

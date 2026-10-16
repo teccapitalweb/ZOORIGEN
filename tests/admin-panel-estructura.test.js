@@ -222,7 +222,8 @@ test('bloque "Próximamente" muestra lo que falta en el servidor sin inventar fu
 
 test('inicio de sesión: la administradora entra al panel y el resto al Club (decide el servidor)', () => {
   const login = leer('pages/club-login.html');
-  assert.equal((login.match(/ZOORIGEN_CLUB\.irTrasEntrar\(\)/g) || []).length, 3);
+  assert.equal((login.match(/ZOORIGEN_CLUB\.irTrasEntrar\(\)/g) || []).length, 1, 'un solo punto de salida (entrar()), usado por correo, Google y sesión abierta');
+  assert.equal((login.match(/\bentrar\(\);/g) || []).length >= 3, true);
   assert.doesNotMatch(login, /window\.location\.href = 'club-dashboard\.html'/);
   const club = leer('assets/js/club.js');
   assert.match(club, /async _consultarAdmin\(\) \{[\s\S]{0,160}\/api\/admin\/yo/);

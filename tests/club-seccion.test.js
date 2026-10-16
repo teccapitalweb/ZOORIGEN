@@ -111,7 +111,7 @@ test('tipografía: Outfit para titulares e Inter para texto, con tokens y alojad
   assert.match(css, /--zoo-font-display:\s*'Outfit', 'Outfit Fallback'/);
   assert.match(css, /--zoo-font-body:\s*'Inter', 'Inter Fallback'/);
   assert.match(css, /--zoo-font-heading:\s*var\(--zoo-font-display\)/);
-  const paginas = fs.readdirSync(path.join(RAIZ, 'pages')).filter(f => /^(club-.*|admin-club|verificar-correo)\.html$/.test(f) && !['club-noticias.html', 'club.html'].includes(f));
+  const paginas = fs.readdirSync(path.join(RAIZ, 'pages')).filter(f => /^(club-.*|admin-club|verificar-correo)\.html$/.test(f) && !['club-noticias.html', 'club.html', 'club-registro.html'].includes(f));
   for (const f of paginas) {
     const h = leer('pages/' + f);
     assert.doesNotMatch(h, /fonts\.googleapis\.com|fonts\.gstatic\.com/, f + ': sin Google Fonts');

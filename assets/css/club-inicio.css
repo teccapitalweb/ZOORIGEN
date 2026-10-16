@@ -311,6 +311,7 @@
 .inv__boleto::after { right: -11px; }
 .inv__boleto-etq { flex: 0 0 100%; font: 800 .75rem/1 var(--zoo-font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--iv-boleto-etq); }
 .inv__codigo { flex: 1 1 auto; min-width: 0; font-family: var(--zoo-font-display); font-weight: 800; font-size: clamp(1.25rem, 1rem + 1vw, 1.65rem); letter-spacing: .08em; color: var(--iv-codigo); overflow-wrap: anywhere; }
+.inv__codigo--enlace { font-family: var(--zoo-font-body); font-weight: 700; font-size: .95rem; letter-spacing: 0; line-height: 1.4; }
 .inv__copiar {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 16px;
   border: 0; border-radius: 12px; cursor: pointer; background: var(--iv-btn); color: #fff;

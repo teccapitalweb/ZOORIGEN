@@ -286,7 +286,7 @@ test('club.js ya no escribe referredBy desde el navegador', () => {
   const fuente = fs.readFileSync(path.join(RAIZ, 'assets', 'js', 'club.js'), 'utf8');
   assert.doesNotMatch(fuente, /docData\.referredBy\s*=/);
   assert.doesNotMatch(fuente, /referredBy:/);
-  for (const rel of ['pages/club-registro.html', 'pages/club-referidos.html', 'pages/club-dashboard.html']) {
+  for (const rel of ['pages/club-login.html', 'pages/club-referidos.html', 'pages/club-dashboard.html']) {
     assert.doesNotMatch(fs.readFileSync(path.join(RAIZ, rel), 'utf8'), /referredBy\s*:/, rel);
   }
 });
