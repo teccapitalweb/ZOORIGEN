@@ -23,10 +23,10 @@
   <link rel="stylesheet" href="../assets/css/fuentes.css?v=20261109-cromo">
   <link rel="preload" href="../assets/img/guia/secciones/seccion-cursos.webp" as="image" type="image/webp" fetchpriority="high">
   <!-- /zs:fuentes -->
-  <link rel="stylesheet" href="../assets/css/club.css?v=20261126-vistas">
+  <link rel="stylesheet" href="../assets/css/club.css?v=20261128-arreglos">
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
-  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261126-vistas">
+  <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261128-arreglos">
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-juegos.css?v=20261104">
   <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261114-prueba">
@@ -63,7 +63,7 @@
 
     .player-box {
       width: 100%;
-      max-width: 760px;
+      max-width: 960px;
       background: var(--zoo-bg-card);
       border-radius: 18px;
       overflow: hidden;
@@ -98,12 +98,11 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .player-box__header h3::before {
-      content: '<svg class="zi" aria-hidden="true"><use href="#zi-play"/></svg>';
-      color: var(--zoo-amber, #E8A317);
-      font-size: .75rem;
-      margin-right: 8px;
-      vertical-align: middle;
+    /* Icono "play" de Lucide como imagen de fondo del título. Antes el SVG se escribía dentro de content: el CSS no interpreta HTML y
+       escribía el marcado como texto en la barra verde. Como fondo no toca el texto ni el recorte del título en 2 líneas. */
+    .player-box__header h3 {
+      padding-left: 22px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23E8A317' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='6 3 20 12 6 21 6 3'/%3E%3C/svg%3E") no-repeat 0 .2em / 14px 14px;
     }
     .player-box__close,
     .player-box__fs {
@@ -350,7 +349,7 @@
       .classes-list-box { padding: 14px 16px; }
     }
   </style>
-  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261126-vistas">
+  <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="cursos">
   <div class="club-layout">
@@ -392,7 +391,7 @@
   <script src="../assets/js/club.js?v=20261126-vistas"></script>
   <script src="../assets/js/club-paywall.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-progreso.js?v=20261111-nombre"></script>
-  <script src="../assets/js/club-shell.js?v=20261126-vistas"></script>
+  <script src="../assets/js/club-shell.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
@@ -402,8 +401,8 @@
   <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
   <script src="../assets/js/club-prueba-arte.js?v=20261114-prueba"></script>
   <script src="../assets/js/club-cursos-ui.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/club-premios.js?v=20261108-paleta"></script>
-  <script src="../assets/js/club-curso-premio.js?v=20261104"></script>
+  <script src="../assets/js/club-premios.js?v=20261128-arreglos"></script>
+  <script src="../assets/js/club-curso-premio.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-nombre-cert.js?v=20261111-nombre"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.

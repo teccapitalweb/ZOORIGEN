@@ -229,7 +229,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 }
 .zob-tour__guardia { position: fixed; background: transparent; pointer-events: auto; cursor: default; transition: all .22s ease; }
 .zob-tour__dialogo {
-  position: fixed; width: min(380px, calc(100vw - 24px)); max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px);
+  position: fixed; width: min(440px, calc(100vw - 24px)); max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px);
   overflow: auto; padding: 20px; outline: none; pointer-events: auto; overscroll-behavior: contain;
   background: var(--zob-fondo); border: 1px solid var(--zob-borde); border-radius: 18px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, .45); transition: left .22s ease, top .22s ease;
@@ -320,7 +320,7 @@ html.zob-lock, html.zob-tour-abierto { overflow: hidden; }
 
 /* ───────────── Completa tu perfil profesional (reemplaza la ventana del nombre) ───────────── */
 .zob-perfil .zpf-caja {
-  max-width: 560px; padding: 0; text-align: left; display: flex; flex-direction: column; overflow: hidden;
+  max-width: 640px; padding: 0; text-align: left; display: flex; flex-direction: column; overflow: hidden;
   max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
 }
 .zob-perfil .zpf-caja::before { display: none; }
