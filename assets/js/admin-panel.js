@@ -1,7 +1,7 @@
 /* ============================================================ */
 /* PANEL DE ADMINISTRACIÓN · ayudas puras                        */
 /* Secciones, formatos, insignias de estado, filtros de miembros */
-/* y gráficas SVG propias (sin librerías ni CDN).                */
+/* (las gráficas están en admin-graficas.js).                    */
 /* No toca la red ni el DOM: se prueba en                        */
 /* tests/admin-panel-estructura.test.js                          */
 /* ============================================================ */
@@ -256,71 +256,6 @@
     return { tono: rev === 0 ? 'ok' : 'aviso', icono: rev === 0 ? 'circle-check' : 'triangle-alert', titulo: titulo, detalle: detalle.join(' ') };
   }
 
-  /* ── Gráficas simples en SVG propio ──
-     Las barras y la línea son SVG (viewBox sin texto, para que no se encojan las letras); los valores y las
-     etiquetas van en HTML debajo, con letra de 12 px como mínimo. Colores: clases CSS (sólidos, sin degradados). */
-  function graficaBarras(datos, o) {
-    var op = o || {};
-    var n = datos.length;
-    if (!n) return '';
-    var max = Math.max.apply(null, datos.map(function (d) { return Number(d.valor) || 0; }).concat([1]));
-    var ancho = 24; var alto = 100; var barra = 14;
-    var rects = datos.map(function (d, i) {
-      var h = Math.round(((Number(d.valor) || 0) / max) * 92);
-      var x = i * ancho + (ancho - barra) / 2;
-      return '<rect class="ap-barra' + (i === n - 1 ? ' is-ultima' : '') + '" x="' + x + '" y="' + (alto - h) + '" width="' + barra + '" height="' + Math.max(h, (Number(d.valor) || 0) > 0 ? 2 : 0) + '" rx="3"/>';
-    }).join('');
-    var lineas = [25, 50, 75].map(function (y) { return '<line class="ap-guia" x1="0" x2="' + (n * ancho) + '" y1="' + y + '" y2="' + y + '"/>'; }).join('');
-    var etiquetas = datos.map(function (d) {
-      return '<li><span class="ap-grafica__v">' + esc(op.formato ? op.formato(d.valor) : fmtNum(d.valor)) + '</span><span class="ap-grafica__e">' + esc(d.etiqueta) + '</span></li>';
-    }).join('');
-    var resumen = op.descripcion || (datos.map(function (d) { return d.etiqueta + ': ' + (op.formato ? op.formato(d.valor) : fmtNum(d.valor)); }).join('; '));
-    return '<figure class="ap-grafica' + (n >= 10 ? ' ap-grafica--densa' : '') + '" role="group" aria-label="' + esc(op.titulo || 'Gráfica') + '">' +
-      '<svg class="ap-grafica__svg" viewBox="0 0 ' + (n * ancho) + ' ' + alto + '" preserveAspectRatio="none" role="img" aria-label="' + esc(resumen) + '" focusable="false">' +
-      lineas + '<line class="ap-base" x1="0" x2="' + (n * ancho) + '" y1="' + alto + '" y2="' + alto + '"/>' + rects + '</svg>' +
-      '<ol class="ap-grafica__ejes" style="grid-template-columns:repeat(' + n + ',minmax(0,1fr))">' + etiquetas + '</ol></figure>';
-  }
-
-  function graficaLinea(datos, o) {
-    var op = o || {};
-    var n = datos.length;
-    if (!n) return '';
-    var max = Math.max.apply(null, datos.map(function (d) { return Number(d.valor) || 0; }).concat([1]));
-    var ancho = 24; var alto = 100;
-    var puntos = datos.map(function (d, i) {
-      var x = i * ancho + ancho / 2;
-      var y = alto - 6 - Math.round(((Number(d.valor) || 0) / max) * 84);
-      return { x: x, y: y };
-    });
-    var trazo = puntos.map(function (p, i) { return (i ? 'L' : 'M') + p.x + ' ' + p.y; }).join(' ');
-    var area = trazo + ' L' + puntos[n - 1].x + ' ' + alto + ' L' + puntos[0].x + ' ' + alto + ' Z';
-    var lineas = [25, 50, 75].map(function (y) { return '<line class="ap-guia" x1="0" x2="' + (n * ancho) + '" y1="' + y + '" y2="' + y + '"/>'; }).join('');
-    var marcas = puntos.map(function (p) { return '<path class="ap-punto" d="M' + p.x + ' ' + p.y + ' h0"/>'; }).join('');
-    var etiquetas = datos.map(function (d) {
-      return '<li><span class="ap-grafica__v">' + esc(op.formato ? op.formato(d.valor) : fmtNum(d.valor)) + '</span><span class="ap-grafica__e">' + esc(d.etiqueta) + '</span></li>';
-    }).join('');
-    var resumen = op.descripcion || (datos.map(function (d) { return d.etiqueta + ': ' + fmtNum(d.valor); }).join('; '));
-    return '<figure class="ap-grafica' + (n >= 10 ? ' ap-grafica--densa' : '') + '" role="group" aria-label="' + esc(op.titulo || 'Gráfica') + '">' +
-      '<svg class="ap-grafica__svg" viewBox="0 0 ' + (n * ancho) + ' ' + alto + '" preserveAspectRatio="none" role="img" aria-label="' + esc(resumen) + '" focusable="false">' +
-      lineas + '<line class="ap-base" x1="0" x2="' + (n * ancho) + '" y1="' + alto + '" y2="' + alto + '"/>' +
-      '<path class="ap-area" d="' + area + '"/><path class="ap-linea" d="' + trazo + '"/>' + marcas + '</svg>' +
-      '<ol class="ap-grafica__ejes" style="grid-template-columns:repeat(' + n + ',minmax(0,1fr))">' + etiquetas + '</ol></figure>';
-  }
-
-  // Barra horizontal repartida (estado de los miembros, planes...). partes: [{ etiqueta, valor, tono }]
-  function barraReparto(partes) {
-    var total = partes.reduce(function (t, p) { return t + (Number(p.valor) || 0); }, 0);
-    if (!total) return '';
-    var segmentos = partes.filter(function (p) { return p.valor > 0; }).map(function (p) {
-      return '<span class="ap-reparto__seg ap-tono-' + esc(p.tono || 'neutro') + '" style="flex:' + p.valor + ' 1 0" title="' + esc(p.etiqueta + ': ' + fmtNum(p.valor)) + '"></span>';
-    }).join('');
-    var leyenda = partes.map(function (p) {
-      var pct = Math.round(((Number(p.valor) || 0) / total) * 100);
-      return '<li><span class="ap-reparto__punto ap-tono-' + esc(p.tono || 'neutro') + '" aria-hidden="true"></span><span class="ap-reparto__txt">' + esc(p.etiqueta) + '</span><strong>' + fmtNum(p.valor) + '</strong><span class="ap-reparto__pct">' + pct + ' %</span></li>';
-    }).join('');
-    return '<div class="ap-reparto"><div class="ap-reparto__barra" role="img" aria-label="' + esc(partes.map(function (p) { return p.etiqueta + ' ' + p.valor; }).join(', ')) + '">' + segmentos + '</div><ul class="ap-reparto__leyenda">' + leyenda + '</ul></div>';
-  }
-
   /* ── Métricas: series por día, agrupación, comparación con el periodo anterior y rangos rápidos ──
      Todo es puro (sin red ni DOM) y se prueba en tests/admin-metricas.test.js. Las claves de día son AAAA-MM-DD en hora de México. */
   function sumarDiasClave(clave, n) {
@@ -365,7 +300,7 @@
   // Rangos rápidos del selector. hoy = clave AAAA-MM-DD de hoy (México).
   var RANGOS = [
     { id: '7', texto: '7 días', dias: 7 }, { id: '30', texto: '30 días', dias: 30 }, { id: '90', texto: '90 días', dias: 90 },
-    { id: '365', texto: '12 meses', dias: 365 }, { id: 'todo', texto: 'Todo', dias: null }
+    { id: '180', texto: '6 meses', dias: 180 }, { id: '365', texto: '12 meses', dias: 365 }, { id: 'todo', texto: 'Todo', dias: null }
   ];
   function rangoRapido(id, hoy) {
     var r = RANGOS.filter(function (x) { return x.id === id; })[0] || RANGOS[1];
@@ -374,55 +309,6 @@
   }
 
   function fmtPct(n) { return n === null || n === undefined || !isFinite(Number(n)) ? '—' : Math.round(Number(n)) + ' %'; }
-
-  // Gráfica de una serie larga (30 a 731 puntos): SVG sin texto, tres etiquetas de eje, tope y pico en HTML.
-  // datos: [{ etiqueta, valor, clave }] · opciones: { tipo: 'barras' | 'linea', titulo, unidad }
-  function graficaSerie(datos, o) {
-    var op = o || {};
-    var n = datos.length;
-    if (!n) return '';
-    var valores = datos.map(function (d) { return Math.max(0, Number(d.valor) || 0); });
-    var max = Math.max.apply(null, valores.concat([1]));
-    var total = valores.reduce(function (t, v) { return t + v; }, 0);
-    var pico = 0; valores.forEach(function (v, i) { if (v > valores[pico]) pico = i; });
-    var ancho = 10; var alto = 100;
-    var cuerpo;
-    if (op.tipo === 'linea') {
-      var pts = valores.map(function (v, i) { return { x: i * ancho + ancho / 2, y: alto - 4 - Math.round((v / max) * 88) }; });
-      var trazo = pts.map(function (q, i) { return (i ? 'L' : 'M') + q.x + ' ' + q.y; }).join(' ');
-      cuerpo = '<path class="ap-area" d="' + trazo + ' L' + pts[n - 1].x + ' ' + alto + ' L' + pts[0].x + ' ' + alto + ' Z"/><path class="ap-linea" d="' + trazo + '"/>';
-    } else {
-      cuerpo = valores.map(function (v, i) {
-        var h = Math.round((v / max) * 92);
-        var texto = datos[i].etiqueta + ': ' + fmtNum(v);
-        return '<rect class="ap-barra' + (i === pico && v > 0 ? ' is-ultima' : '') + '" x="' + (i * ancho + 1) + '" y="' + (alto - h) + '" width="' + (ancho - 2) + '" height="' + Math.max(h, v > 0 ? 2 : 0) + '" rx="1.5"><title>' + esc(texto) + '</title></rect>';
-      }).join('');
-    }
-    var guias = [25, 50, 75].map(function (y) { return '<line class="ap-guia" x1="0" x2="' + (n * ancho) + '" y1="' + y + '" y2="' + y + '"/>'; }).join('');
-    var medio = datos[Math.floor((n - 1) / 2)].etiqueta;
-    var resumen = (op.titulo || 'Gráfica') + ': total ' + fmtNum(total) + (total ? ', el valor más alto fue ' + fmtNum(valores[pico]) + ' el ' + datos[pico].etiqueta : '');
-    return '<figure class="ap-serie" role="group" aria-label="' + esc(op.titulo || 'Gráfica') + '">' +
-      '<div class="ap-serie__tope"><span>Máximo ' + esc(fmtNum(total ? max : 0)) + '</span></div>' +
-      '<svg class="ap-grafica__svg" viewBox="0 0 ' + (n * ancho) + ' ' + alto + '" preserveAspectRatio="none" role="img" aria-label="' + esc(resumen) + '" focusable="false">' +
-      guias + '<line class="ap-base" x1="0" x2="' + (n * ancho) + '" y1="' + alto + '" y2="' + alto + '"/>' + cuerpo + '</svg>' +
-      '<div class="ap-serie__ejes"><span>' + esc(datos[0].etiqueta) + '</span>' + (n > 2 ? '<span>' + esc(medio) + '</span>' : '') + (n > 1 ? '<span>' + esc(datos[n - 1].etiqueta) + '</span>' : '') + '</div>' +
-      '<figcaption class="ap-serie__pie"><strong>' + esc(fmtNum(total)) + '</strong> ' + esc(op.unidad || 'en total') +
-      (total ? ' · valor más alto: <strong>' + esc(fmtNum(valores[pico])) + '</strong> (' + esc(datos[pico].etiqueta) + ')' : '') + '</figcaption></figure>';
-  }
-
-  // Lista de barras horizontales (cursos más elegidos, páginas más vistas...). filas: [{ etiqueta, valor, nota }]
-  function barrasHorizontales(filas, o) {
-    var op = o || {};
-    if (!filas || !filas.length) return '';
-    var max = Math.max.apply(null, filas.map(function (f) { return Number(f.valor) || 0; }).concat([1]));
-    return '<ol class="ap-ranking">' + filas.map(function (f) {
-      var v = Number(f.valor) || 0;
-      var ancho = v > 0 ? Math.max(3, Math.round((v / max) * 100)) : 0;
-      return '<li><span class="ap-ranking__t">' + esc(f.etiqueta) + (f.nota ? '<small>' + esc(f.nota) + '</small>' : '') + '</span>' +
-        '<span class="ap-ranking__b" aria-hidden="true"><i class="' + esc(op.clase || '') + '" style="width:' + ancho + '%"></i></span>' +
-        '<span class="ap-ranking__n">' + esc(fmtNum(v)) + '</span></li>';
-    }).join('') + '</ol>';
-  }
 
   /* ── CSV (exportar listas): comillas dobles escapadas y protección contra fórmulas de hoja de cálculo ── */
   function celdaCsv(v) {
@@ -472,9 +358,8 @@
     esc: esc, aFecha: aFecha, fmtFecha: fmtFecha, fmtMes: fmtMes, fmtNum: fmtNum, fmtMxn: fmtMxn, relativo: relativo,
     duracion: duracion, iniciales: iniciales, insignia: insignia, etiquetaEstado: etiquetaEstado,
     contarPorFiltro: contarPorFiltro, filtrarMiembros: filtrarMiembros, ordenarMiembros: ordenarMiembros,
-    graficaBarras: graficaBarras, graficaLinea: graficaLinea, barraReparto: barraReparto,
     sumarDiasClave: sumarDiasClave, lunesDe: lunesDe, diaCorto: diaCorto, mesCorto: mesCorto, agruparSerie: agruparSerie, sumaSerie: sumaSerie,
-    variacion: variacion, RANGOS: RANGOS, rangoRapido: rangoRapido, fmtPct: fmtPct, graficaSerie: graficaSerie, barrasHorizontales: barrasHorizontales,
+    variacion: variacion, RANGOS: RANGOS, rangoRapido: rangoRapido, fmtPct: fmtPct,
     celdaCsv: celdaCsv, aCsv: aCsv,
     tarjetaTitulo: tarjetaTitulo, bloqueProntoHTML: bloqueProntoHTML,
     estadoAvance: estadoAvance, insigniaAvance: insigniaAvance, detalleAvance: detalleAvance, resumenAvance: resumenAvance,

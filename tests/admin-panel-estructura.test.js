@@ -188,30 +188,6 @@ test('filtrado, búsqueda sin acentos y orden de miembros', () => {
   assert.equal(c.todos, 4); assert.equal(c.activo, 2); assert.equal(c['sin-plan'], 1);
 });
 
-test('gráficas SVG propias: sin librerías, sin degradados, con resumen accesible y ejes en HTML', () => {
-  const g = P.graficaBarras([{ etiqueta: 'jun', valor: 0 }, { etiqueta: 'jul', valor: 199 }, { etiqueta: 'ago', valor: 398 }],
-    { titulo: 'Ingresos', formato: v => '$' + v });
-  assert.match(g, /<svg class="ap-grafica__svg"[^>]*role="img"[^>]*aria-label="jun: \$0; jul: \$199; ago: \$398"/);
-  assert.equal((g.match(/<rect class="ap-barra/g) || []).length, 3);
-  assert.match(g, /<ol class="ap-grafica__ejes"/);
-  assert.match(g, /ap-grafica__v">\$398/);
-  assert.doesNotMatch(g, /gradient|<script|<image|<foreignObject/i);
-  assert.equal(P.graficaBarras([]), '');
-  const l = P.graficaLinea([{ etiqueta: 'a', valor: 1 }, { etiqueta: 'b', valor: 3 }]);
-  assert.match(l, /class="ap-linea"/);
-  assert.match(l, /class="ap-area"/);
-  // un valor negativo o texto no rompe la gráfica
-  assert.doesNotThrow(() => P.graficaBarras([{ etiqueta: '<b>', valor: 'x' }, { etiqueta: 'c', valor: -4 }]));
-  assert.doesNotMatch(P.graficaBarras([{ etiqueta: '<b>', valor: 1 }]), /<b>/);
-});
-
-test('reparto en barra horizontal: porcentajes y vacío', () => {
-  const r = P.barraReparto([{ etiqueta: 'Activos', valor: 3, tono: 'ok' }, { etiqueta: 'Vencidos', valor: 1, tono: 'apagado' }]);
-  assert.match(r, /75 %/);
-  assert.match(r, /ap-tono-ok/);
-  assert.equal(P.barraReparto([{ etiqueta: 'x', valor: 0 }]), '');
-});
-
 test('bloque "Próximamente" muestra lo que falta en el servidor sin inventar funciones', () => {
   const b = P.bloqueProntoHTML({ titulo: 'Historial de cobros', texto: 'Texto', faltan: ['GET /api/admin/pagos'] });
   assert.match(b, /zs-pronto__chip">Próximamente/);

@@ -474,8 +474,8 @@
   <script src="../assets/js/club-calendario.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
-  <script src="../assets/js/club-portadas.js?v=20261107-portadas"></script>
-  <script src="../assets/js/club-prueba-arte.js?v=20261114-prueba"></script>
+  <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
+  <script src="../assets/js/club-prueba-arte.js?v=20261201-graficas"></script>
   <script src="../assets/js/club-cursos-ui.js?v=20261129-integrado"></script>
   <script src="../assets/js/club-materiales.js?v=20261129-video-materiales"></script>
   <script src="../assets/js/club-premios.js?v=20261129-calendario"></script>
@@ -743,7 +743,7 @@
         grid.innerHTML = lista.map(c => {
           const lecciones = (c.lecciones && c.lecciones.length) ? c.lecciones : (c.driveId ? [{ titulo: c.title, driveId: c.driveId, duration: c.duration }] : []);
           window.__zooCourseCards[c.id] = { ...c, lecciones };
-          const imagen = (window.ZOO_PORTADAS && ZOO_PORTADAS.paraCurso(c, '../')) || convertImageUrl(c.image);
+          const imagen = (window.ZOO_PORTADAS && ZOO_PORTADAS.paraCurso(c, '../')) || convertImageUrl(c.image) || (window.ZOO_PORTADAS && ZOO_PORTADAS.defecto('../'));
           const hasContent = lecciones.length > 0;
           if (modo === 'pendiente') {
             const esElegible = p.cursosElegibles.includes(c.id);
@@ -926,7 +926,7 @@
     function confirmarPrueba(cursoId) {
       const curso = window.__zooCourseCards?.[cursoId];
       if (!curso || !window.__zooPrueba.cursosElegibles.includes(cursoId)) return;
-      const img = ZOO_CURSOS_UI.urlSegura((window.ZOO_PORTADAS && ZOO_PORTADAS.paraCurso(curso, '../')) || (window.__convertImg ? window.__convertImg(curso.image) : curso.image));
+      const img = ZOO_CURSOS_UI.urlSegura((window.ZOO_PORTADAS && ZOO_PORTADAS.paraCurso(curso, '../')) || (window.__convertImg ? window.__convertImg(curso.image) : curso.image) || (window.ZOO_PORTADAS && ZOO_PORTADAS.defecto('../')));
       ZOO_CURSOS_UI.ventana({
         titulo: '¿Seguro que deseas este curso?',
         subtitulo: 'Tu prueba gratuita',
@@ -1021,7 +1021,7 @@
       const hechas = progress.completedLessons;
       const total = lecciones.length;
       const todas = hechas.length >= total && total > 0;
-      const imagen = (window.ZOO_PORTADAS && ZOO_PORTADAS.paraCurso(course, '../')) || (window.__convertImg ? window.__convertImg(course.image) : course.image);
+      const imagen = (window.ZOO_PORTADAS && ZOO_PORTADAS.paraCurso(course, '../')) || (window.__convertImg ? window.__convertImg(course.image) : course.image) || (window.ZOO_PORTADAS && ZOO_PORTADAS.defecto('../'));
       const espera = esMiembro ? window.__zooDesbloqueo(course) : { desbloqueado: true, diasFalta: 0, motivo: null };
       const enPrueba = !esMiembro && window.__zooPrueba.elegida === course.id;
       const nextAvailable = lecciones.findIndex((_, i) => !hechas.includes(i));
@@ -1555,7 +1555,7 @@
       const seguir = () => { if (seguido) return; seguido = true; despues(); };
       ZOO_JUEGOS.abrir(lesson.juego, {
         subtitulo: (lesson.titulo || 'Clase ' + (lessonIdx + 1)) + (curso.title ? ' · ' + curso.title : ''),
-        portada: (window.ZOO_PORTADAS && ZOO_PORTADAS.paraCurso(curso, '../')) || curso.image,
+        portada: (window.ZOO_PORTADAS && ZOO_PORTADAS.paraCurso(curso, '../')) || curso.image || (window.ZOO_PORTADAS && ZOO_PORTADAS.defecto('../')),
         imagenPorDefecto: '../assets/img/banner/banner.png',
         obligatorio: !!(opciones && opciones.obligatorio),
         textoContinuar: 'Continuar',

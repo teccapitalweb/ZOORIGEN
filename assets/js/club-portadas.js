@@ -7,6 +7,14 @@
 /* imagen de siempre.                                            */
 /*   ZOO_PORTADAS.paraCurso(curso, base, variante) -> ruta | ''  */
 /*   variante: '16x9' (por defecto) o '4x3'                      */
+/*                                                               */
+/* Jerarquía de la portada de un curso (todas las pantallas):    */
+/*   1. la que el administrador fijó en el curso (portadaPropia) */
+/*   2. la que le toca por su título (los 15 cursos actuales)    */
+/*   3. la imagen que el curso ya traía (campo image)            */
+/*   4. la portada por defecto de la marca (sin texto)           */
+/*   ZOO_PORTADAS.resolver(curso, base, variante) -> ruta (nunca vacía) */
+/*   ZOO_PORTADAS.origenDe(curso) -> 'propia' | 'titulo' | 'defecto'    */
 /* ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -66,5 +74,51 @@
 
   function todas() { return REGLAS.map(function (r) { return r[1]; }); }
 
-  return { paraCurso: paraCurso, claveDe: claveDe, todas: todas, RUTA: RUTA, normalizar: normalizar };
+  /* Portada por defecto de la marca: un solo archivo vectorial que sirve para 16x9 y 4x3 (se recorta con cover). */
+  var DEFECTO = 'curso-por-defecto.svg';
+
+  function absoluta(rel) {
+    try {
+      if (typeof document !== 'undefined' && document.baseURI) return new URL(rel, document.baseURI).href;
+    } catch (e) { /* se queda con la ruta relativa */ }
+    return rel;
+  }
+
+  function defecto(base) {
+    return absoluta((typeof base === 'string' ? base : '../') + RUTA + DEFECTO);
+  }
+
+  /* Imagen que el curso trae en su campo image: https o ruta del propio sitio (assets/...). Nunca javascript: ni data:. */
+  function imagenPropia(valor, base) {
+    var s = String(valor == null ? '' : valor).trim();
+    if (!s || s.length > 2000 || /drive\.google\.com/i.test(s)) return '';
+    if (/^https:\/\/[^\s"'<>()\\]+$/i.test(s)) return s;
+    if (/^(\.\.\/)?assets\/[A-Za-z0-9_\/.\-]+$/.test(s)) {
+      return absoluta((typeof base === 'string' ? base : '../') + s.replace(/^\.\.\//, ''));
+    }
+    return '';
+  }
+
+  function propia(curso, base) {
+    return curso && typeof curso === 'object' ? imagenPropia(curso.image, base) : '';
+  }
+
+  /* Portada final: propia fijada > título > imagen que ya traía > por defecto. Nunca devuelve vacío. */
+  function resolver(curso, base, variante) {
+    return paraCurso(curso, base, variante) || propia(curso, base) || defecto(base);
+  }
+
+  /* De dónde sale la portada: 'propia' (la fijó el administrador o el curso ya la traía), 'titulo' o 'defecto'. */
+  function origenDe(curso) {
+    var fijada = Boolean(curso && curso.portadaPropia === true);
+    if (fijada && propia(curso, '../')) return 'propia';
+    if (!fijada && claveDe(curso)) return 'titulo';
+    if (propia(curso, '../')) return 'propia';
+    return 'defecto';
+  }
+
+  return {
+    paraCurso: paraCurso, claveDe: claveDe, todas: todas, RUTA: RUTA, normalizar: normalizar,
+    DEFECTO: DEFECTO, defecto: defecto, propia: propia, imagenPropia: imagenPropia, resolver: resolver, origenDe: origenDe
+  };
 });
