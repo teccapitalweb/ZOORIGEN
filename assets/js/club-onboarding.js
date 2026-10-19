@@ -547,6 +547,8 @@
       return ['#sidebar a[href="' + archivo + '"]', '.club-sidebar a[href$="' + archivo + '"]', '.zs-drawer a[href$="' + archivo + '"]'];
     }
     return [
+      { id: 'inicio', selectores: enlace('club-dashboard.html'), menu: true,
+        titulo: 'Inicio', texto: 'Aquí encuentras tu actividad, las novedades del Club y los accesos para continuar aprendiendo.' },
       { id: 'biblioteca', selectores: enlace('club-biblioteca.html'), menu: true,
         titulo: 'Tus cursos',
         texto: activo
@@ -1190,10 +1192,21 @@
     return Promise.resolve();
   };
 
-  ZooTour.prototype.buscarAncla = function (paso) {
+  // En móvil: primero la navegación inferior visible; el cajón solo para los apartados que faltan.
+  ZooTour.prototype.selectoresAncla = function (paso) {
+    var selectores = paso.selectores || [];
+    if (!this.esMovil()) return selectores;
+    var enlace = selectores.join(' ').match(/href(?:\$)?="([^"]+)"/);
+    if (!enlace) return selectores;
+    var archivo = enlace[1];
+    return ['#zsBottom a[href$="' + archivo + '"]', '.zs-drawer a[href$="' + archivo + '"]'].concat(selectores);
+  };
+
+  ZooTour.prototype.buscarAncla = function (paso, soloBarra) {
     var hallada = null;
-    (paso.selectores || []).some(function (sel) {
+    this.selectoresAncla(paso).some(function (sel) {
       return Array.prototype.some.call(document.querySelectorAll(sel), function (el) {
+        if (soloBarra && !el.closest('#zsBottom')) return false;
         if (!visible(el) || !enPantalla(el)) return false;
         hallada = el; return true;
       });
@@ -1248,7 +1261,9 @@
     var token = (this.token = (this.token || 0) + 1);
     function buscar(i) {
       if (i < 0 || i >= self.pasos.length) return Promise.resolve({ i: i, ancla: null });
-      return self.fijarMenu(!!self.pasos[i].menu).then(function () {
+      var paso = self.pasos[i];
+      var abrirMenu = !!paso.menu && !(self.esMovil() && self.buscarAncla(paso, true));
+      return self.fijarMenu(abrirMenu).then(function () {
         var ancla = self.buscarAncla(self.pasos[i]);
         if (ancla) return { i: i, ancla: ancla };
         if (!self.pasos[i].menu && self.esMovil() && document.getElementById('zsDrawer')) {

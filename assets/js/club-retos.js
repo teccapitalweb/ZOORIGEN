@@ -40,7 +40,7 @@
   const TIPOS = [
     { id: 'quiz', titulo: 'Quiz relámpago', desc: 'Preguntas cortas de tres opciones sobre manejo, bioseguridad y legislación. Cada reto se abre al superar el anterior.',
       icono: 'zap', color: '#C75402', texto: 'var(--rz-naranja-txt)', tiempo: 'Un minuto por reto', imagen: 'assets/img/landing/area-manejo.webp', camino: true },
-    { id: 'detective', titulo: 'Detective de campo', desc: 'Observa la escena y marca las tres pistas correctas entre las seis observaciones.',
+    { id: 'detective', titulo: 'Detective de campo', desc: 'Explora 30 escenas de fauna de México y toca la imagen para descubrir tres hallazgos.',
       icono: 'search', color: '#037BC9', texto: 'var(--rz-azul-txt)', tiempo: 'Tres minutos por escena', imagen: 'assets/img/landing/area-monitoreo.webp', camino: true },
     { id: 'orden', titulo: 'Ordena el procedimiento', desc: 'Coloca cada paso en el orden correcto y refuerza los protocolos de campo.',
       icono: 'list-checks', color: '#95A303', texto: 'var(--rz-verde-txt)', tiempo: 'Dos minutos por reto', imagen: 'assets/img/landing/area-conservacion.webp', camino: true },
@@ -211,10 +211,14 @@
   /* ───────────────────────── Detective ───────────────────────── */
 
   function limpiarZonas(zonas) {
-    return (Array.isArray(zonas) ? zonas : []).filter(z => z && [z.x, z.y, z.r].every(v => typeof v === 'number' && Number.isFinite(v)) &&
-      z.x >= 0 && z.x <= 1 && z.y >= 0 && z.y <= 1 && z.r >= MIN_ZONA && z.r <= MAX_ZONA);
+    return (Array.isArray(zonas) ? zonas : []).filter(z => {
+      if (!z || ![z.x, z.y].every(v => typeof v === 'number' && Number.isFinite(v)) || z.x < 0 || z.x > 1 || z.y < 0 || z.y > 1) return false;
+      if ('w' in z || 'h' in z) return [z.w, z.h].every(v => typeof v === 'number' && Number.isFinite(v) && v > 0 && v <= 1) &&
+        z.x - z.w / 2 >= -0.00001 && z.x + z.w / 2 <= 1.00001 && z.y - z.h / 2 >= -0.00001 && z.y + z.h / 2 <= 1.00001;
+      return typeof z.r === 'number' && Number.isFinite(z.r) && z.r >= MIN_ZONA && z.r <= MAX_ZONA;
+    });
   }
-  // Forma 1 (con zonas): imagen y 3 zonas táctiles { x, y, r } sobre la imagen.
+  // Forma 1 (con zonas): imagen y 3 zonas táctiles. x/y son el centro; w/h sus dimensiones normalizadas (o r para círculos antiguos).
   function escenaConZonas(e) {
     return !!(e && typeof e.imagen === 'string' && e.imagen.trim() &&
       Array.isArray(e.riesgos) && e.riesgos.length === 3 && limpiarZonas(e.zonas).length === 3 && e.zonas.length === 3);
@@ -243,6 +247,7 @@
   // x e y van de 0 a 1 sobre la imagen. r es una fracción del ANCHO; aspecto = ancho / alto.
   function tocaZona(zona, x, y, aspecto) {
     if (!zona) return false;
+    if (Number.isFinite(zona.w) && Number.isFinite(zona.h)) return Math.abs(x - zona.x) <= zona.w / 2 + 1e-9 && Math.abs(y - zona.y) <= zona.h / 2 + 1e-9;
     const asp = Number(aspecto) > 0 ? Number(aspecto) : 1;
     const dx = x - zona.x, dy = (y - zona.y) / asp;
     return Math.hypot(dx, dy) <= zona.r;
@@ -691,7 +696,8 @@
           '<span class="rz-nodo__txt"><strong>' + esc(m.titulo) + '</strong><small>' + esc(m.sub) + '</small></span><span class="rz-etiqueta rz-etiqueta--' + st + '">' + etiqueta + '</span></button></li>';
       }).join('');
       const fin = hechos >= items.length && items.length > 0;
-      abrirEscenario('<div class="rz-panel">' + cabecera(NOMBRE_MODO[modo], 'Tu camino', 'Elige el reto que quieras, en el orden que prefieras. Cada uno da XP la primera vez que lo superas y puedes repasar los que ya resolviste, sin XP.', hechos + ' de ' + items.length) +
+      const introDetective = modo === 'detective' ? '<p class="rz-nota">Observa, identifica y aprende. Busca prácticas que deben corregirse, rasgos de identificación o señales de buen bienestar, según la consigna de cada escena.</p>' : '';
+      abrirEscenario('<div class="rz-panel">' + cabecera(NOMBRE_MODO[modo], 'Tu camino', 'Elige el reto que quieras, en el orden que prefieras. Cada uno da XP la primera vez que lo superas y puedes repasar los que ya resolviste, sin XP.', hechos + ' de ' + items.length) + introDetective +
         '<div class="rz-barra rz-barra--fina" role="progressbar" aria-label="Avance del camino" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><div style="width:' + pct + '%"></div></div>' +
         (pend ? '<p class="rz-nota">' + ic('info', 16) + ' Faltan por llegar ' + pend + ' escenas del detective. Se agregan poco a poco.</p>' : '') +
         (fin ? '<p class="rz-nota rz-nota--ok">' + ic('trophy', 16) + ' Completaste todo el camino disponible. Puedes repasar cualquier reto.</p>' : '') +
@@ -783,15 +789,23 @@
     /* ── Detective ── */
     function abrirDetective(indice, repaso) {
       const esc3 = detectivesActivos()[indice];
-      if (!escenaConZonas(esc3)) { abrirDetectivePistas(indice, repaso, esc3); return; }
+      if (!escenaConZonas(esc3)) { abrirEscenario('<p class="rz-nota">Esta escena todavía no está disponible para inspeccionar.</p>'); return; }
       const zonas = limpiarZonas(esc3.zonas);
+      const buenas = esc3.pistas.filter(p => p.ok);
+      const esBienestar = esc3.id === 'centro-rescate-bienestar';
+      const esRastro = esc3.id === 'huellas-felino';
+      const titulo = esBienestar ? 'Encuentra tres señales de buen bienestar' : esRastro ? 'Identifica tres rasgos de las huellas' : 'Encuentra tres riesgos en la imagen';
+      const instruccion = esBienestar ? 'Observa la escena y toca las condiciones que favorecen el bienestar del ave.' : esRastro ? 'Inspecciona las huellas: toca los detalles que ayudan a reconocer un felino.' : 'Analiza la escena y toca directamente el objeto o la condición que representa un problema.';
+      const pendiente = esBienestar ? 'Busca una señal de buen bienestar' : esRastro ? 'Busca un rasgo de identificación' : 'Busca una condición insegura en la escena';
       const encontradas = new Set();
       let fallos = 0, terminado = false, mira = { x: 0.5, y: 0.5 };
-      abrirEscenario('<div class="rz-panel">' + cabecera('Detective de campo · reto ' + (indice + 1) + (repaso ? ' · repaso' : ''), 'Encuentra tres errores en la escena', esc3.titulo + '. Toca el lugar de la imagen donde ves un error o un riesgo. Con teclado: flechas para mover la mira y Enter para inspeccionar.', '<span id="rzCuenta">0/3</span>') +
-        '<div class="rz-escena" id="rzEscena" tabindex="0" role="application" aria-label="Escena: ' + esc(esc3.titulo) + '. Toca la imagen para inspeccionar.">' +
-          '<img src="' + esc(img(esc3.imagen)) + '" alt="" draggable="false"><span class="rz-mira" id="rzMira" hidden></span></div>' +
-        '<div class="rz-detalle" id="rzDetalle" role="status"><span class="rz-detalle__ic">' + ic('info', 18) + '</span><span>Los hallazgos aparecerán aquí cuando los encuentres.</span></div>' +
-        '<ul class="rz-riesgos">' + esc3.riesgos.map((r, i) => '<li id="rzR' + i + '"><span class="rz-riesgos__n">' + (i + 1) + '</span><span><strong>Hallazgo pendiente</strong><small>Busca una condición insegura</small></span></li>').join('') + '</ul>' +
+      abrirEscenario('<div class="rz-panel rz-panel--detective">' + cabecera('Detective de campo · reto ' + (indice + 1) + (repaso ? ' · repaso' : '') + ' · ' + esc(esc3.titulo), titulo, instruccion, '<span id="rzCuenta">0/3</span>') +
+        '<div class="rz-escena" id="rzEscena" tabindex="0" role="application" aria-label="Escena interactiva: ' + esc(esc3.titulo) + '" aria-describedby="rzAyudaD">' +
+          '<img src="' + esc(img(esc3.imagen)) + '" alt="Ilustración para inspeccionar: ' + esc(esc3.titulo) + '" width="1600" height="1067" decoding="async" draggable="false">' +
+          '<span class="rz-escena__leyenda" aria-hidden="true">' + ic('search', 14) + ' Toca para inspeccionar</span><span class="rz-mira" id="rzMira" hidden></span></div>' +
+        '<p class="rz-sr" id="rzAyudaD">Toca la imagen para inspeccionar. Con teclado: usa las flechas para mover la mira, Shift para avanzar más rápido y Enter o espacio para inspeccionar.</p>' +
+        '<div class="rz-detalle" id="rzDetalle" role="status"><span class="rz-detalle__ic">' + ic('info', 18) + '</span><span>Los hallazgos aparecerán aquí después de identificarlos.</span></div>' +
+        '<ul class="rz-riesgos">' + esc3.riesgos.map((r, i) => '<li id="rzR' + i + '"><span class="rz-riesgos__n">' + (i + 1) + '</span><span><strong>Hallazgo pendiente</strong><small>' + pendiente + '</small></span></li>').join('') + '</ul>' +
         '<div class="rz-acciones" id="rzFinD" hidden></div></div>');
       const escena = q2('#rzEscena'), detalle = q2('#rzDetalle'), miraEl = q2('#rzMira');
       // La escena toma la proporción real de la imagen: así las zonas (0 a 1) caen donde se dibujaron.
@@ -803,7 +817,7 @@
         const m = doc.createElement('span');
         m.className = 'rz-marca rz-marca--' + tipo;
         m.style.left = (x * 100) + '%'; m.style.top = (y * 100) + '%';
-        m.innerHTML = ic(tipo === 'ok' ? 'check' : 'x', 16);
+        m.innerHTML = ic(tipo === 'ok' ? 'check' : 'x', 20);
         escena.appendChild(m);
         if (tipo === 'mal') setTimeout(() => m.remove(), 900);
         return m;
@@ -813,16 +827,21 @@
         const r = escena.getBoundingClientRect();
         const i = buscarZona(zonas, encontradas, x, y, r.width / Math.max(1, r.height));
         if (i < 0) {
+          const repetida = zonas.findIndex((z, n) => encontradas.has(n) && tocaZona(z, x, y, r.width / Math.max(1, r.height)));
+          if (repetida >= 0) {
+            detalle.className = 'rz-detalle is-ok';
+            detalle.innerHTML = '<span class="rz-detalle__ic">' + ic('circle-check', 18) + '</span><span><strong>Ya encontraste este hallazgo.</strong> Inspecciona otra parte de la imagen.</span>';
+            return;
+          }
           fallos++; marca(x, y, 'mal');
           detalle.className = 'rz-detalle is-mal';
-          detalle.innerHTML = '<span class="rz-detalle__ic">' + ic('circle-x', 18) + '</span><span><strong>Ahí no hay un error.</strong> Revisa el equipo de protección, los animales, los recintos y los objetos fuera de lugar.</span>';
+          detalle.innerHTML = '<span class="rz-detalle__ic">' + ic('circle-x', 18) + '</span><span><strong>Selección incorrecta.</strong> Sigue observando la imagen y busca otra pista.</span>';
           return;
         }
         encontradas.add(i);
-        const z = zonas[i];
-        marca(z.x, z.y, 'ok');
+        marca(x, y, 'ok');
         const li = q2('#rzR' + i); li.classList.add('is-hallado');
-        li.innerHTML = '<span class="rz-riesgos__n">' + ic('check', 14) + '</span><span><strong>Hallazgo ' + (i + 1) + '</strong><small>' + esc(esc3.riesgos[i]) + '</small></span>';
+        li.innerHTML = '<span class="rz-riesgos__n">' + ic('check', 14) + '</span><span><strong>' + esc(buenas[i].t) + '</strong><small>' + esc(esc3.riesgos[i]) + '</small></span>';
         detalle.className = 'rz-detalle is-ok';
         detalle.innerHTML = '<span class="rz-detalle__ic">' + ic('circle-check', 18) + '</span><span><strong>Hallazgo correcto.</strong> ' + esc(esc3.riesgos[i]) + '</span>';
         q2('#rzCuenta').textContent = encontradas.size + '/3';
@@ -833,7 +852,7 @@
         const puntaje = puntajeDetective(fallos, 3);
         const aprueba = apruebaCamino(puntaje, 3);
         const fin = q2('#rzFinD'); fin.hidden = false;
-        const resumen = '<p class="rz-resumen">Encontraste los 3 errores con ' + fallos + ' toque' + (fallos === 1 ? '' : 's') + ' fallido' + (fallos === 1 ? '' : 's') + '. Puntaje: <strong>' + puntaje + ' de 3</strong>.' +
+        const resumen = '<p class="rz-resumen">Encontraste los 3 hallazgos con ' + fallos + ' toque' + (fallos === 1 ? '' : 's') + ' fallido' + (fallos === 1 ? '' : 's') + '. Puntaje: <strong>' + puntaje + ' de 3</strong>.' +
           (aprueba ? '' : ' Necesitas al menos 2 de 3 para superar la escena: inténtalo otra vez con más calma.') + '</p>';
         fin.innerHTML = resumen + (aprueba ? '<button type="button" class="rz-btn" id="rzSigD">' + (repaso ? 'Volver al camino' : 'Continuar') + '</button>'
           : '<button type="button" class="rz-btn" id="rzRepetirD">Intentar de nuevo</button><button type="button" class="rz-btn rz-btn--sec" id="rzCaminoD">Volver al camino</button>');
@@ -855,73 +874,14 @@
         inspeccionar(Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)), Math.max(0, Math.min(1, (ev.clientY - r.top) / r.height)));
       });
       function ponerMira() { miraEl.hidden = terminado; miraEl.style.left = (mira.x * 100) + '%'; miraEl.style.top = (mira.y * 100) + '%'; }
-      escena.addEventListener('focus', ponerMira);
+      escena.addEventListener('focus', () => { if (escena.matches(':focus-visible')) ponerMira(); });
+      escena.addEventListener('pointerdown', () => { miraEl.hidden = true; });
       escena.addEventListener('blur', () => { miraEl.hidden = true; });
       escena.addEventListener('keydown', ev => {
         const paso = ev.shiftKey ? 0.12 : 0.04;
         const mapa = { ArrowLeft: [-paso, 0], ArrowRight: [paso, 0], ArrowUp: [0, -paso], ArrowDown: [0, paso] };
         if (mapa[ev.key]) { ev.preventDefault(); mira.x = Math.max(0, Math.min(1, mira.x + mapa[ev.key][0])); mira.y = Math.max(0, Math.min(1, mira.y + mapa[ev.key][1])); ponerMira(); }
         else if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); inspeccionar(mira.x, mira.y); }
-      });
-    }
-
-    /* ── Detective con pistas: observa la escena y marca las 3 pistas correctas entre 6 ── */
-    function abrirDetectivePistas(indice, repaso, e) {
-      const pistas = pistasBarajadas(e);
-      const marcadas = new Set();
-      let terminado = false;
-      const consigna = e.consigna || 'Observa la escena y marca las 3 pistas correctas.';
-      abrirEscenario('<div class="rz-panel">' + cabecera('Detective de campo · reto ' + (indice + 1) + (repaso ? ' · repaso' : ''), e.titulo, esc(consigna), '<span id="rzCuenta">0/3</span>') +
-        '<figure class="rz-escena-p"><div class="rz-escena-p__img"><img src="' + esc(img(e.imagen)) + '" alt="" loading="lazy" draggable="false"></div>' +
-          '<figcaption class="rz-escena-p__texto"><strong>La escena</strong><span>' + esc(e.escena) + '</span></figcaption></figure>' +
-        '<div class="rz-pistas" role="group" aria-label="Observaciones: marca exactamente tres">' + pistas.map((x, i) =>
-          '<button type="button" class="rz-pista" data-pista="' + i + '" aria-pressed="false"><span class="rz-pista__marca" aria-hidden="true"></span><span class="rz-pista__t">' + esc(x.t) + '</span></button>').join('') + '</div>' +
-        '<div class="rz-detalle" id="rzDetalle" role="status"><span class="rz-detalle__ic">' + ic('info', 18) + '</span><span>Marca exactamente 3 observaciones y pulsa Comprobar.</span></div>' +
-        '<div class="rz-acciones"><button type="button" class="rz-btn" id="rzComprobarP" disabled>Comprobar</button></div>' +
-        '<div class="rz-feedback" id="rzFb" hidden role="status"></div></div>');
-      const botones = Array.from(stage.querySelectorAll('[data-pista]'));
-      const comprobar = q2('#rzComprobarP'), cuenta = q2('#rzCuenta'), detalle = q2('#rzDetalle');
-      function refrescar() {
-        cuenta.textContent = marcadas.size + '/3';
-        comprobar.disabled = marcadas.size !== 3;
-        botones.forEach((b, i) => { const on = marcadas.has(i); b.classList.toggle('is-marcada', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
-      }
-      botones.forEach((b, i) => b.addEventListener('click', () => {
-        if (terminado) return;
-        if (marcadas.has(i)) marcadas.delete(i);
-        else if (marcadas.size >= 3) { detalle.className = 'rz-detalle'; detalle.innerHTML = '<span class="rz-detalle__ic">' + ic('info', 18) + '</span><span>Ya marcaste 3. Quita una para cambiar tu elección.</span>'; return; }
-        else marcadas.add(i);
-        refrescar();
-      }));
-      comprobar.addEventListener('click', () => {
-        if (terminado || marcadas.size !== 3) return;
-        terminado = true; comprobar.hidden = true;
-        const puntaje = puntajePistas(pistas, marcadas);
-        const aprueba = apruebaCamino(puntaje, 3);
-        botones.forEach((b, i) => {
-          const x = pistas[i], marcada = marcadas.has(i);
-          b.disabled = true;
-          // Si aprobó se revela todo; si no, solo se señalan sus marcas equivocadas (para que repita sin tener la respuesta servida)
-          if (marcada && x.ok) b.classList.add('is-correcta');
-          else if (marcada && !x.ok) b.classList.add('is-mala');
-          else if (aprueba && x.ok) b.classList.add('is-falta');
-          if (aprueba || marcada) b.insertAdjacentHTML('beforeend', '<span class="rz-pista__why">' + esc(x.why) + '</span>');
-        });
-        const fb = q2('#rzFb'); fb.hidden = false; fb.className = 'rz-feedback ' + (aprueba ? 'is-ok' : 'is-mal');
-        fb.innerHTML = '<strong>' + (aprueba ? 'Escena resuelta' : 'Revisa tus observaciones') + '</strong><span>Marcaste ' + puntaje + ' de 3 pistas correctas.' +
-          (aprueba ? (puntaje === 3 ? ' Ojo de naturalista.' : ' Te faltó alguna: míralas marcadas en la lista.') : ' Necesitas al menos 2 de 3 para superar la escena. Lee las explicaciones y vuelve a intentarlo.') + '</span>' +
-          (aprueba ? '<button type="button" class="rz-btn" id="rzSigP">' + (repaso ? 'Volver al camino' : 'Continuar') + '</button>'
-            : '<div class="rz-acciones"><button type="button" class="rz-btn" id="rzRepetirP">Intentar de nuevo</button><button type="button" class="rz-btn rz-btn--sec" id="rzCaminoP">Volver al camino</button></div>');
-        if (aprueba) {
-          const sig = q2('#rzSigP'); sig.focus();
-          sig.addEventListener('click', async () => {
-            if (!repaso) { sig.disabled = true; try { await enviarCamino('detective', indice, puntaje, 3); } catch (err) { errorEnvio(err); sig.disabled = false; return; } }
-            verCamino('detective');
-          });
-        } else {
-          q2('#rzRepetirP').addEventListener('click', () => abrirDetectivePistas(indice, repaso, e));
-          q2('#rzCaminoP').addEventListener('click', () => verCamino('detective'));
-        }
       });
     }
 

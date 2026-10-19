@@ -892,6 +892,7 @@ const ZOORIGEN_CLUB = {
 
   // Pantalla completa "Confirma tu correo": reenviar, "ya lo confirmé" y cerrar sesión. Comprueba sola cada pocos segundos.
   mostrarPantallaVerificacion(user) {
+    document.documentElement.setAttribute('data-zoo-auth', 'verification');
     if (document.getElementById('zv-pantalla')) return;
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const caja = document.createElement('div');
@@ -1398,6 +1399,7 @@ const ZOORIGEN_CLUB = {
   },
 
   requireAuth() {
+    document.documentElement.setAttribute('data-zoo-auth', 'pending');
     return new Promise((resolve) => {
       auth.onAuthStateChanged(async (user) => {
         if (!user) { window.location.href = 'club-login.html'; return resolve(null); }
@@ -1435,9 +1437,12 @@ const ZOORIGEN_CLUB = {
             this.mostrarPantallaVerificacion(user);
             return;
           }
+          document.documentElement.removeAttribute('data-zoo-auth');
           resolve(sesion);
         } catch (err) {
           console.error('Error loading profile:', err);
+          if (this.verificacionObligatoria(user, null)) { this.mostrarPantallaVerificacion(user); return; }
+          document.documentElement.removeAttribute('data-zoo-auth');
           resolve({ uid: user.uid, email: user.email, name: user.displayName || user.email.split('@')[0], planStatus: 'pending_payment' });
         }
       });

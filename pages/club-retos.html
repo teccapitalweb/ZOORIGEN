@@ -7,6 +7,8 @@
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
   <meta charset="UTF-8">
   <script>/*zs-admin*/!function(){try{var s=window.sessionStorage,h=document.documentElement,q=/[?&]como=(user|admin)(?:&|#|$)/.exec(location.search);if(q){if(q[1]==="user")s.setItem("zoo_como_usuario","1");else s.removeItem("zoo_como_usuario")}if(localStorage.getItem("zoo_admin")==="1"){if(s.getItem("zoo_como_usuario")==="1")h.setAttribute("data-como","user");else{h.style.visibility="hidden";setTimeout(function(){h.style.visibility=""},4000);location.replace("admin-club.html")}}}catch(e){}}()</script>
+  <script>/*zs-auth-guard*/document.documentElement.setAttribute('data-zoo-auth','pending')</script>
+<style>html[data-zoo-auth="pending"] body> :not(script):not(style):not(#zv-pantalla),html[data-zoo-auth="verification"] body> :not(script):not(style):not(#zv-pantalla){visibility:hidden!important}html[data-zoo-auth="pending"] body::before{content:"Preparando tu acceso…";position:fixed;inset:0;display:grid;place-items:center;z-index:99999;background:#f5f6f1;color:#24352c;font:600 16px system-ui;visibility:visible}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Zona de retos · Club VIP Zoorigen</title>
   <!-- ===== PWA ===== -->
@@ -27,7 +29,7 @@
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261128-arreglos">
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
-  <link rel="stylesheet" href="../assets/css/club-retos.css?v=20261129-calendario">
+  <link rel="stylesheet" href="../assets/css/club-retos.css?v=20261019-detective-visual">
   <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261129-calendario">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
@@ -56,13 +58,13 @@
   <script src="../assets/js/club-seccion.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-cola.js?v=20261104"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionRetos","seccion":"retos","icono":"target","eyebrow":"Zona de retos","titulo":"Practica,","acento":"supera retos y sube de nivel.","sub":"Retos cortos de quiz, detective, orden, flashcards e historia. Cada reto superado suma XP y abre libros.","cifras":[{"clave":"nivel","valor":"—","ancho":"Profesional","rotulo":"nivel"},{"clave":"xp","valor":"—","rotulo":"XP"},{"clave":"superados","valor":"—","rotulo":"retos superados"}]});</script>
-  <script src="../assets/js/club.js?v=20261129-acceso"></script>
+  <script src="../assets/js/club.js?v=20261019-acceso-guia"></script>
   <script src="../assets/js/club-shell.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-calendario.js?v=20261129-calendario"></script>
-  <script src="../assets/js/club-retos-datos.js?v=20261129-calendario"></script>
-  <script src="../assets/js/club-retos.js?v=20261129-calendario"></script>
+  <script src="../assets/js/club-retos-datos.js?v=20261019-detective-visual"></script>
+  <script src="../assets/js/club-retos.js?v=20261019-detective-visual"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();

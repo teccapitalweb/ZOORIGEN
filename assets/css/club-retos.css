@@ -407,3 +407,16 @@
 @media (max-width: 640px) {
   .rz-pistas { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Detective: ampliar para inspeccionar detalles sin recortar las pistas. */
+.rz-escena-p__img img { object-fit: contain; }
+.rz-escena-p__ampliar { justify-self: start; margin: 12px 16px 0; padding: 8px 0; font-weight: 700; color: var(--rz-azul-txt); text-underline-offset: 3px; }
+.rz-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* Detective visual: las respuestas aparecen únicamente después de inspeccionar. */
+.rz-escena { aspect-ratio: 1600 / 1067; }
+.rz-escena__leyenda { position: absolute; top: 14px; left: 14px; display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border-radius: 9px; background: #243d39; color: #fff; font-size: .75rem; font-weight: 700; letter-spacing: .04em; pointer-events: none; }
+.rz-marca { width: 42px; height: 42px; margin: -21px 0 0 -21px; border: 3px solid #fff; z-index: 2; }
+.rz-panel--detective .rz-riesgos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rz-panel--detective .rz-riesgos li { border-style: solid; }
+@media (max-width: 600px) { .rz-panel--detective .rz-riesgos { grid-template-columns: 1fr; } .rz-escena__leyenda { top: 8px; left: 8px; padding: 7px 9px; font-size: .75rem; } }
