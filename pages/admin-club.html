@@ -214,11 +214,11 @@
       .am { padding: 18px; }
     }
   </style>
-  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261019-editor">
+  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261019-tarjetas">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
-  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261019-editor">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261019-tarjetas">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="inicio">
@@ -306,24 +306,24 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261019-acceso-guia"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261019-tarjetas"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/admin-panel.js?v=20261019-editor"></script>
-  <script src="../assets/js/admin-graficas.js?v=20261019-editor"></script>
-  <script src="../assets/js/admin-filas.js?v=20261019-editor"></script>
-  <script src="../assets/js/admin-config.js?v=20261019-editor"></script>
-  <script src="../assets/js/admin-vistas.js?v=20261019-editor"></script>
-  <script src="../assets/js/admin-marketing.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-panel.js?v=20261019-tarjetas"></script>
+  <script src="../assets/js/admin-graficas.js?v=20261019-tarjetas"></script>
+  <script src="../assets/js/admin-filas.js?v=20261019-tarjetas"></script>
+  <script src="../assets/js/admin-config.js?v=20261019-tarjetas"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261019-tarjetas"></script>
+  <script src="../assets/js/admin-marketing.js?v=20261019-tarjetas"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-materiales-curso.js?v=20261019-editor"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261019-editor"></script>
-  <script src="../assets/js/admin-certificados.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-materiales-curso.js?v=20261019-tarjetas"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261019-tarjetas"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261019-tarjetas"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/admin-noticias.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-noticias.js?v=20261019-tarjetas"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
-  <script src="../assets/js/admin-encuesta.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261019-tarjetas"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -535,11 +535,7 @@
 
     // ═══════════ CURSOS ═══════════
     const CURSOS = window.ZOO_ADMIN_CURSOS;
-    const cursosEstado = { items: [], texto: '', area: 'todas', orden: 'recientes', vista: 'lista' };
-    try {
-      const vistaGuardada = localStorage.getItem('zoo_admin_cursos_vista');
-      if (vistaGuardada === 'lista' || vistaGuardada === 'grid') cursosEstado.vista = vistaGuardada;
-    } catch (e) { /* sin almacenamiento: se usa la vista por defecto */ }
+    const cursosEstado = { items: [], texto: '', area: 'todas', orden: 'recientes', vista: 'grid' };
 
     async function loadCursos() {
       const v = document.getElementById('secView');
@@ -571,7 +567,6 @@
         <div class="cc-toolbar">
           <div class="m-search">${ZOO_ICONOS.svg('search', { size: 16 })}<input type="search" class="admin-search" id="cursoBuscar" placeholder="Buscar por título, área o etiqueta" aria-label="Buscar cursos" value="${CURSOS.esc(e.texto)}"></div>
           <div class="zoo-chips" id="cursoOrden" role="group" aria-label="Ordenar cursos"></div>
-          <div class="cc-vistas" id="cursoVista" role="group" aria-label="Tipo de vista"></div>
         </div>
         <div class="cc-areas" id="cursoAreas" role="group" aria-label="Filtrar por área"></div>
         <div id="cursoLista"></div>`;
@@ -579,9 +574,8 @@
       const pintar = () => {
         const filtrados = CURSOS.filtrarCursos(items, { texto: e.texto, area: e.area, orden: e.orden });
         document.getElementById('cursoOrden').innerHTML = CURSOS.ordenHTML(e.orden);
-        document.getElementById('cursoVista').innerHTML = CURSOS.vistaHTML(e.vista);
         document.getElementById('cursoAreas').innerHTML = CURSOS.chipsAreasHTML(CURSOS.areasConConteo(items), items.length, e.area);
-        document.getElementById('cursoLista').innerHTML = CURSOS.listaHTML(filtrados, e.vista);
+        document.getElementById('cursoLista').innerHTML = CURSOS.listaHTML(filtrados, 'grid');
       };
       pintar();
 
@@ -589,13 +583,6 @@
       document.getElementById('cursoOrden').addEventListener('click', ev => {
         const b = ev.target.closest('[data-orden]');
         if (b) { e.orden = b.dataset.orden; pintar(); }
-      });
-      document.getElementById('cursoVista').addEventListener('click', ev => {
-        const b = ev.target.closest('[data-vista]');
-        if (!b) return;
-        e.vista = b.dataset.vista;
-        try { localStorage.setItem('zoo_admin_cursos_vista', e.vista); } catch (err) { /* sin almacenamiento */ }
-        pintar();
       });
       document.getElementById('cursoAreas').addEventListener('click', ev => {
         const b = ev.target.closest('[data-area]');

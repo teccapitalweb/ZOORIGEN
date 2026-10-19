@@ -693,7 +693,8 @@ body { background: var(--c-bg); }
 .cf-selector select { min-width: 230px; max-width: 100%; border-radius: 999px; padding: 11px 18px; }
 
 /* ───────── Tarjetas de curso ───────── */
-.cc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 18px; }
+.cc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 700px) { .cc-grid { grid-template-columns: minmax(0, 1fr); } }
 .cc-card {
   display: flex; flex-direction: column; overflow: hidden; background: var(--c-surface); border: 1px solid var(--c-line);
   border-radius: 18px; box-shadow: var(--c-card-shadow); transition: transform .2s var(--c-ease), border-color .2s, box-shadow .2s;
