@@ -906,3 +906,15 @@ textarea.ce-input { min-height: 84px; resize: vertical; line-height: 1.5; }
 .ce-botones .ce-agregar { flex: 1 1 200px; }
 .ce-sync { color: var(--c-accent-text); border-color: var(--c-accent); }
 .ce-sync:disabled { opacity: .6; cursor: wait; }
+
+/* Curso: documentos junto a sus clases, con encabezado y pie fijos. */
+.ce-materiales { border:1px solid var(--borde, #d6ddda); border-radius:14px; padding:16px; }
+.ce-materiales__head { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; }
+.ce-materiales h4 { margin:0; font-size:15px; }
+.ce-material { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:15px; margin-top:12px; border:1px solid var(--borde, #d6ddda); border-radius:12px; }
+.ce-material__titulo { grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; }
+.ce-material .ce-campo:nth-child(2), .ce-material .ce-campo:nth-child(3) { grid-column:1/-1; }
+@media(max-width:600px) { .ce-material { grid-template-columns:1fr; } }
+
+.modal-form.ce-host .ce-head p { color:var(--c-accent-ink) !important; }
+.modal-form.ce-host .ce-pie .btn-cancel { color:var(--c-text) !important; }

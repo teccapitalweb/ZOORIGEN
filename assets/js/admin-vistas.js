@@ -847,7 +847,7 @@
     var admins = cfg.administradores;
     var visitasTexto = (c.contadorVisitas ? 'Encendido. ' : 'Apagado. ') + 'Solo suma cuántas visitas hubo por día y por página: sin cookies, sin dirección IP y sin identificar a nadie. ' +
       (c.contadorVisitas ? P.fmtNum(cfg.visitas.ultimos7Dias) + ' visitas en los últimos 7 días. ' : '') +
-      'Antes de encenderlo, agrega un párrafo al aviso de privacidad. Ojo: el sitio todavía no envía las visitas al servidor, así que por ahora el conteo seguiría en cero.';
+      'La portada envía el conteo al servidor. Empieza a sumar cuando se activa; no recupera visitas anteriores.';
     var vivoValor = c.clasesEnVivoPronto === null ? 'auto' : (c.clasesEnVivoPronto ? 'si' : 'no');
     var interruptores = '<ul class="ap-interruptores">' +
       filaInterruptor({ titulo: 'Contador de visitas de la portada', texto: esc(visitasTexto) + ' <button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="parrafo">' + ico('file-text', { size: 16 }) + 'Ver el párrafo para el aviso de privacidad</button>',

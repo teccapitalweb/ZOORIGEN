@@ -214,11 +214,11 @@
       .am { padding: 18px; }
     }
   </style>
-  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261123-sinmorado">
+  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261019-editor">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
-  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261201-graficas">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261019-editor">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="inicio">
@@ -306,23 +306,24 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261019-acceso-guia"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261019-editor"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/admin-panel.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-graficas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-filas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-config.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-vistas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-marketing.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-panel.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-graficas.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-filas.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-config.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-marketing.js?v=20261019-editor"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-certificados.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-materiales-curso.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261019-editor"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261019-editor"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/admin-noticias.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-noticias.js?v=20261019-editor"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
-  <script src="../assets/js/admin-encuesta.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261019-editor"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -618,6 +619,7 @@
         lecciones = [{ titulo: data.title || 'Clase 1', driveId: data.driveId, duration: data.duration || '' }];
       }
       if (!lecciones.length) lecciones = [CURSOS.leccionVacia()];
+      window.__materialesCurso = null;
       window.__leccionesTemp = lecciones;
       window.__cursoEditandoId = data.id || '';
 
@@ -626,6 +628,10 @@
       renderLeccionesForm();
       enlazarLecciones();
       enlazarPortada();
+      window.__materialesCurso = ZOO_ADMIN_MATERIALES_CURSO.montar({
+        contenedor: document.getElementById('cursoMateriales'), db, cursoId: data.id || '',
+        clases: () => window.__leccionesTemp, api: ruta => ZOORIGEN_CLUB.apiFetch(ruta)
+      });
     };
 
     // Vista previa de la portada: se actualiza al escribir el enlace o el título (la portada automática depende del título).
@@ -652,6 +658,7 @@
     window.renderLeccionesForm = () => {
       const cont = document.getElementById('leccionesContainer');
       if (cont) cont.innerHTML = CURSOS.leccionesHTML(window.__leccionesTemp);
+      if (window.__materialesCurso) window.__materialesCurso.refrescar();
     };
 
     // Un solo juego de eventos para todo el editor de clases (no se pierde el foco al escribir).
@@ -812,8 +819,17 @@
       if (!data.title) { toast('Título requerido', true); return; }
       if (lecciones.length === 0) { toast('Agrega al menos 1 clase con video', true); return; }
       try {
-        if (id) { await db.collection('cursos').doc(id).update(data); toast('Actualizado'); }
-        else { data.createdAt = new Date().toISOString(); await db.collection('cursos').add(data); toast('Creado'); }
+        const guardar = document.getElementById('ceGuardar');
+        if (guardar && guardar.disabled) return;
+        const ref = id ? db.collection('cursos').doc(id) : db.collection('cursos').doc();
+        const batch = db.batch();
+        window.__materialesCurso.preparar(batch, ref.id, data.area, window.__leccionesTemp.filter(l => l.videoId || !CURSOS.normalizarFuente(l.driveId).vacio));
+        if (!id) data.createdAt = new Date().toISOString();
+        if (id) batch.update(ref, data); else batch.set(ref, data);
+        if (guardar) guardar.disabled = true;
+        try { await batch.commit(); } finally { if (guardar) guardar.disabled = false; }
+        cursosParaPdf = null;
+        toast(id ? 'Curso y materiales actualizados' : 'Curso creado');
         closeModal(); loadCursos(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };

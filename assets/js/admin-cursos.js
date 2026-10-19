@@ -701,19 +701,20 @@
         <label class="ce-campo ce-campo--full ce-muestra"><input type="checkbox" id="f_muestra"${d.cursoMuestraGratis === true ? ' checked' : ''}>
           <span><strong>Este curso tiene clases gratis de muestra</strong><small>Quien no tenga membresía podrá ver las clases que marques como gratis. Solo un curso puede tenerlo. Las demás clases piden membresía.</small></span></label>
         <div class="ce-campo ce-campo--full">
-          <span>Clases del curso</span>
-          <small class="ce-ayuda">Lo más fácil: escribe el título del curso arriba y pulsa "Sincronizar con Bunny". También puedes pegar a mano el ID del video de Bunny (o un enlace de Google Drive). Cada clase puede llevar preguntas y cerrar con un juego.</small>
-          <div id="leccionesContainer" class="ce-clases"></div>
+          <span>Clases del curso (videos)</span>
+          <small class="ce-ayuda">Las clases se muestran en orden. Edita el video, las preguntas y el juego de cada clase. Puedes conservar los enlaces de Google Drive.</small>
           <div class="ce-botones">
             <button type="button" class="ce-agregar" onclick="agregarLeccion()">${ico('plus', { size: 16 })}Agregar otra clase</button>
             <button type="button" class="ce-agregar ce-sync" id="cf-sync-bunny" onclick="sincronizarCursoBunny()" title="Busca en Bunny la colección con el nombre más parecido al título del curso y llena el video de cada clase">${ico('cloud-download', { size: 16 })}Sincronizar con Bunny</button>
           </div>
+          <div id="leccionesContainer" class="ce-clases"></div>
           <small class="ce-ayuda">"Sincronizar con Bunny" busca la colección parecida al título del curso y llena solo el video de cada clase. No cambia títulos que ya escribiste, preguntas, juegos ni clases gratis.</small>
         </div>
+        <section class="ce-campo ce-campo--full ce-materiales" id="cursoMateriales"></section>
       </div>
       <div class="ce-pie">
         <button type="button" class="btn-cancel" onclick="closeM()">Cancelar</button>
-        <button type="button" class="btn-save" onclick="saveCurso('${esc(d.id || '')}')">${ico('check', { size: 16 })}${editando ? 'Guardar cambios' : 'Crear curso'}</button>
+        <button type="button" class="btn-save" id="ceGuardar" onclick="saveCurso('${esc(d.id || '')}')">${ico('check', { size: 16 })}${editando ? 'Guardar cambios' : 'Crear curso'}</button>
       </div>`;
   }
 

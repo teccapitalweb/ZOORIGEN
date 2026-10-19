@@ -15,9 +15,9 @@
 /* sola fuente de verdad con la pantalla de la portada).          */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./encuesta-motor.js'), require('./admin-iconos.js'), require('./admin-filas.js'));
-  else root.ZOO_ADMIN_ENCUESTA = factory(root.ZOO_ENCUESTA, root.ZOO_ICONOS, root.ZOO_ADMIN_FILAS);
-})(typeof self !== 'undefined' ? self : this, function (motor, iconos, filas) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./encuesta-motor.js'), require('./admin-iconos.js'), require('./admin-filas.js'), require('./admin-graficas.js'));
+  else root.ZOO_ADMIN_ENCUESTA = factory(root.ZOO_ENCUESTA, root.ZOO_ICONOS, root.ZOO_ADMIN_FILAS, root.ZOO_ADMIN_GRAFICAS);
+})(typeof self !== 'undefined' ? self : this, function (motor, iconos, filas, G) {
   'use strict';
 
   var F = filas;
@@ -357,13 +357,9 @@
     var cuerpo;
     if (!dist || !dist.items.length) cuerpo = '<p class="enc-vacio">Aún no hay respuestas para esta pregunta.</p>';
     else {
-      var max = dist.items[0].n || 1;
-      cuerpo = '<ul class="enc-barras">' + dist.items.map(function (it) {
-        var ancho = Math.max(2, Math.round(it.n / max * 100));
-        return '<li><span class="enc-barras__l">' + esc(it.valor) + '</span>' +
-          '<span class="enc-barras__b" aria-hidden="true"><i style="width:' + ancho + '%"></i></span>' +
-          '<span class="enc-barras__n">' + num(it.n) + ' <small>' + it.pct + '%</small></span></li>';
-      }).join('') + '</ul>';
+      cuerpo = G.barrasH({ titulo: titulo, total: dist.base, filas: dist.items.map(function (it, i) {
+        return { etiqueta: it.valor, valor: it.n, color: i % 6 + 1 };
+      }) });
     }
     return '<section class="enc-panel"><h3>' + esc(titulo) + '</h3>' +
       (dist && dist.base ? '<p class="enc-nota">' + (nota ? esc(nota) + ' ' : '') + 'Base: ' + num(dist.base) + ' ' + (dist.base === 1 ? 'persona' : 'personas') + '.</p>' : '') +
@@ -566,6 +562,7 @@
     var detalle = enc.detalle === true;
     return cabecera + kpisHTML(r) +
       '<div class="enc-rejilla">' +
+        graficasResumenHTML(r) +
         barrasHTML('Perfil de quién responde', D.p1) +
         barrasHTML('Cómo nos conocieron', D.origen) +
         barrasHTML('Qué quieren lograr este año', D.meta) +
@@ -577,6 +574,28 @@
         retosHTML(r) +
         abandonoHTML(r) +
       '</div>' + ramasHTML(r) + leadsHTML(r, detalle) + respuestasHTML(r, detalle) + preguntasHTML(e.preguntas || { ok: false, error: 'Sin datos.' });
+  }
+
+  function graficasResumenHTML(r) {
+    var dias = {};
+    r.filas.forEach(function (f) {
+      if (!f.fecha) return;
+      var dia = new Date(f.fecha.getTime() - 6 * 3600000).toISOString().slice(0, 10);
+      if (!dias[dia]) dias[dia] = { total: 0, completas: 0 };
+      dias[dia].total++; if (f.completada) dias[dia].completas++;
+    });
+    var claves = Object.keys(dias).sort();
+    var completas = r.filas.filter(function (f) { return f.completada; }).length;
+    return '<section class="enc-panel"><h3>Encuestas completas y parciales</h3>' + G.anillo({
+      titulo: 'Estado de las encuestas', partes: [{ etiqueta: 'Completas', valor: completas, color: 1 },
+        { etiqueta: 'Parciales', valor: r.filas.length - completas, color: 4 }],
+      centro: { valor: num(r.filas.length), rotulo: 'personas' }
+    }) + '</section><section class="enc-panel"><h3>Respuestas por fecha</h3><p class="enc-nota">Una respuesta por visitante, según su registro más reciente. Hora de México.</p>' + G.serie({
+      titulo: 'Respuestas de la encuesta por fecha', tipo: 'barras', etiquetas: claves,
+      series: [{ nombre: 'Personas', valores: claves.map(function (d) { return dias[d].total; }), color: 2 },
+        { nombre: 'Completas', valores: claves.map(function (d) { return dias[d].completas; }), color: 1 }],
+      vacio: { titulo: 'Sin respuestas con fecha', texto: 'Las respuestas nuevas aparecerán aquí.' }
+    }) + '</section>';
   }
 
   /* ───────────────────────── Montaje (solo en el navegador) ───────────────────────── */
@@ -594,6 +613,7 @@
   function montar(contenedor, estado, deps) {
     var y = typeof window !== 'undefined' ? window.scrollY : 0;
     contenedor.innerHTML = vistaHTML(estado);
+    G.activar(contenedor);
     if (typeof window !== 'undefined') window.scrollTo(0, y);
     var enc = estado.encuesta || {};
     var detalle = enc.ok && enc.detalle === true;
