@@ -136,7 +136,7 @@ function scriptSaludo() {
 /* Id del menú con el que la página llama a renderSidebar (lo que el JavaScript marcará como activo). */
 function menuDeLaPagina(html) {
   const m = /renderSidebar\(\s*(?:'([a-z]+)'|(MENU_ID))/.exec(html);
-  if (!m) return '';
+  if (!m) { const publica = /ZOO_SHELL\.montar\(\{ activo: '([a-z]+)'/.exec(html); return publica ? publica[1] : ''; }
   if (m[1]) return m[1];
   const c = /const MENU_ID = '([a-z]+)'/.exec(html);
   return c ? c[1] : '';
@@ -178,7 +178,7 @@ function procesar(html, archivo) {
   h = h.replace(/<script>\/\*zs-admin\*\/[\s\S]*?<\/script>\s*/, '');
   h = h.replace(/<head>\s*/, () => '<head>\n' + scriptTema() + '\n  ');
   // La decisión de administrador va justo después de <meta charset> (que debe quedar en los primeros 1024 bytes) y antes de todo CSS.
-  if (esPanel) h = h.replace(/(<meta charset="UTF-8">(?:<meta name="viewport"[^>]*>)?)/, (m) => m + '\n  ' + scriptAdmin());
+  if (esPanel && nombre !== 'club-canal.html') h = h.replace(/(<meta charset="UTF-8">(?:<meta name="viewport"[^>]*>)?)/, (m) => m + '\n  ' + scriptAdmin());
   h = h.replace(/[ \t]*<link[^>]*fonts\.(?:googleapis|gstatic)\.com[^>]*>[ \t]*\r?\n?/g, '');
   h = h.replace(/[ \t]*<!-- zs:fuentes -->[\s\S]*?<!-- \/zs:fuentes -->\r?\n?/, '');
   const conPlayfair = nombre === 'club-dashboard.html';

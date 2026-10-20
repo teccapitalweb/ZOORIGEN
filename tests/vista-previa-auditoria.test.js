@@ -11,7 +11,7 @@ const leer = rel => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
 const existe = rel => fs.existsSync(path.join(RAIZ, rel));
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{1F000}-\u{1F2FF}]/u;
 
-const PAGINAS_PAYWALL = ['club-biblioteca.html', 'club-sesiones.html', 'club-videos.html', 'club-canal.html'];
+const PAGINAS_PAYWALL = ['club-biblioteca.html', 'club-sesiones.html', 'club-videos.html'];
 
 /* ───────── módulo común cargado en el orden correcto ───────── */
 test('las páginas auditadas cargan el módulo de membresía después de club.js, con su hoja de estilos', () => {
@@ -94,15 +94,11 @@ test('videos: la lista se ve completa; reproducir sin membresía avisa y lleva a
 });
 
 /* ───────── canal ───────── */
-test('canal: "Abrir canal" se ve con candado; el enlace real solo se escribe para miembros', () => {
+test('canal: público, sin cuenta ni membresía y con enlace oficial directo', () => {
   const h = leer('pages/club-canal.html');
-  assert.match(h, /id="zkAbrirBloqueado"/);
-  assert.match(h, /ZOO_PAYWALL\.requiereMembresia\('Abrir el canal de WhatsApp'\)/);
-  assert.match(h, /const abrir = membresia\s*\?\s*`<a class="zc-btn zk-btn-blanco" href="\$\{R\.esc\(ZOO_CANAL_URL\)\}"/);
-  // El enlace del canal no aparece en la rama de quien no es miembro
-  const rama = h.slice(h.indexOf(': `<a class="zc-btn zk-btn-blanco" href="club-suscripcion.html"'));
-  assert.ok(!/ZOO_CANAL_URL/.test(rama.split('\n')[0]));
-  // Compartir la invitación (crecer la comunidad) sigue abierto
+  assert.doesNotMatch(h, /zkAbrirBloqueado|requireAuth\(|hasActiveMembership\(|ZOO_PAYWALL|zs-auth-guard|zs-admin/);
+  assert.match(h, /https:\/\/whatsapp.com\/channel\/0029Vb7o61hDp2Q0dfsG0W1g/);
+  assert.match(h, /Unirme al canal/);
   assert.match(h, /Compartir invitación/);
 });
 

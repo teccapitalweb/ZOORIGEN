@@ -87,16 +87,17 @@ test('referidos: el canje usa ZOO_PREMIOS.canjear() sin parámetros y protegido 
 
 test('canal: la dirección está en la constante ZOO_CANAL_URL y el panel lleva a la página del canal', () => {
   const canal = leer('pages/club-canal.html');
-  assert.match(canal, /const ZOO_CANAL_URL = 'https:\/\/wa\.me\/5212361113237\?text=Hola%20quiero%20entrar%20al%20canal%20VIP%20de%20Zoorigen';/);
-  assert.equal((canal.match(/wa\.me\/5212361113237/g) || []).length, 1, 'la dirección solo se escribe una vez');
-  assert.match(canal, /Abrir canal/);
+  assert.ok(canal.includes("const ZOO_CANAL_URL = 'https://whatsapp.com/channel/0029Vb7o61hDp2Q0dfsG0W1g';"));
+  assert.equal((canal.match(/whatsapp.com\/channel\/0029Vb7o61hDp2Q0dfsG0W1g/g) || []).length, 1);
+  assert.match(canal, /Unirme al canal/);
   assert.match(canal, /Compartir invitación/);
-  assert.match(canal, /Suscribirme/);
+  assert.doesNotMatch(canal, /requireAuth\(|requiereMembresia\(|hasActiveMembership\(|zkAbrirBloqueado|zkBloqueo/);
+  assert.match(canal, /sin crear una cuenta/);
   for (const regla of ['Respeto', 'Sin spam', 'Temas de fauna', 'Sin venta de animales ni tráfico']) assert.ok(canal.includes(regla), regla);
   const tablero = leer('pages/club-dashboard.html');
   assert.ok(tablero.includes('comunidadHTML'), 'el panel muestra la tarjeta de la comunidad');
   assert.ok(leer('assets/js/club-inicio.js').includes('href="club-canal.html"'), 'la tarjeta lleva a la página del canal');
-  assert.doesNotMatch(tablero, /canal%20VIP%20de%20Zoorigen/);
+  assert.doesNotMatch(tablero, /canal%20de%20Zoorigen/);
 });
 
 test('registro: sin referredBy, con código saneado, deviceId y aviso de correo de confirmación', () => {
