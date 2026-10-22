@@ -14,7 +14,7 @@
 .zcr__btn--suave:hover { background: var(--zcp-casilla, rgba(255, 255, 255, .08)); }
 .zcr__btn--oro { background: #E8A317; color: #1f1d17; }
 .zcr__btn--oro:hover { background: #F0B232; }
-.zcr__btn:focus-visible, .zcr-btn:focus-visible, .zcr-saldo__ver:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+.zcr__btn:focus-visible, .zcr-btn:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
 [data-theme="light"] .zcr__btn:focus-visible, [data-theme="light"] .zcr-btn:focus-visible { outline-color: #1F5F8F; }
 
 /* ── Confirmación de canje ── */
@@ -26,15 +26,27 @@
 .zcr-conf__caja p { margin: 0 0 4px; font-size: .95rem; line-height: 1.5; }
 [data-theme="light"] .zcr-conf .zcr__btn--suave { color: #14231a; border-color: #b9ccbc; }
 
-/* ── Saldo en PDFs y materiales ── */
-.zcr-saldo { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 18px; padding: 14px 18px; border-radius: 16px; border: 1px solid var(--zoo-border, #D8D2C4); background: var(--zoo-bg-card, #fff); color: var(--zoo-text, #1F2933); }
-.zcr-saldo--hay { border-color: #E8A317; }
-.zcr-saldo__ico { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #FBF1D8; color: #7A5200; flex: none; }
-[data-theme="dark"] .zcr-saldo__ico { background: #2A2514; color: #F0BE55; }
-.zcr-saldo__txt { display: flex; flex-direction: column; gap: 2px; flex: 1 1 240px; min-width: 0; }
-.zcr-saldo__txt strong { font: 800 1.15rem/1.2 var(--zoo-font-display); }
-.zcr-saldo__txt span { font-size: .86rem; line-height: 1.45; color: var(--zoo-text-muted, #52606D); }
-.zcr-saldo__ver { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--zoo-border, #D8D2C4); color: inherit; font-weight: 700; font-size: .9rem; text-decoration: none; }
+/* ── Pastilla «Tus créditos» en PDFs y materiales (siempre visible; reserva su espacio para no mover la página) ── */
+.zcr-pastilla { position: relative; display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; min-height: 52px; margin: 0 0 18px; }
+.zcr-pastilla--reserva { min-height: 52px; }
+.zcr-pastilla__btn { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--zoo-border-strong, #BDB6A6); background: var(--zoo-bg-card, #fff); color: var(--zoo-text, #1F2933); font: 600 .95rem/1.2 var(--zoo-font-body); cursor: pointer; }
+.zcr-pastilla__btn strong { font: 800 1.1rem/1 var(--zoo-font-display); font-variant-numeric: tabular-nums; }
+.zcr-pastilla__btn svg { flex: none; color: #7A5200; }
+[data-theme="dark"] .zcr-pastilla__btn svg { color: #F0BE55; }
+.zcr-pastilla--hay .zcr-pastilla__btn { border-color: #E8A317; background: #FBF1D8; color: #3A2A00; }
+[data-theme="dark"] .zcr-pastilla--hay .zcr-pastilla__btn { background: #2A2514; color: #F5E7C0; }
+.zcr-pastilla__btn:hover { border-color: #E8A317; }
+.zcr-pastilla__btn:focus-visible, .zcr-pastilla__ver:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+[data-theme="light"] .zcr-pastilla__btn:focus-visible, [data-theme="light"] .zcr-pastilla__ver:focus-visible { outline-color: #1F5F8F; }
+.zcr-pastilla__ver { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #E8A317; color: #1f1d17; font: 800 .9rem var(--zoo-font-body); text-decoration: none; cursor: pointer; }
+.zcr-pastilla__ver:hover { background: #F0B232; }
+.zcr-pastilla__ayuda { position: absolute; z-index: 20; top: calc(100% - 4px); left: 0; max-width: min(360px, 100%); margin: 0; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--zoo-border-strong, #BDB6A6); background: var(--zoo-bg-card, #fff); color: var(--zoo-text, #1F2933); box-shadow: 0 12px 30px rgba(0, 0, 0, .18); font-size: .9rem; line-height: 1.5; }
+.zcr-pastilla__ayuda[hidden] { display: none; }
+@media (max-width: 480px) {
+  .zcr-pastilla__btn { max-width: 100%; }
+  .zcr-pastilla__ver { flex: 1 1 100%; justify-content: center; }
+  .zcr-pastilla__ayuda { max-width: 100%; right: 0; }
+}
 
 /* ── Insignia y botón de canje en cada material ── */
 .zcr-canje { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
@@ -49,7 +61,7 @@
 .mt-libro .zcr-canje, .mt-doc .zcr-canje { padding: 0 4px 6px; }
 
 @media (prefers-reduced-motion: reduce) { .zcr, .zcr * { animation: none !important; transition: none !important; } }
-@media (max-width: 480px) { .zcr__btn { flex-basis: 100%; } .zcr-saldo { padding: 12px 14px; } }
+@media (max-width: 480px) { .zcr__btn { flex-basis: 100%; } }
 
 /* El regalo del trofeo, más grande que el ícono de texto */
 .zcr .zcp__trofeo svg { width: 42px; height: 42px; }

@@ -692,7 +692,7 @@
     var sesion = o.sesion, club = o.club, cont = o.contenedor;
     var uid = sesion.uid;
     var alm = (function () { try { return window.localStorage; } catch (e) { return null; } })() || { getItem: function () { return null; }, setItem: function () {} };
-    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', formato: 'todos', drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
+    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', formato: 'todos', ayuda: false, drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
       soloCanjeables: !!o.soloCanjeables || (typeof location !== 'undefined' && /[?&]canjeables=1(?:&|#|$)/.test(String(location.search || ''))) };
     var CR = function () { return (typeof window !== 'undefined' && window.ZOO_CREDITOS) ? window.ZOO_CREDITOS : null; };
     var canjeDe = function (tipo, id) { var c = estado.creditos, m = CR(); return c && m ? m.canjeHTML(c.porClave[tipo + ':' + id], c.saldo, c.costo) : ''; };
@@ -757,7 +757,10 @@
             return '<div><strong>' + esc(k.valor) + '</strong><span>' + esc(k.etiqueta) + '</span></div>'; }).join('') + '</div></section>';
       }
 
-      if (estado.creditos && CR() && (estado.creditos.saldo > 0 || soloCj || estado.creditos.hayCanjeados)) html += CR().saldoHTML(estado.creditos.saldo, { soloCanjeables: soloCj });
+      /* «Tus créditos: N»: siempre visible para cualquier cuenta con sesión (también con 0). Mientras carga solo reserva su espacio; si el
+         servidor no responde, no se muestra nada; el administrador no la ve. */
+      var verPastilla = !!CR() && sesion.role !== 'admin' && (estado.cargando || !!estado.creditos);
+      if (verPastilla) html += CR().pastillaHTML(estado.creditos ? estado.creditos.saldo : 0, { soloCanjeables: soloCj, ayudaAbierta: estado.ayuda, reserva: !estado.creditos });
       html += '<div class="mt-barra"><div class="mt-tabs" role="tablist">' + PESTANAS.filter(function (t) { return (t[0] !== 'mas' || estado.drive.some(function (m) { return !esDeCurso(m); })) && (t[0] !== 'cursos' || deCurso.length); }).map(function (t) {
         return '<button type="button" role="tab" class="mt-tab' + (p === t[0] ? ' is-active' : '') + '" data-pestana="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
         '<div class="mt-buscar"><input type="search" id="mtBuscar" placeholder="Buscar…" value="' + esc(q) + '" aria-label="Buscar"></div></div>';
@@ -972,6 +975,8 @@
         estado.canjeando = true;
         return Promise.resolve().then(function () { return club.apiFetch('/api/creditos/canjear', { method: 'POST', body: { materialId: clave } }); }).then(function (r) {
           estado.canjeando = false;
+          /* El saldo se actualiza al instante con lo que respondió el servidor, sin esperar a recargar la lista */
+          if (estado.creditos && r && Number.isInteger(r.saldo)) { estado.creditos.saldo = r.saldo; if (estado.creditos.porClave[clave]) estado.creditos.porClave[clave].desbloqueado = true; pintar(); }
           toast('Material desbloqueado: ya es tuyo. Se descontaron ' + m.fmt(c.costo) + ' créditos.');
           return cargar().then(function () {
             var tipo = String(r.tipo || ''), id = String(r.id || '');
@@ -994,6 +999,16 @@
       if (im && im.tagName === 'IMG' && im.getAttribute('data-respaldo') && im.getAttribute('src') !== im.getAttribute('data-respaldo')) im.src = im.getAttribute('data-respaldo');
     }, true);
 
+    /* La dirección refleja si se ven solo los canjeables (?canjeables=1), sin recargar la página */
+    function ponerParametroCanjeables(si) {
+      try {
+        var u = new URL(location.href);
+        if (si) u.searchParams.set('canjeables', '1'); else u.searchParams.delete('canjeables');
+        history.replaceState(null, '', u.pathname + u.search + u.hash);
+      } catch (e) { /* sin historial */ }
+    }
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && estado.ayuda) { estado.ayuda = false; pintar(); var bt = document.querySelector('[data-zcr-ayuda]'); if (bt) bt.focus(); } });
+
     /* ───── eventos de la página ───── */
     cont.addEventListener('click', function (e) {
       var t = e.target;
@@ -1005,6 +1020,11 @@
         if (estado.previa) { pedirMembresiaFuncion('Guardar en tus favoritos'); return; }
         alternarGuardado(alm, uid, pin.getAttribute('data-guardar')); pintar(); return;
       }
+      if (t.closest && t.closest('[data-zcr-ayuda]')) { estado.ayuda = !estado.ayuda; pintar(); var bt = document.querySelector('[data-zcr-ayuda]'); if (bt) bt.focus(); return; }
+      if (t.closest && t.closest('[data-zcr-ver-canjeables]')) { estado.soloCanjeables = true; estado.ayuda = false; ponerParametroCanjeables(true); pintar(); return; }
+      var vt = t.closest && t.closest('[data-zcr-ver-todos]');
+      if (vt) { e.preventDefault(); estado.soloCanjeables = false; estado.ayuda = false; ponerParametroCanjeables(false); pintar(); return; }
+      if (estado.ayuda && !(t.closest && t.closest('#zcrPastilla'))) { estado.ayuda = false; pintar(); }
       var desc = t.closest && t.closest('[data-descargar]');
       if (desc) { e.stopPropagation(); e.preventDefault(); descargarDoc(desc.getAttribute('data-descargar')); return; }
       var ff = t.closest && t.closest('[data-formato-filtro]');

@@ -42,14 +42,15 @@ test('arriba, tres cifras reales: créditos regalados, canjeados y pendientes de
   assert.match(h, /zs-seccion/);
 });
 
-test('cuentas: nombre, correo y fecha de registro en renglones separados, estado, saldo y el botón «Regalar 100 créditos» al costado', () => {
+test('cuentas: nombre, correo y fecha de registro en renglones separados, estado, saldo y el botón «Regalar créditos» al costado', () => {
   const h = A.filaMiembro(datos().miembros.miembros[0]);
   assert.match(h, /class="ap-cr__nombre">Ana Pérez</);
   assert.match(h, /ap-mi__linea ap-mi__correo[^>]*>.*a@x\.test/s);
   assert.match(h, /ap-mi__linea ap-mi__reg[^>]*>.*Se registró/s);
   assert.ok(h.indexOf('a@x.test') < h.indexOf('Se registró'), 'el correo y la fecha no comparten renglón');
   assert.match(h, /<strong>100<\/strong><span>créditos<\/span>/);
-  assert.match(h, /data-accion="regalar" data-uid="a"[^>]*>.*Regalar 100 créditos/s);
+  assert.match(h, /data-accion="regalar" data-uid="a"[^>]*>.*Regalar créditos</s);
+  assert.doesNotMatch(h, /Regalar 100/);
   assert.match(h, /Último regalo/);
   assert.match(h, /Mensual|Activo/);
 });
@@ -72,15 +73,16 @@ test('texto de confirmación: «Vas a regalar 100 créditos a NOMBRE. Alcanzan p
   assert.equal(A.REGALO, 100);
 });
 
-test('el botón de regalar se bloquea mientras se procesa, pide confirmación, manda una clave de operación y avisa con un aviso', () => {
+test('el botón de regalar se bloquea mientras se procesa, pide la cantidad con confirmación, manda cantidad y clave de operación y avisa con un aviso', () => {
   const js = leer('assets/js/admin-creditos.js');
-  assert.match(js, /V\.confirmar\(\{ titulo: 'Regalar '/);
+  assert.match(js, /V\.modal\(\{\s*titulo: 'Regalar créditos'/);
+  assert.match(js, /var cantidad = await pedirCantidad\(/);
   assert.match(js, /est\.ocupado/);
   assert.match(js, /\.disabled = true/);
-  assert.match(js, /'\/api\/admin\/creditos\/regalar', \{ method: 'POST', body: \{ uid: uid, clave: nuevaClave\(\) \}/);
+  assert.match(js, /'\/api\/admin\/creditos\/regalar', \{ method: 'POST', body: \{ uid: uid, cantidad: cantidad, clave: nuevaClave\(\) \}/);
   assert.match(js, /ctx\.toast\('Listo: regalaste '/);
   assert.match(js, /getRandomValues/);
-  assert.doesNotMatch(js, /cantidad:/, 'la cantidad no se manda: el servidor siempre regala 100');
+  assert.doesNotMatch(js, /costo\s*:|precio\s*:/, 'el costo por material no se manda: lo fija el servidor');
 });
 
 test('historial de regalos: a quién, fecha, quién lo regaló y Pendiente o Canjeado con el material y la fecha de canje', () => {
@@ -147,4 +149,92 @@ test('sin degradados ni emojis en el módulo ni en los estilos nuevos, y letra m
   assert.ok(b.length > 500);
   assert.doesNotMatch(b, /gradient/i);
   for (const m of b.matchAll(/font(?:-size)?:\s*(?:[0-9]{3}\s+)?([0-9.]+)(rem|px)/g)) assert.ok((m[2] === 'rem' ? Number(m[1]) * 16 : Number(m[1])) >= 12, m[0]);
+});
+
+/* ───────────────────────── Cantidad a regalar: 100, 200, 300, 400 u otra ───────────────────────── */
+
+test('constantes: se propone 100, el máximo es 1,000, cada material cuesta 100 y las opciones son 100, 200, 300 y 400', () => {
+  assert.equal(A.REGALO, 100); assert.equal(A.MAX_REGALO, 1000); assert.equal(A.COSTO, 100);
+  assert.deepEqual(A.OPCIONES, [100, 200, 300, 400]);
+});
+
+test('frase de confirmación: singular y plural, y lo que sobra de saldo', () => {
+  assert.equal(A.fraseAlcance(100), 'Alcanzan para canjear 1 material.');
+  assert.equal(A.fraseAlcance(200), 'Alcanzan para canjear 2 materiales.');
+  assert.equal(A.fraseAlcance(300), 'Alcanzan para canjear 3 materiales.');
+  assert.equal(A.fraseAlcance(400), 'Alcanzan para canjear 4 materiales.');
+  assert.equal(A.fraseAlcance(250), 'Alcanzan para canjear 2 materiales y sobran 50 créditos de saldo.');
+  assert.equal(A.fraseAlcance(101), 'Alcanzan para canjear 1 material y sobra 1 crédito de saldo.');
+  assert.equal(A.fraseAlcance(1000), 'Alcanzan para canjear 10 materiales.');
+  assert.match(A.fraseAlcance(50), /Todavía no alcanzan para canjear un material/);
+  assert.deepEqual(A.alcance(250), { materiales: 2, sobra: 50 });
+  assert.equal(A.textoConfirmacion('Ana Pérez', 300), 'Vas a regalar 300 créditos a <strong>Ana Pérez</strong>. Alcanzan para canjear 3 materiales.');
+  assert.equal(A.textoConfirmacion('Ana', 1), 'Vas a regalar 1 crédito a <strong>Ana</strong>. Todavía no alcanzan para canjear un material (cada uno cuesta 100), pero quedan como saldo.');
+  assert.equal(A.textoConfirmacion('Ana', 1000), 'Vas a regalar 1,000 créditos a <strong>Ana</strong>. Alcanzan para canjear 10 materiales.');
+  assert.ok(!A.textoConfirmacion('<img src=x onerror=1>', 300).includes('<img'));
+});
+
+test('«Otra cantidad»: solo enteros de 1 a 1,000; rechaza vacío, decimales, negativos, letras, notación científica y números enormes', () => {
+  for (const [t, n] of [['1', 1], ['100', 100], [' 250 ', 250], ['1000', 1000], ['007', 7]]) assert.deepEqual([A.analizarCantidad(t).ok, A.analizarCantidad(t).cantidad], [true, n], t);
+  for (const t of ['', '   ', '0', '00', '-5', '1.5', '1,5', '1e3', '1000.0', '1001', '99999', 'abc', '10 0', '+50', '١٢٣', null, undefined]) {
+    const a = A.analizarCantidad(t);
+    assert.equal(a.ok, false, String(t));
+    assert.ok(a.error && a.error.length > 10, String(t) + ' debe explicar qué pasó');
+    assert.equal(a.cantidad, 0);
+  }
+  assert.match(A.analizarCantidad('1001').error, /máximo.*1,000/);
+  assert.match(A.analizarCantidad('1.5').error, /entero/);
+  assert.match(A.analizarCantidad('').error, /Escribe cuántos/);
+});
+
+test('la ventana de regalar ofrece 100, 200, 300, 400 y «Otra cantidad» con un campo numérico; arranca en 100 con su frase', () => {
+  const h = A.regaloCuerpoHTML('Ana Pérez');
+  for (const n of [100, 200, 300, 400]) assert.match(h, new RegExp('data-cantidad="' + n + '" aria-pressed="' + (n === 100) + '">' + n + '<'));
+  assert.match(h, /data-otra="1" aria-pressed="false">Otra cantidad</);
+  assert.match(h, /id="apCrOtra" hidden/, 'el campo aparece solo al elegir «Otra cantidad»');
+  assert.match(h, /inputmode="numeric"[^>]*pattern="\[0-9\]\*"/);
+  assert.match(h, /id="apCrOtraError" role="alert" hidden/);
+  assert.match(h, /id="apCrFrase" aria-live="polite">Vas a regalar 100 créditos a <strong>Ana Pérez<\/strong>\. Alcanzan para canjear 1 material\./);
+  assert.match(A.regaloCuerpoHTML('Ana', 300), /data-cantidad="300" aria-pressed="true"/);
+  assert.ok(!A.regaloCuerpoHTML('<script>x</script>').includes('<script>'));
+  assert.equal(A.textoAceptar(300), 'Sí, regalar 300');
+  assert.equal(A.textoAceptar(1000), 'Sí, regalar 1,000');
+});
+
+test('el controlador: la frase y el botón se actualizan al elegir, «Mejor no» cancela y la cantidad inválida no se envía', () => {
+  const js = leer('assets/js/admin-creditos.js');
+  assert.match(js, /texto: 'Mejor no'/);
+  assert.match(js, /si\.textContent = textoAceptar\(/);
+  assert.match(js, /frase\.innerHTML = textoConfirmacion\(nombre, /);
+  assert.match(js, /si\.disabled = true/);
+  assert.match(js, /if \(!a\.ok\) return undefined;/, 'con una cantidad inválida la ventana no se cierra');
+  assert.match(js, /ev\.key === 'Enter'/);
+  assert.doesNotMatch(js, /parseFloat|Number\(campo/, 'la cantidad se valida como texto de dígitos');
+});
+
+test('historial: cantidad regalada y estado Pendiente / Canjeados 1 de 3 / Canjeado, con la lista de materiales canjeados', () => {
+  const base = { materialesTotal: 3, usados: 0, sobrante: 0, canjes: [] };
+  const pend = A.filaRegalo(regalo('r', Object.assign({}, base, { cantidad: 300 })));
+  assert.match(pend, /300 créditos/); assert.match(pend, /Pendiente de canjear/); assert.match(pend, /Todavía no lo canjea/);
+  const dos = A.filaRegalo(regalo('r', Object.assign({}, base, { cantidad: 300, estado: 'parcial', materialesCanjeados: 1,
+    canjes: [{ titulo: 'Inventario de botiquín', en: '2026-10-21T10:00:00Z' }] })));
+  assert.match(dos, /Canjeados 1 de 3/); assert.match(dos, /Inventario de botiquín/); assert.match(dos, /Faltan 2 por canjear/);
+  const todo = A.filaRegalo(regalo('r', Object.assign({}, base, { cantidad: 300, estado: 'canjeado', materialesCanjeados: 3,
+    canjes: [{ titulo: 'Uno', en: '2026-10-21T10:00:00Z' }, { titulo: 'Dos', en: '2026-10-22T10:00:00Z' }, { titulo: 'Tres', en: '2026-10-23T10:00:00Z' }] })));
+  assert.match(todo, /Canjeados 3 de 3/);
+  for (const t of ['Uno', 'Dos', 'Tres']) assert.match(todo, new RegExp(t));
+  assert.doesNotMatch(todo, /Faltan/);
+  const uno = A.filaRegalo(regalo('r', { cantidad: 100, estado: 'canjeado', materialesTotal: 1, materialesCanjeados: 1, canje: { titulo: 'Guía', en: '2026-10-21T10:00:00Z' } }));
+  assert.match(uno, /Canjeado<\/span>/, 'un regalo de un solo material dice solo Canjeado');
+  assert.match(A.filaRegalo(regalo('v', { cantidad: undefined })), /Pendiente de canjear/, 'regalos viejos sin cantidad no rompen');
+  assert.equal(A.estadoRegalo({ estado: 'parcial', materialesTotal: 0, materialesCanjeados: 0 }).texto, 'Canjeado en parte');
+});
+
+test('la ventana de regalar nueva no usa emojis ni degradados y su CSS cumple la letra mínima de 12 px', () => {
+  const css = leer('assets/css/admin-club.css');
+  const b = css.slice(css.indexOf('Créditos: ventana de regalar'));
+  assert.ok(b.length > 300);
+  assert.doesNotMatch(b, /gradient/i);
+  for (const m of b.matchAll(/font(?:-size)?:\s*(?:[0-9]{3}\s+)?([0-9.]+)(rem|px)/g)) assert.ok((m[2] === 'rem' ? Number(m[1]) * 16 : Number(m[1])) >= 12, m[0]);
+  assert.match(b, /min-height: 44px/, 'botones táctiles de 44 px');
 });

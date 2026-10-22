@@ -1,12 +1,14 @@
 /* ============================================================ */
 /* PANEL DE ADMINISTRACIÓN · CRÉDITOS                            */
-/* El administrador regala 100 créditos a mano; con 100 créditos */
-/* la persona canjea UN material de «PDFs y materiales» que no   */
-/* sea de ningún curso. Aquí se ve:                              */
+/* El administrador regala créditos a mano (100, 200, 300, 400 u */
+/* otra cantidad de 1 a 1,000); cada 100 créditos la persona     */
+/* canjea UN material de «PDFs y materiales» que no sea de ningún */
+/* curso. Aquí se ve:                                            */
 /*   1. cifras: regalados, canjeados y pendientes de canjear     */
 /*   2. la lista de cuentas (la más reciente primero) con el     */
-/*      botón «Regalar 100 créditos» al costado de cada una      */
-/*   3. el historial de regalos (Pendiente / Canjeado + material)*/
+/*      botón «Regalar créditos» al costado de cada una          */
+/*   3. el historial de regalos (Pendiente / Canjeados 1 de 3 /  */
+/*      Canjeado + materiales)                                   */
 /*   4. la gráfica de materiales más canjeados                   */
 /* Datos: GET /api/admin/creditos/{miembros,historial,metricas}  */
 /* y POST /api/admin/creditos/regalar. Todo lo calcula el        */
@@ -22,7 +24,10 @@
   var esc = P.esc;
   var ico = function (n, o) { return I && I.svg ? I.svg(n, o) : ''; };
   var num = P.fmtNum;
-  var REGALO = 100;
+  var REGALO = 100;               // lo que se propone al abrir la ventana
+  var COSTO = 100;                // créditos por material (lo fija el servidor)
+  var MAX_REGALO = 1000;          // máximo por regalo
+  var OPCIONES = [100, 200, 300, 400];
 
   function card(titulo, cuerpo, nota, id) {
     return '<section class="ap-card"' + (id ? ' id="' + esc(id) + '"' : '') + '><header class="ap-card__cab"><h2>' + esc(titulo) + '</h2>' + (nota ? '<p>' + esc(nota) + '</p>' : '') +
@@ -61,7 +66,7 @@
       '<div class="ap-mi__txt"><strong class="ap-cr__nombre">' + esc(m.nombre || 'Sin nombre') + '</strong>' +
       '<span class="ap-mi__linea ap-mi__correo">' + ico('mail', { size: 14 }) + '<span class="ap-correo">' + esc(m.correo || 'Sin correo') + '</span></span>' + registro + '</div>' +
       '<div class="ap-mi__estado"><span class="ap-mi__insignias">' + P.insigniasMiembro(m) + '</span>' + saldo + ultimo + '</div>' +
-      '<div class="ap-cr__accion"><button type="button" class="ap-btn ap-btn--primario ap-btn--chico" data-accion="regalar" data-uid="' + esc(m.uid) + '">' + ico('gift', { size: 16 }) + 'Regalar ' + REGALO + ' créditos</button></div></li>';
+      '<div class="ap-cr__accion"><button type="button" class="ap-btn ap-btn--primario ap-btn--chico" data-accion="regalar" data-uid="' + esc(m.uid) + '">' + ico('gift', { size: 16 }) + 'Regalar créditos</button></div></li>';
   }
 
   function listaMiembrosHTML(lista, visibles, texto) {
@@ -72,25 +77,86 @@
       (lista.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="mas-miembros">Mostrar ' + Math.min(25, lista.length - mostrar.length) + ' más</button>' : '');
   }
 
-  function textoConfirmacion(nombre) {
-    return 'Vas a regalar ' + REGALO + ' créditos a <strong>' + esc(nombre || 'esta persona') + '</strong>. Alcanzan para canjear 1 material.';
+  /* ───────────────────────── Cantidad a regalar ───────────────────────── */
+  /* Lo que se escribe en «Otra cantidad»: solo dígitos, un entero de 1 a 1,000 (nada de decimales, signos, letras ni notación científica). */
+  function analizarCantidad(texto) {
+    var t = String(texto == null ? '' : texto).trim();
+    if (!t) return { ok: false, cantidad: 0, error: 'Escribe cuántos créditos quieres regalar.' };
+    if (!/^[0-9]+$/.test(t)) return { ok: false, cantidad: 0, error: 'Escribe solo un número entero, sin puntos, comas ni letras.' };
+    var n = parseInt(t, 10);
+    if (n < 1) return { ok: false, cantidad: 0, error: 'La cantidad debe ser de al menos 1 crédito.' };
+    if (n > MAX_REGALO) return { ok: false, cantidad: 0, error: 'El máximo por regalo es de ' + num(MAX_REGALO) + ' créditos.' };
+    return { ok: true, cantidad: n, error: '' };
   }
+
+  /* Cuántos materiales alcanzan y cuánto sobra (cada material cuesta 100) */
+  function alcance(cantidad) {
+    var n = Math.floor(Number(cantidad) || 0);
+    return { materiales: Math.floor(n / COSTO), sobra: n % COSTO };
+  }
+
+  /* «Alcanzan para canjear 3 materiales.» · «2 materiales y sobran 50 créditos de saldo.» · «Todavía no alcanzan para un material…» */
+  function fraseAlcance(cantidad) {
+    var a = alcance(cantidad);
+    if (!a.materiales) return 'Todavía no alcanzan para canjear un material (cada uno cuesta ' + COSTO + '), pero quedan como saldo.';
+    var m = a.materiales + (a.materiales === 1 ? ' material' : ' materiales');
+    if (!a.sobra) return 'Alcanzan para canjear ' + m + '.';
+    return 'Alcanzan para canjear ' + m + ' y ' + (a.sobra === 1 ? 'sobra 1 crédito' : 'sobran ' + a.sobra + ' créditos') + ' de saldo.';
+  }
+
+  function textoCreditos(n) { return num(n) + (n === 1 ? ' crédito' : ' créditos'); }
+
+  function textoConfirmacion(nombre, cantidad) {
+    var c = cantidad === undefined ? REGALO : cantidad;
+    return 'Vas a regalar ' + textoCreditos(c) + ' a <strong>' + esc(nombre || 'esta persona') + '</strong>. ' + fraseAlcance(c);
+  }
+
+  /* El cuerpo de la ventana de regalar: 100, 200, 300, 400 y «Otra cantidad» con un campo numérico, y la frase que se actualiza al elegir */
+  function regaloCuerpoHTML(nombre, cantidad) {
+    var c = cantidad === undefined ? REGALO : cantidad;
+    var opciones = OPCIONES.map(function (n) {
+      return '<button type="button" class="ap-cr-op" data-cantidad="' + n + '" aria-pressed="' + (n === c) + '">' + num(n) + '</button>';
+    }).join('') + '<button type="button" class="ap-cr-op ap-cr-op--otra" data-otra="1" aria-pressed="false">Otra cantidad</button>';
+    return '<p class="ap-modal__texto">¿Cuántos créditos quieres regalar a <strong>' + esc(nombre || 'esta persona') + '</strong>?</p>' +
+      '<div class="ap-cr-opciones" role="group" aria-label="Cantidad de créditos a regalar">' + opciones + '</div>' +
+      '<div class="ap-campo ap-cr-otra" id="apCrOtra" hidden><label for="apCrOtraCampo">Escribe la cantidad (de 1 a ' + num(MAX_REGALO) + ')</label>' +
+      '<input type="text" id="apCrOtraCampo" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="Por ejemplo, 250" aria-describedby="apCrOtraError"></div>' +
+      '<p class="ap-error" id="apCrOtraError" role="alert" hidden></p>' +
+      '<p class="ap-modal__texto ap-cr-frase" id="apCrFrase" aria-live="polite">' + textoConfirmacion(nombre, c) + '</p>';
+  }
+
+  /* Texto del botón de aceptar */
+  function textoAceptar(cantidad) { return 'Sí, regalar ' + num(cantidad); }
 
   /* ───────────────────────── Historial de regalos ───────────────────────── */
   var FILTROS = [['todos', 'Todos'], ['pendientes', 'Pendientes'], ['canjeados', 'Canjeados']];
 
+  /* Estado de un regalo: Pendiente de canjear · Canjeados 1 de 3 · Canjeado */
+  function estadoRegalo(r) {
+    var total = Number(r.materialesTotal) || 0, hechos = Number(r.materialesCanjeados) || 0;
+    if (r.estado === 'canjeado') return { clase: 'ok', icono: 'circle-check', texto: total > 1 ? 'Canjeados ' + hechos + ' de ' + total : 'Canjeado' };
+    if (r.estado === 'parcial') return { clase: 'aviso', icono: 'hourglass', texto: total ? 'Canjeados ' + hechos + ' de ' + total : 'Canjeado en parte' };
+    return { clase: 'aviso', icono: 'hourglass', texto: 'Pendiente de canjear' };
+  }
+  function listaCanjes(r) {
+    var lista = Array.isArray(r.canjes) && r.canjes.length ? r.canjes : (r.canje ? [r.canje] : []);
+    return lista.map(function (c) {
+      return '<span class="ap-hr__mat">' + ico('file-text', { size: 14 }) + '<span>' + esc(c.titulo || 'Material') + '</span></span><span class="ap-hr__fecha">Canjeado ' + esc(P.fmtFechaHora(c.en)) + '</span>';
+    }).join('');
+  }
+
   function filaRegalo(r) {
-    var canjeado = r.estado === 'canjeado' && r.canje;
-    var estado = canjeado
-      ? '<span class="ap-badge ap-badge--ok">' + ico('circle-check', { size: 14 }) + '<span>Canjeado</span></span>'
-      : '<span class="ap-badge ap-badge--aviso">' + ico('hourglass', { size: 14 }) + '<span>Pendiente de canjear</span></span>';
-    var detalle = canjeado
-      ? '<span class="ap-hr__mat">' + ico('file-text', { size: 14 }) + '<span>' + esc(r.canje.titulo || 'Material') + '</span></span><span class="ap-hr__fecha">Canjeado ' + esc(P.fmtFechaHora(r.canje.en)) + '</span>'
-      : '<span class="ap-hr__fecha">Todavía no lo canjea</span>';
+    var e = estadoRegalo(r);
+    var materiales = listaCanjes(r);
+    var detalle = materiales || '<span class="ap-hr__fecha">Todavía no lo canjea</span>';
+    var pendiente = r.estado === 'parcial' && Number(r.materialesTotal) > Number(r.materialesCanjeados)
+      ? '<span class="ap-hr__fecha">Faltan ' + (Number(r.materialesTotal) - Number(r.materialesCanjeados)) + ' por canjear</span>' : '';
+    var estado = '<span class="ap-badge ap-badge--' + e.clase + '">' + ico(e.icono, { size: 14 }) + '<span>' + esc(e.texto) + '</span></span>';
+    var cantidad = Number(r.cantidad) > 0 ? '<span class="ap-hr__cant">' + ico('wallet', { size: 14 }) + '<strong>' + esc(textoCreditos(Number(r.cantidad))) + '</strong></span>' : '';
     return '<li class="ap-hr" data-id="' + esc(r.id) + '">' +
       '<div class="ap-hr__quien"><strong>' + esc(r.nombre || 'Sin nombre') + '</strong><span class="ap-mi__linea">' + ico('mail', { size: 14 }) + '<span class="ap-correo">' + esc(r.correo || 'Sin correo') + '</span></span></div>' +
-      '<div class="ap-hr__cuando"><span>Regalado ' + esc(P.fmtFechaHora(r.en)) + '</span><span class="ap-hr__admin">Por ' + esc(r.regaladoPor || 'administración') + '</span></div>' +
-      '<div class="ap-hr__estado">' + estado + detalle + '</div></li>';
+      '<div class="ap-hr__cuando">' + cantidad + '<span>Regalado ' + esc(P.fmtFechaHora(r.en)) + '</span><span class="ap-hr__admin">Por ' + esc(r.regaladoPor || 'administración') + '</span></div>' +
+      '<div class="ap-hr__estado">' + estado + detalle + pendiente + '</div></li>';
   }
 
   function historialHTML(h, ui) {
@@ -141,14 +207,14 @@
     var lista = filtrarMiembros((data.miembros && data.miembros.miembros) || [], u.texto);
     var titulo = P.tarjetaTitulo({
       icono: 'wallet', eyebrow: 'Panel de administración', titulo: 'Regala', acento: 'créditos.',
-      sub: 'Regala ' + REGALO + ' créditos a quien quieras. Con ' + REGALO + ' créditos la persona canjea 1 material de «PDFs y materiales» que no sea de ningún curso; si le regalas otros ' + REGALO + ', puede canjear otro.',
+      sub: 'Regala 100, 200, 300, 400 u otra cantidad de créditos a quien quieras. Cada 100 créditos la persona canjea 1 material de «PDFs y materiales» que no sea de ningún curso.',
       cifras: cifras(m), acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }]
     });
     var controles = '<div class="ap-controles"><div class="ap-controles__der ap-controles__der--solo"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por nombre o correo</span>' +
       '<input type="search" id="apCrBuscar" placeholder="Buscar por nombre o correo" autocomplete="off" value="' + esc(u.texto || '') + '"></label></div></div>';
     return titulo +
-      card('Cuentas', controles + '<div id="apCrMiembros">' + listaMiembrosHTML(lista, u.visibles || 25, u.texto) + '</div>', 'De la cuenta más reciente a la más antigua. Cada regalo es de ' + REGALO + ' créditos y requiere que la persona haya confirmado su correo.') +
-      card('Historial de regalos', historialHTML(data.historial, { filtro: u.filtro, texto: u.textoHistorial }), 'A quién se le regaló, quién lo regaló y si ya lo canjeó.', 'apCrHistorial') +
+      card('Cuentas', controles + '<div id="apCrMiembros">' + listaMiembrosHTML(lista, u.visibles || 25, u.texto) + '</div>', 'De la cuenta más reciente a la más antigua. Eliges cuántos créditos regalar (de 1 a ' + num(MAX_REGALO) + ' por regalo, hasta ' + num(MAX_REGALO) + ' por cuenta al día) y la persona debe haber confirmado su correo.') +
+      card('Historial de regalos', historialHTML(data.historial, { filtro: u.filtro, texto: u.textoHistorial }), 'A quién se le regaló, cuánto, quién lo regaló y cuántos materiales ya canjeó.', 'apCrHistorial') +
       card('Materiales más canjeados', graficaHTML(m), 'Cuántas veces se canjeó cada material.', 'apCrGrafica') +
       (data.miembros && data.miembros.truncado ? '<div class="ap-aviso ap-aviso--info" role="note">' + ico('info', { size: 20 }) + '<div><p>Se muestran las primeras 5,000 cuentas.</p></div></div>' : '');
   }
@@ -198,25 +264,62 @@
     if (campo && document.activeElement !== campo && est.textoHistorial) { /* el campo se vuelve a pintar con su valor */ }
   }
 
+  /* Ventana de regalar: elige 100, 200, 300, 400 u «Otra cantidad»; la frase y el botón se actualizan al instante. Devuelve la cantidad o null. */
+  function pedirCantidad(nombre) {
+    var estadoVentana = { cantidad: REGALO, otra: false };
+    return V.modal({
+      titulo: 'Regalar créditos', cuerpo: regaloCuerpoHTML(nombre, REGALO),
+      botones: [{ id: 'no', texto: 'Mejor no', tipo: 'suave' }, { id: 'si', texto: textoAceptar(REGALO), tipo: 'primario' }],
+      alAbrir: function (caja) {
+        var si = caja.querySelector('[data-modal="si"]'), frase = caja.querySelector('#apCrFrase'), bloque = caja.querySelector('#apCrOtra');
+        var campo = caja.querySelector('#apCrOtraCampo'), error = caja.querySelector('#apCrOtraError');
+        function marcar(boton) {
+          Array.prototype.forEach.call(caja.querySelectorAll('.ap-cr-op'), function (b) { b.setAttribute('aria-pressed', b === boton ? 'true' : 'false'); });
+        }
+        function mostrar() {
+          if (!estadoVentana.otra) { error.hidden = true; si.disabled = false; si.textContent = textoAceptar(estadoVentana.cantidad); frase.innerHTML = textoConfirmacion(nombre, estadoVentana.cantidad); return; }
+          var a = analizarCantidad(campo.value);
+          if (a.ok) { estadoVentana.cantidad = a.cantidad; error.hidden = true; si.disabled = false; si.textContent = textoAceptar(a.cantidad); frase.innerHTML = textoConfirmacion(nombre, a.cantidad); }
+          else { si.disabled = true; si.textContent = 'Sí, regalar'; frase.textContent = 'Elige cuántos créditos regalar.'; error.textContent = campo.value.trim() ? a.error : ''; error.hidden = !campo.value.trim(); }
+        }
+        caja.addEventListener('click', function (ev) {
+          var op = ev.target.closest('.ap-cr-op'); if (!op) return;
+          if (op.dataset.otra) { estadoVentana.otra = true; bloque.hidden = false; marcar(op); campo.focus(); mostrar(); return; }
+          estadoVentana.otra = false; estadoVentana.cantidad = parseInt(op.dataset.cantidad, 10); bloque.hidden = true; marcar(op); mostrar();
+        });
+        campo.addEventListener('input', mostrar);
+        campo.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); if (!si.disabled) si.click(); } });
+        caja._estado = estadoVentana;
+        mostrar();
+      },
+      alElegir: function (id, caja, cerrar) {
+        if (id !== 'si') return cerrar(null);
+        var e = caja._estado;
+        if (e.otra) { var a = analizarCantidad(caja.querySelector('#apCrOtraCampo').value); if (!a.ok) return undefined; return cerrar(a.cantidad); }
+        return cerrar(e.cantidad);
+      }
+    });
+  }
+
   async function regalar(uid, boton) {
     var u = V.util; var ctx = u.contexto();
     var m = est.datos.miembros.miembros.filter(function (x) { return x.uid === uid; })[0];
     if (!m || est.ocupado) return;
-    var si = await V.confirmar({ titulo: 'Regalar ' + REGALO + ' créditos', texto: textoConfirmacion(m.nombre || m.correo), aceptar: 'Sí, regalar ' + REGALO, cancelar: 'Mejor no', peligro: false });
-    if (!si) return;
+    var cantidad = await pedirCantidad(m.nombre || m.correo);
+    if (!cantidad) return;
     est.ocupado = true;
     var botones = document.querySelectorAll('.ap-cr__accion button');
     botones.forEach(function (b) { b.disabled = true; });
     if (boton) boton.lastChild.textContent = 'Regalando…';
     try {
-      var r = await ctx.api('/api/admin/creditos/regalar', { method: 'POST', body: { uid: uid, clave: nuevaClave() } });
-      ctx.toast('Listo: regalaste ' + REGALO + ' créditos a ' + (m.nombre || m.correo || 'la persona') + '. Ahora tiene ' + num(r.saldo) + '.');
+      var r = await ctx.api('/api/admin/creditos/regalar', { method: 'POST', body: { uid: uid, cantidad: cantidad, clave: nuevaClave() } });
+      ctx.toast('Listo: regalaste ' + textoCreditos(r.cantidad || cantidad) + ' a ' + (m.nombre || m.correo || 'la persona') + '. Ahora tiene ' + num(r.saldo) + '.');
       est.ocupado = false;
       await cargar(true);
     } catch (e) {
       est.ocupado = false;
       botones.forEach(function (b) { b.disabled = false; });
-      if (boton) boton.lastChild.textContent = 'Regalar ' + REGALO + ' créditos';
+      if (boton) boton.lastChild.textContent = 'Regalar créditos';
       ctx.toast((e && e.message) || 'No se pudieron regalar los créditos.', true);
     }
   }
@@ -251,7 +354,7 @@
   }
 
   return {
-    REGALO: REGALO, cifras: cifras, filtrarMiembros: filtrarMiembros, filaMiembro: filaMiembro, listaMiembrosHTML: listaMiembrosHTML, textoConfirmacion: textoConfirmacion,
+    REGALO: REGALO, COSTO: COSTO, MAX_REGALO: MAX_REGALO, OPCIONES: OPCIONES, analizarCantidad: analizarCantidad, alcance: alcance, fraseAlcance: fraseAlcance, regaloCuerpoHTML: regaloCuerpoHTML, textoAceptar: textoAceptar, estadoRegalo: estadoRegalo, textoCreditos: textoCreditos, cifras: cifras, filtrarMiembros: filtrarMiembros, filaMiembro: filaMiembro, listaMiembrosHTML: listaMiembrosHTML, textoConfirmacion: textoConfirmacion,
     filaRegalo: filaRegalo, historialHTML: historialHTML, fraseGrafica: fraseGrafica, graficaHTML: graficaHTML, vistaHTML: vistaHTML, creditos: cargar, FILTROS: FILTROS
   };
 });

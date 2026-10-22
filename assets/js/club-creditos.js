@@ -1,16 +1,17 @@
 /* ============================================================ */
 /* CLUB VIP ZOORIGEN · CRÉDITOS                                   */
-/* El administrador regala 100 créditos a mano; la persona los    */
-/* canjea por UN material de «PDFs y materiales» que no sea de    */
-/* ningún curso (cada material cuesta 100).                       */
+/* El administrador regala créditos a mano (100, 200, 300, 400 u  */
+/* otra cantidad); la persona los canjea por materiales de «PDFs  */
+/* y materiales» que no sean de ningún curso (cada uno cuesta 100)*/
 /*                                                                */
-/*  1) Tarjeta de felicitación «has ganado 100 créditos»: entra a */
+/*  1) Tarjeta de felicitación «has ganado 300 créditos»: entra a */
 /*     la cola de ventanas (club-cola.js) con la prioridad MÁS    */
 /*     BAJA, así que sale cuando terminan las demás tarjetas de   */
 /*     bienvenida y avisos; nunca se encima. El aviso pendiente   */
 /*     vive en el servidor (GET /api/creditos/estado y            */
 /*     POST /api/creditos/aviso-visto), no en este navegador.     */
-/*  2) Piezas de «PDFs y materiales»: saldo, insignia             */
+/*  2) Piezas de «PDFs y materiales»: pastilla «Tus créditos: N»  */
+/*     siempre visible (con su ayuda), insignia                   */
 /*     «Canjeable por 100 créditos», botón Canjear y confirmación */
 /*     (POST /api/creditos/canjear).                              */
 /* Lo que se muestra lo decide el servidor; aquí solo se dibuja.  */
@@ -27,8 +28,9 @@
   var RUTA_CANJEABLES = 'club-pdfs.html?canjeables=1';
   var TEXTOS = {
     kicker: 'Regalo de Zoorigen',
-    titulo: function (n) { return 'Felicidades, has ganado ' + fmt(n) + ' créditos'; },
-    texto: 'Puedes canjearlos por el material de tu elección.',
+    titulo: function (n) { return 'Felicidades, has ganado ' + fmt(n) + (n === 1 ? ' crédito' : ' créditos'); },
+    // «Alcanzan para canjear 3 materiales.» · «Alcanzan para canjear 2 materiales y te sobran 50 créditos de saldo.»
+    texto: function (n) { return fraseAlcance(n); },
     entendido: 'Entendido',
     canjear: 'Canjear',
     insignia: function (costo) { return 'Canjeable por ' + fmt(costo) + ' créditos'; },
@@ -46,18 +48,28 @@
 
   /* ───────────────────────── Piezas puras ───────────────────────── */
 
+  // Cuántos materiales alcanzan con esta cantidad (cada uno cuesta 100) y cuánto sobra; con singular y plural
+  function fraseAlcance(cantidad) {
+    var n = entero(cantidad);
+    var materiales = Math.floor(n / COSTO), sobra = n % COSTO;
+    if (!materiales) return 'Todavía no alcanzan para un material (cada uno cuesta ' + COSTO + '), pero ya son parte de tu saldo.';
+    var m = materiales + (materiales === 1 ? ' material' : ' materiales');
+    if (!sobra) return 'Alcanzan para canjear ' + m + '.';
+    return 'Alcanzan para canjear ' + m + ' y te ' + (sobra === 1 ? 'sobra 1 crédito' : 'sobran ' + sobra + ' créditos') + ' de saldo.';
+  }
+
   // ¿Hay algo que celebrar? estado = respuesta de GET /api/creditos/estado
   function hayAviso(estado) { return !!(estado && estado.ok === true && entero(estado.avisoPendiente) > 0); }
 
-  // El texto de «Felicidades»: usa lo que dice el servidor (100 por regalo; 200 si hubo dos sin verlos)
+  // El texto de «Felicidades»: usa lo que dice el servidor (lo regalado desde la última vez que lo viste: un regalo de 300, o dos de 100 y 200)
   function tarjetaHTML(estado) {
     var n = entero(estado && estado.avisoPendiente) || COSTO;
     return '<button type="button" class="zcp__x" data-zcr-entendido aria-label="' + esc(TEXTOS.entendido) + '">' + icono('x', 18) + '</button>' +
       '<div class="zcp__trofeo">' + icono('gift', 42) + '</div>' +
       '<p class="zcp__kicker">' + esc(TEXTOS.kicker) + '</p>' +
-      '<p class="zcp__xp"><span class="zcp__xp-num">+' + fmt(n) + '</span><span class="zcp__xp-u">créditos</span></p>' +
+      '<p class="zcp__xp"><span class="zcp__xp-num">+' + fmt(n) + '</span><span class="zcp__xp-u">' + (n === 1 ? 'crédito' : 'créditos') + '</span></p>' +
       '<h2 class="zcp__titulo" id="zcr-titulo">' + esc(TEXTOS.titulo(n)) + '</h2>' +
-      '<p class="zcp__texto" id="zcr-desc">' + esc(TEXTOS.texto) + '</p>' +
+      '<p class="zcp__texto" id="zcr-desc">' + esc(TEXTOS.texto(n)) + '</p>' +
       '<div class="zcr__botones"><button type="button" class="zcr__btn zcr__btn--suave" data-zcr-entendido>' + esc(TEXTOS.entendido) + '</button>' +
       '<button type="button" class="zcp__btn zcr__btn" data-zcr-canjear>' + icono('wallet', 18) + '<span>' + esc(TEXTOS.canjear) + '</span></button></div>';
   }
@@ -110,12 +122,23 @@
       '<button type="button" class="zcr-btn' + (e.puede ? '' : ' is-falta') + '" data-canjear="' + esc(item.clave) + '"' + (e.puede ? '' : ' aria-disabled="true" title="Necesitas ' + fmt(item.costo || costo || COSTO) + ' créditos"') + '>' + esc(e.rotulo) + '</button></div>';
   }
 
-  function saldoHTML(saldo, opc) {
+  var AYUDA = '100 créditos = 1 material. Canjea materiales marcados «Canjeable por 100 créditos».';
+
+  /* Pastilla «Tus créditos: N», siempre visible en «PDFs y materiales» (también con 0). Al pulsarla muestra la ayuda; con 100 o más
+     ofrece «Ver materiales canjeables». opc: { soloCanjeables, ayudaAbierta, reserva } — reserva dibuja solo el espacio (mientras carga). */
+  function pastillaHTML(saldo, opc) {
     var o = opc || {};
+    if (o.reserva) return '<div class="zcr-pastilla zcr-pastilla--reserva" id="zcrPastilla" aria-hidden="true"></div>';
     var n = entero(saldo);
-    return '<div class="zcr-saldo' + (n > 0 ? ' zcr-saldo--hay' : '') + '" role="status"><span class="zcr-saldo__ico">' + icono('wallet', 22) + '</span>' +
-      '<div class="zcr-saldo__txt"><strong>' + esc(TEXTOS.saldo(n)) + '</strong><span>' + (n >= COSTO ? 'Cada material canjeable cuesta ' + fmt(COSTO) + ' créditos: con tu saldo puedes canjear ' + Math.floor(n / COSTO) + (Math.floor(n / COSTO) === 1 ? ' material.' : ' materiales.') : 'Cada material canjeable cuesta ' + fmt(COSTO) + ' créditos.') + '</span></div>' +
-      (o.soloCanjeables ? '<a class="zcr-saldo__ver" href="club-pdfs.html">Ver todos los materiales</a>' : '') + '</div>';
+    var abierta = !!o.ayudaAbierta;
+    var ver = o.soloCanjeables
+      ? '<a class="zcr-pastilla__ver" href="club-pdfs.html" data-zcr-ver-todos>Ver todos los materiales</a>'
+      : (n >= COSTO ? '<button type="button" class="zcr-pastilla__ver" data-zcr-ver-canjeables>Ver materiales canjeables</button>' : '');
+    return '<div class="zcr-pastilla' + (n > 0 ? ' zcr-pastilla--hay' : '') + '" id="zcrPastilla" data-saldo="' + n + '">' +
+      '<button type="button" class="zcr-pastilla__btn" data-zcr-ayuda aria-expanded="' + abierta + '" aria-controls="zcrAyuda" title="' + esc(AYUDA) + '">' +
+        icono('wallet', 20) + '<span class="zcr-pastilla__txt">Tus créditos: <strong>' + fmt(n) + '</strong></span>' + icono('info', 16) + '</button>' +
+      ver +
+      '<p class="zcr-pastilla__ayuda" id="zcrAyuda" role="note"' + (abierta ? '' : ' hidden') + '>' + esc(AYUDA) + '</p></div>';
   }
 
   /* ───────────────────────── Navegador ───────────────────────── */
@@ -247,6 +270,6 @@
   return {
     COSTO: COSTO, PRIORIDAD: PRIORIDAD, RUTA_CANJEABLES: RUTA_CANJEABLES, TEXTOS: TEXTOS,
     esc: esc, fmt: fmt, hayAviso: hayAviso, tarjetaHTML: tarjetaHTML, colaLibre: colaLibre, esperarTurno: esperarTurno, estadoCanje: estadoCanje,
-    canjeHTML: canjeHTML, saldoHTML: saldoHTML, abrirTarjeta: abrirTarjeta, confirmarCanje: confirmarCanje, iniciarAviso: iniciarAviso, hayVentanaAbierta: hayVentanaAbierta
+    canjeHTML: canjeHTML, pastillaHTML: pastillaHTML, fraseAlcance: fraseAlcance, AYUDA: AYUDA, abrirTarjeta: abrirTarjeta, confirmarCanje: confirmarCanje, iniciarAviso: iniciarAviso, hayVentanaAbierta: hayVentanaAbierta
   };
 });

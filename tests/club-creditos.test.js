@@ -15,11 +15,12 @@ const COLA = require(path.join(RAIZ, 'assets', 'js', 'club-cola.js'));
 test('textos: felicitación con los créditos ganados, Entendido y Canjear; nada de emojis', () => {
   const h = C.tarjetaHTML({ ok: true, avisoPendiente: 100 });
   assert.match(h, /Felicidades, has ganado 100 créditos/);
-  assert.match(h, /Puedes canjearlos por el material de tu elección\./);
+  assert.match(h, /Alcanzan para canjear 1 material\./);
   assert.match(h, /data-zcr-entendido[^>]*>Entendido</);
   assert.match(h, /data-zcr-canjear/);
   assert.match(h, /\+100/);
   assert.match(C.tarjetaHTML({ avisoPendiente: 200 }), /has ganado 200 créditos/, 'si hubo dos regalos sin ver, se suman');
+  assert.match(C.tarjetaHTML({ avisoPendiente: 200 }), /Alcanzan para canjear 2 materiales\./);
   assert.ok(!/[\p{Extended_Pictographic}\u{FE0F}]/u.test(h));
 });
 
@@ -97,12 +98,52 @@ test('canjeHTML: insignia «Canjeable por 100 créditos» y botón; sin saldo ex
   assert.match(C.canjeHTML({ clave: 'pdf:"><img src=x>', costo: 100 }, 100, 100), /&quot;&gt;&lt;img src=x&gt;/, 'la clave va escapada');
 });
 
-test('saldoHTML: «Tienes 100 créditos» y cuántos materiales alcanzan; con 0 sigue claro', () => {
-  assert.match(C.saldoHTML(100), /Tienes 100 créditos/);
-  assert.match(C.saldoHTML(100), /canjear 1 material/);
-  assert.match(C.saldoHTML(200), /canjear 2 materiales/);
-  assert.match(C.saldoHTML(0), /Tienes 0 créditos/);
-  assert.match(C.saldoHTML(100, { soloCanjeables: true }), /Ver todos los materiales/);
+test('felicitación con cualquier cantidad: «has ganado 300 créditos. Alcanzan para canjear 3 materiales.», singular y plural, y el sobrante', () => {
+  const t = n => C.tarjetaHTML({ ok: true, avisoPendiente: n });
+  assert.match(t(300), /Felicidades, has ganado 300 créditos/);
+  assert.match(t(300), /Alcanzan para canjear 3 materiales\./);
+  assert.match(t(300), /\+300<\/span><span class="zcp__xp-u">créditos</);
+  assert.match(t(400), /Alcanzan para canjear 4 materiales\./);
+  assert.match(t(250), /Alcanzan para canjear 2 materiales y te sobran 50 créditos de saldo\./);
+  assert.match(t(101), /Alcanzan para canjear 1 material y te sobra 1 crédito de saldo\./);
+  assert.match(t(50), /Felicidades, has ganado 50 créditos/);
+  assert.match(t(50), /Todavía no alcanzan para un material/);
+  assert.match(t(1), /has ganado 1 crédito</);
+  assert.match(t(1), /zcp__xp-u">crédito</);
+  assert.match(t(1000), /has ganado 1,000 créditos/);
+  assert.match(t(1000), /Alcanzan para canjear 10 materiales\./);
+  assert.equal(C.fraseAlcance(100), 'Alcanzan para canjear 1 material.');
+  assert.ok(!/[\p{Extended_Pictographic}\u{FE0F}]/u.test(t(300)));
+});
+
+test('pastilla «Tus créditos: N»: siempre visible, también con 0, con su ayuda; con 100 o más ofrece «Ver materiales canjeables»', () => {
+  const p0 = C.pastillaHTML(0);
+  assert.match(p0, /Tus créditos: <strong>0<\/strong>/);
+  assert.match(p0, /data-zcr-ayuda aria-expanded="false" aria-controls="zcrAyuda"/);
+  assert.match(p0, /100 créditos = 1 material\. Canjea materiales marcados «Canjeable por 100 créditos»\./);
+  assert.match(p0, /id="zcrAyuda" role="note" hidden/);
+  assert.doesNotMatch(p0, /Ver materiales canjeables/, 'con menos de 100 no hay botón');
+  assert.doesNotMatch(C.pastillaHTML(99), /Ver materiales canjeables/);
+  assert.match(C.pastillaHTML(100), /Tus créditos: <strong>100<\/strong>/);
+  assert.match(C.pastillaHTML(100), /data-zcr-ver-canjeables>Ver materiales canjeables</);
+  assert.match(C.pastillaHTML(200), /Tus créditos: <strong>200<\/strong>/);
+  assert.match(C.pastillaHTML(1234), /Tus créditos: <strong>1,234<\/strong>/);
+  assert.match(C.pastillaHTML(250, { ayudaAbierta: true }), /aria-expanded="true"/);
+  assert.doesNotMatch(C.pastillaHTML(250, { ayudaAbierta: true }), /id="zcrAyuda" role="note" hidden/);
+  const solo = C.pastillaHTML(200, { soloCanjeables: true });
+  assert.match(solo, /Ver todos los materiales/);
+  assert.doesNotMatch(solo, /Ver materiales canjeables/);
+  for (const raro of [undefined, null, -5, NaN, 'x', 1.9]) assert.match(C.pastillaHTML(raro), /Tus créditos: <strong>[01]<\/strong>/, String(raro));
+  assert.ok(!/[\p{Extended_Pictographic}\u{FE0F}]/u.test(C.pastillaHTML(300)));
+});
+
+test('pastilla: mientras carga solo reserva su espacio (sin texto ni botones) y es el mismo contenedor que luego se llena', () => {
+  const r = C.pastillaHTML(0, { reserva: true });
+  assert.match(r, /id="zcrPastilla"/);
+  assert.match(r, /zcr-pastilla--reserva/);
+  assert.match(r, /aria-hidden="true"/);
+  assert.doesNotMatch(r, /Tus créditos|button/);
+  assert.match(C.pastillaHTML(0), /id="zcrPastilla"/);
 });
 
 test('iniciarAviso: sin aviso pendiente no muestra nada; al administrador nunca; con aviso espera a la cola y avisa al servidor al cerrar', async () => {

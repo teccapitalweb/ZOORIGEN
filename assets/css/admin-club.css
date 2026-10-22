@@ -1051,3 +1051,23 @@ body.ap-sin-scroll { overflow: hidden; }
 .ap-hr__fecha { font-size: .8rem; color: var(--c-text-3); }
 @media (max-width: 720px) { .ap-hr { grid-template-columns: minmax(0, 1fr); } }
 .ap-cr-lista { list-style: none; margin: 0; padding: 0; border: 1px solid var(--c-line); border-radius: 18px; background: var(--c-surface); }
+
+/* ───── Créditos: ventana de regalar (100, 200, 300, 400 u otra cantidad) y cantidad en el historial ───── */
+.ap-cr-opciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.ap-cr-op { min-height: 44px; min-width: 64px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--c-line); background: var(--c-surface); color: var(--c-text); font: 700 .95rem var(--zoo-font-body, inherit); font-variant-numeric: tabular-nums; cursor: pointer; }
+.ap-cr-op:hover { border-color: var(--c-accent); }
+.ap-cr-op:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+:root[data-modo="claro"] .ap-cr-op:focus-visible { outline-color: #1F5F8F; }
+.ap-cr-op[aria-pressed="true"] { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-accent-ink, #1f1d17); }
+.ap-cr-op--otra { padding-inline: 18px; }
+.ap-cr-otra { margin: 0 0 10px; }
+.ap-cr-otra[hidden], #apCrOtraError[hidden] { display: none; }
+.ap-cr-otra input { max-width: 220px; font-variant-numeric: tabular-nums; }
+.ap-cr-frase { min-height: 3.2em; margin: 6px 0 0; }
+.ap-hr__cant { display: inline-flex; align-items: center; gap: 6px; color: var(--c-text); }
+.ap-hr__cant .zi { color: var(--c-text-3); }
+@media (max-width: 520px) {
+  .ap-cr-opciones { gap: 8px; }
+  .ap-cr-op { flex: 1 1 calc(50% - 8px); }
+  .ap-cr-op--otra { flex-basis: 100%; }
+}
