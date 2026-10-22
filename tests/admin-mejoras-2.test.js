@@ -148,3 +148,8 @@ test('sin degradados ni emojis en lo nuevo y la letra mínima sigue en 12 px', (
   }
   assert.match(html, /sv\.oninput = null; sv\.onchange = null;/, 'al cambiar de sección se sueltan los oyentes de la anterior');
 });
+
+test('foro: la discusion nueva ya no guarda el correo del autor (lo leian los demas miembros)', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'pages', 'club-foro.html'), 'utf8');
+  assert.doesNotMatch(html, /authorEmails*:/);
+});
