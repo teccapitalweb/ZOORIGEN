@@ -42,7 +42,7 @@ function crearClub({ resultadoGoogle, docExiste = false, fetchImpl, usuarioActua
   vm.runInNewContext(fuente, contexto, { filename: 'club.js' });
   // Los referidos no son el tema de estas pruebas
   contexto.result.registrarReferido = async () => ({ ok: false, motivo: 'omitido' });
-  return { club: contexto.result, registro, auth };
+  return { club: contexto.result, registro, auth, contexto };
 }
 
 const cuentaGoogle = (esNueva) => ({ user: { uid: 'g1', email: 'ana@example.com', displayName: 'Ana' }, additionalUserInfo: { isNewUser: esNueva } });
@@ -150,4 +150,40 @@ test('las páginas usan los modos de Google y la pantalla de confirmación exist
   assert.match(verificar, /applyActionCode\(code\)/);
   assert.match(verificar, /¡Correo confirmado!/);
   assert.match(verificar, /Este enlace ya no sirve/);
+});
+
+
+test('requireAuth mantiene oculto el panel mientras espera el perfil y pasa a verificación sin resolver la sesión', async () => {
+  const t = crearClub(); const attrs = new Map(); let listener, completar;
+  t.contexto.document.documentElement.setAttribute = (k,v) => attrs.set(k,v);
+  t.contexto.document.documentElement.removeAttribute = k => attrs.delete(k);
+  t.auth.onAuthStateChanged = cb => { listener = cb; };
+  t.contexto.db.collection = () => ({ doc: () => ({ get: () => new Promise(r => { completar = r; }) }) });
+  t.club._enPanelAdmin = () => true;
+  t.club.mostrarPantallaVerificacion = () => attrs.set('data-zoo-auth','verification');
+  let resuelta = false; t.club.requireAuth().then(() => { resuelta = true; });
+  const cargando = listener({ ...conClave(), uid:'nueva',email:'nueva@example.com' });
+  assert.equal(attrs.get('data-zoo-auth'),'pending');
+  completar({exists:true,data:()=>({})});await cargando;
+  assert.equal(attrs.get('data-zoo-auth'),'verification');assert.equal(resuelta,false);
+});
+
+test('requireAuth no salta la verificación de una cuenta nueva si falla la lectura del perfil', async () => {
+  const t = crearClub(); let listener, verificaciones=0;
+  t.auth.onAuthStateChanged = cb => { listener = cb; };
+  t.contexto.db.collection = () => ({doc:()=>({get:async()=>{throw new Error('sin red')}})});
+  t.club.mostrarPantallaVerificacion = () => { verificaciones++; };
+  let resuelta=false;t.club.requireAuth().then(()=>{resuelta=true});
+  await listener({...conClave(),uid:'nueva',email:'nueva@example.com'});
+  assert.equal(verificaciones,1);assert.equal(resuelta,false);
+});
+
+test('requireAuth libera el panel y resuelve la sesión cuando el correo ya está confirmado', async () => {
+  const t=crearClub();const attrs=new Map();let listener;
+  t.contexto.document.documentElement.setAttribute=(k,v)=>attrs.set(k,v);
+  t.contexto.document.documentElement.removeAttribute=k=>attrs.delete(k);
+  t.auth.onAuthStateChanged=cb=>{listener=cb};t.club._enPanelAdmin=()=>true;
+  const promesa=t.club.requireAuth();
+  await listener({...conClave({emailVerified:true}),uid:'confirmada',email:'confirmada@example.com'});
+  assert.equal((await promesa).uid,'confirmada');assert.equal(attrs.has('data-zoo-auth'),false);
 });

@@ -214,7 +214,7 @@
       .am { padding: 18px; }
     }
   </style>
-  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261123-sinmorado">
+  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261019-tarjetas">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
@@ -305,7 +305,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261129-acceso"></script>
+  <script src="../assets/js/club.js?v=20261207-integrado"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/admin-iconos.js?v=20261203-panel3"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
@@ -319,6 +319,7 @@
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-materiales-curso.js?v=20261203-panel3"></script>
   <script src="../assets/js/admin-cursos.js?v=20261203-panel3"></script>
   <script src="../assets/js/admin-certificados.js?v=20261203-panel3"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
@@ -536,11 +537,7 @@
 
     // ═══════════ CURSOS ═══════════
     const CURSOS = window.ZOO_ADMIN_CURSOS;
-    const cursosEstado = { items: [], texto: '', area: 'todas', orden: 'recientes', vista: 'lista' };
-    try {
-      const vistaGuardada = localStorage.getItem('zoo_admin_cursos_vista');
-      if (vistaGuardada === 'lista' || vistaGuardada === 'grid') cursosEstado.vista = vistaGuardada;
-    } catch (e) { /* sin almacenamiento: se usa la vista por defecto */ }
+    const cursosEstado = { items: [], texto: '', area: 'todas', orden: 'recientes', vista: 'grid' };
 
     async function loadCursos() {
       const v = document.getElementById('secView');
@@ -572,7 +569,6 @@
         <div class="cc-toolbar">
           <div class="m-search">${ZOO_ICONOS.svg('search', { size: 16 })}<input type="search" class="admin-search" id="cursoBuscar" placeholder="Buscar por título, área o etiqueta" aria-label="Buscar cursos" value="${CURSOS.esc(e.texto)}"></div>
           <div class="zoo-chips" id="cursoOrden" role="group" aria-label="Ordenar cursos"></div>
-          <div class="cc-vistas" id="cursoVista" role="group" aria-label="Tipo de vista"></div>
         </div>
         <div class="cc-areas" id="cursoAreas" role="group" aria-label="Filtrar por área"></div>
         <div id="cursoLista"></div>`;
@@ -580,9 +576,8 @@
       const pintar = () => {
         const filtrados = CURSOS.filtrarCursos(items, { texto: e.texto, area: e.area, orden: e.orden });
         document.getElementById('cursoOrden').innerHTML = CURSOS.ordenHTML(e.orden);
-        document.getElementById('cursoVista').innerHTML = CURSOS.vistaHTML(e.vista);
         document.getElementById('cursoAreas').innerHTML = CURSOS.chipsAreasHTML(CURSOS.areasConConteo(items), items.length, e.area);
-        document.getElementById('cursoLista').innerHTML = CURSOS.listaHTML(filtrados, e.vista);
+        document.getElementById('cursoLista').innerHTML = CURSOS.listaHTML(filtrados, 'grid');
       };
       pintar();
 
@@ -590,13 +585,6 @@
       document.getElementById('cursoOrden').addEventListener('click', ev => {
         const b = ev.target.closest('[data-orden]');
         if (b) { e.orden = b.dataset.orden; pintar(); }
-      });
-      document.getElementById('cursoVista').addEventListener('click', ev => {
-        const b = ev.target.closest('[data-vista]');
-        if (!b) return;
-        e.vista = b.dataset.vista;
-        try { localStorage.setItem('zoo_admin_cursos_vista', e.vista); } catch (err) { /* sin almacenamiento */ }
-        pintar();
       });
       document.getElementById('cursoAreas').addEventListener('click', ev => {
         const b = ev.target.closest('[data-area]');
@@ -620,6 +608,7 @@
         lecciones = [{ titulo: data.title || 'Clase 1', driveId: data.driveId, duration: data.duration || '' }];
       }
       if (!lecciones.length) lecciones = [CURSOS.leccionVacia()];
+      window.__materialesCurso = null;
       window.__leccionesTemp = lecciones;
       window.__cursoEditandoId = data.id || '';
 
@@ -628,6 +617,10 @@
       renderLeccionesForm();
       enlazarLecciones();
       enlazarPortada();
+      window.__materialesCurso = ZOO_ADMIN_MATERIALES_CURSO.montar({
+        contenedor: document.getElementById('cursoMateriales'), db, cursoId: data.id || '',
+        clases: () => window.__leccionesTemp, api: ruta => ZOORIGEN_CLUB.apiFetch(ruta)
+      });
     };
 
     // Vista previa de la portada: se actualiza al escribir el enlace o el título (la portada automática depende del título).
@@ -654,6 +647,7 @@
     window.renderLeccionesForm = () => {
       const cont = document.getElementById('leccionesContainer');
       if (cont) cont.innerHTML = CURSOS.leccionesHTML(window.__leccionesTemp);
+      if (window.__materialesCurso) window.__materialesCurso.refrescar();
     };
 
     // Un solo juego de eventos para todo el editor de clases (no se pierde el foco al escribir).
@@ -814,8 +808,17 @@
       if (!data.title) { toast('Título requerido', true); return; }
       if (lecciones.length === 0) { toast('Agrega al menos 1 clase con video', true); return; }
       try {
-        if (id) { await db.collection('cursos').doc(id).update(data); toast('Actualizado'); }
-        else { data.createdAt = new Date().toISOString(); await db.collection('cursos').add(data); toast('Creado'); }
+        const guardar = document.getElementById('ceGuardar');
+        if (guardar && guardar.disabled) return;
+        const ref = id ? db.collection('cursos').doc(id) : db.collection('cursos').doc();
+        const batch = db.batch();
+        window.__materialesCurso.preparar(batch, ref.id, data.area, window.__leccionesTemp.filter(l => l.videoId || !CURSOS.normalizarFuente(l.driveId).vacio));
+        if (!id) data.createdAt = new Date().toISOString();
+        if (id) batch.update(ref, data); else batch.set(ref, data);
+        if (guardar) guardar.disabled = true;
+        try { await batch.commit(); } finally { if (guardar) guardar.disabled = false; }
+        cursosParaPdf = null;
+        toast(id ? 'Curso y materiales actualizados' : 'Curso creado');
         closeModal(); loadCursos(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };

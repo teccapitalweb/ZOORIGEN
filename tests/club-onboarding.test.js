@@ -451,7 +451,7 @@ test('recorrido: cada paso apunta a una opción REAL del menú lateral de club.j
       assert.ok(m && hrefs.has(m[1]), 'el menú de club.js no tiene ' + p.selectores[0]);
     }
   }
-  assert.ok(pasos.length >= 6 && pasos.length <= 9);
+  assert.ok(pasos.length >= 6 && pasos.length <= 10);
   assert.equal(pasos[pasos.length - 1].id, 'repetir');
   assert.notEqual(O.pasosTour({ planActivo: true }).find(p => p.id === 'suscripcion').texto, O.pasosTour({}).find(p => p.id === 'suscripcion').texto);
 });

@@ -22,13 +22,13 @@ const MX = (iso) => Date.parse(iso);   // las fechas de prueba se dan en UTC
 
 /* ───────── contenido ───────── */
 
-test('cantidades de contenido: al menos 15 de cada tipo (hoy 32 quiz / 24 orden / 55 flashcards / 21 detective / 6x4 historia)', () => {
+test('cantidades de contenido: al menos 15 de cada tipo (hoy 32 quiz / 24 orden / 55 flashcards / 30 detective / 6x4 historia)', () => {
   assert.equal(D.quiz.length, 32);
   assert.equal(D.orden.length, 24);
   assert.equal(D.flashcards.length, 55);
   assert.equal(D.historia.length, 6);
   D.historia.forEach(m => assert.equal(m.casos.length, 4));
-  assert.equal(D.detective.length, 21);
+  assert.equal(D.detective.length, 30);
   for (const tipo of ['quiz', 'orden', 'flashcards', 'detective']) assert.ok(D[tipo].length >= 15, tipo + ' debe tener al menos 15');
 });
 
@@ -50,6 +50,7 @@ test('revisarContenido() sí detecta contenido roto', () => {
   malo.orden[0].pasos = ['a', 'b', 'c'];
   malo.flashcards[0].back = '   ';
   malo.historia[0].casos.pop();
+  malo.detective[0].zonas = [];
   malo.detective[0].pistas.pop();       // activa con 5 pistas
   malo.detective[1].riesgos[0] = 'Otro texto';   // riesgos que no coinciden con las pistas
   malo.quiz[4].why = 'Muy bien \u{1F600}';
@@ -114,11 +115,12 @@ test('historia: mundos con nombre, descripción, fondo y color', () => {
     ['historia-selva.jpg', 'historia-humedal.jpg', 'historia-arrecife.jpg', 'historia-desierto.jpg', 'historia-bosque-niebla.jpg', 'historia-centro-rescate.jpg']);
 });
 
-test('detective: 21 escenas jugables, todas con imagen webp definida Y respaldo de texto (escena y 6 pistas), 3 riesgos', () => {
+test('detective: 30 escenas jugables, todas con imagen webp definida Y respaldo de texto (escena y 6 pistas), 3 riesgos', () => {
   D.detective.forEach(e => {
     assert.match(e.imagen, /^assets\/img\/retos\/detective-[a-z0-9-]+\.webp$/);
     assert.equal(e.riesgos.length, 3);
     e.riesgos.forEach(r => assert.ok(r.trim().length > 10));
+    assert.ok(fs.existsSync(path.join(raiz, e.imagen)), 'imagen existente: ' + e.id);
     assert.ok(Array.isArray(e.zonas));
     assert.equal(e.activo, true);
     // Sin imagen (o con ella) la escena se resuelve con su descripción y sus pistas: no hay hueco ni error
@@ -129,10 +131,10 @@ test('detective: 21 escenas jugables, todas con imagen webp definida Y respaldo 
     assert.equal(e.pistas.filter(x => x.ok).length, 3);
     assert.deepEqual(e.pistas.filter(x => x.ok).map(x => x.why), e.riesgos);
   });
-  assert.equal(R.escenasActivas(D.detective).length, 21);
+  assert.equal(R.escenasActivas(D.detective).length, 30);
   assert.equal(R.escenasPendientes(D.detective), 0);
-  // los 8 nombres de imagen nuevos siguen assets/img/retos/detective-<tema>-<n>.webp
-  assert.equal(D.detective.filter(e => /-\d\.webp$/.test(e.imagen)).length, 8);
+  // los 17 nombres de imagen adicionales siguen assets/img/retos/detective-<tema>-<n>.webp
+  assert.equal(D.detective.filter(e => /-\d\.webp$/.test(e.imagen)).length, 17);
 });
 
 test('detective con pistas: el puntaje es cuántas de las 3 correctas se marcaron; se baraja sin perder pistas', () => {
@@ -428,4 +430,31 @@ test('la página usa el menú del club, los archivos de retos y cache-buster', (
   assert.match(h, /club-retos\.js\?v=\d+/);
   assert.match(h, /admin-iconos\.js\?v=\d+/);
   assert.ok(h.indexOf('club-retos-datos.js') < h.indexOf('club-retos.js?v'), 'los datos se cargan antes que la lógica');
+});
+
+
+test('detective visual: los 30 retos tienen tres zonas y cada centro encuentra su hallazgo', () => {
+  for (const e of D.detective) {
+    assert.equal(R.escenaConZonas(e), true, e.id);
+    assert.equal(e.zonas.length, 3);
+    for (const aspecto of [1600 / 1067, 360 / 240]) {
+      const encontradas = new Set();
+      e.zonas.forEach((z, i) => {
+        assert.equal(R.buscarZona(e.zonas, encontradas, z.x, z.y, aspecto), i, e.id + ' hallazgo ' + i);
+        encontradas.add(i);
+      });
+      assert.equal(encontradas.size, 3);
+    }
+  }
+});
+
+test('zonas rectangulares: límites válidos, aciertos dentro y fallos fuera sin depender del tamaño', () => {
+  const z = { x: .5, y: .5, w: .2, h: .1 };
+  assert.equal(R.limpiarZonas([z]).length, 1);
+  assert.equal(R.limpiarZonas([{ ...z, w: 0 }, { ...z, h: NaN }, { ...z, x: .95 }, { ...z, y: .02 }]).length, 0);
+  for (const aspecto of [1, 1.5, 2]) {
+    assert.equal(R.tocaZona(z, .6, .55, aspecto), true);
+    assert.equal(R.tocaZona(z, .61, .5, aspecto), false);
+    assert.equal(R.tocaZona(z, .5, .56, aspecto), false);
+  }
 });

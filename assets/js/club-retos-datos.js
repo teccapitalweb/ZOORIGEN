@@ -7,7 +7,7 @@
 /*   orden       24 secuencias de 4 a 6 pasos                     */
 /*   flashcards  55 tarjetas                                      */
 /*   historia    6 mundos x 4 casos de 3 opciones                 */
-/*   detective   21 escenas (13 de seguridad y 8 nuevas de        */
+/*   detective   30 escenas (13 originales y 17 adicionales de        */
 /*               identificación, legal y bienestar)               */
 /*                                                                */
 /* Forma de cada escena del detective:                            */
@@ -21,9 +21,9 @@
 /*             ok:true,                                           */
 /*     riesgos: los `why` de las 3 pistas ok:true, en el mismo    */
 /*              orden en que aparecen en `pistas` }               */
-/* Las imágenes van en assets/img/retos/. Si se marcan zonas      */
-/* táctiles, `zonas` lleva 3 puntos { x, y, r } (0 a 1; r =       */
-/* radio como fracción del ancho de la imagen), uno por cada      */
+/* Las imágenes van en assets/img/retos/. Para inspeccionar la imagen,      */
+/* `zonas` lleva 3 rectángulos { x, y, w, h } (0 a 1; x/y =       */
+/* centro y w/h = ancho/alto de la zona), uno por cada      */
 /* texto de `riesgos`, en el mismo orden.                         */
 /*                                                                */
 /* Las respuestas correctas se revisan en tests/club-retos.test.js */
@@ -357,14 +357,14 @@
       ] }
   ];
 
-  /* ───────────── Detective de campo: 21 escenas ───────────── */
+  /* ───────────── Detective de campo: 30 escenas ───────────── */
   // Cada escena trae su consigna, la descripción de la imagen (`escena`, respaldo si la imagen
   // no existe) y 6 pistas: 3 con ok:true (los hallazgos) y 3 con ok:false (cosas que se ven en la
   // escena pero están bien hechas, o afirmaciones que no se sostienen).
   // riesgos[i] es el `why` de la i-ésima pista ok:true, en el mismo orden en que aparecen en `pistas`.
-  // Las 13 primeras son de seguridad; las 8 últimas son nuevas (identificación, legal y bienestar).
+  // Las 21 primeras conservan su posición; las 9 nuevas se agregan al final.
   const detective = [
-    { id: 'serpiente-rescate', titulo: 'Rescate de una serpiente', imagen: 'assets/img/retos/detective-serpiente-rescate.webp', zonas: [], activo: true,
+    { id: 'serpiente-rescate', titulo: 'Rescate de una serpiente', imagen: 'assets/img/retos/detective-serpiente-rescate.webp', zonas: [{"x": 0.525, "y": 0.4, "w": 0.09, "h": 0.46}, {"x": 0.355, "y": 0.19, "w": 0.15, "h": 0.22}, {"x": 0.82, "y": 0.81, "w": 0.34, "h": 0.26}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de seguridad que encuentres.',
       escena: 'En la sala de un centro de rescate, una persona sostiene con la mano por la cola a una serpiente delgada de colores discretos, sin gancho herpetológico, sin guantes y sin lentes de protección. En el suelo hay una bolsa de transporte abierta de la que asoma otro reptil. Sobre la mesa de al lado hay un contenedor rígido con tapa, cerrado, y una libreta de registro.',
@@ -379,7 +379,7 @@
       riesgos: ['Sostiene a la serpiente por la cola y sin gancho herpetológico: puede morder y se lastima al animal.',
                 'No usa guantes ni protección en los ojos.',
                 'Hay una bolsa de transporte abierta en el suelo con otro reptil asomando: puede escapar.'] },
-    { id: 'cuarentena', titulo: 'Área de cuarentena', imagen: 'assets/img/retos/detective-cuarentena.webp', zonas: [], activo: true,
+    { id: 'cuarentena', titulo: 'Área de cuarentena', imagen: 'assets/img/retos/detective-cuarentena.webp', zonas: [{"x": 0.27, "y": 0.33, "w": 0.5, "h": 0.48}, {"x": 0.72, "y": 0.315, "w": 0.24, "h": 0.31}, {"x": 0.175, "y": 0.84, "w": 0.29, "h": 0.22}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de bioseguridad que encuentres.',
       escena: 'En un área de cuarentena de fauna recién llegada hay jaulas de especies distintas pegadas una a otra, sin separación. Una persona sin cubrebocas ni guantes maneja a un animal pequeño sobre una mesa, y junto a las jaulas hay comida tirada en el piso. Al fondo se ve un lavamanos, el piso es liso y cada jaula tiene una tarjeta de identificación colgada.',
@@ -394,7 +394,7 @@
       riesgos: ['Hay jaulas de especies distintas pegadas, sin separación: se pueden contagiar entre sí.',
                 'La persona maneja un animal sin cubrebocas ni guantes.',
                 'Hay comida sobre el piso, junto a las jaulas: atrae plagas y contamina.'] },
-    { id: 'ave-rapaz', titulo: 'Revisión de un halcón', imagen: 'assets/img/retos/detective-ave-rapaz.webp', zonas: [], activo: true,
+    { id: 'ave-rapaz', titulo: 'Revisión de un halcón', imagen: 'assets/img/retos/detective-ave-rapaz.webp', zonas: [{"x": 0.465, "y": 0.455, "w": 0.05, "h": 0.07}, {"x": 0.515, "y": 0.49, "w": 0.05, "h": 0.08}, {"x": 0.835, "y": 0.235, "w": 0.31, "h": 0.39}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de seguridad que encuentres.',
       escena: 'En un cuarto de un centro de rescate, una persona revisa a un halcón sin guante de cuero grueso y sin sujetar sus garras, que cuelgan libres. La ventana del cuarto está abierta y sin cubrir. El ave tiene la cabeza cubierta con un capirote, sobre la mesa hay una báscula y una segunda persona espera en silencio junto a la pared.',
@@ -409,7 +409,7 @@
       riesgos: ['No usa guante de cuero grueso: las garras pueden lesionar la mano.',
                 'Las garras están sueltas, sin sujetar.',
                 'La ventana del cuarto está abierta y sin cubrir: el ave podría escapar.'] },
-    { id: 'transporte', titulo: 'Transporte de animales', imagen: 'assets/img/retos/detective-transporte.webp', zonas: [], activo: true,
+    { id: 'transporte', titulo: 'Transporte de animales', imagen: 'assets/img/retos/detective-transporte.webp', zonas: [{"x": 0.46, "y": 0.38, "w": 0.26, "h": 0.3}, {"x": 0.175, "y": 0.455, "w": 0.29, "h": 0.57}, {"x": 0.815, "y": 0.62, "w": 0.17, "h": 0.32}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores en el transporte de los animales.',
       escena: 'En la caja descubierta de una camioneta estacionada en terreno plano y bajo el sol directo hay varias cajas de transporte apiladas. Una de ellas no tiene orificios de ventilación y ninguna lleva etiqueta ni documentos pegados. Otra caja, a un lado, es rígida, tiene orificios y una puerta con seguro.',
@@ -424,7 +424,7 @@
       riesgos: ['Una caja no tiene orificios de ventilación: el animal podría asfixiarse.',
                 'Las cajas están apiladas al sol directo: riesgo de golpe de calor.',
                 'Las cajas no tienen etiqueta ni documentos: no se sabe qué animal lleva cada una.'] },
-    { id: 'anestesia', titulo: 'Mamífero sedado', imagen: 'assets/img/retos/detective-anestesia.webp', zonas: [], activo: true,
+    { id: 'anestesia', titulo: 'Mamífero sedado', imagen: 'assets/img/retos/detective-anestesia.webp', zonas: [{"x": 0.105, "y": 0.565, "w": 0.19, "h": 0.41}, {"x": 0.48, "y": 0.355, "w": 0.2, "h": 0.11}, {"x": 0.82, "y": 0.75, "w": 0.3, "h": 0.28}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de seguridad que encuentres.',
       escena: 'Sobre una mesa de procedimiento de acero inoxidable, bajo una lámpara, hay un mamífero sedado, y junto a él no se ve ningún monitor de signos vitales. El médico trabaja sin guantes ni bata. En una charola cercana hay frascos de medicamento sin etiqueta, y una segunda persona vigila de pie junto a la mesa.',
@@ -439,7 +439,7 @@
       riesgos: ['No hay monitor de signos vitales para vigilar al animal sedado.',
                 'El médico no usa guantes ni bata.',
                 'Los frascos de medicamento de la charola no tienen etiqueta.'] },
-    { id: 'mariposario', titulo: 'Interior de un mariposario', imagen: 'assets/img/retos/detective-mariposario.webp', zonas: [], activo: true,
+    { id: 'mariposario', titulo: 'Interior de un mariposario', imagen: 'assets/img/retos/detective-mariposario.webp', zonas: [{"x": 0.375, "y": 0.38, "w": 0.07, "h": 0.1}, {"x": 0.17, "y": 0.83, "w": 0.26, "h": 0.22}, {"x": 0.855, "y": 0.27, "w": 0.27, "h": 0.38}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de manejo que encuentres.',
       escena: 'Dentro de un mariposario con plantas de flores y hojas mordidas por orugas, un visitante atrapa con los dedos una mariposa posada en una flor. En el piso hay fruta fermentada derramada con hormigas. Al fondo, la puerta exterior y la interior de la entrada están abiertas al mismo tiempo, y otros visitantes caminan por un sendero marcado.',
@@ -454,7 +454,7 @@
       riesgos: ['Un visitante atrapa una mariposa con la mano: se dañan sus alas.',
                 'Hay fruta fermentada derramada con hormigas: atrae plagas.',
                 'La puerta exterior y la interior están abiertas a la vez: las mariposas pueden escapar.'] },
-    { id: 'fototrampeo', titulo: 'Instalación de una cámara trampa', imagen: 'assets/img/retos/detective-fototrampeo.webp', zonas: [], activo: true,
+    { id: 'fototrampeo', titulo: 'Instalación de una cámara trampa', imagen: 'assets/img/retos/detective-fototrampeo.webp', zonas: [{"x": 0.3, "y": 0.0725, "w": 0.06, "h": 0.075}, {"x": 0.29, "y": 0.1375, "w": 0.08, "h": 0.045}, {"x": 0.355, "y": 0.1275, "w": 0.09, "h": 0.125}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores en la instalación de la cámara.',
       escena: 'En un bosque, una persona de espaldas, con botas cerradas, instala una cámara trampa en un árbol, muy alta y inclinada hacia el cielo, sin candado ni cable de seguridad. Ramas y hojas cubren el sensor. Frente al árbol pasa un sendero con huellas, y sobre una roca hay una libreta de campo.',
@@ -469,7 +469,7 @@
       riesgos: ['La cámara está muy alta e inclinada hacia el cielo: no registrará a los animales del sendero.',
                 'No tiene candado ni cable de seguridad: pueden robarla.',
                 'Ramas y hojas tapan el sensor: provocan disparos falsos.'] },
-    { id: 'obra-rescate', titulo: 'Rescate de fauna en una obra', imagen: 'assets/img/retos/detective-obra-rescate.webp', zonas: [], activo: true,
+    { id: 'obra-rescate', titulo: 'Rescate de fauna en una obra', imagen: 'assets/img/retos/detective-obra-rescate.webp', zonas: [{"x": 0.465, "y": 0.385, "w": 0.15, "h": 0.19}, {"x": 0.21, "y": 0.72, "w": 0.22, "h": 0.28}, {"x": 0.79, "y": 0.33, "w": 0.4, "h": 0.44}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de seguridad que encuentres.',
       escena: 'En una obra, una cinta de delimitación rodea un área de excavación y el personal usa casco y chaleco reflejante. Un trabajador toca con las manos desnudas a un mamífero pequeño; no hay área de contención ni cajas de transporte a la vista. Una excavadora trabaja a pocos metros, y una persona anota en una libreta desde un costado.',
@@ -484,7 +484,7 @@
       riesgos: ['Un trabajador toca un mamífero sin guantes.',
                 'No hay área de contención ni cajas de transporte.',
                 'La maquinaria funciona junto a la zona de rescate.'] },
-    { id: 'zoonosis', titulo: 'Toma de muestras en campo', imagen: 'assets/img/retos/detective-zoonosis.webp', zonas: [], activo: true,
+    { id: 'zoonosis', titulo: 'Toma de muestras en campo', imagen: 'assets/img/retos/detective-zoonosis.webp', zonas: [{"x": 0.495, "y": 0.38, "w": 0.17, "h": 0.18}, {"x": 0.8, "y": 0.55, "w": 0.24, "h": 0.18}, {"x": 0.875, "y": 0.75, "w": 0.23, "h": 0.28}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de bioseguridad que encuentres.',
       escena: 'Bajo un toldo, en una mesa de trabajo de campo, una persona maneja un roedor sin guantes ni mascarilla. Los tubos de las muestras no están rotulados y, sobre la misma mesa, hay un sándwich y una bebida. Junto a la mesa hay una trampa Sherman cerrada y un garrafón de agua con jabón para lavarse las manos.',
@@ -499,7 +499,7 @@
       riesgos: ['No se usan guantes ni mascarilla al manejar roedores o murciélagos.',
                 'Los tubos de las muestras no están rotulados.',
                 'Hay comida y bebida sobre la mesa de trabajo.'] },
-    { id: 'entomologia', titulo: 'Recolección de insectos', imagen: 'assets/img/retos/detective-entomologia.webp', zonas: [], activo: true,
+    { id: 'entomologia', titulo: 'Recolección de insectos', imagen: 'assets/img/retos/detective-entomologia.webp', zonas: [{"x": 0.5, "y": 0.595, "w": 0.38, "h": 0.19}, {"x": 0.355, "y": 0.695, "w": 0.19, "h": 0.15}, {"x": 0.89, "y": 0.235, "w": 0.2, "h": 0.41}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores en la recolección de muestras.',
       escena: 'En un sitio de estudio, una persona recolecta insectos con las manos descubiertas, sin guantes ni pinzas, y los guarda en frascos con tapa que no tienen etiqueta. Otra persona come un sándwich junto al área de trabajo. Cerca hay un termómetro para registrar la temperatura ambiente y una cámara fotográfica sobre un trípode.',
@@ -514,7 +514,7 @@
       riesgos: ['Los frascos no tienen etiqueta.',
                 'Se recolecta con las manos, sin guantes ni pinzas.',
                 'Una persona está comiendo en el área de trabajo.'] },
-    { id: 'uma-felino', titulo: 'Recinto de un felino', imagen: 'assets/img/retos/detective-uma-felino.webp', zonas: [], activo: true,
+    { id: 'uma-felino', titulo: 'Recinto de un felino', imagen: 'assets/img/retos/detective-uma-felino.webp', zonas: [{"x": 0.17, "y": 0.445, "w": 0.14, "h": 0.49}, {"x": 0.87, "y": 0.465, "w": 0.06, "h": 0.15}, {"x": 0.305, "y": 0.54, "w": 0.13, "h": 0.5}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de seguridad que encuentres.',
       escena: 'Un cuidador entra al recinto de un felino en una UMA, con la compuerta abierta detrás de él; el recinto tiene una sola puerta y no hay doble puerta de seguridad. Un visitante apoya la mano sobre la malla alta y resistente. El felino descansa tranquilo al fondo, sobre una plataforma de troncos, junto a un bebedero con agua.',
@@ -529,7 +529,7 @@
       riesgos: ['El recinto no tiene doble puerta de seguridad.',
                 'Un visitante tiene la mano sobre la malla del recinto.',
                 'El cuidador entra con la compuerta abierta detrás de él.'] },
-    { id: 'tiburones', titulo: 'Manejo de una raya', imagen: 'assets/img/retos/detective-tiburones.webp', zonas: [], activo: true,
+    { id: 'tiburones', titulo: 'Manejo de una raya', imagen: 'assets/img/retos/detective-tiburones.webp', zonas: [{"x": 0.53, "y": 0.48, "w": 0.26, "h": 0.44}, {"x": 0.13, "y": 0.6, "w": 0.24, "h": 0.36}, {"x": 0.9, "y": 0.565, "w": 0.18, "h": 0.17}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de seguridad que encuentres.',
       escena: 'En el área de manejo de un acuario, una persona sostiene a una raya sin guantes y sin cuidar la zona del aguijón de la cola. La raya está en una cubeta con poca agua y sin oxigenación, y el personal calza zapatos resbalosos sobre el piso mojado. Al fondo se ve un tanque grande con otras rayas nadando, el piso tiene un drenaje y una persona usa un delantal impermeable.',
@@ -544,7 +544,7 @@
       riesgos: ['Se maneja la raya sin guantes y sin cuidar la zona del aguijón.',
                 'La cubeta no tiene oxigenación ni suficiente agua.',
                 'El personal usa calzado resbaloso sobre piso mojado.'] },
-    { id: 'ponzonosa', titulo: 'Laboratorio de fauna ponzoñosa', imagen: 'assets/img/retos/detective-ponzonosa.webp', zonas: [], activo: true,
+    { id: 'ponzonosa', titulo: 'Laboratorio de fauna ponzoñosa', imagen: 'assets/img/retos/detective-ponzonosa.webp', zonas: [{"x": 0.54, "y": 0.47, "w": 0.28, "h": 0.22}, {"x": 0.3, "y": 0.895, "w": 0.12, "h": 0.15}, {"x": 0.825, "y": 0.595, "w": 0.31, "h": 0.25}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la escena y marca los 3 errores de seguridad que encuentres.',
       escena: 'En un laboratorio de fauna ponzoñosa hay un contenedor con escorpiones sin tapa sobre la mesa de trabajo, que está limpia y despejada. La persona que trabaja usa sandalias y tiene las manos descubiertas, y no hay pinzas largas ni herramientas de contención a la mano. En una repisa hay otros contenedores cerrados y un botiquín en la pared.',
@@ -561,7 +561,7 @@
                 'No hay pinzas largas ni herramientas de contención a la mano.'] },
 
     /* ── 8 escenas nuevas ── */
-    { id: 'huellas-felino', titulo: 'Huellas en un sendero', imagen: 'assets/img/retos/detective-huellas-felino-1.webp', zonas: [], activo: true,
+    { id: 'huellas-felino', titulo: 'Huellas en un sendero', imagen: 'assets/img/retos/detective-huellas-felino-1.webp', zonas: [{"x": 0.185, "y": 0.405, "w": 0.17, "h": 0.19}, {"x": 0.415, "y": 0.575, "w": 0.13, "h": 0.11}, {"x": 0.855, "y": 0.635, "w": 0.19, "h": 0.29}], activo: true,
       tipo: 'identificacion',
       consigna: 'Observa el sendero y marca los 3 rasgos que indican que las huellas son de un felino y no de un perro o un zorro.',
       escena: 'En un sendero de tierra húmeda se ven varias huellas de un animal que caminó en línea, junto a un excremento. Las huellas son casi circulares, con cuatro dedos y una almohadilla principal de tres lóbulos en su borde posterior; no se distingue ninguna marca de uñas. Junto a una de las huellas hay una moneda como referencia de tamaño.',
@@ -576,7 +576,7 @@
       riesgos: ['Los felinos tienen uñas retráctiles, por eso sus huellas suelen no mostrar marcas de uñas; en cambio, las uñas de los perros y los zorros se marcan bien. No es una regla absoluta, porque el tipo de suelo influye, así que se usa junto con otros rasgos.',
                 'La almohadilla principal de los félidos es trilobulada en su parte posterior, con los lóbulos alineados. Es uno de los rasgos que usan las claves de identificación de huellas.',
                 'La huella del gato montés es casi circular, mientras que la del zorro es más larga y ovalada. La forma cambia con la especie (la del puma, por ejemplo, es más larga que ancha), así que se combina con los demás rasgos.'] },
-    { id: 'tianguis-fauna', titulo: 'Un puesto en el tianguis', imagen: 'assets/img/retos/detective-tianguis-fauna-1.webp', zonas: [], activo: true,
+    { id: 'tianguis-fauna', titulo: 'Un puesto en el tianguis', imagen: 'assets/img/retos/detective-tianguis-fauna-1.webp', zonas: [{"x": 0.155, "y": 0.415, "w": 0.29, "h": 0.31}, {"x": 0.485, "y": 0.415, "w": 0.39, "h": 0.29}, {"x": 0.84, "y": 0.38, "w": 0.3, "h": 0.5}], activo: true,
       tipo: 'legal',
       consigna: 'Observa el puesto y marca las 3 señales de alerta de posible comercio ilegal o de mal manejo de fauna.',
       escena: 'En un tianguis al aire libre, un puesto exhibe en primer plano una jaula pequeña con loros verdes, sin anillo ni papeles a la vista, y una mesa con caparazones grandes y piezas hechas con partes de tortuga marina. A un lado, varias jaulas diminutas con aves y reptiles vivos están amontonadas bajo el sol, sin sombra ni agua visible. Más al fondo, otro puesto vende artesanías de barro y textiles bordados, y un vendedor atiende con calma a una persona de espaldas.',
@@ -591,7 +591,7 @@
       riesgos: ['Es una señal de alerta: los psitácidos con distribución natural en México, como los loros y las guacamayas, no pueden ser sujeto de aprovechamiento extractivo con fines comerciales, y quien tiene un ejemplar fuera de su hábitat debe poder demostrar su legal procedencia. Una señal de alerta no es una acusación: la confirma la autoridad.',
                 'Es una señal de alerta: ningún ejemplar de tortuga marina, de cualquier especie, puede ser sujeto de aprovechamiento extractivo, de subsistencia o comercial, y esto incluye sus partes y derivados.',
                 'Es una señal de alerta de mal manejo: en la comercialización de fauna silvestre se debe evitar o disminuir la tensión, el sufrimiento, el traumatismo y el dolor de los animales, y jaulas diminutas, al sol y sin agua no lo cumplen.'] },
-    { id: 'uma-irregularidades', titulo: 'Visita a una UMA', imagen: 'assets/img/retos/detective-uma-irregularidades-1.webp', zonas: [], activo: true,
+    { id: 'uma-irregularidades', titulo: 'Visita a una UMA', imagen: 'assets/img/retos/detective-uma-irregularidades-1.webp', zonas: [{"x": 0.15, "y": 0.655, "w": 0.28, "h": 0.23}, {"x": 0.295, "y": 0.515, "w": 0.17, "h": 0.13}, {"x": 0.675, "y": 0.495, "w": 0.21, "h": 0.17}], activo: true,
       tipo: 'bienestar',
       consigna: 'Observa la UMA y marca las 3 irregularidades de manejo, bienestar o bioseguridad.',
       escena: 'En una UMA que exhibe fauna a los visitantes, el corral de un venado tiene los comederos con restos de comida y heces acumuladas, el bebedero vacío y ninguna sombra. Del otro lado de la reja, un grupo de visitantes toca y alimenta con la mano al venado. En un corral vecino, bien cuidado, hay troncos y plataformas para trepar, y un cuidador con guantes y botas de hule trabaja con calma.',
@@ -606,7 +606,7 @@
       riesgos: ['La limpieza es parte de la bioseguridad: los restos de comida y las heces acumuladas atraen plagas y favorecen enfermedades. Primero se limpia y después se desinfecta.',
                 'Un animal en cautiverio debe vivir libre de hambre y sed y libre de molestias físicas y térmicas (las cinco libertades de la OMSA). Un bebedero vacío y la falta de sombra no lo cumplen.',
                 'La exhibición de fauna debe evitar o disminuir la tensión, el sufrimiento, el traumatismo y el dolor de los animales (Ley General de Vida Silvestre, art. 32). Tocarlos o alimentarlos sin control también aumenta el riesgo de transmitir enfermedades.'] },
-    { id: 'centro-rescate-bienestar', titulo: 'Recinto en un centro de rescate', imagen: 'assets/img/retos/detective-centro-rescate-bienestar-1.webp', zonas: [], activo: true,
+    { id: 'centro-rescate-bienestar', titulo: 'Recinto en un centro de rescate', imagen: 'assets/img/retos/detective-centro-rescate-bienestar-1.webp', zonas: [{"x": 0.22, "y": 0.75, "w": 0.36, "h": 0.18}, {"x": 0.41, "y": 0.325, "w": 0.5, "h": 0.49}, {"x": 0.9, "y": 0.58, "w": 0.18, "h": 0.6}], activo: true,
       tipo: 'bienestar',
       consigna: 'Observa el centro de rescate y marca las 3 señales de buen bienestar animal.',
       escena: 'En un centro de rescate, un recinto amplio con malla y techo parcial alberga a un ave rapaz que se recupera. Hay perchas a distintas alturas, ramas y una zona de sombra, un bebedero con agua limpia y un comedero sin restos. El ave descansa quieta en una percha, un cuidador la observa tranquilo desde la puerta, a distancia, y al fondo hay una jaula de transporte guardada.',
@@ -621,7 +621,7 @@
       riesgos: ['Agua limpia disponible y comida sin restos acumulados ayudan a que el animal viva libre de hambre y sed, con un manejo higiénico.',
                 'Las perchas, las ramas y la sombra permiten conducta natural y comodidad térmica: son enriquecimiento ambiental y parte de las cinco libertades.',
                 'Un manejo tranquilo, a distancia y sin perseguir al animal ayuda a que viva libre de temor y distrés.'] },
-    { id: 'tortuga-anidando', titulo: 'Tortuga anidando de noche', imagen: 'assets/img/retos/detective-tortuga-anidando-1.webp', zonas: [], activo: true,
+    { id: 'tortuga-anidando', titulo: 'Tortuga anidando de noche', imagen: 'assets/img/retos/detective-tortuga-anidando-1.webp', zonas: [{"x": 0.86, "y": 0.435, "w": 0.12, "h": 0.15}, {"x": 0.5, "y": 0.355, "w": 0.1, "h": 0.17}, {"x": 0.395, "y": 0.515, "w": 0.17, "h": 0.11}], activo: true,
       tipo: 'legal',
       consigna: 'Observa la playa de noche y marca los 3 errores de los visitantes durante la observación de una tortuga que anida.',
       escena: 'De noche, en una playa de anidación, una tortuga marina excava su nido en la arena. Un visitante le toma fotos con flash, otro la alumbra con una lámpara de luz blanca y una tercera persona se agacha a tocar su caparazón. Al fondo, una guía con una lámpara de luz roja conduce a un grupo pequeño que camina en fila y en silencio, mientras otro grupo espera a unos diez metros de una tortuga que ya tapó su nido.',
@@ -636,7 +636,7 @@
       riesgos: ['La NOM-162-SEMARNAT-2012 prohíbe tomar fotografías con flash en cualquier momento durante el recorrido de observación de tortugas.',
                 'Durante el recorrido los visitantes no pueden usar fuentes de luz; solo el guía puede usar una lámpara, y con filtro o luz roja.',
                 'Está prohibido manipular, tocar, acosar, molestar o dañar a las tortugas marinas; además, los visitantes deben mantenerse a 10 m hasta que la tortuga inicie el desove.'] },
-    { id: 'observacion-aves', titulo: 'Observación de aves', imagen: 'assets/img/retos/detective-observacion-aves-1.webp', zonas: [], activo: true,
+    { id: 'observacion-aves', titulo: 'Observación de aves', imagen: 'assets/img/retos/detective-observacion-aves-1.webp', zonas: [{"x": 0.135, "y": 0.57, "w": 0.23, "h": 0.56}, {"x": 0.545, "y": 0.535, "w": 0.11, "h": 0.25}, {"x": 0.8, "y": 0.355, "w": 0.1, "h": 0.39}], activo: true,
       tipo: 'bienestar',
       consigna: 'Observa la escena y marca las 3 malas prácticas de observación de aves.',
       escena: 'En un bosque, a media mañana, un fotógrafo se sale del sendero y se acerca a un arbusto donde hay un nido con un ave posada. Un visitante arroja comida al suelo para atraer a las aves y otro grita y aplaude para que se muevan. En el sendero, varios observadores miran en silencio con binoculares, una persona anota en una libreta lo que ve y otro fotógrafo, con teleobjetivo, se queda en el camino.',
@@ -651,7 +651,7 @@
       riesgos: ['Acercarse a un nido para obtener una foto altera los espacios de anidación. Quien observa aves prioriza su conservación sobre la fotografía o el registro.',
                 'Alimentar a los animales silvestres puede alterar su comportamiento y dañar su salud.',
                 'El ruido asusta a los animales y pueden abandonar su zona de alimentación; en la observación se guarda silencio.'] },
-    { id: 'laguna-cocodrilo', titulo: 'Laguna en un área protegida', imagen: 'assets/img/retos/detective-laguna-cocodrilo-1.webp', zonas: [], activo: true,
+    { id: 'laguna-cocodrilo', titulo: 'Laguna en un área protegida', imagen: 'assets/img/retos/detective-laguna-cocodrilo-1.webp', zonas: [{"x": 0.21, "y": 0.405, "w": 0.26, "h": 0.23}, {"x": 0.36, "y": 0.46, "w": 0.1, "h": 0.2}, {"x": 0.895, "y": 0.575, "w": 0.19, "h": 0.13}], activo: true,
       tipo: 'seguridad',
       consigna: 'Observa la laguna y marca los 3 comportamientos de riesgo de los visitantes.',
       escena: 'En la orilla de una laguna de un área natural protegida, un cocodrilo descansa sobre la tierra, a pocos metros de la gente. Un visitante le lanza trozos de comida, otro camina justo al borde del agua y un perro nada en la laguna, cerca del animal. Detrás, un guía con chaleco explica a un grupo desde una plataforma de madera con barandal, y junto al sendero hay un bote de basura cerrado.',
@@ -666,7 +666,7 @@
       riesgos: ['La CONANP pide evitar dar de comer a los cocodrilos en vida silvestre: es una de las principales causas de incidentes.',
                 'La CONANP recomienda evitar caminar al borde del agua donde hay cocodrilos.',
                 'La CONANP recomienda evitar que perros o mascotas naden en sitios con presencia de cocodrilos.'] },
-    { id: 'campamento-residuos', titulo: 'Campamento de campo', imagen: 'assets/img/retos/detective-campamento-residuos-1.webp', zonas: [], activo: true,
+    { id: 'campamento-residuos', titulo: 'Campamento de campo', imagen: 'assets/img/retos/detective-campamento-residuos-1.webp', zonas: [{"x": 0.15, "y": 0.76, "w": 0.26, "h": 0.3}, {"x": 0.58, "y": 0.715, "w": 0.38, "h": 0.25}, {"x": 0.845, "y": 0.36, "w": 0.27, "h": 0.3}], activo: true,
       tipo: 'legal',
       consigna: 'Observa el campamento y marca los 3 errores de manejo de residuos y de impacto en el sitio.',
       escena: 'En un campamento de campo junto a un bosque hay basura y plásticos regados por el suelo, cerca de una tienda de campaña. En el terreno quedaron olvidadas cinta de marcaje, estacas y una trampa. Un grupo de estudiantes de espaldas abre con machetes un sendero nuevo entre la vegetación, aunque a un lado ya hay un camino marcado. Junto a las mochilas hay bolsas de basura cerradas y amarradas, y el equipo de trabajo está ordenado sobre una lona.',
@@ -680,7 +680,431 @@
       ],
       riesgos: ['No se debe abandonar basura en el sitio: los animales pueden enredarse con los residuos o ingerirlos. Si no hay botes de basura, cada quien se lleva la suya.',
                 'El material que se deja en campo para un estudio, como marcas de senderos y trampas, debe recogerse en cuanto se cumplan los objetivos del estudio.',
-                'Se deben usar los senderos que ya existen y no abrir nuevos caminos.'] }
+                'Se deben usar los senderos que ya existen y no abrir nuevos caminos.'] },
+    /* Escenas 22 a 30: conservar las anteriores en su posición por el avance guardado. */
+    {
+      "id": "apiario-colmenas",
+      "titulo": "Un apiario en el campo",
+      "imagen": "assets/img/retos/detective-apiario-colmenas-1.webp",
+      "zonas": [{"x": 0.63, "y": 0.565, "w": 0.46, "h": 0.19}, {"x": 0.34, "y": 0.36, "w": 0.2, "h": 0.4}, {"x": 0.735, "y": 0.27, "w": 0.51, "h": 0.32}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa el apiario y marca las 3 condiciones que requieren atención.",
+      "escena": "en el centro, cuatro o cinco colmenas de madera pintadas de colores claros están colocadas directamente sobre el suelo de tierra, sin base ni tarimas debajo. Frente a ellas, un apicultor de espaldas, sin rostro, vestido con playera y pantalón de mezclilla, sin velo, sin overol y sin guantes, abre una de las colmenas; unas abejas vuelan alrededor (sin que haya picaduras ni nada alarmante). Justo detrás de las colmenas, a pocos pasos, hay un camino de terracería y dos casas pequeñas de campo.",
+      "pistas": [
+        {
+          "t": "Las colmenas están directamente sobre el suelo",
+          "ok": true,
+          "why": "Las bases resistentes elevan las colmenas y ayudan a protegerlas de la humedad del suelo."
+        },
+        {
+          "t": "El apicultor abre una colmena sin velo, overol ni guantes",
+          "ok": true,
+          "why": "El equipo de protección ayuda a reducir la exposición a picaduras durante el manejo de las colmenas."
+        },
+        {
+          "t": "Hay un bebedero con agua limpia",
+          "ok": false,
+          "why": "Disponer de agua limpia forma parte del cuidado del apiario."
+        },
+        {
+          "t": "Las casas y el camino están a pocos pasos de las colmenas",
+          "ok": true,
+          "why": "La ubicación debe considerar la distancia a viviendas y caminos para reducir encuentros entre personas y abejas."
+        },
+        {
+          "t": "El terreno está libre de maleza alta",
+          "ok": false,
+          "why": "Mantener despejado el espacio de trabajo facilita el acceso y el manejo."
+        },
+        {
+          "t": "Hay un ahumador junto al equipo",
+          "ok": false,
+          "why": "El ahumador es una herramienta de manejo; su presencia por sí sola no es uno de los problemas de esta escena."
+        }
+      ],
+      "riesgos": [
+        "Las bases resistentes elevan las colmenas y ayudan a protegerlas de la humedad del suelo.",
+        "El equipo de protección ayuda a reducir la exposición a picaduras durante el manejo de las colmenas.",
+        "La ubicación debe considerar la distancia a viviendas y caminos para reducir encuentros entre personas y abejas."
+      ]
+    },
+    {
+      "id": "santuario-monarca",
+      "titulo": "Visita a un santuario de mariposa monarca",
+      "imagen": "assets/img/retos/detective-santuario-monarca-1.webp",
+      "zonas": [{"x": 0.6, "y": 0.375, "w": 0.08, "h": 0.11}, {"x": 0.885, "y": 0.345, "w": 0.11, "h": 0.13}, {"x": 0.155, "y": 0.52, "w": 0.27, "h": 0.36}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa la visita y marca las 3 acciones que perturban a las mariposas.",
+      "escena": "miles de mariposas monarca anaranjadas cuelgan en racimos de las ramas de los árboles. En el centro, un visitante de perfil, sin rostro, estira la mano y toca una de las mariposas. A la derecha, otro visitante de espaldas apunta una cámara a los racimos y produce un destello de flash visible. A la izquierda, dos visitantes de espaldas se salieron del sendero marcado y caminan entre los árboles, pisando la vegetación del suelo.",
+      "pistas": [
+        {
+          "t": "Un visitante toca una mariposa",
+          "ok": true,
+          "why": "Las mariposas se observan sin tocarlas ni desprenderlas de las ramas."
+        },
+        {
+          "t": "Un guía acompaña al grupo por el sendero",
+          "ok": false,
+          "why": "Seguir las indicaciones del guía y permanecer en el sendero ayuda a proteger la colonia."
+        },
+        {
+          "t": "Un visitante toma fotografías con flash",
+          "ok": true,
+          "why": "Evitar el flash reduce las molestias a las mariposas durante la visita."
+        },
+        {
+          "t": "Las monarcas están agrupadas en las ramas",
+          "ok": false,
+          "why": "Los racimos de mariposas forman parte de la escena natural del santuario."
+        },
+        {
+          "t": "Dos visitantes caminan fuera del sendero",
+          "ok": true,
+          "why": "Permanecer en los senderos y respetar los límites de acceso evita pisar vegetación y perturbar la colonia."
+        },
+        {
+          "t": "Un grupo observa a distancia",
+          "ok": false,
+          "why": "Observar con calma y a distancia es una práctica adecuada."
+        }
+      ],
+      "riesgos": [
+        "Las mariposas se observan sin tocarlas ni desprenderlas de las ramas.",
+        "Evitar el flash reduce las molestias a las mariposas durante la visita.",
+        "Permanecer en los senderos y respetar los límites de acceso evita pisar vegetación y perturbar la colonia."
+      ]
+    },
+    {
+      "id": "anillamiento-redes",
+      "titulo": "Estación de anillamiento de aves",
+      "imagen": "assets/img/retos/detective-anillamiento-redes-1.webp",
+      "zonas": [{"x": 0.0875, "y": 0.39, "w": 0.145, "h": 0.46}, {"x": 0.435, "y": 0.39, "w": 0.11, "h": 0.16}, {"x": 0.65, "y": 0.705, "w": 0.2, "h": 0.19}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa la estación y marca las 3 prácticas que comprometen el bienestar de las aves.",
+      "escena": "redes de niebla (mallas finas casi transparentes) tendidas entre varas. A la izquierda, junto a las redes, una bocina portátil sobre un tripié, con ondas de sonido sugeridas, reproduce cantos para atraer aves. En el centro, un ave pequeña está enredada en una de las redes, bajo el sol directo, sin sombra; el personal (tres personas de espaldas) descansa lejos, sentado a la sombra de un árbol, a la derecha, sin mirar las redes. En el primer plano a la derecha, otra persona de espaldas sujeta a un ave por el cuerpo y tira de ella para sacarla de la red (el ave se ve sujeta de forma torpe, pero sin heridas, sin sangre y sin gestos de pánico).",
+      "pistas": [
+        {
+          "t": "Una bocina reproduce cantos junto a las redes",
+          "ok": true,
+          "why": "En este método de monitoreo, los reclamos grabados alteran la captura y no deben usarse para atraer aves a las redes."
+        },
+        {
+          "t": "Hay bolsas pequeñas de tela en la estación",
+          "ok": false,
+          "why": "Las bolsas de tela son parte del equipo de trabajo de una estación; su presencia no indica un error."
+        },
+        {
+          "t": "Un ave está atrapada al sol mientras el personal descansa lejos",
+          "ok": true,
+          "why": "Las redes necesitan vigilancia y revisión frecuente. El calor y la exposición al sol hacen especialmente urgente atender a un ave atrapada."
+        },
+        {
+          "t": "Una persona tira del ave para sacarla de la red",
+          "ok": true,
+          "why": "La extracción requiere personal capacitado que libere la malla con cuidado; tirar del ave puede lesionarla."
+        },
+        {
+          "t": "La mesa de registro está a la sombra",
+          "ok": false,
+          "why": "Un espacio de trabajo protegido del sol es adecuado."
+        },
+        {
+          "t": "Hay una hoja para registrar la información",
+          "ok": false,
+          "why": "Registrar los datos es parte del monitoreo."
+        }
+      ],
+      "riesgos": [
+        "En este método de monitoreo, los reclamos grabados alteran la captura y no deben usarse para atraer aves a las redes.",
+        "Las redes necesitan vigilancia y revisión frecuente. El calor y la exposición al sol hacen especialmente urgente atender a un ave atrapada.",
+        "La extracción requiere personal capacitado que libere la malla con cuidado; tirar del ave puede lesionarla."
+      ]
+    },
+    {
+      "id": "monitoreo-nidos",
+      "titulo": "Monitoreo de un nido",
+      "imagen": "assets/img/retos/detective-monitoreo-nidos-1.webp",
+      "zonas": [{"x": 0.495, "y": 0.41, "w": 0.33, "h": 0.28}, {"x": 0.28, "y": 0.485, "w": 0.16, "h": 0.23}, {"x": 0.47, "y": 0.79, "w": 0.26, "h": 0.38}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa el nido y marca las 3 prácticas que aumentan la perturbación.",
+      "escena": "en el centro, un arbusto bajo con un nido pequeño y visible. Cinco personas de espaldas se amontonan alrededor del nido, muy juntas. Una de ellas está sentada junto al nido y escribe en una libreta apoyada en las rodillas. Desde la parte inferior de la imagen, un sendero de tierra muy pisado, ancho y claramente marcado entre el pasto, lleva en línea recta hasta el arbusto del nido.",
+      "pistas": [
+        {
+          "t": "Cinco personas se amontonan alrededor del nido",
+          "ok": true,
+          "why": "Reducir el número de observadores y el tiempo junto al nido disminuye la perturbación."
+        },
+        {
+          "t": "Una persona observa a distancia con binoculares",
+          "ok": false,
+          "why": "Los binoculares permiten observar sin acercarse innecesariamente."
+        },
+        {
+          "t": "Una persona permanece junto al nido para escribir sus notas",
+          "ok": true,
+          "why": "La información se anota a suficiente distancia del nido para reducir el tiempo de presencia junto a él."
+        },
+        {
+          "t": "Hay un ave adulta en una rama cercana",
+          "ok": false,
+          "why": "La presencia del ave adulta no es por sí misma un error del monitoreo."
+        },
+        {
+          "t": "Un sendero muy pisado termina directamente en el nido",
+          "ok": true,
+          "why": "Repetir una misma ruta puede formar un camino evidente hasta el nido. Se debe evitar dejar ese rastro de acceso."
+        },
+        {
+          "t": "Se usa un lápiz largo para apartar suavemente unas ramas",
+          "ok": false,
+          "why": "En una inspección autorizada, apartar con cuidado la vegetación puede permitir observar sin tocar el nido."
+        }
+      ],
+      "riesgos": [
+        "Reducir el número de observadores y el tiempo junto al nido disminuye la perturbación.",
+        "La información se anota a suficiente distancia del nido para reducir el tiempo de presencia junto a él.",
+        "Repetir una misma ruta puede formar un camino evidente hasta el nido. Se debe evitar dejar ese rastro de acceso."
+      ]
+    },
+    {
+      "id": "residuos-rpbi",
+      "titulo": "Residuos de un procedimiento veterinario",
+      "imagen": "assets/img/retos/detective-residuos-rpbi-1.webp",
+      "zonas": [{"x": 0.165, "y": 0.47, "w": 0.27, "h": 0.28}, {"x": 0.515, "y": 0.585, "w": 0.31, "h": 0.23}, {"x": 0.87, "y": 0.425, "w": 0.22, "h": 0.45}],
+      "activo": true,
+      "tipo": "legal",
+      "consigna": "Observa los recipientes y marca los 3 problemas de separación y envasado de residuos.",
+      "escena": "a la izquierda, sobre una mesa de acero, una bolsa de plástico transparente con varias agujas y bisturís usados dentro (se ven los instrumentos a través de la bolsa). En el centro, un bote de basura común, de color gris, lleno de envolturas de comida, del que asoman unas gasas con una mancha roja pequeña (sin salpicaduras ni charcos). A la derecha, un recipiente rígido de color rojo para punzocortantes, lleno hasta el borde, con la tapa abierta y varias agujas sobresaliendo por arriba.",
+      "pistas": [
+        {
+          "t": "Hay agujas y bisturís usados dentro de una bolsa transparente",
+          "ok": true,
+          "why": "Una bolsa puede perforarse. Los punzocortantes usados requieren un recipiente rígido adecuado para su clasificación."
+        },
+        {
+          "t": "El personal usa guantes y bata",
+          "ok": false,
+          "why": "El equipo de protección es una práctica adecuada durante el manejo de residuos."
+        },
+        {
+          "t": "Se mezcló material de curación del procedimiento con basura común",
+          "ok": true,
+          "why": "El material potencialmente infeccioso debe clasificarse y separarse en el lugar donde se genera. Una mancha roja por sí sola no determina su clasificación."
+        },
+        {
+          "t": "Un recipiente de punzocortantes está desbordado y abierto",
+          "ok": true,
+          "why": "Un recipiente sobrellenado deja expuestas las agujas. Se debe respetar su límite de llenado y cerrarlo de forma segura."
+        },
+        {
+          "t": "Hay bolsas cerradas en el área de residuos",
+          "ok": false,
+          "why": "El cierre de los envases ayuda a contener los residuos; además debe verificarse que correspondan a su clasificación."
+        },
+        {
+          "t": "No hay animales sobre las mesas",
+          "ok": false,
+          "why": "Esta escena trata del manejo de residuos; la ausencia de animales no es un problema."
+        }
+      ],
+      "riesgos": [
+        "Una bolsa puede perforarse. Los punzocortantes usados requieren un recipiente rígido adecuado para su clasificación.",
+        "El material potencialmente infeccioso debe clasificarse y separarse en el lugar donde se genera. Una mancha roja por sí sola no determina su clasificación.",
+        "Un recipiente sobrellenado deja expuestas las agujas. Se debe respetar su límite de llenado y cerrarlo de forma segura."
+      ]
+    },
+    {
+      "id": "molde-huella",
+      "titulo": "Molde de yeso de una huella",
+      "imagen": "assets/img/retos/detective-molde-huella-1.webp",
+      "zonas": [{"x": 0.36, "y": 0.725, "w": 0.22, "h": 0.23}, {"x": 0.285, "y": 0.29, "w": 0.15, "h": 0.34}, {"x": 0.765, "y": 0.575, "w": 0.23, "h": 0.25}],
+      "activo": true,
+      "tipo": "identificacion",
+      "consigna": "Observa la elaboración del molde y marca los 3 errores que pueden arruinar el registro.",
+      "escena": "a la izquierda, una persona agachada, de espaldas, hace un molde de yeso de una huella de mamífero; hay un círculo trazado en la tierra alrededor de la huella. La persona vierte el yeso desde muy arriba, a la altura de su hombro, y la mezcla blanca se derrama más allá del círculo. A la derecha, otra persona de espaldas levanta un molde que todavía está blando y húmedo, y se ve el dedo manchado de yeso blanco.",
+      "pistas": [
+        {
+          "t": "El yeso se derrama fuera de la marca que rodea la huella",
+          "ok": true,
+          "why": "Controlar el vertido dentro del contorno evita extender la mezcla innecesariamente y facilita obtener el molde."
+        },
+        {
+          "t": "Hay una referencia de tamaño junto a otra huella",
+          "ok": false,
+          "why": "Una referencia de tamaño ayuda a documentar el rastro."
+        },
+        {
+          "t": "La mezcla cae desde la altura del hombro",
+          "ok": true,
+          "why": "El yeso se vierte cerca de la superficie y con cuidado para no destruir los detalles de la huella."
+        },
+        {
+          "t": "Se levanta un molde blando que todavía mancha el dedo",
+          "ok": true,
+          "why": "El molde se retira cuando ha endurecido; levantarlo aún blando puede deformarlo o romperlo."
+        },
+        {
+          "t": "Hay un cepillo suave entre el equipo",
+          "ok": false,
+          "why": "El cepillo suave puede utilizarse para limpiar cuidadosamente un molde ya endurecido."
+        },
+        {
+          "t": "Las herramientas están reunidas sobre una lona",
+          "ok": false,
+          "why": "Mantener el equipo ordenado facilita recogerlo al terminar."
+        }
+      ],
+      "riesgos": [
+        "Controlar el vertido dentro del contorno evita extender la mezcla innecesariamente y facilita obtener el molde.",
+        "El yeso se vierte cerca de la superficie y con cuidado para no destruir los detalles de la huella.",
+        "El molde se retira cuando ha endurecido; levantarlo aún blando puede deformarlo o romperlo."
+      ]
+    },
+    {
+      "id": "avistamiento-ballenas",
+      "titulo": "Avistamiento de ballenas",
+      "imagen": "assets/img/retos/detective-avistamiento-ballenas-1.webp",
+      "zonas": [{"x": 0.525, "y": 0.38, "w": 0.39, "h": 0.28}, {"x": 0.09, "y": 0.45, "w": 0.14, "h": 0.1}, {"x": 0.895, "y": 0.355, "w": 0.19, "h": 0.15}],
+      "activo": true,
+      "tipo": "legal",
+      "consigna": "Observa las embarcaciones y marca las 3 acciones que interfieren con las ballenas.",
+      "escena": "en el centro, una ballena jorobada adulta nada junto a su cría pequeña, ambas con el lomo asomando. Una lancha de pasajeros pasa justo entre las dos. A la izquierda, una persona nada en el agua a pocos metros de ellas, con el brazo fuera del agua. A la derecha, una moto acuática se acerca a toda velocidad por un costado, levantando espuma.",
+      "pistas": [
+        {
+          "t": "Una lancha pasa entre la ballena adulta y su cría",
+          "ok": true,
+          "why": "Interponerse entre una madre y su cría separa su trayectoria y perturba a los animales."
+        },
+        {
+          "t": "Otra embarcación espera lejos",
+          "ok": false,
+          "why": "Esperar a distancia ayuda a evitar que las embarcaciones rodeen a las ballenas."
+        },
+        {
+          "t": "Una persona nada cerca de las ballenas",
+          "ok": true,
+          "why": "La observación se realiza desde las embarcaciones autorizadas; entrar al agua para acercarse a las ballenas no es una práctica permitida en esta actividad."
+        },
+        {
+          "t": "Una moto acuática se aproxima levantando espuma",
+          "ok": true,
+          "why": "Las motos acuáticas no son un medio adecuado para realizar esta observación; su aproximación perturba a las ballenas."
+        },
+        {
+          "t": "Los pasajeros permanecen dentro de la lancha",
+          "ok": false,
+          "why": "Permanecer a bordo es lo adecuado durante el recorrido."
+        },
+        {
+          "t": "La ballena adulta y la cría asoman el lomo",
+          "ok": false,
+          "why": "Es parte de su desplazamiento natural; no constituye un error de los visitantes."
+        }
+      ],
+      "riesgos": [
+        "Interponerse entre una madre y su cría separa su trayectoria y perturba a los animales.",
+        "La observación se realiza desde las embarcaciones autorizadas; entrar al agua para acercarse a las ballenas no es una práctica permitida en esta actividad.",
+        "Las motos acuáticas no son un medio adecuado para realizar esta observación; su aproximación perturba a las ballenas."
+      ]
+    },
+    {
+      "id": "liberacion-crias",
+      "titulo": "Liberación de crías de tortuga marina",
+      "imagen": "assets/img/retos/detective-liberacion-crias-1.webp",
+      "zonas": [{"x": 0.135, "y": 0.745, "w": 0.23, "h": 0.39}, {"x": 0.365, "y": 0.595, "w": 0.13, "h": 0.13}, {"x": 0.855, "y": 0.5, "w": 0.17, "h": 0.2}],
+      "activo": true,
+      "tipo": "legal",
+      "consigna": "Observa la liberación y marca las 3 prácticas que deben corregirse.",
+      "escena": "personal de un campamento tortuguero (de espaldas, con gorras, sin rostros) libera crías de tortuga marina. A la izquierda, una cubeta de plástico llena de agua con varias crías nadando dentro. En el centro, en la orilla, una persona agachada mete a varias crías al mar con las manos, sosteniéndolas en el agua. A la derecha, otra persona excava con las manos un nido en la arena para sacar crías que todavía no han salido. Las crías se ven sanas.",
+      "pistas": [
+        {
+          "t": "Las crías esperan dentro de una cubeta con agua",
+          "ok": true,
+          "why": "Las crías no deben mantenerse nadando en una cubeta antes de la liberación; eso puede agotarlas."
+        },
+        {
+          "t": "El vivero está en terreno alto, lejos del oleaje",
+          "ok": false,
+          "why": "Ubicar el vivero fuera del alcance del oleaje ayuda a proteger los nidos."
+        },
+        {
+          "t": "Una persona introduce las crías al mar con las manos",
+          "ok": true,
+          "why": "Se permite que las crías recorran la arena húmeda y entren al mar por sí mismas, siguiendo el protocolo del campamento."
+        },
+        {
+          "t": "Otra persona excava un nido para sacar crías que aún no emergen",
+          "ok": true,
+          "why": "No se adelanta la salida de las crías para una liberación. La revisión de nidos corresponde a personal autorizado y a su protocolo."
+        },
+        {
+          "t": "El personal lleva gorras sin adornos",
+          "ok": false,
+          "why": "La vestimenta mostrada no es uno de los problemas de esta escena."
+        },
+        {
+          "t": "Un cerco delimita un nido en la arena",
+          "ok": false,
+          "why": "La delimitación puede ayudar a evitar el pisoteo; debe formar parte del manejo autorizado."
+        }
+      ],
+      "riesgos": [
+        "Las crías no deben mantenerse nadando en una cubeta antes de la liberación; eso puede agotarlas.",
+        "Se permite que las crías recorran la arena húmeda y entren al mar por sí mismas, siguiendo el protocolo del campamento.",
+        "No se adelanta la salida de las crías para una liberación. La revisión de nidos corresponde a personal autorizado y a su protocolo."
+      ]
+    },
+    {
+      "id": "playa-anidacion-dia",
+      "titulo": "Playa de anidación en temporada",
+      "imagen": "assets/img/retos/detective-playa-anidacion-dia-1.webp",
+      "zonas": [{"x": 0.2, "y": 0.53, "w": 0.38, "h": 0.52}, {"x": 0.55, "y": 0.405, "w": 0.24, "h": 0.23}, {"x": 0.895, "y": 0.59, "w": 0.17, "h": 0.24}],
+      "activo": true,
+      "tipo": "legal",
+      "consigna": "Observa la playa y marca los 3 obstáculos o perturbaciones durante la temporada de anidación.",
+      "escena": "en el primer plano a la izquierda, varias tumbonas y una red de voleibol armada, dejadas sobre la arena. En el centro, una camioneta circula por la arena de la playa, dejando huellas de llantas. A la derecha, cerca de la orilla, un perro corre suelto por la arena. Al fondo hay una duna con vegetación.",
+      "pistas": [
+        {
+          "t": "Hay tumbonas y una red de voleibol sobre la arena",
+          "ok": true,
+          "why": "Los objetos movibles pueden obstruir el paso o enredar a las tortugas y sus crías; la playa de anidación debe mantenerse despejada."
+        },
+        {
+          "t": "La duna conserva su vegetación",
+          "ok": false,
+          "why": "Conservar la vegetación nativa protege la duna y el hábitat de anidación."
+        },
+        {
+          "t": "Una camioneta circula por la arena y deja huellas de llantas",
+          "ok": true,
+          "why": "El tránsito recreativo de vehículos puede perturbar la anidación y afectar nidos o crías. El manejo autorizado requiere condiciones específicas."
+        },
+        {
+          "t": "Un perro corre suelto por la playa",
+          "ok": true,
+          "why": "Los animales sueltos pueden perturbar a las hembras o dañar nidos y crías; deben mantenerse fuera de la zona de anidación."
+        },
+        {
+          "t": "La lámpara tiene capucha y dirige la luz hacia abajo",
+          "ok": false,
+          "why": "Evitar que la luz se proyecte hacia la playa ayuda a reducir la desorientación de las tortugas."
+        },
+        {
+          "t": "Hay personas caminando a lo lejos por la orilla",
+          "ok": false,
+          "why": "Caminar por una zona permitida y respetar las indicaciones no constituye por sí mismo una perturbación."
+        }
+      ],
+      "riesgos": [
+        "Los objetos movibles pueden obstruir el paso o enredar a las tortugas y sus crías; la playa de anidación debe mantenerse despejada.",
+        "El tránsito recreativo de vehículos puede perturbar la anidación y afectar nidos o crías. El manejo autorizado requiere condiciones específicas.",
+        "Los animales sueltos pueden perturbar a las hembras o dañar nidos y crías; deben mantenerse fuera de la zona de anidación."
+      ]
+    }
   ];
 
   return { quiz: quiz, orden: orden, flashcards: flashcards, historia: historia, detective: detective };

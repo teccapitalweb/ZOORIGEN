@@ -156,11 +156,11 @@ test('Certificados: Ver, Copiar enlace y Verificar están en el menú; tocar la 
   assert.match(h, /<a class="ap-fc__titulo" href="ver-certificado\.html\?folio=ZOO-1"/);
 });
 
-test('Cursos: Editar y Eliminar en el menú; la vista de lista es la predeterminada', () => {
+test('Cursos: las acciones de lista siguen disponibles internamente; el catálogo se muestra en tarjetas', () => {
   const h = C.listaHTML([{ id: 'c1', title: 'Curso', area: 'Etología', lecciones: [] }], 'lista');
   assert.deepEqual(F.accionesDeHTML(h).map(a => a.a), ['editar', 'eliminar']);
   assert.match(h, /class="ap-fc__titulo" data-accion="editar" data-id="c1"/);
-  assert.match(html, /orden: 'recientes', vista: 'lista' \}/);
+  assert.match(html, /orden: 'recientes', vista: 'grid' \}/);
 });
 
 test('Videos, PDFs y webinars: Editar y Eliminar en el menú de cada fila, con el mismo manejo de clics', () => {

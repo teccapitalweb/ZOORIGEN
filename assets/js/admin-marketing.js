@@ -196,7 +196,7 @@
         series: [{ nombre: 'Visitas', valores: ag(d.visitas.porDia).valores, color: 6 }], vacio: { titulo: 'Sin visitas en este periodo', texto: 'El contador está encendido; cuando alguien entre a la portada aparecerá aquí.' } }) +
         (d.visitas.porPagina.length ? '<div class="ap-separador"></div><h3 class="ap-subtitulo">Páginas más vistas</h3>' + G.barrasH({ titulo: 'Páginas más vistas', filas: d.visitas.porPagina.map(function (p) { return { etiqueta: p.pagina, valor: p.n }; }), color: 6 }) : ''),
         'Conteo agregado por día y página. No guarda IP, cookies ni identificadores.')
-      : '<div class="ap-aviso ap-aviso--info" role="note">' + ico('globe', { size: 20 }) + '<div><strong>El contador de visitas está apagado</strong><p>Cuando lo enciendas, aquí verás cuántas personas visitan la portada por día y qué páginas se ven más. Es un conteo agregado: sin cookies, sin IP y sin identificar a nadie. Antes de encenderlo conviene agregar un párrafo al aviso de privacidad. Además, el sitio todavía no envía las visitas al servidor, así que encenderlo hoy no sumaría nada.</p>' +
+      : '<div class="ap-aviso ap-aviso--info" role="note">' + ico('globe', { size: 20 }) + '<div><strong>El contador de visitas está apagado</strong><p>Cuando lo enciendas, aquí verás cuántas personas visitan la portada por día y qué páginas se ven más. Es un conteo agregado: sin cookies, sin IP y sin identificar a nadie. El conteo empieza cuando lo activas y no reconstruye visitas anteriores.</p>' +
         '<a class="ap-btn ap-btn--suave" href="#/configuracion">' + ico('settings', { size: 16 }) + 'Ir a Configuración</a></div></div>';
 
     var estados = G.anillo({
@@ -488,7 +488,7 @@
     }
     if (mi !== u.contadorActual()) return;
     estadoM.datos = d;
-    pintarMetricas();
+    try { pintarMetricas(); } catch (e) { errorVista('Métricas', e, function () { metricas(true); }); }
   }
 
   // Descarga un CSV (con marca de orden de bytes para que Excel respete los acentos)

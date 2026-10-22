@@ -25,10 +25,12 @@
   <link rel="stylesheet" href="../assets/css/club-mobile.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/auth-redesign.css?v=20261129-acceso">
+  <link rel="stylesheet" href="../assets/css/club-instalar-acceso.css?v=20261019-acceso">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
   <!-- Pestaña de la primera pintura (sin parpadeo): ?tab=crear, #crear o un enlace de invitación (?ref=) abren "Crear cuenta".
        La misma regla vive en assets/js/club-ingreso.js (tabInicial); tests/club-ingreso.test.js comprueba que coinciden. -->
   <script>/*zs-tab*/!function(d,l){var q=l.search,h=l.hash.toLowerCase(),m=/[?&]tab=([^&#]*)/.exec(q),t=m?m[1].toLowerCase():"",c;if(/^(crear|registro|register)$/.test(t))c=1;else if(/^(entrar|login)$/.test(t))c=0;else if(/^#(crear|registro)/.test(h))c=1;else if(/^#(entrar|login)/.test(h))c=0;else c=!/[?&]verificado=1(&|$)/.test(q)&&/[?&]ref=[^&#]/.test(q)?1:0;d.documentElement.setAttribute("data-tab",c?"crear":"entrar")}(document,location)</script>
+  <script src="../assets/js/club-instalar-acceso.js?v=20261019-acceso" defer></script>
 </head>
 <body class="auth-page auth-page--acceso">
   <button type="button" class="auth-theme" id="temaBtn" aria-label="Cambiar a modo oscuro">
@@ -221,7 +223,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261129-acceso"></script>
+  <script src="../assets/js/club.js?v=20261207-integrado"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/club-ingreso.js?v=20261129-acceso"></script>

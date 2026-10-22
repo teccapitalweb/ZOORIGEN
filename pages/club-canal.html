@@ -5,9 +5,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <script>/*zs-admin*/!function(){try{var s=window.sessionStorage,h=document.documentElement,q=/[?&]como=(user|admin)(?:&|#|$)/.exec(location.search);if(q){if(q[1]==="user")s.setItem("zoo_como_usuario","1");else s.removeItem("zoo_como_usuario")}if(localStorage.getItem("zoo_admin")==="1"){if(s.getItem("zoo_como_usuario")==="1")h.setAttribute("data-como","user");else{h.style.visibility="hidden";setTimeout(function(){h.style.visibility=""},4000);location.replace("admin-club.html")}}}catch(e){}}()</script>
-  <title>Canal de WhatsApp · Club VIP Zoorigen</title>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canal de WhatsApp · Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#1F5F3A">
@@ -26,7 +26,6 @@
   <link rel="stylesheet" href="../assets/css/club-theme.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261128-arreglos">
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
-  <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
@@ -44,8 +43,9 @@
           <div class="zk-hero__icono" id="zkIcono"></div>
           <div class="zk-hero__texto">
             <h2 id="zkTitulo">Únete al canal de la comunidad</h2>
-            <p>Avisos de cursos nuevos, noticias de fauna y recursos para miembros, y de las clases en vivo cuando se abran. Recibes lo importante sin tener que entrar al club.</p>
+            <p>Avisos de cursos nuevos, noticias de fauna y recursos de Zoorigen. El canal es gratuito para todos: puedes unirte con o sin membresía VIP y sin crear una cuenta en el sitio.</p>
             <div class="zk-hero__botones" id="zkBotones"></div>
+            <p>Abre el canal en WhatsApp y pulsa Seguir para recibir las novedades. El acceso es gratuito.</p>
           </div>
         </section>
 
@@ -71,11 +71,6 @@
           .zk-redes__btn--ig { background: #B02A78; }
         </style>
 
-        <div class="zk-bloqueo" id="zkBloqueo" hidden>
-          <p><strong>El canal es para miembros con membresía activa.</strong> Puedes ver cómo funciona, y al suscribirte podrás entrar.</p>
-          <a class="zc-btn zc-btn--primario" href="club-suscripcion.html">Suscribirme</a>
-        </div>
-
         <section class="zc-card" aria-labelledby="zkReglasTitulo">
           <h2 id="zkReglasTitulo"><span id="zkIconoReglas"></span>Reglas de la comunidad</h2>
           <p class="zc-card__sub">Para que el canal siga siendo un lugar útil y seguro, pedimos a todas las personas cumplir estas cuatro reglas.</p>
@@ -97,7 +92,7 @@
   <script src="../assets/js/club-seccion.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-cola.js?v=20261206-creditos"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionCanal","seccion":"canal","icono":"radio","eyebrow":"Canal oficial","titulo":"Canal de WhatsApp,","acento":"siempre al día.","sub":"Novedades oficiales de Zoorigen directo en tu teléfono."});</script>
-  <script src="../assets/js/club.js?v=20261129-acceso"></script>
+  <script src="../assets/js/club.js?v=20261207-integrado"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/club-paywall.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-shell.js?v=20261128-arreglos"></script>
@@ -105,9 +100,8 @@
   <script src="../assets/js/club-iconos-comunidad.js?v=20261104"></script>
   <script src="../assets/js/club-referidos.js?v=20261114-invitar"></script>
   <script>
-    // Dirección del canal. Hoy es el chat de WhatsApp de Zoorigen para pedir entrada; cuando exista el enlace
-    // directo del canal (https://whatsapp.com/channel/...), basta con cambiar esta constante.
-    const ZOO_CANAL_URL = 'https://wa.me/5212361113237?text=Hola%20quiero%20entrar%20al%20canal%20VIP%20de%20Zoorigen';
+    // Canal oficial de Zoorigen, abierto a toda la comunidad.
+    const ZOO_CANAL_URL = 'https://whatsapp.com/channel/0029Vb7o61hDp2Q0dfsG0W1g';
 
     const REGLAS = [
       { icono: 'heart-handshake', titulo: 'Respeto ante todo', texto: 'Trata con amabilidad a todas las personas. No se permiten insultos, burlas ni discriminación.' },
@@ -116,39 +110,24 @@
       { icono: 'shield-check', titulo: 'Sin venta de animales ni tráfico', texto: 'Está prohibido ofrecer, comprar o intercambiar animales silvestres, sus partes o productos.' }
     ];
 
-    (async () => {
-      const session = await ZOORIGEN_CLUB.requireAuth();
-      if (!session) return;
-      document.getElementById('sidebar').innerHTML = ZOORIGEN_CLUB.renderSidebar('canal', session);
-      if (ZOORIGEN_CLUB.initMobileMenu) ZOORIGEN_CLUB.initMobileMenu();
+    (() => {
+      // Página pública: no requiere cuenta ni membresía para consultar o solicitar el enlace.
+      if (window.ZOO_SHELL) ZOO_SHELL.montar({ activo: 'canal', sesion: { name: 'Comunidad Zoorigen' } });
 
       const I = window.ZOO_ICONOS_COM;
       const R = window.ZOO_REFERIDOS;
-      const membresia = ZOORIGEN_CLUB.hasActiveMembership(session);
-      if (window.ZOO_PAYWALL) ZOO_PAYWALL.iniciar({ sesion: session, club: ZOORIGEN_CLUB });
 
       document.getElementById('zkIcono').innerHTML = I.svg('message-circle', { size: 42, trazo: 1.8 });
       document.getElementById('zkIconoReglas').innerHTML = I.svg('shield-check', { size: 18 });
       document.getElementById('zkReglas').innerHTML = REGLAS.map(r =>
         `<li class="zk-regla">${I.svg(r.icono, { size: 22 })}<strong>${R.esc(r.titulo)}</strong><span>${R.esc(r.texto)}</span></li>`).join('');
 
-      // "Compartir invitación" manda tu enlace de invitado (así tus amigos cuentan para tus premios), no el canal.
-      const enlace = R.enlaceLocal(R.codigoLocal(session.uid));
+      // La invitación comparte esta página pública; no necesita datos de una cuenta.
+      const enlace = new URL('club-canal.html', window.location.href).href;
       const compartir = R.enlacesCompartir(enlace).whatsapp;
-
-      const abrir = membresia
-        ? `<a class="zc-btn zk-btn-blanco" href="${R.esc(ZOO_CANAL_URL)}" target="_blank" rel="noopener noreferrer">Abrir canal</a>`
-        : `<a class="zc-btn zk-btn-blanco" href="club-suscripcion.html" id="zkAbrirBloqueado">${I.svg('lock', { size: 16 })}Abrir canal</a>`;
-      document.getElementById('zkBotones').innerHTML = abrir +
+      document.getElementById('zkBotones').innerHTML =
+        `<a class="zc-btn zk-btn-blanco" href="${R.esc(ZOO_CANAL_URL)}" target="_blank" rel="noopener noreferrer">Unirme al canal</a>` +
         `<a class="zc-btn zk-btn-borde" href="${R.esc(compartir)}" target="_blank" rel="noopener noreferrer">${I.svg('share-2', { size: 16 })}Compartir invitación</a>`;
-      if (!membresia) {
-        document.getElementById('zkBloqueo').hidden = false;
-        const bloqueado = document.getElementById('zkAbrirBloqueado');
-        if (bloqueado && window.ZOO_PAYWALL) bloqueado.addEventListener('click', (ev) => {
-          ev.preventDefault();
-          ZOO_PAYWALL.requiereMembresia('Abrir el canal de WhatsApp');
-        });
-      }
     })();
   </script>
 <script>

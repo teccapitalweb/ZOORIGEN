@@ -13,7 +13,7 @@ const vm = require('node:vm');
 const RAIZ = path.resolve(__dirname, '..');
 const leer = rel => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
 const PAGINAS = fs.readdirSync(path.join(RAIZ, 'pages')).filter(f => /^(club-.*|admin-club|verificar-correo)\.html$/.test(f) && !['club.html', 'club-noticias.html'].includes(f));
-const PANEL = PAGINAS.filter(f => /<aside class="club-sidebar" id="sidebar"/.test(leer('pages/' + f)));
+const PANEL = PAGINAS.filter(f => f !== 'club-canal.html' && /<aside class="club-sidebar" id="sidebar"/.test(leer('pages/' + f)));
 const SIN_PANEL = PAGINAS.filter(f => !PANEL.includes(f));
 
 function almacen(inicial) {
@@ -40,7 +40,7 @@ function correrCabecera(html, { local = {}, sesion = {}, busqueda = '', bloquead
 }
 
 test('todas las páginas del Club de miembro llevan la decisión temprana; el acceso, el panel y el registro no', () => {
-  assert.ok(PANEL.length >= 18);
+  assert.ok(PANEL.length >= 17);
   for (const f of PANEL) {
     const h = leer('pages/' + f);
     assert.equal((h.match(/\/\*zs-admin\*\//g) || []).length, 1, f);

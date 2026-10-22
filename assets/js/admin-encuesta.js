@@ -468,6 +468,36 @@
     return tarjetaGrafica('Dónde se quedan quienes no terminan', null, 'Última pregunta que contestaron antes de irse.', encabezado + cuerpo + (r.sinRespuestas ? '<p class="ap-nota">' + persona(r.sinRespuestas) + ' abrieron la encuesta y no contestaron nada, por eso no aparecen en ningún paso.</p>' : ''), f, true);
   }
 
+  /* Dos gráficas del resumen (de la integración con el sitio publicado): cuántas encuestas están completas y cuántas parciales, y cuántas
+     respuestas hubo cada día (hora de México, una por persona). Van arriba de las 11 gráficas por pregunta. */
+  function graficasResumenHTML(r) {
+    if (!r.total) return '';
+    var dias = {};
+    r.filas.forEach(function (f) {
+      if (!f.fecha) return;
+      var dia = new Date(f.fecha.getTime() - 6 * 3600000).toISOString().slice(0, 10);
+      if (!dias[dia]) dias[dia] = { total: 0, completas: 0 };
+      dias[dia].total++; if (f.completada) dias[dia].completas++;
+    });
+    var claves = Object.keys(dias).sort();
+    var completas = r.filas.filter(function (f) { return f.completada; }).length, parciales = r.filas.length - completas;
+    var anillo = G.anillo({
+      titulo: 'Estado de las encuestas', partes: [{ etiqueta: 'Completas', valor: completas, color: 1 }, { etiqueta: 'Parciales', valor: parciales, color: 4 }],
+      centro: { valor: num(r.filas.length), rotulo: r.filas.length === 1 ? 'persona' : 'personas' }
+    });
+    var serie = G.serie({
+      titulo: 'Respuestas de la encuesta por fecha', tipo: 'barras', etiquetas: claves, unidad: 'personas', alto: 210,
+      series: [{ nombre: 'Personas', valores: claves.map(function (d) { return dias[d].total; }), color: 2 }, { nombre: 'Completas', valores: claves.map(function (d) { return dias[d].completas; }), color: 1 }],
+      vacio: { titulo: 'Sin respuestas con fecha', texto: 'Las respuestas nuevas aparecerán aquí.' }
+    });
+    var mejorDia = claves.slice().sort(function (a, b) { return dias[b].total - dias[a].total; })[0];
+    var fraseEstado = persona(completas) + ' de ' + num(r.filas.length) + ' terminaron la encuesta (' + (r.filas.length ? Math.round(completas / r.filas.length * 100) : 0) + ' %); las otras ' + num(parciales) + ' la dejaron a medias.';
+    var fraseFechas = mejorDia ? 'El día con más respuestas fue el ' + mejorDia + ': ' + persona(dias[mejorDia].total) + ' (' + num(dias[mejorDia].completas) + ' completas). Una respuesta por persona, según su registro más reciente.' : '';
+    return '<div class="enc-graficas enc-graficas--resumen">' +
+      tarjetaGrafica('Encuestas completas y parciales', null, 'Cuántas personas llegaron hasta el final.', anillo, fraseEstado) +
+      tarjetaGrafica('Respuestas por fecha', null, 'Cuántas respuestas hubo cada día. Hora de México.', serie, fraseFechas) + '</div>';
+  }
+
   function graficasHTML(r) {
     if (!r.total) {
       return '<div class="zs-vacio ap-vacio enc-g__vacio">' + ico('list-checks', 28) + '<strong>Todavía nadie responde la encuesta</strong>' +
@@ -676,7 +706,7 @@
     }
     var r = calcular(enc.docs);
     var detalle = enc.detalle === true;
-    return cabecera + kpisHTML(r) + graficasHTML(r) + leadsHTML(r, detalle) + respuestasHTML(r, detalle) + preguntasHTML(e.preguntas || { ok: false, error: 'Sin datos.' });
+    return cabecera + kpisHTML(r) + graficasResumenHTML(r) + graficasHTML(r) + leadsHTML(r, detalle) + respuestasHTML(r, detalle) + preguntasHTML(e.preguntas || { ok: false, error: 'Sin datos.' });
   }
 
   /* ───────────────────────── Montaje (solo en el navegador) ───────────────────────── */
