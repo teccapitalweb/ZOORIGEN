@@ -166,13 +166,14 @@ test('portadas propias: cada id mapeado tiene su archivo y se usa en la tarjeta'
   const fs = require('node:fs');
   const path = require('node:path');
   const ids = Object.keys(M.PORTADAS);
-  assert.equal(ids.length, 12, '3 libros + 9 materiales');
+  assert.equal(ids.length, 32, '3 libros + 9 materiales de siempre + 20 nuevos (Excel, PowerPoint y PDF)');
   for (const id of ids) {
     const ruta = M.portadaDe(id);
-    assert.match(ruta, /^\.\.\/assets\/img\/materiales\/[a-z0-9-]+\.jpg$/);
+    assert.match(ruta, /^\.\.\/assets\/img\/materiales\/[a-z0-9-]+\.(jpg|png)$/);
     const archivo = path.join(__dirname, '..', ruta.replace(/^\.\.\//, ''));
     assert.ok(fs.existsSync(archivo), 'falta el archivo de ' + id);
     assert.ok(fs.statSync(archivo).size < 250 * 1024, id + ' pesa demasiado');
+    if (/\.jpg$/.test(ruta)) assert.ok(fs.statSync(archivo).size < 150 * 1024, id + ': una portada fotográfica nueva debe pesar menos de 150 KB');
   }
   // un material con portada propia la usa; sin portada cae a la foto del tema
   assert.match(M.fotoDeMaterial({ id: 'intro-nom-059', area: 'Normatividad', titulo: 'x' }), /material-intro-nom-059\.jpg/);

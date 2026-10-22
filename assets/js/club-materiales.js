@@ -49,8 +49,39 @@
     'marco-normativo-uno': 'material-marco-normativo.jpg',
     'intro-nom-059': 'material-intro-nom-059.jpg',
     'bienestar-cinco-dominios': 'material-bienestar-cinco-dominios.jpg',
-    'polinizadores-abejas': 'material-polinizadores-abejas.jpg'
+    'polinizadores-abejas': 'material-polinizadores-abejas.jpg',
+    /* Excel, PowerPoint y PDF nuevos: fotografía de portada (JPG de 900 x 1230). De cada uno hay además una ilustración PNG de
+       Zoorigen (PORTADAS_RESPALDO) que se usa solo si la fotografía no carga. */
+    'inventario-botiquin-caducidad': 'material-inventario-botiquin-caducidad.jpg',
+    'libro-entradas-salidas-insumos': 'material-libro-entradas-salidas-insumos.jpg',
+    'peso-curva-crecimiento': 'material-peso-curva-crecimiento.jpg',
+    'calendario-preventivo-protocolo': 'material-calendario-preventivo-protocolo.jpg',
+    'registro-ingresos-bajas-traslados': 'material-registro-ingresos-bajas-traslados.jpg',
+    'presupuesto-anual-uma-zoologico': 'material-presupuesto-anual-uma-zoologico.jpg',
+    'bitacora-enriquecimiento-semanal': 'material-bitacora-enriquecimiento-semanal.jpg',
+    'control-alimentacion-recintos': 'material-control-alimentacion-recintos.jpg',
+    'ppt-bioseguridad-recintos': 'material-ppt-bioseguridad-recintos.jpg',
+    'ppt-enriquecimiento-ambiental': 'material-ppt-enriquecimiento-ambiental.jpg',
+    'ppt-fototrampeo-muestreo': 'material-ppt-fototrampeo-muestreo.jpg',
+    'ppt-uma-pimvs-zoologicos': 'material-ppt-uma-pimvs-zoologicos.jpg',
+    'ppt-observacion-conductual-etogramas': 'material-ppt-observacion-conductual-etogramas.jpg',
+    'cuarentena-recepcion-ejemplares': 'material-cuarentena-recepcion-ejemplares.jpg',
+    'formato-necropsia-mortalidad': 'material-formato-necropsia-mortalidad.jpg',
+    'plantilla-plan-manejo-uma': 'material-plantilla-plan-manejo-uma.jpg',
+    'etograma-hoja-observacion': 'material-etograma-hoja-observacion.jpg',
+    'carteles-visitantes-senales': 'material-carteles-visitantes-senales.jpg',
+    'checklist-auditoria-bienestar': 'material-checklist-auditoria-bienestar.jpg',
+    'guia-rotulado-trazabilidad-muestras': 'material-rotulado-trazabilidad-muestras.jpg'
   };
+  var NUEVOS_CON_FOTO = ['inventario-botiquin-caducidad', 'libro-entradas-salidas-insumos', 'peso-curva-crecimiento', 'calendario-preventivo-protocolo', 'registro-ingresos-bajas-traslados', 'presupuesto-anual-uma-zoologico', 'bitacora-enriquecimiento-semanal', 'control-alimentacion-recintos',
+    'ppt-bioseguridad-recintos', 'ppt-enriquecimiento-ambiental', 'ppt-fototrampeo-muestreo', 'ppt-uma-pimvs-zoologicos', 'ppt-observacion-conductual-etogramas', 'cuarentena-recepcion-ejemplares', 'formato-necropsia-mortalidad', 'plantilla-plan-manejo-uma', 'etograma-hoja-observacion', 'carteles-visitantes-senales', 'checklist-auditoria-bienestar', 'guia-rotulado-trazabilidad-muestras'];
+  /* Respaldo de cada portada nueva: la ilustración PNG del mismo nombre (si la fotografía no carga) */
+  var PORTADAS_RESPALDO = {};
+  NUEVOS_CON_FOTO.forEach(function (id) { PORTADAS_RESPALDO[id] = PORTADAS[id].replace(/.jpg$/, '.png'); });
+  function portadaRespaldoDe(id) {
+    var clave = String(id == null ? '' : id);
+    return Object.prototype.hasOwnProperty.call(PORTADAS_RESPALDO, clave) ? CARPETA_PORTADAS + PORTADAS_RESPALDO[clave] : '';
+  }
   function portadaDe(id) {
     var clave = String(id == null ? '' : id);
     return Object.prototype.hasOwnProperty.call(PORTADAS, clave) ? CARPETA_PORTADAS + PORTADAS[clave] : '';
@@ -62,8 +93,64 @@
     checklist: { nombre: 'Checklist', color: '#0F9D58' },
     glosario: { nombre: 'Glosario', color: '#B35470' },
     infografia: { nombre: 'Infografía', color: '#2AA4D5' },
-    presentacion: { nombre: 'Presentación', color: '#D4A017' }
+    presentacion: { nombre: 'Presentación', color: '#D4A017' },
+    excel: { nombre: 'Hoja de cálculo', color: '#1D6F42' },
+    powerpoint: { nombre: 'Presentación', color: '#C43E1C' }
   };
+
+  /* Formato del archivo que se descarga. Lo manda el servidor en `formato` (pdf, excel, powerpoint); si falta, sale del tipo. */
+  var FORMATOS = {
+    pdf: { nombre: 'PDF', unidad: ['página', 'páginas'], extension: 'pdf', color: '#1F5F8F', descarga: false },
+    excel: { nombre: 'Excel', unidad: ['hoja', 'hojas'], extension: 'xlsx', color: '#1D6F42', descarga: true },
+    powerpoint: { nombre: 'PowerPoint', unidad: ['diapositiva', 'diapositivas'], extension: 'pptx', color: '#C43E1C', descarga: true }
+  };
+  var FILTROS_FORMATO = [['todos', 'Todos los formatos'], ['pdf', 'PDF'], ['excel', 'Excel'], ['powerpoint', 'PowerPoint']];
+  function formatoDe(m) {
+    var f = m && typeof m.formato === 'string' ? m.formato : '';
+    if (FORMATOS[f]) return f;
+    var t = m && m.tipo;
+    return t === 'excel' ? 'excel' : (t === 'powerpoint' ? 'powerpoint' : 'pdf');
+  }
+  function esDescarga(m) { return !!FORMATOS[formatoDe(m)].descarga; }
+  /* «8 hojas», «16 diapositivas», «1 página» */
+  function cantidadTexto(m) {
+    var n = m ? Math.floor(Number(m.paginas)) : 0;
+    if (!Number.isFinite(n) || n < 1) return '';
+    var u = FORMATOS[formatoDe(m)].unidad;
+    return n + ' ' + (n === 1 ? u[0] : u[1]);
+  }
+  /* «28 KB» o «1,2 MB» (el servidor manda tamanoKb) */
+  function tamanoTexto(m) {
+    var kb = m ? Math.floor(Number(m.tamanoKb)) : 0;
+    if (!Number.isFinite(kb) || kb < 1) return '';
+    return kb >= 1024 ? (Math.round(kb / 102.4) / 10).toString().replace('.', ',') + ' MB' : kb + ' KB';
+  }
+  /* «22/10/2026» a partir de AAAA-MM-DD */
+  function fechaTexto(f) {
+    var p = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(f == null ? '' : f));
+    return p ? p[3] + '/' + p[2] + '/' + p[1] : '';
+  }
+  /* «v1.0 · 22/10/2026 · 28 KB» (lo que haya) */
+  function detalleArchivoTexto(m) {
+    var partes = [];
+    if (m && m.version) partes.push('v' + String(m.version));
+    var f = fechaTexto(m && m.fecha); if (f) partes.push(f);
+    var t = tamanoTexto(m); if (t) partes.push(t);
+    return partes.join(' · ');
+  }
+  /* Íconos de archivo (Lucide): documento, hoja de cálculo y presentación */
+  var ICONOS_FORMATO = {
+    pdf: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    excel: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/>',
+    powerpoint: '<path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/>',
+    descargar: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>'
+  };
+  function icoFormato(nombre, tam) {
+    return '<svg class="mt-ico" width="' + tam + '" height="' + tam + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONOS_FORMATO[nombre] || ICONOS_FORMATO.pdf) + '</svg>';
+  }
+  function botonDescargarHTML(m, clase) {
+    return '<button type="button" class="mt-descargar ' + (clase || '') + '" data-descargar="' + esc(m.id) + '" aria-label="Descargar ' + esc(m.titulo) + ' (' + esc(FORMATOS[formatoDe(m)].nombre) + ')">' + icoFormato('descargar', 16) + '<span>Descargar</span></button>';
+  }
 
   var PESTANAS = [['todo', 'Todo'], ['guardados', 'Guardados'], ['libros', 'Libros'], ['guias', 'Guías y plantillas'], ['presentaciones', 'Presentaciones'], ['cursos', 'De tus cursos'], ['oficiales', 'Documentos oficiales'], ['mas', 'Más materiales']];
 
@@ -133,7 +220,27 @@
     { id: 'marco-normativo-uno', titulo: 'Marco normativo de la vida silvestre en una página', tipo: 'infografia', area: 'Normatividad y cumplimiento', paginas: 2 },
     { id: 'intro-nom-059', titulo: 'Introducción a la NOM-059-SEMARNAT-2010', tipo: 'presentacion', area: 'Normatividad y conservación de fauna silvestre', paginas: 10 },
     { id: 'bienestar-cinco-dominios', titulo: 'Bienestar animal: los cinco dominios', tipo: 'presentacion', area: 'Bienestar animal y manejo de fauna', paginas: 10 },
-    { id: 'polinizadores-abejas', titulo: 'Polinizadores: por qué importan las abejas', tipo: 'presentacion', area: 'Biodiversidad y apicultura', paginas: 10 }
+    { id: 'polinizadores-abejas', titulo: 'Polinizadores: por qué importan las abejas', tipo: 'presentacion', area: 'Biodiversidad y apicultura', paginas: 10 },
+    { id: 'inventario-botiquin-caducidad', titulo: 'Inventario de botiquín con alerta de caducidad', tipo: 'excel', area: 'Sanidad y manejo de fauna silvestre', paginas: 3, formato: 'excel' },
+    { id: 'libro-entradas-salidas-insumos', titulo: 'Libro de entradas y salidas de insumos', tipo: 'excel', area: 'Administración de la unidad', paginas: 3, formato: 'excel' },
+    { id: 'peso-curva-crecimiento', titulo: 'Registro de peso y curva de crecimiento por ejemplar', tipo: 'excel', area: 'Bienestar animal', paginas: 4, formato: 'excel' },
+    { id: 'calendario-preventivo-protocolo', titulo: 'Calendario de vacunación y desparasitación con tu protocolo', tipo: 'excel', area: 'Sanidad y manejo de fauna silvestre', paginas: 4, formato: 'excel' },
+    { id: 'registro-ingresos-bajas-traslados', titulo: 'Registro de ingresos, bajas y traslados de ejemplares', tipo: 'excel', area: 'Registro y trazabilidad de fauna silvestre', paginas: 4, formato: 'excel' },
+    { id: 'presupuesto-anual-uma-zoologico', titulo: 'Presupuesto anual de una UMA o zoológico', tipo: 'excel', area: 'Administración de la unidad', paginas: 4, formato: 'excel' },
+    { id: 'bitacora-enriquecimiento-semanal', titulo: 'Bitácora de enriquecimiento ambiental semanal', tipo: 'excel', area: 'Bienestar animal', paginas: 4, formato: 'excel' },
+    { id: 'control-alimentacion-recintos', titulo: 'Control de alimentación por recinto', tipo: 'excel', area: 'Bienestar animal', paginas: 5, formato: 'excel' },
+    { id: 'ppt-bioseguridad-recintos', titulo: 'Bioseguridad y limpieza en recintos de fauna', tipo: 'powerpoint', area: 'Sanidad y manejo de fauna silvestre', paginas: 16, formato: 'powerpoint' },
+    { id: 'ppt-enriquecimiento-ambiental', titulo: 'Enriquecimiento ambiental: tipos, planeación y evaluación', tipo: 'powerpoint', area: 'Bienestar animal', paginas: 16, formato: 'powerpoint' },
+    { id: 'ppt-fototrampeo-muestreo', titulo: 'Fototrampeo: diseño de un muestreo y manejo de datos', tipo: 'powerpoint', area: 'Monitoreo e investigación', paginas: 16, formato: 'powerpoint' },
+    { id: 'ppt-uma-pimvs-zoologicos', titulo: 'UMA, PIMVS y zoológicos: cuál es cuál y qué documentos suelen requerirse', tipo: 'powerpoint', area: 'Normatividad de vida silvestre', paginas: 16, formato: 'powerpoint' },
+    { id: 'ppt-observacion-conductual-etogramas', titulo: 'Observación conductual y etogramas', tipo: 'powerpoint', area: 'Comportamiento animal', paginas: 14, formato: 'powerpoint' },
+    { id: 'cuarentena-recepcion-ejemplares', titulo: 'Protocolo de cuarentena y recepción de ejemplares', tipo: 'checklist', area: 'Sanidad y manejo de fauna silvestre', paginas: 6, formato: 'pdf' },
+    { id: 'formato-necropsia-mortalidad', titulo: 'Formato de necropsia y registro de mortalidad', tipo: 'plantilla', area: 'Registro y trazabilidad de fauna silvestre', paginas: 6, formato: 'pdf' },
+    { id: 'plantilla-plan-manejo-uma', titulo: 'Plantilla de Plan de manejo de una UMA', tipo: 'plantilla', area: 'Normatividad de vida silvestre', paginas: 8, formato: 'pdf' },
+    { id: 'etograma-hoja-observacion', titulo: 'Etograma y hoja de observación conductual', tipo: 'plantilla', area: 'Comportamiento animal', paginas: 7, formato: 'pdf' },
+    { id: 'carteles-visitantes-senales', titulo: 'Carteles imprimibles para visitantes y señales de zona', tipo: 'infografia', area: 'Visitantes y señalización', paginas: 6, formato: 'pdf' },
+    { id: 'checklist-auditoria-bienestar', titulo: 'Checklist de auditoría interna de bienestar animal', tipo: 'checklist', area: 'Bienestar animal', paginas: 7, formato: 'pdf' },
+    { id: 'guia-rotulado-trazabilidad-muestras', titulo: 'Guía de rotulado y trazabilidad de muestras', tipo: 'guia', area: 'Registro y trazabilidad de fauna silvestre', paginas: 5, formato: 'pdf' }
   ];
   function respaldoLibros() {
     return RESPALDO_LIBROS.map(function (l) {
@@ -142,7 +249,7 @@
   }
   function respaldoMateriales() {
     return RESPALDO_MATERIALES.map(function (m) {
-      return { id: m.id, titulo: m.titulo, tipo: m.tipo, area: m.area, descripcion: '', paginas: m.paginas, acceso: 'miembros', requiereRetos: 0, desbloqueado: false, faltan: 0, soloMiembros: true };
+      return { id: m.id, titulo: m.titulo, tipo: m.tipo, area: m.area, descripcion: '', paginas: m.paginas, formato: m.formato || 'pdf', acceso: 'miembros', requiereRetos: 0, desbloqueado: false, faltan: 0, soloMiembros: true };
     });
   }
 
@@ -190,16 +297,20 @@
   }
 
   /* Qué materiales (no libros) entran en cada pestaña. */
-  function esGuia(m) { return m && m.tipo !== 'presentacion'; }
+  function esPresentacion(m) { return !!m && (m.tipo === 'presentacion' || m.tipo === 'powerpoint'); }
+  function esGuia(m) { return !!m && !esPresentacion(m); }
+  /* opc.formato: 'todos' (o vacío), 'pdf', 'excel' o 'powerpoint' */
   function filtrarMateriales(lista, opc) {
     opc = opc || {};
     var q = normalizar(opc.texto), g = opc.guardados || [];
+    var fmt = FORMATOS[opc.formato] ? opc.formato : '';
     return (Array.isArray(lista) ? lista : []).filter(function (m) {
       if (!m) return false;
+      if (fmt && formatoDe(m) !== fmt) return false;
       if (opc.pestana === 'guias' && !esGuia(m)) return false;
-      if (opc.pestana === 'presentaciones' && m.tipo !== 'presentacion') return false;
+      if (opc.pestana === 'presentaciones' && !esPresentacion(m)) return false;
       if (opc.pestana === 'guardados' && g.indexOf('doc:' + m.id) === -1) return false;
-      if (q && normalizar([m.titulo, m.area, m.descripcion, (TIPOS[m.tipo] || {}).nombre].join(' ')).indexOf(q) === -1) return false;
+      if (q && normalizar([m.titulo, m.area, m.descripcion, (TIPOS[m.tipo] || {}).nombre, FORMATOS[formatoDe(m)].nombre].join(' ')).indexOf(q) === -1) return false;
       return true;
     });
   }
@@ -320,6 +431,8 @@
     return src ? '<img class="mt-libro__foto" src="' + esc(src) + '" alt="" width="168" height="237" loading="lazy" decoding="async">' : '';
   }
 
+  function respaldoAttr(id) { var rp = portadaRespaldoDe(id); return rp ? ' data-respaldo="' + esc(rp) + '"' : ''; }
+
   function fotoDeMaterial(m) {
     var propia = portadaDe(m && m.id);
     if (propia) return propia;
@@ -337,14 +450,17 @@
     var bloqueo = req > 0 ? condicionTexto(m) : textoBloqueo(m);
     var etiq = abierto ? '' : (previa ? '<div class="mt-previa">' + chipMiembrosHTML('Solo miembros') + '</div>' : '<span class="mt-doc__lock">' + CANDADO + esc(bloqueo) + '</span>' +
       (req > 0 ? '<div class="mt-prog mt-prog--bloq" role="img" aria-label="' + hechos + ' de ' + req + ' retos"><i style="width:' + Math.min(100, Math.round(hechos * 100 / req)) + '%"></i></div>' : ''));
-    var pags = m.paginas ? entero(m.paginas, 0) + (entero(m.paginas, 0) === 1 ? ' página' : ' páginas') : '';
-    return '<article class="mt-doc' + (abierto ? '' : (previa ? ' is-previa' : ' is-bloq')) + '" data-doc="' + esc(m.id) + '" tabindex="0" role="button" aria-label="' + esc(m.titulo) + (abierto ? '' : (previa ? ' (solo miembros)' : ' (bloqueado)')) + '">' +
-      '<div class="mt-doc__portada" style="--mt-c:' + esc(t.color) + '"><img class="mt-doc__foto" src="' + esc(fotoDeMaterial(m)) + '" alt="" width="300" height="411" loading="lazy" decoding="async">' +
-        '<span class="mt-doc__marca">ZOO<b>RIGEN</b></span><span class="mt-doc__pdf">PDF</span>' + pinHTML('doc:' + m.id, !!ctx.guardado) +
+    var pags = cantidadTexto(m);
+    var fm = formatoDe(m), F = FORMATOS[fm], detalle = detalleArchivoTexto(m);
+    var sub = fm === 'excel' ? 'Hoja de cálculo editable' : (fm === 'powerpoint' ? 'Presentación editable' : (m.tipo === 'presentacion' ? 'Presentación' : 'Material de apoyo'));
+    return '<article class="mt-doc mt-doc--' + fm + (abierto ? '' : (previa ? ' is-previa' : ' is-bloq')) + '" data-doc="' + esc(m.id) + '" data-formato="' + fm + '" tabindex="0" role="button" aria-label="' + esc(m.titulo) + ' (' + esc(F.nombre) + ')' + (abierto ? '' : (previa ? ' (solo miembros)' : ' (bloqueado)')) + '">' +
+      '<div class="mt-doc__portada" style="--mt-c:' + esc(t.color) + '"><img class="mt-doc__foto" src="' + esc(fotoDeMaterial(m)) + '"' + respaldoAttr(m.id) + ' alt="" width="300" height="411" loading="lazy" decoding="async">' +
+        '<span class="mt-doc__marca">ZOO<b>RIGEN</b></span><span class="mt-doc__pdf mt-doc__fmt mt-doc__fmt--' + fm + '">' + icoFormato(fm, 13) + esc(F.nombre) + '</span>' + pinHTML('doc:' + m.id, !!ctx.guardado) +
         (abierto ? '' : '<span class="mt-doc__candado" aria-hidden="true">' + CANDADO + '</span>') +
         '<div class="mt-doc__tarjeta"><small>' + esc(m.area || t.nombre) + '</small><strong>' + esc(m.titulo) + '</strong><em>' + esc(t.nombre) + (pags ? ' · ' + pags : '') + '</em></div></div>' +
-      '<div class="mt-doc__pie"><span class="mt-doc__chip">PDF</span><span class="mt-doc__sub">' + esc(m.tipo === 'presentacion' ? 'Presentación' : 'Material de apoyo') + '</span></div>' +
-      '<div class="mt-doc__area">' + FOLDER + esc(m.area || '') + '</div>' + etiq + (ctx.canje || '') + '</article>';
+      '<div class="mt-doc__pie"><span class="mt-doc__chip mt-doc__chip--' + fm + '">' + icoFormato(fm, 13) + esc(F.nombre) + '</span><span class="mt-doc__sub">' + esc(sub) + '</span></div>' +
+      (detalle ? '<div class="mt-doc__det">' + esc(detalle) + '</div>' : '') +
+      '<div class="mt-doc__area">' + FOLDER + esc(m.area || '') + '</div>' + etiq + (abierto && F.descarga ? botonDescargarHTML(m, 'mt-descargar--tarjeta') : '') + (ctx.canje || '') + '</article>';
   }
 
   /* ───── materiales de curso, por retos y para miembros: la condición, clara, y la fila con candado y avance ─────
@@ -387,7 +503,8 @@
     var fuente = m && m.fuente === 'drive' ? 'drive' : 'catalogo';
     var abierto = !!m.desbloqueado, previa = !abierto && esVistaPrevia(m);
     var texto = abierto ? textoAbierto(m) : (previa ? reglaTexto(m) : condicionTexto(m));
-    var meta = [m.area, entero(m.paginas, 0) ? entero(m.paginas, 0) + (entero(m.paginas, 0) === 1 ? ' página' : ' páginas') : ''].filter(Boolean).map(esc).join(' · ');
+    var fm = formatoDe(m), descarga = esDescarga(m);
+    var meta = [m.area, fm === 'pdf' ? '' : FORMATOS[fm].nombre, cantidadTexto(m)].filter(Boolean).map(esc).join(' · ');
     var req = entero(m.requiereRetos, 0), progreso = '';
     if (!abierto && !previa && !m.pendiente && !m.cursoId && req > 0) {
       var hechos = Math.max(0, req - entero(m.faltan, req));
@@ -396,10 +513,10 @@
     }
     return '<article class="mt-fila' + (abierto ? ' is-abierto' : (previa ? ' is-previa' : ' is-bloq')) + '" data-fila="' + fuente + ':' + esc(m.id) + '" tabindex="0" role="button" aria-label="' +
       esc(m.titulo) + (abierto ? '' : (previa ? ' (solo miembros)' : ' (bloqueado)')) + '">' +
-      '<span class="mt-fila__ico">' + ICO_ARCHIVO + '</span>' +
+      '<span class="mt-fila__ico">' + (fm === 'pdf' ? ICO_ARCHIVO : icoFormato(fm, 22)) + '</span>' +
       '<div class="mt-fila__cuerpo"><strong>' + esc(m.titulo) + '</strong>' + (meta ? '<small>' + meta + '</small>' : '') +
         '<span class="mt-fila__cond' + (abierto ? ' is-ok' : '') + '">' + (abierto ? ICO_OK : CANDADO) + '<span>' + esc(texto) + '</span></span>' + progreso + '</div>' +
-      '<span class="mt-fila__acc">' + (abierto ? '<span class="mt-fila__abrir">Abrir</span>' : (previa ? chipMiembrosHTML('Solo miembros') : '')) + (ctx.canje || '') + '</span></article>';
+      '<span class="mt-fila__acc">' + (abierto ? '<span class="mt-fila__abrir">' + (descarga ? 'Descargar' : 'Abrir') + '</span>' : (previa ? chipMiembrosHTML('Solo miembros') : '')) + (ctx.canje || '') + '</span></article>';
   }
 
   /* Agrupa por curso (en el orden en que aparecen); dentro de cada curso, por clase y luego por título. */
@@ -459,14 +576,27 @@
       '<h3>' + esc(p.titulo || '') + '</h3><div class="rdr-texto">' + parrafos + lista + '</div></div>';
   }
 
+  /* Filtro por formato (Todos, PDF, Excel, PowerPoint) con cuántos materiales hay de cada uno */
+  function formatosHTML(lista, activo) {
+    var cuenta = { todos: 0, pdf: 0, excel: 0, powerpoint: 0 };
+    (Array.isArray(lista) ? lista : []).forEach(function (m) { if (m) { cuenta.todos++; cuenta[formatoDe(m)]++; } });
+    if (!cuenta.excel && !cuenta.powerpoint) return '';
+    return '<div class="mt-formatos" role="group" aria-label="Filtrar por formato">' + FILTROS_FORMATO.map(function (f) {
+      var on = (FORMATOS[activo] ? activo : 'todos') === f[0];
+      return '<button type="button" class="mt-fmt' + (on ? ' is-active' : '') + '" data-formato-filtro="' + f[0] + '" aria-pressed="' + (on ? 'true' : 'false') + '">' + (f[0] === 'todos' ? '' : icoFormato(f[0], 15)) + '<span>' + esc(f[1]) + '</span><b>' + cuenta[f[0]] + '</b></button>';
+    }).join('') + '</div>';
+  }
+
   var API = {
     OFICIALES: OFICIALES, TIPOS: TIPOS, PESTANAS: PESTANAS,
-    fotoDeMaterial: function (m) { return fotoDeMaterial(m); }, portadaDe: portadaDe, PORTADAS: PORTADAS, esc: esc, normalizar: normalizar, urlHttps: urlHttps, siguienteMeta: siguienteMeta, textoBloqueo: textoBloqueo, mensajeBloqueo: mensajeBloqueo,
+    fotoDeMaterial: function (m) { return fotoDeMaterial(m); }, portadaDe: portadaDe, portadaRespaldoDe: portadaRespaldoDe, PORTADAS: PORTADAS, PORTADAS_RESPALDO: PORTADAS_RESPALDO, esc: esc, normalizar: normalizar, urlHttps: urlHttps, siguienteMeta: siguienteMeta, textoBloqueo: textoBloqueo, mensajeBloqueo: mensajeBloqueo,
     filtrarMateriales: filtrarMateriales, filtrarLibros: filtrarLibros,
     leerGuardados: leerGuardados, alternarGuardado: alternarGuardado, leerPagina: leerPagina, guardarPagina: guardarPagina, claveGuardados: claveGuardados, claveLectura: claveLectura,
     vistaPaginas: vistaPaginas, libroCardHTML: libroCardHTML, libroDestacadoHTML: libroDestacadoHTML, bannerRetosHTML: bannerRetosHTML,
     materialCardHTML: materialCardHTML, oficialesHTML: oficialesHTML, paginaHTML: paginaHTML,
     condicionTexto: condicionTexto, reglaTexto: reglaTexto, textoAbierto: textoAbierto, filaMaterialHTML: filaMaterialHTML, agruparPorCurso: agruparPorCurso,
+    formatosHTML: formatosHTML, FORMATOS: FORMATOS, FILTROS_FORMATO: FILTROS_FORMATO, formatoDe: formatoDe, esDescarga: esDescarga, cantidadTexto: cantidadTexto, tamanoTexto: tamanoTexto, fechaTexto: fechaTexto,
+    detalleArchivoTexto: detalleArchivoTexto, botonDescargarHTML: botonDescargarHTML, icoFormato: icoFormato, esPresentacion: esPresentacion,
     seccionCursosHTML: seccionCursosHTML, seccionDetalleCursoHTML: seccionDetalleCursoHTML, esDeCurso: esDeCurso,
     esVistaPrevia: esVistaPrevia, hayVistaPrevia: hayVistaPrevia, respaldoLibros: respaldoLibros, respaldoMateriales: respaldoMateriales,
     resumenCatalogo: resumenCatalogo, textoPaywallRecurso: textoPaywallRecurso, chipMiembrosHTML: chipMiembrosHTML,
@@ -490,8 +620,37 @@
   }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarVisorMaterial(); });
 
+  function mostrarToast(msg, malo) {
+    var t = document.getElementById('mtToast');
+    if (!t) { t = document.createElement('div'); t.id = 'mtToast'; t.className = 'mt-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+    t.textContent = msg; t.classList.toggle('is-mal', !!malo); t.classList.add('is-on');
+    clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('is-on'); }, 4200);
+  }
+
+  /* Excel y PowerPoint no se muestran en la página: se descargan. Se piden con fetch + token (el servidor solo los entrega a quien
+     cumple la regla: membresía, retos o créditos), se guardan desde una URL de blob y esa URL se libera enseguida. */
+  var descargando = Object.create(null);
+  function descargarMaterial(club, m) {
+    var F = FORMATOS[formatoDe(m)], nombre = m.id + '.' + F.extension;
+    if (descargando[m.id]) return descargando[m.id];
+    mostrarToast('Preparando ' + F.nombre + '…');
+    descargando[m.id] = Promise.resolve().then(function () { return club.apiBlob('/api/materiales/' + encodeURIComponent(m.id) + '/archivo'); }).then(function (blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = nombre; a.rel = 'noopener'; a.style.display = 'none';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+      mostrarToast('Descargando «' + m.titulo + '» (' + nombre + ').');
+      return { ok: true, nombre: nombre, bytes: blob.size };
+    }).catch(function (e) {
+      mostrarToast(e && e.message ? e.message : 'No se pudo descargar. Inténtalo de nuevo.', true);
+      return { ok: false };
+    }).then(function (r) { delete descargando[m.id]; return r; });
+    return descargando[m.id];
+  }
+
   /* club: ZOORIGEN_CLUB (apiFetch / apiBlob) · m: el resumen que mandó el servidor · fuente: 'catalogo' | 'drive' */
   function abrirVisorMaterial(club, m, fuente) {
+    if (fuente !== 'drive' && esDescarga(m)) return descargarMaterial(club, m);
     cerrarVisorMaterial();
     var esDrive = fuente === 'drive';
     var nodo = document.createElement('div'); nodo.className = 'mt-visor'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-label', m.titulo);
@@ -533,7 +692,7 @@
     var sesion = o.sesion, club = o.club, cont = o.contenedor;
     var uid = sesion.uid;
     var alm = (function () { try { return window.localStorage; } catch (e) { return null; } })() || { getItem: function () { return null; }, setItem: function () {} };
-    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
+    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', formato: 'todos', drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
       soloCanjeables: !!o.soloCanjeables || (typeof location !== 'undefined' && /[?&]canjeables=1(?:&|#|$)/.test(String(location.search || ''))) };
     var CR = function () { return (typeof window !== 'undefined' && window.ZOO_CREDITOS) ? window.ZOO_CREDITOS : null; };
     var canjeDe = function (tipo, id) { var c = estado.creditos, m = CR(); return c && m ? m.canjeHTML(c.porClave[tipo + ':' + id], c.saldo, c.costo) : ''; };
@@ -548,12 +707,7 @@
     }
     estado.previa = !creeMiembro();
 
-    function toast(msg, malo) {
-      var t = document.getElementById('mtToast');
-      if (!t) { t = document.createElement('div'); t.id = 'mtToast'; t.className = 'mt-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
-      t.textContent = msg; t.classList.toggle('is-mal', !!malo); t.classList.add('is-on');
-      clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('is-on'); }, 4200);
-    }
+    function toast(msg, malo) { mostrarToast(msg, malo); }
     function guardados() { return leerGuardados(alm, uid); }
 
     function pintar() {
@@ -561,12 +715,13 @@
       var libros = filtrarLibros(estado.libros, { pestana: p, texto: q, guardados: g });
       /* Los materiales ligados a un curso van en su propio bloque ("De tus cursos"); aquí, los sueltos. Los PDF de Drive del panel
          (estado.drive) vienen del servidor SIN enlace: el enlace se pide al abrir. */
-      var docs = filtrarMateriales(estado.materiales.filter(function (m) { return !esDeCurso(m); }), { pestana: p, texto: q, guardados: g });
+      var fmtFiltro = FORMATOS[estado.formato] ? estado.formato : '';
+      var docs = filtrarMateriales(estado.materiales.filter(function (m) { return !esDeCurso(m); }), { pestana: p, texto: q, guardados: g, formato: fmtFiltro });
       var nq = normalizar(q);
       var coincide = function (m) { return !nq || normalizar([m.titulo, m.area, m.cursoTitulo].join(' ')).indexOf(nq) !== -1; };
-      var deCurso = estado.materiales.filter(esDeCurso).concat(estado.drive.filter(esDeCurso));
+      var deCurso = estado.materiales.filter(esDeCurso).concat(estado.drive.filter(esDeCurso)).filter(function (m) { return !fmtFiltro || formatoDe(m) === fmtFiltro; });
       var gruposCurso = agruparPorCurso(deCurso.filter(coincide));
-      var sueltosDrive = estado.drive.filter(function (m) { return !esDeCurso(m); }).filter(coincide);
+      var sueltosDrive = estado.drive.filter(function (m) { return !esDeCurso(m); }).filter(coincide).filter(function () { return !fmtFiltro || fmtFiltro === 'pdf'; });
       /* ?canjeables=1: SOLO lo que se puede canjear con créditos (nada de cursos, oficiales ni lo que ya abre por membresía o retos) */
       var soloCj = !!estado.soloCanjeables;
       if (soloCj) {
@@ -576,7 +731,7 @@
         deCurso = []; gruposCurso = [];
       }
       var meta = siguienteMeta(estado.libros, estado.superados);
-      var verLibros = p === 'todo' || p === 'libros' || p === 'guardados';
+      var verLibros = (p === 'todo' || p === 'libros' || p === 'guardados') && !fmtFiltro;
       var verDocs = p === 'todo' || p === 'guias' || p === 'presentaciones' || p === 'guardados';
       var previa = !!estado.previa;
       var html = '';
@@ -607,11 +762,13 @@
         return '<button type="button" role="tab" class="mt-tab' + (p === t[0] ? ' is-active' : '') + '" data-pestana="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
         '<div class="mt-buscar"><input type="search" id="mtBuscar" placeholder="Buscar…" value="' + esc(q) + '" aria-label="Buscar"></div></div>';
 
+      html += formatosHTML(estado.materiales.filter(function (m) { return !esDeCurso(m); }), estado.formato);
+
       if (estado.errorServidor && (verLibros || verDocs)) {
         html += '<div class="mt-aviso">' + esc(estado.errorServidor) + ' <button type="button" class="mt-link" id="mtReintentar">Reintentar</button></div>';
       }
 
-      if (soloCj && !libros.length && !docs.length && !sueltosDrive.length && !estado.cargando) {
+      if (soloCj && !libros.length && !docs.length && !sueltosDrive.length && !estado.cargando && !fmtFiltro) {
         html += '<section class="mt-bloque"><div class="mt-vacio"><strong>Por ahora no hay materiales para canjear</strong><span>Lo que ya abres con tu membresía o con tus retos no necesita créditos.</span><a class="mt-btn" href="club-pdfs.html">Ver todos los materiales</a></div></section>';
         verLibros = false; verDocs = false;
       }
@@ -634,7 +791,7 @@
         html += '</section>';
       }
       if (verDocs) {
-        html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>' + (p === 'presentaciones' ? 'Presentaciones' : 'Guías, plantillas y presentaciones') + '</h2></div>';
+        html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>' + (fmtFiltro ? 'Materiales en ' + FORMATOS[fmtFiltro].nombre : (p === 'presentaciones' ? 'Presentaciones' : 'Guías, plantillas, hojas de cálculo y presentaciones')) + '</h2></div>';
         html += docs.length ? '<div class="mt-grid">' + docs.map(function (m) { return materialCardHTML(m, { canje: canjeDe('pdf', m.id), guardado: g.indexOf('doc:' + m.id) !== -1 }); }).join('') + '</div>'
           : '<div class="mt-vacio">' + (estado.materiales.length ? 'No hay materiales con ese filtro.' : (estado.cargando ? 'Cargando…' : 'Todavía no hay materiales publicados.')) + '</div>';
         html += '</section>';
@@ -643,7 +800,7 @@
         html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Materiales de tus cursos</h2></div>' +
           (gruposCurso.length ? seccionCursosHTML(gruposCurso, o.hrefCursos) : '<div class="mt-vacio">No hay materiales con ese filtro.</div>') + '</section>';
       }
-      if (!soloCj && (p === 'todo' || p === 'oficiales')) html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Documentos oficiales</h2></div>' + oficialesHTML() + '</section>';
+      if (!soloCj && !fmtFiltro && (p === 'todo' || p === 'oficiales')) html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Documentos oficiales</h2></div>' + oficialesHTML() + '</section>';
       if ((p === 'todo' || p === 'mas') && sueltosDrive.length) html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Más materiales</h2></div><div class="mt-filas">' + sueltosDrive.map(function (m) { return filaMaterialHTML(m, { canje: canjeDe('drive', m.id) }); }).join('') + '</div></section>';
       cont.innerHTML = html;
     }
@@ -785,6 +942,14 @@
       if (!m.desbloqueado) { toast(mensajeBloqueo(m), true); return; }
       abrirVisorMaterial(club, m, 'catalogo');
     }
+    /* Descargar un Excel o PowerPoint: mismas reglas que abrir un PDF (membresía, retos o créditos); el servidor decide */
+    function descargarDoc(id) {
+      var m = estado.materiales.filter(function (x) { return x.id === id; })[0];
+      if (!m) return;
+      if (esVistaPrevia(m)) { pedirMembresiaRecurso(m, false); return; }
+      if (!m.desbloqueado) { toast(mensajeBloqueo(m), true); return; }
+      descargarMaterial(club, m);
+    }
     /* Una fila (material de curso o suelto de Drive): el servidor decide si abre */
     function abrirFila(fuente, id) {
       var lista = fuente === 'drive' ? estado.drive : estado.materiales;
@@ -810,7 +975,10 @@
           toast('Material desbloqueado: ya es tuyo. Se descontaron ' + m.fmt(c.costo) + ' créditos.');
           return cargar().then(function () {
             var tipo = String(r.tipo || ''), id = String(r.id || '');
-            if (tipo === 'libro') abrirLibro(id); else if (tipo === 'pdf') abrirDoc(id); else if (tipo === 'drive') abrirFila('drive', id);
+            var canjeado = estado.materiales.filter(function (x) { return x.id === id; })[0];
+            if (tipo === 'libro') abrirLibro(id);
+            else if (tipo === 'pdf') { if (canjeado && esDescarga(canjeado)) toast('Ya es tuyo: pulsa Descargar en «' + canjeado.titulo + '» para guardarlo.'); else abrirDoc(id); }
+            else if (tipo === 'drive') abrirFila('drive', id);
           });
         }, function (err) {
           estado.canjeando = false;
@@ -819,6 +987,12 @@
         });
       });
     }
+
+    /* Si la fotografía de una portada no carga, se usa la ilustración de respaldo (una sola vez) */
+    cont.addEventListener('error', function (e) {
+      var im = e.target;
+      if (im && im.tagName === 'IMG' && im.getAttribute('data-respaldo') && im.getAttribute('src') !== im.getAttribute('data-respaldo')) im.src = im.getAttribute('data-respaldo');
+    }, true);
 
     /* ───── eventos de la página ───── */
     cont.addEventListener('click', function (e) {
@@ -831,6 +1005,10 @@
         if (estado.previa) { pedirMembresiaFuncion('Guardar en tus favoritos'); return; }
         alternarGuardado(alm, uid, pin.getAttribute('data-guardar')); pintar(); return;
       }
+      var desc = t.closest && t.closest('[data-descargar]');
+      if (desc) { e.stopPropagation(); e.preventDefault(); descargarDoc(desc.getAttribute('data-descargar')); return; }
+      var ff = t.closest && t.closest('[data-formato-filtro]');
+      if (ff) { estado.formato = ff.getAttribute('data-formato-filtro'); pintar(); return; }
       var tab = t.closest && t.closest('[data-pestana]');
       if (tab) { estado.pestana = tab.getAttribute('data-pestana'); pintar(); return; }
       if (t.closest && t.closest('#mtReintentar')) { cargar(); return; }
@@ -845,7 +1023,7 @@
     });
     cont.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      if (e.target.closest && e.target.closest('[data-canjear]')) return;
+      if (e.target.closest && e.target.closest('[data-canjear], [data-descargar]')) return;
       var libro = e.target.closest && e.target.closest('.mt-libro[data-libro]'), doc = e.target.closest && e.target.closest('.mt-doc[data-doc]'), fila = e.target.closest && e.target.closest('.mt-fila[data-fila]');
       if (libro) { e.preventDefault(); abrirLibro(libro.getAttribute('data-libro')); } else if (doc) { e.preventDefault(); abrirDoc(doc.getAttribute('data-doc')); }
       else if (fila) { e.preventDefault(); var par = String(fila.getAttribute('data-fila')); abrirFila(par.slice(0, par.indexOf(':')), par.slice(par.indexOf(':') + 1)); }
@@ -899,5 +1077,6 @@
 
   API.montar = montar;
   API.abrirMaterial = abrirVisorMaterial;
+  API.descargarMaterial = descargarMaterial;
   return API;
 });

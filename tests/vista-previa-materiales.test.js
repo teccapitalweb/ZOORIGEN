@@ -109,10 +109,10 @@ test('ventana al intentar abrir: título fijo y el nombre del recurso', () => {
   assert.match(M.textoPaywallRecurso(null, false).texto, /^Este contenido /);
 });
 
-test('respaldo local: 3 libros y 9 materiales con portada, solo metadatos y cerrados', () => {
+test('respaldo local: 3 libros y 29 materiales con portada, solo metadatos y cerrados', () => {
   const libros = M.respaldoLibros(), mats = M.respaldoMateriales();
   assert.equal(libros.length, 3);
-  assert.equal(mats.length, 9);
+  assert.equal(mats.length, 29);
   const ids = libros.concat(mats).map(x => x.id).sort();
   assert.deepEqual(ids, Object.keys(M.PORTADAS).sort(), 'cada elemento del respaldo tiene su portada propia');
   for (const it of libros.concat(mats)) {
@@ -132,8 +132,8 @@ test('respaldo local: 3 libros y 9 materiales con portada, solo metadatos y cerr
 
 test('el filtro y el buscador funcionan igual con las tarjetas de vista previa', () => {
   const mats = M.respaldoMateriales();
-  assert.deepEqual(M.filtrarMateriales(mats, { pestana: 'presentaciones' }).map(m => m.id).sort(), ['bienestar-cinco-dominios', 'intro-nom-059', 'polinizadores-abejas']);
-  assert.equal(M.filtrarMateriales(mats, { pestana: 'guias' }).length, 6);
+  assert.deepEqual(M.filtrarMateriales(mats, { pestana: 'presentaciones' }).map(m => m.id).sort(), ['bienestar-cinco-dominios', 'intro-nom-059', 'polinizadores-abejas', 'ppt-bioseguridad-recintos', 'ppt-enriquecimiento-ambiental', 'ppt-fototrampeo-muestreo', 'ppt-observacion-conductual-etogramas', 'ppt-uma-pimvs-zoologicos']);
+  assert.equal(M.filtrarMateriales(mats, { pestana: 'guias' }).length, 21, '6 de siempre, 8 Excel y 7 PDF nuevos');
   assert.deepEqual(M.filtrarMateriales(mats, { texto: 'colmenas' }).map(m => m.id), ['calendario-colmenas']);
   assert.equal(M.filtrarLibros(M.respaldoLibros(), { texto: 'bienestar' }).length, 1);
 });
