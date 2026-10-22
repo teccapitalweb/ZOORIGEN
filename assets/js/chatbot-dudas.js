@@ -382,11 +382,11 @@
       texto: function () {
         return [
           'Los cursos son en línea, así que los tomas desde donde estés.',
-          'En la página de verificación de certificados, Zoorigen aparece como parte de **Tec Capital Group, en Tehuacán, Puebla**. Para otra información de ubicación, escríbele al equipo.'
+          'Zoorigen está en **Tehuacán, Puebla**. Para otra información de ubicación, escríbele al equipo.'
         ];
       },
       botones: [{ t: 'Hablar con un asesor', accion: { tipo: 'asesor' } }]
-      // Verificado: pages/verificar.html ("Zoorigen · Tec Capital Group · Tehuacán, Puebla"). index.html no publica dirección.
+      // Verificado: pages/verificar.html ("Zoorigen · Tehuacán, Puebla") y el aviso de privacidad (domicilio: Tehuacán, Puebla, México).
     },
     {
       id: 'empresas', tema: 'zoorigen', boton: '¿Capacitan a empresas?',

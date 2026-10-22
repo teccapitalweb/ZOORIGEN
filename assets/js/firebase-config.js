@@ -22,6 +22,7 @@ if (typeof firebase !== 'undefined') {
     firebase.initializeApp(FIREBASE_CONFIG);
   }
   window.auth = firebase.auth();
-  window.db   = firebase.firestore();
+  // Algunas páginas (p. ej. verificar-correo) solo cargan Auth: sin Firestore no se llama a firebase.firestore() para no lanzar un error.
+  window.db   = (typeof firebase.firestore === 'function') ? firebase.firestore() : undefined;
   firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 }
