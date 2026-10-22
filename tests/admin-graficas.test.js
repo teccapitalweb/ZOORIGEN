@@ -133,12 +133,53 @@ test('mapa de calor: niveles por intensidad, etiquetas de hora cada 3 y descripc
   assert.match(G.mapaCalor({ filas: [{ etiqueta: 'Lun', valores: [0, 0] }], columnas: ['0h', '1h'] }), /zg-vacio/);
 });
 
-test('embudo: porcentaje del inicio y de la etapa anterior; sin inicio no hay embudo', () => {
-  const h = G.embudo({ titulo: 'Embudo', etapas: [{ etiqueta: 'Se registraron', valor: 20 }, { etiqueta: 'Eligieron', valor: 10 }, { etiqueta: 'Pagaron', valor: 2 }] });
-  assert.match(h, /50 % del inicio · 50 % de la etapa anterior/);
-  assert.match(h, /10 % del inicio · 20 % de la etapa anterior/);
+test('embudo: barras decrecientes, porcentaje frente al paso anterior y al total, frase de lectura; sin inicio no hay embudo', () => {
+  const etapas = [
+    { etiqueta: 'Cuenta nueva', valor: 20 }, { etiqueta: 'Eligió su prueba gratuita', valor: 10, frase: 'eligen su prueba gratuita' },
+    { etiqueta: 'Empezó un curso', valor: 5, frase: 'empiezan un curso' }, { etiqueta: 'Terminó un curso', valor: 2, frase: 'terminan un curso' }
+  ];
+  const h = G.embudo({ titulo: 'Embudo', etapas, unidad: 'cuentas nuevas' });
+  assert.match(h, /50 % del total/);
+  assert.match(h, /25 % del total/);
+  assert.match(h, /10 % del total/);
+  assert.match(h, /<strong>50 %<\/strong> pasa al siguiente paso/);
+  assert.match(h, /<strong>40 %<\/strong> pasa al siguiente paso/);
   assert.match(h, /width:100%/);
+  assert.match(h, /width:50%/);
+  assert.match(h, /De cada 10 cuentas nuevas, 5 eligen su prueba gratuita, 3 empiezan un curso y 1 terminan un curso\./);
+  assert.match(h, /<div class="sr-only"><table>/);
+  assert.doesNotMatch(h, /gradient/i);
   assert.match(G.embudo({ etapas: [{ etiqueta: 'a', valor: 0 }] }), /zg-vacio/);
+});
+
+test('frase del embudo: concuerda con 0 y con fracciones, y no inventa nada sin datos', () => {
+  const e = (a, b, c) => [{ etiqueta: 'x', valor: a }, { etiqueta: 'Eligió', valor: b, frase: 'eligen su prueba' }, { etiqueta: 'Terminó', valor: c, frase: 'terminan un curso' }];
+  assert.equal(G.fraseEmbudo(e(40, 10, 0), 'cuentas'), 'De cada 10 cuentas, 3 eligen su prueba y 0 terminan un curso.');
+  assert.equal(G.fraseEmbudo(e(40, 20, 1), 'cuentas'), 'De cada 10 cuentas, 5 eligen su prueba y 0,3 terminan un curso.');
+  assert.equal(G.fraseEmbudo(e(0, 0, 0)), '');
+  assert.equal(G.fraseEmbudo([{ etiqueta: 'solo', valor: 3 }]), '');
+});
+
+test('ranking: de mayor a menor, nombre completo, valor y porcentaje al final, ocho a la vista y «Ver todos»', () => {
+  const filas = Array.from({ length: 11 }, (_, i) => ({ etiqueta: 'Curso número ' + (i + 1) + ' con un nombre muy largo que no debe recortarse <b>', valor: 11 - i }));
+  const h = G.ranking({ titulo: 'Cursos', filas: filas.slice().reverse(), total: 100, unidad: 'personas', color: 2 });
+  const lista = h.slice(h.indexOf('<ol'), h.indexOf('</ol>'));
+  assert.equal((lista.match(/<li class="zg-rk__fila"/g) || []).length, 11);
+  assert.equal((lista.match(/ hidden data-zg-extra/g) || []).length, 3, 'tres filas quedan ocultas');
+  assert.ok(lista.indexOf('Curso número 1 ') < lista.indexOf('Curso número 2 '), 'ordenado de mayor a menor aunque llegue al revés');
+  assert.match(h, /Curso número 1 con un nombre muy largo que no debe recortarse &lt;b&gt;/);
+  assert.match(h, /<strong>11<\/strong>/);
+  assert.match(h, /<small>11 %<\/small>/);
+  assert.match(h, /width:100%/);
+  assert.match(h, /zg-c2/);
+  assert.match(h, /data-zg-todos aria-expanded="false" data-total="11" data-maximo="8">Ver todos \(11\)/);
+  assert.match(h, /En primer lugar: Curso número 1/);
+  assert.match(h, /zg-rk__escala/);
+  assert.doesNotMatch(h, /gradient|text-overflow|ellipsis/i);
+  // con ocho o menos no hay botón; cero o negativos no cuentan; sin datos, estado vacío amable
+  assert.doesNotMatch(G.ranking({ filas: filas.slice(0, 8) }), /data-zg-todos/);
+  assert.match(G.ranking({ filas: [{ etiqueta: 'a', valor: 0 }, { etiqueta: 'b', valor: -3 }] }), /zg-vacio/);
+  assert.match(G.ranking({ filas: [{ etiqueta: 'a', valor: 1 }, { etiqueta: 'b', valor: 300 }], total: 1000 }), /&lt;1 %/);
 });
 
 test('sparkline: solo con dos o más puntos y algo que mostrar; sin texto ni degradados', () => {

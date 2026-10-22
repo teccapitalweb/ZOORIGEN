@@ -100,7 +100,7 @@ test('metricasHTML: tarjetas, tendencias, gráficas, cohortes, cursos y retos; t
   // gráficas nuevas: eje, tooltip, anillo, embudo, mapa de calor y exportación
   assert.match(h, /class="zg zg--lineas"/);
   assert.match(h, /zg-anillo/);
-  assert.match(h, /zg-emb/);
+  assert.match(h, /zg-fn/);
   assert.match(h, /zg-hm__rejilla/);
   assert.match(h, /zg-spark/);
   assert.match(h, /data-accion="csv"/);

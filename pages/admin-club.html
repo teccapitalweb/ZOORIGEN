@@ -218,7 +218,7 @@
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
-  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261201-graficas">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261202-panel2">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="inicio">
@@ -306,23 +306,23 @@
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261129-acceso"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261202-panel2"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/admin-panel.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-graficas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-filas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-config.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-vistas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-marketing.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-panel.js?v=20261202-panel2"></script>
+  <script src="../assets/js/admin-graficas.js?v=20261202-panel2"></script>
+  <script src="../assets/js/admin-filas.js?v=20261202-panel2"></script>
+  <script src="../assets/js/admin-config.js?v=20261202-panel2"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261202-panel2"></script>
+  <script src="../assets/js/admin-marketing.js?v=20261202-panel2"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-certificados.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261202-panel2"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261202-panel2"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/admin-noticias.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-noticias.js?v=20261202-panel2"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
-  <script src="../assets/js/admin-encuesta.js?v=20261201-graficas"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261202-panel2"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -511,7 +511,7 @@
 
     function renderSection(sec) {
       const V = window.ZOO_ADMIN_VISTAS;
-      document.getElementById('secView').onclick = null; // cada vista nueva registra el suyo
+      { const sv = document.getElementById('secView'); sv.onclick = null; sv.oninput = null; sv.onchange = null; } // cada vista nueva registra los suyos
       if (sec === 'resumen') V.resumen();
       else if (sec === 'miembros') V.miembros();
       else if (sec === 'suscripciones') V.suscripciones();

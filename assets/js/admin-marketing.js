@@ -85,8 +85,14 @@
       }).join('') + '</tbody></table>');
   }
 
-  function rankingCursos(lista, vacioT, vacioX, colorN) {
-    return G.barrasH({ titulo: vacioT, filas: lista.map(function (c) { return { etiqueta: c.curso, valor: c.n }; }), color: colorN, porcentaje: false, vacio: { titulo: vacioT, texto: vacioX } });
+  var FRASES_EMBUDO = { prueba: 'eligen su prueba gratuita', clases: 'empiezan un curso', curso: 'terminan un curso' };
+
+  // Barras horizontales de mayor a menor con el nombre completo del curso, valor y porcentaje al final; ocho a la vista y «Ver todos».
+  function rankingCursos(lista, titulo, vacioT, vacioX, colorN, total, unidad) {
+    return G.ranking({
+      titulo: titulo, filas: (lista || []).map(function (c) { return { etiqueta: c.curso, valor: c.n }; }), color: colorN, maximo: 8,
+      total: total || 0, unidad: unidad || 'personas', vacio: { titulo: vacioT, texto: vacioX }
+    });
   }
 
   // CSV del historial: una fila por día del periodo (hora de México). Es solo lo que ya muestra el panel.
@@ -177,9 +183,13 @@
     var embudoCard = card('De la cuenta nueva al curso terminado',
       '<div class="zs-chips" role="group" aria-label="Personas del embudo"><button type="button" class="zs-chip" data-embudo="rango" aria-pressed="' + (u.embudo !== 'total') + '">Cuentas del periodo</button>' +
       '<button type="button" class="zs-chip" data-embudo="total" aria-pressed="' + (u.embudo === 'total') + '">Todas las cuentas</button></div>' +
-      G.embudo({ titulo: 'Embudo de las cuentas', etapas: emb.etapas, vacio: { titulo: 'Sin cuentas en el periodo', texto: 'Cuando alguien se registre en este periodo verás aquí hasta dónde llega.' } }) +
+      G.embudo({
+        titulo: 'De la cuenta nueva al curso terminado', unidad: u.embudo === 'total' ? 'cuentas' : 'cuentas nuevas',
+        etapas: emb.etapas.map(function (e) { return { etiqueta: e.etiqueta, valor: e.valor, frase: FRASES_EMBUDO[e.clave] || e.etiqueta }; }),
+        vacio: { titulo: 'Sin cuentas en el periodo', texto: 'Cuando alguien se registre en este periodo verás aquí hasta dónde llega.' }
+      }) +
       '<p class="ap-nota">' + esc(d.embudo.nota) + (emb.pagaronSinPrueba ? ' Aquí hay ' + esc(num(emb.pagaronSinPrueba)) + ' que pagaron sin pasar por la prueba.' : '') + '</p>',
-      'Cuántas personas que se registraron llegan a cada paso.');
+      'Cuántas de las personas que se registraron llegan a cada paso.');
 
     var visitas = d.visitas.activo
       ? card('Visitas a la portada', G.serie({ titulo: 'Visitas a la portada', tipo: 'area', unidad: 'visitas', etiquetas: ag(d.visitas.porDia).etiquetas, titulos: ag(d.visitas.porDia).titulos,
@@ -261,10 +271,10 @@
       card('Conversión y retención por mes', cohortesGrafica || vacio('Sin registros todavía', 'Cuando haya cuentas nuevas aparecerá cada mes aquí.', 'users'), 'De cada mes de registro: qué parte tuvo membresía y qué parte conserva el acceso.') + '</div>' +
       card('Cohortes por mes de registro', cohortesHTML(d.cohortes) + (d.cohortes.length ? '<div class="ap-acciones-lote"><button type="button" class="ap-btn ap-btn--suave" data-accion="csv-cohortes">' + ico('download', { size: 16 }) + 'Descargar cohortes (CSV)</button></div>' : ''), 'De cada mes: cuántos se registraron, cuántos tuvieron membresía y cuántos tienen acceso hoy.') +
       '<div class="ap-columnas">' +
-      card('Cursos más elegidos como prueba', rankingCursos(d.cursos.masElegidos, 'Nadie ha elegido prueba', 'Cuando alguien elija su curso aparecerá aquí.', 2), 'Toda la historia, no solo el periodo.') +
-      card('Cursos más completados', rankingCursos(d.cursos.masCompletados, 'Aún no hay cursos completados', 'Cuando alguien termine un curso aparecerá aquí.', 1), 'Certificados y cursos terminados.') +
+      card('Cursos más elegidos como prueba', rankingCursos(d.cursos.masElegidos, 'Cursos más elegidos como prueba', 'Nadie ha elegido prueba', 'Cuando alguien elija su curso aparecerá aquí.', 2, d.cursos.totales && d.cursos.totales.elegidos, 'pruebas elegidas'), 'Toda la historia, no solo el periodo.') +
+      card('Cursos más completados', rankingCursos(d.cursos.masCompletados, 'Cursos más completados', 'Aún no hay cursos completados', 'Cuando alguien termine un curso aparecerá aquí.', 1, d.cursos.totales && d.cursos.totales.completados, 'cursos terminados'), 'Certificados y cursos terminados.') +
       '</div>' +
-      card('Cursos más empezados', rankingCursos(d.cursos.masEmpezados, 'Nadie ha empezado un curso', 'El avance de los miembros aparecerá aquí.', 3), 'Cuántas personas vieron al menos una clase.') +
+      card('Cursos más empezados', rankingCursos(d.cursos.masEmpezados, 'Cursos más empezados', 'Nadie ha empezado un curso', 'El avance de los miembros aparecerá aquí.', 3, d.cursos.totales && d.cursos.totales.empezados, 'personas'), 'Cuántas personas vieron al menos una clase de cada curso.') +
       card('Retos y XP', retos, d.notas.retos);
   }
 

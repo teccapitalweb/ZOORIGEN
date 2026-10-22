@@ -19,7 +19,7 @@
   var ico = function (n, o) { return I && I.svg ? I.svg(n, o) : ''; };
 
   var ctx = null;               // { api, toast, contenedor, irA, zonaModal }
-  var estado = { miembros: null, resumen: null, filtro: 'todos', texto: '', orden: 'vence', visibles: 25 };
+  var estado = { miembros: null, resumen: null, filtro: 'todos', texto: '', orden: 'registro', visibles: 25 };
   var contador = 0;             // descarta respuestas de una sección que ya no está a la vista
 
   function iniciar(contexto) { ctx = contexto; }
@@ -266,23 +266,23 @@
     return a;
   }
 
+  // Tarjeta de miembro (como en Alintec): nombre en negrita; debajo, el correo con su ícono; debajo, la fecha y hora de registro con su ícono.
+  // El correo y la fecha NUNCA comparten renglón. A la derecha, las insignias (Registrado + Sin pagar, Mensual + Activo...) y el menú «…».
   function filaMiembro(m) {
     var pronto = m.conAcceso && m.vence && (new Date(m.vence).getTime() - Date.now()) < 7 * 86400000;
-    var vence = m.vence
-      ? '<span class="ap-fc__v"><span class="sr-only">Vence </span>' + esc(P.fmtFecha(m.vence)) + '</span><span class="ap-fc__s' + (pronto ? ' ap-fc__s--aviso' : '') + '">' + esc(P.relativo(m.vence)) + '</span>'
-      : '<span class="ap-fc__v">—</span>';
-    return F.fila({
-      avatar: '<span class="ap-avatar ap-avatar--' + esc(m.estado) + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span>',
-      titulo: m.nombre || 'Sin nombre', etiqueta: m.esAdmin ? 'Admin' : '',
-      accion: { a: 'ficha', datos: { uid: m.uid } },
-      meta: '<span class="ap-fc__correo">' + ico('mail', { size: 12 }) + '<span class="ap-correo">' + esc(m.correo || '—') + '</span></span>' +
-        (m.registro ? '<span class="ap-fc__reg"> · Registro ' + esc(P.fmtFecha(m.registro)) + '</span>' : ''),
-      metaChico: m.vence ? '<span class="ap-fc__sep"> · </span>Vence ' + esc(P.fmtFecha(m.vence)) : '',
-      cols: [{ html: vence }],
-      estado: P.insignia(m.estado) + (planTexto(m) ? '<span class="ap-fc__s">' + esc(planTexto(m)) + '</span>' : ''),
-      acciones: accionesMiembro(m), etiquetaMenu: 'Acciones de ' + (m.nombre || m.correo || 'este miembro'), datos: { uid: m.uid },
-      atributos: { uid: m.uid }
-    });
+    var origen = planTexto(m);
+    var vence = m.vence ? '<span class="ap-mi__vence' + (pronto ? ' ap-mi__vence--aviso' : '') + '">Vence ' + esc(P.fmtFecha(m.vence)) + ' · ' + esc(P.relativo(m.vence)) + '</span>' : '';
+    var registro = m.registro
+      ? '<span class="ap-mi__linea ap-mi__reg">' + ico('clock', { size: 14 }) + '<span>Se registró ' + esc(P.fmtFechaHora(m.registro)).replace(/ · (.+)$/, ' · <span class="ap-nw">$1</span>') + '</span></span>'
+      : '<span class="ap-mi__linea ap-mi__reg ap-mi__reg--nd">' + ico('clock', { size: 14 }) + '<span>Fecha de registro no disponible</span></span>';
+    return '<li class="ap-mi ap-mi--' + esc(m.estado) + '" data-uid="' + esc(m.uid) + '">' +
+      '<span class="ap-mi__av"><span class="ap-avatar ap-avatar--' + esc(m.estado) + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span></span>' +
+      '<div class="ap-mi__txt">' +
+      '<button type="button" class="ap-mi__nombre" data-accion="ficha" data-uid="' + esc(m.uid) + '">' + esc(m.nombre || 'Sin nombre') + (m.esAdmin ? ' <span class="ap-etiqueta">Admin</span>' : '') + '</button>' +
+      '<span class="ap-mi__linea ap-mi__correo">' + ico('mail', { size: 14 }) + '<span class="ap-correo">' + esc(m.correo || 'Sin correo') + '</span></span>' +
+      registro + '</div>' +
+      '<div class="ap-mi__estado"><span class="ap-mi__insignias">' + P.insigniasMiembro(m) + '</span>' + (origen ? '<span class="ap-mi__origen">' + esc(origen) + '</span>' : '') + vence + '</div>' +
+      '<div class="ap-mi__fin">' + F.botonMenu({ acciones: accionesMiembro(m), etiqueta: 'Acciones de ' + (m.nombre || m.correo || 'este miembro'), datos: { uid: m.uid } }) + '</div></li>';
   }
 
   function pintarListaMiembros() {
@@ -298,7 +298,7 @@
       return;
     }
     var mostrar = lista.slice(0, estado.visibles);
-    cont.innerHTML = F.lista(mostrar.map(filaMiembro), { cab: { principal: 'Miembro', cols: ['Vence'], estado: 'Estado' }, etiqueta: 'Miembros' }) +
+    cont.innerHTML = '<div class="ap-fc-zona"><div class="ap-fc-caja"><ul class="ap-fc-lista ap-mi-lista" aria-label="Miembros">' + mostrar.map(filaMiembro).join('') + '</ul></div></div>' +
       '<p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(mostrar.length) + ' de ' + P.fmtNum(lista.length) + '</p>' +
       (lista.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="mas">Mostrar ' + Math.min(25, lista.length - mostrar.length) + ' más</button>' : '');
   }
@@ -328,7 +328,7 @@
     }) +
       '<div class="ap-controles"><div class="zs-chips" id="apMiembrosChips" role="group" aria-label="Filtrar por estado del plan"></div>' +
       '<div class="ap-controles__der"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por nombre o correo</span>' +
-      '<input type="search" id="apBuscar" placeholder="Buscar persona o correo" autocomplete="off" value="' + esc(estado.texto) + '"></label>' +
+      '<input type="search" id="apBuscar" placeholder="Buscar por nombre o correo" autocomplete="off" value="' + esc(estado.texto) + '"></label>' +
       '<label class="ap-orden"><span class="sr-only">Ordenar</span><select id="apOrden">' + P.ORDENES.map(function (o) {
         return '<option value="' + o.id + '"' + (o.id === estado.orden ? ' selected' : '') + '>' + esc(o.texto) + '</option>';
       }).join('') + '</select></label></div></div>' +
@@ -397,7 +397,7 @@
       dato('Invitados', esc(P.fmtNum(r.referidos.total)) + ' (' + esc(P.fmtNum(r.referidos.validos)) + ' válidos)') +
       dato('Retos superados', esc(P.fmtNum(r.retos.superados))) +
       dato('XP de retos', esc(P.fmtNum(r.retos.xp))) +
-      '</dl></div>';
+      '</dl>' + historialFichaHTML(r.retos) + '</div>';
     var botones = [{ id: 'cerrar', texto: 'Cerrar', tipo: 'suave' }];
     if (!m.esAdmin) {
       botones.push({ id: 'eliminar', texto: 'Eliminar', tipo: 'peligro' });
@@ -683,11 +683,105 @@
   }
 
   /* ───────── RETOS Y XP ───────── */
+  var NOMBRES_RETO = { quiz: 'Quiz relámpago', detective: 'Detective de campo', orden: 'Ordena la secuencia', historia: 'Modo historia', flashcards: 'Flashcards' };
+  var RETO_CORTO = { quiz: 'Quiz', detective: 'Detective', orden: 'Ordena', historia: 'Historia', flashcards: 'Flashcards' };
+  var rEst = { tipo: 'todos', q: '', desde: '', hasta: '', pagina: 1, hist: null, usuarios: null, uq: '', uVisibles: 25 };
+
+  function nombreReto(e) {
+    var n = NOMBRES_RETO[e.retoId] || e.reto || e.retoId || 'Reto';
+    return e.tipo === 'camino' && e.indice !== null && e.indice !== undefined ? n + ' · reto ' + (e.indice + 1) : n;
+  }
+
+  // Renglones del historial de UNA persona (ficha del miembro)
+  function historialFichaHTML(r) {
+    var lista = r.historial || [];
+    if (!lista.length) {
+      return '<h3>Historial de retos</h3><p class="ap-nada">' + (r.superados > 0
+        ? 'Esta persona ya tenía ' + esc(P.fmtNum(r.superados)) + ' retos superados antes de que el historial detallado existiera: solo se conserva el total. Los nuevos aparecerán aquí con fecha y hora.'
+        : 'Todavía no ha superado ningún reto.') + '</p>';
+    }
+    return '<h3>Historial de retos <small>(' + esc(P.fmtNum(r.historialTotal)) + (r.historialTotal > lista.length ? ', los ' + lista.length + ' más recientes' : '') + ')</small></h3>' +
+      '<ul class="ap-progreso">' + lista.map(function (e) {
+        return '<li><span class="ap-progreso__t">' + esc(nombreReto(e)) + '<small>' + esc(e.tipo === 'camino' ? 'Camino' : 'Práctica diaria') +
+          (e.puntaje !== null && e.total ? ' · ' + e.puntaje + '/' + e.total : '') + (e.perfecto ? ' · perfecto' : '') + ' · ' + esc(P.fmtFechaHora(e.en)) + '</small></span>' +
+          '<span class="ap-progreso__e"><span class="ap-badge ap-badge--ok">' + ico('zap', { size: 14 }) + '<span>+' + esc(P.fmtNum(e.xp)) + ' XP</span></span></span></li>';
+      }).join('') + '</ul>';
+  }
+
+  function parametrosHistorial() {
+    var q = '?pagina=' + rEst.pagina + '&limite=25';
+    if (rEst.tipo !== 'todos') q += '&tipo=' + encodeURIComponent(rEst.tipo);
+    if (rEst.q.trim()) q += '&q=' + encodeURIComponent(rEst.q.trim());
+    if (rEst.desde) q += '&desde=' + encodeURIComponent(rEst.desde);
+    if (rEst.hasta) q += '&hasta=' + encodeURIComponent(rEst.hasta);
+    return q;
+  }
+
+  function pintarHistorialRetos() {
+    var cont = document.getElementById('apRHist');
+    if (!cont) return;
+    var h = rEst.hist;
+    if (!h) { cont.innerHTML = '<div class="ap-esqueleto"><div class="ap-esqueleto__fila"></div></div>'; return; }
+    var hayFiltros = rEst.tipo !== 'todos' || rEst.q.trim() || rEst.desde || rEst.hasta;
+    var aviso = h.historialDesde
+      ? '<div class="ap-aviso ap-aviso--info" role="note">' + ico('info', { size: 20 }) + '<div><p>El historial detallado empieza el <strong>' + esc(P.fmtFecha(h.historialDesde)) + '</strong>. Lo anterior solo tiene totales por persona (más abajo).</p></div></div>'
+      : '<div class="ap-aviso ap-aviso--info" role="note">' + ico('info', { size: 20 }) + '<div><p><strong>El historial detallado empieza el día que se publique esta versión.</strong> Desde entonces, cada reto superado queda con persona, reto, fecha, hora y XP. Lo anterior solo tiene totales por persona (más abajo).</p></div></div>';
+    var tabla = h.eventos.length
+      ? tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Persona</th><th scope="col">Reto</th><th scope="col">Tipo</th><th scope="col">Fecha y hora</th><th scope="col">XP</th></tr></thead><tbody>' +
+        h.eventos.map(function (e) {
+          return '<tr><td data-label="Persona"><button type="button" class="ap-enlace" data-accion="ficha" data-uid="' + esc(e.uid) + '">' + esc(e.nombre) + '</button></td>' +
+            '<td data-label="Reto">' + esc(nombreReto(e)) + (e.puntaje !== null && e.total ? '<small class="ap-sub">Puntaje ' + e.puntaje + '/' + e.total + (e.perfecto ? ' · perfecto' : '') + '</small>' : '') + '</td>' +
+            '<td data-label="Tipo"><span class="ap-badge ap-badge--' + (e.tipo === 'camino' ? 'ok' : 'info') + '">' + esc(e.tipo === 'camino' ? 'Camino' : 'Práctica diaria') + '</span></td>' +
+            '<td data-label="Fecha y hora"><span class="ap-fecha">' + esc(P.fmtFechaHora(e.en)) + '</span></td>' +
+            '<td data-label="XP"><strong>+' + esc(P.fmtNum(e.xp)) + '</strong></td></tr>';
+        }).join('') + '</tbody></table>') +
+        '<div class="ap-paginacion"><button type="button" class="ap-btn ap-btn--suave" data-accion="pag-ant"' + (h.pagina <= 1 ? ' disabled' : '') + '>' + ico('chevron-left', { size: 16 }) + 'Anterior</button>' +
+        '<span role="status">Página ' + P.fmtNum(h.pagina) + ' de ' + P.fmtNum(h.paginas) + ' · ' + P.fmtNum(h.totales.eventos) + ' retos resueltos · ' + P.fmtNum(h.totales.personas) + ' personas · +' + P.fmtNum(h.totales.xp) + ' XP</span>' +
+        '<button type="button" class="ap-btn ap-btn--suave" data-accion="pag-sig"' + (h.pagina >= h.paginas ? ' disabled' : '') + '>Siguiente' + ico('chevron-right', { size: 16 }) + '</button></div>'
+      : vacio(hayFiltros ? 'Ningún reto coincide con esos filtros' : 'Todavía no hay retos en el historial detallado',
+        hayFiltros ? 'Prueba con otra persona, otro tipo o un rango de fechas más amplio.' : 'Cuando alguien supere un reto aparecerá aquí con fecha, hora y XP.', 'target');
+    cont.innerHTML = aviso + tabla;
+  }
+
+  async function cargarHistorialRetos() {
+    try { rEst.hist = await ctx.api('/api/admin/retos/historial' + parametrosHistorial()); }
+    catch (e) { rEst.hist = null; var c = document.getElementById('apRHist'); if (c) c.innerHTML = errorHTML('Historial de retos', e, 'recargar-hist'); return; }
+    if (rEst.hist.pagina !== rEst.pagina) rEst.pagina = rEst.hist.pagina;
+    pintarHistorialRetos();
+  }
+
+  function pintarUsuariosRetos() {
+    var cont = document.getElementById('apRUsuarios');
+    if (!cont || !rEst.usuarios) return;
+    var q = P.sinAcentos ? P.sinAcentos(rEst.uq) : String(rEst.uq).toLowerCase();
+    var lista = rEst.usuarios.filter(function (u) { return !q.trim() || (P.sinAcentos ? P.sinAcentos(u.nombre) : u.nombre.toLowerCase()).indexOf(q.trim()) !== -1; });
+    if (!lista.length) { cont.innerHTML = vacio(rEst.uq ? 'Nadie coincide con esa búsqueda' : 'Aún nadie ha jugado retos', rEst.uq ? 'Prueba con otro nombre.' : 'Cuando los miembros superen retos aparecerán aquí con su XP.', 'target'); return; }
+    var mostrar = lista.slice(0, rEst.uVisibles);
+    cont.innerHTML = tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">#</th><th scope="col">Persona</th><th scope="col">Retos superados</th><th scope="col">XP</th><th scope="col">Días activos</th><th scope="col">Por tipo (superados)</th><th scope="col">Última vez</th></tr></thead><tbody>' +
+      mostrar.map(function (u, i) {
+        var tipos = Object.keys(u.porReto).map(function (k) { return esc(RETO_CORTO[k] || k) + ' ' + P.fmtNum(u.porReto[k].superados); }).join(' · ') || '—';
+        return '<tr><td data-label="Lugar">' + (rEst.usuarios.indexOf(u) + 1) + '</td><td data-label="Persona"><button type="button" class="ap-enlace" data-accion="ficha" data-uid="' + esc(u.uid) + '">' + esc(u.nombre) + '</button></td>' +
+          '<td data-label="Retos superados">' + esc(P.fmtNum(u.superados)) + '</td><td data-label="XP"><strong>' + esc(P.fmtNum(u.xp)) + '</strong></td>' +
+          '<td data-label="Días activos">' + esc(P.fmtNum(u.dias)) + '</td><td data-label="Por tipo (superados)">' + tipos + '</td>' +
+          '<td data-label="Última vez">' + (u.ultimaVez ? esc(P.fmtFecha(u.ultimaVez)) + '<small class="ap-sub">' + esc(P.relativo(u.ultimaVez)) + '</small>' : '—') + '</td></tr>';
+      }).join('') + '</tbody></table>') +
+      '<p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(mostrar.length) + ' de ' + P.fmtNum(lista.length) + '</p>' +
+      (lista.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="usuarios-mas">Mostrar ' + Math.min(25, lista.length - mostrar.length) + ' más</button>' : '');
+  }
+
   async function retos(forzar) {
     var mi = ++contador;
     vista().innerHTML = cargando('Retos y XP');
     var r;
-    try { r = await ctx.api('/api/admin/retos' + (forzar ? '?refrescar=1' : '')); } catch (e) {
+    try {
+      var par = await Promise.all([
+        ctx.api('/api/admin/retos' + (forzar ? '?refrescar=1' : '')),
+        ctx.api('/api/admin/retos/usuarios' + (forzar ? '?refrescar=1' : '')),
+        ctx.api('/api/admin/retos/historial' + parametrosHistorial() + (forzar ? '&refrescar=1' : ''))
+      ]);
+      r = par[0]; rEst.usuarios = par[1].usuarios; rEst.hist = par[2];
+      if (rEst.hist.pagina !== rEst.pagina) rEst.pagina = rEst.hist.pagina;
+    } catch (e) {
       if (mi !== contador) return;
       vista().innerHTML = errorHTML('Retos y XP', e, 'recargar');
       vista().onclick = function (ev) { acciones(ev, { recargar: function () { retos(true); } }); };
@@ -695,15 +789,10 @@
     }
     if (mi !== contador) return;
     var t = r.totales;
-    var top = r.top.filter(function (f) { return f.xp > 0 || f.superados > 0; });
-    var tabla = top.length
-      ? tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">#</th><th scope="col">Persona</th><th scope="col">Retos superados</th><th scope="col">XP</th></tr></thead><tbody>' +
-        top.map(function (f, i) { return '<tr><td data-label="Lugar">' + (i + 1) + '</td><td data-label="Persona"><strong>' + esc(f.nombre) + '</strong></td><td data-label="Retos superados">' + esc(P.fmtNum(f.superados)) + '</td><td data-label="XP">' + esc(P.fmtNum(f.xp)) + '</td></tr>'; }).join('') +
-        '</tbody></table>')
-      : vacio('Aún nadie ha jugado retos', 'Cuando los miembros superen retos, aparecerán aquí con su XP.', 'target');
+    rEst.uVisibles = 25;
     vista().innerHTML = P.tarjetaTitulo({
       icono: 'target', eyebrow: 'Panel de administración', titulo: 'Retos', acento: 'y XP.',
-      sub: 'Cuánto juega la comunidad y quiénes van al frente. Los datos salen de los retos que cada persona completó.',
+      sub: 'Quién resuelve los retos, cuáles y cuándo, y cuánto XP ganó. El historial detallado empieza el día que se publicó y los totales por persona incluyen todo lo anterior.',
       cifras: [
         { valor: P.fmtNum(t.conActividad), rotulo: 'personas con retos' },
         { valor: P.fmtNum(t.retosSuperados), rotulo: 'retos superados' },
@@ -713,15 +802,249 @@
     }) +
       '<div class="ap-kpis">' + [
         kpi({ icono: 'users', rotulo: 'Personas con actividad', valor: P.fmtNum(t.conActividad), nota: 'De ' + P.fmtNum(t.personas) + ' con registro de retos', tono: 'info' }),
-        kpi({ icono: 'target', rotulo: 'Retos superados', valor: P.fmtNum(t.retosSuperados), tono: 'ok' }),
-        kpi({ icono: 'zap', rotulo: 'XP acumulado', valor: P.fmtNum(t.xpTotal), tono: 'aviso' }),
+        kpi({ icono: 'target', rotulo: 'Retos superados', valor: P.fmtNum(t.retosSuperados), nota: 'Suma de los totales por persona', tono: 'ok' }),
+        kpi({ icono: 'zap', rotulo: 'XP acumulado', valor: P.fmtNum(t.xpTotal), nota: 'Solo XP de retos', tono: 'aviso' }),
         kpi({ icono: 'trophy', rotulo: 'XP promedio', valor: P.fmtNum(t.xpPromedio), nota: 'Por persona con actividad', tono: 'neutro' })
       ].join('') + '</div>' +
-      tarjeta('Quiénes van al frente', tabla, { nota: 'Las diez personas con más XP de retos.' });
-    vista().onclick = function (e) { acciones(e, { recargar: function () { retos(true); } }); };
+      tarjeta('Historial de retos resueltos', '<div class="ap-controles ap-controles--hist">' +
+        '<label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por persona o reto</span><input type="search" id="apRQ" placeholder="Buscar persona o reto" autocomplete="off" value="' + esc(rEst.q) + '"></label>' +
+        '<label class="ap-campo-fila"><span>Tipo</span><select id="apRTipo"><option value="todos">Todos</option><option value="practica">Práctica diaria</option><option value="camino">Camino</option></select></label>' +
+        '<label class="ap-campo-fila"><span>Desde</span><input type="date" id="apRDesde" value="' + esc(rEst.desde) + '"></label>' +
+        '<label class="ap-campo-fila"><span>Hasta</span><input type="date" id="apRHasta" value="' + esc(rEst.hasta) + '"></label>' +
+        '<button type="button" class="ap-btn ap-btn--suave" data-accion="limpiar-filtros">' + ico('x', { size: 16 }) + 'Limpiar</button></div>' +
+        '<div id="apRHist"></div>', { nota: 'Cada vez que alguien supera un reto: quién, cuál, de qué tipo, cuándo (hora de México) y cuánto XP ganó.' }) +
+      tarjeta('Totales por persona', '<div class="ap-controles"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar persona</span><input type="search" id="apRUQ" placeholder="Buscar por nombre" autocomplete="off" value="' + esc(rEst.uq) + '"></label></div><div id="apRUsuarios"></div>',
+        { nota: 'Retos superados y XP de cada persona, también de antes del historial detallado.', id: 'apRetosPersonas' }) +
+      tarjeta('Créditos por retos', '<div class="ap-reserva" id="apRetosCreditos">' + ico('wallet', { size: 22 }) + '<p>Aquí irá la tabla de miembros con sus créditos. Todavía no se define cómo se ganan ni en qué se canjean, así que por ahora no hay cifras.</p></div>',
+        { nota: 'Espacio reservado.', id: 'apRetosCreditosTarjeta' });
+    document.getElementById('apRTipo').value = rEst.tipo;
+    pintarHistorialRetos();
+    pintarUsuariosRetos();
+    var espera = null;
+    var recargarHist = function (conEspera) {
+      clearTimeout(espera);
+      var ir = function () { rEst.pagina = 1; cargarHistorialRetos(); };
+      if (conEspera) espera = setTimeout(ir, 300); else ir();
+    };
+    vista().oninput = function (e) {
+      if (e.target.id === 'apRQ') { rEst.q = e.target.value; recargarHist(true); }
+      else if (e.target.id === 'apRUQ') { rEst.uq = e.target.value; rEst.uVisibles = 25; pintarUsuariosRetos(); }
+    };
+    vista().onchange = function (e) {
+      if (e.target.id === 'apRTipo') { rEst.tipo = e.target.value; recargarHist(false); }
+      else if (e.target.id === 'apRDesde') { rEst.desde = e.target.value; recargarHist(false); }
+      else if (e.target.id === 'apRHasta') { rEst.hasta = e.target.value; recargarHist(false); }
+    };
+    vista().onclick = function (e) {
+      acciones(e, {
+        recargar: function () { retos(true); },
+        'recargar-hist': function () { cargarHistorialRetos(); },
+        ficha: function (b) { abrirFicha(b.dataset.uid); },
+        'pag-ant': function () { rEst.pagina = Math.max(1, rEst.pagina - 1); cargarHistorialRetos(); },
+        'pag-sig': function () { rEst.pagina += 1; cargarHistorialRetos(); },
+        'usuarios-mas': function () { rEst.uVisibles += 25; pintarUsuariosRetos(); },
+        'limpiar-filtros': function () {
+          rEst.tipo = 'todos'; rEst.q = ''; rEst.desde = ''; rEst.hasta = ''; rEst.pagina = 1;
+          document.getElementById('apRQ').value = ''; document.getElementById('apRTipo').value = 'todos';
+          document.getElementById('apRDesde').value = ''; document.getElementById('apRHasta').value = '';
+          cargarHistorialRetos();
+        }
+      });
+    };
   }
 
   /* ───────── FORO Y DIRECTORIO ───────── */
+  var cEst = { tab: 'foro', foro: null, dir: null, dq: '', dfiltro: 'todos', dVisibles: 25, abiertas: {}, texto: '' };
+  var MAX_OFICIAL = 1500;
+
+  function inicialDe(t) { var c = String(t || '').trim().charAt(0); return c ? c.toUpperCase() : '?'; }
+
+  /* Publicar como Zoorigen (cuenta oficial) */
+  function composerOficialHTML() {
+    return '<section class="ap-card ap-oficial" aria-labelledby="apOficialTitulo">' +
+      '<header class="ap-oficial__cab"><span class="ap-oficial__av" aria-hidden="true">Z</span><div><h2 id="apOficialTitulo">ZOORIGEN</h2>' +
+      '<p>Publica como cuenta oficial, ideal para anuncios o resolver dudas de membresía.</p></div></header>' +
+      '<div class="ap-card__cuerpo"><label class="sr-only" for="apOficialTexto">Mensaje oficial para la comunidad</label>' +
+      '<textarea id="apOficialTexto" class="ap-oficial__texto" rows="4" maxlength="' + MAX_OFICIAL + '" placeholder="Escribe un anuncio o mensaje para la comunidad..."></textarea>' +
+      '<div class="ap-oficial__pie"><span class="ap-oficial__nota">Solo texto. Lo verán todos los miembros del foro con la insignia «Zoorigen oficial».</span>' +
+      '<span class="ap-oficial__cont" id="apOficialCont" aria-live="polite">0/' + MAX_OFICIAL + '</span>' +
+      '<button type="button" class="ap-btn ap-btn--primario" id="apOficialBtn" data-accion="publicar" disabled>' + ico('send', { size: 16 }) + 'Publicar como Zoorigen</button></div></div></section>';
+  }
+
+  function respuestaHTML(postId, r) {
+    return '<li class="ap-resp"><span class="ap-post__av ap-post__av--chico" aria-hidden="true">' + esc(inicialDe(r.autor)) + '</span>' +
+      '<div class="ap-resp__txt"><strong>' + esc(r.autor) + '</strong>' + (r.oficial ? ' <span class="ap-badge ap-badge--ok">' + ico('badge-check', { size: 12 }) + '<span>Zoorigen oficial</span></span>' : '') +
+      '<time datetime="' + esc(r.creado || '') + '">' + esc(P.fmtFechaHora(r.creado)) + '</time><p>' + esc(r.texto) + '</p></div>' +
+      '<button type="button" class="ap-icono ap-icono--chico ap-icono--peligro" data-accion="borrar-resp" data-id="' + esc(postId) + '" data-rid="' + esc(r.id) + '" aria-label="Eliminar la respuesta de ' + esc(r.autor) + '">' + ico('trash-2', { size: 16 }) + '</button></li>';
+  }
+
+  function publicacionHTML(po) {
+    var abierta = !!cEst.abiertas[po.id];
+    var cuerpo = po.texto && po.texto !== po.titulo ? '<p class="ap-post__texto">' + esc(po.texto) + '</p>' : '';
+    return '<article class="ap-post' + (po.oficial ? ' ap-post--oficial' : '') + '" data-id="' + esc(po.id) + '">' +
+      '<header class="ap-post__cab"><span class="ap-post__av" aria-hidden="true">' + esc(inicialDe(po.autor)) + '</span>' +
+      '<div class="ap-post__quien"><strong>' + esc(po.autor) + '</strong>' + (po.oficial ? ' <span class="ap-badge ap-badge--ok">' + ico('badge-check', { size: 14 }) + '<span>Zoorigen oficial</span></span>' : '') +
+      '<time datetime="' + esc(po.creado || '') + '">' + esc(P.fmtFechaHora(po.creado)) + '</time></div>' +
+      '<button type="button" class="ap-icono ap-icono--peligro" data-accion="borrar-post" data-id="' + esc(po.id) + '" aria-label="Eliminar la publicación «' + esc(po.titulo) + '»">' + ico('trash-2', { size: 18 }) + '</button></header>' +
+      '<h3 class="ap-post__titulo">' + esc(po.titulo || 'Sin título') + '</h3>' + cuerpo +
+      '<footer class="ap-post__pie"><span>' + ico('message-square', { size: 14 }) + esc(P.fmtNum(po.respuestas)) + (po.respuestas === 1 ? ' respuesta' : ' respuestas') + '</span><span>' + ico('star', { size: 14 }) + esc(P.fmtNum(po.meGusta)) + ' me gusta</span><span>' + ico('eye', { size: 14 }) + esc(P.fmtNum(po.vistas)) + (po.vistas === 1 ? ' vista' : ' vistas') + '</span>' +
+      (po.respuestasLista.length ? '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="ver-resp" data-id="' + esc(po.id) + '" aria-expanded="' + abierta + '">' + (abierta ? 'Ocultar respuestas' : 'Ver respuestas (' + po.respuestasLista.length + ')') + '</button>' : '') + '</footer>' +
+      (po.respuestasLista.length ? '<ul class="ap-resps"' + (abierta ? '' : ' hidden') + '>' + po.respuestasLista.map(function (r) { return respuestaHTML(po.id, r); }).join('') + '</ul>' : '') + '</article>';
+  }
+
+  function pintarForo() {
+    var cont = document.getElementById('apComTab');
+    if (!cont) return;
+    var f = cEst.foro;
+    var lista = !f ? '<div class="ap-esqueleto"><div class="ap-esqueleto__fila"></div></div>'
+      : f.publicaciones.length ? '<div class="ap-posts">' + f.publicaciones.map(publicacionHTML).join('') + '</div>'
+      : vacio('Aún no hay publicaciones en el foro', 'Las discusiones de los miembros y tus anuncios oficiales aparecerán aquí, de la más reciente a la más antigua.', 'message-square');
+    cont.innerHTML = composerOficialHTML() +
+      '<div class="ap-seccion-cab"><h2>Publicaciones del foro</h2><p>Las ' + (f ? P.fmtNum(f.publicaciones.length) : '') + ' más recientes. Puedes borrar lo inapropiado con la papelera.</p></div>' + lista;
+    var t = document.getElementById('apOficialTexto');
+    if (t) { t.value = cEst.texto; actualizarContador(); }
+  }
+
+  function actualizarContador() {
+    var t = document.getElementById('apOficialTexto'); var c = document.getElementById('apOficialCont'); var b = document.getElementById('apOficialBtn');
+    if (!t || !c || !b) return;
+    var n = t.value.length;
+    c.textContent = n + '/' + MAX_OFICIAL;
+    c.classList.toggle('ap-oficial__cont--limite', n >= MAX_OFICIAL);
+    b.disabled = !t.value.trim();
+  }
+
+  async function cargarForo() {
+    try { cEst.foro = await ctx.api('/api/admin/foro'); }
+    catch (e) { var c = document.getElementById('apComTab'); if (c) c.innerHTML = errorHTML('Foro', e, 'recargar-tab'); return; }
+    if (cEst.tab === 'foro') pintarForo();
+  }
+
+  async function publicarOficial() {
+    var t = document.getElementById('apOficialTexto');
+    var texto = t ? t.value.trim() : '';
+    if (!texto) return;
+    var ok = await confirmar({
+      titulo: 'Publicar como Zoorigen',
+      texto: 'Este mensaje lo verán <strong>todos los miembros</strong> en el foro con la insignia «Zoorigen oficial». Puedes borrarlo después con la papelera.',
+      aceptar: 'Sí, publicar', cancelar: 'Seguir editando'
+    });
+    if (!ok) return;
+    var b = document.getElementById('apOficialBtn'); if (b) b.disabled = true;
+    try {
+      await ctx.api('/api/admin/foro/publicar', { method: 'POST', body: { texto: texto } });
+      cEst.texto = '';
+      ctx.toast('Publicado en el foro como Zoorigen.');
+      await cargarForo();
+    } catch (e) { ctx.toast(e.message || 'No se pudo publicar.', true); if (b) b.disabled = false; }
+  }
+
+  function buscarPost(id) { return ((cEst.foro && cEst.foro.publicaciones) || []).filter(function (x) { return x.id === id; })[0] || null; }
+
+  async function borrarPost(id) {
+    var po = buscarPost(id);
+    if (!po) return;
+    var ok = await confirmar({
+      titulo: 'Eliminar publicación',
+      texto: '¿Eliminar la publicación «<strong>' + esc(po.titulo) + '</strong>» de ' + esc(po.autor) + '? Se borran también sus <strong>' + esc(P.fmtNum(po.respuestasLista.length)) + (po.respuestasLista.length === 1 ? ' respuesta' : ' respuestas') + '</strong>. No se puede deshacer; queda anotado en la bitácora.',
+      aceptar: 'Sí, eliminar', cancelar: 'Mejor no', peligro: true
+    });
+    if (!ok) return;
+    try { await ctx.api('/api/admin/foro/' + encodeURIComponent(id) + '/eliminar', { method: 'POST' }); ctx.toast('Publicación eliminada.'); await cargarForo(); }
+    catch (e) { ctx.toast(e.message || 'No se pudo eliminar.', true); }
+  }
+
+  async function borrarRespuesta(id, rid) {
+    var po = buscarPost(id);
+    var r = po && po.respuestasLista.filter(function (x) { return x.id === rid; })[0];
+    if (!r) return;
+    var ok = await confirmar({
+      titulo: 'Eliminar respuesta',
+      texto: '¿Eliminar la respuesta de <strong>' + esc(r.autor) + '</strong>? «' + esc(r.texto.length > 140 ? r.texto.slice(0, 139) + '…' : r.texto) + '». No se puede deshacer.',
+      aceptar: 'Sí, eliminar', cancelar: 'Mejor no', peligro: true
+    });
+    if (!ok) return;
+    try { await ctx.api('/api/admin/foro/' + encodeURIComponent(id) + '/respuestas/' + encodeURIComponent(rid) + '/eliminar', { method: 'POST' }); ctx.toast('Respuesta eliminada.'); await cargarForo(); }
+    catch (e) { ctx.toast(e.message || 'No se pudo eliminar.', true); }
+  }
+
+  /* Directorio: todas las tarjetas, con el contacto completo (solo lo ve la administración) */
+  function contactoHTML(c) {
+    var out = [];
+    var enlace = function (url) { return /^https:\/\//i.test(url) ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(url.replace(/^https:\/\//i, '')) + '</a>' : esc(url); };
+    if (c.whatsapp) out.push('<span class="ap-dir__c">' + ico('phone', { size: 14 }) + '<span>WhatsApp ' + esc(c.whatsapp) + '</span></span>');
+    if (c.email) out.push('<span class="ap-dir__c">' + ico('mail', { size: 14 }) + '<span class="ap-correo">' + esc(c.email) + '</span></span>');
+    if (c.web) out.push('<span class="ap-dir__c">' + ico('globe', { size: 14 }) + '<span>' + enlace(c.web) + '</span></span>');
+    if (c.linkedin) out.push('<span class="ap-dir__c">' + ico('link', { size: 14 }) + '<span>LinkedIn ' + enlace(c.linkedin) + '</span></span>');
+    if (c.instagram) out.push('<span class="ap-dir__c">' + ico('link', { size: 14 }) + '<span>Instagram @' + esc(c.instagram) + '</span></span>');
+    return out.length ? out.join('') : '<span class="ap-dir__c ap-dir__c--nd">' + ico('lock', { size: 14 }) + '<span>Sin contacto</span></span>';
+  }
+
+  function tarjetaDirHTML(t) {
+    var puesto = [t.profesion, t.institucion].filter(Boolean).join(' · ');
+    var lugar = [t.sector, t.ciudad].filter(Boolean).join(' · ');
+    return '<li class="ap-dir" data-uid="' + esc(t.uid) + '"><span class="ap-post__av" aria-hidden="true">' + esc(P.iniciales(t.nombre)) + '</span>' +
+      '<div class="ap-dir__txt"><div class="ap-dir__nombre"><strong>' + esc(t.nombre || 'Sin nombre') + '</strong>' +
+      (t.publicado ? '<span class="ap-badge ap-badge--ok">' + ico('eye', { size: 14 }) + '<span>Visible</span></span>' : '<span class="ap-badge ap-badge--neutro">' + ico('lock', { size: 14 }) + '<span>Privada</span></span>') +
+      (t.verificado ? '<span class="ap-badge ap-badge--info">' + ico('badge-check', { size: 14 }) + '<span>Verificado</span></span>' : '') + '</div>' +
+      (puesto ? '<span class="ap-dir__linea">' + ico('briefcase', { size: 14 }) + '<span>' + esc(puesto) + '</span></span>' : '') +
+      (lugar ? '<span class="ap-dir__linea">' + ico('map-pin', { size: 14 }) + '<span>' + esc(lugar) + '</span></span>' : '') +
+      '<div class="ap-dir__contacto">' + contactoHTML(t.contacto || {}) + '</div>' +
+      (t.cedula ? '<span class="ap-dir__linea ap-dir__linea--chica">' + ico('shield-check', { size: 14 }) + '<span>Cédula ' + esc(t.cedula) + (t.cedulaVisible ? ' (visible para los miembros)' : ' (no la muestra)') + '</span></span>' : '') + '</div>' +
+      '<button type="button" class="ap-icono ap-icono--peligro" data-accion="borrar-dir" data-uid="' + esc(t.uid) + '" aria-label="Eliminar la tarjeta de ' + esc(t.nombre || 'esta persona') + '">' + ico('trash-2', { size: 18 }) + '</button></li>';
+  }
+
+  function pintarDirectorio() {
+    var cont = document.getElementById('apComTab');
+    if (!cont) return;
+    var d = cEst.dir;
+    if (!d) { cont.innerHTML = '<div class="ap-esqueleto"><div class="ap-esqueleto__fila"></div></div>'; return; }
+    var q = P.sinAcentos(cEst.dq).trim();
+    var lista = d.tarjetas.filter(function (t) {
+      if (cEst.dfiltro === 'visibles' && !t.publicado) return false;
+      if (cEst.dfiltro === 'privadas' && t.publicado) return false;
+      if (!q) return true;
+      return P.sinAcentos([t.nombre, t.profesion, t.institucion, t.sector, t.ciudad, (t.contacto || {}).email, (t.contacto || {}).whatsapp].join(' ')).indexOf(q) !== -1;
+    });
+    var chips = [['todos', 'Todas · ' + d.totales.total], ['visibles', 'Visibles · ' + d.totales.publicadas], ['privadas', 'Privadas · ' + d.totales.privadas]].map(function (c) {
+      return '<button type="button" class="zs-chip" data-dfiltro="' + c[0] + '" aria-pressed="' + (cEst.dfiltro === c[0]) + '">' + esc(c[1]) + '</button>';
+    }).join('');
+    var mostrar = lista.slice(0, cEst.dVisibles);
+    cont.innerHTML = '<div class="ap-controles"><div class="zs-chips" role="group" aria-label="Filtrar tarjetas">' + chips + '</div>' +
+      '<div class="ap-controles__der"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar tarjeta</span><input type="search" id="apDirQ" placeholder="Buscar nombre, puesto o ciudad" autocomplete="off" value="' + esc(cEst.dq) + '"></label></div></div>' +
+      '<p class="ap-nota ap-nota--sola">' + ico('lock', { size: 14 }) + ' El contacto completo y la cédula solo los ves tú: los miembros ven únicamente lo que cada persona decidió publicar.</p>' +
+      (lista.length
+        ? '<div class="ap-fc-zona"><div class="ap-fc-caja"><ul class="ap-fc-lista ap-dir-lista" aria-label="Tarjetas del directorio">' + mostrar.map(tarjetaDirHTML).join('') + '</ul></div></div>' +
+          '<p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(mostrar.length) + ' de ' + P.fmtNum(lista.length) + '</p>' +
+          (lista.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="dir-mas">Mostrar ' + Math.min(25, lista.length - mostrar.length) + ' más</button>' : '')
+        : vacio(d.totales.total ? 'Ninguna tarjeta coincide' : 'Aún no hay tarjetas en el directorio', d.totales.total ? 'Prueba con otra búsqueda o quita el filtro.' : 'Cuando los miembros creen su tarjeta aparecerá aquí, publicada o privada.', 'users'));
+  }
+
+  async function cargarDirectorio(forzar) {
+    try { cEst.dir = await ctx.api('/api/admin/directorio' + (forzar ? '?refrescar=1' : '')); }
+    catch (e) { var c = document.getElementById('apComTab'); if (c) c.innerHTML = errorHTML('Directorio', e, 'recargar-tab'); return; }
+    if (cEst.tab === 'directorio') pintarDirectorio();
+  }
+
+  async function borrarTarjeta(uid) {
+    var t = cEst.dir && cEst.dir.tarjetas.filter(function (x) { return x.uid === uid; })[0];
+    if (!t) return;
+    var ok = await confirmar({
+      titulo: 'Eliminar tarjeta del directorio',
+      texto: '¿Eliminar la tarjeta de <strong>' + esc(t.nombre || 'esta persona') + '</strong>' + (t.publicado ? ' (ahora la ven todos los miembros)' : '') + '? Deja de aparecer en el directorio; la persona puede crear otra. Queda anotado en la bitácora.',
+      aceptar: 'Sí, eliminar', cancelar: 'Mejor no', peligro: true
+    });
+    if (!ok) return;
+    try { await ctx.api('/api/admin/directorio/' + encodeURIComponent(uid) + '/eliminar', { method: 'POST' }); ctx.toast('Tarjeta eliminada.'); await cargarDirectorio(true); }
+    catch (e) { ctx.toast(e.message || 'No se pudo eliminar.', true); }
+  }
+
+  function mostrarTab(tab) {
+    cEst.tab = tab;
+    document.querySelectorAll('[data-tab]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.tab === tab)); });
+    if (tab === 'foro') { pintarForo(); cargarForo(); } else { pintarDirectorio(); cargarDirectorio(false); }
+  }
+
   async function comunidad(forzar) {
     var mi = ++contador;
     vista().innerHTML = cargando('Foro y directorio');
@@ -734,40 +1057,55 @@
     }
     if (mi !== contador) return;
     var d = r.directorio;
-    var sectores = d.porSector.length
-      ? G.anillo({ titulo: 'Tarjetas por sector', centro: { valor: P.fmtNum(d.porSector.reduce(function (t, s) { return t + s.n; }, 0)), rotulo: 'tarjetas' }, partes: d.porSector.map(function (s, i) { return { etiqueta: s.sector, valor: s.n, color: i + 1 }; }) })
-      : vacio('Sin tarjetas todavía', 'Cuando los miembros creen su tarjeta aparecerán sus sectores aquí.', 'users');
-    var discusiones = r.discusiones.length
-      ? F.lista(r.discusiones.map(function (p) {
-        return F.fila({
-          clase: 'ap-fc--meta2', avatar: '<span class="ap-ico-tile ap-tono-info" aria-hidden="true">' + ico('message-square', { size: 18 }) + '</span>',
-          titulo: p.titulo || 'Sin título',
-          meta: esc(p.autor || 'Anónimo') + ' · ' + esc(P.fmtFecha(p.creado)) + (p.extracto ? ' · ' + esc(p.extracto) : ''),
-          cols: [{ html: '<span class="ap-fc__v">' + esc(P.fmtNum(p.respuestas)) + ' resp.</span><span class="ap-fc__s">' + esc(P.fmtNum(p.me_gusta)) + ' me gusta</span>' }],
-          metaChico: '<span class="ap-fc__sep"> · </span>' + esc(P.fmtNum(p.respuestas)) + ' resp.'
-        });
-      }), { etiqueta: 'Discusiones recientes' })
-      : vacio('Aún no hay discusiones', 'Las discusiones del foro aparecerán aquí, de la más reciente a la más antigua.', 'message-square');
+    cEst.foro = null; cEst.dir = null; cEst.abiertas = {};
     vista().innerHTML = P.tarjetaTitulo({
       icono: 'message-square', eyebrow: 'Panel de administración', titulo: 'Foro', acento: 'y directorio.',
-      sub: 'Qué tan activa está la comunidad: tarjetas publicadas y privadas del directorio, y las discusiones más recientes del foro.',
+      sub: 'Modera el foro, publica como Zoorigen y revisa todas las tarjetas del directorio, publicadas o privadas, con su contacto.',
       cifras: [
+        { valor: P.fmtNum(r.discusiones.length), rotulo: 'discusiones recientes' },
         { valor: P.fmtNum(d.total), rotulo: 'tarjetas del directorio' },
-        { valor: P.fmtNum(d.publicadas), rotulo: 'publicadas' },
-        { valor: P.fmtNum(r.discusiones.length), rotulo: 'discusiones recientes' }
+        { valor: P.fmtNum(d.publicadas), rotulo: 'visibles' }
       ],
       acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }]
     }) +
       '<div class="ap-kpis">' + [
-        kpi({ icono: 'users', rotulo: 'Tarjetas creadas', valor: P.fmtNum(d.total), tono: 'info' }),
-        kpi({ icono: 'eye', rotulo: 'Publicadas', valor: P.fmtNum(d.publicadas), nota: 'Visibles para los miembros', tono: 'ok' }),
-        kpi({ icono: 'lock', rotulo: 'Privadas', valor: P.fmtNum(d.privadas), nota: 'Solo las ve su dueña o dueño', tono: 'neutro' }),
+        kpi({ icono: 'message-square', rotulo: 'Discusiones recientes', valor: P.fmtNum(r.discusiones.length), nota: 'Las últimas 30 del foro', tono: 'info' }),
+        kpi({ icono: 'eye', rotulo: 'Tarjetas visibles', valor: P.fmtNum(d.publicadas), nota: 'Las ven los miembros', tono: 'ok' }),
+        kpi({ icono: 'lock', rotulo: 'Tarjetas privadas', valor: P.fmtNum(d.privadas), nota: 'Solo su dueña o dueño', tono: 'neutro' }),
         kpi({ icono: 'shield-check', rotulo: 'Con cédula visible', valor: P.fmtNum(d.conCedulaVisible), nota: 'Eligieron mostrarla', tono: 'info' })
       ].join('') + '</div>' +
-      '<div class="ap-columnas">' + tarjeta('Tarjetas por sector', sectores, { nota: 'Las doce áreas más frecuentes.' }) +
-      tarjeta('Discusiones recientes', discusiones, { nota: 'Las últimas 30 del foro.' }) + '</div>';
-    G.activar(vista());
-    vista().onclick = function (e) { acciones(e, { recargar: function () { comunidad(true); } }); };
+      '<div class="ap-controles"><div class="zs-chips" role="group" aria-label="Foro o directorio">' +
+      '<button type="button" class="zs-chip" data-tab="foro" aria-pressed="true">' + ico('message-square', { size: 16 }) + 'Foro</button>' +
+      '<button type="button" class="zs-chip" data-tab="directorio" aria-pressed="false">' + ico('users', { size: 16 }) + 'Directorio · ' + P.fmtNum(d.total) + '</button></div></div>' +
+      '<div id="apComTab"></div>';
+    cEst.tab = 'foro';
+    pintarForo(); cargarForo();
+    vista().oninput = function (e) {
+      if (e.target.id === 'apOficialTexto') { cEst.texto = e.target.value; actualizarContador(); }
+      else if (e.target.id === 'apDirQ') { cEst.dq = e.target.value; cEst.dVisibles = 25; pintarDirectorio(); var i = document.getElementById('apDirQ'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
+    };
+    vista().onclick = function (e) {
+      var tab = e.target.closest('[data-tab]');
+      if (tab) { mostrarTab(tab.dataset.tab); return; }
+      var chip = e.target.closest('[data-dfiltro]');
+      if (chip) { cEst.dfiltro = chip.dataset.dfiltro; cEst.dVisibles = 25; pintarDirectorio(); return; }
+      acciones(e, {
+        recargar: function () { comunidad(true); },
+        'recargar-tab': function () { mostrarTab(cEst.tab); },
+        publicar: function () { publicarOficial(); },
+        'borrar-post': function (b) { borrarPost(b.dataset.id); },
+        'borrar-resp': function (b) { borrarRespuesta(b.dataset.id, b.dataset.rid); },
+        'ver-resp': function (b) {
+          var art = b.closest('.ap-post'); var ul = art && art.querySelector('.ap-resps');
+          if (!ul) return;
+          var abrir = ul.hidden; ul.hidden = !abrir; cEst.abiertas[b.dataset.id] = abrir;
+          b.setAttribute('aria-expanded', String(abrir));
+          b.textContent = abrir ? 'Ocultar respuestas' : 'Ver respuestas (' + ul.children.length + ')';
+        },
+        'borrar-dir': function (b) { borrarTarjeta(b.dataset.uid); },
+        'dir-mas': function () { cEst.dVisibles += 25; pintarDirectorio(); }
+      });
+    };
   }
 
   /* ───────── REFERIDOS ───────── */

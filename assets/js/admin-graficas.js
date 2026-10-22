@@ -303,25 +303,87 @@
       tablaAlterna(titulo, [''].concat(cols), filas.map(function (f) { return [f.etiqueta].concat(cols.map(function (_, ci) { return aNum((f.valores || [])[ci]); })); }), 'num') + '</figure>';
   }
 
-  /* ───────────────────────── Embudo ─────────────────────────
-     o.etapas [{ etiqueta, valor, nota }] · o.titulo */
+  /* ───────────────────────── Ranking de barras horizontales (cursos más elegidos, completados...) ─────────────────────────
+     o.filas [{ etiqueta, valor }] (se ordenan de mayor a menor) · o.maximo (cuántas se ven; el resto, con «Ver todos»)
+     o.total (para el porcentaje; por defecto la suma de las filas) · o.unidad («personas») · o.color · o.titulo · o.vacio
+     Cada fila: lugar, nombre COMPLETO (con salto de línea, sin recortar), barra de color sólido y, al final, valor y porcentaje. */
+  function porcentajeTexto(v, total) {
+    if (!(v > 0) || !(total > 0)) return '0 %';
+    var p = Math.round(v / total * 100);
+    return (p === 0 ? '<1' : p) + ' %';
+  }
+  function ranking(o) {
+    var op = o || {};
+    var filas = (Array.isArray(op.filas) ? op.filas : []).map(function (f) { return { etiqueta: String(f.etiqueta || ''), valor: aNum(f.valor) }; })
+      .filter(function (f) { return f.valor > 0; });
+    var titulo = op.titulo || 'Ranking';
+    if (!filas.length) return estadoVacio(op.vacio);
+    filas.sort(function (a, b) { return b.valor - a.valor || a.etiqueta.localeCompare(b.etiqueta, 'es'); });
+    var maximo = op.maximo > 0 ? Math.round(op.maximo) : 8;
+    var max = filas[0].valor;
+    var total = op.total ? aNum(op.total) : suma(filas.map(function (f) { return f.valor; }));
+    var unidad = op.unidad || '';
+    var c = color(op.color || 1);
+    var lista = filas.map(function (f, i) {
+      var ancho = Math.max(2, redondear(f.valor / max * 100, 1));
+      return '<li class="zg-rk__fila"' + (i >= maximo ? ' hidden data-zg-extra' : '') + '><span class="zg-rk__n" aria-hidden="true">' + (i + 1) + '</span>' +
+        '<div class="zg-rk__c"><span class="zg-rk__t"><span class="sr-only">Lugar ' + (i + 1) + ': </span>' + esc(f.etiqueta) + '</span>' +
+        '<div class="zg-rk__linea"><span class="zg-rk__b" aria-hidden="true"><i class="zg-c' + c + '" style="width:' + ancho + '%"></i></span>' +
+        '<span class="zg-rk__v"><strong>' + esc(formatear(f.valor, 'num')) + '</strong>' + (unidad ? '<span class="sr-only"> ' + esc(unidad) + ',</span>' : '') +
+        '<small>' + esc(porcentajeTexto(f.valor, total)) + '</small></span></div></div></li>';
+    }).join('');
+    var resumen = 'En primer lugar: ' + filas[0].etiqueta + ', con ' + formatear(filas[0].valor, 'num') + (unidad ? ' ' + unidad : '') + ' (' + porcentajeTexto(filas[0].valor, total) + ' del total de ' + formatear(total, 'num') + ').';
+    return '<figure class="zg zg-rk" role="group" aria-label="' + esc(titulo) + '"><p class="sr-only">' + esc(resumen) + '</p>' +
+      '<ol class="zg-rk__lista">' + lista + '</ol>' +
+      (filas.length > maximo ? '<button type="button" class="ap-btn ap-btn--suave zg-rk__todos" data-zg-todos aria-expanded="false" data-total="' + filas.length + '" data-maximo="' + maximo + '">Ver todos (' + filas.length + ')</button>' : '') +
+      '<p class="zg-rk__escala">Cada barra se compara con el primer lugar; el porcentaje es la parte del total (' + esc(formatear(total, 'num')) + (unidad ? ' ' + esc(unidad) : '') + ').</p></figure>';
+  }
+
+  /* ───────────────────────── Embudo de pasos ─────────────────────────
+     o.etapas [{ etiqueta, valor, frase }] (frase: cómo se dice en plural en la oración final, «eligen su prueba»)
+     o.unidad («cuentas nuevas») · o.titulo · o.vacio
+     Barras decrecientes con el número absoluto, el porcentaje frente al paso anterior y frente al total, y una frase de interpretación. */
+  function fraseEmbudo(etapas, unidad) {
+    var lista = Array.isArray(etapas) ? etapas : [];
+    var primero = lista.length ? aNum(lista[0].valor) : 0;
+    if (!primero || lista.length < 2) return '';
+    var u = unidad || 'personas';
+    var partes = lista.slice(1).map(function (e) {
+      var n = aNum(e.valor) / primero * 10;
+      // Número, no palabra, para que concuerde siempre: «0 terminan», «0,3 terminan», «4 eligen»
+      var texto = n === 0 ? '0' : n < 1 ? String(Math.round(n * 10) / 10).replace('.', ',') : String(Math.round(n));
+      if (texto === '0' && n > 0) texto = '0,1';
+      return texto + ' ' + String(e.frase || e.etiqueta).toLowerCase();
+    });
+    var cola = partes.length > 1 ? partes.slice(0, -1).join(', ') + ' y ' + partes[partes.length - 1] : partes[0];
+    return 'De cada 10 ' + u + ', ' + cola + '.';
+  }
   function embudo(o) {
     var op = o || {};
     var etapas = Array.isArray(op.etapas) ? op.etapas : [];
     var titulo = op.titulo || 'Embudo';
     if (!etapas.length || !aNum(etapas[0].valor)) return estadoVacio(op.vacio);
     var primero = aNum(etapas[0].valor);
-    return '<figure class="zg zg-emb" role="group" aria-label="' + esc(titulo) + '"><ol class="zg-emb__lista">' + etapas.map(function (e, i) {
+    var pasos = etapas.map(function (e, i) {
       var v = aNum(e.valor);
       var previo = i ? aNum(etapas[i - 1].valor) : 0;
       var deTotal = Math.round(v / primero * 100);
       var dePrevio = i && previo ? Math.round(v / previo * 100) : null;
-      var ancho = v > 0 ? Math.max(2, redondear(v / primero * 100, 1)) : 0;
-      return '<li><div class="zg-emb__cab"><span class="zg-emb__t"><b>' + (i + 1) + '</b>' + esc(e.etiqueta) + '</span><span class="zg-emb__n"><strong>' + esc(formatear(v, 'num')) + '</strong><small>' +
-        (i === 0 ? 'punto de partida' : deTotal + ' % del inicio' + (dePrevio !== null ? ' · ' + dePrevio + ' % de la etapa anterior' : '')) + '</small></span></div>' +
-        '<span class="zg-emb__b" aria-hidden="true"><i class="zg-c' + color(i + 1) + '" style="width:' + ancho + '%"></i></span>' + (e.nota ? '<p class="zg-emb__nota">' + esc(e.nota) + '</p>' : '') + '</li>';
-    }).join('') + '</ol>' +
-      tablaAlterna(titulo, ['Etapa', 'Personas', 'Del inicio'], etapas.map(function (e) { return [e.etiqueta, aNum(e.valor), Math.round(aNum(e.valor) / primero * 100) + ' %']; }), 'num') + '</figure>';
+      var ancho = v > 0 ? Math.max(3, redondear(v / primero * 100, 1)) : 0;
+      return '<li class="zg-fn__paso">' +
+        (i ? '<div class="zg-fn__conv">' + (dePrevio === null ? '' : '<strong>' + dePrevio + ' %</strong> pasa al siguiente paso') + '</div>' : '') +
+        '<div class="zg-fn__cab"><span class="zg-fn__t"><b aria-hidden="true">' + (i + 1) + '</b>' + esc(e.etiqueta) + '</span>' +
+        '<span class="zg-fn__n"><strong>' + esc(formatear(v, 'num')) + '</strong><small>' + (i === 0 ? 'punto de partida' : deTotal + ' % del total') + '</small></span></div>' +
+        '<span class="zg-fn__b" aria-hidden="true"><i class="zg-c' + color(i + 1) + '" style="width:' + ancho + '%"></i></span>' +
+        (e.nota ? '<p class="zg-fn__nota">' + esc(e.nota) + '</p>' : '') + '</li>';
+    }).join('');
+    var frase = fraseEmbudo(etapas, op.unidad || 'personas');
+    return '<figure class="zg zg-fn" role="group" aria-label="' + esc(titulo) + '"><ol class="zg-fn__lista">' + pasos + '</ol>' +
+      (frase ? '<p class="zg-fn__frase" role="note"><strong>Cómo leerlo:</strong> ' + esc(frase) + '</p>' : '') +
+      tablaAlterna(titulo, ['Paso', 'Personas', 'Del total', 'Del paso anterior'], etapas.map(function (e, i) {
+        var previo = i ? aNum(etapas[i - 1].valor) : 0;
+        return [e.etiqueta, aNum(e.valor), Math.round(aNum(e.valor) / primero * 100) + ' %', i && previo ? Math.round(aNum(e.valor) / previo * 100) + ' %' : '—'];
+      }), 'num') + '</figure>';
   }
 
   /* ───────────────────────── Comportamiento en el navegador (tooltips) ───────────────────────── */
@@ -484,8 +546,22 @@
     raiz.querySelectorAll('[data-zg-calor]').forEach(function (f) { if (!f.__zg) { f.__zg = true; activarCalor(f); } });
   }
 
+  // «Ver todos» / «Ver solo los primeros» de los rankings (un oyente para toda la página)
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', function (ev) {
+      var b = ev.target && ev.target.closest ? ev.target.closest('[data-zg-todos]') : null;
+      if (!b) return;
+      var fig = b.closest('.zg-rk');
+      if (!fig) return;
+      var abrir = b.getAttribute('aria-expanded') !== 'true';
+      fig.querySelectorAll('[data-zg-extra]').forEach(function (li) { li.hidden = !abrir; });
+      b.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+      b.textContent = abrir ? 'Ver solo los ' + b.getAttribute('data-maximo') + ' primeros' : 'Ver todos (' + b.getAttribute('data-total') + ')';
+    });
+  }
+
   return {
     COLORES: COLORES, formatear: formatear, abreviar: abreviar, escalaY: escalaY, indicesEtiquetas: indicesEtiquetas, nivelCalor: nivelCalor,
-    estadoVacio: estadoVacio, sparkline: sparkline, serie: serie, anillo: anillo, barrasH: barrasH, mapaCalor: mapaCalor, embudo: embudo, activar: activar
+    estadoVacio: estadoVacio, sparkline: sparkline, serie: serie, anillo: anillo, barrasH: barrasH, ranking: ranking, mapaCalor: mapaCalor, embudo: embudo, fraseEmbudo: fraseEmbudo, activar: activar
   };
 });

@@ -66,6 +66,22 @@
     return m.getUTCDate() + ' ' + MESES[m.getUTCMonth()] + ' ' + m.getUTCFullYear();
   }
 
+  // «20 oct 2026 · 11:54 p. m.» (hora de México). Sin fecha: «—».
+  function fmtFechaHora(iso) {
+    var d = aFecha(iso);
+    if (!d) return '—';
+    var hora = '';
+    try {
+      hora = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', hour: 'numeric', minute: '2-digit', hour12: true }).format(d)
+        .replace(/\u202f|\u00a0/g, ' ').replace(/\s*([ap])\.?\s?m\.?/i, function (m, x) { return ' ' + x.toLowerCase() + '. m.'; });
+    } catch (e) {
+      var l = new Date(d.getTime() - 6 * 3600 * 1000);
+      var h = l.getUTCHours(); var mi = String(l.getUTCMinutes()).padStart(2, '0');
+      hora = (h % 12 || 12) + ':' + mi + (h < 12 ? ' a. m.' : ' p. m.');
+    }
+    return fmtFecha(iso) + ' · ' + hora;
+  }
+
   // "oct 2026" a partir de "2026-10"
   function fmtMes(clave) {
     var m = /^(\d{4})-(\d{2})$/.exec(String(clave || ''));
@@ -125,6 +141,20 @@
     var e = ESTADOS[estado] || ESTADOS['sin-plan'];
     return '<span class="ap-badge ap-badge--' + e.tono + '">' + ico(e.icono, { size: 14 }) + '<span>' + esc(e.texto) + '</span></span>';
   }
+  function insigniasMiembro(m) {
+    var plan = m && m.planTipo === 'anual' ? 'Anual' : m && m.planTipo === 'mensual' ? 'Mensual' : '';
+    var est = m && m.estado;
+    var primera = '';
+    var segunda = '';
+    if (!est || est === 'sin-plan') {
+      primera = '<span class="ap-badge ap-badge--neutro">' + ico('user-plus', { size: 14 }) + '<span>Registrado</span></span>';
+      segunda = '<span class="ap-badge ap-badge--aviso">' + ico('circle-dashed', { size: 14 }) + '<span>Sin pagar</span></span>';
+    } else {
+      primera = '<span class="ap-badge ap-badge--info">' + ico('credit-card', { size: 14 }) + '<span>' + (plan || 'Plan') + '</span></span>';
+      segunda = insignia(est);
+    }
+    return primera + segunda;
+  }
   function etiquetaEstado(estado) { return (ESTADOS[estado] || ESTADOS['sin-plan']).texto; }
 
   /* ── Miembros: filtros, orden y búsqueda ── */
@@ -157,10 +187,11 @@
     });
   }
 
+  // Por defecto, del registro más reciente al más antiguo (como en Alintec). Quien no tiene fecha queda al final en ambos.
   var ORDENES = [
-    { id: 'vence', texto: 'Vencimiento más cercano' },
-    { id: 'registro', texto: 'Registro más reciente' },
-    { id: 'nombre', texto: 'Nombre (A a Z)' }
+    { id: 'registro', texto: 'Más recientes' },
+    { id: 'registro-antiguo', texto: 'Más antiguos' },
+    { id: 'vence', texto: 'Vencimiento más cercano' }
   ];
 
   function ordenarMiembros(lista, orden) {
@@ -169,8 +200,13 @@
     if (orden === 'nombre') {
       return copia.sort(function (a, b) { return String(a.nombre || a.correo).localeCompare(String(b.nombre || b.correo), 'es'); });
     }
-    if (orden === 'registro') {
-      return copia.sort(function (a, b) { return (ms(b.registro) || 0) - (ms(a.registro) || 0); });
+    if (orden === 'registro' || orden === 'registro-antiguo') {
+      var sentido = orden === 'registro' ? -1 : 1;
+      return copia.sort(function (a, b) {
+        var ta = ms(a.registro); var tb = ms(b.registro);
+        if (ta === null || tb === null) return ta === tb ? 0 : (ta === null ? 1 : -1);
+        return sentido * (ta - tb);
+      });
     }
     // Vencimiento: primero quien tiene acceso y vence antes; después el resto, lo más reciente primero
     return copia.sort(function (a, b) {
@@ -355,9 +391,9 @@
   return {
     SECCIONES: SECCIONES, IDS: IDS, FILTROS: FILTROS, ORDENES: ORDENES, ESTADOS: ESTADOS, ORIGENES: ORIGENES,
     seccion: seccion, seccionDeHash: seccionDeHash,
-    esc: esc, aFecha: aFecha, fmtFecha: fmtFecha, fmtMes: fmtMes, fmtNum: fmtNum, fmtMxn: fmtMxn, relativo: relativo,
-    duracion: duracion, iniciales: iniciales, insignia: insignia, etiquetaEstado: etiquetaEstado,
-    contarPorFiltro: contarPorFiltro, filtrarMiembros: filtrarMiembros, ordenarMiembros: ordenarMiembros,
+    esc: esc, aFecha: aFecha, fmtFecha: fmtFecha, fmtFechaHora: fmtFechaHora, fmtMes: fmtMes, fmtNum: fmtNum, fmtMxn: fmtMxn, relativo: relativo,
+    duracion: duracion, iniciales: iniciales, insignia: insignia, insigniasMiembro: insigniasMiembro, etiquetaEstado: etiquetaEstado,
+    sinAcentos: quitarAcentos, contarPorFiltro: contarPorFiltro, filtrarMiembros: filtrarMiembros, ordenarMiembros: ordenarMiembros,
     sumarDiasClave: sumarDiasClave, lunesDe: lunesDe, diaCorto: diaCorto, mesCorto: mesCorto, agruparSerie: agruparSerie, sumaSerie: sumaSerie,
     variacion: variacion, RANGOS: RANGOS, rangoRapido: rangoRapido, fmtPct: fmtPct,
     celdaCsv: celdaCsv, aCsv: aCsv,

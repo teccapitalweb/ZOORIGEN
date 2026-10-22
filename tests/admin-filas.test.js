@@ -197,8 +197,7 @@ test('Encuesta: respuestas y preguntas con detalle al tocar la fila y Marcar ate
   assert.doesNotMatch(det, /\d{10}/);
 });
 
-test('Pruebas gratuitas, Referidos, Foro, Configuración y Estado usan filas compactas sin botones por fila', () => {
-  assert.match(vistas, /F\.lista\(r\.discusiones\.map/);
+test('Pruebas gratuitas, Referidos, Configuración y Estado usan filas compactas sin botones por fila (el foro tiene sus propias tarjetas con papelera)', () => {
   assert.match(vistas, /F\.lista\(r\.motivosRechazo\.map/);
   assert.match(vistas, /var variables = F\.lista\(r\.variables\.map/);
   assert.match(vistas, /function filaPersonaVence/);

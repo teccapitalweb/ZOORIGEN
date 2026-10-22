@@ -273,6 +273,7 @@
       color: var(--zoo-text, #e5e9e7);
       font-weight: 700;
     }
+    .foro-oficial { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; padding: 2px 9px; border-radius: 999px; font-size: .75rem; font-weight: 700; background: var(--zoo-ok-tinte, #17261D); color: var(--zoo-ok-txt, #7FD08A); border: 1px solid var(--zoo-ok-borde, #2F5A40); vertical-align: 1px; }
     .foro-post__time {
       font-size: .78rem;
       color: var(--zoo-text-dim, #6b7370);
@@ -930,8 +931,12 @@
       'identificacion': zooIcon('search', 13) + ' Identificación',
       'legal': zooIcon('scale', 13) + ' Legal & UMAs',
       'empleo': zooIcon('briefcase', 13) + ' Empleo',
-      'consulta': zooIcon('helpcircle', 13) + ' Consulta'
+      'consulta': zooIcon('helpcircle', 13) + ' Consulta',
+      'oficial': '<svg class="zi" width="13" height="13" aria-hidden="true"><use href="#zi-badge-check"/></svg> Anuncio oficial'
     };
+
+    // Insignia de las publicaciones y respuestas que escribe el equipo (cuenta oficial «Zoorigen»; solo las puede crear el servidor)
+    const INSIGNIA_OFICIAL = '<span class="foro-oficial"><svg class="zi" width="13" height="13" aria-hidden="true"><use href="#zi-badge-check"/></svg>Zoorigen oficial</span>';
 
     let currentCategory = 'all';
     let currentSession = null;
@@ -1053,6 +1058,7 @@
             category: data.category || 'consulta',
             authorName: data.authorName || 'Miembro',
             authorUid: data.authorUid || '',
+            oficial: data.oficial === true,
             createdAt: data.createdAt || new Date().toISOString(),
             likes: Array.isArray(data.likes) ? data.likes : [],
             views: data.views || 0,
@@ -1075,7 +1081,7 @@
               .orderBy('createdAt', 'asc').limit(2).get();
             p._previewReplies = rs.docs.map(d => {
               const dd = d.data() || {};
-              return { authorName: dd.authorName || 'Miembro', text: dd.text || '' };
+              return { authorName: dd.authorName || 'Miembro', text: dd.text || '', oficial: dd.oficial === true };
             });
           } catch (e) {
             p._previewReplies = [];
@@ -1139,7 +1145,7 @@
             <div class="foro-post__body">
               <div class="foro-post__meta">
                 <span class="foro-post__cat">${CAT_LABELS[p.category] || zooIcon('helpcircle', 13) + ' ' + p.category}</span>
-                <span class="foro-post__author">${escapeHtml(p.authorName)}</span>
+                <span class="foro-post__author">${escapeHtml(p.authorName)}${p.oficial ? INSIGNIA_OFICIAL : ''}</span>
                 <span class="foro-post__time">· ${ZOORIGEN_CLUB.timeAgo(p.createdAt)}</span>
               </div>
               <h3 class="foro-post__title">${escapeHtml(p.title)}</h3>
@@ -1412,7 +1418,7 @@
             <div class="foro-view-author">
               <div class="foro-post__avatar">${(post.authorName || 'U').charAt(0).toUpperCase()}</div>
               <div>
-                <div class="foro-view-author__name">${escapeHtml(post.authorName)}</div>
+                <div class="foro-view-author__name">${escapeHtml(post.authorName)}${post.oficial ? INSIGNIA_OFICIAL : ''}</div>
                 <div class="foro-view-author__time">${ZOORIGEN_CLUB.timeAgo(post.createdAt)} · ${post.views || 0} vistas</div>
               </div>
             </div>
@@ -1455,7 +1461,7 @@
               <div class="foro-reply__avatar">${(r.authorName || 'U').charAt(0).toUpperCase()}</div>
               <div class="foro-reply__body">
                 <div class="foro-reply__header">
-                  <span class="foro-reply__author">${escapeHtml(r.authorName || 'Miembro')}</span>
+                  <span class="foro-reply__author">${escapeHtml(r.authorName || 'Miembro')}${r.oficial ? INSIGNIA_OFICIAL : ''}</span>
                   <span class="foro-reply__time">${ZOORIGEN_CLUB.timeAgo(r.createdAt)}</span>
                 </div>
                 <p class="foro-reply__text">${escapeHtml(r.text || '')}</p>

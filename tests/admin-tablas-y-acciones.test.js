@@ -64,10 +64,10 @@ test('toda tabla del panel va dentro de .ap-tabla-zona y las columnas secundaria
   assert.match(leer('assets/js/admin-encuesta.js'), /class="ap-col-3" data-label="WhatsApp"/);
 });
 
-test('la fila de un miembro es compacta: nombre en el título, correo en la línea pequeña, vence en su columna y UN menú «…»', () => {
-  assert.match(vistas, /<span class="ap-fc__correo">' \+ ico\('mail', \{ size: 12 \}\) \+ '<span class="ap-correo">' \+ esc\(m\.correo/);
-  assert.match(vistas, /acciones: accionesMiembro\(m\)/);
-  assert.match(vistas, /F\.lista\(mostrar\.map\(filaMiembro\)/);
+test('la tarjeta de un miembro: nombre, correo y fecha de registro en renglones separados, insignias a la derecha y UN menú «…»', () => {
+  assert.match(vistas, /<span class="ap-mi__linea ap-mi__correo">' \+ ico\('mail', \{ size: 14 \}\) \+ '<span class="ap-correo">' \+ esc\(m\.correo/);
+  assert.match(vistas, /F\.botonMenu\(\{ acciones: accionesMiembro\(m\)/);
+  assert.match(vistas, /mostrar\.map\(filaMiembro\)\.join\(''\)/);
   // ya no hay cinco botones por fila
   assert.doesNotMatch(vistas, /function botonesMiembro|<div class="ap-acciones">' \+ botonesMiembro/);
 });
