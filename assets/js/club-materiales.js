@@ -287,7 +287,7 @@
         (abierto ? '' : '<span class="mt-libro__lock" aria-hidden="true">' + CANDADO + '</span>') +
         pinHTML('libro:' + l.id, !!ctx.guardado) +
       '</div>' +
-      '<h3 class="mt-libro__t">' + esc(l.titulo) + '</h3><div class="mt-libro__a">' + esc(l.autor || 'Equipo Zoorigen') + '</div>' + barra +
+      '<h3 class="mt-libro__t">' + esc(l.titulo) + '</h3><div class="mt-libro__a">' + esc(l.autor || 'Equipo Zoorigen') + '</div>' + barra + (ctx.canje || '') +
     '</article>';
   }
 
@@ -344,7 +344,7 @@
         (abierto ? '' : '<span class="mt-doc__candado" aria-hidden="true">' + CANDADO + '</span>') +
         '<div class="mt-doc__tarjeta"><small>' + esc(m.area || t.nombre) + '</small><strong>' + esc(m.titulo) + '</strong><em>' + esc(t.nombre) + (pags ? ' · ' + pags : '') + '</em></div></div>' +
       '<div class="mt-doc__pie"><span class="mt-doc__chip">PDF</span><span class="mt-doc__sub">' + esc(m.tipo === 'presentacion' ? 'Presentación' : 'Material de apoyo') + '</span></div>' +
-      '<div class="mt-doc__area">' + FOLDER + esc(m.area || '') + '</div>' + etiq + '</article>';
+      '<div class="mt-doc__area">' + FOLDER + esc(m.area || '') + '</div>' + etiq + (ctx.canje || '') + '</article>';
   }
 
   /* ───── materiales de curso, por retos y para miembros: la condición, clara, y la fila con candado y avance ─────
@@ -399,7 +399,7 @@
       '<span class="mt-fila__ico">' + ICO_ARCHIVO + '</span>' +
       '<div class="mt-fila__cuerpo"><strong>' + esc(m.titulo) + '</strong>' + (meta ? '<small>' + meta + '</small>' : '') +
         '<span class="mt-fila__cond' + (abierto ? ' is-ok' : '') + '">' + (abierto ? ICO_OK : CANDADO) + '<span>' + esc(texto) + '</span></span>' + progreso + '</div>' +
-      '<span class="mt-fila__acc">' + (abierto ? '<span class="mt-fila__abrir">Abrir</span>' : (previa ? chipMiembrosHTML('Solo miembros') : '')) + '</span></article>';
+      '<span class="mt-fila__acc">' + (abierto ? '<span class="mt-fila__abrir">Abrir</span>' : (previa ? chipMiembrosHTML('Solo miembros') : '')) + (ctx.canje || '') + '</span></article>';
   }
 
   /* Agrupa por curso (en el orden en que aparecen); dentro de cada curso, por clase y luego por título. */
@@ -533,7 +533,11 @@
     var sesion = o.sesion, club = o.club, cont = o.contenedor;
     var uid = sesion.uid;
     var alm = (function () { try { return window.localStorage; } catch (e) { return null; } })() || { getItem: function () { return null; }, setItem: function () {} };
-    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', drive: [], errorServidor: '', cargando: true, previa: false };
+    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
+      soloCanjeables: !!o.soloCanjeables || (typeof location !== 'undefined' && /[?&]canjeables=1(?:&|#|$)/.test(String(location.search || ''))) };
+    var CR = function () { return (typeof window !== 'undefined' && window.ZOO_CREDITOS) ? window.ZOO_CREDITOS : null; };
+    var canjeDe = function (tipo, id) { var c = estado.creditos, m = CR(); return c && m ? m.canjeHTML(c.porClave[tipo + ':' + id], c.saldo, c.costo) : ''; };
+    var esCanjeable = function (tipo, id) { return !!(estado.creditos && estado.creditos.porClave[tipo + ':' + id]); };
     var hrefPlanes = o.hrefPlanes || RUTA_PLANES;
     var PW = function () { return (typeof window !== 'undefined' && window.ZOO_PAYWALL && typeof window.ZOO_PAYWALL === 'object') ? window.ZOO_PAYWALL : null; };
     /* ¿La sesión parece de miembro? Solo para decidir qué pedir al cargar; lo que se muestra lo decide el servidor. */
@@ -563,13 +567,21 @@
       var deCurso = estado.materiales.filter(esDeCurso).concat(estado.drive.filter(esDeCurso));
       var gruposCurso = agruparPorCurso(deCurso.filter(coincide));
       var sueltosDrive = estado.drive.filter(function (m) { return !esDeCurso(m); }).filter(coincide);
+      /* ?canjeables=1: SOLO lo que se puede canjear con créditos (nada de cursos, oficiales ni lo que ya abre por membresía o retos) */
+      var soloCj = !!estado.soloCanjeables;
+      if (soloCj) {
+        libros = libros.filter(function (l) { return esCanjeable('libro', l.id); });
+        docs = docs.filter(function (m) { return esCanjeable('pdf', m.id); });
+        sueltosDrive = sueltosDrive.filter(function (m) { return esCanjeable('drive', m.id); });
+        deCurso = []; gruposCurso = [];
+      }
       var meta = siguienteMeta(estado.libros, estado.superados);
       var verLibros = p === 'todo' || p === 'libros' || p === 'guardados';
       var verDocs = p === 'todo' || p === 'guias' || p === 'presentaciones' || p === 'guardados';
       var previa = !!estado.previa;
       var html = '';
 
-      if (previa) {
+      if (previa && !soloCj) {
         var pw = PW();
         html += pw && typeof pw.avisoVistaPreviaHTML === 'function' ? pw.avisoVistaPreviaHTML(textoAvisoPrevia()) : '<div class="pw-aviso" role="note"><span>' + textoAvisoPrevia() + '</span></div>';
       }
@@ -590,6 +602,7 @@
             return '<div><strong>' + esc(k.valor) + '</strong><span>' + esc(k.etiqueta) + '</span></div>'; }).join('') + '</div></section>';
       }
 
+      if (estado.creditos && CR() && (estado.creditos.saldo > 0 || soloCj || estado.creditos.hayCanjeados)) html += CR().saldoHTML(estado.creditos.saldo, { soloCanjeables: soloCj });
       html += '<div class="mt-barra"><div class="mt-tabs" role="tablist">' + PESTANAS.filter(function (t) { return (t[0] !== 'mas' || estado.drive.some(function (m) { return !esDeCurso(m); })) && (t[0] !== 'cursos' || deCurso.length); }).map(function (t) {
         return '<button type="button" role="tab" class="mt-tab' + (p === t[0] ? ' is-active' : '') + '" data-pestana="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
         '<div class="mt-buscar"><input type="search" id="mtBuscar" placeholder="Buscar…" value="' + esc(q) + '" aria-label="Buscar"></div></div>';
@@ -598,6 +611,10 @@
         html += '<div class="mt-aviso">' + esc(estado.errorServidor) + ' <button type="button" class="mt-link" id="mtReintentar">Reintentar</button></div>';
       }
 
+      if (soloCj && !libros.length && !docs.length && !sueltosDrive.length && !estado.cargando) {
+        html += '<section class="mt-bloque"><div class="mt-vacio"><strong>Por ahora no hay materiales para canjear</strong><span>Lo que ya abres con tu membresía o con tus retos no necesita créditos.</span><a class="mt-btn" href="club-pdfs.html">Ver todos los materiales</a></div></section>';
+        verLibros = false; verDocs = false;
+      }
       if (previa && p === 'guardados' && !libros.length && !docs.length) {
         html += '<section class="mt-bloque"><div class="mt-vacio"><strong>Tus guardados aparecerán aquí</strong>' +
           '<span>Guardar libros y materiales es una función de membresía.</span><a class="mt-btn" href="' + esc(hrefPlanes) + '">Ver planes</a></div></section>';
@@ -606,11 +623,11 @@
 
       if (verLibros) {
         html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Libros</h2></div>';
-        if (p === 'todo' || p === 'libros') html += previa ? bannerVistaPreviaHTML(estado.libros, hrefPlanes) : bannerRetosHTML(meta, o.hrefRetos);
+        if (!soloCj && (p === 'todo' || p === 'libros')) html += previa ? bannerVistaPreviaHTML(estado.libros, hrefPlanes) : bannerRetosHTML(meta, o.hrefRetos);
         if (libros.length) {
           var dest = meta && !meta.todosAbiertos ? libros.filter(function (l) { return l.id === meta.libro.id; })[0] : (libros.filter(function (l) { return l.desbloqueado; })[0] || libros[0]);
-          if ((p === 'todo' || p === 'libros') && !q) html += libroDestacadoHTML(dest || libros[0]);
-          html += '<div class="mt-estante">' + libros.map(function (l) { return libroCardHTML(l, { guardado: g.indexOf('libro:' + l.id) !== -1, pagina: leerPagina(alm, uid, l.id, entero(l.paginasTotal, 0)) }); }).join('') + '</div>';
+          if ((p === 'todo' || p === 'libros') && !q && !soloCj) html += libroDestacadoHTML(dest || libros[0]);
+          html += '<div class="mt-estante">' + libros.map(function (l) { return libroCardHTML(l, { canje: canjeDe('libro', l.id), guardado: g.indexOf('libro:' + l.id) !== -1, pagina: leerPagina(alm, uid, l.id, entero(l.paginasTotal, 0)) }); }).join('') + '</div>';
         } else {
           html += '<div class="mt-vacio">' + (estado.libros.length ? 'No hay libros con ese filtro.' : (estado.cargando ? 'Cargando…' : 'Todavía no hay libros publicados.')) + '</div>';
         }
@@ -618,7 +635,7 @@
       }
       if (verDocs) {
         html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>' + (p === 'presentaciones' ? 'Presentaciones' : 'Guías, plantillas y presentaciones') + '</h2></div>';
-        html += docs.length ? '<div class="mt-grid">' + docs.map(function (m) { return materialCardHTML(m, { guardado: g.indexOf('doc:' + m.id) !== -1 }); }).join('') + '</div>'
+        html += docs.length ? '<div class="mt-grid">' + docs.map(function (m) { return materialCardHTML(m, { canje: canjeDe('pdf', m.id), guardado: g.indexOf('doc:' + m.id) !== -1 }); }).join('') + '</div>'
           : '<div class="mt-vacio">' + (estado.materiales.length ? 'No hay materiales con ese filtro.' : (estado.cargando ? 'Cargando…' : 'Todavía no hay materiales publicados.')) + '</div>';
         html += '</section>';
       }
@@ -626,8 +643,8 @@
         html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Materiales de tus cursos</h2></div>' +
           (gruposCurso.length ? seccionCursosHTML(gruposCurso, o.hrefCursos) : '<div class="mt-vacio">No hay materiales con ese filtro.</div>') + '</section>';
       }
-      if (p === 'todo' || p === 'oficiales') html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Documentos oficiales</h2></div>' + oficialesHTML() + '</section>';
-      if ((p === 'todo' || p === 'mas') && sueltosDrive.length) html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Más materiales</h2></div><div class="mt-filas">' + sueltosDrive.map(function (m) { return filaMaterialHTML(m, {}); }).join('') + '</div></section>';
+      if (!soloCj && (p === 'todo' || p === 'oficiales')) html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Documentos oficiales</h2></div>' + oficialesHTML() + '</section>';
+      if ((p === 'todo' || p === 'mas') && sueltosDrive.length) html += '<section class="mt-bloque"><div class="mt-bloque__t"><h2>Más materiales</h2></div><div class="mt-filas">' + sueltosDrive.map(function (m) { return filaMaterialHTML(m, { canje: canjeDe('drive', m.id) }); }).join('') + '</div></section>';
       cont.innerHTML = html;
     }
 
@@ -778,9 +795,36 @@
       abrirVisorMaterial(club, m, fuente === 'drive' ? 'drive' : 'catalogo');
     }
 
+    /* ───── canje con créditos ───── */
+    function canjear(clave) {
+      var c = estado.creditos, m = CR(), item = c && c.porClave[clave];
+      if (!c || !m || !item || estado.canjeando) return;
+      var e = m.estadoCanje(item, c.saldo, c.costo);
+      if (e.desbloqueado) return;
+      if (!e.puede) { toast('Te faltan créditos: este material cuesta ' + m.fmt(c.costo) + ' y tienes ' + m.fmt(c.saldo) + '.', true); return; }
+      m.confirmarCanje(item.titulo, c.costo).then(function (si) {
+        if (!si) return;
+        estado.canjeando = true;
+        return Promise.resolve().then(function () { return club.apiFetch('/api/creditos/canjear', { method: 'POST', body: { materialId: clave } }); }).then(function (r) {
+          estado.canjeando = false;
+          toast('Material desbloqueado: ya es tuyo. Se descontaron ' + m.fmt(c.costo) + ' créditos.');
+          return cargar().then(function () {
+            var tipo = String(r.tipo || ''), id = String(r.id || '');
+            if (tipo === 'libro') abrirLibro(id); else if (tipo === 'pdf') abrirDoc(id); else if (tipo === 'drive') abrirFila('drive', id);
+          });
+        }, function (err) {
+          estado.canjeando = false;
+          toast(err && err.message ? err.message : 'No se pudo canjear. Inténtalo de nuevo.', true);
+          if (err && (err.status === 409 || err.status === 402)) return cargar();
+        });
+      });
+    }
+
     /* ───── eventos de la página ───── */
     cont.addEventListener('click', function (e) {
       var t = e.target;
+      var cj = t.closest && t.closest('[data-canjear]');
+      if (cj) { e.stopPropagation(); e.preventDefault(); canjear(cj.getAttribute('data-canjear')); return; }
       var pin = t.closest && t.closest('[data-guardar]');
       if (pin) {
         e.stopPropagation();
@@ -801,6 +845,7 @@
     });
     cont.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (e.target.closest && e.target.closest('[data-canjear]')) return;
       var libro = e.target.closest && e.target.closest('.mt-libro[data-libro]'), doc = e.target.closest && e.target.closest('.mt-doc[data-doc]'), fila = e.target.closest && e.target.closest('.mt-fila[data-fila]');
       if (libro) { e.preventDefault(); abrirLibro(libro.getAttribute('data-libro')); } else if (doc) { e.preventDefault(); abrirDoc(doc.getAttribute('data-doc')); }
       else if (fila) { e.preventDefault(); var par = String(fila.getAttribute('data-fila')); abrirFila(par.slice(0, par.indexOf(':')), par.slice(par.indexOf(':') + 1)); }
@@ -818,6 +863,13 @@
       var drive = Promise.resolve().then(function () { return club.apiFetch('/api/materiales/drive'); })
         .then(function (r) { return r && Array.isArray(r.materiales) ? r.materiales.map(function (m) { return Object.assign({}, m, { fuente: 'drive' }); }) : []; })
         .catch(function () { return []; });
+      /* Créditos (GET /api/creditos/estado): el saldo y qué materiales se pueden canjear. Si el servidor todavía no lo ofrece, se omite. */
+      var creditos = Promise.resolve().then(function () { return club.apiFetch('/api/creditos/estado'); }).then(function (r) {
+        if (!r || r.ok !== true || !Array.isArray(r.materiales)) return null;
+        var porClave = {}; var hay = false;
+        r.materiales.forEach(function (m) { if (m && typeof m.clave === 'string') { porClave[m.clave] = m; if (m.desbloqueado) hay = true; } });
+        return { saldo: entero(r.saldo, 0), costo: entero(r.costo, 100) || 100, porClave: porClave, hayCanjeados: hay };
+      }).catch(function () { return null; });
       return Promise.all([libros.then(function (r) { return { ok: true, r: r }; }, function (e) { return { ok: false, e: e }; }),
         mats.then(function (r) { return { ok: true, r: r }; }, function (e) { return { ok: false, e: e }; })]).then(function (res) {
         var a = res[0], b = res[1];
@@ -834,8 +886,8 @@
         estado.previa = previa;
         estado.errorServidor = usoRespaldo ? 'No se pudo actualizar el catálogo; te mostramos una versión resumida.'
           : ((!a.ok || !b.ok) ? ((a.e || b.e) && (a.e || b.e).message || 'No se pudieron cargar los libros y materiales.') : '');
-        return drive.then(function (d) {
-          estado.drive = d;
+        return Promise.all([drive, creditos]).then(function (x) {
+          estado.drive = x[0]; estado.creditos = x[1];
           estado.cargando = false; pintar();
         });
       });

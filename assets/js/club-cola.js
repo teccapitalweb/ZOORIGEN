@@ -6,7 +6,8 @@
 /* una por prioridad y descarta las que ya no aplican.           */
 /*                                                                */
 /* Orden: bienvenida -> nombre -> premio -> recorrido -> prueba   */
-/*        -> avisos del equipo -> paywall -> webinar -> otros.    */
+/*        -> avisos del equipo -> paywall -> webinar -> otros      */
+/*        -> créditos regalados (siempre al final).               */
 /*                                                                */
 /* retener(clave) pausa la cola mientras un módulo todavía está   */
 /* decidiendo qué mostrará (así una ventana de menor prioridad no */
@@ -31,7 +32,8 @@
     avisos: 50,
     paywall: 60,
     webinar: 70,
-    otro: 80
+    otro: 80,
+    creditos: 90          // la felicitación por créditos regalados: sale cuando terminan todas las demás
   };
 
   var PAUSA_MS = 350;       // respiro entre una ventana y la siguiente

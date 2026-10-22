@@ -1,0 +1,56 @@
+/* ============================================================ */
+/* CLUB VIP ZOORIGEN · CRÉDITOS                                   */
+/* Tarjeta de felicitación (usa el diseño de las tarjetas de      */
+/* premio: club-curso-premio.css), saldo, insignia y botón de     */
+/* canje de «PDFs y materiales». Colores sólidos y letra mínima   */
+/* de 12 px. Lo dibuja assets/js/club-creditos.js.                */
+/* ============================================================ */
+
+/* ── Tarjeta de felicitación ── */
+.zcr__botones { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+.zcr__btn { flex: 1 1 140px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 11px 20px; border-radius: 12px; border: 2px solid transparent; font: 700 .98rem var(--zoo-font-body); cursor: pointer; }
+.zcr .zcp__btn.zcr__btn { margin-top: 0; width: auto; }
+.zcr__btn--suave { background: transparent; border-color: var(--zcp-casilla-borde, rgba(255, 255, 255, .3)); color: var(--zcp-texto, #f2f7f3); }
+.zcr__btn--suave:hover { background: var(--zcp-casilla, rgba(255, 255, 255, .08)); }
+.zcr__btn--oro { background: #E8A317; color: #1f1d17; }
+.zcr__btn--oro:hover { background: #F0B232; }
+.zcr__btn:focus-visible, .zcr-btn:focus-visible, .zcr-saldo__ver:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+[data-theme="light"] .zcr__btn:focus-visible, [data-theme="light"] .zcr-btn:focus-visible { outline-color: #1F5F8F; }
+
+/* ── Confirmación de canje ── */
+.zcr-conf { position: fixed; inset: 0; z-index: 100001; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(8, 8, 8, .7); }
+.zcr-conf__caja { width: min(420px, 100%); padding: 26px 24px 22px; border-radius: 18px; background: var(--zoo-solid-dark, #174A2D); border: 1px solid rgba(255, 255, 255, .16); color: #f2f7f3; text-align: center; box-shadow: 0 30px 80px rgba(0, 0, 0, .5); }
+[data-theme="light"] .zcr-conf__caja { background: #f5faf5; border-color: #c9dccb; color: #14231a; }
+.zcr-conf__caja h2 { margin: 0 0 6px; font: 800 1.3rem/1.2 var(--zoo-font-display); }
+.zcr-conf__mat { margin: 0 0 10px; font-weight: 700; overflow-wrap: anywhere; }
+.zcr-conf__caja p { margin: 0 0 4px; font-size: .95rem; line-height: 1.5; }
+[data-theme="light"] .zcr-conf .zcr__btn--suave { color: #14231a; border-color: #b9ccbc; }
+
+/* ── Saldo en PDFs y materiales ── */
+.zcr-saldo { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 18px; padding: 14px 18px; border-radius: 16px; border: 1px solid var(--zoo-border, #D8D2C4); background: var(--zoo-bg-card, #fff); color: var(--zoo-text, #1F2933); }
+.zcr-saldo--hay { border-color: #E8A317; }
+.zcr-saldo__ico { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #FBF1D8; color: #7A5200; flex: none; }
+[data-theme="dark"] .zcr-saldo__ico { background: #2A2514; color: #F0BE55; }
+.zcr-saldo__txt { display: flex; flex-direction: column; gap: 2px; flex: 1 1 240px; min-width: 0; }
+.zcr-saldo__txt strong { font: 800 1.15rem/1.2 var(--zoo-font-display); }
+.zcr-saldo__txt span { font-size: .86rem; line-height: 1.45; color: var(--zoo-text-muted, #52606D); }
+.zcr-saldo__ver { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--zoo-border, #D8D2C4); color: inherit; font-weight: 700; font-size: .9rem; text-decoration: none; }
+
+/* ── Insignia y botón de canje en cada material ── */
+.zcr-canje { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.zcr-ins { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #FBF1D8; border: 1px solid #E4CB8B; color: #7A5200; font: 700 .78rem/1.3 var(--zoo-font-body); }
+[data-theme="dark"] .zcr-ins { background: #2A2514; border-color: #6B5520; color: #F0BE55; }
+.zcr-ins--ok { background: #E6F1E9; border-color: #BCD8C4; color: #1F6A41; }
+[data-theme="dark"] .zcr-ins--ok { background: #17261D; border-color: #2F5A40; color: #7FD08A; }
+.zcr-btn { min-height: 40px; padding: 8px 16px; border-radius: 10px; border: 0; background: #E8A317; color: #1f1d17; font: 800 .86rem var(--zoo-font-body); cursor: pointer; }
+.zcr-btn:hover { background: #F0B232; }
+.zcr-btn.is-falta { background: transparent; border: 1px dashed var(--zoo-border, #B9B2A3); color: var(--zoo-text-muted, #52606D); }
+.mt-fila .zcr-canje { margin-top: 0; justify-content: flex-end; }
+.mt-libro .zcr-canje, .mt-doc .zcr-canje { padding: 0 4px 6px; }
+
+@media (prefers-reduced-motion: reduce) { .zcr, .zcr * { animation: none !important; transition: none !important; } }
+@media (max-width: 480px) { .zcr__btn { flex-basis: 100%; } .zcr-saldo { padding: 12px 14px; } }
+
+/* El regalo del trofeo, más grande que el ícono de texto */
+.zcr .zcp__trofeo svg { width: 42px; height: 42px; }
+@media (max-width: 480px) { .zcr .zcp__trofeo svg { width: 34px; height: 34px; } }

@@ -71,14 +71,14 @@ test('la tarjeta de miembro pone nombre, correo y fecha de registro en renglones
 
 /* ───────── Retos ───────── */
 
-test('Retos y XP: historial por persona con filtros, totales por persona reales, aviso de desde cuándo y espacio para créditos', () => {
+test('Retos y XP: historial por persona con filtros, totales por persona reales y aviso de desde cuándo', () => {
   for (const ruta of ['/api/admin/retos/historial', '/api/admin/retos/usuarios', '/api/admin/retos']) assert.ok(vistas.includes("'" + ruta), ruta);
   for (const clave of ['apRQ', 'apRTipo', 'apRDesde', 'apRHasta', 'pag-ant', 'pag-sig', 'limpiar-filtros']) assert.ok(vistas.includes(clave), clave);
   assert.match(vistas, /El historial detallado empieza el día que se publique esta versión/);
   assert.match(vistas, /historialDesde/);
   assert.match(vistas, /Totales por persona/);
-  assert.match(vistas, /Créditos por retos/);
-  assert.match(vistas, /tabla de miembros con sus créditos/);
+  // el espacio reservado «Créditos por retos» ya no existe: los créditos tienen su propia sección en el menú
+  assert.doesNotMatch(vistas, /Créditos por retos|Espacio reservado|apRetosCreditos/);
   // la ficha del miembro lleva el historial
   assert.match(vistas, /historialFichaHTML\(r\.retos\)/);
   assert.match(vistas, /Historial de retos <small>/);

@@ -74,7 +74,7 @@ test('todos los íconos que usa el panel existen', () => {
 
 test('el menú lateral, el pie y la marca llevan ícono y el logo real', () => {
   const h = leer('pages/admin-club.html');
-  for (const sec of ['resumen', 'miembros', 'suscripciones', 'cursos', 'certificados', 'videos', 'pdfs', 'sesiones', 'noticias', 'retos', 'comunidad', 'referidos', 'metricas', 'pruebas', 'encuesta', 'configuracion', 'avance']) {
+  for (const sec of ['resumen', 'miembros', 'suscripciones', 'cursos', 'certificados', 'videos', 'pdfs', 'sesiones', 'noticias', 'retos', 'comunidad', 'referidos', 'creditos', 'metricas', 'pruebas', 'encuesta', 'configuracion', 'avance']) {
     const m = h.match(new RegExp(`data-sec="${sec}">(<svg class="zi"[^>]*>)`));
     assert.ok(m, `el botón "${sec}" no empieza con un ícono`);
   }

@@ -1,0 +1,252 @@
+/* ============================================================ */
+/* CLUB VIP ZOORIGEN · CRÉDITOS                                   */
+/* El administrador regala 100 créditos a mano; la persona los    */
+/* canjea por UN material de «PDFs y materiales» que no sea de    */
+/* ningún curso (cada material cuesta 100).                       */
+/*                                                                */
+/*  1) Tarjeta de felicitación «has ganado 100 créditos»: entra a */
+/*     la cola de ventanas (club-cola.js) con la prioridad MÁS    */
+/*     BAJA, así que sale cuando terminan las demás tarjetas de   */
+/*     bienvenida y avisos; nunca se encima. El aviso pendiente   */
+/*     vive en el servidor (GET /api/creditos/estado y            */
+/*     POST /api/creditos/aviso-visto), no en este navegador.     */
+/*  2) Piezas de «PDFs y materiales»: saldo, insignia             */
+/*     «Canjeable por 100 créditos», botón Canjear y confirmación */
+/*     (POST /api/creditos/canjear).                              */
+/* Lo que se muestra lo decide el servidor; aquí solo se dibuja.  */
+/* La parte pura se prueba en tests/club-creditos.test.js         */
+/* ============================================================ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-iconos.js'));
+  else root.ZOO_CREDITOS = factory(root.ZOO_ICONOS);
+})(typeof self !== 'undefined' ? self : this, function (ICONOS) {
+  'use strict';
+
+  var COSTO = 100;
+  var PRIORIDAD = 90;                      // más baja que todas las de la cola (otro = 80)
+  var RUTA_CANJEABLES = 'club-pdfs.html?canjeables=1';
+  var TEXTOS = {
+    kicker: 'Regalo de Zoorigen',
+    titulo: function (n) { return 'Felicidades, has ganado ' + fmt(n) + ' créditos'; },
+    texto: 'Puedes canjearlos por el material de tu elección.',
+    entendido: 'Entendido',
+    canjear: 'Canjear',
+    insignia: function (costo) { return 'Canjeable por ' + fmt(costo) + ' créditos'; },
+    desbloqueado: 'Desbloqueado',
+    faltan: 'Te faltan créditos',
+    saldo: function (n) { return 'Tienes ' + fmt(n) + (n === 1 ? ' crédito' : ' créditos'); },
+    confirmarTitulo: 'Canjear material',
+    confirmarTexto: function (costo) { return 'Se descontarán ' + fmt(costo) + ' créditos y el material quedará desbloqueado para ti.'; }
+  };
+
+  function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function fmt(n) { return String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function icono(nombre, tam) { return ICONOS && ICONOS.svg ? ICONOS.svg(nombre, { size: tam || 18 }) : ''; }
+  function entero(v) { var n = Math.floor(Number(v)); return isFinite(n) && n > 0 ? n : 0; }
+
+  /* ───────────────────────── Piezas puras ───────────────────────── */
+
+  // ¿Hay algo que celebrar? estado = respuesta de GET /api/creditos/estado
+  function hayAviso(estado) { return !!(estado && estado.ok === true && entero(estado.avisoPendiente) > 0); }
+
+  // El texto de «Felicidades»: usa lo que dice el servidor (100 por regalo; 200 si hubo dos sin verlos)
+  function tarjetaHTML(estado) {
+    var n = entero(estado && estado.avisoPendiente) || COSTO;
+    return '<button type="button" class="zcp__x" data-zcr-entendido aria-label="' + esc(TEXTOS.entendido) + '">' + icono('x', 18) + '</button>' +
+      '<div class="zcp__trofeo">' + icono('gift', 42) + '</div>' +
+      '<p class="zcp__kicker">' + esc(TEXTOS.kicker) + '</p>' +
+      '<p class="zcp__xp"><span class="zcp__xp-num">+' + fmt(n) + '</span><span class="zcp__xp-u">créditos</span></p>' +
+      '<h2 class="zcp__titulo" id="zcr-titulo">' + esc(TEXTOS.titulo(n)) + '</h2>' +
+      '<p class="zcp__texto" id="zcr-desc">' + esc(TEXTOS.texto) + '</p>' +
+      '<div class="zcr__botones"><button type="button" class="zcr__btn zcr__btn--suave" data-zcr-entendido>' + esc(TEXTOS.entendido) + '</button>' +
+      '<button type="button" class="zcp__btn zcr__btn" data-zcr-canjear>' + icono('wallet', 18) + '<span>' + esc(TEXTOS.canjear) + '</span></button></div>';
+  }
+
+  // Idle de la cola: nada corriendo, nada esperando y ninguna retención (una ventana de bienvenida que aún decide qué mostrar)
+  function colaLibre(est) {
+    return !!est && !est.corriendo && !(est.pendientes && est.pendientes.length) && !(est.retenciones && est.retenciones.length);
+  }
+
+  // Espera su turno: resuelve cuando la cola lleva `quietoVeces` revisiones seguidas libres y no hay ventana abierta.
+  // opc: { cola, hayVentana(): bool, intervaloMs, quietoVeces, minimoMs, maximoMs, setTimeout, ahora } → Promise<boolean> (false = se rindió)
+  function esperarTurno(opc) {
+    var o = opc || {};
+    var setT = o.setTimeout || setTimeout;
+    var ahora = o.ahora || Date.now;
+    var intervalo = o.intervaloMs || 700;
+    var seguidas = o.quietoVeces || 4;
+    var minimo = o.minimoMs === undefined ? 2500 : o.minimoMs;
+    var maximo = o.maximoMs || 180000;
+    var inicio = ahora();
+    return new Promise(function (resolver) {
+      var quietas = 0;
+      function revisar() {
+        var transcurrido = ahora() - inicio;
+        if (transcurrido > maximo) { resolver(false); return; }
+        var libre = (!o.cola || typeof o.cola.estado !== 'function' || colaLibre(o.cola.estado())) && !(typeof o.hayVentana === 'function' && o.hayVentana());
+        quietas = libre ? quietas + 1 : 0;
+        if (quietas >= seguidas && transcurrido >= minimo) { resolver(true); return; }
+        setT(revisar, intervalo);
+      }
+      setT(revisar, intervalo);
+    });
+  }
+
+  // Botón de canje de un material: texto, si se puede y por qué no
+  function estadoCanje(item, saldo, costo) {
+    var c = entero(costo) || COSTO;
+    if (!item) return { visible: false };
+    if (item.desbloqueado) return { visible: true, desbloqueado: true, puede: false, rotulo: TEXTOS.desbloqueado };
+    var puede = entero(saldo) >= c;
+    return { visible: true, desbloqueado: false, puede: puede, rotulo: puede ? TEXTOS.canjear : TEXTOS.faltan, falta: puede ? 0 : c - entero(saldo) };
+  }
+
+  // Insignia y botón que se suman a una tarjeta de material canjeable. clave = «libro:id», «pdf:id» o «drive:id»
+  function canjeHTML(item, saldo, costo) {
+    var e = estadoCanje(item, saldo, costo);
+    if (!e.visible) return '';
+    if (e.desbloqueado) return '<div class="zcr-canje"><span class="zcr-ins zcr-ins--ok">' + icono('circle-check', 14) + '<span>' + esc(TEXTOS.desbloqueado) + '</span></span></div>';
+    return '<div class="zcr-canje"><span class="zcr-ins">' + icono('wallet', 14) + '<span>' + esc(TEXTOS.insignia(item.costo || costo || COSTO)) + '</span></span>' +
+      '<button type="button" class="zcr-btn' + (e.puede ? '' : ' is-falta') + '" data-canjear="' + esc(item.clave) + '"' + (e.puede ? '' : ' aria-disabled="true" title="Necesitas ' + fmt(item.costo || costo || COSTO) + ' créditos"') + '>' + esc(e.rotulo) + '</button></div>';
+  }
+
+  function saldoHTML(saldo, opc) {
+    var o = opc || {};
+    var n = entero(saldo);
+    return '<div class="zcr-saldo' + (n > 0 ? ' zcr-saldo--hay' : '') + '" role="status"><span class="zcr-saldo__ico">' + icono('wallet', 22) + '</span>' +
+      '<div class="zcr-saldo__txt"><strong>' + esc(TEXTOS.saldo(n)) + '</strong><span>' + (n >= COSTO ? 'Cada material canjeable cuesta ' + fmt(COSTO) + ' créditos: con tu saldo puedes canjear ' + Math.floor(n / COSTO) + (Math.floor(n / COSTO) === 1 ? ' material.' : ' materiales.') : 'Cada material canjeable cuesta ' + fmt(COSTO) + ' créditos.') + '</span></div>' +
+      (o.soloCanjeables ? '<a class="zcr-saldo__ver" href="club-pdfs.html">Ver todos los materiales</a>' : '') + '</div>';
+  }
+
+  /* ───────────────────────── Navegador ───────────────────────── */
+  var SELECTOR_ENFOCABLE = 'button:not([disabled]),[href],input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])';
+  var SELECTOR_VENTANAS = '#zoo-welcome-modal,#zoo-pay-waiting,.course-detail-modal,.webinar-popup-box,.zoo-guide-box,.zcp:not([data-zoo-creditos]),.pw-modal,.zoo-onboard,[role="dialog"][aria-modal="true"]:not([data-zoo-creditos])';
+
+  function reducirMovimiento() {
+    try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; }
+  }
+  function hayVentanaAbierta() {
+    if (typeof document === 'undefined') return false;
+    if (document.visibilityState === 'hidden') return true;
+    return Array.prototype.some.call(document.querySelectorAll(SELECTOR_VENTANAS), function (el) { return el.getClientRects().length > 0; });
+  }
+
+  // Tarjeta modal accesible (mismo diseño que las tarjetas de premio): foco atrapado, Escape = Entendido y reduce el movimiento.
+  // Devuelve una promesa con { como: 'entendido' | 'canjear' }. Un clic en el fondo NO la cierra (el aviso no se pierde por error).
+  function abrirTarjeta(estado) {
+    return new Promise(function (resolver) {
+      var previo = document.activeElement;
+      var el = document.createElement('div');
+      el.className = 'zcp zcp--bienvenida zcr';
+      el.setAttribute('data-zoo-creditos', '1');
+      el.innerHTML = '<div class="zcp__tarjeta" role="dialog" aria-modal="true" aria-labelledby="zcr-titulo" aria-describedby="zcr-desc" data-zoo-creditos="1">' + tarjetaHTML(estado) + '</div>';
+      var tarjeta = el.firstChild;
+      document.body.appendChild(el);
+      document.documentElement.classList.add('zcp-lock');
+      var cerrado = false;
+      function enfocables() {
+        return Array.prototype.filter.call(tarjeta.querySelectorAll(SELECTOR_ENFOCABLE), function (n) { return n.offsetParent !== null || n === document.activeElement; });
+      }
+      function cerrar(como) {
+        if (cerrado) return;
+        cerrado = true;
+        document.removeEventListener('keydown', alTeclear, true);
+        document.removeEventListener('focusin', alEnfocarFuera, true);
+        function quitar() {
+          el.remove();
+          document.documentElement.classList.remove('zcp-lock');
+          if (previo && previo.isConnected && typeof previo.focus === 'function') { try { previo.focus({ preventScroll: true }); } catch (e) { /* sin foco */ } }
+          resolver({ como: como });
+        }
+        if (reducirMovimiento()) quitar(); else { el.classList.add('zcp--saliendo'); setTimeout(quitar, 210); }
+      }
+      function alTeclear(ev) {
+        if (cerrado) return;
+        if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); cerrar('entendido'); return; }
+        if (ev.key !== 'Tab') return;
+        var lista = enfocables();
+        if (!lista.length) { ev.preventDefault(); return; }
+        var primero = lista[0], ultimo = lista[lista.length - 1], activo = document.activeElement;
+        if (!tarjeta.contains(activo)) { ev.preventDefault(); primero.focus(); }
+        else if (ev.shiftKey && activo === primero) { ev.preventDefault(); ultimo.focus(); }
+        else if (!ev.shiftKey && activo === ultimo) { ev.preventDefault(); primero.focus(); }
+      }
+      function alEnfocarFuera(ev) { if (!cerrado && !tarjeta.contains(ev.target)) { var l = enfocables(); if (l.length) l[l.length - 1].focus(); } }
+      document.addEventListener('keydown', alTeclear, true);
+      document.addEventListener('focusin', alEnfocarFuera, true);
+      el.addEventListener('click', function (ev) {
+        if (cerrado) return;
+        if (ev.target.closest('[data-zcr-canjear]')) { cerrar('canjear'); return; }
+        if (ev.target.closest('[data-zcr-entendido]')) cerrar('entendido');
+      });
+      setTimeout(function () { if (cerrado) return; var b = tarjeta.querySelector('[data-zcr-canjear]'); if (b) b.focus({ preventScroll: true }); }, 60);
+    });
+  }
+
+  // Confirmación antes de gastar créditos: promesa con true / false
+  function confirmarCanje(titulo, costo) {
+    return new Promise(function (resolver) {
+      var previo = document.activeElement;
+      var el = document.createElement('div');
+      el.className = 'zcr-conf'; el.setAttribute('data-zoo-creditos', '1');
+      el.innerHTML = '<div class="zcr-conf__caja" role="alertdialog" aria-modal="true" aria-labelledby="zcr-conf-t" aria-describedby="zcr-conf-d" data-zoo-creditos="1">' +
+        '<h2 id="zcr-conf-t">' + esc(TEXTOS.confirmarTitulo) + '</h2><p class="zcr-conf__mat">' + esc(titulo) + '</p><p id="zcr-conf-d">' + esc(TEXTOS.confirmarTexto(costo || COSTO)) + '</p>' +
+        '<div class="zcr__botones"><button type="button" class="zcr__btn zcr__btn--suave" data-no>Mejor no</button><button type="button" class="zcr__btn zcr__btn--oro" data-si>Canjear</button></div></div>';
+      document.body.appendChild(el);
+      var listo = false;
+      function fin(r) {
+        if (listo) return; listo = true;
+        document.removeEventListener('keydown', teclas, true);
+        el.remove();
+        if (previo && previo.isConnected && typeof previo.focus === 'function') { try { previo.focus({ preventScroll: true }); } catch (e) { /* sin foco */ } }
+        resolver(r);
+      }
+      function teclas(ev) {
+        if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); fin(false); return; }
+        if (ev.key !== 'Tab') return;
+        var l = el.querySelectorAll('button'); var p = l[0], u = l[l.length - 1];
+        if (!el.contains(document.activeElement)) { ev.preventDefault(); p.focus(); }
+        else if (ev.shiftKey && document.activeElement === p) { ev.preventDefault(); u.focus(); }
+        else if (!ev.shiftKey && document.activeElement === u) { ev.preventDefault(); p.focus(); }
+      }
+      document.addEventListener('keydown', teclas, true);
+      el.addEventListener('click', function (ev) {
+        if (ev.target.closest('[data-si]')) fin(true);
+        else if (ev.target.closest('[data-no]') || ev.target === el) fin(false);
+      });
+      setTimeout(function () { var b = el.querySelector('[data-si]'); if (b) b.focus({ preventScroll: true }); }, 30);
+    });
+  }
+
+  /* Felicitación: espera su turno en la cola y se muestra UNA vez por regalo (el servidor recuerda que ya se vio).
+     opc: { session, club, cola, ir(url) } → Promise<{ mostrado, como? }>. Nunca rechaza ni bloquea la página. */
+  function iniciarAviso(opc) {
+    var o = opc || {};
+    var club = o.club;
+    if (!club || typeof club.apiFetch !== 'function' || (o.session && o.session.role === 'admin')) return Promise.resolve({ mostrado: false });
+    return Promise.resolve().then(function () { return club.apiFetch('/api/creditos/estado'); }).then(function (estado) {
+      if (!hayAviso(estado)) return { mostrado: false };
+      return esperarTurno({ cola: o.cola, hayVentana: hayVentanaAbierta }).then(function (turno) {
+        if (!turno) return { mostrado: false };
+        var mostrar = function () {
+          return abrirTarjeta(estado).then(function (r) {
+            return Promise.resolve().then(function () { return club.apiFetch('/api/creditos/aviso-visto', { method: 'POST', body: {} }); }).catch(function () { /* se avisará otra vez */ }).then(function () {
+              if (r.como === 'canjear') { if (typeof o.ir === 'function') o.ir(RUTA_CANJEABLES); else if (typeof window !== 'undefined') window.location.href = RUTA_CANJEABLES; }
+              return r;
+            });
+          });
+        };
+        if (o.cola && typeof o.cola.encolar === 'function') {
+          return o.cola.encolar({ id: 'creditos-regalo', tipo: 'creditos', prioridad: PRIORIDAD, mostrar: mostrar }).then(function (res) { return { mostrado: res.estado === 'mostrado', como: res.resultado && res.resultado.como }; });
+        }
+        return mostrar().then(function (r) { return { mostrado: true, como: r.como }; });
+      });
+    }).catch(function () { return { mostrado: false }; });
+  }
+
+  return {
+    COSTO: COSTO, PRIORIDAD: PRIORIDAD, RUTA_CANJEABLES: RUTA_CANJEABLES, TEXTOS: TEXTOS,
+    esc: esc, fmt: fmt, hayAviso: hayAviso, tarjetaHTML: tarjetaHTML, colaLibre: colaLibre, esperarTurno: esperarTurno, estadoCanje: estadoCanje,
+    canjeHTML: canjeHTML, saldoHTML: saldoHTML, abrirTarjeta: abrirTarjeta, confirmarCanje: confirmarCanje, iniciarAviso: iniciarAviso, hayVentanaAbierta: hayVentanaAbierta
+  };
+});

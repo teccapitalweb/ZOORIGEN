@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="../assets/css/club-onboarding.css?v=20261128-arreglos">
   <link rel="stylesheet" href="../assets/css/club-prueba.css?v=20261116-tamanos">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261116-tamanos">
+  <link rel="stylesheet" href="../assets/css/club-creditos.css?v=20261203-creditos">
   <style>
     /* ═══════════════ NOTIFICACIONES ═══════════════ */
     .notif-icon {
@@ -465,7 +466,7 @@
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
   <script src="../assets/js/club-seccion.js?v=20261124-referencia"></script>
-  <script src="../assets/js/club-cola.js?v=20261104"></script>
+  <script src="../assets/js/club-cola.js?v=20261203-creditos"></script>
   <script src="../assets/js/club.js?v=20261129-acceso"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/club-progreso.js?v=20261129-calendario"></script>
@@ -482,6 +483,7 @@
   <script src="../assets/js/club-inicio.js?v=20261201-graficas"></script>
   <script src="../assets/js/club-premios.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261128-arreglos"></script>
+  <script src="../assets/js/club-creditos.js?v=20261203-creditos"></script>
   <script src="../assets/js/club-prueba-arte.js?v=20261201-graficas"></script>
   <script src="../assets/js/club-onboarding.js?v=20261124-referencia"></script>
   <script>
@@ -504,6 +506,10 @@
       // Secuencia de bienvenida (miembro nuevo) o prueba gratuita (miembro que vuelve). Nunca a admins.
       // No espera ni bloquea la página: si algo falla, el panel sigue igual.
       if (window.ZOO_ONBOARDING) { try { ZOO_ONBOARDING.iniciar({ session }); } catch (e) { console.warn('onboarding:', e); } }
+
+      // Créditos regalados por la administración: la tarjeta de felicitación espera a que terminen TODAS las demás ventanas de bienvenida
+      // y avisos (prioridad más baja de la cola) y se muestra una sola vez por regalo (el aviso pendiente vive en el servidor).
+      if (window.ZOO_CREDITOS) { try { ZOO_CREDITOS.iniciarAviso({ session, club: ZOORIGEN_CLUB, cola: window.ZOO_COLA || null }); } catch (e) { console.warn('creditos:', e); } }
 
       // Una sola cola de ventanas (club-cola.js): un solo overlay visible a la vez, por prioridad:
       // bienvenida -> nombre -> premio -> recorrido guiado -> prueba gratuita -> avisos del equipo -> paywall.

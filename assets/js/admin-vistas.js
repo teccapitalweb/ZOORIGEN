@@ -830,9 +830,7 @@
         '<button type="button" class="ap-btn ap-btn--suave" data-accion="limpiar-filtros">' + ico('x', { size: 16 }) + 'Limpiar</button></div>' +
         '<div id="apRHist"></div>', { nota: 'Cada vez que alguien supera un reto: quién, cuál, de qué tipo, cuándo (hora de México) y cuánto XP ganó.' }) +
       tarjeta('Totales por persona', '<div class="ap-controles"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar persona</span><input type="search" id="apRUQ" placeholder="Buscar por nombre" autocomplete="off" value="' + esc(rEst.uq) + '"></label></div><div id="apRUsuarios"></div>',
-        { nota: 'Retos superados y XP de cada persona, también de antes del historial detallado.', id: 'apRetosPersonas' }) +
-      tarjeta('Créditos por retos', '<div class="ap-reserva" id="apRetosCreditos">' + ico('wallet', { size: 22 }) + '<p>Aquí irá la tabla de miembros con sus créditos. Todavía no se define cómo se ganan ni en qué se canjean, así que por ahora no hay cifras.</p></div>',
-        { nota: 'Espacio reservado.', id: 'apRetosCreditosTarjeta' });
+        { nota: 'Retos superados y XP de cada persona, también de antes del historial detallado.', id: 'apRetosPersonas' });
     document.getElementById('apRTipo').value = rEst.tipo;
     pintarHistorialRetos();
     pintarUsuariosRetos();

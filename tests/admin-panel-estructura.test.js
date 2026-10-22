@@ -70,7 +70,7 @@ test('los endpoints que usa el panel son los del servidor (inventario)', () => {
 /* ───────── estructura ───────── */
 
 test('cada sección del panel tiene botón en la barra lateral con ícono y se dibuja desde renderSection', () => {
-  assert.equal(P.SECCIONES.length, 17);
+  assert.equal(P.SECCIONES.length, 18);
   // «Estado del sistema» ya no existe: vive dentro de Configuración (los enlaces viejos llevan allá)
   assert.equal(P.seccion('estado'), null);
   assert.equal(P.seccionDeHash('#/estado'), 'configuracion');
