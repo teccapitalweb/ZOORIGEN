@@ -120,7 +120,7 @@ test('pastilla «Tus créditos: N»: siempre visible, también con 0, con su ayu
   const p0 = C.pastillaHTML(0);
   assert.match(p0, /Tus créditos: <strong>0<\/strong>/);
   assert.match(p0, /data-zcr-ayuda aria-expanded="false" aria-controls="zcrAyuda"/);
-  assert.match(p0, /100 créditos = 1 material\. Canjea materiales marcados «Canjeable por 100 créditos»\./);
+  assert.match(p0, /100 créditos = 1 material\. Canjea los materiales que dicen «o canjéalo por 100 créditos»\. También se abren resolviendo retos \(con membresía\)\./);
   assert.match(p0, /id="zcrAyuda" role="note" hidden/);
   assert.doesNotMatch(p0, /Ver materiales canjeables/, 'con menos de 100 no hay botón');
   assert.doesNotMatch(C.pastillaHTML(99), /Ver materiales canjeables/);

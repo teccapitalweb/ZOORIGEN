@@ -441,18 +441,38 @@
     return FOTO_GENERAL;
   }
 
+  /* Lo que dice una tarjeta de material sobre cómo se abre (lo decide el servidor; aquí solo se dibuja):
+       · abierto: «Desbloqueado» (si se abrió con créditos, la pieza de créditos ya lo dice)
+       · sin membresía: «Solo miembros» y, si pide retos, «Con membresía se desbloquea con N retos»
+       · miembro con retos pendientes: «Se desbloquea con N retos», barra con lo avanzado y «Te faltan K retos»
+       · lo demás (sin retos): el texto de siempre. En todos los cerrados, la pieza de créditos dice «o canjéalo por 100 créditos». */
+  function retosTexto(n) { return n + (n === 1 ? ' reto' : ' retos'); }
+  function estadoMaterialHTML(m, o) {
+    var abierto = !!m.desbloqueado;
+    var req = entero(m.requiereRetos, 0), faltan = entero(m.faltan, req), hechos = Math.max(0, req - faltan);
+    if (abierto) return o && o.canje ? '' : '<span class="mt-doc__ok">' + ICO_OK + 'Desbloqueado</span>';
+    if (esVistaPrevia(m)) {
+      return '<div class="mt-previa">' + chipMiembrosHTML('Solo miembros') + '</div>' +
+        (req > 0 ? '<span class="mt-doc__regla">Con membresía se desbloquea con ' + retosTexto(req) + '</span>' : '');
+    }
+    if (req > 0) {
+      return '<span class="mt-doc__lock">' + CANDADO + 'Se desbloquea con ' + retosTexto(req) + '</span>' +
+        '<div class="mt-prog mt-prog--bloq" role="img" aria-label="' + hechos + ' de ' + req + ' retos"><i style="width:' + Math.min(100, Math.round(hechos * 100 / req)) + '%"></i></div>' +
+        '<span class="mt-doc__faltan">' + (faltan > 0 ? 'Te faltan ' + retosTexto(faltan) : 'Ya cumples los retos') + ' · ' + hechos + ' de ' + req + '</span>';
+    }
+    return '<span class="mt-doc__lock">' + CANDADO + esc(textoBloqueo(m)) + '</span>';
+  }
+
   function materialCardHTML(m, ctx) {
     ctx = ctx || {};
     var t = TIPOS[m.tipo] || { nombre: 'Material', color: '#2F7A4F' };
     var abierto = !!m.desbloqueado;
     var previa = !abierto && esVistaPrevia(m);
-    var req = entero(m.requiereRetos, 0), hechos = Math.max(0, req - entero(m.faltan, req));
-    var bloqueo = req > 0 ? condicionTexto(m) : textoBloqueo(m);
-    var etiq = abierto ? '' : (previa ? '<div class="mt-previa">' + chipMiembrosHTML('Solo miembros') + '</div>' : '<span class="mt-doc__lock">' + CANDADO + esc(bloqueo) + '</span>' +
-      (req > 0 ? '<div class="mt-prog mt-prog--bloq" role="img" aria-label="' + hechos + ' de ' + req + ' retos"><i style="width:' + Math.min(100, Math.round(hechos * 100 / req)) + '%"></i></div>' : ''));
+    var req = entero(m.requiereRetos, 0), faltan = entero(m.faltan, req), hechos = Math.max(0, req - faltan);
+    var etiq = estadoMaterialHTML(m, { canje: !!ctx.canje });
     var pags = cantidadTexto(m);
     var fm = formatoDe(m), F = FORMATOS[fm], detalle = detalleArchivoTexto(m);
-    var sub = fm === 'excel' ? 'Hoja de cálculo editable' : (fm === 'powerpoint' ? 'Presentación editable' : (m.tipo === 'presentacion' ? 'Presentación' : 'Material de apoyo'));
+    var sub =fm === 'excel' ? 'Hoja de cálculo editable' : (fm === 'powerpoint' ? 'Presentación editable' : (m.tipo === 'presentacion' ? 'Presentación' : 'Material de apoyo'));
     return '<article class="mt-doc mt-doc--' + fm + (abierto ? '' : (previa ? ' is-previa' : ' is-bloq')) + '" data-doc="' + esc(m.id) + '" data-formato="' + fm + '" tabindex="0" role="button" aria-label="' + esc(m.titulo) + ' (' + esc(F.nombre) + ')' + (abierto ? '' : (previa ? ' (solo miembros)' : ' (bloqueado)')) + '">' +
       '<div class="mt-doc__portada" style="--mt-c:' + esc(t.color) + '"><img class="mt-doc__foto" src="' + esc(fotoDeMaterial(m)) + '"' + respaldoAttr(m.id) + ' alt="" width="300" height="411" loading="lazy" decoding="async">' +
         '<span class="mt-doc__marca">ZOO<b>RIGEN</b></span><span class="mt-doc__pdf mt-doc__fmt mt-doc__fmt--' + fm + '">' + icoFormato(fm, 13) + esc(F.nombre) + '</span>' + pinHTML('doc:' + m.id, !!ctx.guardado) +
@@ -576,6 +596,30 @@
       '<h3>' + esc(p.titulo || '') + '</h3><div class="rdr-texto">' + parrafos + lista + '</div></div>';
   }
 
+  /* Escalera: de lo que se abre solo con la membresía, a lo que pide más retos (3, 6, 9...). Estable: no cambia el orden entre iguales. */
+  function ordenarEscalera(lista) {
+    return (Array.isArray(lista) ? lista : []).map(function (m, i) { return { m: m, i: i, k: m && entero(m.requiereRetos, 0) }; })
+      .sort(function (a, b) { return (a.k - b.k) || (a.i - b.i); }).map(function (x) { return x.m; });
+  }
+  /* Disponibles (ya se abren) / Por desbloquear / Todos */
+  var FILTROS_DISPONIBILIDAD = [['todos', 'Todos'], ['disponibles', 'Disponibles'], ['por-desbloquear', 'Por desbloquear']];
+  function filtrarDisponibilidad(lista, modo) {
+    var l = Array.isArray(lista) ? lista : [];
+    if (modo === 'disponibles') return l.filter(function (m) { return m && m.desbloqueado; });
+    if (modo === 'por-desbloquear') return l.filter(function (m) { return m && !m.desbloqueado; });
+    return l;
+  }
+  function disponibilidadHTML(items, activo) {
+    var l = (Array.isArray(items) ? items : []).filter(Boolean);
+    var cuenta = { todos: l.length, disponibles: l.filter(function (m) { return m.desbloqueado; }).length };
+    cuenta['por-desbloquear'] = cuenta.todos - cuenta.disponibles;
+    var act = FILTROS_DISPONIBILIDAD.some(function (f) { return f[0] === activo; }) ? activo : 'todos';
+    return '<div class="mt-formatos mt-disp" role="group" aria-label="Filtrar por disponibilidad">' + FILTROS_DISPONIBILIDAD.map(function (f) {
+      var on = act === f[0];
+      return '<button type="button" class="mt-fmt' + (on ? ' is-active' : '') + '" data-disp-filtro="' + f[0] + '" aria-pressed="' + (on ? 'true' : 'false') + '"><span>' + esc(f[1]) + '</span><b>' + cuenta[f[0]] + '</b></button>';
+    }).join('') + '</div>';
+  }
+
   /* Filtro por formato (Todos, PDF, Excel, PowerPoint) con cuántos materiales hay de cada uno */
   function formatosHTML(lista, activo) {
     var cuenta = { todos: 0, pdf: 0, excel: 0, powerpoint: 0 };
@@ -595,6 +639,7 @@
     vistaPaginas: vistaPaginas, libroCardHTML: libroCardHTML, libroDestacadoHTML: libroDestacadoHTML, bannerRetosHTML: bannerRetosHTML,
     materialCardHTML: materialCardHTML, oficialesHTML: oficialesHTML, paginaHTML: paginaHTML,
     condicionTexto: condicionTexto, reglaTexto: reglaTexto, textoAbierto: textoAbierto, filaMaterialHTML: filaMaterialHTML, agruparPorCurso: agruparPorCurso,
+    estadoMaterialHTML: estadoMaterialHTML, ordenarEscalera: ordenarEscalera, filtrarDisponibilidad: filtrarDisponibilidad, disponibilidadHTML: disponibilidadHTML, FILTROS_DISPONIBILIDAD: FILTROS_DISPONIBILIDAD,
     formatosHTML: formatosHTML, FORMATOS: FORMATOS, FILTROS_FORMATO: FILTROS_FORMATO, formatoDe: formatoDe, esDescarga: esDescarga, cantidadTexto: cantidadTexto, tamanoTexto: tamanoTexto, fechaTexto: fechaTexto,
     detalleArchivoTexto: detalleArchivoTexto, botonDescargarHTML: botonDescargarHTML, icoFormato: icoFormato, esPresentacion: esPresentacion,
     seccionCursosHTML: seccionCursosHTML, seccionDetalleCursoHTML: seccionDetalleCursoHTML, esDeCurso: esDeCurso,
@@ -692,10 +737,10 @@
     var sesion = o.sesion, club = o.club, cont = o.contenedor;
     var uid = sesion.uid;
     var alm = (function () { try { return window.localStorage; } catch (e) { return null; } })() || { getItem: function () { return null; }, setItem: function () {} };
-    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', formato: 'todos', ayuda: false, drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
+    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', formato: 'todos', disp: 'todos', ayuda: false, drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
       soloCanjeables: !!o.soloCanjeables || (typeof location !== 'undefined' && /[?&]canjeables=1(?:&|#|$)/.test(String(location.search || ''))) };
     var CR = function () { return (typeof window !== 'undefined' && window.ZOO_CREDITOS) ? window.ZOO_CREDITOS : null; };
-    var canjeDe = function (tipo, id) { var c = estado.creditos, m = CR(); return c && m ? m.canjeHTML(c.porClave[tipo + ':' + id], c.saldo, c.costo) : ''; };
+    var canjeDe = function (tipo, id) { var c = estado.creditos, m = CR(); return c && m ? m.canjeHTML(c.porClave[tipo + ':' + id], c.saldo, c.costo, { alternativa: true }) : ''; };
     var esCanjeable = function (tipo, id) { return !!(estado.creditos && estado.creditos.porClave[tipo + ':' + id]); };
     var hrefPlanes = o.hrefPlanes || RUTA_PLANES;
     var PW = function () { return (typeof window !== 'undefined' && window.ZOO_PAYWALL && typeof window.ZOO_PAYWALL === 'object') ? window.ZOO_PAYWALL : null; };
@@ -712,16 +757,17 @@
 
     function pintar() {
       var g = guardados(), p = estado.pestana, q = estado.texto;
-      var libros = filtrarLibros(estado.libros, { pestana: p, texto: q, guardados: g });
+      var libros = filtrarDisponibilidad(filtrarLibros(estado.libros, { pestana: p, texto: q, guardados: g }), estado.disp);
       /* Los materiales ligados a un curso van en su propio bloque ("De tus cursos"); aquí, los sueltos. Los PDF de Drive del panel
          (estado.drive) vienen del servidor SIN enlace: el enlace se pide al abrir. */
       var fmtFiltro = FORMATOS[estado.formato] ? estado.formato : '';
-      var docs = filtrarMateriales(estado.materiales.filter(function (m) { return !esDeCurso(m); }), { pestana: p, texto: q, guardados: g, formato: fmtFiltro });
+      var docs = ordenarEscalera(filtrarDisponibilidad(filtrarMateriales(estado.materiales.filter(function (m) { return !esDeCurso(m); }), { pestana: p, texto: q, guardados: g, formato: fmtFiltro }), estado.disp));
       var nq = normalizar(q);
       var coincide = function (m) { return !nq || normalizar([m.titulo, m.area, m.cursoTitulo].join(' ')).indexOf(nq) !== -1; };
       var deCurso = estado.materiales.filter(esDeCurso).concat(estado.drive.filter(esDeCurso)).filter(function (m) { return !fmtFiltro || formatoDe(m) === fmtFiltro; });
       var gruposCurso = agruparPorCurso(deCurso.filter(coincide));
       var sueltosDrive = estado.drive.filter(function (m) { return !esDeCurso(m); }).filter(coincide).filter(function () { return !fmtFiltro || fmtFiltro === 'pdf'; });
+      sueltosDrive = filtrarDisponibilidad(sueltosDrive, estado.disp);
       /* ?canjeables=1: SOLO lo que se puede canjear con créditos (nada de cursos, oficiales ni lo que ya abre por membresía o retos) */
       var soloCj = !!estado.soloCanjeables;
       if (soloCj) {
@@ -766,6 +812,7 @@
         '<div class="mt-buscar"><input type="search" id="mtBuscar" placeholder="Buscar…" value="' + esc(q) + '" aria-label="Buscar"></div></div>';
 
       html += formatosHTML(estado.materiales.filter(function (m) { return !esDeCurso(m); }), estado.formato);
+      html += disponibilidadHTML(estado.libros.concat(estado.materiales.filter(function (m) { return !esDeCurso(m); })), estado.disp);
 
       if (estado.errorServidor && (verLibros || verDocs)) {
         html += '<div class="mt-aviso">' + esc(estado.errorServidor) + ' <button type="button" class="mt-link" id="mtReintentar">Reintentar</button></div>';
@@ -1027,6 +1074,8 @@
       if (estado.ayuda && !(t.closest && t.closest('#zcrPastilla'))) { estado.ayuda = false; pintar(); }
       var desc = t.closest && t.closest('[data-descargar]');
       if (desc) { e.stopPropagation(); e.preventDefault(); descargarDoc(desc.getAttribute('data-descargar')); return; }
+      var fd = t.closest && t.closest('[data-disp-filtro]');
+      if (fd) { estado.disp = fd.getAttribute('data-disp-filtro'); pintar(); return; }
       var ff = t.closest && t.closest('[data-formato-filtro]');
       if (ff) { estado.formato = ff.getAttribute('data-formato-filtro'); pintar(); return; }
       var tab = t.closest && t.closest('[data-pestana]');

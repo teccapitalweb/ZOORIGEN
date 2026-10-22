@@ -294,3 +294,12 @@ body.mt-noscroll { overflow: hidden; }
   .mt-formatos::-webkit-scrollbar { display: none; }
   .mt-fmt { flex-shrink: 0; }
 }
+
+/* ───── Cómo se abre cada material: retos con barra, Desbloqueado y filtro Disponibles / Por desbloquear ───── */
+.mt-doc__ok { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 4px 10px; border-radius: 999px; background: #E6F1E9; border: 1px solid #BCD8C4; color: #1F6A41; font: 700 .78rem/1.3 var(--zoo-font-body); }
+[data-theme="dark"] .mt-doc__ok { background: #17261D; border-color: #2F5A40; color: #7FD08A; }
+.mt-doc__faltan { font: 600 .8rem/1.3 var(--zoo-font-body); color: var(--zoo-text-muted, #52606D); }
+.mt-doc__regla { font: 600 .8rem/1.35 var(--zoo-font-body); color: var(--zoo-text-muted, #52606D); }
+.mt-disp { margin-top: -10px; }
+.mt-doc .mt-prog--bloq { height: 8px; margin-top: 6px; background: color-mix(in srgb, var(--zoo-text, #1f1d17) 16%, transparent); }
+.mt-doc .mt-prog--bloq i { background: var(--zoo-fill, #2A7A4E); }

@@ -34,6 +34,8 @@
     entendido: 'Entendido',
     canjear: 'Canjear',
     insignia: function (costo) { return 'Canjeable por ' + fmt(costo) + ' créditos'; },
+    // Cuando el material también se abre por otra vía (retos o membresía): «o canjéalo por 100 créditos»
+    alternativa: function (costo) { return 'o canjéalo por ' + fmt(costo) + ' créditos'; },
     desbloqueado: 'Desbloqueado',
     faltan: 'Te faltan créditos',
     saldo: function (n) { return 'Tienes ' + fmt(n) + (n === 1 ? ' crédito' : ' créditos'); },
@@ -114,15 +116,16 @@
   }
 
   // Insignia y botón que se suman a una tarjeta de material canjeable. clave = «libro:id», «pdf:id» o «drive:id»
-  function canjeHTML(item, saldo, costo) {
+  // opc.alternativa: el material también se abre con retos o con membresía; el texto dice «o canjéalo por 100 créditos»
+  function canjeHTML(item, saldo, costo, opc) {
     var e = estadoCanje(item, saldo, costo);
     if (!e.visible) return '';
     if (e.desbloqueado) return '<div class="zcr-canje"><span class="zcr-ins zcr-ins--ok">' + icono('circle-check', 14) + '<span>' + esc(TEXTOS.desbloqueado) + '</span></span></div>';
-    return '<div class="zcr-canje"><span class="zcr-ins">' + icono('wallet', 14) + '<span>' + esc(TEXTOS.insignia(item.costo || costo || COSTO)) + '</span></span>' +
+    return '<div class="zcr-canje"><span class="zcr-ins">' + icono('wallet', 14) + '<span>' + esc(opc && opc.alternativa ? TEXTOS.alternativa(item.costo || costo || COSTO) : TEXTOS.insignia(item.costo || costo || COSTO)) + '</span></span>' +
       '<button type="button" class="zcr-btn' + (e.puede ? '' : ' is-falta') + '" data-canjear="' + esc(item.clave) + '"' + (e.puede ? '' : ' aria-disabled="true" title="Necesitas ' + fmt(item.costo || costo || COSTO) + ' créditos"') + '>' + esc(e.rotulo) + '</button></div>';
   }
 
-  var AYUDA = '100 créditos = 1 material. Canjea materiales marcados «Canjeable por 100 créditos».';
+  var AYUDA = '100 créditos = 1 material. Canjea los materiales que dicen «o canjéalo por 100 créditos». También se abren resolviendo retos (con membresía).';
 
   /* Pastilla «Tus créditos: N», siempre visible en «PDFs y materiales» (también con 0). Al pulsarla muestra la ayuda; con 100 o más
      ofrece «Ver materiales canjeables». opc: { soloCanjeables, ayudaAbierta, reserva } — reserva dibuja solo el espacio (mientras carga). */

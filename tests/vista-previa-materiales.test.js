@@ -53,7 +53,8 @@ test('tarjeta de material en vista previa: portada, tipo, área, chip y guardar'
   assert.match(html, /data-guardar="doc:intro-nom-059"/);
   assert.match(html, /data-doc="intro-nom-059"/);
   const conRetos = M.materialCardHTML(material('x', { soloMiembros: false, acceso: 'retos', requiereRetos: 5, faltan: 2 }), {});
-  assert.match(conRetos, /Resuelve 5 retos para abrirlo/, 'la condición se dice completa: cuántos retos hay que resolver');
+  assert.match(conRetos, /Se desbloquea con 5 retos/, 'la condición se dice completa: con cuántos retos se desbloquea');
+  assert.match(conRetos, /Te faltan 2 retos/);
   assert.match(conRetos, /mt-prog--bloq[^>]*aria-label="3 de 5 retos"/, 'con su avance');
   assert.doesNotMatch(conRetos, /pw-chip/);
 });
