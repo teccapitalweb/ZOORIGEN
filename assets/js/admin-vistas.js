@@ -2,7 +2,7 @@
 /* PANEL DE ADMINISTRACIÓN · VISTAS                              */
 /* Dibuja las secciones nuevas (Resumen, Miembros, Suscripciones,*/
 /* Retos, Foro y directorio, Referidos,                         */
-/* Configuración y Estado) con los datos que entrega el          */
+/* Configuración) con los datos que entrega el                   */
 /* servidor (GET /api/admin/*). Nunca lee Firestore directo y    */
 /* nunca inventa cifras: sin datos, muestra un vacío amable.     */
 /* Todo texto que viene del servidor pasa por esc().             */
@@ -14,7 +14,7 @@
   var I = root.ZOO_ICONOS;
   var F = root.ZOO_ADMIN_FILAS;
   var G = root.ZOO_ADMIN_GRAFICAS;
-  var C = root.ZOO_ADMIN_CONFIG;
+  var S = root.ZOO_ADMIN_SERVIDOR;
   var esc = P.esc;
   var ico = function (n, o) { return I && I.svg ? I.svg(n, o) : ''; };
 
@@ -230,6 +230,13 @@
       }).join('') + '</ol>'
       : vacio('Sin actividad reciente', 'Los registros, pagos y certificados nuevos aparecerán aquí.', 'activity');
 
+    var lAcc = Array.isArray(r.accionesEquipo) ? r.accionesEquipo : [];
+    var accionesEquipo = lAcc.length
+      ? '<ol class="ap-linea-tiempo">' + lAcc.map(function (a) {
+        return '<li><span class="ap-linea-tiempo__ico">' + ico('shield-check', { size: 16 }) + '</span><div><p>' + esc(a.resumen || a.accion) + '</p><time datetime="' + esc(a.en || '') + '">' + esc(P.fmtFecha(a.en)) + ' · ' + esc(P.relativo(a.en)) + '</time></div></li>';
+      }).join('') + '</ol>'
+      : vacio('Sin acciones del equipo todavía', 'Activar o cancelar una membresía, o guardar un ajuste, queda anotado aquí.', 'shield-check');
+
     vista().innerHTML = titulo + tarjetas +
       (r.truncado ? '<div class="ap-aviso ap-aviso--info" role="note">' + ico('info', { size: 20 }) + '<div><p>Hay más de 5,000 cuentas: las cifras usan las primeras 5,000.</p></div></div>' : '') +
       '<div class="ap-columnas">' +
@@ -238,7 +245,8 @@
       '</div><div class="ap-columnas">' +
       tarjeta('Estado de las cuentas', estados, { nota: 'Cómo se reparten hoy los ' + P.fmtNum(k.miembros) + ' miembros.' }) +
       tarjeta('Próximos vencimientos', venc, { nota: 'Quienes vencen en los próximos 7 días.' }) +
-      '</div>' + tarjeta('Actividad reciente', act, { nota: 'Registros, pagos, certificados y acciones del equipo.' });
+      '</div>' + tarjeta('Actividad reciente', act, { nota: 'Registros, pagos, certificados y acciones del equipo.' }) +
+      tarjeta('Acciones del equipo', accionesEquipo, { nota: 'Lo último que se hizo desde este panel: activar o cancelar membresías, guardar ajustes y más.' });
     G.activar(vista());
     vista().onclick = function (e) {
       acciones(e, {
@@ -324,7 +332,7 @@
         { valor: P.fmtNum(conteo.activo + conteo['cancelado-vigente']), rotulo: 'con acceso hoy' },
         { valor: P.fmtNum(conteo['pago-pendiente'] + conteo.vencido), rotulo: 'vencidos o con pago pendiente' }
       ],
-      acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }, { id: 'eliminados', texto: 'Eliminados', icono: 'archive-restore' }]
+      acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }, { id: 'csv-miembros', texto: 'Descargar lista (CSV)', icono: 'download' }, { id: 'eliminados', texto: 'Eliminados', icono: 'archive-restore' }]
     }) +
       '<div class="ap-controles"><div class="zs-chips" id="apMiembrosChips" role="group" aria-label="Filtrar por estado del plan"></div>' +
       '<div class="ap-controles__der"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por nombre o correo</span>' +
@@ -347,7 +355,15 @@
         cancelar: function (b) { abrirCancelar(b.dataset.uid); },
         regalar: function (b) { abrirRegalar(b.dataset.uid); },
         eliminar: function (b) { abrirEliminar(b.dataset.uid); },
-        eliminados: function () { abrirEliminados(); }
+        eliminados: function () { abrirEliminados(); },
+        'csv-miembros': function () {
+          var blob = new Blob(['\uFEFF' + S.csvMiembros(estado.miembros.miembros)], { type: 'text/csv;charset=utf-8' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob); a.download = 'miembros-zoorigen-' + new Date().toISOString().slice(0, 10) + '.csv';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+          ctx.toast('Lista de miembros descargada. Guárdala en un lugar privado: lleva correos.');
+        }
       });
     };
   }
@@ -1152,240 +1168,140 @@
     vista().onclick = function (e) { acciones(e, { recargar: function () { referidos(true); } }); };
   }
 
-  /* ───────── CONFIGURACIÓN ───────── */
-  // Interruptores guardados por el servidor (GET y POST /api/admin/config). Nada de claves ni secretos: solo ajustes seguros.
-  var PARRAFO_PRIVACIDAD = 'Contador de visitas. Para saber cuántas personas visitan nuestro sitio, contamos de forma agregada las visitas a cada página por día. ' +
-    'Este conteo no usa cookies, no guarda tu dirección IP, no te identifica ni te sigue entre sitios y no se comparte con terceros. ' +
-    'Si tu navegador envía la señal «No rastrear» o «Control global de privacidad», no contamos tu visita. Solo se guarda un número por página y por día.';
+  /* ───────── CONFIGURACIÓN ─────────
+     Cuatro tarjetas, en este orden: Precios de la membresía VIP (solo lectura), Contacto, Estado de servicios e Historial del servidor.
+     Las piezas de cada tarjeta están en admin-servidor.js (se prueban en Node). Aquí solo se leen los endpoints y se conectan los botones. */
+  var cfg = { datos: null, modo: 'problemas', dias: 30 };
 
-  function filaInterruptor(o) {
-    return '<li><div class="ap-interruptores__t"><strong>' + esc(o.titulo) + '</strong><span>' + o.texto + '</span></div>' + o.control + '</li>';
-  }
-
-  function controlSi(accion, activo, etiqueta) {
-    return '<button type="button" class="ap-interruptor" role="switch" aria-checked="' + (activo ? 'true' : 'false') + '" aria-label="' + esc(etiqueta) + '" data-accion="' + accion + '"></button>';
-  }
+  function leerSuave(ruta) { return ctx.api(ruta).then(function (r) { return r; }, function (e) { return { __error: e }; }); }
+  function sinError(r) { return r && !r.__error ? r : null; }
 
   async function configuracion() {
     var mi = ++contador;
-    var enVivoSitio = !!(root.ZOO_CONFIG && root.ZOO_CONFIG.enVivoPronto && root.ZOO_CONFIG.enVivoPronto());
     vista().innerHTML = cargando('Configuración');
-    var cfg; var est = null; var cal = null; var mie = null;
-    try {
-      var par = await Promise.all([ctx.api('/api/admin/config'), ctx.api('/api/admin/estado').catch(function () { return null; }), ctx.api('/api/admin/calendario').catch(function () { return null; }), ctx.api('/api/admin/miembros').catch(function () { return null; })]);
-      cfg = par[0]; est = par[1]; cal = par[2]; mie = par[3];
-    } catch (e) {
-      if (mi !== contador) return;
-      vista().innerHTML = errorHTML('Configuración', e, 'recargar');
+    var r = await Promise.all([leerSuave('/api/admin/precios'), leerSuave('/api/admin/contacto'), leerSuave('/api/admin/servicios'), leerSuave('/api/admin/servidor/historial?dias=' + cfg.dias)]);
+    if (mi !== contador) return;
+    if (r.every(function (x) { return x.__error; })) {
+      vista().innerHTML = errorHTML('Configuración', r[0].__error, 'recargar');
       vista().onclick = function (ev) { acciones(ev, { recargar: function () { configuracion(); } }); };
       return;
     }
-    if (mi !== contador) return;
-    var c = cfg.config;
-    var admins = cfg.administradores;
-    var visitasTexto = (c.contadorVisitas ? 'Encendido. ' : 'Apagado. ') + 'Solo suma cuántas visitas hubo por día y por página: sin cookies, sin dirección IP y sin identificar a nadie. ' +
-      (c.contadorVisitas ? P.fmtNum(cfg.visitas.ultimos7Dias) + ' visitas en los últimos 7 días. ' : '') +
-      'Antes de encenderlo, agrega un párrafo al aviso de privacidad. Ojo: el sitio todavía no envía las visitas al servidor, así que por ahora el conteo seguiría en cero.';
-    var vivoValor = c.clasesEnVivoPronto === null ? 'auto' : (c.clasesEnVivoPronto ? 'si' : 'no');
-    var interruptores = '<ul class="ap-interruptores">' +
-      filaInterruptor({ titulo: 'Contador de visitas de la portada', texto: esc(visitasTexto) + ' <button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="parrafo">' + ico('file-text', { size: 16 }) + 'Ver el párrafo para el aviso de privacidad</button>',
-        control: controlSi('visitas', c.contadorVisitas, 'Contador de visitas') }) +
-      filaInterruptor({ titulo: 'Clases en vivo (webinars)', texto: 'Hoy el sitio decide con <code>club-config.js</code>: ' + (enVivoSitio ? 'muestra «Próximamente»' : 'las muestra activas') + '. Aquí puedes dejar guardado un valor en el servidor; el Club empezará a leerlo cuando se publique ese cambio del sitio.',
-        control: '<div class="ap-selector"><label class="sr-only" for="apVivo">Clases en vivo</label><select id="apVivo" data-accion-cambio="vivo"><option value="auto"' + (vivoValor === 'auto' ? ' selected' : '') + '>Que decida el sitio</option><option value="si"' + (vivoValor === 'si' ? ' selected' : '') + '>Mostrar Próximamente</option><option value="no"' + (vivoValor === 'no' ? ' selected' : '') + '>Mostrar activas</option></select></div>' }) +
-      '</ul>';
+    cfg.datos = { precios: sinError(r[0]), contacto: sinError(r[1]), servicios: sinError(r[2]), historial: sinError(r[3]) };
+    pintarConfiguracion();
+  }
 
-    var aviso = c.avisoGlobal;
-    var avisoCard = '<div class="ap-campo"><label for="apAvisoTexto">Texto del aviso <small>(hasta 240 letras)</small></label><textarea id="apAvisoTexto" maxlength="240" placeholder="Por ejemplo: Esta noche habrá mantenimiento de 11 a 12.">' + esc(aviso.texto) + '</textarea></div>' +
-      '<div class="ap-campo ap-selector"><label for="apAvisoTono">Tono</label><select id="apAvisoTono"><option value="info"' + (aviso.tono === 'info' ? ' selected' : '') + '>Informativo</option><option value="aviso"' + (aviso.tono === 'aviso' ? ' selected' : '') + '>Importante</option></select></div>' +
-      '<label class="ap-casilla"><input type="checkbox" id="apAvisoActivo"' + (aviso.activo ? ' checked' : '') + '><span>Mostrar el aviso a todo el Club</span></label>' +
-      '<p class="ap-error" id="apAvisoError" role="alert" hidden></p>' +
-      '<div class="ap-acciones-lote"><button type="button" class="ap-btn ap-btn--primario" data-accion="guardar-aviso">' + ico('check', { size: 16 }) + 'Guardar aviso</button>' +
-      '<span class="ap-badge ap-badge--info">' + ico('info', { size: 14 }) + '<span>El Club aún no lo muestra</span></span></div>' +
-      '<p class="ap-nota">El servidor ya lo guarda y lo entrega en <code>GET /api/config-publica</code>. Falta que el Club lo consulte al abrir para pintarlo; hasta entonces, guardar el aviso no cambia lo que ven los miembros.</p>';
+  function reemplazarTarjeta(id, html) {
+    var el = document.getElementById(id);
+    if (el) el.outerHTML = html;
+  }
 
-    var lista = function (arr, vacioT) {
-      return arr.length ? F.lista(arr) : '<p class="ap-nada">' + esc(vacioT) + '</p>';
-    };
-    var tileAdmin = '<span class="ap-ico-tile" aria-hidden="true">' + ico('shield-check', { size: 18 }) + '</span>';
-    var porCorreo = lista(admins.porCorreo.map(function (a) { return F.fila({ clase: 'ap-fc--meta2', avatar: tileAdmin, titulo: a, meta: 'Correo de ADMIN_EMAILS (parcialmente oculto)' }); }), 'No hay correos en ADMIN_EMAILS: solo funcionan las cuentas con la marca de administrador.');
-    var porDoc = lista(admins.porDocumento.map(function (a) { return F.fila({ clase: 'ap-fc--meta2', avatar: tileAdmin, titulo: a.nombre, meta: esc(a.correo || 'Sin correo') + ' · Marca de administrador en su ficha' }); }), 'Ninguna cuenta tiene la marca de administrador en su ficha.');
-
-    var listaServicios = C.servicios(est, cal);
-
+  function pintarConfiguracion() {
+    var d = cfg.datos;
+    var sv = d.servicios && d.servicios.comprobaciones ? d.servicios.comprobaciones : [];
+    var h = d.historial && d.historial.resumen;
     vista().innerHTML = P.tarjetaTitulo({
       icono: 'settings', eyebrow: 'Panel de administración', titulo: 'Ajustes', acento: 'del sitio.',
-      sub: 'Estado de los servicios, interruptores que guarda el servidor, el calendario de cursos, quién administra y las copias de seguridad. Lo que implica claves, precios o textos públicos del sitio no se edita desde aquí.',
-      cifras: listaServicios.length ? [
-        { valor: listaServicios.filter(function (x) { return x.nivel === 'ok'; }).length + ' de ' + listaServicios.length, rotulo: 'servicios en orden' },
-        { valor: P.fmtNum(admins.porCorreo.length + admins.porDocumento.length), rotulo: 'administran el panel' }
-      ] : [],
-      acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }]
-    }) +
-      tarjeta('Estado de los servicios', C.semaforoHTML(listaServicios) +
-        (listaServicios.length ? '<div class="ap-acciones-lote"><button type="button" class="ap-btn ap-btn--suave" data-accion="recargar">' + ico('refresh-cw', { size: 16 }) + 'Revisar ahora</button>' +
-          '<button type="button" class="ap-btn ap-btn--suave" data-accion="copiar-reporte">' + ico('copy', { size: 16 }) + 'Copiar reporte</button>' +
-          '<a class="ap-btn ap-btn--suave" href="#/estado">' + ico('activity', { size: 16 }) + 'Ver el estado del sistema</a></div>' +
-          '<p class="ap-nota">Solo se ve el nombre de cada variable y si está definida; los valores nunca salen del servidor. El reporte se puede pegar en un mensaje para pedir ayuda.</p>' : ''),
-        { nota: 'Semáforo de lo que revisa «Estado del sistema». Revisar no cobra ni envía nada.' }) +
-      tarjeta('Interruptores', interruptores, { nota: 'Los cambios se guardan al instante y quedan anotados en la bitácora de acciones.' }) +
-      '<div class="ap-columnas">' +
-      tarjeta('Aviso para todo el Club', avisoCard, { nota: 'Un mensaje corto, por ejemplo de mantenimiento.' }) +
-      tarjeta('Calendario de cursos del servidor', C.calendarioHTML(cal), { nota: 'Solo lectura: así abre el servidor los cursos de cada miembro.' }) +
-      '</div><div class="ap-columnas">' +
-      tarjeta('Quién administra', '<h3 class="ap-subtitulo">Por correo</h3>' + porCorreo + '<h3 class="ap-subtitulo">Por marca en su ficha</h3>' + porDoc +
-        '<p class="ap-nota">Los correos se definen en la variable <code>ADMIN_EMAILS</code> del servidor (Railway). El panel no puede cambiarlos: por seguridad, solo el equipo técnico lo hace.</p>', { nota: 'Cuentas con acceso a este panel.' }) +
-      tarjeta('Versiones', C.versionesHTML(est, versionDelPanel()), { nota: 'Para saber exactamente qué está publicado.' }) +
-      '</div><div class="ap-columnas">' +
-      tarjeta('Enlaces útiles', C.enlacesHTML(), { nota: 'Atajos a los servicios que usa el Club. Se abren en otra pestaña.' }) +
-      tarjeta('Exportar datos', C.exportacionesHTML(mie && mie.miembros ? mie.miembros.length : 0), { nota: 'Copias en CSV de lo que ya ves en el panel.' }) +
-      '</div>' +
-      tarjeta('Respaldo recomendado', C.respaldoHTML(), { nota: 'Qué guardar y dónde vive cada cosa. Este panel no hace copias por sí solo.' }) +
-      tarjeta('Qué no se cambia desde aquí', F.lista([
-        ['Precios de la membresía', 'Se definen en Stripe y en las variables STRIPE_PRICE_MENSUAL y STRIPE_PRICE_ANUAL del servidor. Cambiarlos desde el panel implicaría tocar los cobros, y por seguridad no se hace.'],
-        ['WhatsApp, Instagram y correo de contacto', 'Están escritos en las páginas del sitio; cambiarlos requiere publicar el sitio.'],
-        ['Claves de Stripe, Bunny, correo y certificados', 'Son secretos: solo se guardan en Railway y nunca aparecen en el panel.']
-      ].map(function (x) { return F.fila({ clase: 'ap-fc--meta2', avatar: '<span class="ap-ico-tile ap-tono-neutro" aria-hidden="true">' + ico('lock', { size: 18 }) + '</span>', titulo: x[0], meta: x[1] }); })));
+      sub: 'Los precios que se cobran, el contacto que ve el Club, el estado de los servicios y el historial del servidor.',
+      cifras: [
+        sv.length ? { valor: sv.filter(function (x) { return x.nivel === 'ok'; }).length + ' de ' + sv.length, rotulo: 'servicios en orden' } : null,
+        h ? { valor: P.fmtNum(h.caidas), rotulo: 'caídas en ' + d.historial.dias + ' días' } : null
+      ].filter(Boolean),
+      acciones: [{ id: 'recargar', texto: 'Actualizar todo', icono: 'refresh-cw' }]
+    }) + S.tarjetasHTML(d, { modo: cfg.modo });
+    var v = vista();
 
-    var guardar = async function (cuerpo, okTexto, boton) {
-      if (boton) boton.disabled = true;
+    var copiar = async function (texto, ok) {
+      try { await navigator.clipboard.writeText(texto); ctx.toast(ok); } catch (e) { ctx.toast('No se pudo copiar el reporte.', true); }
+    };
+    var ocupado = function (b, si, texto) {
+      if (!b) return;
+      b.disabled = si;
+      if (texto) b.lastChild.textContent = texto;
+    };
+    var recargarServicios = async function (b) {
+      ocupado(b, true, 'Revisando…');
+      var r = await leerSuave('/api/admin/servicios');
+      if (sinError(r)) { cfg.datos.servicios = r; ctx.toast('Estado revisado.'); } else ctx.toast((r.__error && r.__error.message) || 'No se pudo revisar el estado.', true);
+      reemplazarTarjeta('apCfgServicios', S.tarjetaServicios(cfg.datos.servicios));
+    };
+    var recargarHistorial = async function (b) {
+      ocupado(b, true, 'Actualizando…');
+      var r = await leerSuave('/api/admin/servidor/historial?dias=' + cfg.dias);
+      if (sinError(r)) cfg.datos.historial = r; else ctx.toast((r.__error && r.__error.message) || 'No se pudo leer el historial.', true);
+      reemplazarTarjeta('apCfgHistorial', S.tarjetaHistorial(cfg.datos.historial, { modo: cfg.modo }));
+    };
+    var guardarContacto = async function (cuerpo, okTexto) {
+      var err = document.getElementById('apContactoError');
+      if (err) err.hidden = true;
+      var botones = v.querySelectorAll('#apCfgContacto button'); botones.forEach(function (x) { x.disabled = true; });
       try {
-        await ctx.api('/api/admin/config', { method: 'POST', body: cuerpo });
+        var r = await ctx.api('/api/admin/contacto', { method: 'POST', body: cuerpo });
+        cfg.datos.contacto = { contacto: r.contacto, porDefecto: cfg.datos.contacto ? cfg.datos.contacto.porDefecto : null };
+        reemplazarTarjeta('apCfgContacto', S.tarjetaContacto(cfg.datos.contacto));
         ctx.toast(okTexto);
-        await configuracion();
       } catch (e) {
-        ctx.toast(e.message || 'No se pudo guardar.', true);
-        if (boton) boton.disabled = false;
+        botones.forEach(function (x) { x.disabled = false; });
+        if (err) { err.textContent = (e && e.message) || 'No se pudo guardar el contacto.'; err.hidden = false; }
+        else ctx.toast((e && e.message) || 'No se pudo guardar el contacto.', true);
       }
     };
-    var v = vista();
+    var leerFormulario = function () {
+      var g = function (id) { var el = document.getElementById(id); return el ? el.value : ''; };
+      return { whatsapp: g('apCtWhatsapp'), instagram: g('apCtInstagram'), correo: g('apCtCorreo') };
+    };
+
     v.onclick = function (ev) {
+      var chip = ev.target.closest('[data-historial-modo]');
+      if (chip) {
+        cfg.modo = chip.dataset.historialModo === 'todo' ? 'todo' : 'problemas';
+        reemplazarTarjeta('apCfgHistorial', S.tarjetaHistorial(cfg.datos.historial, { modo: cfg.modo }));
+        return;
+      }
       acciones(ev, {
         recargar: function () { configuracion(); },
-        'copiar-reporte': async function () {
-          var texto = C.reporteTexto(listaServicios, est, new Date().toISOString());
-          try { await navigator.clipboard.writeText(texto); ctx.toast('Reporte copiado. Pégalo en un mensaje para pedir ayuda.'); } catch (e) { ctx.toast('No se pudo copiar el reporte.', true); }
+        'actualizar-precios': async function (b) {
+          ocupado(b, true, 'Actualizando…');
+          var r = await leerSuave('/api/admin/precios?refrescar=1');
+          if (sinError(r)) cfg.datos.precios = r; else ctx.toast((r.__error && r.__error.message) || 'No se pudieron leer los precios.', true);
+          reemplazarTarjeta('apCfgPrecios', S.tarjetaPrecios(cfg.datos.precios));
         },
-        'csv-miembros': function () {
-          if (!mie || !mie.miembros) { ctx.toast('No se pudo leer la lista de miembros.', true); return; }
-          var blob = new Blob(['﻿' + C.csvMiembros(mie.miembros)], { type: 'text/csv;charset=utf-8' });
-          var a = document.createElement('a');
-          a.href = URL.createObjectURL(blob); a.download = 'miembros-zoorigen-' + new Date().toISOString().slice(0, 10) + '.csv';
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
-          ctx.toast('Lista de miembros descargada.');
+        'guardar-contacto': function () { guardarContacto(leerFormulario(), 'Contacto guardado. El Club lo mostrará en unos minutos.'); },
+        'restablecer-contacto': function () {
+          var por = cfg.datos.contacto && cfg.datos.contacto.porDefecto;
+          if (!por) { ctx.toast('No se pudieron leer los datos de siempre.', true); return; }
+          confirmar({ titulo: 'Volver a los datos de siempre', texto: 'El Club volverá a usar el WhatsApp, el Instagram y el correo con los que nació. Podrás cambiarlos otra vez cuando quieras.', aceptar: 'Sí, volver', cancelar: 'Mejor no', peligro: false })
+            .then(function (si) { if (si) guardarContacto({ whatsapp: por.whatsapp, instagram: por.instagram, correo: por.correo }, 'Contacto restablecido.'); });
         },
-        visitas: function (b) {
-          var encender = b.getAttribute('aria-checked') !== 'true';
-          if (!encender) { guardar({ contadorVisitas: false }, 'Contador de visitas apagado.', b); return; }
+        'revisar-servicios': function (b) { recargarServicios(b); },
+        'copiar-servicios': function () { copiar(S.reporteServicios(cfg.datos.servicios, new Date().toISOString()), 'Reporte copiado. Pégalo en un mensaje para pedir ayuda.'); },
+        'actualizar-historial': function (b) { recargarHistorial(b); },
+        'copiar-historial': function () { copiar(S.reporteHistorial(cfg.datos.historial, new Date().toISOString()), 'Reporte copiado. Pégalo en un mensaje para pedir ayuda.'); },
+        'marcar-normales': function () {
+          var n = cfg.datos.historial && cfg.datos.historial.resumen ? cfg.datos.historial.resumen.reiniciosInesperados : 0;
           confirmar({
-            titulo: 'Encender el contador de visitas',
-            texto: 'El contador solo suma visitas por día y por página, sin cookies ni dirección IP. Antes de encenderlo conviene agregar al aviso de privacidad este párrafo:<br><br><em>' + esc(PARRAFO_PRIVACIDAD) + '</em>',
-            aceptar: 'Ya lo agregué, encender', cancelar: 'Todavía no', peligro: false
-          }).then(function (si) { if (si) guardar({ contadorVisitas: true }, 'Contador de visitas encendido.', b); });
-        },
-        parrafo: function () {
-          modal({ titulo: 'Párrafo para el aviso de privacidad', cuerpo: '<p class="ap-modal__texto">' + esc(PARRAFO_PRIVACIDAD) + '</p><p class="ap-nota">Agrégalo al aviso de privacidad del sitio antes de encender el contador.</p>',
-            botones: [{ id: 'copiar', texto: 'Copiar el texto', tipo: 'primario' }, { id: 'cerrar', texto: 'Cerrar', tipo: 'suave' }],
-            alElegir: async function (id, caja, cerrar) {
-              if (id !== 'copiar') return cerrar(null);
-              try { await navigator.clipboard.writeText(PARRAFO_PRIVACIDAD); ctx.toast('Texto copiado.'); } catch (e) { ctx.toast('No se pudo copiar. Selecciona el texto y cópialo.', true); }
-            } });
-        },
-        'guardar-aviso': function (b) {
-          var texto = document.getElementById('apAvisoTexto').value; var activo = document.getElementById('apAvisoActivo').checked;
-          var err = document.getElementById('apAvisoError'); err.hidden = true;
-          if (activo && texto.trim().length < 4) { err.textContent = 'Escribe el texto del aviso o desmarca «Mostrar».'; err.hidden = false; return; }
-          guardar({ avisoGlobal: { activo: activo, texto: texto, tono: document.getElementById('apAvisoTono').value } }, activo ? 'Aviso guardado.' : 'Aviso guardado (apagado).', b);
+            titulo: 'Marcar como publicaciones normales',
+            texto: 'Se marcarán ' + P.fmtNum(n) + (n === 1 ? ' reinicio' : ' reinicios') + ' como publicaciones normales. Quedan en el historial, pero dejan de contar como problema. Hazlo solo si sabes que fueron por publicar cambios.',
+            aceptar: 'Sí, marcarlos', cancelar: 'Mejor no', peligro: false
+          }).then(async function (si) {
+            if (!si) return;
+            try {
+              var r = await ctx.api('/api/admin/servidor/reconocer-reinicios', { method: 'POST', body: {} });
+              ctx.toast(P.fmtNum(r.marcados) + (r.marcados === 1 ? ' reinicio marcado.' : ' reinicios marcados.'));
+              await recargarHistorial(null);
+            } catch (e) { ctx.toast((e && e.message) || 'No se pudo marcar.', true); }
+          });
         }
       });
     };
+    v.onsubmit = function (ev) {
+      if (ev.target && ev.target.id === 'apContactoForm') { ev.preventDefault(); guardarContacto(leerFormulario(), 'Contacto guardado. El Club lo mostrará en unos minutos.'); }
+    };
     v.onchange = function (ev) {
-      var sel = ev.target.closest('[data-accion-cambio="vivo"]');
+      var sel = ev.target.closest('#apHistorialDias');
       if (!sel) return;
-      guardar({ clasesEnVivoPronto: sel.value === 'auto' ? null : sel.value === 'si' }, 'Ajuste de clases en vivo guardado.', sel);
+      cfg.dias = parseInt(sel.value, 10) || 30;
+      recargarHistorial(null);
     };
-  }
-
-  /* ───────── ESTADO DEL SISTEMA ───────── */
-  async function estadoSistema(forzar) {
-    var mi = ++contador;
-    vista().innerHTML = cargando('Estado del sistema');
-    var r;
-    try { r = await ctx.api('/api/admin/estado'); } catch (e) {
-      if (mi !== contador) return;
-      vista().innerHTML = errorHTML('Estado del sistema', e, 'recargar');
-      vista().onclick = function (ev) { acciones(ev, { recargar: function () { estadoSistema(true); } }); };
-      return;
-    }
-    if (mi !== contador) return;
-    void forzar;
-    var s = r.servidor; var sv = r.servicios;
-    var semaforo = function (ok, tono) { return '<span class="ap-semaforo ap-tono-' + (ok ? (tono || 'ok') : 'error') + '" aria-hidden="true"></span>'; };
-    var servicio = function (nombre, ok, detalle, icono) {
-      return '<article class="ap-servicio"><span class="ap-servicio__ico">' + ico(icono, { size: 20 }) + '</span><div><h3>' + esc(nombre) + '</h3><p>' +
-        semaforo(ok) + '<span>' + esc(ok ? 'Funcionando' : 'Revisar') + '</span></p><small>' + esc(detalle) + '</small></div></article>';
-    };
-    var servicios = '<div class="ap-servicios">' + [
-      servicio('Servidor', true, 'Activo hace ' + P.duracion(s.segundosActivo) + ' · Node ' + s.node.replace(/^v/, ''), 'server'),
-      servicio('Base de datos', sv.baseDeDatos.ok, sv.baseDeDatos.ok ? 'Responde en ' + sv.baseDeDatos.ms + ' ms' : (sv.baseDeDatos.error || 'Sin respuesta'), 'layers'),
-      servicio('Cobros (Stripe)', sv.stripe.configurado, sv.stripe.configurado ? 'Modo ' + (sv.stripe.modo === 'real' ? 'real' : 'de prueba') : 'Falta STRIPE_SECRET_KEY', 'credit-card'),
-      servicio('Videos', sv.videos.configurado, sv.videos.configurado ? (sv.videos.catalogoApi ? 'Reproducción y catálogo' : 'Reproducción (sin catálogo automático)') : 'Falta BUNNY_TOKEN_AUTH_KEY', 'clapperboard'),
-      servicio('Correos', sv.correo.configurado, sv.correo.configurado ? 'Envío configurado' : 'Falta RESEND_API_KEY', 'mail'),
-      servicio('Certificados', sv.certificados.configurado, sv.certificados.configurado ? 'Firma configurada' : 'Falta CERTIFICATE_SIGNING_KEY', 'award')
-    ].join('') + '</div>';
-
-    var variables = F.lista(r.variables.map(function (v) {
-      var estadoV = v.definida ? '<span class="ap-badge ap-badge--ok">' + ico('circle-check', { size: 14 }) + '<span>Definida</span></span>'
-        : '<span class="ap-badge ap-badge--' + (v.critica ? 'error' : 'neutro') + '">' + ico(v.critica ? 'triangle-alert' : 'circle-dashed', { size: 14 }) + '<span>' + (v.critica ? 'Falta' : 'No definida') + '</span></span>';
-      return F.fila({ clase: 'ap-fc--meta2 ap-fc--variable', avatar: '<span class="ap-ico-tile ap-tono-' + (v.definida ? 'ok' : (v.critica ? 'error' : 'neutro')) + '" aria-hidden="true">' + ico('server', { size: 18 }) + '</span>',
-        titulo: v.nombre, meta: esc(v.para), estado: estadoV });
-    }), { etiqueta: 'Variables del servidor' });
-
-    var errores = r.errores.recientes.length
-      ? '<ol class="ap-linea-tiempo">' + r.errores.recientes.map(function (e) {
-        return '<li><span class="ap-linea-tiempo__ico ap-linea-tiempo__ico--error">' + ico('triangle-alert', { size: 16 }) + '</span><div><p>' + esc(e.mensaje) + '</p><time datetime="' + esc(e.en) + '">' + esc(P.fmtFecha(e.en)) + ' · ' + esc(P.relativo(e.en)) + '</time></div></li>';
-      }).join('') + '</ol>'
-      : vacio('Sin errores desde el último arranque', 'Si algo falla en el servidor, aparecerá aquí con la hora.', 'circle-check');
-
-    var acc = r.acciones.length
-      ? '<ol class="ap-linea-tiempo">' + r.acciones.map(function (a) {
-        return '<li><span class="ap-linea-tiempo__ico">' + ico('shield-check', { size: 16 }) + '</span><div><p>' + esc(a.resumen || a.accion) + '</p><time datetime="' + esc(a.en || '') + '">' + esc(P.fmtFecha(a.en)) + ' · ' + esc(P.relativo(a.en)) + '</time></div></li>';
-      }).join('') + '</ol>'
-      : vacio('Sin acciones del equipo todavía', 'Activar o cancelar una membresía queda anotado aquí.', 'shield-check');
-
-    var versiones = '<dl class="ap-datos">' +
-      '<div class="ap-dato"><dt>Servidor</dt><dd>' + esc(s.version || '—') + '</dd></div>' +
-      '<div class="ap-dato"><dt>Versión de Node</dt><dd>' + esc(s.node) + '</dd></div>' +
-      '<div class="ap-dato"><dt>Publicación</dt><dd>' + esc(s.commit || 'Sin dato') + '</dd></div>' +
-      '<div class="ap-dato"><dt>Entorno</dt><dd>' + esc(s.entorno || '—') + '</dd></div>' +
-      '<div class="ap-dato"><dt>Iniciado</dt><dd>' + esc(P.fmtFecha(s.iniciado)) + '</dd></div>' +
-      '<div class="ap-dato"><dt>Memoria</dt><dd>' + esc(P.fmtNum(s.memoriaMb)) + ' MB</dd></div></dl>';
-
-    vista().innerHTML = P.tarjetaTitulo({
-      icono: 'activity', eyebrow: 'Panel de administración', titulo: 'Estado', acento: 'del sistema.',
-      sub: 'Salud del servidor, qué servicios están configurados y los errores más recientes. Nunca se muestran claves, solo si existen.',
-      cifras: [
-        { valor: P.duracion(s.segundosActivo), rotulo: 'servidor activo' },
-        { valor: sv.baseDeDatos.ok ? sv.baseDeDatos.ms + ' ms' : 'Sin respuesta', rotulo: 'base de datos' },
-        { valor: P.fmtNum(r.errores.recientes.length), rotulo: 'errores recientes' }
-      ],
-      acciones: [{ id: 'recargar', texto: 'Revisar de nuevo', icono: 'refresh-cw' }]
-    }) + servicios +
-      '<div class="ap-columnas">' + tarjeta('Errores recientes', errores, { nota: r.errores.nota }) +
-      tarjeta('Acciones del equipo', acc, { nota: 'Lo último que se hizo desde este panel.' }) + '</div>' +
-      tarjeta('Variables del servidor', variables, { nota: 'Solo el nombre y si está definida; los valores nunca salen del servidor.' }) +
-      '<div class="ap-columnas">' + tarjeta('Versiones', versiones) +
-      tarjeta('Panel de administración', '<dl class="ap-datos"><div class="ap-dato"><dt>Versión del panel</dt><dd>' + esc(versionDelPanel()) + '</dd></div>' +
-        '<div class="ap-dato"><dt>Administran hoy</dt><dd>' + esc(P.fmtNum(r.administradores.length)) + ' correo(s) en ADMIN_EMAILS</dd></div></dl>') + '</div>';
-    vista().onclick = function (e) { acciones(e, { recargar: function () { estadoSistema(true); } }); };
-  }
-
-  function versionDelPanel() {
-    try {
-      var l = document.querySelector('link[href*="admin-club.css"]');
-      var m = l && /[?&]v=([\w.-]+)/.exec(l.getAttribute('href'));
-      return m ? m[1] : '—';
-    } catch (e) { return '—'; }
   }
 
   /* ───────── AVANCE DE MIEMBROS ─────────
@@ -1619,7 +1535,7 @@
 
   root.ZOO_ADMIN_VISTAS = {
     iniciar: iniciar, resumen: resumen, miembros: miembros, suscripciones: suscripciones, retos: retos, comunidad: comunidad,
-    referidos: referidos, configuracion: configuracion, estado: estadoSistema, avance: avanceMiembros,
+    referidos: referidos, configuracion: configuracion, avance: avanceMiembros,
     agregarVerificadorFolio: agregarVerificadorFolio, modal: modal, confirmar: confirmar,
     abrirFicha: function (uid) { return abrirFicha(uid); },
     // Piezas que reutilizan las vistas de Marketing (admin-marketing.js)

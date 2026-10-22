@@ -386,6 +386,37 @@
       }), 'num') + '</figure>';
   }
 
+  /* ───────────────────────── Barras apiladas (una barra por grupo, partida en sus partes) ─────────────────────────
+     o.filas [{ etiqueta, segmentos:[{ etiqueta, valor }] }] · o.unidad («personas») · o.titulo · o.vacio
+     Cada barra mide el 100 % de ese grupo y muestra cómo se reparte (color sólido por posición). Debajo, la leyenda de la fila con
+     cada parte, su cantidad y su porcentaje: los valores nunca dependen del color ni de un tooltip. */
+  function apiladas(o) {
+    var op = o || {};
+    var filas = (Array.isArray(op.filas) ? op.filas : []).map(function (f) {
+      var segs = (Array.isArray(f.segmentos) ? f.segmentos : []).map(function (s) { return { etiqueta: String(s.etiqueta || ''), valor: aNum(s.valor) }; }).filter(function (s) { return s.valor > 0; });
+      segs.sort(function (a, b) { return b.valor - a.valor || a.etiqueta.localeCompare(b.etiqueta, 'es'); });
+      return { etiqueta: String(f.etiqueta || ''), segmentos: segs, total: suma(segs.map(function (s) { return s.valor; })) };
+    }).filter(function (f) { return f.total > 0; });
+    var titulo = op.titulo || 'Reparto por grupo';
+    var unidad = op.unidad || 'personas';
+    if (!filas.length) return estadoVacio(op.vacio);
+    filas.sort(function (a, b) { return b.total - a.total || a.etiqueta.localeCompare(b.etiqueta, 'es'); });
+    var lista = filas.map(function (f) {
+      var barra = f.segmentos.map(function (s, i) {
+        var p = s.valor / f.total * 100;
+        return '<i class="zg-c' + color(i + 1) + '" style="width:' + redondear(p, 2) + '%" title="' + esc(s.etiqueta + ': ' + formatear(s.valor, 'num') + ' (' + Math.round(p) + ' %)') + '"></i>';
+      }).join('');
+      var ley = f.segmentos.map(function (s, i) {
+        return '<li><span class="zg__sw zg-c' + color(i + 1) + '" aria-hidden="true"></span><span class="zg-ap__t">' + esc(s.etiqueta) + '</span><strong>' + esc(formatear(s.valor, 'num')) + '</strong><span class="zg-ap__p">' + Math.round(s.valor / f.total * 100) + ' %</span></li>';
+      }).join('');
+      return '<li class="zg-ap__fila"><div class="zg-ap__cab"><strong>' + esc(f.etiqueta) + '</strong><span>' + esc(formatear(f.total, 'num')) + ' ' + esc(unidad) + '</span></div>' +
+        '<div class="zg-ap__barra" aria-hidden="true">' + barra + '</div><ul class="zg-ap__ley">' + ley + '</ul></li>';
+    }).join('');
+    var resumen = titulo + ': ' + filas.map(function (f) { return f.etiqueta + ', ' + f.segmentos.map(function (s) { return s.etiqueta + ' ' + formatear(s.valor, 'num'); }).join(', '); }).join('; ') + '.';
+    return '<figure class="zg zg-ap" role="group" aria-label="' + esc(titulo) + '"><p class="sr-only">' + esc(resumen) + '</p><ol class="zg-ap__lista">' + lista + '</ol>' +
+      tablaAlterna(titulo, ['Grupo', 'Parte', 'Valor'], filas.reduce(function (t, f) { return t.concat(f.segmentos.map(function (s) { return [f.etiqueta, s.etiqueta, s.valor]; })); }, []), 'num') + '</figure>';
+  }
+
   /* ───────────────────────── Comportamiento en el navegador (tooltips) ───────────────────────── */
   var abiertas = [];
   var oyente = false;
@@ -562,6 +593,6 @@
 
   return {
     COLORES: COLORES, formatear: formatear, abreviar: abreviar, escalaY: escalaY, indicesEtiquetas: indicesEtiquetas, nivelCalor: nivelCalor,
-    estadoVacio: estadoVacio, sparkline: sparkline, serie: serie, anillo: anillo, barrasH: barrasH, ranking: ranking, mapaCalor: mapaCalor, embudo: embudo, fraseEmbudo: fraseEmbudo, activar: activar
+    estadoVacio: estadoVacio, sparkline: sparkline, serie: serie, anillo: anillo, barrasH: barrasH, ranking: ranking, apiladas: apiladas, mapaCalor: mapaCalor, embudo: embudo, fraseEmbudo: fraseEmbudo, activar: activar
   };
 });

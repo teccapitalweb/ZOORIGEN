@@ -32,14 +32,14 @@
     { id: 'pruebas', grupo: 'Marketing', titulo: 'Pruebas gratuitas', icono: 'flask-conical', zoo: 'registro', origen: 'servidor' },
     { id: 'encuesta', grupo: 'Marketing', titulo: 'Encuesta', icono: 'list-checks', zoo: 'canal', origen: 'servidor' },
     { id: 'configuracion', grupo: 'Sistema', titulo: 'Configuración', icono: 'settings', zoo: 'perfil', origen: 'servidor' },
-    { id: 'avance', grupo: 'Sistema', titulo: 'Avance de miembros', icono: 'graduation-cap', zoo: 'certificados', origen: 'servidor' },
-    { id: 'estado', grupo: 'Sistema', titulo: 'Estado del sistema', icono: 'activity', zoo: 'pdfs', origen: 'servidor' }
+    { id: 'avance', grupo: 'Sistema', titulo: 'Avance de miembros', icono: 'graduation-cap', zoo: 'certificados', origen: 'servidor' }
   ];
 
   var IDS = SECCIONES.map(function (s) { return s.id; });
   function seccion(id) { return SECCIONES.filter(function (s) { return s.id === id; })[0] || null; }
   function seccionDeHash(hash) {
     var m = /^#\/?([a-z-]+)/.exec(String(hash || ''));
+    if (m && m[1] === 'estado') return 'configuracion'; // «Estado del sistema» ya vive dentro de Configuración (enlaces viejos)
     return m && IDS.indexOf(m[1]) !== -1 ? m[1] : 'resumen';
   }
 

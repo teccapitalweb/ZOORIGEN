@@ -241,11 +241,11 @@ test('vistaHTML: muestra KPIs, secciones y mensajes de error sin romperse', () =
   const ok = A.vistaHTML({ encuesta: { ok: true, docs: muestra() }, preguntas: { ok: true, preguntas: [{ texto: 'hola', veces: 2, tipo: 'otro' }] } });
   for (const t of ['Personas que respondieron', 'Terminaron la encuesta', 'Leads calientes', 'Perfil de quién responde', 'Cómo nos conocieron',
     'Fauna que les interesa', 'Cuándo quieren empezar', 'Qué los detiene hoy', 'Tamaño del equipo', 'Dónde se quedan quienes no terminan',
-    'Personas que pidieron que un asesor las escriba', 'Preguntas que la guía no supo contestar', 'id="encRecargar"']) {
+    'Personas que pidieron que un asesor las escriba', 'Preguntas que la guía no supo contestar', 'data-accion="recargar"']) {
     assert.ok(ok.includes(t), 'falta: ' + t);
   }
   const vacio = A.vistaHTML({ encuesta: { ok: true, docs: [] }, preguntas: { ok: true, preguntas: [] } });
-  assert.match(vacio, /Aún no hay respuestas/);
+  assert.match(vacio, /Todavía nadie responde la encuesta/);
   assert.match(vacio, /Nadie ha dejado su WhatsApp/);
   assert.match(vacio, /no ha tenido preguntas sin respuesta/);
   const error = A.vistaHTML({ encuesta: { ok: false, error: 'Sin conexión' }, preguntas: { ok: false, error: 'Sin conexión' } });
@@ -253,6 +253,79 @@ test('vistaHTML: muestra KPIs, secciones y mensajes de error sin romperse', () =
   assert.match(error, /Sin conexión/);
   assert.ok(!/\p{Extended_Pictographic}/u.test(ok + vacio + error));
   assert.doesNotThrow(() => A.vistaHTML(undefined));
+});
+
+/* ───────────────────────── Las 11 gráficas ───────────────────────── */
+
+const TITULOS_11 = ['Perfil de quién responde', 'Cómo nos conocieron', 'Qué quieren lograr este año', 'Fauna que les interesa', 'Cuándo quieren empezar',
+  'Qué los detiene hoy', 'Tamaño del equipo', 'Experiencia con cursos en línea', 'Reto principal por perfil', 'Dónde se quedan quienes no terminan', 'Resumen por rama del flujo'];
+
+function muestraCompleta() {
+  const base = { meta: 'Cumplir trámites y normatividad', grupo: 'Mamíferos y felinos', origen: 'Recomendación', experiencia: 'Es mi primera vez', urgencia: 'En el próximo mes', freno: 'Tiempo', tamano: 'Solo yo' };
+  return [
+    doc('c1', { respuestas: Object.assign({}, base, { p1: 'Estudiante', p2: 'Trabajar en campo', p2b: 'Manejo seguro' }) }),
+    doc('c2', { respuestas: Object.assign({}, base, { p1: 'Estudiante', p2: 'Trabajar en campo', p2b: 'Manejo seguro', origen: 'Redes sociales' }) }),
+    doc('c3', { respuestas: Object.assign({}, base, { p1: 'Estudiante', p2: 'Complementar mi carrera', p2b: 'Conservación', origen: 'Redes sociales', meta: 'Especializarme en mi profesión' }) }),
+    doc('c4', { respuestas: Object.assign({}, base, { p1: 'Consultor ambiental', p2: 'Monitoreo', p2b: 'Fototrampeo', tamano: '2 a 10', urgencia: 'Lo antes posible', freno: 'Precio' }) }),
+    doc('c5', { completada: false, respuestas: { meta: base.meta, p1: 'Estudiante', origen: 'Buscador' } }),
+    doc('c6', { completada: false, respuestas: { meta: base.meta } })
+  ];
+}
+
+test('graficasHTML: las 11 gráficas, cada una con su frase «Cómo leerlo» armada con los datos', () => {
+  const h = A.graficasHTML(A.calcular(muestraCompleta()));
+  for (const t of TITULOS_11) assert.ok(h.includes('<h2>' + t + '</h2>'), 'falta la gráfica: ' + t);
+  assert.equal((h.match(/class="ap-card enc-g/g) || []).length, 11);
+  assert.equal((h.match(/Cómo leerlo:/g) || []).length, 11, 'una frase de lectura por gráfica');
+  // tres donas (perfil, tamaño del equipo y cursos en línea), dos de columnas, barras horizontales, apiladas y tabla de ramas
+  assert.equal((h.match(/class="zg zg-anillo"/g) || []).length, 3);
+  assert.equal((h.match(/zg zg--barras/g) || []).length, 2);
+  assert.ok(h.includes('zg-ap__lista') && h.includes('ap-tabla--ramas') && h.includes('zg-bh__lista'));
+  // las frases dicen cosas ciertas de ESTOS datos
+  assert.match(h, /De cada 10 personas que contestaron, 8 son «Estudiante»/);
+  assert.match(h, /Lo que más buscan es «Cumplir trámites y normatividad»/);
+  assert.match(h, /Entre «Estudiante» \(el perfil con más respuestas, 3 personas\), el reto más elegido es «Trabajar en campo» con 2 de 3/);
+  assert.match(h, /La encuesta se pierde más en «[^»]+»/);
+  assert.match(h, /La rama es el perfil que la persona elige al principio\. «Estudiante» es la que más empieza/);
+  // valores visibles (no solo color ni tooltip) y mini barras en la tabla de ramas
+  assert.match(h, /ap-mini__b ap-mini__b--ok/);
+  assert.match(h, /zg-anillo__leyenda/);
+  assert.ok(!/gradient\(/i.test(h) && !/[\p{Extended_Pictographic}\u{FE0F}]/u.test(h));
+});
+
+test('graficasHTML: sin respuestas muestra un solo estado vacío amable, no once gráficas vacías', () => {
+  const h = A.graficasHTML(A.calcular([]));
+  assert.match(h, /Todavía nadie responde la encuesta/);
+  assert.equal((h.match(/class="ap-card/g) || []).length, 0);
+  assert.equal((h.match(/Cómo leerlo/g) || []).length, 0);
+});
+
+test('graficasHTML: con respuestas a medias, lo que no se ha contestado queda en estado vacío y nada se rompe', () => {
+  const parcial = [doc('p1', { completada: false, respuestas: { p1: 'Estudiante', origen: 'Buscador' } }), doc('p2', { completada: false, respuestas: { p1: 'Médico veterinario' } })];
+  let h;
+  assert.doesNotThrow(() => { h = A.graficasHTML(A.calcular(parcial)); });
+  for (const t of TITULOS_11) assert.ok(h.includes('<h2>' + t + '</h2>'), 'falta ' + t);
+  assert.ok((h.match(/Aún no hay respuestas/g) || []).length >= 5, 'las preguntas sin respuesta muestran su vacío');
+  assert.match(h, /Aún no hay retos elegidos/);
+});
+
+test('fraseTop y fraseDeCada10: empates, una sola respuesta y menos de 1 de cada 10', () => {
+  const d = (items) => ({ base: items.reduce((t, x) => t + x[1], 0), items: items.map(([valor, n], i, a) => ({ valor, n, pct: Math.round(n / a.reduce((t, x) => t + x[1], 0) * 100) })) });
+  assert.match(A.fraseTop(d([['Precio', 3], ['Tiempo', 3]])), /empate entre «Precio» y «Tiempo»: 3 personas cada una/);
+  assert.equal(A.fraseTop(d([['Precio', 1]])), 'Lo más común es «Precio»: 1 persona (100 %).');
+  assert.match(A.fraseTop(d([['A', 5], ['B', 2]]), 'La mayoría llegó por'), /^La mayoría llegó por «A»: 5 personas de 7 \(71 %\)\. Le sigue «B» con 29 %\.$/);
+  assert.match(A.fraseDeCada10(d([['A', 1], ['B', 30]]).items[0] ? { base: 31, items: [{ valor: 'A', n: 1, pct: 3 }] } : null), /menos de 1 es «A»|menos de 1 son «A»/);
+  assert.equal(A.fraseTop({ base: 0, items: [] }), '');
+});
+
+test('apiladas: una barra por perfil con partes de color sólido y leyenda con cantidades y porcentajes', () => {
+  const h = require(path.join(RAIZ, 'assets', 'js', 'admin-graficas.js')).apiladas({
+    filas: [{ etiqueta: 'Estudiante', segmentos: [{ etiqueta: 'Trabajar en campo', valor: 2 }, { etiqueta: 'Complementar mi carrera', valor: 1 }] }, { etiqueta: 'Vacía', segmentos: [] }]
+  });
+  assert.match(h, /zg-ap__barra/);
+  assert.match(h, /Trabajar en campo<\/span><strong>2<\/strong><span class="zg-ap__p">67 %/);
+  assert.ok(!h.includes('Vacía'), 'las filas sin datos no se dibujan');
+  assert.match(h, /<table>/);
 });
 
 /* ───────────────────────── Archivos ───────────────────────── */

@@ -18,8 +18,8 @@
 
   function hoyMx() { return new Date(Date.now() - 6 * 3600 * 1000).toISOString().slice(0, 10); }
   function tablaZona(tabla) { return '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura">' + tabla + '</div></div>'; }
-  function card(titulo, cuerpo, nota) {
-    return '<section class="ap-card"><header class="ap-card__cab"><h2>' + esc(titulo) + '</h2>' + (nota ? '<p>' + esc(nota) + '</p>' : '') + '</header><div class="ap-card__cuerpo">' + cuerpo + '</div></section>';
+  function card(titulo, cuerpo, nota, clase) {
+    return '<section class="ap-card' + (clase ? ' ' + clase : '') + '"><header class="ap-card__cab"><h2>' + esc(titulo) + '</h2>' + (nota ? '<p>' + esc(nota) + '</p>' : '') + '</header><div class="ap-card__cuerpo">' + cuerpo + '</div></section>';
   }
   function vacio(titulo, texto, icono) {
     return '<div class="zs-vacio ap-vacio">' + ico(icono || 'search-x', { size: 28 }) + '<strong>' + esc(titulo) + '</strong><span>' + esc(texto) + '</span></div>';
@@ -347,6 +347,73 @@
     }), { etiqueta: 'Cuentas sin elegir' }) + (se.total > se.lista.length ? '<p class="ap-pie-tabla">Se muestran las ' + esc(num(se.lista.length)) + ' más recientes de ' + esc(num(se.total)) + '.</p>' : '');
   }
 
+  /* ───────── Gráficas de Pruebas gratuitas ─────────
+     Todo sale de GET /api/admin/pruebas (embudo, avance, destino y semanas los calcula el servidor con datos reales). Sin datos: estado vacío. */
+  function personas(n) { return num(n) + (n === 1 ? ' persona' : ' personas'); }
+  function frasePie(texto) { return texto ? '<p class="ap-frase" role="note"><strong>Cómo leerlo:</strong> ' + esc(texto) + '</p>' : ''; }
+
+  function graficasPruebasHTML(d) {
+    var t = d.totales;
+    var semanas = d.semanas || [];
+    var cuentas = semanas.reduce(function (a, x) { return a + x.cuentasNuevas; }, 0);
+    var elegidas12 = semanas.reduce(function (a, x) { return a + x.pruebasElegidas; }, 0);
+    var graficaSemanas = G.serie({
+      titulo: 'Cuentas nuevas y pruebas elegidas por semana', tipo: 'barras', unidad: 'personas por semana', alto: 220,
+      etiquetas: semanas.map(function (x) { return P.fmtFecha(x.desde).replace(/ \d{4}$/, ''); }),
+      titulos: semanas.map(function (x) { return 'Semana del ' + P.fmtFecha(x.desde); }),
+      series: [{ nombre: 'Cuentas nuevas', valores: semanas.map(function (x) { return x.cuentasNuevas; }), color: 2 }, { nombre: 'Pruebas elegidas', valores: semanas.map(function (x) { return x.pruebasElegidas; }), color: 1 }],
+      vacio: { titulo: 'Sin movimiento en 12 semanas', texto: 'Cuando alguien cree su cuenta o elija su prueba, aparecerá semana a semana.' }
+    });
+    var fraseSemanas = cuentas || elegidas12
+      ? 'En las últimas 12 semanas se crearon ' + personas(cuentas) + ' y ' + personas(elegidas12) + (elegidas12 === 1 ? ' eligió' : ' eligieron') + ' su curso de prueba' +
+        (cuentas ? ' (' + (elegidas12 / cuentas * 10 < 1 ? 'menos de 1' : Math.round(elegidas12 / cuentas * 10)) + ' por cada 10 cuentas nuevas)' : '') + '. Cada par de columnas es una semana.' : '';
+
+    var graficaCurso = G.ranking({
+      titulo: 'Curso que eligen para su prueba', unidad: 'pruebas', color: 1, maximo: 6, total: t.elegidas,
+      filas: (d.porCurso || []).map(function (c) { return { etiqueta: c.curso, valor: c.elegidas }; }),
+      vacio: { titulo: 'Nadie ha elegido todavía', texto: 'Cuando alguien elija su curso de prueba, verás cuáles son los favoritos.' }
+    });
+    var primero = (d.porCurso || [])[0];
+    var fraseCurso = primero && t.elegidas ? 'El curso más elegido es «' + primero.curso + '»: ' + personas(primero.elegidas) + ' (' + Math.round(primero.elegidas / t.elegidas * 100) + ' % de las pruebas).' : '';
+
+    var avance = (d.avance || []).filter(function (x) { return x.clave !== 'sin-clases' || x.valor > 0; });
+    var conClases = (d.avance || []).filter(function (x) { return x.clave !== 'sin-clases'; }).reduce(function (a, x) { return a + x.valor; }, 0);
+    var graficaAvance = G.barrasH({
+      titulo: 'Avance de la prueba', total: t.elegidas, variado: true,
+      filas: avance.map(function (x, i) { return { etiqueta: x.etiqueta, valor: x.valor, color: [8, 3, 2, 1, 6][i] || 8 }; }),
+      vacio: { titulo: 'Sin pruebas todavía', texto: 'Aquí verás cuánto avanza cada persona en sus clases gratis.' }
+    });
+    var sinEmpezar = (d.avance || []).filter(function (x) { return x.clave === 'sin-empezar'; })[0];
+    var termino = (d.avance || []).filter(function (x) { return x.clave === 'termino'; })[0];
+    var fraseAvance = conClases ? 'De ' + personas(conClases) + ' con clases gratis, ' + num(sinEmpezar ? sinEmpezar.valor : 0) + ' todavía no empiezan y ' + num(termino ? termino.valor : 0) + ' ya terminaron.' : '';
+
+    var graficaEmbudo = G.embudo({
+      titulo: 'Cuántas personas llegan a la última clase gratis', unidad: 'personas que eligieron su prueba',
+      etapas: [
+        { etiqueta: 'Eligieron su prueba', valor: (d.embudo || [])[0] ? d.embudo[0].valor : 0, frase: 'eligen su prueba' },
+        { etiqueta: 'Empezaron el curso', valor: (d.embudo || [])[1] ? d.embudo[1].valor : 0, frase: 'empiezan el curso' },
+        { etiqueta: 'Llegaron a la última clase gratis', valor: (d.embudo || [])[2] ? d.embudo[2].valor : 0, frase: 'llegan a la última clase gratis' }
+      ],
+      vacio: { titulo: 'Sin pruebas todavía', texto: 'Cuando alguien elija su prueba verás cuántas personas avanzan hasta el final.' }
+    });
+
+    var dest = d.destino || { miembros: 0, noMiembros: 0 };
+    var graficaDestino = G.anillo({
+      titulo: 'Cuántas pagan después', centro: { valor: t.tasaMiembro === null ? '—' : t.tasaMiembro + ' %', rotulo: 'ya son miembros' },
+      partes: [{ etiqueta: 'Ya son miembros', valor: dest.miembros, color: 1 }, { etiqueta: 'Todavía no son miembros', valor: dest.noMiembros, color: 8 }],
+      vacio: { titulo: 'Sin pruebas todavía', texto: 'Aquí verás cuántas personas se hacen miembros después de su prueba.' }
+    });
+    var fraseDestino = t.elegidas ? 'De cada 10 personas que eligieron una prueba, ' + (dest.miembros / t.elegidas * 10 < 1 && dest.miembros ? 'menos de 1' : Math.round(dest.miembros / t.elegidas * 10)) + ' ya ' + (Math.round(dest.miembros / t.elegidas * 10) === 1 ? 'es miembro' : 'son miembros') + '.' : '';
+
+    return '<div class="enc-graficas">' +
+      card('Cuentas nuevas y pruebas elegidas por semana', graficaSemanas + frasePie(fraseSemanas), 'Doce semanas: cuántas personas crean su cuenta y cuántas eligen su curso de prueba.', 'enc-g enc-g--ancho') +
+      card('Curso que eligen para su prueba', graficaCurso + frasePie(fraseCurso), 'Cuántas pruebas eligió cada curso.', 'enc-g') +
+      card('Avance de la prueba', graficaAvance + frasePie(fraseAvance), 'Dónde va cada persona dentro de sus clases gratis.', 'enc-g') +
+      card('Cuántas personas llegan a la última clase gratis', graficaEmbudo, 'Cada paso cuenta solo a quienes llegaron al anterior.', 'enc-g') +
+      card('Cuántas pagan después', graficaDestino + frasePie(fraseDestino), 'Quienes eligieron una prueba y hoy tienen o tuvieron membresía.', 'enc-g') +
+      '</div>';
+  }
+
   // d = respuesta de GET /api/admin/pruebas · ui = { texto, curso, filtro, visibles, pestana }
   function pruebasHTML(d, ui) {
     var u = ui || {};
@@ -393,7 +460,7 @@
         '<label class="ap-orden"><span class="sr-only">Curso</span><select id="apPruebaCurso">' + opcionesCurso + '</select></label></div></div>' +
         '<div id="apPruebasLista">' + tablaPruebas(filtradas, u.visibles || 25) + '</div>';
     }
-    return titulo + kpis + card('Por curso', porCurso, 'Cuántas personas eligieron cada curso y cuántas llegaron a la membresía.') +
+    return titulo + kpis + graficasPruebasHTML(d) + card('Detalle por curso', porCurso, 'Cuántas personas eligieron cada curso, cuántas terminaron sus clases gratis y cuántas llegaron a la membresía.') +
       card(pest === 'sin' ? 'Cuentas que aún no eligen su prueba' : 'Quiénes eligieron', cuerpoLista,
         pest === 'sin' ? 'Cuentas sin membresía que todavía pueden elegir su curso gratis.' : 'La prueba abre todas las clases del curso menos la última.') +
       (d.truncado ? '<div class="ap-aviso ap-aviso--info" role="note">' + ico('info', { size: 20 }) + '<div><p>Se muestran las primeras 1,000 pruebas.</p></div></div>' : '');
@@ -486,6 +553,7 @@
   function pintarPruebas() {
     var u = V.util; var v = u.vista();
     v.innerHTML = pruebasHTML(estadoP.datos, estadoP);
+    G.activar(v);
     var buscar = document.getElementById('apPruebaBuscar');
     if (buscar) buscar.addEventListener('input', function (e) { estadoP.texto = e.target.value; estadoP.visibles = 25; pintarListaPruebas(); });
     var curso = document.getElementById('apPruebaCurso');
@@ -510,7 +578,7 @@
 
   return {
     agruparAuto: agruparAuto, modoDe: modoDe, metricasHTML: metricasHTML, cohortesHTML: cohortesHTML, barraRango: barraRango, csvHistorial: csvHistorial, csvCohortes: csvCohortes,
-    FILTROS_PRUEBAS: FILTROS_PRUEBAS, filtrarPruebas: filtrarPruebas, pruebasHTML: pruebasHTML, tablaPruebas: tablaPruebas, filaPrueba: filaPrueba,
+    FILTROS_PRUEBAS: FILTROS_PRUEBAS, filtrarPruebas: filtrarPruebas, pruebasHTML: pruebasHTML, graficasPruebasHTML: graficasPruebasHTML, tablaPruebas: tablaPruebas, filaPrueba: filaPrueba,
     metricas: metricas, pruebas: pruebas
   };
 });

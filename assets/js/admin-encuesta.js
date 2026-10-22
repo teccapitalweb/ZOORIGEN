@@ -15,12 +15,14 @@
 /* sola fuente de verdad con la pantalla de la portada).          */
 /* ============================================================ */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./encuesta-motor.js'), require('./admin-iconos.js'), require('./admin-filas.js'));
-  else root.ZOO_ADMIN_ENCUESTA = factory(root.ZOO_ENCUESTA, root.ZOO_ICONOS, root.ZOO_ADMIN_FILAS);
-})(typeof self !== 'undefined' ? self : this, function (motor, iconos, filas) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./encuesta-motor.js'), require('./admin-iconos.js'), require('./admin-filas.js'), require('./admin-panel.js'), require('./admin-graficas.js'));
+  else root.ZOO_ADMIN_ENCUESTA = factory(root.ZOO_ENCUESTA, root.ZOO_ICONOS, root.ZOO_ADMIN_FILAS, root.ZOO_ADMIN_PANEL, root.ZOO_ADMIN_GRAFICAS);
+})(typeof self !== 'undefined' ? self : this, function (motor, iconos, filas, panel, graficas) {
   'use strict';
 
   var F = filas;
+  var P = panel;
+  var G = graficas;
   var M = motor || { CLAVES: [], ETIQUETAS_PREGUNTA: {}, URGENTE: 'Lo antes posible', ultimaRespondida: function () { return null; }, esNumeroFalso: function () { return false; } };
   var MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
@@ -247,6 +249,17 @@
     var retos = Object.keys(retosMapa).map(function (k) { var p = k.split('\u0000'); return { perfil: p[0], reto: p[1], n: retosMapa[k] }; })
       .sort(function (a, b) { return b.n - a.n || (a.perfil + a.reto < b.perfil + b.reto ? -1 : 1); }).slice(0, 12);
 
+    var porPerfil = {};
+    sesiones.forEach(function (s) {
+      if (!s.respuestas.p1 || !s.respuestas.p2) return;
+      var g = porPerfil[s.respuestas.p1] = porPerfil[s.respuestas.p1] || {};
+      g[s.respuestas.p2] = (g[s.respuestas.p2] || 0) + 1;
+    });
+    var retosPorPerfil = Object.keys(porPerfil).map(function (p) {
+      var retosP = Object.keys(porPerfil[p]).map(function (k) { return { reto: k, n: porPerfil[p][k] }; }).sort(function (a, b) { return b.n - a.n || (a.reto < b.reto ? -1 : 1); });
+      return { perfil: p, total: retosP.reduce(function (t, x) { return t + x.n; }, 0), retos: retosP };
+    }).sort(function (a, b) { return b.total - a.total || (a.perfil < b.perfil ? -1 : 1); });
+
     var leads = sesiones.filter(function (s) { return s.numero || s.tieneContacto; }).map(function (s) {
       var caliente = s.respuestas.urgencia === M.URGENTE;
       return {
@@ -271,7 +284,7 @@
       conAviso: leads.filter(function (l) { return l.avisoAceptado; }).length,
       porAtender: leads.filter(function (l) { return !l.atendida; }).length,
       sesiones: sesiones, ramas: ramas(sesiones), filas: filasRespuestas(sesiones),
-      distribuciones: dist, abandono: abandono, sinRespuestas: sinRespuestas, retos: retos, leads: leads
+      distribuciones: dist, abandono: abandono, sinRespuestas: sinRespuestas, retos: retos, retosPorPerfil: retosPorPerfil, leads: leads
     };
   }
 
@@ -342,56 +355,139 @@
   }
 
   function kpisHTML(r) {
-    var caja = function (clase, etiqueta, valor, nota) {
-      return '<div class="stat-box ' + clase + '"><div class="stat-box__label">' + esc(etiqueta) + '</div><div class="stat-box__value">' + esc(valor) + '</div><div class="stat-box__note">' + nota + '</div></div>';
+    var k = function (icono, tono, rotulo, valor, nota) {
+      return '<article class="ap-kpi ap-tono-' + tono + '"><span class="ap-kpi__ico">' + ico(icono, 20) + '</span><div class="ap-kpi__txt"><p class="ap-kpi__rot">' + esc(rotulo) + '</p>' +
+        '<p class="ap-kpi__val">' + esc(valor) + '</p><p class="ap-kpi__nota">' + nota + '</p></div></article>';
     };
-    return '<div class="admin-stats cols-4">' +
-      caja('total', 'Personas que respondieron', num(r.total), 'Una por visitante, incluye completas y a medias') +
-      caja('green', 'Terminaron la encuesta', num(r.completas), r.total ? '<strong>' + r.pctCompletas + '%</strong> de quienes empezaron' : 'Aún sin respuestas') +
-      caja('amber', 'Leads calientes', num(r.calientes), 'Quieren empezar lo antes posible · ' + num(r.calientesConWhatsapp) + ' dejaron WhatsApp') +
-      caja('review', 'Dejaron su WhatsApp', num(r.conWhatsapp), num(r.conAviso) + ' aceptaron el aviso de privacidad · ' + num(r.porAtender) + ' por atender') +
+    return '<div class="ap-kpis">' +
+      k('users', 'info', 'Personas que respondieron', num(r.total), 'Una por visitante, incluye completas y a medias') +
+      k('circle-check', 'ok', 'Terminaron la encuesta', num(r.completas), r.total ? '<strong>' + r.pctCompletas + ' %</strong> de quienes empezaron' : 'Aún sin respuestas') +
+      k('flame', 'aviso', 'Leads calientes', num(r.calientes), 'Quieren empezar lo antes posible · ' + num(r.calientesConWhatsapp) + ' dejaron WhatsApp') +
+      k('message-circle', 'neutro', 'Dejaron su WhatsApp', num(r.conWhatsapp), num(r.conAviso) + ' aceptaron el aviso de privacidad · ' + num(r.porAtender) + ' por atender') +
       '</div>';
   }
 
-  function barrasHTML(titulo, dist, nota) {
-    var cuerpo;
-    if (!dist || !dist.items.length) cuerpo = '<p class="enc-vacio">Aún no hay respuestas para esta pregunta.</p>';
-    else {
-      var max = dist.items[0].n || 1;
-      cuerpo = '<ul class="enc-barras">' + dist.items.map(function (it) {
-        var ancho = Math.max(2, Math.round(it.n / max * 100));
-        return '<li><span class="enc-barras__l">' + esc(it.valor) + '</span>' +
-          '<span class="enc-barras__b" aria-hidden="true"><i style="width:' + ancho + '%"></i></span>' +
-          '<span class="enc-barras__n">' + num(it.n) + ' <small>' + it.pct + '%</small></span></li>';
-      }).join('') + '</ul>';
+  /* ───────────────────────── Las 11 gráficas ─────────────────────────
+     Cada una vive en su tarjeta, con la base (cuántas personas contestaron esa pregunta) y una frase «Cómo leerlo» armada con los datos
+     de esa misma gráfica. Si no hay datos, cada gráfica muestra su estado vacío (o uno solo si nadie ha respondido). */
+  var CORTAS = {
+    'Aprender desde cero sobre fauna silvestre': 'Aprender desde cero', 'Especializarme en mi profesión': 'Especializarme',
+    'Cumplir trámites y normatividad': 'Cumplir trámites', 'Certificarme y destacar en mi currículum': 'Certificarme'
+  };
+  function persona(n) { return num(n) + (n === 1 ? ' persona' : ' personas'); }
+  function ord(dist, clave) {
+    // En el orden en que se ofrecen las opciones de la encuesta (las que no se reconocen, al final)
+    var q = M.COMUNES && M.COMUNES[clave];
+    var opciones = q && q.opts ? q.opts : [];
+    return dist.items.slice().sort(function (a, b) {
+      var ia = opciones.indexOf(a.valor); var ib = opciones.indexOf(b.valor);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || b.n - a.n;
+    });
+  }
+
+  // «Lo más común es «X»: 4 personas de 9 (44 %). Le sigue «Y» con 33 %.» (con empate y con una sola respuesta)
+  function nombres(lista) {
+    var n = lista.map(function (x) { return '«' + x.valor + '»'; });
+    return n.length > 1 ? n.slice(0, -1).join(', ') + ' y ' + n[n.length - 1] : n[0];
+  }
+  function fraseTop(dist, inicio) {
+    if (!dist || !dist.items.length) return '';
+    var a = dist.items[0]; var b = dist.items[1];
+    if (!b) return (inicio || 'Lo más común es') + ' «' + a.valor + '»: ' + persona(a.n) + ' (' + a.pct + ' %).';
+    if (a.n === b.n) {
+      var empatadas = dist.items.filter(function (x) { return x.n === a.n; });
+      return 'Hay empate entre ' + nombres(empatadas) + ': ' + persona(a.n) + ' cada una (' + a.pct + ' %).';
     }
-    return '<section class="enc-panel"><h3>' + esc(titulo) + '</h3>' +
-      (dist && dist.base ? '<p class="enc-nota">' + (nota ? esc(nota) + ' ' : '') + 'Base: ' + num(dist.base) + ' ' + (dist.base === 1 ? 'persona' : 'personas') + '.</p>' : '') +
-      cuerpo + '</section>';
+    return (inicio || 'Lo más común es') + ' «' + a.valor + '»: ' + persona(a.n) + ' de ' + num(dist.base) + ' (' + a.pct + ' %). Le sigue «' + b.valor + '» con ' + b.pct + ' %.';
+  }
+  function fraseDeCada10(dist) {
+    if (!dist || !dist.items.length || !dist.base) return '';
+    var a = dist.items[0];
+    var k = a.n / dist.base * 10;
+    var texto = k < 1 ? 'menos de 1' : String(Math.round(k));
+    var empatadas = dist.items.filter(function (x) { return x.n === a.n; });
+    if (empatadas.length > 1) return 'Hay empate entre ' + nombres(empatadas) + ': ' + persona(a.n) + ' cada una (' + a.pct + ' %), más o menos ' + texto + ' de cada 10.';
+    return 'De cada 10 personas que contestaron, ' + texto + ' ' + (texto === '1' ? 'es' : 'son') + ' «' + a.valor + '».' + (dist.items[1] ? ' Después sigue «' + dist.items[1].valor + '» (' + dist.items[1].pct + ' %).' : '');
   }
 
-  function abandonoHTML(r) {
-    var hay = r.abandono.some(function (a) { return a.n > 0; });
-    var max = r.abandono.reduce(function (m, a) { return Math.max(m, a.n); }, 0) || 1;
-    var cuerpo = hay
-      ? '<ul class="enc-barras">' + r.abandono.map(function (a) {
-        return '<li><span class="enc-barras__l">' + esc(a.etiqueta) + '</span>' +
-          '<span class="enc-barras__b enc-barras__b--alerta" aria-hidden="true"><i style="width:' + (a.n ? Math.max(2, Math.round(a.n / max * 100)) : 0) + '%"></i></span>' +
-          '<span class="enc-barras__n">' + num(a.n) + ' <small>' + (a.respondieron ? a.pct + '% de ' + num(a.respondieron) : '-') + '</small></span></li>';
-      }).join('') + '</ul>'
-      : '<p class="enc-vacio">Nadie ha abandonado todavía.</p>';
-    return '<section class="enc-panel enc-panel--ancho"><h3>Dónde se quedan quienes no terminan</h3>' +
-      '<p class="enc-nota">Última pregunta que contestaron antes de irse; el porcentaje es sobre quienes contestaron esa pregunta. Quien no contestó ninguna no deja registro.</p>' +
-      cuerpo + '</section>';
+  function tarjetaGrafica(titulo, dist, nota, cuerpo, frase, ancho) {
+    var base = dist && dist.base ? 'Base: ' + persona(dist.base) + ' que contestaron esta pregunta.' : '';
+    return '<section class="ap-card enc-g' + (ancho ? ' enc-g--ancho' : '') + '"><header class="ap-card__cab"><h2>' + esc(titulo) + '</h2>' +
+      ((nota || base) ? '<p>' + esc([nota, base].filter(Boolean).join(' ')) + '</p>' : '') + '</header><div class="ap-card__cuerpo">' + cuerpo +
+      (frase ? '<p class="enc-g__frase" role="note"><strong>Cómo leerlo:</strong> ' + esc(frase) + '</p>' : '') + '</div></section>';
+  }
+  var VACIO_PREGUNTA = { titulo: 'Aún no hay respuestas', texto: 'Cuando alguien conteste esta pregunta en la portada, aparecerá aquí.' };
+
+  function graficaDona(titulo, dist, nota) {
+    var cuerpo = G.anillo({
+      titulo: titulo, centro: { valor: num(dist.base), rotulo: dist.base === 1 ? 'persona' : 'personas' },
+      partes: dist.items.map(function (it, i) { return { etiqueta: it.valor, valor: it.n, color: i + 1 }; }), vacio: VACIO_PREGUNTA
+    });
+    return tarjetaGrafica(titulo, dist, nota, cuerpo, fraseDeCada10(dist));
+  }
+  function graficaBarrasH(titulo, dist, nota, frase) {
+    var cuerpo = G.barrasH({ titulo: titulo, filas: dist.items.map(function (it) { return { etiqueta: it.valor, valor: it.n }; }), total: dist.base, vacio: VACIO_PREGUNTA });
+    return tarjetaGrafica(titulo, dist, nota, cuerpo, frase || fraseTop(dist));
+  }
+  function graficaColumnas(titulo, dist, clave, nota, frase) {
+    var items = ord(dist, clave);
+    var cuerpo = G.serie({
+      titulo: titulo, tipo: 'barras', unidad: 'personas', alto: 210,
+      etiquetas: items.map(function (it) { return CORTAS[it.valor] || it.valor; }), titulos: items.map(function (it) { return it.valor; }),
+      series: [{ nombre: 'Personas', valores: items.map(function (it) { return it.n; }), color: 1 }], vacio: VACIO_PREGUNTA
+    });
+    return tarjetaGrafica(titulo, dist, nota, cuerpo, frase || fraseTop(dist));
   }
 
-  function retosHTML(r) {
-    var cuerpo = r.retos.length
-      ? '<ul class="enc-lista">' + r.retos.map(function (x) {
-        return '<li><span><b>' + esc(x.perfil) + '</b> · ' + esc(x.reto) + '</span><span class="enc-barras__n">' + num(x.n) + '</span></li>';
-      }).join('') + '</ul>'
-      : '<p class="enc-vacio">Aún no hay respuestas para esta pregunta.</p>';
-    return '<section class="enc-panel"><h3>Reto principal por perfil</h3>' + cuerpo + '</section>';
+  function graficaRetos(r) {
+    var datos = r.retosPorPerfil || [];
+    var cuerpo = G.apiladas({
+      titulo: 'Reto principal por perfil', unidad: 'personas',
+      filas: datos.map(function (p) { return { etiqueta: p.perfil, segmentos: p.retos.map(function (x) { return { etiqueta: x.reto, valor: x.n }; }) }; }),
+      vacio: { titulo: 'Aún no hay retos elegidos', texto: 'Aquí verás, por perfil, qué reto eligen más las personas.' }
+    });
+    var f = '';
+    if (datos.length) {
+      var p = datos[0]; var top = p.retos[0];
+      f = 'Cada barra es un perfil y se reparte entre los retos que ese perfil puede elegir. Entre «' + p.perfil + '» (el perfil con más respuestas, ' + persona(p.total) + '), ' + (p.retos[1] && p.retos[1].n === top.n ? 'hay empate entre los retos más elegidos: ' + top.n + ' de ' + p.total + ' cada uno.' : 'el reto más elegido es «' + top.reto + '» con ' + top.n + ' de ' + p.total + '.');
+    }
+    var base = datos.reduce(function (t, x) { return t + x.total; }, 0);
+    return tarjetaGrafica('Reto principal por perfil', { base: base }, 'Cada perfil tiene sus propios retos, por eso cada barra tiene partes distintas.', cuerpo, f, true);
+  }
+
+  function graficaAbandono(r) {
+    var pasos = r.abandono.filter(function (a) { return a.n > 0; });
+    var cuerpo = G.barrasH({
+      titulo: 'Dónde se quedan quienes no terminan', porcentaje: false, color: 4, total: r.parciales || 1,
+      filas: pasos.map(function (a) { return { etiqueta: a.etiqueta, valor: a.n, nota: 'Se fueron aquí: ' + num(a.n) + ' de ' + num(a.respondieron) + ' que la contestaron (' + a.pct + ' %)' }; }),
+      vacio: { titulo: r.total ? 'Nadie ha abandonado' : 'Aún no hay respuestas', texto: r.total ? 'Todas las personas que empezaron la encuesta la terminaron.' : 'Cuando alguien empiece la encuesta, verás en qué pregunta se detiene.' }
+    });
+    var encabezado = r.total ? '<p class="enc-g__cifra"><strong>' + num(r.completas) + ' de ' + num(r.total) + '</strong> terminaron la encuesta (' + r.pctCompletas + ' %). ' + (r.parciales ? 'Las otras ' + num(r.parciales) + ' se fueron en estos pasos, en el orden de la encuesta:' : '') + '</p>' : '';
+    var peor = pasos.slice().sort(function (a, b) { return b.n - a.n; })[0];
+    var f = peor ? 'La encuesta se pierde más en «' + peor.etiqueta + '»: ' + persona(peor.n) + ' se fueron ahí (' + peor.pct + ' % de quienes llegaron a esa pregunta). El porcentaje de cada fila es sobre quienes contestaron ese paso.' : '';
+    return tarjetaGrafica('Dónde se quedan quienes no terminan', null, 'Última pregunta que contestaron antes de irse.', encabezado + cuerpo + (r.sinRespuestas ? '<p class="ap-nota">' + persona(r.sinRespuestas) + ' abrieron la encuesta y no contestaron nada, por eso no aparecen en ningún paso.</p>' : ''), f, true);
+  }
+
+  function graficasHTML(r) {
+    if (!r.total) {
+      return '<div class="zs-vacio ap-vacio enc-g__vacio">' + ico('list-checks', 28) + '<strong>Todavía nadie responde la encuesta</strong>' +
+        '<span>Cuando alguien conteste en la portada, aquí verás de golpe quiénes son, cómo llegaron y qué los detiene: 11 gráficas con una frase que explica cada una.</span></div>';
+    }
+    var D = r.distribuciones;
+    var urgentes = D.urgencia.items.filter(function (it) { return it.valor === M.URGENTE; })[0];
+    var fraseUrgencia = fraseTop(D.urgencia) + (urgentes ? ' Quienes quieren empezar lo antes posible (' + persona(urgentes.n) + ') son los contactos más calientes.' : '');
+    var listos = D.freno.items.filter(function (it) { return it.valor === 'Nada, listo'; })[0];
+    var fraseFreno = fraseTop(D.freno, 'Lo que más los detiene es') + (listos && D.freno.items[0].valor !== listos.valor ? ' ' + listos.pct + ' % dice que no lo detiene nada.' : '');
+    return '<div class="enc-graficas">' +
+      graficaDona('Perfil de quién responde', D.p1, 'Qué tipo de persona es.') +
+      graficaBarrasH('Cómo nos conocieron', D.origen, 'De la más a la menos frecuente.', fraseTop(D.origen, 'La mayoría nos conoció por')) +
+      graficaColumnas('Qué quieren lograr este año', D.meta, 'meta', 'Cada columna es una meta.', fraseTop(D.meta, 'Lo que más buscan es')) +
+      graficaBarrasH('Fauna que les interesa', D.grupo, 'Del grupo de fauna que más interesa al que menos.', fraseTop(D.grupo, 'Lo que más les interesa es')) +
+      graficaColumnas('Cuándo quieren empezar', D.urgencia, 'urgencia', 'Del más urgente al más tranquilo.', fraseUrgencia) +
+      graficaBarrasH('Qué los detiene hoy', D.freno, 'Lo que frena a la persona para empezar.', fraseFreno) +
+      graficaDona('Tamaño del equipo', D.tamano, 'Solo se pregunta a personal de UMA o zoológico y a consultores.') +
+      graficaDona('Experiencia con cursos en línea', D.experiencia, 'Si ya estudió en línea.') +
+      graficaRetos(r) + graficaAbandono(r) + ramasHTML(r) + '</div>';
   }
 
   // Estado de la pantalla (filtros y cuántas filas se ven). Vive en el módulo: sobrevive a recargar los datos.
@@ -442,18 +538,30 @@
   }
 
   function ramasHTML(r) {
-    if (!r.ramas.length) return '';
-    var d = function (x) { return x ? esc(x.valor) + ' <small>(' + num(x.n) + ')</small>' : '<span class="ap-sub">—</span>'; };
-    var tabla = '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Perfil (rama)</th><th scope="col" class="ap-num-der">Empezaron</th><th scope="col" class="ap-num-der">Terminaron</th>' +
-      '<th scope="col" class="ap-num-der ap-col-3">Calientes</th><th scope="col" class="ap-num-der ap-col-3">Dejaron WhatsApp</th><th scope="col" class="ap-col-2">Reto más frecuente</th><th scope="col" class="ap-col-2">Dónde se quedan</th></tr></thead><tbody>' +
-      r.ramas.map(function (x) {
-        return '<tr><td data-label="Perfil"><strong>' + esc(x.perfil) + '</strong></td><td class="ap-num-der" data-label="Empezaron">' + num(x.total) + '</td>' +
-          '<td class="ap-num-der" data-label="Terminaron">' + num(x.completas) + ' <small>(' + x.pctCompletas + '%)</small></td><td class="ap-num-der ap-col-3" data-label="Calientes">' + num(x.calientes) + '</td>' +
-          '<td class="ap-num-der ap-col-3" data-label="Dejaron WhatsApp">' + num(x.conWhatsapp) + '</td><td class="ap-col-2" data-label="Reto más frecuente">' + d(x.reto) + '</td>' +
-          '<td class="ap-col-2" data-label="Dónde se quedan">' + (x.abandono ? esc(x.abandono.etiqueta) + ' <small>(' + num(x.abandono.n) + ')</small>' : '<span class="ap-sub">Nadie abandona</span>') + '</td></tr>';
-      }).join('') + '</tbody></table></div></div>';
-    return '<section class="enc-panel enc-panel--ancho"><h3>Resumen por rama del flujo</h3>' +
-      '<p class="enc-nota">La rama es el perfil que la persona elige al principio. Muestra cuántas la empezaron, cuántas llegaron al final y en qué pregunta se quedan las demás.</p>' + tabla + '</section>';
+    var datos = r.ramas || [];
+    var cuerpo;
+    if (!datos.length) {
+      cuerpo = '<div class="zs-vacio ap-vacio">' + ico('list-checks', 28) + '<strong>Aún no hay ramas</strong><span>Cuando alguien elija su perfil en la portada aparecerá aquí su rama.</span></div>';
+    } else {
+      var mayor = datos.reduce(function (m, x) { return Math.max(m, x.total); }, 1);
+      var d = function (x) { return x ? esc(x.valor) + ' <small>(' + num(x.n) + ')</small>' : '<span class="ap-sub">—</span>'; };
+      cuerpo = '<div class="ap-tabla-zona"><div class="ap-tabla-envoltura"><table class="ap-tabla ap-tabla--simple ap-tabla--ramas"><thead><tr><th scope="col">Perfil (rama)</th><th scope="col">Empezaron</th><th scope="col">Terminaron</th>' +
+        '<th scope="col" class="ap-num-der ap-col-3">Calientes</th><th scope="col" class="ap-num-der ap-col-3">Dejaron WhatsApp</th><th scope="col" class="ap-col-2">Reto más frecuente</th><th scope="col" class="ap-col-2">Dónde se quedan</th></tr></thead><tbody>' +
+        datos.map(function (x) {
+          return '<tr><td data-label="Perfil"><strong>' + esc(x.perfil) + '</strong></td>' +
+            '<td data-label="Empezaron"><div class="ap-mini"><span class="ap-mini__b" aria-hidden="true"><i style="width:' + Math.max(3, Math.round(x.total / mayor * 100)) + '%"></i></span><span class="ap-mini__n">' + num(x.total) + '</span></div></td>' +
+            '<td data-label="Terminaron"><div class="ap-mini"><span class="ap-mini__b ap-mini__b--ok" aria-hidden="true"><i style="width:' + x.pctCompletas + '%"></i></span><span class="ap-mini__n">' + num(x.completas) + ' <small>(' + x.pctCompletas + ' %)</small></span></div></td>' +
+            '<td class="ap-num-der ap-col-3" data-label="Calientes">' + num(x.calientes) + '</td>' +
+            '<td class="ap-num-der ap-col-3" data-label="Dejaron WhatsApp">' + num(x.conWhatsapp) + '</td><td class="ap-col-2" data-label="Reto más frecuente">' + d(x.reto) + '</td>' +
+            '<td class="ap-col-2" data-label="Dónde se quedan">' + (x.abandono ? esc(x.abandono.etiqueta) + ' <small>(' + num(x.abandono.n) + ')</small>' : '<span class="ap-sub">Nadie abandona</span>') + '</td></tr>';
+        }).join('') + '</tbody></table></div></div>';
+    }
+    var primera = datos[0];
+    var mejor = datos.filter(function (x) { return x.total >= 2; }).sort(function (a, b) { return b.pctCompletas - a.pctCompletas || b.total - a.total; })[0];
+    var frase = primera ? 'La rama es el perfil que la persona elige al principio. «' + primera.perfil + '» es la que más empieza (' + persona(primera.total) + ') y ' + primera.pctCompletas + ' % la termina.' +
+      (mejor && mejor.perfil !== primera.perfil ? ' La que más termina es «' + mejor.perfil + '» (' + mejor.pctCompletas + ' %).' : '') : '';
+    return '<section class="ap-card enc-g enc-g--ancho"><header class="ap-card__cab"><h2>Resumen por rama del flujo</h2><p>Cuántas personas empezaron cada rama, cuántas llegaron al final y en qué pregunta se quedan las demás.</p></header>' +
+      '<div class="ap-card__cuerpo">' + cuerpo + (frase ? '<p class="enc-g__frase" role="note"><strong>Cómo leerlo:</strong> ' + esc(frase) + '</p>' : '') + '</div></section>';
   }
 
   function accionesRespuesta(f, detalle) {
@@ -546,37 +654,29 @@
       (detalle ? 'Si una pregunta atendida vuelve a llegar, regresa a «Por atender».' : '') + '</p>' + controles + cuerpo + '</section>';
   }
 
+  function titulo(sub, cifras) {
+    return P.tarjetaTitulo({
+      icono: 'list-checks', eyebrow: 'Marketing', titulo: 'Encuesta', acento: 'de la portada.', sub: sub,
+      cifras: cifras || [], acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }]
+    });
+  }
+
   function cargandoHTML() {
-    return '<header class="sec-hero"><div class="sec-hero__txt"><span class="sec-eyebrow">Marketing</span><h1>Encuesta de la portada</h1><p>Cargando resultados...</p></div></header>';
+    return P.tarjetaTitulo({ icono: 'list-checks', eyebrow: 'Marketing', titulo: 'Encuesta', acento: 'de la portada.', sub: 'Cargando los datos reales del servidor…' });
   }
 
   // Vista completa de la sección. `estado` = resultado de cargar().
   function vistaHTML(estado) {
     var e = estado || {};
     var enc = e.encuesta || { ok: false, error: 'Sin datos.' };
-    var cabecera = '<header class="sec-hero"><div class="sec-hero__txt"><span class="sec-eyebrow">Marketing</span><h1>Encuesta de la portada</h1>' +
-      '<p>Quién visita, qué busca, qué tan pronto quiere empezar y quién pidió que lo contacten. Se cuenta una vez por visitante.</p></div>' +
-      '<div class="sec-hero__acc"><button type="button" class="btn-add btn-add--suave" id="encRecargar">' + ico('refresh-cw', 16) + ' Actualizar</button></div></header>';
+    var cabecera = titulo('Quién visita, qué busca, qué tan pronto quiere empezar y quién pidió que lo contacten. Se cuenta una vez por visitante.');
     if (!enc.ok) {
       return cabecera + '<section class="enc-panel enc-panel--ancho"><h3>No se pudieron cargar las respuestas</h3><p class="enc-error">' + esc(enc.error) + '</p></section>' +
         preguntasHTML(e.preguntas || { ok: false, error: 'Sin datos.' });
     }
     var r = calcular(enc.docs);
-    var D = r.distribuciones;
     var detalle = enc.detalle === true;
-    return cabecera + kpisHTML(r) +
-      '<div class="enc-rejilla">' +
-        barrasHTML('Perfil de quién responde', D.p1) +
-        barrasHTML('Cómo nos conocieron', D.origen) +
-        barrasHTML('Qué quieren lograr este año', D.meta) +
-        barrasHTML('Fauna que les interesa', D.grupo) +
-        barrasHTML('Cuándo quieren empezar', D.urgencia) +
-        barrasHTML('Qué los detiene hoy', D.freno) +
-        barrasHTML('Tamaño del equipo', D.tamano, 'Solo se pregunta a personal de UMA o zoológico y a consultores.') +
-        barrasHTML('Experiencia con cursos en línea', D.experiencia) +
-        retosHTML(r) +
-        abandonoHTML(r) +
-      '</div>' + ramasHTML(r) + leadsHTML(r, detalle) + respuestasHTML(r, detalle) + preguntasHTML(e.preguntas || { ok: false, error: 'Sin datos.' });
+    return cabecera + kpisHTML(r) + graficasHTML(r) + leadsHTML(r, detalle) + respuestasHTML(r, detalle) + preguntasHTML(e.preguntas || { ok: false, error: 'Sin datos.' });
   }
 
   /* ───────────────────────── Montaje (solo en el navegador) ───────────────────────── */
@@ -607,6 +707,8 @@
     }
 
     contenedor.onclick = async function (ev) {
+      var rec = ev.target.closest('[data-accion="recargar"]');
+      if (rec) { ev.preventDefault(); deps.recargar(); return; }
       var b = ev.target.closest('[data-enc]');
       if (!b || b.disabled) return;
       await hacer(b.dataset.enc, b.dataset);
@@ -693,8 +795,6 @@
         }
       } catch (e) { deps.toast((e && e.message) || 'No se pudo completar la acción.', true); }
     }
-    var recargar = contenedor.querySelector('#encRecargar');
-    if (recargar) recargar.addEventListener('click', function () { deps.recargar(); });
     void detalle;
   }
 
@@ -705,7 +805,7 @@
     esc: esc, aFecha: aFecha, formatoFecha: formatoFecha, contactoDe: contactoDe, consolidar: consolidar, numeroDudoso: numeroDudoso,
     distribucion: distribucion, calcular: calcular, calcularPreguntas: calcularPreguntas,
     mensajeError: mensajeError, cargar: cargar,
-    kpisHTML: kpisHTML, barrasHTML: barrasHTML, abandonoHTML: abandonoHTML, retosHTML: retosHTML, leadsHTML: leadsHTML,
+    kpisHTML: kpisHTML, graficasHTML: graficasHTML, fraseTop: fraseTop, fraseDeCada10: fraseDeCada10, leadsHTML: leadsHTML,
     preguntasHTML: preguntasHTML, cargandoHTML: cargandoHTML, vistaHTML: vistaHTML
   };
 });

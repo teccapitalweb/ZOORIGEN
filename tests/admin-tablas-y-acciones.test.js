@@ -127,17 +127,16 @@ test('Herramientas (Próximamente) ya no existe y tampoco los bloques «Próxima
   for (const t of ['metricas', 'pruebas', 'encuesta']) assert.match(html, new RegExp(`data-sec="${t}"`));
 });
 
-test('Configuración: interruptores en el servidor, aviso global, administradores y servicios; nada de secretos', () => {
-  const t = vistas.slice(vistas.indexOf('async function configuracion'), vistas.indexOf('/* ───────── ESTADO DEL SISTEMA'));
-  assert.match(t, /ctx\.api\('\/api\/admin\/config'\)/);
-  assert.match(t, /'\/api\/admin\/config', \{ method: 'POST', body: cuerpo \}/);
-  assert.match(t, /contadorVisitas: true/);
-  assert.match(t, /PARRAFO_PRIVACIDAD/);
-  assert.match(vistas, /no usa cookies, no guarda tu dirección IP/);
-  assert.match(t, /El Club aún no lo muestra/);
-  assert.doesNotMatch(t, /sk_live|sk_test|whsec_|apiKey/);
-  // encender el contador pide confirmar que ya se agregó el párrafo al aviso de privacidad
-  assert.match(t, /Ya lo agregué, encender/);
+test('Configuración: cuatro tarjetas (precios, contacto, servicios, historial) con sus endpoints; nada de secretos', () => {
+  const t = vistas.slice(vistas.indexOf('async function configuracion'), vistas.indexOf('/* ───────── AVANCE DE MIEMBROS'));
+  for (const ruta of ['/api/admin/precios', '/api/admin/contacto', '/api/admin/servicios', '/api/admin/servidor/historial']) assert.ok(t.includes(ruta), 'falta ' + ruta);
+  assert.match(t, /'\/api\/admin\/contacto', \{ method: 'POST', body: cuerpo \}/);
+  assert.match(t, /'\/api\/admin\/servidor\/reconocer-reinicios', \{ method: 'POST'/);
+  assert.match(t, /Marcar como publicaciones normales/);
+  // lo que ya no está en Configuración: interruptores, aviso global, administradores, variables y respaldo
+  assert.doesNotMatch(t, /\/api\/admin\/config|contadorVisitas|clasesEnVivoPronto|avisoGlobal|ADMIN_EMAILS|\/api\/admin\/estado/);
+  assert.doesNotMatch(t, /sk_live|sk_test|whsec_|apiKey|pk_live/);
+  assert.doesNotMatch(vistas, /function estadoSistema|ESTADO DEL SISTEMA/);
 });
 
 /* ───────── Encuesta ampliada ───────── */

@@ -170,6 +170,48 @@ test('pruebasHTML: totales, por curso, tabla con avance y escapado; sin acción 
   assert.match(M.pruebasHTML({ ...pruebas(), filas: [], porCurso: [], totales: { elegidas: 0, terminaronGratis: 0, seHicieronMiembro: 0, conAcceso: 0, tasaMiembro: null, tasaTerminaron: null } }, {}), /Nadie ha elegido todavía/);
 });
 
+const pruebasConGraficas = () => {
+  const semanas = Array.from({ length: 12 }, (_, i) => ({ desde: P.sumarDiasClave('2026-08-03', i * 7), cuentasNuevas: i === 11 ? 6 : i === 10 ? 4 : 0, pruebasElegidas: i === 11 ? 3 : 0 }));
+  return {
+    ...pruebas(), semanas,
+    totales: { elegidas: 3, terminaronGratis: 1, seHicieronMiembro: 1, conAcceso: 1, tasaMiembro: 33, tasaTerminaron: 33, empezaron: 2 },
+    embudo: [{ clave: 'eligieron', etiqueta: 'Eligieron su prueba', valor: 3 }, { clave: 'empezaron', etiqueta: 'Empezaron el curso', valor: 2 }, { clave: 'ultima', etiqueta: 'Llegaron a la última clase gratis', valor: 1 }],
+    avance: [{ clave: 'sin-empezar', etiqueta: 'Sin empezar', valor: 1 }, { clave: 'poco', etiqueta: 'Menos de la mitad', valor: 1 }, { clave: 'mitad', etiqueta: 'La mitad o más', valor: 0 }, { clave: 'termino', etiqueta: 'Terminaron las clases gratis', valor: 1 }, { clave: 'sin-clases', etiqueta: 'Curso sin clases gratis', valor: 0 }],
+    destino: { miembros: 1, noMiembros: 2 }
+  };
+};
+
+test('pruebasHTML: cinco gráficas con datos reales y su frase «Cómo leerlo» (semanas, curso, avance, última clase y quién paga después)', () => {
+  const h = M.pruebasHTML(pruebasConGraficas(), {});
+  for (const t of ['Cuentas nuevas y pruebas elegidas por semana', 'Curso que eligen para su prueba', 'Avance de la prueba', 'Cuántas personas llegan a la última clase gratis', 'Cuántas pagan después']) {
+    assert.ok(h.includes('<h2>' + t + '</h2>'), 'falta: ' + t);
+  }
+  assert.match(h, /zg zg--barras/);
+  assert.match(h, /Cuentas nuevas/);
+  assert.match(h, /Pruebas elegidas/);
+  assert.match(h, /En las últimas 12 semanas se crearon 10 personas y 3 personas eligieron su curso de prueba/);
+  assert.match(h, /El curso más elegido es «Fototrampeo»: 2 personas \(67 % de las pruebas\)/);
+  assert.match(h, /De 3 personas con clases gratis, 1 todavía no empiezan y 1 ya terminaron/);
+  assert.match(h, /De cada 10 personas que eligieron su prueba, 7 empiezan el curso y 3 llegan a la última clase gratis/);
+  assert.match(h, /De cada 10 personas que eligieron una prueba, 3 ya son miembros/);
+  assert.match(h, /zg-anillo/);
+  assert.ok(!/gradient\(/i.test(h) && !/[\p{Extended_Pictographic}\u{FE0F}]/u.test(h));
+});
+
+test('pruebasHTML sin datos: las gráficas muestran estados vacíos amables y no inventan cifras', () => {
+  const vacio = { ...pruebas(), filas: [], porCurso: [], totales: { elegidas: 0, terminaronGratis: 0, seHicieronMiembro: 0, conAcceso: 0, tasaMiembro: null, tasaTerminaron: null, empezaron: 0 },
+    semanas: Array.from({ length: 12 }, (_, i) => ({ desde: P.sumarDiasClave('2026-08-03', i * 7), cuentasNuevas: 0, pruebasElegidas: 0 })),
+    embudo: [{ valor: 0 }, { valor: 0 }, { valor: 0 }], avance: [], destino: { miembros: 0, noMiembros: 0 }, sinElegir: { total: 0, lista: [] } };
+  let h;
+  assert.doesNotThrow(() => { h = M.pruebasHTML(vacio, {}); });
+  assert.match(h, /Sin movimiento en 12 semanas/);
+  assert.match(h, /Nadie ha elegido todavía/);
+  assert.match(h, /Sin pruebas todavía/);
+  assert.doesNotMatch(h, /Cómo leerlo/);
+  // un servidor que todavía no manda las series (versión anterior) tampoco rompe la pantalla
+  assert.doesNotThrow(() => M.pruebasHTML(pruebas(), {}));
+});
+
 test('admin-marketing.js solo habla con el servidor: nada de Firestore directo ni escrituras', () => {
   const js = leer('assets/js/admin-marketing.js').replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(js, /db\.collection|getDocs|firebase\.firestore|method: 'POST'|method: 'DELETE'/);
