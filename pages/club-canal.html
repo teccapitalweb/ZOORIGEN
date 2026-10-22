@@ -6,7 +6,8 @@
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>/*zs-cupon*/!function(d){try{var c=JSON.parse(localStorage.getItem("zoo_cupon")||"null"),p=localStorage.getItem("zoo_plan");if(c&&c.venceLocal>Date.now()&&p!=="active"&&p!=="cancelled_active"&&localStorage.getItem("zoo_admin")!=="1"){var h=d.documentElement;h.className+=" zoo-cupon";h.style.setProperty("--fomo-h",(innerWidth<640?c.hm||112:c.hd||60)+"px")}}catch(e){}}(document)</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Canal de WhatsApp · Zoorigen</title>
   <!-- ===== PWA ===== -->
   <link rel="manifest" href="/manifest.json">
@@ -27,6 +28,7 @@
   <link rel="stylesheet" href="../assets/css/club-shell.css?v=20261128-arreglos">
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-comunidad.css?v=20261123-sinmorado">
+  <link rel="stylesheet" href="../assets/css/club-cupon.css?v=20261209-cupon">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="canal">
@@ -92,11 +94,12 @@
   <script src="../assets/js/club-seccion.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-cola.js?v=20261208-libro"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionCanal","seccion":"canal","icono":"radio","eyebrow":"Canal oficial","titulo":"Canal de WhatsApp,","acento":"siempre al día.","sub":"Novedades oficiales de Zoorigen directo en tu teléfono."});</script>
-  <script src="../assets/js/club.js?v=20261207-integrado"></script>
+  <script src="../assets/js/club.js?v=20261209-cupon"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/club-paywall.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-shell.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
+  <script src="../assets/js/club-cupon.js?v=20261209-cupon"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261104"></script>
   <script src="../assets/js/club-referidos.js?v=20261114-invitar"></script>
   <script>

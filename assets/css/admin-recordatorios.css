@@ -1,0 +1,94 @@
+/* ============================================================ */
+/* PANEL · RECORDATORIOS DE PAGO (assets/js/admin-recordatorios.js)*/
+/* Colores sólidos de las variables del panel (día y noche).     */
+/* Texto mínimo de 12 px y áreas táctiles de 40 px.              */
+/* ============================================================ */
+.rp-control { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 20px; margin: 0 0 14px; }
+.rp-control__estado { display: flex; align-items: flex-start; gap: 12px; min-width: 0; flex: 1 1 340px; }
+.rp-control__txt { min-width: 0; }
+.rp-control__txt strong { display: block; color: var(--c-text); font-size: 1rem; margin-bottom: 2px; }
+.rp-control__txt p { margin: 0; color: var(--c-text-2); font-size: .875rem; line-height: 1.5; }
+.rp-control__acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.rp-control__acciones .ap-btn { min-height: 40px; }
+.rp-modo { flex: none; font-weight: 800; letter-spacing: .04em; }
+.rp-dato { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; color: var(--c-text-2); font-size: .875rem; }
+.rp-dato .zi { color: var(--c-text-3); flex: none; }
+.rp-dato strong { color: var(--c-text); }
+.rp-nota { margin: 10px 0 0; color: var(--c-text-3); font-size: .8125rem; line-height: 1.5; }
+
+.rp-limites { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; margin: 0 0 6px; padding: 14px; border: 1px solid var(--c-line); border-radius: 14px; background: var(--c-surface); }
+.rp-limites .ap-campo { margin: 0; }
+.rp-limites input { width: 110px; font-variant-numeric: tabular-nums; }
+.rp-limites .ap-btn { min-height: 40px; }
+.rp-limites .ap-error { flex-basis: 100%; margin: 0; }
+.rp-limites .ap-error[hidden] { display: none; }
+
+/* ¿Cómo funciona cada vuelta? */
+.rp-como { margin: 14px 0 0; border: 1px solid var(--c-line); border-radius: 14px; background: var(--c-surface); }
+.rp-como > summary { cursor: pointer; padding: 12px 16px; min-height: 40px; display: flex; align-items: center; font-weight: 700; color: var(--c-text); list-style: none; }
+.rp-como > summary::-webkit-details-marker { display: none; }
+.rp-como > summary::after { content: "+"; margin-left: auto; font-size: 1.25rem; color: var(--c-text-3); }
+.rp-como[open] > summary::after { content: "−"; }
+.rp-como > summary:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; border-radius: 12px; }
+:root[data-modo="claro"] .rp-como > summary:focus-visible { outline-color: #1F5F8F; }
+.rp-como__cuerpo { padding: 0 16px 14px; color: var(--c-text-2); font-size: .875rem; line-height: 1.6; }
+.rp-como__cuerpo p { margin: 0 0 10px; }
+.rp-pasos { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.rp-pasos li { display: flex; align-items: center; gap: 10px; }
+.rp-paso__n { flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--c-accent); color: var(--c-accent-ink, #1f1d17); font-weight: 800; font-size: .8125rem; }
+
+/* Resultados */
+.rp-kpis { margin-bottom: 18px; }
+
+/* Seguimiento */
+.rp-selector select { min-height: 40px; padding: 0 12px; border: 1px solid var(--c-line); border-radius: 12px; background: var(--c-input); color: var(--c-text); font: inherit; font-size: .875rem; }
+.rp-selector select:focus { outline: 3px solid #F7CB62; outline-offset: 0; border-color: var(--c-accent); }
+.rp-tabla td small.ap-sub { display: block; }
+.rp-puntos { display: inline-flex; gap: 4px; align-items: center; vertical-align: middle; margin-right: 8px; }
+.rp-punto { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--c-line-strong); background: transparent; box-sizing: border-box; }
+.rp-punto.is-hecho { background: var(--c-accent); border-color: var(--c-accent); }
+.rp-vuelta, .rp-pill { display: inline-flex; align-items: center; font-size: .75rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--c-line); color: var(--c-text-2); background: var(--c-surface); white-space: nowrap; }
+.rp-pill { margin-left: 6px; color: var(--c-text); }
+.rp-cuando { display: inline-flex; flex-direction: column; font-size: .875rem; color: var(--c-text); font-variant-numeric: tabular-nums; }
+.rp-cuando small { color: var(--c-text-3); font-size: .75rem; }
+.rp-cuando--nada { color: var(--c-text-3); }
+
+/* Últimos correos */
+.rp-recientes { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rp-recientes li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px 16px; padding: 10px 14px; border: 1px solid var(--c-line); border-radius: 12px; background: var(--c-surface); }
+.rp-reciente__quien { min-width: 0; display: flex; flex-direction: column; }
+.rp-reciente__quien strong { color: var(--c-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rp-reciente__que { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.rp-reciente__cuando { font-size: .8125rem; color: var(--c-text-3); font-variant-numeric: tabular-nums; }
+
+/* Probar */
+.rp-prueba__txt { margin: 0 0 12px; color: var(--c-text-2); font-size: .875rem; line-height: 1.55; }
+.rp-prueba { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 12px; }
+.rp-prueba .ap-campo { margin: 0; min-width: 190px; }
+.rp-prueba .ap-btn { min-height: 40px; }
+
+/* Ventanas */
+.rp-lista-modal { margin: 0 0 12px; padding-left: 20px; color: var(--c-text-2); font-size: .875rem; line-height: 1.6; }
+.rp-ensayo { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; max-height: 280px; overflow: auto; }
+.rp-ensayo li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid var(--c-line); border-radius: 10px; }
+.rp-ensayo li > span:first-child { min-width: 0; display: flex; flex-direction: column; }
+
+@media (max-width: 640px) {
+  .rp-control__acciones { width: 100%; }
+  .rp-control__acciones .ap-btn { flex: 1 1 140px; justify-content: center; }
+  .rp-limites input { width: 100%; }
+  .rp-limites .ap-campo { flex: 1 1 130px; }
+  .rp-prueba .ap-campo { flex: 1 1 100%; }
+  .rp-prueba .ap-btn { flex: 1 1 100%; justify-content: center; }
+  .rp-recientes li { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Tabla de seguimiento en pantallas angostas: cada cuenta es una tarjeta con sus datos rotulados (el contenedor, no la ventana, decide) */
+@container tabla (max-width: 639px) {
+  .rp-tabla, .rp-tabla tbody, .rp-tabla tr, .rp-tabla td { display: block; width: auto; }
+  .rp-tabla thead { display: none; }
+  .rp-tabla tr { padding: 12px 14px; border-bottom: 1px solid var(--c-line); }
+  .rp-tabla td { padding: 4px 0; border: 0; white-space: normal; }
+  .rp-tabla td::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--c-text-3); }
+  .rp-tabla td:first-child { padding-left: 0; }
+}

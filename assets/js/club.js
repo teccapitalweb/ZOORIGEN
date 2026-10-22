@@ -1112,7 +1112,7 @@ const ZOORIGEN_CLUB = {
   // ============== AUTH CON FIREBASE ==============
   // Versión de los Términos y condiciones y del Aviso de privacidad que la persona acepta al crear su cuenta
   // (la "Versión" que muestran terminos-y-condiciones.html y aviso-de-privacidad.html; tests/club-ingreso.test.js lo vigila).
-  TERMINOS_VERSION: '1.0',
+  TERMINOS_VERSION: '1.1',
   MSG_TERMINOS: 'Para crear tu cuenta debes aceptar los Términos y condiciones y el Aviso de privacidad.',
 
   // Lo que se guarda en la ficha del miembro al aceptar los términos: fecha (ISO) y versión aceptadas.

@@ -31,6 +31,7 @@
     { id: 'creditos', grupo: 'Comunidad', titulo: 'Créditos', icono: 'wallet', zoo: 'logros', origen: 'servidor' },
     { id: 'metricas', grupo: 'Marketing', titulo: 'Métricas', icono: 'chart-line', zoo: 'videos', origen: 'servidor' },
     { id: 'pruebas', grupo: 'Marketing', titulo: 'Pruebas gratuitas', icono: 'flask-conical', zoo: 'registro', origen: 'servidor' },
+    { id: 'recordatorios', grupo: 'Marketing', titulo: 'Recordatorios de pago', icono: 'mail', zoo: 'canal', origen: 'servidor' },
     { id: 'encuesta', grupo: 'Marketing', titulo: 'Encuesta', icono: 'list-checks', zoo: 'canal', origen: 'servidor' },
     { id: 'configuracion', grupo: 'Sistema', titulo: 'Configuración', icono: 'settings', zoo: 'perfil', origen: 'servidor' },
     { id: 'avance', grupo: 'Sistema', titulo: 'Avance de miembros', icono: 'graduation-cap', zoo: 'certificados', origen: 'servidor' }

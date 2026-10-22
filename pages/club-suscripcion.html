@@ -7,6 +7,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/icon-apple-touch.png">
   <meta charset="UTF-8">
   <script>/*zs-admin*/!function(){try{var s=window.sessionStorage,h=document.documentElement,q=/[?&]como=(user|admin)(?:&|#|$)/.exec(location.search);if(q){if(q[1]==="user")s.setItem("zoo_como_usuario","1");else s.removeItem("zoo_como_usuario")}if(localStorage.getItem("zoo_admin")==="1"){if(s.getItem("zoo_como_usuario")==="1")h.setAttribute("data-como","user");else{h.style.visibility="hidden";setTimeout(function(){h.style.visibility=""},4000);location.replace("admin-club.html")}}}catch(e){}}()</script>
+  <script>/*zs-cupon*/!function(d){try{var c=JSON.parse(localStorage.getItem("zoo_cupon")||"null"),p=localStorage.getItem("zoo_plan");if(c&&c.venceLocal>Date.now()&&p!=="active"&&p!=="cancelled_active"&&localStorage.getItem("zoo_admin")!=="1"){var h=d.documentElement;h.className+=" zoo-cupon";h.style.setProperty("--fomo-h",(innerWidth<640?c.hm||112:c.hd||60)+"px")}}catch(e){}}(document)</script>
   <script>/*zs-auth-guard*/document.documentElement.setAttribute('data-zoo-auth','pending')</script>
 <style>html[data-zoo-auth="pending"] body> :not(script):not(style):not(#zv-pantalla),html[data-zoo-auth="verification"] body> :not(script):not(style):not(#zv-pantalla){visibility:hidden!important}html[data-zoo-auth="pending"] body::before{content:"Preparando tu acceso…";position:fixed;inset:0;display:grid;place-items:center;z-index:99999;background:#f5f6f1;color:#24352c;font:600 16px system-ui;visibility:visible}</style><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mi suscripción · Club VIP Zoorigen</title>
@@ -49,6 +50,7 @@
     .sub-pago__detalle { font-size: .84rem; color: var(--zoo-text-muted); margin-bottom: 16px; }
     .sub-pago__form { min-height: 120px; }
   </style>
+  <link rel="stylesheet" href="../assets/css/club-cupon.css?v=20261209-cupon">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="suscripcion">
@@ -74,10 +76,11 @@
   <script src="../assets/js/club-seccion.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-cola.js?v=20261208-libro"></script>
   <script>ZOO_SECCION.montar('#zsSeccion', {"id":"zsSeccionSuscripcion","seccion":"suscripcion","icono":"credit-card","eyebrow":"Mi suscripción","titulo":"Tu membresía,","acento":"a tu manera.","sub":"Elige el plan que prefieras, consulta tu estado y gestiona tu renovación.","cifras":[{"clave":"plan","valor":"—","ancho":"VIP Mensual","anchoLibre":"Sin plan","rotulo":"plan"},{"clave":"estado","valor":"—","ancho":"Activa","anchoLibre":"Cuenta gratuita","rotulo":"estado"},{"clave":"vence","valor":"—","ancho":"3 nov 2026","anchoLibre":"—","rotulo":"próxima renovación"}]});</script>
-  <script src="../assets/js/club.js?v=20261207-integrado"></script>
+  <script src="../assets/js/club.js?v=20261209-cupon"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/club-shell.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-avisos.js?v=20261104"></script>
+  <script src="../assets/js/club-cupon.js?v=20261209-cupon"></script>
   <script>
     (async () => {
       const session = await ZOORIGEN_CLUB.requireAuth();
@@ -182,6 +185,8 @@
           </div>`;
       }
       content.innerHTML = html;
+      // Cupón de los correos de recordatorio: si la cuenta tiene uno vigente, se explica aquí con el precio completo (el pago mensual lo aplica solo)
+      if (window.ZOO_CUPON && typeof ZOO_CUPON.montarEnSuscripcion === 'function') ZOO_CUPON.montarEnSuscripcion(content);
 
       // Pago dentro de la página (Stripe Embedded Checkout): se elige el plan arriba y el formulario aparece debajo.
       const contenedorPago = document.getElementById('checkoutEmbebido');
@@ -199,7 +204,10 @@
             b.classList.toggle('is-activo', activo);
             b.setAttribute('aria-pressed', activo ? 'true' : 'false');
           });
-          const p = PLANES[plan];
+          let p = PLANES[plan];
+          // Con un cupón vigente de los correos, el plan mensual muestra el primer mes con descuento (el servidor lo aplica solo al crear el pago)
+          const cup = window.ZOO_CUPON && ZOO_CUPON.actual ? ZOO_CUPON.actual() : null;
+          if (plan === 'mensual' && cup && ZOO_CUPON.vigente(cup)) p = Object.assign({}, p, ZOO_CUPON.pagoMensualConCupon(cup));
           document.getElementById('subPagoPlan').textContent = p.plan;
           document.getElementById('subPagoMonto').innerHTML = p.monto + ' <small>' + p.cada + '</small>';
           document.getElementById('subPagoDetalle').textContent = p.detalle;

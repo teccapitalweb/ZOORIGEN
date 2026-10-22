@@ -194,6 +194,14 @@
               <p class="auth-campo-error" id="terminosError" role="alert" hidden></p>
             </div>
 
+            <!-- Finalidad secundaria (aviso de privacidad): promociones y recordatorios por correo. Casilla SIN marcar; marcarla es negarse. -->
+            <div class="auth-terminos auth-promos" id="promosFila">
+              <label class="auth-check" for="reg-no-promos">
+                <input type="checkbox" id="reg-no-promos" name="noPromos">
+                <span>No deseo recibir promociones y recordatorios por correo. <a href="../aviso-de-privacidad.html#promociones" target="_blank" rel="noopener">Más información</a></span>
+              </label>
+            </div>
+
             <button type="submit" class="auth-submit" id="registerBtn"><span class="auth-btn__txt">Crear cuenta</span><svg class="auth-btn__flecha" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
             <p class="auth-nota">Te enviaremos un correo para confirmar tu dirección.</p>
 
@@ -223,7 +231,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261207-integrado"></script>
+  <script src="../assets/js/club.js?v=20261209-cupon"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/club-ingreso.js?v=20261129-acceso"></script>
@@ -244,6 +252,22 @@
       var paneles = { entrar: $('panel-entrar'), crear: $('panel-crear') };
       var campos = { email: $('email'), password: $('password'), name: $('reg-name'), regEmail: $('reg-email'), regPassword: $('reg-password'), terminos: $('reg-terminos') };
       var googleCrear = $('googleBtnCrear'), googleEntrar = $('googleBtnEntrar');
+
+      /* Casilla «No deseo recibir promociones y recordatorios por correo»: al crearse la cuenta se registra la preferencia en el servidor
+         (con la sesión recién creada; no se toca ninguna regla de Firestore). Si no se alcanza a guardar, queda pendiente en este navegador
+         y club-cupon.js la reintenta en cuanto haya sesión; mientras tanto no se envía nada que no sea de la propia cuenta. */
+      async function guardarNoPromos() {
+        var caja = $('reg-no-promos');
+        if (!caja || !caja.checked) return;
+        try { localStorage.setItem('zoo_no_promos', '1'); } catch (e) { /* sin almacenamiento */ }
+        try {
+          await Promise.race([
+            ZOORIGEN_CLUB.apiFetch('/api/recordatorios/preferencia', { method: 'POST', body: { recibe: false, origen: 'registro' } }),
+            new Promise(function (_, rechazar) { setTimeout(function () { rechazar(new Error('tarda')); }, 4000); })
+          ]);
+          try { localStorage.removeItem('zoo_no_promos'); } catch (e) { /* nada */ }
+        } catch (e) { /* queda pendiente */ }
+      }
 
       /* ───────── Tema día / noche (misma clave que el resto del Club) ───────── */
       function pintarBotonTema() {
@@ -448,6 +472,7 @@
         // El código de invitación no se manda desde aquí: register() lo registra en el servidor.
         var r = await ZOORIGEN_CLUB.register(datos);
         if (r.ok) {
+          await guardarNoPromos();
           // Para entrar al Club hay que confirmar el correo: la siguiente pantalla lo explica y deja reenviarlo.
           mostrarOk(r.correoEnviado
             ? 'Cuenta creada. Te enviamos un correo para confirmar tu dirección (revisa también la carpeta de spam).'
@@ -489,6 +514,7 @@
         }
         // Si la cuenta es nueva y llegó con un código, loginWithGoogle() ya la registró como invitada en el servidor
         // (Google trae el correo confirmado). Ya no se escribe referredBy desde el navegador.
+        await guardarNoPromos();
         estado.entrando = true;
         mostrarOk('Cuenta creada. Entrando al Club...');
         setTimeout(function () { window.location.href = 'club-dashboard.html?welcome=1'; }, 1200);

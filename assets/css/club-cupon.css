@@ -1,0 +1,131 @@
+/* ============================================================ */
+/* CLUB · BARRA DEL CUPÓN DE PAGO (assets/js/club-cupon.js)       */
+/* Barra verde FIJA arriba de todas las páginas del Club mientras */
+/* la cuenta tenga un cupón vigente. Color sólido, sin degradados.*/
+/* --fomo-h = alto real de la barra (lo mide el script con un     */
+/* ResizeObserver); un script del <head> la reserva desde el      */
+/* primer cuadro para que nada salte. Sin cupón, nada de esto     */
+/* existe: ningún espacio reservado.                              */
+/* ============================================================ */
+:root {
+  --zcu-fondo: #1F5F3A;
+  --zcu-fondo-2: #2B7248;
+  --zcu-texto: #FFFFFF;
+  --zcu-suave: #E3EFE6;
+  --zcu-oro: #F3C65A;
+  --zcu-boton-fondo: #E8A317;
+  --zcu-boton-texto: #16241B;
+}
+html[data-theme="dark"], html:not([data-theme="light"]) { --zcu-fondo: #17492C; --zcu-fondo-2: #20613B; }
+html[data-theme="light"] { --zcu-fondo: #1F5F3A; --zcu-fondo-2: #2B7248; }
+
+/* ───────── La barra ───────── */
+.zcu-barra {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 75;
+  background: var(--zcu-fondo); color: var(--zcu-texto);
+  border-bottom: 3px solid var(--zcu-boton-fondo);
+  padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);
+}
+.zcu-barra .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.zcu-barra__in {
+  max-width: 1280px; margin: 0 auto; padding: 8px 12px;
+  display: grid; align-items: center; gap: 6px 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "texto reloj" "codigo cta";
+}
+.zcu-i { flex: none; display: block; }
+.zcu-texto { grid-area: texto; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.zcu-texto > .zcu-i { color: var(--zcu-oro); }
+.zcu-texto__tt { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.zcu-titulo { font-size: .875rem; font-weight: 800; color: var(--zcu-texto); overflow-wrap: anywhere; }
+.zcu-sub { font-size: .75rem; color: var(--zcu-suave); margin-top: 1px; }
+.zcu-codigo { grid-area: codigo; display: flex; align-items: stretch; gap: 6px; min-width: 0; }
+.zcu-caja {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 12px; min-width: 0; flex: 1 1 auto;
+  border: 2px dashed var(--zcu-oro); border-radius: 10px; background: var(--zcu-fondo-2);
+  font: 800 .9375rem/1 ui-monospace, "SFMono-Regular", Consolas, "Courier New", monospace; letter-spacing: .06em; color: var(--zcu-texto);
+  user-select: all; -webkit-user-select: all; white-space: nowrap;
+}
+.zcu-copiar, .zcu-cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px;
+  font-weight: 700; font-size: .8125rem; line-height: 1; font-family: inherit; text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+.zcu-copiar { background: #FFFFFF; color: var(--zcu-fondo); min-width: 40px; }
+.zcu-copiar:hover { background: #EAF2EC; }
+.zcu-copiar.is-copiado { background: var(--zcu-oro); color: var(--zcu-boton-texto); }
+.zcu-cta { grid-area: cta; background: var(--zcu-boton-fondo); color: var(--zcu-boton-texto); padding: 0 14px; font-size: .875rem; }
+.zcu-cta:hover { background: #F3B63A; }
+.zcu-reloj { grid-area: reloj; display: flex; align-items: center; gap: 6px; font-size: .75rem; color: var(--zcu-suave); text-align: right; }
+.zcu-reloj > .zcu-i { display: none; color: var(--zcu-oro); }
+.zcu-reloj > span { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
+.zcu-reloj time { font-size: .875rem; font-weight: 800; color: var(--zcu-texto); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.zcu-barra :is(a, button):focus-visible { outline: 3px solid var(--zcu-oro); outline-offset: 2px; }
+.zcu-caja::selection { background: var(--zcu-oro); color: var(--zcu-boton-texto); }
+
+/* Teléfonos muy angostos: los botones se compactan sin quitar el texto ni el área táctil */
+@media (max-width: 400px) {
+  .zcu-barra__in { padding-left: 10px; padding-right: 10px; gap: 6px 8px; }
+  .zcu-titulo { font-size: .8125rem; }
+  .zcu-caja { padding: 0 8px; font-size: .875rem; letter-spacing: .03em; }
+  .zcu-copiar { padding: 0 9px; gap: 4px; }
+  .zcu-cta { padding: 0 10px; gap: 4px; font-size: .8125rem; }
+}
+
+/* Pantallas medianas y grandes: una sola fila */
+@media (min-width: 640px) {
+  .zcu-barra__in { padding: 8px 20px; grid-template-columns: minmax(0, 1fr) auto auto auto; grid-template-areas: "texto codigo reloj cta"; gap: 12px 16px; }
+  .zcu-titulo { font-size: .9375rem; }
+  .zcu-reloj > span { flex-direction: row; align-items: baseline; gap: 6px; }
+  .zcu-reloj > .zcu-i { display: block; }
+  .zcu-reloj time { font-size: .9375rem; }
+  .zcu-caja { flex: none; min-width: 150px; }
+}
+
+/* ───────── Hace sitio a la barra: nada queda debajo ───────── */
+html.zoo-cupon { scroll-padding-top: calc(var(--fomo-h, 0px) + 12px); }
+html.zoo-cupon body { padding-top: var(--fomo-h, 0px); }
+html.zoo-cupon .zs-topbar { top: var(--fomo-h, 0px); }
+html.zoo-cupon .notif-panel.zs-notif { top: calc(64px + var(--fomo-h, 0px)); }
+@media (min-width: 981px) {
+  html.zoo-cupon .club-sidebar { top: var(--fomo-h, 0px); height: calc(100vh - var(--fomo-h, 0px)); }
+  html.zoo-cupon .zs-topbar { top: calc(var(--fomo-h, 0px) + 12px); }
+}
+
+/* ───────── Bloque en la página «Suscripción» ───────── */
+.zcu-bloque {
+  display: flex; gap: 14px; align-items: flex-start; margin: 0 0 18px; padding: 16px 18px;
+  background: var(--zoo-tint, #EAF2EC); border: 1px solid var(--zoo-border-strong, #D8D2C4); border-left: 6px solid var(--zcu-boton-fondo); border-radius: 14px;
+}
+.zcu-bloque__ico { flex: none; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--zcu-fondo); color: var(--zcu-oro); }
+.zcu-bloque__tt { margin: 0 0 4px; font-size: 1.05rem; font-weight: 800; color: var(--zoo-text, #1F2933); }
+.zcu-bloque__txt p { margin: 0; font-size: .9rem; line-height: 1.55; color: var(--zoo-text-muted, #52606D); }
+.zcu-bloque__txt code { font: 800 .9rem ui-monospace, Consolas, monospace; letter-spacing: .04em; padding: 1px 6px; border-radius: 6px; background: var(--zoo-bg-card-2, #EFEBE2); color: var(--zoo-text, #1F2933); }
+.zcu-bloque__txt strong { color: var(--zoo-text, #1F2933); }
+
+/* ───────── Movimiento ───────── */
+@media (prefers-reduced-motion: no-preference) {
+  .zcu-copiar, .zcu-cta { transition: background-color .15s ease, color .15s ease; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zcu-copiar, .zcu-cta { transition: none; }
+  html.zoo-cupon { scroll-behavior: auto; }
+}
+
+/* ───────── Mi perfil: interruptor «Recibir promociones por correo» ───────── */
+.zp-pref { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 8px 0 2px; }
+.zp-pref__txt { min-width: 0; }
+.zp-pref__txt strong { display: block; font-size: .95rem; color: var(--zoo-text, #1F2933); margin-bottom: 4px; }
+.zp-pref__txt p { margin: 0; font-size: .85rem; line-height: 1.55; color: var(--zoo-text-muted, #52606D); }
+.zp-pref__estado { margin: 10px 0 0; font-size: .85rem; font-weight: 600; color: var(--zoo-text, #1F2933); }
+.zp-pref__nota { margin: 6px 0 0; font-size: .8125rem; color: var(--zoo-text-dim, #66727F); }
+.zp-pref__nota a { color: inherit; text-decoration: underline; }
+.zp-sw {
+  flex: none; position: relative; width: 56px; height: 40px; padding: 0; border: 0; border-radius: 999px; cursor: pointer; background: transparent;
+}
+.zp-sw::before { content: ""; position: absolute; left: 0; right: 0; top: 7px; height: 26px; border-radius: 999px; background: #6B7785; transition: background-color .15s ease; }
+.zp-sw.is-on::before { background: #1F5F3A; }
+.zp-sw__perilla { position: absolute; top: 10px; left: 4px; width: 20px; height: 20px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); transition: transform .15s ease; }
+.zp-sw.is-on .zp-sw__perilla { transform: translateX(28px); }
+.zp-sw:disabled { cursor: not-allowed; opacity: .55; }
+.zp-sw:focus-visible { outline: 3px solid #E8A317; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .zp-sw::before, .zp-sw__perilla { transition: none; } }

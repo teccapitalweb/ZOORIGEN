@@ -114,6 +114,15 @@ function scriptAdmin() {
     'else{h.style.visibility="hidden";setTimeout(function(){h.style.visibility=""},4000);location.replace("admin-club.html")}}}catch(e){}}()</script>';
 }
 
+/* Barra del cupón de pago (assets/js/club-cupon.js): si este navegador recuerda un cupón vigente y la cuenta no es miembro ni administra,
+   reserva desde el primer cuadro el alto de la barra fija (--fomo-h) para que la página no salte. Sin cupón recordado no hace nada.
+   Solo en las páginas del panel que cargan club-cupon.js. */
+function scriptCupon() {
+  return '<script>/*zs-cupon*/!function(d){try{var c=JSON.parse(localStorage.getItem("zoo_cupon")||"null"),p=localStorage.getItem("zoo_plan");' +
+    'if(c&&c.venceLocal>Date.now()&&p!=="active"&&p!=="cancelled_active"&&localStorage.getItem("zoo_admin")!=="1"){var h=d.documentElement;h.className+=" zoo-cupon";' +
+    'h.style.setProperty("--fomo-h",(innerWidth<640?c.hm||112:c.hd||60)+"px")}}catch(e){}}(document)</script>';
+}
+
 function bloqueFuentes(conPlayfair, imagenes) {
   return '  <!-- zs:fuentes -->\n' +
     '  <link rel="preload" href="../assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>\n' +
@@ -176,9 +185,13 @@ function procesar(html, archivo) {
   /* 1) Cabecera: tema primero, tipografías propias */
   h = h.replace(/<script>\/\*zs-tema\*\/[\s\S]*?<\/script>\s*/, '');
   h = h.replace(/<script>\/\*zs-admin\*\/[\s\S]*?<\/script>\s*/, '');
+  h = h.replace(/<script>\/\*zs-cupon\*\/[\s\S]*?<\/script>\s*/, '');
+  const conCupon = esPanel && /assets\/js\/club-cupon\.js/.test(h);
   h = h.replace(/<head>\s*/, () => '<head>\n' + scriptTema() + '\n  ');
   // La decisión de administrador va justo después de <meta charset> (que debe quedar en los primeros 1024 bytes) y antes de todo CSS.
-  if (esPanel && nombre !== 'club-canal.html') h = h.replace(/(<meta charset="UTF-8">(?:<meta name="viewport"[^>]*>)?)/, (m) => m + '\n  ' + scriptAdmin());
+  // La reserva de la barra del cupón (si la página la usa) va después de la decisión de administrador, también tras <meta charset>.
+  const scriptsTrasMeta = [(esPanel && nombre !== 'club-canal.html') ? scriptAdmin() : '', conCupon ? scriptCupon() : ''].filter(Boolean);
+  if (scriptsTrasMeta.length) h = h.replace(/(<meta charset="UTF-8">(?:<meta name="viewport"[^>]*>)?)/, (m) => m + scriptsTrasMeta.map((x) => '\n  ' + x).join(''));
   h = h.replace(/[ \t]*<link[^>]*fonts\.(?:googleapis|gstatic)\.com[^>]*>[ \t]*\r?\n?/g, '');
   h = h.replace(/[ \t]*<!-- zs:fuentes -->[\s\S]*?<!-- \/zs:fuentes -->\r?\n?/, '');
   const conPlayfair = nombre === 'club-dashboard.html';

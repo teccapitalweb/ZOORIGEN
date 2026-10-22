@@ -220,6 +220,7 @@
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
   <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261208-libro">
+  <link rel="stylesheet" href="../assets/css/admin-recordatorios.css?v=20261209-cupon">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="inicio">
@@ -267,6 +268,7 @@
       <div class="asb-section">Marketing</div>
       <button class="asb-item" data-sec="metricas"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/></svg><span class="asb-label">Métricas</span><span class="nbg" id="nb-metricas" hidden>0</span></button>
       <button class="asb-item" data-sec="pruebas"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg><span class="asb-label">Pruebas gratuitas</span><span class="nbg" id="nb-pruebas" hidden>0</span></button>
+      <button class="asb-item" data-sec="recordatorios"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><span class="asb-label">Recordatorios de pago</span></button>
       <button class="asb-item" data-sec="encuesta"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13 5h8" /><path d="M13 12h8" /><path d="M13 19h8" /><path d="m3 17 2 2 4-4" /><path d="m3 7 2 2 4-4" /></svg><span class="asb-label">Encuesta</span><span class="nbg" id="nb-encuesta" hidden>0</span></button>
 
       <div class="asb-section">Sistema</div>
@@ -306,7 +308,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
-  <script src="../assets/js/club.js?v=20261207-integrado"></script>
+  <script src="../assets/js/club.js?v=20261209-cupon"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/admin-iconos.js?v=20261208-libro"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
@@ -317,6 +319,7 @@
   <script src="../assets/js/admin-vistas.js?v=20261208-libro"></script>
   <script src="../assets/js/admin-marketing.js?v=20261208-libro"></script>
   <script src="../assets/js/admin-creditos.js?v=20261208-libro"></script>
+  <script src="../assets/js/admin-recordatorios.js?v=20261209-cupon"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
@@ -531,6 +534,7 @@
       else if (sec === 'creditos') window.ZOO_ADMIN_CREDITOS.creditos();
       else if (sec === 'metricas') window.ZOO_ADMIN_MARKETING.metricas();
       else if (sec === 'pruebas') window.ZOO_ADMIN_MARKETING.pruebas();
+      else if (sec === 'recordatorios') window.ZOO_ADMIN_RECORDATORIOS.recordatorios();
       else if (sec === 'encuesta') loadEncuesta();
       else if (sec === 'configuracion') V.configuracion();
       else if (sec === 'avance') V.avance();
