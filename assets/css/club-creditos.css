@@ -66,3 +66,10 @@
 /* El regalo del trofeo, más grande que el ícono de texto */
 .zcr .zcp__trofeo svg { width: 42px; height: 42px; }
 @media (max-width: 480px) { .zcr .zcp__trofeo svg { width: 34px; height: 34px; } }
+
+/* ── Libros: con créditos se puede escoger UN solo libro ── */
+.zcr-uno { flex: 1 1 100%; font: 700 .8rem/1.35 var(--zoo-font-body); color: #7A5200; }
+[data-theme="dark"] .zcr-uno { color: #F0BE55; }
+.zcr-ins--ya { background: transparent; border-color: var(--zoo-border-strong, #BDB6A6); color: var(--zoo-text-muted, #52606D); }
+.zcr-btn[disabled] { cursor: not-allowed; opacity: .7; }
+.zcr .zcr__recuerda { margin-top: 6px; font-weight: 700; }

@@ -190,7 +190,7 @@ test('PDFs y materiales: carga créditos y club-creditos, ?canjeables=1 muestra 
   assert.match(m, /\/api\/creditos\/estado/);
   assert.match(m, /\/api\/creditos\/canjear/);
   assert.match(m, /canjeables=1/);
-  assert.match(m, /confirmarCanje\(item\.titulo, c\.costo\)/);
+  assert.match(m, /confirmarCanje\(item\.titulo, c\.costo, \{ libro: esLibro \}\)/);
   assert.match(m, /Te faltan créditos: este material cuesta/);
   assert.match(m, /\[data-canjear\]/);
   assert.match(C.TEXTOS.confirmarTexto(100), /Se descontarán 100 créditos y el material quedará desbloqueado para ti\./);

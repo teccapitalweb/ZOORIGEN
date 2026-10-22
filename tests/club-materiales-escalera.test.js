@@ -69,7 +69,8 @@ test('créditos para todos: «o canjéalo por 100 créditos» con el botón Canj
   assert.doesNotMatch(C.canjeHTML(item, 100, 100), /o canjéalo/);
   assert.match(C.canjeHTML({ clave: 'pdf:a', desbloqueado: true }, 0, 100, { alternativa: true }), /Desbloqueado/);
   const js = leer('assets/js/club-materiales.js');
-  assert.match(js, /m\.canjeHTML\(c\.porClave\[tipo \+ ':' \+ id\], c\.saldo, c\.costo, \{ alternativa: true \}\)/);
+  assert.match(js, /var opc = \{ alternativa: true \};/);
+  assert.match(js, /m\.canjeHTML\(c\.porClave\[tipo \+ ':' \+ id\], c\.saldo, c\.costo, opc\)/);
 });
 
 test('orden de escalera: lo de solo membresía primero y luego de menos a más retos; estable entre iguales', () => {

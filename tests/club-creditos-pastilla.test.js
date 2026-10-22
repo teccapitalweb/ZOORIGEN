@@ -32,7 +32,7 @@ test('si el servidor no responde (créditos = null) y ya terminó de cargar, no 
   assert.equal(verPastilla(true, null), true, 'cargando: reserva');
   assert.equal(verPastilla(false, null), false, 'el servidor no respondió: se oculta, sin errores');
   assert.equal(verPastilla(false, { saldo: 0 }), true, 'con saldo 0 también se ve');
-  assert.match(js, /var creditos = Promise\.resolve\(\)\.then\(function \(\) \{ return club\.apiFetch\('\/api\/creditos\/estado'\); \}\)[\s\S]{0,700}\.catch\(function \(\) \{ return null; \}\);/);
+  assert.match(js, /var creditos = Promise\.resolve\(\)\.then\(function \(\) \{ return club\.apiFetch\('\/api\/creditos\/estado'\); \}\)[\s\S]{0,1400}\.catch\(function \(\) \{ return null; \}\);/);
 });
 
 test('al canjear, el saldo de la pastilla baja al instante con lo que responde el servidor (sin recargar la lista)', () => {

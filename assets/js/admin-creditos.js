@@ -141,7 +141,7 @@
   function listaCanjes(r) {
     var lista = Array.isArray(r.canjes) && r.canjes.length ? r.canjes : (r.canje ? [r.canje] : []);
     return lista.map(function (c) {
-      return '<span class="ap-hr__mat">' + ico('file-text', { size: 14 }) + '<span>' + esc(c.titulo || 'Material') + '</span></span><span class="ap-hr__fecha">Canjeado ' + esc(P.fmtFechaHora(c.en)) + '</span>';
+      return '<span class="ap-hr__mat">' + ico(c.esLibro ? 'book-open' : 'file-text', { size: 14 }) + '<span>' + esc(c.titulo || 'Material') + '</span>' + (c.esLibro ? '<span class="ap-hr__libro">Libro</span>' : '') + '</span><span class="ap-hr__fecha">Canjeado ' + esc(P.fmtFechaHora(c.en)) + '</span>';
     }).join('');
   }
 

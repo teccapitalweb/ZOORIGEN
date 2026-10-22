@@ -740,7 +740,13 @@
     var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', formato: 'todos', disp: 'todos', ayuda: false, drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
       soloCanjeables: !!o.soloCanjeables || (typeof location !== 'undefined' && /[?&]canjeables=1(?:&|#|$)/.test(String(location.search || ''))) };
     var CR = function () { return (typeof window !== 'undefined' && window.ZOO_CREDITOS) ? window.ZOO_CREDITOS : null; };
-    var canjeDe = function (tipo, id) { var c = estado.creditos, m = CR(); return c && m ? m.canjeHTML(c.porClave[tipo + ':' + id], c.saldo, c.costo, { alternativa: true }) : ''; };
+    var canjeDe = function (tipo, id) {
+      var c = estado.creditos, m = CR();
+      if (!c || !m) return '';
+      var opc = { alternativa: true };
+      if (tipo === 'libro') { opc.libro = true; opc.yaCanjeoLibro = !!c.libroCanjeado && c.libroCanjeado !== id; }
+      return m.canjeHTML(c.porClave[tipo + ':' + id], c.saldo, c.costo, opc);
+    };
     var esCanjeable = function (tipo, id) { return !!(estado.creditos && estado.creditos.porClave[tipo + ':' + id]); };
     var hrefPlanes = o.hrefPlanes || RUTA_PLANES;
     var PW = function () { return (typeof window !== 'undefined' && window.ZOO_PAYWALL && typeof window.ZOO_PAYWALL === 'object') ? window.ZOO_PAYWALL : null; };
@@ -1016,15 +1022,18 @@
       if (!c || !m || !item || estado.canjeando) return;
       var e = m.estadoCanje(item, c.saldo, c.costo);
       if (e.desbloqueado) return;
+      var esLibro = /^libro:/.test(clave);
+      if (esLibro && c.libroCanjeado && 'libro:' + c.libroCanjeado !== clave) { toast('Ya canjeaste tu libro con créditos. Los demás libros se abren con tus retos.', true); return; }
       if (!e.puede) { toast('Te faltan créditos: este material cuesta ' + m.fmt(c.costo) + ' y tienes ' + m.fmt(c.saldo) + '.', true); return; }
-      m.confirmarCanje(item.titulo, c.costo).then(function (si) {
+      m.confirmarCanje(item.titulo, c.costo, { libro: esLibro }).then(function (si) {
         if (!si) return;
         estado.canjeando = true;
         return Promise.resolve().then(function () { return club.apiFetch('/api/creditos/canjear', { method: 'POST', body: { materialId: clave } }); }).then(function (r) {
           estado.canjeando = false;
           /* El saldo se actualiza al instante con lo que respondió el servidor, sin esperar a recargar la lista */
+          if (estado.creditos && esLibro) estado.creditos.libroCanjeado = clave.slice(6);
           if (estado.creditos && r && Number.isInteger(r.saldo)) { estado.creditos.saldo = r.saldo; if (estado.creditos.porClave[clave]) estado.creditos.porClave[clave].desbloqueado = true; pintar(); }
-          toast('Material desbloqueado: ya es tuyo. Se descontaron ' + m.fmt(c.costo) + ' créditos.');
+          toast((esLibro ? 'Libro desbloqueado: ya es tuyo. ' : 'Material desbloqueado: ya es tuyo. ') + 'Se descontaron ' + m.fmt(c.costo) + ' créditos.');
           return cargar().then(function () {
             var tipo = String(r.tipo || ''), id = String(r.id || '');
             var canjeado = estado.materiales.filter(function (x) { return x.id === id; })[0];
@@ -1115,7 +1124,10 @@
         if (!r || r.ok !== true || !Array.isArray(r.materiales)) return null;
         var porClave = {}; var hay = false;
         r.materiales.forEach(function (m) { if (m && typeof m.clave === 'string') { porClave[m.clave] = m; if (m.desbloqueado) hay = true; } });
-        return { saldo: entero(r.saldo, 0), costo: entero(r.costo, 100) || 100, porClave: porClave, hayCanjeados: hay };
+        /* El libro que ya canjeó con créditos (solo se puede UNO): lo dice el servidor; si todavía no lo manda, sale de lo desbloqueado */
+        var libroYa = typeof r.libroCanjeadoId === 'string' ? r.libroCanjeadoId : '';
+        if (!libroYa) Object.keys(porClave).forEach(function (k) { if (/^libro:/.test(k) && porClave[k].desbloqueado) libroYa = k.slice(6); });
+        return { saldo: entero(r.saldo, 0), costo: entero(r.costo, 100) || 100, porClave: porClave, hayCanjeados: hay, libroCanjeado: libroYa };
       }).catch(function () { return null; });
       return Promise.all([libros.then(function (r) { return { ok: true, r: r }; }, function (e) { return { ok: false, e: e }; }),
         mats.then(function (r) { return { ok: true, r: r }; }, function (e) { return { ok: false, e: e }; })]).then(function (res) {

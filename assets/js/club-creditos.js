@@ -39,6 +39,14 @@
     desbloqueado: 'Desbloqueado',
     faltan: 'Te faltan créditos',
     saldo: function (n) { return 'Tienes ' + fmt(n) + (n === 1 ? ' crédito' : ' créditos'); },
+    // Libros: con créditos se puede escoger UN solo libro por cuenta (el servidor lo hace cumplir)
+    libroUno: 'Canjeable con créditos: puedes escoger UN solo libro',
+    libroYa: 'Ya canjeaste tu libro con créditos',
+    libroRecuerda: 'Recuerda: con créditos puedes escoger un solo libro',
+    libroAyuda: 'Con créditos puedes escoger un libro.',
+    libroConfirmarTitulo: 'Canjear libro',
+    libroConfirmarTexto: function (titulo, costo) { return 'Solo puedes canjear UN libro con créditos y no se puede cambiar. Se descontarán ' + fmt(costo) + ' créditos y el libro ' + titulo + ' quedará desbloqueado para ti. ¿Quieres este libro?'; },
+    libroConfirmarSi: 'Sí, canjear este libro',
     confirmarTitulo: 'Canjear material',
     confirmarTexto: function (costo) { return 'Se descontarán ' + fmt(costo) + ' créditos y el material quedará desbloqueado para ti.'; }
   };
@@ -72,6 +80,7 @@
       '<p class="zcp__xp"><span class="zcp__xp-num">+' + fmt(n) + '</span><span class="zcp__xp-u">' + (n === 1 ? 'crédito' : 'créditos') + '</span></p>' +
       '<h2 class="zcp__titulo" id="zcr-titulo">' + esc(TEXTOS.titulo(n)) + '</h2>' +
       '<p class="zcp__texto" id="zcr-desc">' + esc(TEXTOS.texto(n)) + '</p>' +
+      '<p class="zcp__texto zcr__recuerda" id="zcr-libro">' + esc(TEXTOS.libroRecuerda) + '</p>' +
       '<div class="zcr__botones"><button type="button" class="zcr__btn zcr__btn--suave" data-zcr-entendido>' + esc(TEXTOS.entendido) + '</button>' +
       '<button type="button" class="zcp__btn zcr__btn" data-zcr-canjear>' + icono('wallet', 18) + '<span>' + esc(TEXTOS.canjear) + '</span></button></div>';
   }
@@ -117,15 +126,21 @@
 
   // Insignia y botón que se suman a una tarjeta de material canjeable. clave = «libro:id», «pdf:id» o «drive:id»
   // opc.alternativa: el material también se abre con retos o con membresía; el texto dice «o canjéalo por 100 créditos»
+  // opc.libro: es un libro (solo se puede canjear UNO con créditos) · opc.yaCanjeoLibro: la cuenta ya canjeó el suyo: el botón queda desactivado
   function canjeHTML(item, saldo, costo, opc) {
     var e = estadoCanje(item, saldo, costo);
     if (!e.visible) return '';
     if (e.desbloqueado) return '<div class="zcr-canje"><span class="zcr-ins zcr-ins--ok">' + icono('circle-check', 14) + '<span>' + esc(TEXTOS.desbloqueado) + '</span></span></div>';
-    return '<div class="zcr-canje"><span class="zcr-ins">' + icono('wallet', 14) + '<span>' + esc(opc && opc.alternativa ? TEXTOS.alternativa(item.costo || costo || COSTO) : TEXTOS.insignia(item.costo || costo || COSTO)) + '</span></span>' +
+    if (opc && opc.libro && opc.yaCanjeoLibro) {
+      return '<div class="zcr-canje zcr-canje--libro"><span class="zcr-ins zcr-ins--ya">' + icono('info', 14) + '<span>' + esc(TEXTOS.libroYa) + '</span></span>' +
+        '<button type="button" class="zcr-btn is-falta" disabled aria-disabled="true" title="' + esc(TEXTOS.libroYa) + '">' + esc(TEXTOS.canjear) + '</button></div>';
+    }
+    var nota = opc && opc.libro ? '<span class="zcr-uno">' + esc(TEXTOS.libroUno) + '</span>' : '';
+    return '<div class="zcr-canje' + (nota ? ' zcr-canje--libro' : '') + '">' + nota + '<span class="zcr-ins">' + icono('wallet', 14) + '<span>' + esc(opc && opc.alternativa ? TEXTOS.alternativa(item.costo || costo || COSTO) : TEXTOS.insignia(item.costo || costo || COSTO)) + '</span></span>' +
       '<button type="button" class="zcr-btn' + (e.puede ? '' : ' is-falta') + '" data-canjear="' + esc(item.clave) + '"' + (e.puede ? '' : ' aria-disabled="true" title="Necesitas ' + fmt(item.costo || costo || COSTO) + ' créditos"') + '>' + esc(e.rotulo) + '</button></div>';
   }
 
-  var AYUDA = '100 créditos = 1 material. Canjea los materiales que dicen «o canjéalo por 100 créditos». También se abren resolviendo retos (con membresía).';
+  var AYUDA = '100 créditos = 1 material. Canjea los materiales que dicen «o canjéalo por 100 créditos». También se abren resolviendo retos (con membresía). Con créditos puedes escoger un libro.';
 
   /* Pastilla «Tus créditos: N», siempre visible en «PDFs y materiales» (también con 0). Al pulsarla muestra la ayuda; con 100 o más
      ofrece «Ver materiales canjeables». opc: { soloCanjeables, ayudaAbierta, reserva } — reserva dibuja solo el espacio (mientras carga). */
@@ -210,14 +225,16 @@
   }
 
   // Confirmación antes de gastar créditos: promesa con true / false
-  function confirmarCanje(titulo, costo) {
+  // opc.libro: confirmación de un libro («solo UN libro con créditos, no se puede cambiar»)
+  function confirmarCanje(titulo, costo, opc) {
+    var libro = !!(opc && opc.libro);
     return new Promise(function (resolver) {
       var previo = document.activeElement;
       var el = document.createElement('div');
       el.className = 'zcr-conf'; el.setAttribute('data-zoo-creditos', '1');
       el.innerHTML = '<div class="zcr-conf__caja" role="alertdialog" aria-modal="true" aria-labelledby="zcr-conf-t" aria-describedby="zcr-conf-d" data-zoo-creditos="1">' +
-        '<h2 id="zcr-conf-t">' + esc(TEXTOS.confirmarTitulo) + '</h2><p class="zcr-conf__mat">' + esc(titulo) + '</p><p id="zcr-conf-d">' + esc(TEXTOS.confirmarTexto(costo || COSTO)) + '</p>' +
-        '<div class="zcr__botones"><button type="button" class="zcr__btn zcr__btn--suave" data-no>Mejor no</button><button type="button" class="zcr__btn zcr__btn--oro" data-si>Canjear</button></div></div>';
+        '<h2 id="zcr-conf-t">' + esc(libro ? TEXTOS.libroConfirmarTitulo : TEXTOS.confirmarTitulo) + '</h2><p class="zcr-conf__mat">' + esc(titulo) + '</p><p id="zcr-conf-d">' + esc(libro ? TEXTOS.libroConfirmarTexto('«' + titulo + '»', costo || COSTO) : TEXTOS.confirmarTexto(costo || COSTO)) + '</p>' +
+        '<div class="zcr__botones"><button type="button" class="zcr__btn zcr__btn--suave" data-no>Mejor no</button><button type="button" class="zcr__btn zcr__btn--oro" data-si>' + esc(libro ? TEXTOS.libroConfirmarSi : 'Canjear') + '</button></div></div>';
       document.body.appendChild(el);
       var listo = false;
       function fin(r) {
