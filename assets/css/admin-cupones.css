@@ -67,3 +67,6 @@
 @media (max-width: 560px) {
   .ap-cp-otro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Para quién es el cupón, debajo de los créditos en cada fila */
+.ap-cp__aud { font-weight: 700; color: var(--c-text-2); }

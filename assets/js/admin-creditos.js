@@ -218,10 +218,28 @@
       'Clave: ' + (x.clave || ''), 'Te da ' + num(x.creditos || 0) + (x.creditos === 1 ? ' crédito' : ' créditos') + ' para canjear materiales (100 créditos = 1 material).', '',
       'Cómo usarla: entra a PDFs y materiales, escribe la clave en «¿Tienes un código?» y toca Canjear.', ENLACE_CANJE];
     var extra = [];
+    if (x.audiencia === 'vip') extra.push('Solo para miembros VIP');
+    else if (x.audiencia === 'gratuitos') extra.push('Solo para cuentas gratuitas');
     if (x.maxPersonas) extra.push('Solo para las primeras ' + num(x.maxPersonas) + ' personas');
     if (x.vence) extra.push('Vence el ' + P.fmtFechaHora(x.vence));
     if (extra.length) lineas.push('', extra.join(' · ').replace(/\.$/, '') + '.');
     return lineas.join('\n');
+  }
+
+  /* ¿Para quién es? Todas las cuentas, solo cuentas gratuitas (sin membresía vigente) o solo miembros VIP (con membresía vigente) */
+  var AUDIENCIAS = [
+    ['todos', 'Todas las cuentas', 'Lo puede canjear cualquier cuenta con el correo confirmado.'],
+    ['gratuitos', 'Solo cuentas gratuitas', 'Solo lo pueden canjear las cuentas sin membresía vigente.'],
+    ['vip', 'Solo miembros VIP', 'Solo lo pueden canjear las cuentas con membresía vigente.']
+  ];
+  function audienciaTexto(clave) { var a = AUDIENCIAS.filter(function (x) { return x[0] === clave; })[0]; return a ? a[1] : AUDIENCIAS[0][1]; }
+
+  function audienciaHTML() {
+    return '<div class="ap-cp-plazo"><p class="ap-cp-plazo__t" id="apCpAudT">¿Para quién es el cupón?</p>' +
+      '<div class="ap-cp-chips" role="group" aria-labelledby="apCpAudT">' + AUDIENCIAS.map(function (a) {
+        return '<button type="button" class="ap-cp-chip" data-aud="' + a[0] + '" aria-pressed="' + (a[0] === 'todos') + '">' + esc(a[1]) + '</button>';
+      }).join('') + '</div>' +
+      '<p class="ap-cp-resumen" id="apCpAudResumen" role="status" aria-live="polite">' + esc(AUDIENCIAS[0][2]) + '</p></div>';
   }
 
   /* ¿Cuándo deja de servir? Plazos rápidos o «Elegir día y hora» */
@@ -266,7 +284,7 @@
       '<label class="ap-cp-campo"><span>Clave (vacía = al azar)</span><input type="text" id="apCpClave" maxlength="24" placeholder="Ej.: CANAL100" autocapitalize="characters" spellcheck="false" aria-describedby="apCpAyuda"></label>' +
       '<label class="ap-cp-campo"><span>Créditos</span><input type="number" id="apCpCreditos" min="1" max="' + MAX_REGALO + '" step="1" value="100" inputmode="numeric"></label>' +
       '<label class="ap-cp-campo"><span>Máximo de personas</span><input type="number" id="apCpMax" min="1" max="100000" step="1" placeholder="Sin límite" inputmode="numeric"></label>' +
-      plazoHTML() +
+      audienciaHTML() + plazoHTML() +
       '<button type="submit" class="ap-btn ap-btn--primario ap-cp-crear" data-accion="cupon-crear">' + ico('plus', { size: 18 }) + 'Crear cupón</button></form>' +
       '<p class="ap-cp-ayuda" id="apCpAyuda">La clave no distingue mayúsculas de minúsculas (de 4 a 24 letras o números). Cada persona puede canjearla una sola vez. Sin plazo ni máximo, sirve hasta que la pauses.</p>' +
       '<p class="ap-error" id="apCpError" role="alert" hidden></p>';
@@ -283,7 +301,7 @@
       ? '<button type="button" class="ap-btn ap-btn--suave ap-btn--chico" data-accion="cupon-estado" data-clave="' + esc(c.clave) + '" data-a="activo">Reactivar</button>'
       : '<button type="button" class="ap-btn ap-btn--suave ap-btn--chico" data-accion="cupon-estado" data-clave="' + esc(c.clave) + '" data-a="pausado">Pausar</button>';
     return '<li class="ap-cp" data-clave="' + esc(c.clave) + '">' +
-      '<div class="ap-cp__clave"><code>' + esc(c.clave) + '</code><span>' + num(c.creditos) + (c.creditos === 1 ? ' crédito' : ' créditos') + '</span></div>' +
+      '<div class="ap-cp__clave"><code>' + esc(c.clave) + '</code><span>' + num(c.creditos) + (c.creditos === 1 ? ' crédito' : ' créditos') + '</span><span class="ap-cp__aud">' + esc(audienciaTexto(c.audiencia)) + '</span></div>' +
       '<span class="ap-badge ap-badge--' + e.clase + '"><span>' + esc(e.texto) + '</span></span>' +
       '<div class="ap-cp__dato">' + canjes + '</div><div class="ap-cp__dato">' + vence + '</div>' +
       '<div class="ap-cp__acciones"><button type="button" class="ap-btn ap-btn--suave ap-btn--chico" data-accion="cupon-copiar" data-clave="' + esc(c.clave) + '">' + ico('copy', { size: 16 }) + 'Copiar mensaje</button>' +
@@ -344,7 +362,7 @@
   }
 
   /* ───────────────────────── Controlador (solo en el navegador) ───────────────────────── */
-  var est = { datos: null, texto: '', visibles: 25, filtro: 'todos', textoHistorial: '', pagina: 1, ocupado: false, cuponesVisibles: CUPONES_INICIO, plazo: 'nunca' };
+  var est = { datos: null, texto: '', visibles: 25, filtro: 'todos', textoHistorial: '', pagina: 1, ocupado: false, cuponesVisibles: CUPONES_INICIO, plazo: 'nunca', audiencia: 'todos' };
 
   function nuevaClave() {
     var a = '';
@@ -460,6 +478,13 @@
     var r = calcularVence(est.plazo, (document.getElementById('apCpDia') || {}).value, (document.getElementById('apCpHora') || {}).value, Date.now());
     resumen.textContent = r.error && est.plazo === 'otro' ? (r.error === 'Elige el día y la hora.' ? 'Elige el día y la hora.' : r.error) : resumenVence(r.ms);
   }
+  function elegirAudiencia(a) {
+    est.audiencia = a;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-aud]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.aud === a)); });
+    var r = document.getElementById('apCpAudResumen');
+    var x = AUDIENCIAS.filter(function (y) { return y[0] === a; })[0];
+    if (r && x) r.textContent = x[2];
+  }
   function elegirPlazo(modo) {
     est.plazo = modo;
     if (modo === 'otro') {
@@ -488,7 +513,7 @@
     if (est.ocupado) return undefined;
     est.ocupado = true; if (boton) { boton.disabled = true; }
     try {
-      var r = await ctx.api('/api/admin/creditos/cupones', { method: 'POST', body: { clave: clave, creditos: +cantTexto, vence: vence, maxPersonas: maxTexto ? +maxTexto : null } });
+      var r = await ctx.api('/api/admin/creditos/cupones', { method: 'POST', body: { clave: clave, creditos: +cantTexto, vence: vence, maxPersonas: maxTexto ? +maxTexto : null, audiencia: est.audiencia } });
       est.ocupado = false;
       ctx.toast('Cupón ' + r.cupon.clave + ' creado. Pulsa «Copiar mensaje» para compartirlo en el canal.');
       await cargar(true);
@@ -540,12 +565,14 @@
       espera = setTimeout(function () { recargarHistorial(false).then(function () { var c = document.getElementById('apCrBuscarHistorial'); if (c) { c.focus(); try { c.setSelectionRange(c.value.length, c.value.length); } catch (x) { /* nada */ } } }).catch(function (er) { u.contexto().toast((er && er.message) || 'No se pudo buscar.', true); }); }, 280);
     };
     void bh;
-    est.plazo = 'nunca';
+    est.plazo = 'nunca'; est.audiencia = 'todos';
     v.onsubmit = function (ev) { if (ev.target && ev.target.id === 'apCpForm') { ev.preventDefault(); crearCupon(); } };
     v.onchange = function (ev) { if (ev.target && (ev.target.id === 'apCpDia' || ev.target.id === 'apCpHora')) pintarPlazo(); };
     v.onclick = function (ev) {
       var ch = ev.target.closest('[data-vence]');
       if (ch) { elegirPlazo(ch.dataset.vence); return; }
+      var au = ev.target.closest('[data-aud]');
+      if (au) { elegirAudiencia(au.dataset.aud); return; }
       var f = ev.target.closest('[data-filtro-regalo]');
       if (f) { est.filtro = f.dataset.filtroRegalo; recargarHistorial(false).catch(function (er) { u.contexto().toast((er && er.message) || 'No se pudo filtrar.', true); }); return; }
       u.acciones(ev, {
@@ -564,7 +591,7 @@
 
   return {
     REGALO: REGALO, COSTO: COSTO, MAX_REGALO: MAX_REGALO, OPCIONES: OPCIONES, analizarCantidad: analizarCantidad, alcance: alcance, fraseAlcance: fraseAlcance, regaloCuerpoHTML: regaloCuerpoHTML, textoAceptar: textoAceptar, estadoRegalo: estadoRegalo, textoCreditos: textoCreditos, cifras: cifras, filtrarMiembros: filtrarMiembros, filaMiembro: filaMiembro, listaMiembrosHTML: listaMiembrosHTML, textoConfirmacion: textoConfirmacion,
-    mensajeCupon: mensajeCupon, calcularVence: calcularVence, resumenVence: resumenVence, plazoHTML: plazoHTML, PLAZOS: PLAZOS, CUPONES_INICIO: CUPONES_INICIO, CUPONES_PASO: CUPONES_PASO, cuponesListaHTML: cuponesListaHTML, formularioCuponHTML: formularioCuponHTML, filaCuponHTML: filaCuponHTML, cuponesHTML: cuponesHTML, quienHTML: quienHTML, ESTADOS_CUPON: ESTADOS_CUPON,
+    mensajeCupon: mensajeCupon, AUDIENCIAS: AUDIENCIAS, audienciaHTML: audienciaHTML, audienciaTexto: audienciaTexto, calcularVence: calcularVence, resumenVence: resumenVence, plazoHTML: plazoHTML, PLAZOS: PLAZOS, CUPONES_INICIO: CUPONES_INICIO, CUPONES_PASO: CUPONES_PASO, cuponesListaHTML: cuponesListaHTML, formularioCuponHTML: formularioCuponHTML, filaCuponHTML: filaCuponHTML, cuponesHTML: cuponesHTML, quienHTML: quienHTML, ESTADOS_CUPON: ESTADOS_CUPON,
     filaRegalo: filaRegalo, historialHTML: historialHTML, fraseGrafica: fraseGrafica, graficaHTML: graficaHTML, vistaHTML: vistaHTML, creditos: cargar, FILTROS: FILTROS
   };
 });

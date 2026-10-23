@@ -164,3 +164,24 @@ test('el controlador: los botones de plazo y de ver más están conectados y la 
   const js = leer('assets/js/admin-creditos.js');
   for (const t of ["'cupones-mas'", "'cupones-menos'", "var ch = ev.target.closest('[data-vence]')", 'function pintarCuponesLista()', "getElementById('apCpListaCaja')", 'function elegirPlazo(modo)']) assert.ok(js.includes(t), t);
 });
+
+test('para quién es el cupón: Todas las cuentas, Solo cuentas gratuitas o Solo miembros VIP, con su frase; por omisión todas', () => {
+  assert.deepEqual(A.AUDIENCIAS.map(a => a[0]), ['todos', 'gratuitos', 'vip']);
+  const h = A.formularioCuponHTML();
+  for (const t of ['¿Para quién es el cupón?', 'Todas las cuentas', 'Solo cuentas gratuitas', 'Solo miembros VIP', 'Lo puede canjear cualquier cuenta con el correo confirmado.']) assert.ok(h.includes(t), t);
+  assert.match(h, /data-aud="todos" aria-pressed="true"/); assert.match(h, /data-aud="vip" aria-pressed="false"/);
+  assert.ok(h.indexOf('¿Para quién es el cupón?') < h.indexOf('¿Cuándo deja de servir el cupón?'), 'primero para quién y luego el plazo');
+  assert.ok(h.indexOf('id="apCpMax"') < h.indexOf('¿Para quién es el cupón?'), 'el máximo de personas sigue editable arriba');
+  assert.equal(A.audienciaTexto('vip'), 'Solo miembros VIP'); assert.equal(A.audienciaTexto('raro'), 'Todas las cuentas');
+});
+
+test('cada cupón dice para quién es y el mensaje del canal lo aclara cuando no es para todos', () => {
+  assert.match(A.filaCuponHTML(cupon({ audiencia: 'vip' })), /ap-cp__aud">Solo miembros VIP</);
+  assert.match(A.filaCuponHTML(cupon({ audiencia: 'gratuitos' })), /ap-cp__aud">Solo cuentas gratuitas</);
+  assert.match(A.filaCuponHTML(cupon({ audiencia: undefined })), /ap-cp__aud">Todas las cuentas</, 'un cupón anterior vale para todas');
+  assert.match(A.mensajeCupon(cupon({ audiencia: 'vip', maxPersonas: null, vence: null })), /Solo para miembros VIP/);
+  assert.match(A.mensajeCupon(cupon({ audiencia: 'gratuitos', maxPersonas: null, vence: null })), /Solo para cuentas gratuitas/);
+  assert.doesNotMatch(A.mensajeCupon(cupon({ audiencia: 'todos', maxPersonas: null, vence: null })), /Solo para (miembros|cuentas)/);
+  const js = leer('assets/js/admin-creditos.js');
+  assert.ok(js.includes('audiencia: est.audiencia') && js.includes("ev.target.closest('[data-aud]')"));
+});
