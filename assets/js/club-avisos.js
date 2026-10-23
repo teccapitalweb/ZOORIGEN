@@ -2,7 +2,8 @@
 /* CLUB VIP ZOORIGEN · CAMPANA DE AVISOS                         */
 /* Mezcla los avisos del servidor (personales y generales: datos  */
 /* curiosos, noticias, premios, certificados...) con los que se   */
-/* calculan en el navegador (webinars próximos, cursos nuevos).   */
+/* calculan en el navegador (webinars próximos, cursos nuevos) y  */
+/* un aviso por cada regalo de créditos (GET /api/creditos/regalos). */
 /* Lo leído y lo borrado se guarda en este navegador, por cuenta. */
 /* ============================================================ */
 (function (root, factory) {
@@ -29,6 +30,7 @@
     webinar: { icono: 'broadcast', color: '#60A5FA' },
     curso: { icono: 'book', color: '#6FBF73' },
     foro: { icono: 'messages', color: '#60A5FA' },
+    creditos: { icono: 'wallet', color: '#E8A317' },
     sistema: { icono: 'bell', color: '#9CA3AF' },
     general: { icono: 'bell', color: '#6FBF73' }
   };
@@ -143,7 +145,7 @@
     var e = String(enlace || '').trim();
     if (!e) return '';
     if (Object.prototype.hasOwnProperty.call(ALIAS, e)) return ALIAS[e];
-    if (/^[a-z0-9-]+\.html$/i.test(e)) return e;
+    if (/^[a-z0-9-]+\.html(\?[a-z0-9=&_-]{1,40})?$/i.test(e)) return e;
     if (/^[a-z0-9-]+$/i.test(e)) {
       var hit = (secciones || []).filter(function (s) { return s.id === e; })[0];
       return hit ? hit.href : '';
@@ -157,13 +159,40 @@
       titulo: n.title, texto: n.message, enlace: n.href || '', fecha: n.time, leidoAntes: !!n.read };
   }
 
+  /* ───── Regalos de créditos ─────
+     Un aviso POR REGALO (no uno agrupado por día): cada regalo es una acción distinta del administrador con su propio id estable (el del movimiento),
+     y así lo leído o borrado se recuerda sin que un regalo nuevo del mismo día «reviva» un aviso ya leído con otra cantidad.
+     Duran 30 días o hasta que la persona los borre. Aparecen aunque ya haya cerrado la tarjeta de felicitación (no dependen del aviso pendiente). */
+  var DIAS_REGALO = 30;
+  var DESTINO_CREDITOS = 'club-pdfs.html?canjeables=1';
+  function textoCreditos(n) {
+    var c = Math.floor(Number(n));
+    var t = c.toLocaleString ? c.toLocaleString('es-MX') : String(c);
+    return t + (c === 1 ? ' crédito' : ' créditos');
+  }
+  function deRegalo(r) {
+    r = r || {};
+    var n = Math.floor(Number(r.cantidad));
+    var id = String(r.id || '');
+    if (!/^[A-Za-z0-9_-]{1,80}$/.test(id) || !(n > 0)) return null;
+    return { id: 'creditos_' + id, ambito: 'personal', tipo: 'creditos', titulo: 'Recibiste ' + textoCreditos(n),
+      texto: 'Canjéalos por el material que quieras', enlace: DESTINO_CREDITOS, fecha: r.en };
+  }
+  /* La respuesta de /api/creditos/regalos -> avisos (solo los de los últimos 30 días; un servidor viejo o una respuesta rara no dan nada) */
+  function deRegalos(respuesta, ahora) {
+    var lista = respuesta && Array.isArray(respuesta.regalos) ? respuesta.regalos : [];
+    var tope = (ahora instanceof Date ? ahora.getTime() : Date.now()) - DIAS_REGALO * 86400000;
+    return lista.map(deRegalo).filter(function (a) { var f = a && aFecha(a.fecha); return a && f && f.getTime() >= tope; });
+  }
+
   var montada = false;
   var API = {
     activo: function () { return montada; },
     PRESET: PRESET, MAX_LISTA: MAX_LISTA, ESPERA_LEER_MS: ESPERA_LEER_MS,
     normalizar: normalizar, mezclar: mezclar, visibles: visibles, esLeido: esLeido, noLeidas: noLeidas,
     conLeidos: conLeidos, conBorrados: conBorrados, estadoVacio: estadoVacio, leerEstado: leerEstado, guardarEstado: guardarEstado,
-    claveLocal: claveLocal, resumenEncabezado: resumenEncabezado, hace: hace, destino: destino, deLegado: deLegado, esc: esc
+    claveLocal: claveLocal, resumenEncabezado: resumenEncabezado, hace: hace, destino: destino, deLegado: deLegado, esc: esc,
+    textoCreditos: textoCreditos, deRegalo: deRegalo, deRegalos: deRegalos, DIAS_REGALO: DIAS_REGALO, DESTINO_CREDITOS: DESTINO_CREDITOS
   };
 
   if (typeof document === 'undefined') return API;
@@ -171,11 +200,16 @@
   /* ============================================================ */
   /* PANTALLA                                                      */
   /* ============================================================ */
-  function icono(n, t) { return (typeof zooIcon === 'function') ? zooIcon(n, t || 18) : ''; }
+  function icono(n, t) {
+    if (n === 'wallet' && window.ZOO_ICONOS && typeof window.ZOO_ICONOS.svg === 'function') { try { return window.ZOO_ICONOS.svg('wallet', { size: t || 18 }); } catch (e) { /* se usa el regalo */ } }
+    if (n === 'wallet') n = 'gift';
+    return (typeof zooIcon === 'function') ? zooIcon(n, t || 18) : '';
+  }
 
   function filaHTML(a, estado, ahora) {
     var leido = esLeido(a, estado);
-    return '<div class="av-fila' + (leido ? '' : ' is-nueva') + (a.enlace ? ' is-enlace' : '') + '" data-id="' + esc(a.id) + '"' + (a.enlace ? ' role="link" tabindex="0"' : '') + '>' +
+    var etiqueta = a.titulo + (a.texto ? '. ' + a.texto : '') + '. ' + hace(a.fecha, ahora) + (leido ? '' : '. Nueva');
+    return '<div class="av-fila' + (leido ? '' : ' is-nueva') + (a.enlace ? ' is-enlace' : '') + '" data-id="' + esc(a.id) + '"' + (a.enlace ? ' role="link" tabindex="0" aria-label="' + esc(etiqueta) + '"' : '') + '>' +
       '<span class="av-ico" style="--av:' + esc(a.color) + '">' + icono(a.icono, 18) + '</span>' +
       '<div class="av-cuerpo"><div class="av-titulo">' + esc(a.titulo) + '</div>' +
         (a.texto ? '<div class="av-texto">' + esc(a.texto) + '</div>' : '') +
@@ -225,8 +259,10 @@
       cargando = true;
       var servidor = o.apiFetch ? Promise.resolve().then(function () { return o.apiFetch('/api/avisos'); }).then(function (r) { return (r && r.avisos) || []; }).catch(function () { return []; }) : Promise.resolve([]);
       var local = o.legado ? Promise.resolve().then(o.legado).then(function (l) { return (l || []).map(deLegado); }).catch(function () { return []; }) : Promise.resolve([]);
-      return Promise.all([servidor, local]).then(function (r) {
-        lista = mezclar(r[0], r[1]);
+      // Avisos de créditos: si el servidor es viejo o no responde, simplemente no hay (la campana sigue igual)
+      var regalos = o.apiFetch ? Promise.resolve().then(function () { return o.apiFetch('/api/creditos/regalos'); }).then(function (r) { return deRegalos(r); }).catch(function () { return []; }) : Promise.resolve([]);
+      return Promise.all([servidor, local, regalos]).then(function (r) {
+        lista = mezclar(r[0], r[1], r[2]);
         // Clases en vivo en "Próximamente": no se muestran avisos de webinar (ni los del servidor ni los locales).
         if (typeof ZOO_CONFIG !== 'undefined' && ZOO_CONFIG.clasesEnVivoPronto === true) lista = lista.filter(function (a) { return a.tipo !== 'clase' && a.tipo !== 'webinar'; });
         refrescar();
