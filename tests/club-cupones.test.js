@@ -145,3 +145,20 @@ test('hoja de estilos: colores sólidos (sin degradados), letra mínima de 12 px
   for (const m of css.matchAll(/font(?:-size)?:\s*(?:[0-9]+\s+)?([\d.]+)(px|rem)/g)) assert.ok((m[2] === 'px' ? Number(m[1]) : Number(m[1]) * 16) >= 12, 'letra de ' + m[0]);
   assert.match(css, /:focus-visible/); assert.match(css, /prefers-reduced-motion/);
 });
+
+test('si el cupón se pausa, vence o se agota mientras la tarjeta espera su turno, ya no sale (se vuelve a preguntar justo antes de mostrarla)', async () => {
+  let consultas = 0;
+  const club = { apiFetch: async () => { consultas++; return consultas === 1 ? datos() : datos({ hay: false, cantidad: 0, ids: [] }); } };
+  let abierta = 0;
+  const cola = { estado: () => ({}), encolar: item => Promise.resolve(item.mostrar()).then(r => ({ estado: 'mostrado', resultado: r })) };
+  const r = await C.iniciar({ club, session: { uid: 'u1' }, almacen: memoria(), cola, esperar: async () => true });
+  assert.deepEqual(r, { mostrado: false, como: 'descartado' });
+  assert.equal(consultas, 2, 'preguntó al empezar y otra vez antes de mostrarla');
+  assert.equal(abierta, 0);
+});
+
+test('al volver a preguntar, la tarjeta usa lo más reciente (cuántos cupones y cuántos créditos quedan)', () => {
+  const js = leer('assets/js/club-cupones.js');
+  assert.ok(js.includes("club.apiFetch('/api/creditos/cupon-disponible')") && js.includes('tarjetaCuponHTML(frescos)') && js.includes('anotarAviso(almacen, sesion.uid, frescos.ids, ahora())'));
+  assert.ok(js.indexOf("if (!frescos || frescos.hay !== true) return { como: 'descartado' }") < js.indexOf("window.__zooTarjetaCarga = 'cupon'"), 'la marca de la visita solo se pone si de verdad sale');
+});

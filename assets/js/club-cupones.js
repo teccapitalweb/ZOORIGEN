@@ -271,24 +271,28 @@
     var ahora = o.ahora || Date.now;
     return Promise.resolve().then(function () { return club.apiFetch('/api/creditos/cupon-disponible'); }).then(function (datos) {
       if (!debeAvisar(datos, almacen, sesion.uid, ahora())) return { mostrado: false };
-      return esperarTurno({ cola: o.cola, hayVentana: hayVentanaAbierta }).then(function (turno) {
+      return (o.esperar || esperarTurno)({ cola: o.cola, hayVentana: hayVentanaAbierta }).then(function (turno) {
         if (!turno) return { mostrado: false };
+        // Justo antes de enseñarla se vuelve a preguntar al servidor: si el cupón ya se pausó, venció, se agotó o la persona ya lo canjeó, no sale
         var mostrar = function () {
-          if (typeof window !== 'undefined') window.__zooTarjetaCarga = 'cupon';
-          if (almacen) anotarAviso(almacen, sesion.uid, datos.ids, ahora());
-          return abrirTarjeta(tarjetaCuponHTML(datos)).then(function (r) {
-            if (r.como === 'canal') abrirCanal();
-            else if (r.como === 'clave') window.location.href = RUTA_CAMPO;
-            return r;
-          });
+          return Promise.resolve().then(function () { return club.apiFetch('/api/creditos/cupon-disponible'); }).then(function (frescos) {
+            if (!frescos || frescos.hay !== true) return { como: 'descartado' };
+            if (typeof window !== 'undefined') window.__zooTarjetaCarga = 'cupon';
+            if (almacen) anotarAviso(almacen, sesion.uid, frescos.ids, ahora());
+            return abrirTarjeta(tarjetaCuponHTML(frescos)).then(function (r) {
+              if (r.como === 'canal') abrirCanal();
+              else if (r.como === 'clave') window.location.href = RUTA_CAMPO;
+              return r;
+            });
+          }, function () { return { como: 'descartado' }; });
         };
         // Una sola tarjeta por visita: si ya salió otra (créditos regalados), esta espera a la siguiente visita
         var vigente = function () { return typeof window === 'undefined' || !window.__zooTarjetaCarga; };
         if (o.cola && typeof o.cola.encolar === 'function') {
-          return o.cola.encolar({ id: 'cupon-creditos', tipo: 'cupon', prioridad: PRIORIDAD, vigente: vigente, mostrar: mostrar }).then(function (res) { return { mostrado: res.estado === 'mostrado', como: res.resultado && res.resultado.como }; });
+          return o.cola.encolar({ id: 'cupon-creditos', tipo: 'cupon', prioridad: PRIORIDAD, vigente: vigente, mostrar: mostrar }).then(function (res) { var como = res.resultado && res.resultado.como; return { mostrado: res.estado === 'mostrado' && como !== 'descartado', como: como }; });
         }
         if (!vigente()) return { mostrado: false };
-        return mostrar().then(function (r) { return { mostrado: true, como: r.como }; });
+        return mostrar().then(function (r) { return { mostrado: r.como !== 'descartado', como: r.como }; });
       });
     }).catch(function () { return { mostrado: false }; });
   }

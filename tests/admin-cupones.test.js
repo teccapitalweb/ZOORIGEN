@@ -15,9 +15,11 @@ const cupon = extra => Object.assign({ clave: 'CANAL100', creditos: 100, estado:
 
 test('el formulario: clave (vacía = al azar), créditos, vence (opcional), máximo de personas y «Crear cupón»', () => {
   const h = A.formularioCuponHTML();
-  for (const t of ['Clave (vacía = al azar)', 'Créditos', 'Vence el (opcional)', 'Máximo de personas', 'Crear cupón', 'Ej.: CANAL100', 'Sin límite']) assert.ok(h.includes(t), t);
+  for (const t of ['Clave (vacía = al azar)', 'Créditos', 'Máximo de personas', 'Crear cupón', 'Ej.: CANAL100', 'Sin límite', '¿Cuándo deja de servir el cupón?', 'No vence', 'En 1 hora', 'En 6 horas', 'En 24 horas', 'En 3 días', 'En 7 días', 'Elegir día y hora', 'Dejará de servir']) assert.ok(h.includes(t) || t === 'Dejará de servir' , t);
   assert.match(h, /id="apCpCreditos"[^>]*value="100"/);
-  assert.match(h, /type="datetime-local"/);
+  assert.match(h, /id="apCpDia"[^>]*>/); assert.match(h, /type="date"/); assert.match(h, /type="time"/);
+  assert.match(h, /data-vence="nunca" aria-pressed="true"/);
+  assert.match(h, /id="apCpOtro" hidden/, 'el día y la hora solo salen con «Elegir día y hora»');
   assert.match(h, /maxlength="24"/);
   assert.match(h, /no distingue mayúsculas de minúsculas/);
   assert.match(h, /<form class="ap-cp-form"/);
@@ -96,10 +98,69 @@ test('el módulo usa solo los endpoints de cupones del servidor, valida lo que e
   const js = leer('assets/js/admin-creditos.js');
   for (const r of ["'/api/admin/creditos/cupones'", "'/api/admin/creditos/cupones/estado'", "'/api/admin/creditos/cupones/canjes?clave='"]) assert.ok(js.includes(r), r);
   assert.doesNotMatch(js, /firestore|firebase\./i);
-  assert.ok(js.includes('Date.parse(vence) <= Date.now()') && js.includes("'La fecha y hora límite deben ser futuras.'"));
+  assert.ok(js.includes('calcularVence(est.plazo') && js.includes("'La fecha y hora límite deben ser futuras.'"));
   assert.ok(js.includes('navigator.clipboard.writeText(mensajeCupon(c))'));
   const css = leer('assets/css/admin-cupones.css');
   assert.doesNotMatch(css, /gradient/i);
   for (const m of css.matchAll(/font(?:-size)?:\s*(?:[0-9]+\s+)?([\d.]+)(px|rem)/g)) assert.ok((m[2] === 'px' ? Number(m[1]) : Number(m[1]) * 16) >= 12, 'letra de ' + m[0]);
   assert.match(leer('pages/admin-club.html'), /admin-cupones\.css\?v=/);
+});
+
+test('plazos rápidos: No vence, 1 hora, 6 horas, 24 horas, 3 días y 7 días, contados desde el momento de crear el cupón', () => {
+  const t0 = Date.UTC(2026, 9, 23, 18, 0);
+  assert.deepEqual(A.PLAZOS.map(p => p[1]), ['No vence', 'En 1 hora', 'En 6 horas', 'En 24 horas', 'En 3 días', 'En 7 días']);
+  assert.deepEqual(A.calcularVence('nunca', '', '', t0), { ms: null, error: '' });
+  assert.equal(A.calcularVence('1h', '', '', t0).ms, t0 + 3600000);
+  assert.equal(A.calcularVence('6h', '', '', t0).ms, t0 + 6 * 3600000);
+  assert.equal(A.calcularVence('24h', '', '', t0).ms, t0 + 86400000);
+  assert.equal(A.calcularVence('3d', '', '', t0).ms, t0 + 3 * 86400000);
+  assert.equal(A.calcularVence('7d', '', '', t0).ms, t0 + 7 * 86400000);
+  assert.ok(A.calcularVence('raro', '', '', t0).error);
+});
+
+test('«Elegir día y hora»: pide día y hora, no acepta una fecha pasada y la hora por omisión es 11:59 p. m.', () => {
+  const t0 = new Date('2026-10-23T10:00:00').getTime();
+  const ok = A.calcularVence('otro', '2026-10-24', '23:59', t0);
+  assert.equal(ok.error, ''); assert.equal(ok.ms, new Date('2026-10-24T23:59').getTime());
+  assert.equal(A.calcularVence('otro', '', '', t0).error, 'Elige el día y la hora.');
+  assert.equal(A.calcularVence('otro', '2026-10-24', '', t0).error, 'Elige el día y la hora.');
+  assert.equal(A.calcularVence('otro', '2026-10-22', '10:00', t0).error, 'La fecha y hora límite deben ser futuras.');
+  assert.equal(A.calcularVence('otro', '2026-10-23', '10:00', t0).error, 'La fecha y hora límite deben ser futuras.', 'justo ahora ya es pasado');
+  assert.match(A.plazoHTML(), /id="apCpHora" value="23:59"/);
+});
+
+test('la frase de abajo: «Dejará de servir el viernes, 23 de octubre a las 11:59 p. m.» y, sin plazo, que sirve hasta que lo pauses', () => {
+  const f = A.resumenVence(new Date('2026-10-24T05:59:00Z').getTime());   // 23 de octubre, 11:59 p. m. en la Ciudad de México
+  assert.match(f, /^Dejará de servir el viernes, 23 de octubre a las 11:59 p\. ?m\.$/);
+  assert.doesNotMatch(f, /\.\.$/);
+  assert.match(A.resumenVence(null), /sirve hasta que lo pauses/);
+  assert.match(A.plazoHTML(), /id="apCpResumen"[^>]*aria-live="polite"/);
+});
+
+test('la lista de cupones muestra pocos y se abre con «Ver más (N)» y se cierra con «Ver menos»', () => {
+  const muchos = Array.from({ length: 27 }, (_, i) => cupon({ clave: 'CUPON' + String(i).padStart(2, '0') }));
+  const d = { cupones: muchos };
+  assert.equal(A.CUPONES_INICIO, 5); assert.equal(A.CUPONES_PASO, 10);
+  const a = A.cuponesListaHTML(d, 5);
+  assert.equal((a.match(/class="ap-cp"/g) || []).length, 5);
+  assert.match(a, /Mostrando 5 de 27/);
+  assert.match(a, /data-accion="cupones-mas">Ver más \(22\)</);
+  assert.doesNotMatch(a, /cupones-menos/, 'con los primeros no hay «Ver menos»');
+  const b = A.cuponesListaHTML(d, 15);
+  assert.equal((b.match(/class="ap-cp"/g) || []).length, 15);
+  assert.match(b, /Ver más \(12\)/); assert.match(b, /data-accion="cupones-menos">Ver menos</);
+  const c = A.cuponesListaHTML(d, 25);
+  assert.match(c, /Ver más \(2\)/);
+  const todo = A.cuponesListaHTML(d, 99);
+  assert.equal((todo.match(/class="ap-cp"/g) || []).length, 27);
+  assert.doesNotMatch(todo, /cupones-mas/); assert.match(todo, /cupones-menos/);
+  assert.ok(a.indexOf('CUPON00') < a.indexOf('CUPON04'), 'el orden del servidor se respeta');
+  const pocos = A.cuponesListaHTML({ cupones: muchos.slice(0, 3) }, 5);
+  assert.doesNotMatch(pocos, /cupones-mas|cupones-menos/, 'con pocos no hace falta');
+  assert.match(A.cuponesHTML(d), /id="apCpListaCaja"/, 'la lista vive aparte del formulario para no borrar lo que se escribe');
+});
+
+test('el controlador: los botones de plazo y de ver más están conectados y la lista se repinta sin tocar el formulario', () => {
+  const js = leer('assets/js/admin-creditos.js');
+  for (const t of ["'cupones-mas'", "'cupones-menos'", "var ch = ev.target.closest('[data-vence]')", 'function pintarCuponesLista()', "getElementById('apCpListaCaja')", 'function elegirPlazo(modo)']) assert.ok(js.includes(t), t);
 });

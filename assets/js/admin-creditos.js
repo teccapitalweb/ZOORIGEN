@@ -224,14 +224,51 @@
     return lineas.join('\n');
   }
 
+  /* ¿Cuándo deja de servir? Plazos rápidos o «Elegir día y hora» */
+  var PLAZOS = [['nunca', 'No vence', 0], ['1h', 'En 1 hora', 3600000], ['6h', 'En 6 horas', 6 * 3600000], ['24h', 'En 24 horas', 24 * 3600000], ['3d', 'En 3 días', 3 * 86400000], ['7d', 'En 7 días', 7 * 86400000]];
+  var HORA_POR_DEFECTO = '23:59';
+
+  /* La fecha límite en milisegundos: { ms: número | null (no vence), error: '' }. modo: 'nunca', un plazo rápido u 'otro' (dia 'AAAA-MM-DD' y hora 'HH:MM') */
+  function calcularVence(modo, dia, hora, ahora) {
+    var t = ahora === undefined ? Date.now() : ahora;
+    var p = PLAZOS.filter(function (x) { return x[0] === modo; })[0];
+    if (p) return { ms: p[2] ? t + p[2] : null, error: '' };
+    if (modo !== 'otro') return { ms: null, error: 'Elige cuándo deja de servir el cupón.' };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dia || '')) || !/^\d{2}:\d{2}$/.test(String(hora || ''))) return { ms: null, error: 'Elige el día y la hora.' };
+    var f = new Date(dia + 'T' + hora);
+    if (isNaN(f.getTime())) return { ms: null, error: 'La fecha límite no es válida.' };
+    if (f.getTime() <= t) return { ms: null, error: 'La fecha y hora límite deben ser futuras.' };
+    return { ms: f.getTime(), error: '' };
+  }
+
+  /* «Dejará de servir el viernes, 23 de octubre a las 11:59 p. m.» (hora de México) */
+  function resumenVence(ms) {
+    if (ms === null || ms === undefined) return 'No tiene fecha límite: sirve hasta que lo pauses o llegue al máximo de personas.';
+    var d = new Date(ms);
+    var dia = d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Mexico_City' });
+    var hora = d.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Mexico_City' });
+    return 'Dejará de servir el ' + dia + ' a las ' + hora + (/\.$/.test(hora) ? '' : '.');
+  }
+
+  function plazoHTML() {
+    return '<div class="ap-cp-plazo"><p class="ap-cp-plazo__t" id="apCpPlazoT">¿Cuándo deja de servir el cupón?</p>' +
+      '<div class="ap-cp-chips" role="group" aria-labelledby="apCpPlazoT">' + PLAZOS.map(function (p) {
+        return '<button type="button" class="ap-cp-chip" data-vence="' + p[0] + '" aria-pressed="' + (p[0] === 'nunca') + '">' + esc(p[1]) + '</button>';
+      }).join('') + '<button type="button" class="ap-cp-chip ap-cp-chip--otro" data-vence="otro" aria-pressed="false">Elegir día y hora</button></div>' +
+      '<div class="ap-cp-otro" id="apCpOtro" hidden>' +
+        '<label class="ap-cp-campo"><span>Día</span><input type="date" id="apCpDia"></label>' +
+        '<label class="ap-cp-campo"><span>Hora</span><input type="time" id="apCpHora" value="' + HORA_POR_DEFECTO + '"></label></div>' +
+      '<p class="ap-cp-resumen" id="apCpResumen" role="status" aria-live="polite">' + esc(resumenVence(null)) + '</p></div>';
+  }
+
   function formularioCuponHTML() {
     return '<form class="ap-cp-form" id="apCpForm" autocomplete="off" novalidate>' +
       '<label class="ap-cp-campo"><span>Clave (vacía = al azar)</span><input type="text" id="apCpClave" maxlength="24" placeholder="Ej.: CANAL100" autocapitalize="characters" spellcheck="false" aria-describedby="apCpAyuda"></label>' +
       '<label class="ap-cp-campo"><span>Créditos</span><input type="number" id="apCpCreditos" min="1" max="' + MAX_REGALO + '" step="1" value="100" inputmode="numeric"></label>' +
-      '<label class="ap-cp-campo"><span>Vence el (opcional)</span><input type="datetime-local" id="apCpVence"></label>' +
       '<label class="ap-cp-campo"><span>Máximo de personas</span><input type="number" id="apCpMax" min="1" max="100000" step="1" placeholder="Sin límite" inputmode="numeric"></label>' +
+      plazoHTML() +
       '<button type="submit" class="ap-btn ap-btn--primario ap-cp-crear" data-accion="cupon-crear">' + ico('plus', { size: 18 }) + 'Crear cupón</button></form>' +
-      '<p class="ap-cp-ayuda" id="apCpAyuda">La clave no distingue mayúsculas de minúsculas (de 4 a 24 letras o números). Cada persona puede canjearla una sola vez. Sin fecha ni máximo, sirve hasta que la pauses.</p>' +
+      '<p class="ap-cp-ayuda" id="apCpAyuda">La clave no distingue mayúsculas de minúsculas (de 4 a 24 letras o números). Cada persona puede canjearla una sola vez. Sin plazo ni máximo, sirve hasta que la pauses.</p>' +
       '<p class="ap-error" id="apCpError" role="alert" hidden></p>';
   }
 
@@ -253,12 +290,26 @@
       '<button type="button" class="ap-btn ap-btn--suave ap-btn--chico" data-accion="cupon-quien" data-clave="' + esc(c.clave) + '">Ver quién</button>' + pausa + '</div></li>';
   }
 
-  function cuponesHTML(d) {
-    var form = formularioCuponHTML();
-    if (!d) return form + vacio('No se pudieron cargar los cupones', 'Si acabas de actualizar el servidor, espera un momento y pulsa Actualizar.', 'triangle-alert');
+  var CUPONES_INICIO = 5;   // cupones que se ven al abrir; «Ver más» suma CUPONES_PASO y «Ver menos» regresa a estos
+  var CUPONES_PASO = 10;
+
+  /* La lista: del más reciente al más antiguo, de pocos en pocos con «Ver más (N)» y «Ver menos» */
+  function cuponesListaHTML(d, visibles) {
+    if (!d) return vacio('No se pudieron cargar los cupones', 'Si acabas de actualizar el servidor, espera un momento y pulsa Actualizar.', 'triangle-alert');
     var lista = Array.isArray(d.cupones) ? d.cupones : [];
-    if (!lista.length) return form + vacio('Todavía no has creado cupones', 'Crea uno, comparte la clave en el canal de WhatsApp y aquí verás cuántas personas lo canjean.', 'gift');
-    return form + '<ul class="ap-cp-lista" aria-label="Cupones, del más reciente al más antiguo">' + lista.map(filaCuponHTML).join('') + '</ul>';
+    if (!lista.length) return vacio('Todavía no has creado cupones', 'Crea uno, comparte la clave en el canal de WhatsApp y aquí verás cuántas personas lo canjean.', 'gift');
+    var n = Math.max(CUPONES_INICIO, Number(visibles) || CUPONES_INICIO);
+    var mostrar = lista.slice(0, n);
+    var faltan = lista.length - mostrar.length;
+    var botones = '';
+    if (faltan > 0) botones += '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="cupones-mas">Ver más (' + num(faltan) + ')</button>';
+    if (mostrar.length > CUPONES_INICIO) botones += '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="cupones-menos">Ver menos</button>';
+    return '<ul class="ap-cp-lista" aria-label="Cupones, del más reciente al más antiguo">' + mostrar.map(filaCuponHTML).join('') + '</ul>' +
+      '<p class="ap-pie-tabla" role="status">Mostrando ' + num(mostrar.length) + ' de ' + num(lista.length) + '</p>' + (botones ? '<div class="ap-cp-mas">' + botones + '</div>' : '');
+  }
+
+  function cuponesHTML(d, visibles) {
+    return formularioCuponHTML() + '<div id="apCpListaCaja">' + cuponesListaHTML(d, visibles) + '</div>';
   }
 
   /* «Ver quién»: nombre, correo, créditos y fecha de cada persona que canjeó el cupón */
@@ -285,7 +336,7 @@
     var controles = '<div class="ap-controles"><div class="ap-controles__der ap-controles__der--solo"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por nombre o correo</span>' +
       '<input type="search" id="apCrBuscar" placeholder="Buscar por nombre o correo" autocomplete="off" value="' + esc(u.texto || '') + '"></label></div></div>';
     return titulo +
-      card('Cupones', cuponesHTML(data.cupones), 'Crea una clave, compártela en el canal de WhatsApp y cada persona la canjea una sola vez en «¿Tienes un código?».', 'apCrCupones') +
+      card('Cupones', cuponesHTML(data.cupones, u.cuponesVisibles), 'Crea una clave, compártela en el canal de WhatsApp y cada persona la canjea una sola vez en «¿Tienes un código?».', 'apCrCupones') +
       card('Cuentas', controles + '<div id="apCrMiembros">' + listaMiembrosHTML(lista, u.visibles || 25, u.texto) + '</div>', 'De la cuenta más reciente a la más antigua. Eliges cuántos créditos regalar (de 1 a ' + num(MAX_REGALO) + ' por regalo, hasta ' + num(MAX_REGALO) + ' por cuenta al día) y la persona debe haber confirmado su correo.') +
       card('Historial de regalos', historialHTML(data.historial, { filtro: u.filtro, texto: u.textoHistorial }), 'A quién se le regaló, cuánto, quién lo regaló y cuántos materiales ya canjeó.', 'apCrHistorial') +
       card('Materiales más canjeados', graficaHTML(m), 'Cuántas veces se canjeó cada material.', 'apCrGrafica') +
@@ -293,7 +344,7 @@
   }
 
   /* ───────────────────────── Controlador (solo en el navegador) ───────────────────────── */
-  var est = { datos: null, texto: '', visibles: 25, filtro: 'todos', textoHistorial: '', pagina: 1, ocupado: false };
+  var est = { datos: null, texto: '', visibles: 25, filtro: 'todos', textoHistorial: '', pagina: 1, ocupado: false, cuponesVisibles: CUPONES_INICIO, plazo: 'nunca' };
 
   function nuevaClave() {
     var a = '';
@@ -400,10 +451,26 @@
 
 
   /* ───── Cupones: crear, copiar el mensaje, ver quién y pausar ───── */
-  function cuponAISO(valor) {
-    if (!valor) return null;
-    var d = new Date(valor);
-    return isNaN(d.getTime()) ? undefined : d.toISOString();
+  /* Elegir el plazo: marca el chip, muestra Día y Hora si es «Elegir día y hora» y actualiza la frase de abajo */
+  function pintarPlazo() {
+    var resumen = document.getElementById('apCpResumen'); var otro = document.getElementById('apCpOtro');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-vence]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.vence === est.plazo)); });
+    if (otro) otro.hidden = est.plazo !== 'otro';
+    if (!resumen) return;
+    var r = calcularVence(est.plazo, (document.getElementById('apCpDia') || {}).value, (document.getElementById('apCpHora') || {}).value, Date.now());
+    resumen.textContent = r.error && est.plazo === 'otro' ? (r.error === 'Elige el día y la hora.' ? 'Elige el día y la hora.' : r.error) : resumenVence(r.ms);
+  }
+  function elegirPlazo(modo) {
+    est.plazo = modo;
+    if (modo === 'otro') {
+      var dia = document.getElementById('apCpDia');
+      if (dia && !dia.value) { var h = new Date(); dia.value = h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0'); }
+    }
+    pintarPlazo();
+  }
+  function pintarCuponesLista() {
+    var caja = document.getElementById('apCpListaCaja');
+    if (caja) caja.innerHTML = cuponesListaHTML(est.datos.cupones, est.cuponesVisibles);
   }
   async function crearCupon() {
     var u = V.util; var ctx = u.contexto();
@@ -415,9 +482,9 @@
     var maxTexto = (document.getElementById('apCpMax').value || '').trim();
     if (!/^[0-9]+$/.test(cantTexto) || +cantTexto < 1 || +cantTexto > MAX_REGALO) return falla('Escribe cuántos créditos entrega: un número entero de 1 a ' + num(MAX_REGALO) + '.');
     if (maxTexto && (!/^[0-9]+$/.test(maxTexto) || +maxTexto < 1)) return falla('El máximo de personas debe ser un número entero, o déjalo vacío para no poner límite.');
-    var vence = cuponAISO(document.getElementById('apCpVence').value);
-    if (vence === undefined) return falla('La fecha límite no es válida.');
-    if (vence && Date.parse(vence) <= Date.now()) return falla('La fecha y hora límite deben ser futuras.');
+    var plazo = calcularVence(est.plazo, (document.getElementById('apCpDia') || {}).value, (document.getElementById('apCpHora') || {}).value, Date.now());
+    if (plazo.error) return falla(plazo.error);
+    var vence = plazo.ms === null ? null : new Date(plazo.ms).toISOString();
     if (est.ocupado) return undefined;
     est.ocupado = true; if (boton) { boton.disabled = true; }
     try {
@@ -466,14 +533,19 @@
     var bh = document.getElementById('apCrBuscarHistorial');
     var espera = null;
     v.oninput = function (e) {
+      if (e.target && (e.target.id === 'apCpDia' || e.target.id === 'apCpHora')) { pintarPlazo(); return; }
       if (!e.target || e.target.id !== 'apCrBuscarHistorial') return;
       est.textoHistorial = e.target.value;
       clearTimeout(espera);
       espera = setTimeout(function () { recargarHistorial(false).then(function () { var c = document.getElementById('apCrBuscarHistorial'); if (c) { c.focus(); try { c.setSelectionRange(c.value.length, c.value.length); } catch (x) { /* nada */ } } }).catch(function (er) { u.contexto().toast((er && er.message) || 'No se pudo buscar.', true); }); }, 280);
     };
     void bh;
+    est.plazo = 'nunca';
     v.onsubmit = function (ev) { if (ev.target && ev.target.id === 'apCpForm') { ev.preventDefault(); crearCupon(); } };
+    v.onchange = function (ev) { if (ev.target && (ev.target.id === 'apCpDia' || ev.target.id === 'apCpHora')) pintarPlazo(); };
     v.onclick = function (ev) {
+      var ch = ev.target.closest('[data-vence]');
+      if (ch) { elegirPlazo(ch.dataset.vence); return; }
       var f = ev.target.closest('[data-filtro-regalo]');
       if (f) { est.filtro = f.dataset.filtroRegalo; recargarHistorial(false).catch(function (er) { u.contexto().toast((er && er.message) || 'No se pudo filtrar.', true); }); return; }
       u.acciones(ev, {
@@ -481,6 +553,8 @@
         'mas-miembros': function () { est.visibles += 25; pintarMiembros(); },
         'mas-regalos': function () { recargarHistorial(true).catch(function (er) { u.contexto().toast((er && er.message) || 'No se pudo cargar más.', true); }); },
         regalar: function (b) { regalar(b.dataset.uid, b); },
+        'cupones-mas': function () { est.cuponesVisibles += CUPONES_PASO; pintarCuponesLista(); },
+        'cupones-menos': function () { est.cuponesVisibles = CUPONES_INICIO; pintarCuponesLista(); var c = document.getElementById('apCrCupones'); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'nearest' }); },
         'cupon-copiar': function (b) { copiarCupon(b.dataset.clave); },
         'cupon-quien': function (b) { quienCupon(b.dataset.clave); },
         'cupon-estado': function (b) { estadoCupon(b.dataset.clave, b.dataset.a); }
@@ -490,7 +564,7 @@
 
   return {
     REGALO: REGALO, COSTO: COSTO, MAX_REGALO: MAX_REGALO, OPCIONES: OPCIONES, analizarCantidad: analizarCantidad, alcance: alcance, fraseAlcance: fraseAlcance, regaloCuerpoHTML: regaloCuerpoHTML, textoAceptar: textoAceptar, estadoRegalo: estadoRegalo, textoCreditos: textoCreditos, cifras: cifras, filtrarMiembros: filtrarMiembros, filaMiembro: filaMiembro, listaMiembrosHTML: listaMiembrosHTML, textoConfirmacion: textoConfirmacion,
-    mensajeCupon: mensajeCupon, formularioCuponHTML: formularioCuponHTML, filaCuponHTML: filaCuponHTML, cuponesHTML: cuponesHTML, quienHTML: quienHTML, ESTADOS_CUPON: ESTADOS_CUPON,
+    mensajeCupon: mensajeCupon, calcularVence: calcularVence, resumenVence: resumenVence, plazoHTML: plazoHTML, PLAZOS: PLAZOS, CUPONES_INICIO: CUPONES_INICIO, CUPONES_PASO: CUPONES_PASO, cuponesListaHTML: cuponesListaHTML, formularioCuponHTML: formularioCuponHTML, filaCuponHTML: filaCuponHTML, cuponesHTML: cuponesHTML, quienHTML: quienHTML, ESTADOS_CUPON: ESTADOS_CUPON,
     filaRegalo: filaRegalo, historialHTML: historialHTML, fraseGrafica: fraseGrafica, graficaHTML: graficaHTML, vistaHTML: vistaHTML, creditos: cargar, FILTROS: FILTROS
   };
 });

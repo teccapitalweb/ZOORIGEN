@@ -5,13 +5,13 @@
 /* letra mínima de 12 px. Lo dibuja assets/js/admin-creditos.js.  */
 /* ============================================================ */
 
-.ap-cp-form { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr) minmax(210px, 1.3fr) minmax(0, 1fr) auto; gap: 12px 14px; align-items: end; }
+.ap-cp-form { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, .8fr) minmax(0, 1fr); gap: 12px 14px; align-items: end; }
 .ap-cp-campo { display: grid; gap: 6px; min-width: 0; font-size: .84rem; font-weight: 700; color: var(--c-text-2); }
 .ap-cp-campo input { width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--c-line-strong); background: var(--c-input); color: var(--c-text); font: 500 .95rem var(--zoo-font-body, inherit); }
 .ap-cp-campo input::placeholder { color: var(--c-text-3); opacity: 1; }
 .ap-cp-campo input:focus { outline: 3px solid #F7CB62; outline-offset: 0; border-color: var(--c-accent); }
 :root[data-modo="claro"] .ap-cp-campo input:focus { outline-color: #1F5F8F; }
-.ap-cp-crear { min-height: 44px; white-space: nowrap; }
+.ap-cp-crear { grid-column: 1 / -1; justify-self: start; min-height: 44px; white-space: nowrap; }
 .ap-cp-ayuda { margin: 10px 2px 0; font-size: .82rem; line-height: 1.5; color: var(--c-text-3); }
 
 .ap-cp-lista { margin: 16px 0 0; padding: 0; list-style: none; }
@@ -43,3 +43,27 @@
 
 /* La clave se ve como texto de código sin caja propia */
 .ap-cp__clave code { background: none; border: 0; padding: 0; border-radius: 0; box-shadow: none; }
+
+/* ¿Cuándo deja de servir el cupón? Plazos rápidos y «Elegir día y hora» */
+.ap-cp-plazo { grid-column: 1 / -1; display: grid; gap: 10px; }
+.ap-cp-plazo__t { margin: 0; font-size: .9rem; font-weight: 700; color: var(--c-text); }
+.ap-cp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ap-cp-chip { min-height: 40px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--c-line-strong); background: var(--c-surface); color: var(--c-text); font: 600 .9rem var(--zoo-font-body, inherit); cursor: pointer; }
+.ap-cp-chip:hover { border-color: var(--c-accent); }
+.ap-cp-chip[aria-pressed="true"] { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-accent-ink); }
+.ap-cp-chip:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+:root[data-modo="claro"] .ap-cp-chip:focus-visible { outline-color: #1F5F8F; }
+.ap-cp-otro { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 12px 14px; }
+.ap-cp-otro[hidden] { display: none; }
+.ap-cp-resumen { margin: 0; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--c-line); background: var(--c-surface); font-size: .9rem; line-height: 1.45; color: var(--c-text-2); }
+
+/* «Ver más» y «Ver menos» de la lista de cupones */
+.ap-cp-mas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.ap-cp-mas .ap-mas { margin-top: 8px; }
+
+@media (max-width: 1100px) {
+  .ap-cp-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .ap-cp-otro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
