@@ -318,14 +318,14 @@ const UUID_B = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 test('leccionHTML(): el URL del video siempre es un campo editable; con Bunny viene lleno con el enlace del video', () => {
   const bunny = C.leccionHTML({ videoId: UUID_A, provider: 'bunny' }, 0, 2);
   assert.ok(bunny.includes('data-ruta="fuente"'));
-  assert.ok(bunny.includes('https://iframe.mediadelivery.net/embed/731751/' + UUID_A));
+  assert.ok(bunny.includes('value="' + UUID_A + '"'));
   assert.ok(!bunny.includes('data-ruta="driveId"'));
   assert.ok(C.leccionHTML({ driveId: '' }, 0, 2).includes('data-ruta="fuente"'));
   assert.ok(C.leccionHTML({ driveId: 'abcDEF123456' }, 0, 2).includes('value="abcDEF123456"'));
 });
 
 test('textoFuente() y estadoFuente(): lo que se ve junto al URL', () => {
-  assert.equal(C.textoFuente({ videoId: UUID_A }), 'https://iframe.mediadelivery.net/embed/731751/' + UUID_A);
+  assert.equal(C.textoFuente({ videoId: UUID_A }), UUID_A);
   assert.equal(C.textoFuente({ videoId: UUID_A, fuente: 'otro' }), 'otro');
   assert.equal(C.textoFuente({ driveId: 'xyz12345' }), 'xyz12345');
   assert.equal(C.textoFuente({}), '');

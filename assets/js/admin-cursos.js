@@ -366,12 +366,11 @@
     return { error: 'pega el ID del video de Bunny o el enlace de Google Drive' };
   }
 
-  // El enlace del video tal como se muestra en el formulario: el de Bunny si la clase tiene video de Bunny, o el de Drive.
-  const urlBunny = id => `https://iframe.mediadelivery.net/embed/${BIBLIOTECA_BUNNY}/${id}`;
+  // Lo que se muestra en el campo del video (como en Alintec): el ID del video de Bunny, o el de Google Drive.
   function textoFuente(l) {
     if (!l || typeof l !== 'object') return '';
     if (typeof l.fuente === 'string') return l.fuente;
-    if (l.videoId) return urlBunny(l.videoId);
+    if (l.videoId) return String(l.videoId);
     return l.driveId ? String(l.driveId) : '';
   }
   // Qué dice el formulario junto al enlace mientras se escribe: { tipo: 'vacio' | 'bunny' | 'drive' | 'error', texto }
@@ -664,8 +663,8 @@
 
   function leccionHTML(l, i, total) {
     const texto = textoFuente(l), est = estadoFuente(texto);
-    const fuente = `<label class="ce-campo ce-campo--full"><span>URL del video</span>
-          ${inputHTML('fuente', texto, 'Se llena sola al sincronizar con Bunny, o pega aquí el enlace', { max: 400 })}</label>
+    const fuente = `<label class="ce-campo ce-campo--full"><span>Video de la clase (ID de Bunny o enlace)</span>
+          ${inputHTML('fuente', texto, 'ID del video de Bunny (se llena al sincronizar) o enlace de Google Drive', { max: 400 })}</label>
         <div class="ce-fuente ce-fuente--${est.tipo}" role="status">${ico(est.tipo === 'error' ? 'circle-alert' : est.tipo === 'vacio' ? 'info' : 'badge-check', { size: 15 })}<span>${esc(est.texto)}</span></div>`;
     return `<div class="ce-clase" data-lec="${i}">
         <div class="ce-clase__cab">
@@ -723,13 +722,13 @@
           <span><strong>Este curso tiene clases gratis de muestra</strong><small>Quien no tenga membresía podrá ver las clases que marques como gratis. Solo un curso puede tenerlo. Las demás clases piden membresía.</small></span></label>
         <div class="ce-campo ce-campo--full">
           <span>Clases del curso (videos)</span>
-          <small class="ce-ayuda">Las clases se muestran en orden. El URL del video se llena solo al sincronizar con Bunny y siempre lo puedes editar a mano. También acepta enlaces de Google Drive.</small>
+          <small class="ce-ayuda">Las clases se muestran en orden. El video de cada clase se llena solo al sincronizar con Bunny (aparece su ID) y siempre lo puedes editar a mano: acepta el ID de Bunny, el enlace de Bunny o un enlace de Google Drive.</small>
           <div class="ce-botones">
             <button type="button" class="ce-agregar" onclick="agregarLeccion()">${ico('plus', { size: 16 })}Agregar otra clase</button>
             <button type="button" class="ce-agregar ce-sync" id="cf-sync-bunny" onclick="sincronizarCursoBunny()" title="Busca en Bunny la colección con el nombre más parecido al título del curso y llena el video de cada clase">${ico('cloud-download', { size: 16 })}Sincronizar con Bunny</button>
           </div>
           <div id="leccionesContainer" class="ce-clases"></div>
-          <small class="ce-ayuda">"Sincronizar con Bunny" busca la colección parecida al título del curso y llena el URL del video de cada clase. No cambia títulos que ya escribiste, preguntas, juegos ni clases gratis. Si Bunny pone un enlace mal o no encuentra el video, corrige el URL a mano en la clase: lo que escribas es lo que se guarda.</small>
+          <small class="ce-ayuda">"Sincronizar con Bunny" busca la colección parecida al título del curso y llena el ID del video de cada clase. No cambia títulos que ya escribiste, preguntas, juegos ni clases gratis. Si Bunny pone un enlace mal o no encuentra el video, corrige el ID o el enlace a mano en la clase: lo que escribas es lo que se guarda.</small>
         </div>
         <section class="ce-campo ce-campo--full ce-materiales" id="cursoMateriales"></section>
       </div>
