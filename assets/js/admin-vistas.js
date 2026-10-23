@@ -623,81 +623,6 @@
     } catch (err) { ctx.toast(err.message || 'No se pudo restaurar.', true); }
   }
 
-  /* ───────── SUSCRIPCIONES Y PAGOS ───────── */
-  async function suscripciones(forzar) {
-    var mi = ++contador;
-    vista().innerHTML = cargando('Suscripciones y pagos');
-    var r; var lista;
-    try {
-      var par = await Promise.all([ctx.api('/api/admin/resumen' + (forzar ? '?refrescar=1' : '')), cargarMiembros(false)]);
-      r = par[0]; lista = par[1].miembros;
-    } catch (e) {
-      if (mi !== contador) return;
-      vista().innerHTML = errorHTML('Suscripciones y pagos', e, 'recargar');
-      vista().onclick = function (ev) { acciones(ev, { recargar: function () { suscripciones(true); } }); };
-      return;
-    }
-    if (mi !== contador) return;
-    var k = r.kpis;
-    var ahora = Date.now();
-    var en30 = lista.filter(function (m) {
-      if (!m.conAcceso || !m.vence) return false;
-      var d = new Date(m.vence).getTime() - ahora;
-      return d >= 0 && d <= 30 * 86400000;
-    }).sort(function (a, b) { return new Date(a.vence) - new Date(b.vence); });
-    var pendientes = lista.filter(function (m) { return m.estado === 'pago-pendiente'; });
-    var manuales = lista.filter(function (m) { return m.origen === 'manual' && m.conAcceso; });
-
-    var fila = function (m) { return filaPersonaVence(m, planTexto(m) || m.correo); };
-    var bloque = function (arr, vacioT, vacioX) {
-      return arr.length ? F.lista(arr.slice(0, 8).map(fila)) + (arr.length > 8 ? '<p class="ap-pie-tabla">Y ' + (arr.length - 8) + ' más. Búscalos en Miembros.</p>' : '') : vacio(vacioT, vacioX, 'circle-check');
-    };
-
-    vista().innerHTML = P.tarjetaTitulo({
-      icono: 'credit-card', eyebrow: 'Panel de administración', titulo: 'Suscripciones', acento: 'y pagos.',
-      sub: 'Cómo se reparten los planes, quién vence pronto y cuánto se estima de ingreso. Los cobros con Stripe se confirman en Stripe.',
-      cifras: [
-        { valor: P.fmtNum(r.porPlan.mensual), rotulo: 'plan mensual' },
-        { valor: P.fmtNum(r.porPlan.anual), rotulo: 'plan anual' },
-        { valor: k.ingresosMesEstimado === null ? 'Sin datos' : P.fmtMxn(k.ingresosMesEstimado), rotulo: 'ingreso estimado del mes' }
-      ],
-      acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }]
-    }) +
-      '<div class="ap-kpis">' + [
-        kpi({ icono: 'badge-check', rotulo: 'Con acceso hoy', valor: P.fmtNum(k.activos), nota: P.fmtNum(r.porOrigen.stripe) + ' Stripe · ' + P.fmtNum(r.porOrigen.manual) + ' manual · ' + P.fmtNum(r.porOrigen.heredado) + ' heredado', tono: 'ok' }),
-        kpi({ icono: 'calendar-clock', rotulo: 'Vencen en 30 días', valor: P.fmtNum(en30.length), nota: 'Conviene recordarles renovar', tono: en30.length ? 'aviso' : 'neutro' }),
-        kpi({ icono: 'triangle-alert', rotulo: 'Pago pendiente', valor: P.fmtNum(pendientes.length), nota: 'El cobro no se confirmó', tono: pendientes.length ? 'error' : 'neutro' }),
-        kpi({ icono: 'hourglass', rotulo: 'Cancelados con acceso', valor: P.fmtNum(k.cancelados), nota: 'No renovarán', tono: k.cancelados ? 'aviso' : 'neutro' })
-      ].join('') + '</div>' +
-      '<div class="ap-columnas">' +
-      tarjeta('Ingresos estimados por mes', G.serie({
-        titulo: 'Ingresos estimados por mes', tipo: 'barras', formato: 'mxn', unidad: 'estimados en 6 meses', alto: 220,
-        etiquetas: r.ingresosMensuales.map(function (m) { return P.fmtMes(m.mes).split(' ')[0]; }),
-        titulos: r.ingresosMensuales.map(function (m) { return P.fmtMes(m.mes) + ' · ' + P.fmtNum(m.pagos) + ' pagos'; }),
-        series: [{ nombre: 'Ingresos estimados (MXN)', valores: r.ingresosMensuales.map(function (m) { return m.estimado; }), color: 3 }],
-        vacio: { titulo: 'Sin pagos registrados', texto: 'Cuando haya pagos aparecerá la estimación de cada mes.' }
-      }), { nota: r.notas.ingresos }) +
-      tarjeta('Planes y origen', '<h3 class="ap-subtitulo">Plan</h3>' + G.anillo({
-        titulo: 'Reparto por plan', centro: { valor: P.fmtNum(k.activos), rotulo: 'con acceso' },
-        partes: [{ etiqueta: 'Mensual', valor: r.porPlan.mensual, color: 2 }, { etiqueta: 'Anual', valor: r.porPlan.anual, color: 1 }, { etiqueta: 'Sin tipo de plan', valor: r.porPlan.otro, color: 8 }]
-      }) + '<div class="ap-separador"></div><h3 class="ap-subtitulo">Origen del acceso</h3>' + G.anillo({
-        titulo: 'Reparto por origen del acceso', centro: { valor: P.fmtNum(k.activos), rotulo: 'con acceso' },
-        partes: [{ etiqueta: 'Stripe', valor: r.porOrigen.stripe, color: 2 }, { etiqueta: 'Manual', valor: r.porOrigen.manual, color: 3 }, { etiqueta: 'Regalo', valor: r.porOrigen.regalo, color: 7 }, { etiqueta: 'Heredado', valor: r.porOrigen.heredado, color: 5 }, { etiqueta: 'Otro', valor: r.porOrigen.otro, color: 8 }]
-      }), { nota: 'Solo cuentan quienes tienen acceso hoy.' }) +
-      '</div><div class="ap-columnas">' +
-      tarjeta('Vencen en los próximos 30 días', bloque(en30, 'Nadie vence pronto', 'Cuando una membresía esté por vencer aparecerá aquí.')) +
-      tarjeta('Pago pendiente', bloque(pendientes, 'Sin pagos pendientes', 'Todos los cobros recientes se confirmaron.')) +
-      '</div>' +
-      tarjeta('Activaciones manuales vigentes', bloque(manuales, 'Sin activaciones manuales', 'Las membresías que actives a mano aparecerán aquí.'), { nota: 'Transferencias, efectivo y cortesías.' });
-    G.activar(vista());
-    vista().onclick = function (e) {
-      acciones(e, {
-        recargar: function () { suscripciones(true); },
-        ficha: function (b) { abrirFicha(b.dataset.uid); }
-      });
-    };
-  }
-
   /* ───────── RETOS Y XP ───────── */
   var NOMBRES_RETO = { quiz: 'Quiz relámpago', detective: 'Detective de campo', orden: 'Ordena la secuencia', historia: 'Modo historia', flashcards: 'Flashcards' };
   var RETO_CORTO = { quiz: 'Quiz', detective: 'Detective', orden: 'Ordena', historia: 'Historia', flashcards: 'Flashcards' };
@@ -1532,7 +1457,7 @@
   }
 
   root.ZOO_ADMIN_VISTAS = {
-    iniciar: iniciar, resumen: resumen, miembros: miembros, suscripciones: suscripciones, retos: retos, comunidad: comunidad,
+    iniciar: iniciar, resumen: resumen, miembros: miembros, retos: retos, comunidad: comunidad,
     referidos: referidos, configuracion: configuracion, avance: avanceMiembros,
     agregarVerificadorFolio: agregarVerificadorFolio, modal: modal, confirmar: confirmar,
     abrirFicha: function (uid) { return abrirFicha(uid); },
