@@ -15,7 +15,7 @@ const cupon = extra => Object.assign({ clave: 'CANAL100', creditos: 100, estado:
 
 test('el formulario: clave (vacía = al azar), créditos, vence (opcional), máximo de personas y «Crear cupón»', () => {
   const h = A.formularioCuponHTML();
-  for (const t of ['Clave (vacía = al azar)', 'Créditos', 'Máximo de personas', 'Crear cupón', 'Ej.: CANAL100', 'Sin límite', '¿Cuándo deja de servir el cupón?', 'No vence', 'En 1 hora', 'En 6 horas', 'En 24 horas', 'En 3 días', 'En 7 días', 'Elegir día y hora', 'Dejará de servir']) assert.ok(h.includes(t) || t === 'Dejará de servir' , t);
+  for (const t of ['Clave (vacía = al azar)', 'Créditos', 'Máximo de personas (vacío = todos)', 'Crear cupón', 'Ej.: CANAL100', 'Todos', '¿Cuándo deja de servir el cupón?', 'No vence', 'En 1 hora', 'En 6 horas', 'En 24 horas', 'En 3 días', 'En 7 días', 'Elegir día y hora', 'Dejará de servir']) assert.ok(h.includes(t) || t === 'Dejará de servir' , t);
   assert.match(h, /id="apCpCreditos"[^>]*value="100"/);
   assert.match(h, /id="apCpDia"[^>]*>/); assert.match(h, /type="date"/); assert.match(h, /type="time"/);
   assert.match(h, /data-vence="nunca" aria-pressed="true"/);
@@ -168,19 +168,19 @@ test('el controlador: los botones de plazo y de ver más están conectados y la 
 test('para quién es el cupón: Todas las cuentas, Solo cuentas gratuitas o Solo miembros VIP, con su frase; por omisión todas', () => {
   assert.deepEqual(A.AUDIENCIAS.map(a => a[0]), ['todos', 'gratuitos', 'vip']);
   const h = A.formularioCuponHTML();
-  for (const t of ['¿Para quién es el cupón?', 'Todas las cuentas', 'Solo cuentas gratuitas', 'Solo miembros VIP', 'Lo puede canjear cualquier cuenta con el correo confirmado.']) assert.ok(h.includes(t), t);
+  for (const t of ['¿A quién le llega el cupón?', 'Ambos', 'Miembros no VIP', 'Miembros VIP', 'Lo pueden canjear los miembros no VIP y los miembros VIP']) assert.ok(h.includes(t), t);
   assert.match(h, /data-aud="todos" aria-pressed="true"/); assert.match(h, /data-aud="vip" aria-pressed="false"/);
-  assert.ok(h.indexOf('¿Para quién es el cupón?') < h.indexOf('¿Cuándo deja de servir el cupón?'), 'primero para quién y luego el plazo');
-  assert.ok(h.indexOf('id="apCpMax"') < h.indexOf('¿Para quién es el cupón?'), 'el máximo de personas sigue editable arriba');
-  assert.equal(A.audienciaTexto('vip'), 'Solo miembros VIP'); assert.equal(A.audienciaTexto('raro'), 'Todas las cuentas');
+  assert.ok(h.indexOf('¿A quién le llega el cupón?') < h.indexOf('¿Cuándo deja de servir el cupón?'), 'primero a quién y luego el plazo');
+  assert.ok(h.indexOf('id="apCpMax"') < h.indexOf('¿A quién le llega el cupón?'), 'el máximo de personas sigue editable arriba');
+  assert.equal(A.audienciaTexto('vip'), 'Miembros VIP'); assert.equal(A.audienciaTexto('gratuitos'), 'Miembros no VIP'); assert.equal(A.audienciaTexto('raro'), 'Ambos');
 });
 
 test('cada cupón dice para quién es y el mensaje del canal lo aclara cuando no es para todos', () => {
-  assert.match(A.filaCuponHTML(cupon({ audiencia: 'vip' })), /ap-cp__aud">Solo miembros VIP</);
-  assert.match(A.filaCuponHTML(cupon({ audiencia: 'gratuitos' })), /ap-cp__aud">Solo cuentas gratuitas</);
-  assert.match(A.filaCuponHTML(cupon({ audiencia: undefined })), /ap-cp__aud">Todas las cuentas</, 'un cupón anterior vale para todas');
+  assert.match(A.filaCuponHTML(cupon({ audiencia: 'vip' })), /ap-cp__aud">Miembros VIP</);
+  assert.match(A.filaCuponHTML(cupon({ audiencia: 'gratuitos' })), /ap-cp__aud">Miembros no VIP</);
+  assert.match(A.filaCuponHTML(cupon({ audiencia: undefined })), /ap-cp__aud">Ambos</, 'un cupón anterior vale para todas');
   assert.match(A.mensajeCupon(cupon({ audiencia: 'vip', maxPersonas: null, vence: null })), /Solo para miembros VIP/);
-  assert.match(A.mensajeCupon(cupon({ audiencia: 'gratuitos', maxPersonas: null, vence: null })), /Solo para cuentas gratuitas/);
+  assert.match(A.mensajeCupon(cupon({ audiencia: 'gratuitos', maxPersonas: null, vence: null })), /Solo para miembros no VIP \(plan gratuito\)/);
   assert.doesNotMatch(A.mensajeCupon(cupon({ audiencia: 'todos', maxPersonas: null, vence: null })), /Solo para (miembros|cuentas)/);
   const js = leer('assets/js/admin-creditos.js');
   assert.ok(js.includes('audiencia: est.audiencia') && js.includes("ev.target.closest('[data-aud]')"));

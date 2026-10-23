@@ -219,23 +219,23 @@
       'Cómo usarla: entra a PDFs y materiales, escribe la clave en «¿Tienes un código?» y toca Canjear.', ENLACE_CANJE];
     var extra = [];
     if (x.audiencia === 'vip') extra.push('Solo para miembros VIP');
-    else if (x.audiencia === 'gratuitos') extra.push('Solo para cuentas gratuitas');
+    else if (x.audiencia === 'gratuitos') extra.push('Solo para miembros no VIP (plan gratuito)');
     if (x.maxPersonas) extra.push('Solo para las primeras ' + num(x.maxPersonas) + ' personas');
     if (x.vence) extra.push('Vence el ' + P.fmtFechaHora(x.vence));
     if (extra.length) lineas.push('', extra.join(' · ').replace(/\.$/, '') + '.');
     return lineas.join('\n');
   }
 
-  /* ¿Para quién es? Todas las cuentas, solo cuentas gratuitas (sin membresía vigente) o solo miembros VIP (con membresía vigente) */
+  /* ¿A quién le llega? Miembros no VIP (plan gratuito, sin membresía vigente), miembros VIP (ya pagaron, con membresía vigente) o ambos */
   var AUDIENCIAS = [
-    ['todos', 'Todas las cuentas', 'Lo puede canjear cualquier cuenta con el correo confirmado.'],
-    ['gratuitos', 'Solo cuentas gratuitas', 'Solo lo pueden canjear las cuentas sin membresía vigente.'],
-    ['vip', 'Solo miembros VIP', 'Solo lo pueden canjear las cuentas con membresía vigente.']
+    ['todos', 'Ambos', 'Lo pueden canjear los miembros no VIP y los miembros VIP (cualquier cuenta con el correo confirmado).'],
+    ['gratuitos', 'Miembros no VIP', 'Solo lo pueden canjear las cuentas del plan gratuito (sin membresía vigente).'],
+    ['vip', 'Miembros VIP', 'Solo lo pueden canjear los miembros que ya pagaron (con membresía vigente).']
   ];
   function audienciaTexto(clave) { var a = AUDIENCIAS.filter(function (x) { return x[0] === clave; })[0]; return a ? a[1] : AUDIENCIAS[0][1]; }
 
   function audienciaHTML() {
-    return '<div class="ap-cp-plazo"><p class="ap-cp-plazo__t" id="apCpAudT">¿Para quién es el cupón?</p>' +
+    return '<div class="ap-cp-plazo"><p class="ap-cp-plazo__t" id="apCpAudT">¿A quién le llega el cupón?</p>' +
       '<div class="ap-cp-chips" role="group" aria-labelledby="apCpAudT">' + AUDIENCIAS.map(function (a) {
         return '<button type="button" class="ap-cp-chip" data-aud="' + a[0] + '" aria-pressed="' + (a[0] === 'todos') + '">' + esc(a[1]) + '</button>';
       }).join('') + '</div>' +
@@ -283,7 +283,7 @@
     return '<form class="ap-cp-form" id="apCpForm" autocomplete="off" novalidate>' +
       '<label class="ap-cp-campo"><span>Clave (vacía = al azar)</span><input type="text" id="apCpClave" maxlength="24" placeholder="Ej.: CANAL100" autocapitalize="characters" spellcheck="false" aria-describedby="apCpAyuda"></label>' +
       '<label class="ap-cp-campo"><span>Créditos</span><input type="number" id="apCpCreditos" min="1" max="' + MAX_REGALO + '" step="1" value="100" inputmode="numeric"></label>' +
-      '<label class="ap-cp-campo"><span>Máximo de personas</span><input type="number" id="apCpMax" min="1" max="100000" step="1" placeholder="Sin límite" inputmode="numeric"></label>' +
+      '<label class="ap-cp-campo"><span>Máximo de personas (vacío = todos)</span><input type="number" id="apCpMax" min="1" max="100000" step="1" placeholder="Todos" inputmode="numeric"></label>' +
       audienciaHTML() + plazoHTML() +
       '<button type="submit" class="ap-btn ap-btn--primario ap-cp-crear" data-accion="cupon-crear">' + ico('plus', { size: 18 }) + 'Crear cupón</button></form>' +
       '<p class="ap-cp-ayuda" id="apCpAyuda">La clave no distingue mayúsculas de minúsculas (de 4 a 24 letras o números). Cada persona puede canjearla una sola vez. Sin plazo ni máximo, sirve hasta que la pauses.</p>' +
