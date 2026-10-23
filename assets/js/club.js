@@ -1464,6 +1464,8 @@ const ZOORIGEN_CLUB = {
 
   hasActiveMembership(session) {
     if (!session) return false;
+    // Un administrador que ve el Club "como usuario" tiene todo abierto (el servidor ya le deja ver cualquier video)
+    if (session.rolReal === 'admin') return true;
     const status = this.calculateStatus(session);
     return status === 'active' || status === 'cancelled_active';
   },

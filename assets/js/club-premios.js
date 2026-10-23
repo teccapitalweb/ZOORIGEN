@@ -132,6 +132,7 @@
   // Cada elemento: { id, titulo, diasFalta (número o null), motivo ('tiempo' | 'termina-prueba' | null) }
   function cursosCanjeables(opc) {
     const o = opc || {};
+    if (ACCESO.esAdminVisor(o.session)) return [];
     const lista = ACCESO.ordenParaDesbloqueo(Array.isArray(o.cursos) ? o.cursos.filter(c => c && c.id) : []);
     const dias = ACCESO.diasComoMiembro(o.session, o.ahora);
     const adelantados = ACCESO.normalizarAdelantados(o.adelantados);

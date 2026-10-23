@@ -195,7 +195,7 @@ test('la biblioteca y el Inicio usan el calendario del servidor y conservan la r
   assert.match(bib, /tiraRetosHTML/);
   const dash = leer('pages/club-dashboard.html');
   assert.match(dash, /ZOO_CALENDARIO\.cargar\(/);
-  assert.match(dash, /calendario \}\)/);
+  assert.match(dash, /calendario, admin: ZOO_ACCESO\.esAdminVisor\(session\) \}\)/);
   const retos = leer('assets/js/club-retos.js');
   assert.match(retos, /rzPrimer/);
   assert.match(retos, /Tu curso está abierto/);

@@ -88,3 +88,20 @@ test('msParaDesbloquear: hora exacta con la misma regla de 8 días; el primero y
   assert.equal(A.desdeMiembroMs({ planActivadoEn: '2026-10-02T00:00:00Z', createdAt: '2026-10-01T00:00:00Z' }), Date.UTC(2026, 9, 2));
   assert.equal(A.desdeMiembroMs({}), null);
 });
+
+// ── Administrador que ve el Club "como usuario": todo abierto ──
+test('esAdminVisor(): solo el administrador que mira como usuario (rolReal), no un miembro ni quien solo lleva la marca', () => {
+  assert.equal(A.esAdminVisor({ rolReal: 'admin', role: 'member' }), true);
+  assert.equal(A.esAdminVisor({ role: 'admin' }), false);
+  assert.equal(A.esAdminVisor({ role: 'member' }), false);
+  assert.equal(A.esAdminVisor(null), false);
+});
+
+test('desbloqueoCurso(): con admin:true todos los cursos de la fila están abiertos; sin él la regla de siempre no cambia', () => {
+  const lista = Array.from({ length: 6 }, (_, i) => ({ id: 'c' + i, ordenVip: i }));
+  for (let i = 0; i < lista.length; i++) {
+    assert.deepEqual(A.desbloqueoCurso({ lista, i, dias: 0, admin: true }), { desbloqueado: true, diasFalta: 0, motivo: null });
+  }
+  assert.equal(A.desbloqueoCurso({ lista, i: 5, dias: 0 }).desbloqueado, false);
+  assert.equal(A.desbloqueoCurso({ lista, i: 5, dias: 0, admin: false }).desbloqueado, false);
+});

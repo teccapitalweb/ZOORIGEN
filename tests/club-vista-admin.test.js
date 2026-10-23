@@ -122,13 +122,15 @@ test('club.js: si el servidor ya no la reconoce (el correo salió de ADMIN_EMAIL
   assert.equal(E.local.zoo_admin, undefined);
 });
 
-test('club.js: "Ver como usuario" no abre nada por ser administrador y no pregunta al servidor', async () => {
+test('club.js: "Ver como usuario" no pregunta al servidor y cuenta como miembro con todo abierto (solo el administrador)', async () => {
   const E = cargarClub({ sesion: { zoo_como_usuario: '1' } });
   const sesion = { role: 'admin', planStatus: 'pending_payment' };
   assert.equal(await E.club._decidirAdmin({ uid: 'u1' }, sesion), false);
   assert.equal(sesion.rolReal, 'admin');
-  assert.equal(sesion.role, 'member', 'sin rol de administrador: las funciones de miembro dependen de la membresía real');
-  assert.equal(E.club.hasActiveMembership(sesion), false);
+  assert.equal(sesion.role, 'member', 'sin rol de administrador: no se vuelve a redirigir al panel');
+  assert.equal(E.club.hasActiveMembership(sesion), true, 'el administrador que mira como usuario tiene todo abierto');
+  assert.equal(E.club.hasActiveMembership({ role: 'member', planStatus: 'pending_payment' }), false, 'un miembro sin plan sigue sin acceso');
+  assert.equal(E.club.hasActiveMembership({ role: 'admin', planStatus: 'pending_payment' }), false, 'solo cuenta con rolReal (Ver como usuario), no por llevar la marca');
   assert.deepEqual(E.llamadas, []);
 });
 

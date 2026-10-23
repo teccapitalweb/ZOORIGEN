@@ -212,7 +212,11 @@
     return { disponibles, bloqueados, faltan: faltan === null ? 0 : faltan, total: lista.length };
   }
 
+  // ¿Es un administrador viendo el Club como usuario? (a él no se le cierra ningún curso; los permisos reales los decide el servidor)
+  function esAdminVisor(session) { return !!session && session.rolReal === 'admin'; }
+
   // Desbloqueo de un curso de la lista. Devuelve { desbloqueado, diasFalta, motivo }.
+  // Con opc.admin === true todo está abierto.
   //   motivo: null | 'tiempo' | 'termina-prueba'  (diasFalta = null cuando todavía no empieza el conteo)
   // Sin prueba elegida: exactamente la regla de siempre (1 curso cada 8 días desde que se hizo miembro).
   // Con prueba elegida (y ya con membresía): el curso de prueba y los "siempre disponibles" quedan fuera de la fila.
@@ -229,6 +233,7 @@
     const lista = Array.isArray(o.lista) ? o.lista : [];
     const i = o.i;
     const curso = lista[i];
+    if (o.admin === true) return { desbloqueado: true, diasFalta: 0, motivo: null };
     if (curso && esAdelantado(o.adelantados, curso.id)) return { desbloqueado: true, diasFalta: 0, motivo: null, porPremio: true };
     const p = o.prueba;
     const elegida = p && p.elegida && lista.some(c => c && c.id === p.elegida) ? p.elegida : null;
@@ -263,6 +268,6 @@
     siempreDisponible, esClaseGratis, cursoTieneClaseGratis,
     posicionDesbloqueo, cursosEnFila, maxDesbloqueado, desbloqueadoPorTiempo, diasParaDesbloquear,
     normalizarAdelantados, esAdelantado, adelantadosDeRespuesta, diasComoMiembro, ordenParaDesbloqueo, resumenDesbloqueo,
-    desdeMiembroMs, msParaDesbloquear, inicioPlanMs
+    desdeMiembroMs, msParaDesbloquear, inicioPlanMs, esAdminVisor
   };
 });

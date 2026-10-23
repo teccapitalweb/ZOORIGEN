@@ -495,7 +495,7 @@
   <script src="../assets/js/club-config.js?v=20261104"></script>
   <script src="../assets/js/club-seccion.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-cola.js?v=20261208-libro"></script>
-  <script src="../assets/js/club.js?v=20261209-cupon"></script>
+  <script src="../assets/js/club.js?v=20261218-admin-abierto"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/club-paywall.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-progreso.js?v=20261129-calendario"></script>
@@ -504,7 +504,7 @@
   <script src="../assets/js/club-cupon.js?v=20261210-cupon"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
-  <script src="../assets/js/club-acceso.js?v=20261129"></script>
+  <script src="../assets/js/club-acceso.js?v=20261218"></script>
   <script src="../assets/js/club-calendario.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261207-integrado"></script>
@@ -512,7 +512,7 @@
   <script src="../assets/js/club-prueba-arte.js?v=20261201-graficas"></script>
   <script src="../assets/js/club-cursos-ui.js?v=20261129-integrado"></script>
   <script src="../assets/js/club-materiales.js?v=20261214-cupones"></script>
-  <script src="../assets/js/club-premios.js?v=20261129-calendario"></script>
+  <script src="../assets/js/club-premios.js?v=20261218-admin-abierto"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-resenas.js?v=20261214-cupones"></script>
   <script src="../assets/js/club-nombre-cert.js?v=20261111-nombre"></script>
@@ -688,6 +688,7 @@
         const dias = diasComoMiembro();
         const i = cursos.findIndex(x => x.id === curso.id);
         if (!isActive || !window.ZOO_ACCESO) return { desbloqueado: true, diasFalta: 0, motivo: null };
+        if (ZOO_ACCESO.esAdminVisor(session)) return { desbloqueado: true, diasFalta: 0, motivo: null };   // el administrador ve todos los cursos abiertos
         // Lo que dice el servidor manda; si no respondió, la regla local (con prueba elegida cuenta desde el inicio del plan)
         const srv = window.__zooCal && window.ZOO_CALENDARIO ? ZOO_CALENDARIO.desbloqueo(window.__zooCal, curso.id) : null;
         if (srv) return srv;
@@ -695,6 +696,7 @@
       };
       // Resumen de la ruta (abiertos, cerrados y el que se abre primero) con la hora actual
       window.__zooResumenRuta = () => {
+        if (window.ZOO_ACCESO && ZOO_ACCESO.esAdminVisor(session)) return { total: cursos.length, abiertos: cursos.length, cerrados: 0, proximo: null, diasComoMiembro: diasComoMiembro() };
         if (window.__zooCal && window.ZOO_CALENDARIO) return ZOO_CALENDARIO.resumen(window.__zooCal);
         let abiertos = 0, cerrados = 0, proximo = null;
         cursos.forEach(c => {
@@ -1064,9 +1066,10 @@
       const enPrueba = !esMiembro && window.__zooPrueba.elegida === course.id;
       const nextAvailable = lecciones.findIndex((_, i) => !hechas.includes(i));
 
+      const adminVisor = !!(window.ZOO_ACCESO && ZOO_ACCESO.esAdminVisor(window.__zooSession));   // el administrador abre cualquier clase sin seguir el orden
       const filas = lecciones.map((l, i) => {
         const est = UI.estadoClase({
-          hecha: hechas.includes(i), anteriorHecha: i > 0 && hechas.includes(i - 1), esPrimera: i === 0,
+          hecha: hechas.includes(i), anteriorHecha: adminVisor || (i > 0 && hechas.includes(i - 1)), esPrimera: i === 0,
           esMiembro, gratis: esClaseGratis(l, course, i), espera, esSiguiente: i === nextAvailable
         });
         return { i, titulo: l.titulo || 'Clase ' + (i + 1), duracion: l.duration || '', estado: est.estado, texto: est.texto, accion: est.accion,

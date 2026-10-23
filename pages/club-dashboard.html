@@ -473,7 +473,7 @@
   <script src="../assets/js/club-config.js?v=20261104"></script>
   <script src="../assets/js/club-seccion.js?v=20261124-referencia"></script>
   <script src="../assets/js/club-cola.js?v=20261208-libro"></script>
-  <script src="../assets/js/club.js?v=20261209-cupon"></script>
+  <script src="../assets/js/club.js?v=20261218-admin-abierto"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
   <script src="../assets/js/club-progreso.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-shell.js?v=20261128-arreglos"></script>
@@ -481,14 +481,14 @@
   <script src="../assets/js/club-cupon.js?v=20261210-cupon"></script>
   <script src="../assets/js/admin-iconos.js?v=20261207-integrado"></script>
   <script src="../assets/js/club-iconos-comunidad.js?v=20261104"></script>
-  <script src="../assets/js/club-acceso.js?v=20261129"></script>
+  <script src="../assets/js/club-acceso.js?v=20261218"></script>
   <script src="../assets/js/club-calendario.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
   <script src="../assets/js/guia-personaje.js?v=20261105-inicio"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/club-inicio.js?v=20261201-graficas"></script>
-  <script src="../assets/js/club-premios.js?v=20261129-calendario"></script>
+  <script src="../assets/js/club-inicio.js?v=20261218-admin-abierto"></script>
+  <script src="../assets/js/club-premios.js?v=20261218-admin-abierto"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261128-arreglos"></script>
   <script src="../assets/js/club-creditos.js?v=20261214-cupones"></script>
   <script src="../assets/js/club-cupones.js?v=20261216-cupones"></script>
@@ -1004,7 +1004,7 @@
           const est = ZOO_ACCESO.estadoPrueba(prueba);
           let hero;
           if (calendario) {
-            hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), progreso, calendario });
+            hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), progreso, calendario, admin: ZOO_ACCESO.esAdminVisor(session) });
           } else if (est.aplica) {
             // Con prueba gratuita elegida la ruta de desbloqueo es otra: aquí solo se muestra el curso elegido o se manda a Cursos.
             const elegido = cursos.find(c => c.id === est.elegida);
@@ -1012,7 +1012,7 @@
             const resumen = ZOO_INICIO.elegirHero({ cursos, dias: 0, progreso }).resumen;
             hero = elegido && !av.terminado ? { tipo: 'continuar', curso: elegido, hechas: av.hechas, total: ZOO_INICIO.totalClases(elegido), resumen } : { tipo: 'terminado', resumen };
           } else {
-            hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), adelantados: ZOO_ACCESO.adelantadosDeRespuesta(premios), progreso, desdeMs: ZOO_ACCESO.desdeMiembroMs(session) });
+            hero = ZOO_INICIO.elegirHero({ cursos, dias: ZOO_ACCESO.diasComoMiembro(session), adelantados: ZOO_ACCESO.adelantadosDeRespuesta(premios), progreso, desdeMs: ZOO_ACCESO.desdeMiembroMs(session), admin: ZOO_ACCESO.esAdminVisor(session) });
           }
           const lista = mats && Array.isArray(mats.materiales) ? mats.materiales : null;
           window.__zooInicioRetos = mats && Number.isFinite(mats.superados) ? mats.superados : 0;

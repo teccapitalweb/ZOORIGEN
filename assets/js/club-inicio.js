@@ -68,7 +68,7 @@
     var cal = o.calendario && CAL ? o.calendario : null;
     lista.forEach(function (c, i) {
       var srv = cal ? CAL.desbloqueo(cal, c.id, ahoraMs) : null;
-      var r = srv ? { desbloqueado: srv.desbloqueado, diasFalta: srv.diasFalta } : ACCESO.desbloqueoCurso({ lista: lista, i: i, dias: o.dias, adelantados: o.adelantados });
+      var r = srv ? { desbloqueado: srv.desbloqueado, diasFalta: srv.diasFalta } : ACCESO.desbloqueoCurso({ lista: lista, i: i, dias: o.dias, adelantados: o.adelantados, admin: o.admin === true });
       var ms = r.desbloqueado ? 0 : (srv ? (srv.msFalta != null ? srv.msFalta : null) : ACCESO.msParaDesbloquear(lista, i, o.desdeMs, ahoraMs));
       (r.desbloqueado ? abiertos : cerrados).push({ curso: c, diasFalta: r.diasFalta, msFalta: ms, desbloqueoEn: srv ? srv.desbloqueoEn : null });
     });
