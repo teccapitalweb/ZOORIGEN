@@ -22,9 +22,9 @@ const MX = (iso) => Date.parse(iso);   // las fechas de prueba se dan en UTC
 
 /* ───────── contenido ───────── */
 
-test('cantidades de contenido: al menos 15 de cada tipo (hoy 32 quiz / 24 orden / 55 flashcards / 60 detective / 6x4 historia)', () => {
-  assert.equal(D.quiz.length, 32);
-  assert.equal(D.orden.length, 24);
+test('cantidades de contenido: al menos 15 de cada tipo (hoy 47 quiz / 39 orden / 55 flashcards / 60 detective / 6x4 historia)', () => {
+  assert.equal(D.quiz.length, 47);
+  assert.equal(D.orden.length, 39);
   assert.equal(D.flashcards.length, 55);
   assert.equal(D.historia.length, 6);
   D.historia.forEach(m => assert.equal(m.casos.length, 4));
@@ -62,7 +62,7 @@ test('revisarContenido() sí detecta contenido roto', () => {
 
 test('quiz e historia: 3 opciones distintas, una sola correcta, textos con contenido', () => {
   const casos = D.quiz.concat(...D.historia.map(m => m.casos));
-  assert.equal(casos.length, 32 + 24);
+  assert.equal(casos.length, 47 + 24);
   casos.forEach(c => {
     assert.equal(c.a.length, 3);
     assert.equal(new Set(c.a).size, 3);

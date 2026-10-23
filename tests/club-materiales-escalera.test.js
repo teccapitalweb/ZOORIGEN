@@ -105,7 +105,7 @@ test('la pantalla usa el orden y el filtro en libros, materiales y PDFs de Drive
 
 test('la escalera del catálogo es alcanzable con los retos que existen hoy en el sitio (con holgura)', () => {
   const total = D.quiz.length + D.orden.length + R.escenasActivas(D.detective).length;
-  assert.equal(total, 116, 'retos distintos del camino: 32 quiz + 60 detective (Detective visual) + 24 ordena');
+  assert.equal(total, 146, 'retos distintos del camino: 47 quiz + 60 detective (Detective visual) + 39 ordena');
   const rutaCatalogo = path.join(RAIZ, '..', 'zoorigen-webhook', 'data', 'materiales', 'catalogo.json');
   if (!fs.existsSync(rutaCatalogo)) return;   // el servidor vive en otra carpeta: si no está, solo se comprueba el total
   const umbrales = JSON.parse(fs.readFileSync(rutaCatalogo, 'utf8')).filter(m => m.acceso === 'retos').map(m => m.requiereRetos);
