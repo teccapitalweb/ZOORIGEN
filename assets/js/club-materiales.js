@@ -737,9 +737,10 @@
     var sesion = o.sesion, club = o.club, cont = o.contenedor;
     var uid = sesion.uid;
     var alm = (function () { try { return window.localStorage; } catch (e) { return null; } })() || { getItem: function () { return null; }, setItem: function () {} };
-    var estado = { libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', formato: 'todos', disp: 'todos', ayuda: false, drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
+    var estado = { cupon: { texto: '', mensaje: '', tipo: '', ocupado: false }, campoVisto: false, libros: [], materiales: [], superados: 0, pestana: 'todo', texto: '', formato: 'todos', disp: 'todos', ayuda: false, drive: [], errorServidor: '', cargando: true, previa: false, creditos: null, canjeando: false,
       soloCanjeables: !!o.soloCanjeables || (typeof location !== 'undefined' && /[?&]canjeables=1(?:&|#|$)/.test(String(location.search || ''))) };
     var CR = function () { return (typeof window !== 'undefined' && window.ZOO_CREDITOS) ? window.ZOO_CREDITOS : null; };
+    var CU = function () { return (typeof window !== 'undefined' && window.ZOO_CUPONES) ? window.ZOO_CUPONES : null; };
     var canjeDe = function (tipo, id) {
       var c = estado.creditos, m = CR();
       if (!c || !m) return '';
@@ -813,6 +814,8 @@
          servidor no responde, no se muestra nada; el administrador no la ve. */
       var verPastilla = !!CR() && sesion.role !== 'admin' && (estado.cargando || !!estado.creditos);
       if (verPastilla) html += CR().pastillaHTML(estado.creditos ? estado.creditos.saldo : 0, { soloCanjeables: soloCj, ayudaAbierta: estado.ayuda, reserva: !estado.creditos });
+      /* «¿Tienes un código?»: canjea la clave de un cupón del canal de WhatsApp (la administración no la ve) */
+      if (CU() && sesion.role !== 'admin') html += CU().campoHTML(estado.cupon);
       html += '<div class="mt-barra"><div class="mt-tabs" role="tablist">' + PESTANAS.filter(function (t) { return (t[0] !== 'mas' || estado.drive.some(function (m) { return !esDeCurso(m); })) && (t[0] !== 'cursos' || deCurso.length); }).map(function (t) {
         return '<button type="button" role="tab" class="mt-tab' + (p === t[0] ? ' is-active' : '') + '" data-pestana="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
         '<div class="mt-buscar"><input type="search" id="mtBuscar" placeholder="Buscar…" value="' + esc(q) + '" aria-label="Buscar"></div></div>';
@@ -1106,9 +1109,44 @@
       if (libro) { e.preventDefault(); abrirLibro(libro.getAttribute('data-libro')); } else if (doc) { e.preventDefault(); abrirDoc(doc.getAttribute('data-doc')); }
       else if (fila) { e.preventDefault(); var par = String(fila.getAttribute('data-fila')); abrirFila(par.slice(0, par.indexOf(':')), par.slice(par.indexOf(':') + 1)); }
     });
+    cont.addEventListener('submit', function (e) { if (e.target && e.target.id === 'zccForm') { e.preventDefault(); canjearCodigo(); } });
     cont.addEventListener('input', function (e) {
+      if (e.target && e.target.id === 'zccClave') { estado.cupon.texto = e.target.value; return; }
       if (e.target && e.target.id === 'mtBuscar') { estado.texto = e.target.value; var pos = e.target.selectionStart; pintar(); var n = document.getElementById('mtBuscar'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (x) { /* nada */ } } }
     });
+
+    /* Canjear la clave del cupón: el servidor decide (una vez por persona y cupón, límite de intentos). Si el cupón ya llegó a su límite, sale «Lo sentimos». */
+    function canjearCodigo() {
+      var C = CU();
+      if (!C || estado.cupon.ocupado) return;
+      var campo = document.getElementById('zccClave');
+      var texto = campo ? campo.value : estado.cupon.texto;
+      estado.cupon = { texto: texto, ocupado: true, mensaje: '', tipo: '' }; pintar();
+      C.canjear(club, texto).then(function (r) {
+        if (r.ok) {
+          estado.cupon = { texto: '', ocupado: false, mensaje: C.textoExito(r), tipo: 'ok' };
+          cargar();   // el saldo y lo canjeable se actualizan
+          return;
+        }
+        if (r.tipo === 'sentimos') {
+          estado.cupon = { texto: texto, ocupado: false, mensaje: 'Ese cupón ya no está disponible.', tipo: 'error' }; pintar();
+          C.mostrarSentimos(r);
+          return;
+        }
+        estado.cupon = { texto: texto, ocupado: false, mensaje: r.mensaje, tipo: 'error' }; pintar();
+        var c2 = document.getElementById('zccClave'); if (c2) { try { c2.focus(); } catch (x) { /* sin foco */ } }
+      });
+    }
+    /* «Ya tengo la clave» (desde la tarjeta del Inicio) llega con ?codigo=1: se lleva a la persona directo al campo */
+    function irAlCampo() {
+      if (!/[?&]codigo=1/.test(location.search) || estado.campoVisto) return;
+      var campo = document.getElementById('zccClave');
+      if (!campo) return;
+      estado.campoVisto = true;
+      var caja = document.getElementById('zccCampo');
+      if (caja) { try { caja.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) { caja.scrollIntoView(); } caja.classList.add('zcc-campo--destacar'); }
+      try { campo.focus({ preventScroll: true }); } catch (x) { /* sin foco */ }
+    }
 
     function cargar() {
       estado.cargando = true; estado.errorServidor = ''; pintar();
@@ -1147,7 +1185,7 @@
           : ((!a.ok || !b.ok) ? ((a.e || b.e) && (a.e || b.e).message || 'No se pudieron cargar los libros y materiales.') : '');
         return Promise.all([drive, creditos]).then(function (x) {
           estado.drive = x[0]; estado.creditos = x[1];
-          estado.cargando = false; pintar();
+          estado.cargando = false; pintar(); irAlCampo();
         });
       });
     }

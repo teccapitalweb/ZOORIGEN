@@ -1,0 +1,51 @@
+/* ============================================================ */
+/* CLUB VIP ZOORIGEN · CUPONES DE CRÉDITOS                        */
+/* Tarjetas «Hay un cupón para ti» y «Lo sentimos» (usan el       */
+/* diseño de las tarjetas de premio: club-curso-premio.css) y el  */
+/* campo «¿Tienes un código?» de PDFs y materiales. Colores       */
+/* sólidos y letra mínima de 12 px. Lo dibuja                     */
+/* assets/js/club-cupones.js.                                     */
+/* ============================================================ */
+
+/* ── Tarjeta ── */
+.zcc__pasos { margin: 0 0 12px; padding: 0 0 0 1.25rem; text-align: left; font-size: .95rem; line-height: 1.5; color: var(--zcp-suave, rgba(235, 244, 237, .78)); }
+.zcc__pasos li { margin: 0 0 8px; }
+.zcc__pasos li::marker { font-weight: 800; color: var(--zcp-texto, #f2f7f3); }
+.zcc__limite { margin: 0 0 4px; text-align: center; font-size: .85rem; color: var(--zcp-casilla-texto, rgba(235, 244, 237, .6)); }
+.zcc__botones { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 18px; }
+.zcc__btn { flex: 1 1 130px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 11px 18px; border-radius: 12px; border: 2px solid transparent; font: 700 .95rem var(--zoo-font-body); cursor: pointer; }
+.zcc .zcp__btn.zcc__btn { margin-top: 0; width: auto; }
+.zcc__btn--suave { background: transparent; border-color: var(--zcp-casilla-borde, rgba(255, 255, 255, .3)); color: var(--zcp-texto, #f2f7f3); }
+.zcc__btn--suave:hover { background: var(--zcp-casilla, rgba(255, 255, 255, .08)); }
+.zcc__btn:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+[data-theme="light"] .zcc__btn:focus-visible { outline-color: #1F5F8F; }
+
+/* ── Campo «¿Tienes un código?» en PDFs y materiales ── */
+.zcc-campo { margin: 0 0 18px; padding: 16px 18px 14px; border-radius: 18px; border: 2px dashed var(--zoo-border-strong, #BDB6A6); background: var(--zoo-bg-card, #fff); }
+.zcc-campo__t { margin: 0 0 10px; font: 700 1rem/1.3 var(--zoo-font-body); color: var(--zoo-text, #1F2933); }
+.zcc-campo__fila { display: flex; gap: 10px; flex-wrap: wrap; }
+.zcc-campo__in { flex: 1 1 220px; min-width: 0; min-height: 46px; box-sizing: border-box; padding: 0 16px; border-radius: 12px; border: 1px solid var(--zoo-border-strong, #BDB6A6); background: var(--zoo-bg-card, #fff); color: var(--zoo-text, #1F2933); font: 600 1rem var(--zoo-font-body); letter-spacing: .03em; text-transform: uppercase; }
+.zcc-campo__in::placeholder { color: var(--zoo-text-soft, #66727F); text-transform: none; letter-spacing: 0; font-weight: 500; opacity: 1; }
+.zcc-campo__in:focus-visible { outline: 3px solid #F7CB62; outline-offset: 1px; border-color: var(--zoo-amber, #E8A317); }
+[data-theme="light"] .zcc-campo__in:focus-visible { outline-color: #1F5F8F; }
+.zcc-campo__btn { min-height: 46px; padding: 0 24px; border-radius: 12px; border: 2px solid transparent; background: #1F5F3A; color: #fff; font: 700 .98rem var(--zoo-font-body); cursor: pointer; }
+.zcc-campo__btn:hover:not(:disabled) { background: #174A2D; }
+.zcc-campo__btn:disabled { opacity: .6; cursor: not-allowed; }
+.zcc-campo__btn:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+[data-theme="light"] .zcc-campo__btn:focus-visible { outline-color: #1F5F8F; }
+.zcc-campo__msg { margin: 10px 2px 0; font-size: .92rem; font-weight: 600; line-height: 1.45; color: var(--zoo-text-soft, #52606D); }
+.zcc-campo__msg--ok { color: #1F6A41; }
+.zcc-campo__msg--error { color: #9C3A2C; }
+[data-theme="dark"] .zcc-campo__btn { background: #2A7A4E; }
+[data-theme="dark"] .zcc-campo__msg--ok { color: #7FD08A; }
+[data-theme="dark"] .zcc-campo__msg--error { color: #F19A8E; }
+.zcc-campo--destacar { animation: zcc-latido 1.4s ease 2; }
+@keyframes zcc-latido { 0%, 100% { box-shadow: 0 0 0 0 rgba(232, 163, 23, 0); } 50% { box-shadow: 0 0 0 6px rgba(232, 163, 23, .35); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .zcc-campo--destacar { animation: none; }
+}
+
+/* El texto solo para lectores de pantalla (esta página no trae esa clase) y el foco de la tarjeta sin contorno doble */
+.zcc-campo .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.zcc .zcp__tarjeta:focus { outline: none; }

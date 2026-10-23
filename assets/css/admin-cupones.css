@@ -1,0 +1,45 @@
+/* ============================================================ */
+/* PANEL DE ADMINISTRACIÓN · CUPONES DE CRÉDITOS                 */
+/* Formulario para crear un cupón y la lista con su estado.       */
+/* Colores sólidos de las variables del panel (día y noche) y     */
+/* letra mínima de 12 px. Lo dibuja assets/js/admin-creditos.js.  */
+/* ============================================================ */
+
+.ap-cp-form { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr) minmax(210px, 1.3fr) minmax(0, 1fr) auto; gap: 12px 14px; align-items: end; }
+.ap-cp-campo { display: grid; gap: 6px; min-width: 0; font-size: .84rem; font-weight: 700; color: var(--c-text-2); }
+.ap-cp-campo input { width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--c-line-strong); background: var(--c-input); color: var(--c-text); font: 500 .95rem var(--zoo-font-body, inherit); }
+.ap-cp-campo input::placeholder { color: var(--c-text-3); opacity: 1; }
+.ap-cp-campo input:focus { outline: 3px solid #F7CB62; outline-offset: 0; border-color: var(--c-accent); }
+:root[data-modo="claro"] .ap-cp-campo input:focus { outline-color: #1F5F8F; }
+.ap-cp-crear { min-height: 44px; white-space: nowrap; }
+.ap-cp-ayuda { margin: 10px 2px 0; font-size: .82rem; line-height: 1.5; color: var(--c-text-3); }
+
+.ap-cp-lista { margin: 16px 0 0; padding: 0; list-style: none; }
+.ap-cp { display: grid; grid-template-columns: minmax(150px, 1.1fr) auto minmax(0, 1.5fr) minmax(0, 1.2fr) auto; gap: 8px 18px; align-items: center; padding: 14px 0; border-top: 1px solid var(--c-line-soft); }
+.ap-cp__clave { display: grid; gap: 2px; min-width: 0; }
+.ap-cp__clave code { font: 800 1.05rem/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .02em; color: var(--c-text); overflow-wrap: anywhere; }
+.ap-cp__clave span { font-size: .84rem; color: var(--c-text-3); }
+.ap-cp__dato { display: grid; gap: 2px; min-width: 0; }
+.ap-cp__dato strong { color: var(--c-text); font-size: .95rem; }
+.ap-cp__dato span { font-size: .84rem; color: var(--c-text-3); overflow-wrap: anywhere; }
+.ap-cp__acciones { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+.ap-cp-quien { margin: 0; padding: 0; list-style: none; max-height: 52vh; overflow: auto; }
+.ap-cp-quien li { display: grid; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--c-line-soft); font-size: .9rem; }
+.ap-cp-quien li:last-child { border-bottom: 0; }
+.ap-cp-quien strong { color: var(--c-text); }
+.ap-cp-quien span { color: var(--c-text-3); font-size: .84rem; overflow-wrap: anywhere; }
+
+@media (max-width: 1100px) {
+  .ap-cp-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ap-cp-crear { grid-column: 1 / -1; justify-self: start; }
+  .ap-cp { grid-template-columns: minmax(0, 1fr) auto; }
+  .ap-cp__dato { grid-column: 1 / -1; }
+  .ap-cp__acciones { grid-column: 1 / -1; justify-content: flex-start; }
+}
+@media (max-width: 560px) {
+  .ap-cp-form { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* La clave se ve como texto de código sin caja propia */
+.ap-cp__clave code { background: none; border: 0; padding: 0; border-radius: 0; box-shadow: none; }

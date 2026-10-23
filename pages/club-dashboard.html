@@ -39,6 +39,7 @@
   <link rel="stylesheet" href="../assets/css/club-prueba.css?v=20261116-tamanos">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261116-tamanos">
   <link rel="stylesheet" href="../assets/css/club-creditos.css?v=20261208-libro">
+  <link rel="stylesheet" href="../assets/css/club-cupones.css?v=20261214-cupones">
   <link rel="stylesheet" href="../assets/css/club-resenas.css?v=20261212-resenas">
   <style>
     /* ═══════════════ NOTIFICACIONES ═══════════════ */
@@ -489,8 +490,9 @@
   <script src="../assets/js/club-inicio.js?v=20261201-graficas"></script>
   <script src="../assets/js/club-premios.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261128-arreglos"></script>
-  <script src="../assets/js/club-creditos.js?v=20261208-libro"></script>
-  <script src="../assets/js/club-resenas.js?v=20261212-resenas"></script>
+  <script src="../assets/js/club-creditos.js?v=20261214-cupones"></script>
+  <script src="../assets/js/club-cupones.js?v=20261214-cupones"></script>
+  <script src="../assets/js/club-resenas.js?v=20261214-cupones"></script>
   <script src="../assets/js/club-prueba-arte.js?v=20261201-graficas"></script>
   <script src="../assets/js/club-onboarding.js?v=20261019-acceso-guia"></script>
   <script>
@@ -517,6 +519,10 @@
       // Créditos regalados por la administración: la tarjeta de felicitación espera a que terminen TODAS las demás ventanas de bienvenida
       // y avisos (prioridad más baja de la cola) y se muestra una sola vez por regalo (el aviso pendiente vive en el servidor).
       if (window.ZOO_CREDITOS) { try { ZOO_CREDITOS.iniciarAviso({ session, club: ZOORIGEN_CLUB, cola: window.ZOO_COLA || null }); } catch (e) { console.warn('creditos:', e); } }
+
+      // Cupón de créditos: una tarjeta avisa que HAY un cupón (nunca muestra la clave) e invita al canal de WhatsApp. Espera su turno en la cola
+      // (después de las de bienvenida y de los créditos regalados) y sale una sola tarjeta por visita.
+      if (window.ZOO_CUPONES) { try { ZOO_CUPONES.iniciar({ session, club: ZOORIGEN_CLUB, cola: window.ZOO_COLA || null }); } catch (e) { console.warn('cupones:', e); } }
 
       // Reseña del curso: después del certificado, una tarjeta pregunta «¿Qué te pareció el curso?» (1 a 5 estrellas y comentario opcional). Espera su turno
       // en la cola de ventanas, solo para cursos terminados desde que existe la función y hasta 3 veces por curso si dice «Ahora no».

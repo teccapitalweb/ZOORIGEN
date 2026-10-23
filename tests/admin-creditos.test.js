@@ -121,7 +121,7 @@ test('gráfica «Materiales más canjeados»: barras horizontales ordenadas, nom
 
 test('la vista completa: título, cuentas, historial y gráfica, y sin datos no se rompe ni inventa nada', () => {
   const h = A.vistaHTML(datos());
-  assert.deepEqual([...h.matchAll(/<h2>([^<]+)<\/h2>/g)].map(x => x[1]), ['Cuentas', 'Historial de regalos', 'Materiales más canjeados']);
+  assert.deepEqual([...h.matchAll(/<h2>([^<]+)<\/h2>/g)].map(x => x[1]), ['Cupones', 'Cuentas', 'Historial de regalos', 'Materiales más canjeados']);
   assert.match(h, /Beto &lt;b&gt;/, 'texto de las cuentas escapado');
   assert.ok(!h.includes('Beto <b>'));
   assert.doesNotThrow(() => A.vistaHTML(undefined));

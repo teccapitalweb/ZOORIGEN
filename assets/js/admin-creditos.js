@@ -10,6 +10,10 @@
 /*   3. el historial de regalos (Pendiente / Canjeados 1 de 3 /  */
 /*      Canjeado + materiales)                                   */
 /*   4. la gráfica de materiales más canjeados                   */
+/*   5. los cupones: la administración crea una clave (los      */
+/*      créditos que entrega, fecha límite y máximo de personas   */
+/*      opcionales), la comparte por el canal de WhatsApp y ve    */
+/*      cuántas personas la canjearon; puede pausarla            */
 /* Datos: GET /api/admin/creditos/{miembros,historial,metricas}  */
 /* y POST /api/admin/creditos/regalar. Todo lo calcula el        */
 /* servidor; aquí solo se dibuja. Los constructores de HTML son  */
@@ -155,7 +159,7 @@
     var cantidad = Number(r.cantidad) > 0 ? '<span class="ap-hr__cant">' + ico('wallet', { size: 14 }) + '<strong>' + esc(textoCreditos(Number(r.cantidad))) + '</strong></span>' : '';
     return '<li class="ap-hr" data-id="' + esc(r.id) + '">' +
       '<div class="ap-hr__quien"><strong>' + esc(r.nombre || 'Sin nombre') + '</strong><span class="ap-mi__linea">' + ico('mail', { size: 14 }) + '<span class="ap-correo">' + esc(r.correo || 'Sin correo') + '</span></span></div>' +
-      '<div class="ap-hr__cuando">' + cantidad + '<span>Regalado ' + esc(P.fmtFechaHora(r.en)) + '</span><span class="ap-hr__admin">Por ' + esc(r.regaladoPor || 'administración') + '</span></div>' +
+      '<div class="ap-hr__cuando">' + cantidad + '<span>Regalado ' + esc(P.fmtFechaHora(r.en)) + '</span><span class="ap-hr__admin">' + (r.origen === 'cupon' ? 'Cupón ' + esc(r.cupon || '') : 'Por ' + esc(r.regaladoPor || 'administración')) + '</span></div>' +
       '<div class="ap-hr__estado">' + estado + detalle + pendiente + '</div></li>';
   }
 
@@ -198,6 +202,74 @@
     return cuerpo + (frase ? '<p class="ap-frase" role="note"><strong>Cómo leerlo:</strong> ' + esc(frase) + '</p>' : '');
   }
 
+  /* ───────────────────────── Cupones de créditos ───────────────────────── */
+  var ESTADOS_CUPON = {
+    activo: { texto: 'Activo', clase: 'ok' }, pausado: { texto: 'Pausado', clase: 'neutro' },
+    vencido: { texto: 'Vencido', clase: 'aviso' }, agotado: { texto: 'Agotado', clase: 'info' }
+  };
+  var ENLACE_CANJE = 'https://www.zoorigen.com/pages/club-pdfs.html';
+
+  function fechaHoraCupon(iso) { return iso ? P.fmtFechaHora(iso) : ''; }
+
+  /* El mensaje listo para pegar en el canal de WhatsApp (lleva la clave, los créditos y, si los hay, el límite y la fecha) */
+  function mensajeCupon(c) {
+    var x = c || {};
+    var lineas = ['Cupón de créditos Zoorigen', '',
+      'Clave: ' + (x.clave || ''), 'Te da ' + num(x.creditos || 0) + (x.creditos === 1 ? ' crédito' : ' créditos') + ' para canjear materiales (100 créditos = 1 material).', '',
+      'Cómo usarla: entra a PDFs y materiales, escribe la clave en «¿Tienes un código?» y toca Canjear.', ENLACE_CANJE];
+    var extra = [];
+    if (x.maxPersonas) extra.push('Solo para las primeras ' + num(x.maxPersonas) + ' personas');
+    if (x.vence) extra.push('Vence el ' + P.fmtFechaHora(x.vence));
+    if (extra.length) lineas.push('', extra.join(' · ').replace(/\.$/, '') + '.');
+    return lineas.join('\n');
+  }
+
+  function formularioCuponHTML() {
+    return '<form class="ap-cp-form" id="apCpForm" autocomplete="off" novalidate>' +
+      '<label class="ap-cp-campo"><span>Clave (vacía = al azar)</span><input type="text" id="apCpClave" maxlength="24" placeholder="Ej.: CANAL100" autocapitalize="characters" spellcheck="false" aria-describedby="apCpAyuda"></label>' +
+      '<label class="ap-cp-campo"><span>Créditos</span><input type="number" id="apCpCreditos" min="1" max="' + MAX_REGALO + '" step="1" value="100" inputmode="numeric"></label>' +
+      '<label class="ap-cp-campo"><span>Vence el (opcional)</span><input type="datetime-local" id="apCpVence"></label>' +
+      '<label class="ap-cp-campo"><span>Máximo de personas</span><input type="number" id="apCpMax" min="1" max="100000" step="1" placeholder="Sin límite" inputmode="numeric"></label>' +
+      '<button type="submit" class="ap-btn ap-btn--primario ap-cp-crear" data-accion="cupon-crear">' + ico('plus', { size: 18 }) + 'Crear cupón</button></form>' +
+      '<p class="ap-cp-ayuda" id="apCpAyuda">La clave no distingue mayúsculas de minúsculas (de 4 a 24 letras o números). Cada persona puede canjearla una sola vez. Sin fecha ni máximo, sirve hasta que la pauses.</p>' +
+      '<p class="ap-error" id="apCpError" role="alert" hidden></p>';
+  }
+
+  function filaCuponHTML(c) {
+    var e = ESTADOS_CUPON[c.estado] || ESTADOS_CUPON.activo;
+    var cuenta = c.maxPersonas ? num(c.canjes) + ' de ' + num(c.maxPersonas) : num(c.canjes);
+    var canjes = '<strong>' + cuenta + '</strong><span>' + (c.maxPersonas ? 'canjes' : (c.canjes === 1 ? 'canje' : 'canjes')) + ' · ' + num(c.creditosEntregados) + ' créditos entregados</span>';
+    var vence = c.vence
+      ? '<strong>' + (c.estado === 'vencido' ? 'Venció' : 'Vence') + '</strong><span>' + esc(fechaHoraCupon(c.vence)) + '</span>'
+      : '<strong>Sin fecha límite</strong><span>Hasta que lo pauses</span>';
+    var pausa = c.estadoGuardado === 'pausado'
+      ? '<button type="button" class="ap-btn ap-btn--suave ap-btn--chico" data-accion="cupon-estado" data-clave="' + esc(c.clave) + '" data-a="activo">Reactivar</button>'
+      : '<button type="button" class="ap-btn ap-btn--suave ap-btn--chico" data-accion="cupon-estado" data-clave="' + esc(c.clave) + '" data-a="pausado">Pausar</button>';
+    return '<li class="ap-cp" data-clave="' + esc(c.clave) + '">' +
+      '<div class="ap-cp__clave"><code>' + esc(c.clave) + '</code><span>' + num(c.creditos) + (c.creditos === 1 ? ' crédito' : ' créditos') + '</span></div>' +
+      '<span class="ap-badge ap-badge--' + e.clase + '"><span>' + esc(e.texto) + '</span></span>' +
+      '<div class="ap-cp__dato">' + canjes + '</div><div class="ap-cp__dato">' + vence + '</div>' +
+      '<div class="ap-cp__acciones"><button type="button" class="ap-btn ap-btn--suave ap-btn--chico" data-accion="cupon-copiar" data-clave="' + esc(c.clave) + '">' + ico('copy', { size: 16 }) + 'Copiar mensaje</button>' +
+      '<button type="button" class="ap-btn ap-btn--suave ap-btn--chico" data-accion="cupon-quien" data-clave="' + esc(c.clave) + '">Ver quién</button>' + pausa + '</div></li>';
+  }
+
+  function cuponesHTML(d) {
+    var form = formularioCuponHTML();
+    if (!d) return form + vacio('No se pudieron cargar los cupones', 'Si acabas de actualizar el servidor, espera un momento y pulsa Actualizar.', 'triangle-alert');
+    var lista = Array.isArray(d.cupones) ? d.cupones : [];
+    if (!lista.length) return form + vacio('Todavía no has creado cupones', 'Crea uno, comparte la clave en el canal de WhatsApp y aquí verás cuántas personas lo canjean.', 'gift');
+    return form + '<ul class="ap-cp-lista" aria-label="Cupones, del más reciente al más antiguo">' + lista.map(filaCuponHTML).join('') + '</ul>';
+  }
+
+  /* «Ver quién»: nombre, correo, créditos y fecha de cada persona que canjeó el cupón */
+  function quienHTML(canjes) {
+    var lista = Array.isArray(canjes) ? canjes : [];
+    if (!lista.length) return '<p class="ap-modal__texto">Todavía nadie ha canjeado este cupón.</p>';
+    return '<ul class="ap-cp-quien">' + lista.map(function (x) {
+      return '<li><strong>' + esc(x.nombre || 'Sin nombre') + '</strong><span class="ap-correo">' + esc(x.correo || '') + '</span><span>' + esc(fechaHoraCupon(x.en)) + ' · ' + num(x.creditos) + ' créditos</span></li>';
+    }).join('') + '</ul>';
+  }
+
   /* ───────────────────────── Pantalla completa ───────────────────────── */
   // d = { miembros, historial, metricas } · ui = { texto, visibles, filtro, textoHistorial }
   function vistaHTML(d, ui) {
@@ -213,6 +285,7 @@
     var controles = '<div class="ap-controles"><div class="ap-controles__der ap-controles__der--solo"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por nombre o correo</span>' +
       '<input type="search" id="apCrBuscar" placeholder="Buscar por nombre o correo" autocomplete="off" value="' + esc(u.texto || '') + '"></label></div></div>';
     return titulo +
+      card('Cupones', cuponesHTML(data.cupones), 'Crea una clave, compártela en el canal de WhatsApp y cada persona la canjea una sola vez en «¿Tienes un código?».', 'apCrCupones') +
       card('Cuentas', controles + '<div id="apCrMiembros">' + listaMiembrosHTML(lista, u.visibles || 25, u.texto) + '</div>', 'De la cuenta más reciente a la más antigua. Eliges cuántos créditos regalar (de 1 a ' + num(MAX_REGALO) + ' por regalo, hasta ' + num(MAX_REGALO) + ' por cuenta al día) y la persona debe haber confirmado su correo.') +
       card('Historial de regalos', historialHTML(data.historial, { filtro: u.filtro, texto: u.textoHistorial }), 'A quién se le regaló, cuánto, quién lo regaló y cuántos materiales ya canjeó.', 'apCrHistorial') +
       card('Materiales más canjeados', graficaHTML(m), 'Cuántas veces se canjeó cada material.', 'apCrGrafica') +
@@ -234,7 +307,8 @@
     var rutaHist = '/api/admin/creditos/historial?estado=' + est.filtro + '&q=' + encodeURIComponent(est.textoHistorial || '') + '&pagina=1' + (forzar ? '&refrescar=1' : '');
     var r;
     try {
-      r = await Promise.all([ctx.api('/api/admin/creditos/miembros' + (forzar ? '?refrescar=1' : '')), ctx.api(rutaHist), ctx.api('/api/admin/creditos/metricas')]);
+      r = await Promise.all([ctx.api('/api/admin/creditos/miembros' + (forzar ? '?refrescar=1' : '')), ctx.api(rutaHist), ctx.api('/api/admin/creditos/metricas'),
+        ctx.api('/api/admin/creditos/cupones').catch(function () { return null; })]);   // un servidor anterior no tiene cupones: el resto sigue igual
     } catch (e) {
       if (mi !== u.contadorActual()) return;
       u.vista().innerHTML = u.errorHTML('Créditos', e, 'recargar');
@@ -242,7 +316,7 @@
       return;
     }
     if (mi !== u.contadorActual()) return;
-    est.datos = { miembros: r[0], historial: r[1], metricas: r[2] }; est.pagina = 1;
+    est.datos = { miembros: r[0], historial: r[1], metricas: r[2], cupones: r[3] }; est.pagina = 1;
     pintar();
   }
 
@@ -324,6 +398,63 @@
     }
   }
 
+
+  /* ───── Cupones: crear, copiar el mensaje, ver quién y pausar ───── */
+  function cuponAISO(valor) {
+    if (!valor) return null;
+    var d = new Date(valor);
+    return isNaN(d.getTime()) ? undefined : d.toISOString();
+  }
+  async function crearCupon() {
+    var u = V.util; var ctx = u.contexto();
+    var error = document.getElementById('apCpError'); var boton = document.querySelector('[data-accion="cupon-crear"]');
+    function falla(txt) { if (error) { error.textContent = txt; error.hidden = false; } }
+    if (error) error.hidden = true;
+    var clave = (document.getElementById('apCpClave').value || '').trim();
+    var cantTexto = (document.getElementById('apCpCreditos').value || '').trim();
+    var maxTexto = (document.getElementById('apCpMax').value || '').trim();
+    if (!/^[0-9]+$/.test(cantTexto) || +cantTexto < 1 || +cantTexto > MAX_REGALO) return falla('Escribe cuántos créditos entrega: un número entero de 1 a ' + num(MAX_REGALO) + '.');
+    if (maxTexto && (!/^[0-9]+$/.test(maxTexto) || +maxTexto < 1)) return falla('El máximo de personas debe ser un número entero, o déjalo vacío para no poner límite.');
+    var vence = cuponAISO(document.getElementById('apCpVence').value);
+    if (vence === undefined) return falla('La fecha límite no es válida.');
+    if (vence && Date.parse(vence) <= Date.now()) return falla('La fecha y hora límite deben ser futuras.');
+    if (est.ocupado) return undefined;
+    est.ocupado = true; if (boton) { boton.disabled = true; }
+    try {
+      var r = await ctx.api('/api/admin/creditos/cupones', { method: 'POST', body: { clave: clave, creditos: +cantTexto, vence: vence, maxPersonas: maxTexto ? +maxTexto : null } });
+      est.ocupado = false;
+      ctx.toast('Cupón ' + r.cupon.clave + ' creado. Pulsa «Copiar mensaje» para compartirlo en el canal.');
+      await cargar(true);
+    } catch (e) {
+      est.ocupado = false; if (boton) boton.disabled = false;
+      falla((e && e.message) || 'No se pudo crear el cupón.');
+    }
+    return undefined;
+  }
+  async function copiarCupon(clave) {
+    var ctx = V.util.contexto();
+    var c = ((est.datos.cupones && est.datos.cupones.cupones) || []).filter(function (x) { return x.clave === clave; })[0];
+    if (!c) return;
+    try { await navigator.clipboard.writeText(mensajeCupon(c)); ctx.toast('Mensaje copiado. Pégalo en el canal de WhatsApp.'); } catch (e) { ctx.toast('No se pudo copiar el mensaje.', true); }
+  }
+  async function quienCupon(clave) {
+    var ctx = V.util.contexto();
+    var r;
+    try { r = await ctx.api('/api/admin/creditos/cupones/canjes?clave=' + encodeURIComponent(clave)); } catch (e) { ctx.toast((e && e.message) || 'No se pudo cargar quién canjeó el cupón.', true); return; }
+    V.modal({ titulo: 'Quién canjeó ' + clave + ' (' + num(r.total || 0) + ')', cuerpo: quienHTML(r.canjes), botones: [{ id: 'cerrar', texto: 'Cerrar', tipo: 'primario' }] });
+  }
+  async function estadoCupon(clave, nuevo) {
+    var ctx = V.util.contexto();
+    if (est.ocupado) return;
+    est.ocupado = true;
+    try {
+      await ctx.api('/api/admin/creditos/cupones/estado', { method: 'POST', body: { clave: clave, estado: nuevo } });
+      est.ocupado = false;
+      ctx.toast(nuevo === 'pausado' ? 'Cupón ' + clave + ' pausado: nadie más podrá canjearlo.' : 'Cupón ' + clave + ' reactivado.');
+      await cargar(true);
+    } catch (e) { est.ocupado = false; ctx.toast((e && e.message) || 'No se pudo cambiar el cupón.', true); }
+  }
+
   function pintar() {
     var u = V.util; var v = u.vista();
     var y = typeof window !== 'undefined' ? window.scrollY : 0;
@@ -341,6 +472,7 @@
       espera = setTimeout(function () { recargarHistorial(false).then(function () { var c = document.getElementById('apCrBuscarHistorial'); if (c) { c.focus(); try { c.setSelectionRange(c.value.length, c.value.length); } catch (x) { /* nada */ } } }).catch(function (er) { u.contexto().toast((er && er.message) || 'No se pudo buscar.', true); }); }, 280);
     };
     void bh;
+    v.onsubmit = function (ev) { if (ev.target && ev.target.id === 'apCpForm') { ev.preventDefault(); crearCupon(); } };
     v.onclick = function (ev) {
       var f = ev.target.closest('[data-filtro-regalo]');
       if (f) { est.filtro = f.dataset.filtroRegalo; recargarHistorial(false).catch(function (er) { u.contexto().toast((er && er.message) || 'No se pudo filtrar.', true); }); return; }
@@ -348,13 +480,17 @@
         recargar: function () { cargar(true); },
         'mas-miembros': function () { est.visibles += 25; pintarMiembros(); },
         'mas-regalos': function () { recargarHistorial(true).catch(function (er) { u.contexto().toast((er && er.message) || 'No se pudo cargar más.', true); }); },
-        regalar: function (b) { regalar(b.dataset.uid, b); }
+        regalar: function (b) { regalar(b.dataset.uid, b); },
+        'cupon-copiar': function (b) { copiarCupon(b.dataset.clave); },
+        'cupon-quien': function (b) { quienCupon(b.dataset.clave); },
+        'cupon-estado': function (b) { estadoCupon(b.dataset.clave, b.dataset.a); }
       });
     };
   }
 
   return {
     REGALO: REGALO, COSTO: COSTO, MAX_REGALO: MAX_REGALO, OPCIONES: OPCIONES, analizarCantidad: analizarCantidad, alcance: alcance, fraseAlcance: fraseAlcance, regaloCuerpoHTML: regaloCuerpoHTML, textoAceptar: textoAceptar, estadoRegalo: estadoRegalo, textoCreditos: textoCreditos, cifras: cifras, filtrarMiembros: filtrarMiembros, filaMiembro: filaMiembro, listaMiembrosHTML: listaMiembrosHTML, textoConfirmacion: textoConfirmacion,
+    mensajeCupon: mensajeCupon, formularioCuponHTML: formularioCuponHTML, filaCuponHTML: filaCuponHTML, cuponesHTML: cuponesHTML, quienHTML: quienHTML, ESTADOS_CUPON: ESTADOS_CUPON,
     filaRegalo: filaRegalo, historialHTML: historialHTML, fraseGrafica: fraseGrafica, graficaHTML: graficaHTML, vistaHTML: vistaHTML, creditos: cargar, FILTROS: FILTROS
   };
 });

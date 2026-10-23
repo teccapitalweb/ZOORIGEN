@@ -272,6 +272,7 @@
       return esperarTurno({ cola: o.cola, hayVentana: hayVentanaAbierta }).then(function (turno) {
         if (!turno) return { mostrado: false };
         var mostrar = function () {
+          if (typeof window !== 'undefined') window.__zooTarjetaCarga = 'creditos';   // una sola tarjeta por visita: el cupón y la reseña esperan a la siguiente
           return abrirTarjeta(estado).then(function (r) {
             return Promise.resolve().then(function () { return club.apiFetch('/api/creditos/aviso-visto', { method: 'POST', body: {} }); }).catch(function () { /* se avisará otra vez */ }).then(function () {
               if (r.como === 'canjear') { if (typeof o.ir === 'function') o.ir(RUTA_CANJEABLES); else if (typeof window !== 'undefined') window.location.href = RUTA_CANJEABLES; }

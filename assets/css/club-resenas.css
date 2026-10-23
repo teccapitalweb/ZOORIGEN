@@ -44,3 +44,6 @@
   .zrs__est, .zrs__est svg { transition: none; }
   .zrs__est:hover { transform: none; }
 }
+
+/* El foco entra a la tarjeta sin dibujar un contorno doble alrededor */
+.zrs .zcp__tarjeta:focus { outline: none; }

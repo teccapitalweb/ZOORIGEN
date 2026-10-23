@@ -27,7 +27,7 @@
   var DESDE_MS = Date.parse('2026-10-23T00:00:00-06:00');   // solo cursos terminados desde que existe esta función
   var OMISIONES_MAX = 3;                                      // «Ahora no»: se pregunta hasta 3 veces en total por curso
   var MAX_COMENTARIO = 500;
-  var PRIORIDAD = 85;                                         // en la cola: después de todo lo demás, antes de los créditos regalados
+  var PRIORIDAD = 92;                                         // en la cola: al final, después de los créditos regalados (90) y del cupón (91)
   var FRASES = ['', 'No me gustó', 'Podría mejorar', 'Está bien', 'Me gustó', '¡Excelente!'];
   var TEXTOS = {
     kicker: 'Tu opinión cuenta',
@@ -250,6 +250,7 @@
       return esperarTurno({ cola: o.cola, hayVentana: hayVentanaAbierta }).then(function (turno) {
         if (!turno) return { mostrado: false };
         var mostrar = function () {
+          if (typeof window !== 'undefined') window.__zooTarjetaCarga = 'resena';   // una sola tarjeta por visita
           return abrirTarjeta(pendiente, function (estrellas, comentario) {
             return club.apiFetch('/api/resenas', { method: 'POST', body: { cursoId: pendiente.cursoId, estrellas: estrellas, comentario: comentario } });
           }).then(function (r) {
@@ -257,8 +258,9 @@
             return r;
           });
         };
+        var vigente = function () { return typeof window === 'undefined' || !window.__zooTarjetaCarga; };
         if (o.cola && typeof o.cola.encolar === 'function') {
-          return o.cola.encolar({ id: 'resena-' + pendiente.cursoId, tipo: 'resena', prioridad: PRIORIDAD, mostrar: mostrar }).then(function (res) { return { mostrado: res.estado === 'mostrado', como: res.resultado && res.resultado.como }; });
+          return o.cola.encolar({ id: 'resena-' + pendiente.cursoId, tipo: 'resena', prioridad: PRIORIDAD, vigente: vigente, mostrar: mostrar }).then(function (res) { return { mostrado: res.estado === 'mostrado', como: res.resultado && res.resultado.como }; });
         }
         return mostrar().then(function (r) { return { mostrado: true, como: r.como }; });
       });

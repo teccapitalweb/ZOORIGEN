@@ -123,7 +123,7 @@ test('cableado: la guarda el servidor (no el navegador), va en la cola con su pr
   assert.ok(js.includes("'/api/resenas'") && js.includes("'/api/resenas/mias'"));
   assert.doesNotMatch(js, /firestore|firebase\.|updateDoc|setDoc|\.collection\(/i, 'no escribe en Firestore desde el navegador');
   assert.ok(js.includes("tipo: 'resena', prioridad: PRIORIDAD"));
-  assert.ok(R.PRIORIDAD > 80 && R.PRIORIDAD < 90, 'después de todo lo demás y antes de los créditos regalados (90)');
+  assert.ok(R.PRIORIDAD > 91, 'al final: después de los créditos regalados (90) y del cupón (91)');
   for (const pagina of ['pages/club-dashboard.html', 'pages/club-biblioteca.html']) {
     const h = leer(pagina);
     assert.match(h, /club-resenas\.css\?v=/, pagina);
