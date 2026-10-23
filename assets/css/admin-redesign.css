@@ -693,8 +693,17 @@ body { background: var(--c-bg); }
 .cf-selector select { min-width: 230px; max-width: 100%; border-radius: 999px; padding: 11px 18px; }
 
 /* ───────── Tarjetas de curso ───────── */
-.cc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-@media (max-width: 700px) { .cc-grid { grid-template-columns: minmax(0, 1fr); } }
+/* Tarjetas compactas: cuantas quepan a 290 px como mínimo (4 en una pantalla ancha, 1 en el celular), como en Alintec */
+.cc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 16px; }
+.cc-grid .cc-desc { display: none; }
+.cc-grid .cc-body { gap: 8px; padding: 12px 14px 12px; }
+.cc-grid .cc-title { font-size: .95rem; }
+.cc-grid .cc-tag--area, .cc-grid .cc-ribbon { top: 8px; }
+.cc-grid .cc-tag--area { left: 8px; }
+.cc-grid .cc-ribbon { right: 8px; }
+.cc-grid .cc-tag--nivel { left: 8px; bottom: 8px; }
+.cc-grid .cc-foot { padding-top: 10px; }
+.cc-grid .cc-icono { width: 32px; height: 32px; }
 .cc-card {
   display: flex; flex-direction: column; overflow: hidden; background: var(--c-surface); border: 1px solid var(--c-line);
   border-radius: 18px; box-shadow: var(--c-card-shadow); transition: transform .2s var(--c-ease), border-color .2s, box-shadow .2s;
@@ -834,7 +843,6 @@ textarea.ce-input { min-height: 84px; resize: vertical; line-height: 1.5; }
   .sec-hero__acc .btn-add { flex: 1 1 200px; }
   .cc-toolbar .m-search { max-width: none; flex-basis: 100%; order: -1; }
   .cc-vistas { margin-left: 0; }
-  .cc-grid { grid-template-columns: 1fr; }
   .cc-fila { flex-wrap: wrap; }
   .cc-media--mini { width: 84px; }
   .cf-selector, .cf-selector select { width: 100%; }
