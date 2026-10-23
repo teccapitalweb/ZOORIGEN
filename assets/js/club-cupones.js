@@ -105,7 +105,7 @@
   function textoSentimos(info) {
     var i = info || {};
     if (i.razon === 'vencido') return 'Este cupón ya venció y tú llegaste después de que terminó.';
-    return i.limite ? 'Este cupón ya alcanzó su límite de ' + fmt(i.limite) + ' personas y tú llegaste después de que se acabaron.' : 'Este cupón ya alcanzó su límite de personas y tú llegaste después de que se acabaron.';
+    return i.limite ? 'Este cupón ya alcanzó su límite de ' + fmt(i.limite) + (i.limite === 1 ? ' persona' : ' personas') + ' y tú llegaste después de que se acabaron.' : 'Este cupón ya alcanzó su límite de personas y tú llegaste después de que se acabaron.';
   }
 
   // El mensaje de éxito junto al campo

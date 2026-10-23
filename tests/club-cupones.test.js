@@ -55,6 +55,7 @@ test('«Lo sentimos»: el texto de las capturas, con el límite de personas, y �
   const h = C.tarjetaSentimosHTML({ razon: 'agotado', limite: 50 });
   for (const t of ['Lo sentimos', 'Llegaste un poquito tarde', 'Este cupón ya alcanzó su límite de 50 personas y tú llegaste después de que se acabaron.', 'No te desanimes.', 'Estate atento a nuestro canal de WhatsApp', 'más cupones y ofertas', 'Entendido', 'Ir al canal']) assert.ok(h.includes(t), t);
   assert.match(C.textoSentimos({ razon: 'agotado', limite: 1500 }), /límite de 1,500 personas/);
+  assert.match(C.textoSentimos({ razon: 'agotado', limite: 1 }), /límite de 1 persona y/);
   assert.match(C.textoSentimos({ razon: 'vencido' }), /ya venció/);
   assert.match(C.textoSentimos({ razon: 'agotado', limite: 0 }), /límite de personas/);
 });
@@ -161,4 +162,13 @@ test('al volver a preguntar, la tarjeta usa lo más reciente (cuántos cupones y
   const js = leer('assets/js/club-cupones.js');
   assert.ok(js.includes("club.apiFetch('/api/creditos/cupon-disponible')") && js.includes('tarjetaCuponHTML(frescos)') && js.includes('anotarAviso(almacen, sesion.uid, frescos.ids, ahora())'));
   assert.ok(js.indexOf("if (!frescos || frescos.hay !== true) return { como: 'descartado' }") < js.indexOf("window.__zooTarjetaCarga = 'cupon'"), 'la marca de la visita solo se pone si de verdad sale');
+});
+
+test('toda página que puede abrir las tarjetas del cupón carga el diseño de las tarjetas (sin él «Lo sentimos» saldría sin formato, fuera de la vista)', () => {
+  for (const pagina of ['pages/club-dashboard.html', 'pages/club-pdfs.html']) {
+    const h = leer(pagina);
+    assert.match(h, /club-cupones\.js\?v=/, pagina);
+    assert.match(h, /club-curso-premio\.css\?v=/, 'diseño de las tarjetas en ' + pagina);
+    assert.ok(h.indexOf('club-curso-premio.css') < h.indexOf('club-cupones.css'), 'antes del estilo del cupón en ' + pagina);
+  }
 });
