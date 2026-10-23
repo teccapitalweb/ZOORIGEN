@@ -219,8 +219,9 @@
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
-  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261210-recordatorios">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261212-resenas">
   <link rel="stylesheet" href="../assets/css/admin-recordatorios.css?v=20261209-cupon">
+  <link rel="stylesheet" href="../assets/css/admin-resenas.css?v=20261212-resenas">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="inicio">
@@ -254,6 +255,7 @@
       <div class="asb-section">Contenido</div>
       <button class="asb-item" data-sec="cursos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></svg><span class="asb-label">Cursos</span><span class="nbg" id="nb-cursos" hidden>0</span></button>
       <button class="asb-item" data-sec="certificados"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" /><circle cx="12" cy="8" r="6" /></svg><span class="asb-label">Certificados</span><span class="nbg" id="nb-certificados" hidden>0</span></button>
+      <button class="asb-item" data-sec="resenas"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg><span class="asb-label">Reseñas</span></button>
       <button class="asb-item" data-sec="videos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12.296 3.464 3.02 3.956" /><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3z" /><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m6.18 5.276 3.1 3.899" /></svg><span class="asb-label">Videos</span><span class="nbg" id="nb-videos" hidden>0</span></button>
       <button class="asb-item" data-sec="pdfs"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="asb-label">PDFs</span><span class="nbg" id="nb-pdfs" hidden>0</span></button>
       <button class="asb-item" data-sec="sesiones"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" /><path d="M19.075 4.933a10 10 0 0 1 0 14.134" /><path d="M4.925 19.067a10 10 0 0 1 0-14.134" /><path d="M7.753 16.239a6 6 0 0 1 0-8.478" /><circle cx="12" cy="12" r="2" /></svg><span class="asb-label">Sesiones</span><span class="nbg" id="nb-sesiones" hidden>0</span></button>
@@ -310,26 +312,27 @@
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261209-cupon"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261210-recordatorios"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261212-resenas"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/admin-panel.js?v=20261210-recordatorios"></script>
-  <script src="../assets/js/admin-graficas.js?v=20261210-recordatorios"></script>
-  <script src="../assets/js/admin-filas.js?v=20261210-recordatorios"></script>
-  <script src="../assets/js/admin-servidor.js?v=20261210-recordatorios"></script>
-  <script src="../assets/js/admin-vistas.js?v=20261210-recordatorios"></script>
-  <script src="../assets/js/admin-marketing.js?v=20261210-recordatorios"></script>
-  <script src="../assets/js/admin-creditos.js?v=20261210-recordatorios"></script>
+  <script src="../assets/js/admin-panel.js?v=20261212-resenas"></script>
+  <script src="../assets/js/admin-graficas.js?v=20261212-resenas"></script>
+  <script src="../assets/js/admin-filas.js?v=20261212-resenas"></script>
+  <script src="../assets/js/admin-servidor.js?v=20261212-resenas"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261212-resenas"></script>
+  <script src="../assets/js/admin-marketing.js?v=20261212-resenas"></script>
+  <script src="../assets/js/admin-creditos.js?v=20261212-resenas"></script>
   <script src="../assets/js/admin-recordatorios.js?v=20261209-cupon"></script>
+  <script src="../assets/js/admin-resenas.js?v=20261212-resenas"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-materiales-curso.js?v=20261210-recordatorios"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261210-recordatorios"></script>
-  <script src="../assets/js/admin-certificados.js?v=20261210-recordatorios"></script>
+  <script src="../assets/js/admin-materiales-curso.js?v=20261212-resenas"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261212-resenas"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261212-resenas"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/admin-noticias.js?v=20261210-recordatorios"></script>
+  <script src="../assets/js/admin-noticias.js?v=20261212-resenas"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
-  <script src="../assets/js/admin-encuesta.js?v=20261210-recordatorios"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261212-resenas"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -535,6 +538,7 @@
       else if (sec === 'metricas') window.ZOO_ADMIN_MARKETING.metricas();
       else if (sec === 'pruebas') window.ZOO_ADMIN_MARKETING.pruebas();
       else if (sec === 'recordatorios') window.ZOO_ADMIN_RECORDATORIOS.recordatorios();
+      else if (sec === 'resenas') window.ZOO_ADMIN_RESENAS.resenas();
       else if (sec === 'encuesta') loadEncuesta();
       else if (sec === 'configuracion') V.configuracion();
       else if (sec === 'avance') V.avance();

@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261114-prueba">
   <link rel="stylesheet" href="../assets/css/club-prueba.css?v=20261116-tamanos">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261116-tamanos">
+  <link rel="stylesheet" href="../assets/css/club-resenas.css?v=20261212-resenas">
   <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261129-calendario">
   <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
   <style>
@@ -486,6 +487,7 @@
   <script src="../assets/js/club-materiales.js?v=20261208-libro"></script>
   <script src="../assets/js/club-premios.js?v=20261129-calendario"></script>
   <script src="../assets/js/club-curso-premio.js?v=20261128-arreglos"></script>
+  <script src="../assets/js/club-resenas.js?v=20261212-resenas"></script>
   <script src="../assets/js/club-nombre-cert.js?v=20261111-nombre"></script>
   <script>
     // Solo esta clase es gratuita en todo Zoorigen.
@@ -604,6 +606,9 @@
       const progress = await ZOORIGEN_CLUB.getCourseProgress(session.uid);
       window.__zooCourseProgress = progress;
       window.__zooSession = session;
+      // Reseña del curso: después del certificado, una tarjeta pregunta «¿Qué te pareció el curso?» (1 a 5 estrellas y comentario opcional). Espera su turno
+      // en la cola de ventanas, solo para cursos terminados desde que existe la función y hasta 3 veces por curso si dice «Ahora no».
+      if (window.ZOO_RESENAS) { try { ZOO_RESENAS.iniciar({ session, club: ZOORIGEN_CLUB, cola: window.ZOO_COLA || null }); } catch (e) { console.warn('reseñas:', e); } }
       window.__zooMatPromesa = cargarMaterialesCursos();
       if (progress.__desdeCache === true) zcToast('No pudimos conectar con el servidor. Mostramos tu último avance guardado; se actualiza cuando vuelva la conexión.', true);
 

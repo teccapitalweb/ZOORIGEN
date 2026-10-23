@@ -21,6 +21,7 @@
     { id: 'suscripciones', grupo: 'Panel', titulo: 'Suscripciones y pagos', icono: 'credit-card', zoo: 'suscripcion', origen: 'servidor' },
     { id: 'cursos', grupo: 'Contenido', titulo: 'Cursos', icono: 'book-open', zoo: 'cursos', origen: 'club' },
     { id: 'certificados', grupo: 'Contenido', titulo: 'Certificados', icono: 'award', zoo: 'certificados', origen: 'club' },
+    { id: 'resenas', grupo: 'Contenido', titulo: 'Reseñas', icono: 'star', zoo: 'logros', origen: 'servidor' },
     { id: 'videos', grupo: 'Contenido', titulo: 'Videos', icono: 'clapperboard', zoo: 'videos', origen: 'club' },
     { id: 'pdfs', grupo: 'Contenido', titulo: 'PDFs', icono: 'file-text', zoo: 'pdfs', origen: 'club' },
     { id: 'sesiones', grupo: 'Contenido', titulo: 'Sesiones', icono: 'radio', zoo: 'sesiones', origen: 'club' },

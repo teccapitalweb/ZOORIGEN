@@ -1,0 +1,85 @@
+/* ============================================================ */
+/* PANEL DE ADMINISTRACIÓN · RESEÑAS DE CURSOS                   */
+/* Colores sólidos (sin degradados) tomados de las variables del  */
+/* panel, así cambian solos entre día y noche. Letra mínima de    */
+/* 12 px. Lo dibuja assets/js/admin-resenas.js.                   */
+/* ============================================================ */
+
+/* Colores por grupo: verde = Excelentes, azul = Mejor calificados, rojo = Por mejorar, gris = Pocas reseñas */
+.rs-g--ok { --rs-c: var(--c-kpi-ok); }
+.rs-g--info { --rs-c: var(--c-kpi-info); }
+.rs-g--bad { --rs-c: var(--c-kpi-bad); }
+.rs-g--idle { --rs-c: var(--c-idle-ink); }
+.rs-chip--ok { --rs-c: var(--c-kpi-ok); }
+.rs-chip--info { --rs-c: var(--c-kpi-info); }
+.rs-chip--bad { --rs-c: var(--c-kpi-bad); }
+.rs-chip--idle { --rs-c: var(--c-idle-ink); }
+
+/* Leyenda */
+.rs-leyenda { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; }
+.rs-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 999px; background: var(--c-line-soft); color: var(--c-text-2); font-size: .8rem; font-weight: 700; line-height: 1.3; }
+.rs-chip i, .rs-grupo h3 i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--rs-c); display: inline-block; }
+
+/* Gráfica de cursos: una fila por curso, la barra mide el promedio sobre 5 */
+.rs-bh { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+.rs-bh__fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; align-items: end; }
+.rs-bh__t { min-width: 0; font-weight: 700; color: var(--c-text); overflow-wrap: anywhere; line-height: 1.35; }
+.rs-bh__t small { display: block; margin-top: 2px; font-size: .78rem; font-weight: 700; color: var(--rs-c); }
+.rs-bh__n { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; color: var(--c-text-2); font-size: .84rem; }
+.rs-bh__n strong { font-size: 1.1rem; color: var(--c-text); font-variant-numeric: tabular-nums; }
+.rs-bh__b { grid-column: 1 / -1; height: 12px; border-radius: 99px; background: var(--c-line-soft); overflow: hidden; }
+.rs-bh__b i { display: block; height: 100%; border-radius: 99px; background: var(--rs-c); }
+
+/* Los tres grupos */
+.rs-grupos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.rs-grupo { min-width: 0; padding: 14px; border: 1px solid var(--c-line); border-radius: 14px; background: var(--c-surface); }
+.rs-grupo h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 2px; font-size: .95rem; color: var(--c-text); }
+.rs-grupo small { display: block; margin-bottom: 8px; font-size: .78rem; color: var(--c-text-3); }
+.rs-grupo ul { margin: 0; padding: 0; list-style: none; }
+.rs-grupo li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--c-line-soft); font-size: .86rem; color: var(--c-text); }
+.rs-grupo li span { min-width: 0; overflow-wrap: anywhere; }
+.rs-grupo li strong { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rs-vacio { margin: 8px 0 0; font-size: .84rem; color: var(--c-text-3); }
+.rs-nota { margin: 14px 0 0; font-size: .84rem; line-height: 1.5; color: var(--c-text-2); }
+
+/* Estrellas recibidas */
+.rs-dist { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.rs-dist li { display: grid; grid-template-columns: 86px minmax(0, 1fr) 84px; align-items: center; gap: 12px; font-size: .86rem; }
+.rs-dist b { color: var(--c-text); white-space: nowrap; }
+.rs-dist__b { height: 12px; border-radius: 99px; background: var(--c-line-soft); overflow: hidden; }
+.rs-dist__b i { display: block; height: 100%; border-radius: 99px; background: var(--c-kpi-warn); }
+.rs-dist__n { text-align: right; color: var(--c-text-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Estrellas dibujadas */
+.rs-estrellas { display: inline-flex; gap: 2px; vertical-align: middle; }
+.rs-estrella { display: inline-flex; color: var(--c-line-strong); }
+.rs-estrella svg { fill: currentColor; }
+.rs-estrella--on { color: var(--c-kpi-warn); }
+
+/* Filtros y lista de comentarios */
+.rs-filtros { align-items: center; }
+.rs-solo { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; font-size: .88rem; color: var(--c-text-2); cursor: pointer; }
+.rs-solo input { width: 18px; height: 18px; accent-color: var(--c-accent); }
+.rs-solo input:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+:root[data-modo="claro"] .rs-solo input:focus-visible { outline-color: #1F5F8F; }
+.rs-lista { margin: 12px 0 0; padding: 0; list-style: none; }
+.rs-fila { padding: 14px 0; border-bottom: 1px solid var(--c-line-soft); font-size: .9rem; }
+.rs-fila:last-child { border-bottom: 0; }
+.rs-fila__cab { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; }
+.rs-fila__quien { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; color: var(--c-text); }
+.rs-fila__fecha { font-size: .8rem; color: var(--c-text-3); }
+.rs-fila__curso { margin: 4px 0 0; font-size: .84rem; color: var(--c-text-3); overflow-wrap: anywhere; }
+.rs-fila__txt { margin: 8px 0 0; color: var(--c-text); line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rs-fila__sin { margin: 8px 0 0; font-size: .84rem; font-style: italic; color: var(--c-text-3); }
+
+@media (max-width: 900px) {
+  .rs-grupos { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .rs-dist li { grid-template-columns: 74px minmax(0, 1fr) 70px; gap: 8px; }
+  .rs-bh__fila { grid-template-columns: minmax(0, 1fr); }
+  .rs-bh__n { justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rs-bh__b i, .rs-dist__b i { transition: none; }
+}
