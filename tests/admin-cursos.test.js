@@ -312,10 +312,58 @@ test('leccionHTML(): botones de mover deshabilitados en los extremos y no se pue
   assert.ok(media.includes('Clase 2'));
 });
 
-test('leccionHTML(): Bunny muestra el video vinculado y Drive muestra un campo editable', () => {
-  assert.ok(C.leccionHTML({ videoId: 'abc-123' }, 0, 2).includes('Video Bunny vinculado'));
-  assert.ok(!C.leccionHTML({ videoId: 'abc-123' }, 0, 2).includes('data-ruta="driveId"'));
-  assert.ok(C.leccionHTML({ driveId: '' }, 0, 2).includes('data-ruta="driveId"'));
+const UUID_A = '11111111-2222-3333-4444-555555555555';
+const UUID_B = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+
+test('leccionHTML(): el URL del video siempre es un campo editable; con Bunny viene lleno con el enlace del video', () => {
+  const bunny = C.leccionHTML({ videoId: UUID_A, provider: 'bunny' }, 0, 2);
+  assert.ok(bunny.includes('data-ruta="fuente"'));
+  assert.ok(bunny.includes('https://iframe.mediadelivery.net/embed/731751/' + UUID_A));
+  assert.ok(!bunny.includes('data-ruta="driveId"'));
+  assert.ok(C.leccionHTML({ driveId: '' }, 0, 2).includes('data-ruta="fuente"'));
+  assert.ok(C.leccionHTML({ driveId: 'abcDEF123456' }, 0, 2).includes('value="abcDEF123456"'));
+});
+
+test('textoFuente() y estadoFuente(): lo que se ve junto al URL', () => {
+  assert.equal(C.textoFuente({ videoId: UUID_A }), 'https://iframe.mediadelivery.net/embed/731751/' + UUID_A);
+  assert.equal(C.textoFuente({ videoId: UUID_A, fuente: 'otro' }), 'otro');
+  assert.equal(C.textoFuente({ driveId: 'xyz12345' }), 'xyz12345');
+  assert.equal(C.textoFuente({}), '');
+  assert.equal(C.estadoFuente('').tipo, 'vacio');
+  assert.equal(C.estadoFuente(UUID_A).tipo, 'bunny');
+  assert.equal(C.estadoFuente('https://drive.google.com/file/d/abcDEF123456/view').tipo, 'drive');
+  assert.equal(C.estadoFuente('https://youtube.com/x').tipo, 'error');
+  assert.equal(C.estadoFuente('https://iframe.mediadelivery.net/embed/999/' + UUID_A).tipo, 'error');
+});
+
+test('limpiarLecciones(): el URL que se corrige a mano manda sobre el que puso Bunny', () => {
+  // Bunny puso UUID_A y la persona lo cambia por UUID_B pegando el enlace completo
+  let r = C.limpiarLecciones([{ titulo: 'A', videoId: UUID_A, provider: 'bunny', fuente: 'https://iframe.mediadelivery.net/embed/731751/' + UUID_B }]);
+  assert.equal(r.errores.length, 0);
+  assert.equal(r.lecciones[0].videoId, UUID_B);
+  assert.equal(r.lecciones[0].provider, 'bunny');
+  assert.ok(!('fuente' in r.lecciones[0]));
+  // Cambia el video de Bunny por uno de Drive: ya no queda el de Bunny
+  r = C.limpiarLecciones([{ titulo: 'A', videoId: UUID_A, provider: 'bunny', fuente: 'https://drive.google.com/file/d/abcDEF123456/view' }]);
+  assert.equal(r.lecciones[0].driveId, 'abcDEF123456');
+  assert.ok(!('videoId' in r.lecciones[0]) && !('provider' in r.lecciones[0]));
+  // Sin tocar el campo (sin fuente) se conserva el video de Bunny
+  r = C.limpiarLecciones([{ titulo: 'A', videoId: UUID_A, provider: 'bunny' }]);
+  assert.equal(r.lecciones[0].videoId, UUID_A);
+  // Un enlace malo avisa con el número de clase y vaciarlo descarta la clase
+  r = C.limpiarLecciones([{ titulo: 'A', videoId: UUID_A, fuente: 'https://youtube.com/x' }]);
+  assert.match(r.errores[0].mensaje, /Clase 1/);
+  r = C.limpiarLecciones([{ titulo: 'A', videoId: UUID_A, fuente: '  ' }]);
+  assert.equal(r.lecciones.length, 0);
+});
+
+test('asignarRuta(): acepta la ruta fuente y aplicarColeccion() la reinicia para que se vea el URL de Bunny', () => {
+  const l = { titulo: 'A', videoId: UUID_A };
+  assert.equal(C.asignarRuta(l, 'fuente', 'https://x'), true);
+  assert.equal(l.fuente, 'https://x');
+  const r = C.aplicarColeccion([l], { sesiones: [{ numero: 1, titulo: 'v1.mp4', videoId: UUID_B }] });
+  assert.equal(r.lecciones[0].videoId, UUID_B);
+  assert.ok(!('fuente' in r.lecciones[0]));
 });
 
 test('el editor escapa título, video, palabras, pares y pistas', () => {

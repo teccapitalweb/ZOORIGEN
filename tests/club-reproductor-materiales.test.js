@@ -69,10 +69,32 @@ test('teclado y foco: Esc cierra sin confirmar (salvo que haya otra ventana enci
 test('estilos de la ventana: 960 de ancho máximo, video 16:9, oscura siempre, solo colores sólidos y zona segura en celular', () => {
   assert.match(pagina, /\.player-box\.is-player \{[^}]*width: min\(100%, max\(520px, min\(960px,/);
   assert.match(pagina, /\.player-box__video \{[^}]*aspect-ratio: 16 \/ 9/);
-  assert.match(pagina, /#playerOverlay\.player-overlay \{\s*padding: max\(6px, var\(--zoo-safe-t\)\)/);
+  assert.match(pagina, /#playerOverlay\.player-overlay \{\s*padding: var\(--zoo-safe-t\) var\(--zoo-safe-r\) 0 var\(--zoo-safe-l\)/);
   const css = entre('Ventana de la clase (reproductor)', '/* Lista de clases');
   assert.doesNotMatch(css, /gradient/);
   assert.match(css, /\.pb-btn--main \{ background: var\(--pb-verde/);
+});
+
+test('celular: el video llega de orilla a orilla, de lado ocupa toda la altura y hay pantalla completa (la del navegador y una de respaldo para iPhone)', () => {
+  // Sin marco ni esquinas redondeadas en el celular
+  assert.match(pagina, /#playerOverlay \.player-box\.is-player \{\s*width: 100%; max-width: 100%; margin: 0; border-radius: 0; border: 0;/);
+  // De lado: el video usa la altura de la pantalla
+  assert.match(pagina, /orientation: landscape\) and \(max-height: 520px\)/);
+  assert.match(pagina, /\.player-box__video \{ aspect-ratio: auto; height: calc\(var\(--zoo-vh\) - 52px\)/);
+  // Botón y funciones
+  assert.match(pagina, /id="playerPantalla" onclick="alternarPantallaCompleta\(\)"/);
+  assert.match(pagina, /id="playerSalirPant" onclick="salirPantallaCompleta\(\)"/);
+  const js = entre('function pbEnPantallaCompleta', 'function mensajeEnVideo');
+  assert.match(js, /requestFullscreen \|\| cont\.webkitRequestFullscreen/);
+  assert.match(js, /o\.lock\('landscape'\)/);
+  assert.match(js, /catch\(pbEntrarPseudo\)/);
+  // El respaldo gana al modo de lado y gira el video en vertical
+  assert.match(pagina, /#playerOverlay\.pb-pseudo \.player-box\.is-player \.player-box__video/);
+  assert.match(pagina, /transform: rotate\(90deg\)/);
+  // Se sale al cerrar, al cambiar de pantalla y con Esc
+  assert.match(entre('function salirDelReproductor', 'function closePlayer'), /salirPantallaCompleta\(\)/);
+  assert.match(pagina, /classList\.contains\('pb-pseudo'\)\) salirPantallaCompleta\(\); else closePlayer\(\)/);
+  assert.match(entre('function mensajeEnVideo', 'async function cargarVideo'), /salirPantallaCompleta\(\)/);
 });
 
 // ───────── materiales por curso y clase ─────────

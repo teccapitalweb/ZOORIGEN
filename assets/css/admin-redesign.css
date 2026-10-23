@@ -772,6 +772,8 @@ textarea.ce-input { min-height: 84px; resize: vertical; line-height: 1.5; }
 .ce-mini--peligro:hover:not(:disabled) { color: var(--c-bad-ink); background: var(--c-bad-bg); border-color: var(--c-bad-line); }
 .ce-fuente { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 12px; font-size: .8rem; font-weight: 600; color: var(--c-ok-ink); background: var(--c-ok-bg); border: 1px solid var(--c-ok-line); border-radius: 12px; }
 .ce-fuente code { word-break: break-all; }
+.ce-fuente--vacio { color: var(--c-text-3); background: var(--c-input); border-color: var(--c-line-strong); font-weight: 500; }
+.ce-fuente--error { color: var(--c-bad-ink); background: var(--c-bad-bg); border-color: var(--c-bad-line); }
 .ce-agregar, .ce-mas {
   display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px; cursor: pointer;
   font: 700 .84rem var(--zoo-font-body); color: var(--c-text-2); background: transparent; border: 1.5px dashed var(--c-line-strong); border-radius: 12px; transition: all .15s;

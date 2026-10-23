@@ -391,6 +391,21 @@
       border: 1px solid color-mix(in srgb, var(--zoo-acc-txt, #6FBF73) 30%, transparent);
     }
 
+    /* Pantalla completa del video: la real (Fullscreen API) y, donde el navegador no la da (iPhone), una que cubre toda la pantalla y gira el video en vertical */
+    #playerVideo:fullscreen, #playerVideo:-webkit-full-screen { width: 100%; height: 100%; aspect-ratio: auto; background: #000; }
+    #playerPantalla[hidden] { display: none; }
+    .pb-salir-pant {
+      display: none; position: fixed; z-index: 1101; top: max(10px, var(--zoo-safe-t, 0px)); right: max(10px, var(--zoo-safe-r, 0px));
+      min-height: 44px; padding: 0 16px; align-items: center; gap: 8px; border-radius: 999px; cursor: pointer;
+      background: rgba(0,0,0,.72); border: 1px solid rgba(255,255,255,.35); color: #fff; font: 700 .9rem/1 var(--zoo-font-body, system-ui);
+    }
+    .pb-salir-pant .zi { width: 18px; height: 18px; flex: none; }
+    #playerOverlay.pb-pseudo .pb-salir-pant { display: inline-flex; }
+    #playerOverlay.pb-pseudo .player-box.is-player .player-box__video, #playerOverlay.pb-pseudo .player-box__video { position: fixed; z-index: 1100; inset: 0; width: 100vw; height: 100vh; width: 100dvw; height: 100dvh; aspect-ratio: auto; border-radius: 0; }
+    @media (orientation: portrait) {
+      #playerOverlay.pb-pseudo .player-box.is-player .player-box__video, #playerOverlay.pb-pseudo .player-box__video { inset: auto; top: 0; left: 100vw; left: 100dvw; width: 100vh; height: 100vw; width: 100dvh; height: 100dvw; transform-origin: top left; transform: rotate(90deg); }
+    }
+
     @media (max-width: 640px) {
       .player-overlay { padding: 0; align-items: flex-start; }
       .player-box {
@@ -407,12 +422,13 @@
        El selector con id gana a la regla común de ventanas de club-responsivo.css. */
     @media (max-width: 640px) {
       #playerOverlay.player-overlay {
-        padding: max(6px, var(--zoo-safe-t)) max(6px, var(--zoo-safe-r)) max(6px, var(--zoo-safe-b)) max(6px, var(--zoo-safe-l));
+        padding: var(--zoo-safe-t) var(--zoo-safe-r) 0 var(--zoo-safe-l);
         align-items: stretch;
       }
+      /* El video llega de orilla a orilla (sin marco ni esquinas redondeadas) para que ocupe todo el ancho de la pantalla */
       #playerOverlay .player-box.is-player {
-        width: 100%; max-width: 100%; margin: 0; border-radius: 14px; border: 1px solid var(--pb-linea);
-        min-height: calc(var(--zoo-vh) - max(6px, var(--zoo-safe-t)) - max(6px, var(--zoo-safe-b)));
+        width: 100%; max-width: 100%; margin: 0; border-radius: 0; border: 0;
+        min-height: calc(var(--zoo-vh) - var(--zoo-safe-t));
         max-height: none; overflow: visible;
       }
       .player-box.is-player .player-box__header { padding: 10px 12px 10px 14px; }
@@ -423,6 +439,15 @@
       .pb-acc { flex-direction: column-reverse; align-items: stretch; margin-top: auto; }
       .pb-btn { width: 100%; min-height: 52px; font-size: 1rem; }
       .pb-btn--ghost { min-height: 46px; }
+    }
+    /* Celular de lado: el video ocupa toda la altura de la pantalla; el detalle de la clase queda debajo, con desplazamiento */
+    @media (orientation: landscape) and (max-height: 520px) {
+      #playerOverlay.player-overlay { padding: 0 var(--zoo-safe-r) 0 var(--zoo-safe-l); align-items: flex-start; }
+      #playerOverlay .player-box.is-player {
+        width: 100%; max-width: 100%; margin: 0; border-radius: 0; border: 0; min-height: 0; max-height: none; overflow: visible;
+      }
+      #playerOverlay .player-box.is-player .player-box__header { padding: 6px 12px; }
+      #playerOverlay .player-box.is-player .player-box__video { aspect-ratio: auto; height: calc(var(--zoo-vh) - 52px); }
     }
   </style>
   <link rel="stylesheet" href="../assets/css/club-materiales.css?v=20261214-cupones">
@@ -452,11 +477,13 @@
       <div class="player-box__header">
         <h3 id="playerTitle">—</h3>
         <span class="player-box__estado" id="playerEstado" hidden><svg class="zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Ya vista</span>
+        <button type="button" class="player-box__fs" id="playerPantalla" onclick="alternarPantallaCompleta()" title="Pantalla completa" aria-label="Pantalla completa" hidden><svg class="zi" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
         <a class="player-box__fs" id="playerAbrir" href="#" target="_blank" rel="noopener noreferrer" title="Abrir en pestaña nueva" aria-label="Abrir en pestaña nueva" hidden><svg class="zi" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
         <button type="button" class="player-box__close" id="playerCerrar" onclick="closePlayer()" aria-label="Cerrar"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       </div>
       <div class="player-box__video" id="playerVideo"></div>
       <div class="player-box__info"><div id="playerDesc"></div></div>
+      <button type="button" class="pb-salir-pant" id="playerSalirPant" onclick="salirPantallaCompleta()"><svg class="zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>Salir de pantalla completa</button>
     </div>
   </div>
 
@@ -1283,7 +1310,41 @@
       document.documentElement.classList.add('pb-sin-scroll');
     }
 
+    /* Pantalla completa del video: la del navegador si existe; si no (iPhone), una que cubre toda la pantalla (y gira el video en vertical) */
+    function pbEnPantallaCompleta() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+    function pbMarcarPantalla() {
+      const ov = document.getElementById('playerOverlay'), b = document.getElementById('playerPantalla');
+      const activa = pbEnPantallaCompleta() || ov.classList.contains('pb-pseudo');
+      if (b) { b.title = activa ? 'Salir de pantalla completa' : 'Pantalla completa'; b.setAttribute('aria-label', b.title); b.setAttribute('aria-pressed', activa ? 'true' : 'false'); }
+    }
+    function pbEntrarPseudo() {
+      document.getElementById('playerOverlay').classList.add('pb-pseudo');
+      pbMarcarPantalla();
+    }
+    function alternarPantallaCompleta() {
+      if (pbEnPantallaCompleta() || document.getElementById('playerOverlay').classList.contains('pb-pseudo')) { salirPantallaCompleta(); return; }
+      const cont = document.getElementById('playerVideo');
+      const pedir = cont.requestFullscreen || cont.webkitRequestFullscreen;
+      if (!pedir) { pbEntrarPseudo(); return; }
+      let r;
+      try { r = pedir.call(cont); } catch (e) { pbEntrarPseudo(); return; }
+      Promise.resolve(r).then(() => {
+        // En el celular se acuesta la pantalla; si el navegador no deja, queda como esté.
+        try { const o = screen.orientation; if (o && o.lock) o.lock('landscape').catch(() => {}); } catch (e) { /* nada */ }
+      }).catch(pbEntrarPseudo);
+    }
+    function salirPantallaCompleta() {
+      document.getElementById('playerOverlay').classList.remove('pb-pseudo');
+      if (pbEnPantallaCompleta()) { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) { /* nada */ } }
+      try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) { /* nada */ }
+      pbMarcarPantalla();
+    }
+    document.addEventListener('fullscreenchange', pbMarcarPantalla);
+    document.addEventListener('webkitfullscreenchange', pbMarcarPantalla);
+
     function mensajeEnVideo(clase, icono, titulo, texto, botonHTML) {
+      salirPantallaCompleta();
+      document.getElementById('playerPantalla').hidden = true;
       const cont = document.getElementById('playerVideo');
       cont.innerHTML = '<div class="pb-vacio ' + clase + '" role="status"><div class="pb-vacio__in">' + icono +
         '<strong>' + escHtml(titulo) + '</strong>' + (texto ? '<p>' + escHtml(texto) + '</p>' : '') + (botonHTML || '') + '</div></div>';
@@ -1305,6 +1366,7 @@
         f.allowFullscreen = true;
         contenedor.innerHTML = '';
         contenedor.appendChild(f);
+        document.getElementById('playerPantalla').hidden = false;
       };
       try {
         if (lesson.videoId) {
@@ -1584,6 +1646,8 @@
       if (box) box.classList.remove('is-player');
       document.getElementById('playerEstado').hidden = true;
       document.getElementById('playerAbrir').hidden = true;
+      salirPantallaCompleta();
+      document.getElementById('playerPantalla').hidden = true;
     }
 
     function closePlayer() {
@@ -1613,7 +1677,7 @@
       const otra = Array.from(document.querySelectorAll('.mt-visor, .jg-overlay, .zc-ov, .pw-modal__fondo, .zoo-welcome-box, #zoo-welcome-modal, #zoo-levelup-modal, #zoo-rewards-modal'))
         .some(n => n.isConnected);
       if (otra) return;
-      if (ev.key === 'Escape') { ev.preventDefault(); closePlayer(); return; }
+      if (ev.key === 'Escape') { ev.preventDefault(); if (ov.classList.contains('pb-pseudo')) salirPantallaCompleta(); else closePlayer(); return; }
       if (ev.key !== 'Tab') return;
       const foco = Array.from(ov.querySelectorAll('button:not([disabled]), a[href], iframe, [tabindex]:not([tabindex="-1"])'))
         .filter(n => !n.hidden && n.getClientRects().length);

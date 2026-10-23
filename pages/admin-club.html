@@ -215,15 +215,15 @@
       .am { padding: 18px; }
     }
   </style>
-  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261019-tarjetas">
+  <link rel="stylesheet" href="../assets/css/admin-redesign.css?v=20261216-editor-cursos">
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
-  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261215-suscripciones">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261216-editor-cursos">
   <link rel="stylesheet" href="../assets/css/admin-recordatorios.css?v=20261209-cupon">
-  <link rel="stylesheet" href="../assets/css/admin-resenas.css?v=20261215-suscripciones">
-  <link rel="stylesheet" href="../assets/css/admin-cupones.css?v=20261215-suscripciones">
-  <link rel="stylesheet" href="../assets/css/admin-suscripciones.css?v=20261215-suscripciones">
+  <link rel="stylesheet" href="../assets/css/admin-resenas.css?v=20261216-editor-cursos">
+  <link rel="stylesheet" href="../assets/css/admin-cupones.css?v=20261216-editor-cursos">
+  <link rel="stylesheet" href="../assets/css/admin-suscripciones.css?v=20261216-editor-cursos">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="inicio">
@@ -314,28 +314,28 @@
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261209-cupon"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261215-suscripciones"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261216-editor-cursos"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/admin-panel.js?v=20261215-suscripciones"></script>
-  <script src="../assets/js/admin-graficas.js?v=20261215-suscripciones"></script>
-  <script src="../assets/js/admin-filas.js?v=20261215-suscripciones"></script>
-  <script src="../assets/js/admin-servidor.js?v=20261215-suscripciones"></script>
-  <script src="../assets/js/admin-vistas.js?v=20261215-suscripciones"></script>
-  <script src="../assets/js/admin-marketing.js?v=20261215-suscripciones"></script>
-  <script src="../assets/js/admin-creditos.js?v=20261215-suscripciones"></script>
-  <script src="../assets/js/admin-suscripciones.js?v=20261215-suscripciones"></script>
+  <script src="../assets/js/admin-panel.js?v=20261216-editor-cursos"></script>
+  <script src="../assets/js/admin-graficas.js?v=20261216-editor-cursos"></script>
+  <script src="../assets/js/admin-filas.js?v=20261216-editor-cursos"></script>
+  <script src="../assets/js/admin-servidor.js?v=20261216-editor-cursos"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261216-editor-cursos"></script>
+  <script src="../assets/js/admin-marketing.js?v=20261216-editor-cursos"></script>
+  <script src="../assets/js/admin-creditos.js?v=20261216-editor-cursos"></script>
+  <script src="../assets/js/admin-suscripciones.js?v=20261216-editor-cursos"></script>
   <script src="../assets/js/admin-recordatorios.js?v=20261209-cupon"></script>
-  <script src="../assets/js/admin-resenas.js?v=20261215-suscripciones"></script>
+  <script src="../assets/js/admin-resenas.js?v=20261216-editor-cursos"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-materiales-curso.js?v=20261215-suscripciones"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261215-suscripciones"></script>
-  <script src="../assets/js/admin-certificados.js?v=20261215-suscripciones"></script>
+  <script src="../assets/js/admin-materiales-curso.js?v=20261216-editor-cursos"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261216-editor-cursos"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261216-editor-cursos"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/admin-noticias.js?v=20261215-suscripciones"></script>
+  <script src="../assets/js/admin-noticias.js?v=20261216-editor-cursos"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
-  <script src="../assets/js/admin-encuesta.js?v=20261215-suscripciones"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261216-editor-cursos"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -682,6 +682,11 @@
       cont.addEventListener('input', ev => {
         const t = ev.target, i = indice(t);
         if (t.dataset.ruta && i >= 0) CURSOS.asignarRuta(window.__leccionesTemp[i], t.dataset.ruta, t.value);
+        if (t.dataset.ruta === 'fuente') {
+          // El aviso de debajo del enlace se actualiza al escribir (sin redibujar la clase, para no perder el foco).
+          const est = CURSOS.estadoFuente(t.value), caja = t.closest('[data-lec]').querySelector('.ce-fuente');
+          if (caja) { caja.className = 'ce-fuente ce-fuente--' + est.tipo; const txt = caja.querySelector('span'); if (txt) txt.textContent = est.texto; }
+        }
       });
       cont.addEventListener('change', ev => {
         const t = ev.target, i = indice(t);

@@ -314,7 +314,7 @@
 
   // Escribe un valor en una clase usando una ruta permitida (lista blanca): evita escribir donde no toca.
   const RUTAS_PERMITIDAS = [
-    /^(titulo|driveId|duration)$/,
+    /^(titulo|driveId|duration|fuente)$/,
     /^juego\.datos\.(dificultad|imagenUrl)$/,
     /^juego\.datos\.palabras\.\d{1,2}$/,
     /^juego\.datos\.palabras\.\d{1,2}\.(palabra|pista)$/,
@@ -364,6 +364,23 @@
     }
     if (/^[A-Za-z0-9_-]{6,}$/.test(t)) return { driveId: t };
     return { error: 'pega el ID del video de Bunny o el enlace de Google Drive' };
+  }
+
+  // El enlace del video tal como se muestra en el formulario: el de Bunny si la clase tiene video de Bunny, o el de Drive.
+  const urlBunny = id => `https://iframe.mediadelivery.net/embed/${BIBLIOTECA_BUNNY}/${id}`;
+  function textoFuente(l) {
+    if (!l || typeof l !== 'object') return '';
+    if (typeof l.fuente === 'string') return l.fuente;
+    if (l.videoId) return urlBunny(l.videoId);
+    return l.driveId ? String(l.driveId) : '';
+  }
+  // Qué dice el formulario junto al enlace mientras se escribe: { tipo: 'vacio' | 'bunny' | 'drive' | 'error', texto }
+  function estadoFuente(texto) {
+    const f = normalizarFuente(texto);
+    if (f.vacio) return { tipo: 'vacio', texto: 'Sin video todavía: pulsa "Sincronizar con Bunny" o pega el enlace.' };
+    if (f.error) return { tipo: 'error', texto: `Revisa el enlace: ${f.error}.` };
+    if (f.videoId) return { tipo: 'bunny', texto: 'Video de Bunny' };
+    return { tipo: 'drive', texto: 'Video de Google Drive' };
   }
 
   /* ── Preguntas de la clase (verdadero/falso u opción múltiple) ── */
@@ -419,13 +436,16 @@
     (Array.isArray(lecciones) ? lecciones : []).forEach((l, i) => {
       if (!l || typeof l !== 'object') return;
       const clase = { ...l };
-      if (!l.videoId) {
-        const f = normalizarFuente(l.driveId);
+      // Si el enlace se tocó en el formulario (l.fuente), manda ese; si no, queda el video que ya tenía la clase.
+      const editado = typeof l.fuente === 'string';
+      if (editado || !l.videoId) {
+        const f = normalizarFuente(editado ? l.fuente : l.driveId);
         if (f.vacio) return;
         if (f.error) { errores.push({ clase: i + 1, mensaje: `Clase ${i + 1}: ${f.error}` }); return; }
         if (f.videoId) { clase.videoId = f.videoId; clase.provider = 'bunny'; delete clase.driveId; }
-        else clase.driveId = f.driveId;
+        else { clase.driveId = f.driveId; delete clase.videoId; if (clase.provider === 'bunny') delete clase.provider; }
       }
+      delete clase.fuente;
       if (typeof clase.titulo === 'string') clase.titulo = clase.titulo.trim();
       if (typeof clase.duration === 'string') clase.duration = clase.duration.trim();
       if (l.gratis === true) clase.gratis = true; else delete clase.gratis;
@@ -498,7 +518,7 @@
       if (vacia) { clase = { ...(clase || {}), titulo: limpio || `Clase ${i + 1}`, duration: (clase && clase.duration) || '' }; nuevas++; }
       else actualizadas++;
       if (clase.driveId) clase.driveIdAnterior = clase.driveId;
-      delete clase.driveId;
+      delete clase.driveId; delete clase.fuente;
       clase.videoId = id; clase.provider = 'bunny';
       if (!clase.titulo || !String(clase.titulo).trim()) clase.titulo = limpio || `Clase ${i + 1}`;
       previas[i] = clase;
@@ -547,7 +567,7 @@
       const anterior = previas[index] || {};
       const migrada = { ...anterior, titulo: anterior.titulo || lesson.titulo || `Clase ${index + 1}`, provider: 'bunny', videoId: lesson.videoId };
       if (anterior.driveId) migrada.driveIdAnterior = anterior.driveId;
-      delete migrada.driveId;
+      delete migrada.driveId; delete migrada.fuente;
       return migrada;
     });
   }
@@ -643,9 +663,10 @@
   }
 
   function leccionHTML(l, i, total) {
-    const fuente = l.videoId
-      ? `<div class="ce-fuente">${ico('badge-check', { size: 15 })}Video Bunny vinculado <code>${esc(l.videoId)}</code></div>`
-      : inputHTML('driveId', l.driveId, 'ID del video de Bunny, o enlace/ID de Google Drive', { max: 400 });
+    const texto = textoFuente(l), est = estadoFuente(texto);
+    const fuente = `<label class="ce-campo ce-campo--full"><span>URL del video</span>
+          ${inputHTML('fuente', texto, 'Se llena sola al sincronizar con Bunny, o pega aquí el enlace', { max: 400 })}</label>
+        <div class="ce-fuente ce-fuente--${est.tipo}" role="status">${ico(est.tipo === 'error' ? 'circle-alert' : est.tipo === 'vacio' ? 'info' : 'badge-check', { size: 15 })}<span>${esc(est.texto)}</span></div>`;
     return `<div class="ce-clase" data-lec="${i}">
         <div class="ce-clase__cab">
           <span class="ce-badge">Clase ${i + 1}</span>
@@ -655,9 +676,9 @@
             <button type="button" class="ce-mini ce-mini--peligro" data-accion="lec-quitar" aria-label="Quitar clase ${i + 1}"${total <= 1 ? ' disabled' : ''}>${ico('trash-2', { size: 14 })}</button>
           </div>
         </div>
-        ${inputHTML('titulo', l.titulo, 'Título de la clase', { max: 160 })}
+        <label class="ce-campo ce-campo--full"><span>Título de la clase (opcional)</span>${inputHTML('titulo', l.titulo, 'Ej. Introducción al fototrampeo', { max: 160 })}</label>
         ${fuente}
-        ${inputHTML('duration', l.duration, 'Duración (ej. 25 min)', { max: 40 })}
+        <label class="ce-campo ce-campo--full"><span>Duración (opcional)</span>${inputHTML('duration', l.duration, 'Ej. 25 min', { max: 40 })}</label>
         <label class="ce-gratis"><input type="checkbox" data-accion="gratis"${l.gratis === true ? ' checked' : ''}><span>${ico('gift', { size: 15 })}Clase gratis <small>la ven quienes no tienen membresía (solo si el curso está marcado con clases gratis de muestra)</small></span></label>
         <div class="ce-preg-zona">${preguntasZonaHTML(l)}</div>
         <div class="ce-juego-zona">${zonaJuegoHTML(l.juego)}</div>
@@ -702,13 +723,13 @@
           <span><strong>Este curso tiene clases gratis de muestra</strong><small>Quien no tenga membresía podrá ver las clases que marques como gratis. Solo un curso puede tenerlo. Las demás clases piden membresía.</small></span></label>
         <div class="ce-campo ce-campo--full">
           <span>Clases del curso (videos)</span>
-          <small class="ce-ayuda">Las clases se muestran en orden. Edita el video, las preguntas y el juego de cada clase. Puedes conservar los enlaces de Google Drive.</small>
+          <small class="ce-ayuda">Las clases se muestran en orden. El URL del video se llena solo al sincronizar con Bunny y siempre lo puedes editar a mano. También acepta enlaces de Google Drive.</small>
           <div class="ce-botones">
             <button type="button" class="ce-agregar" onclick="agregarLeccion()">${ico('plus', { size: 16 })}Agregar otra clase</button>
             <button type="button" class="ce-agregar ce-sync" id="cf-sync-bunny" onclick="sincronizarCursoBunny()" title="Busca en Bunny la colección con el nombre más parecido al título del curso y llena el video de cada clase">${ico('cloud-download', { size: 16 })}Sincronizar con Bunny</button>
           </div>
           <div id="leccionesContainer" class="ce-clases"></div>
-          <small class="ce-ayuda">"Sincronizar con Bunny" busca la colección parecida al título del curso y llena solo el video de cada clase. No cambia títulos que ya escribiste, preguntas, juegos ni clases gratis.</small>
+          <small class="ce-ayuda">"Sincronizar con Bunny" busca la colección parecida al título del curso y llena el URL del video de cada clase. No cambia títulos que ya escribiste, preguntas, juegos ni clases gratis. Si Bunny pone un enlace mal o no encuentra el video, corrige el URL a mano en la clase: lo que escribas es lo que se guarda.</small>
         </div>
         <section class="ce-campo ce-campo--full ce-materiales" id="cursoMateriales"></section>
       </div>
@@ -728,6 +749,6 @@
     siguienteOrdenVip, calcularOrdenVip,
     puntajeTitulo, mejorColeccion, catalogoDesdeArchivo, aplicarColeccion, videosUsadosPorOtros,
     nuevaPregunta, agregarPregunta, quitarPregunta, cambiarTipoPregunta, agregarOpcion, quitarOpcion,
-    preguntaHTML, preguntasZonaHTML, leccionHTML, leccionesHTML, zonaJuegoHTML, camposJuegoHTML, modalCursoHTML
+    textoFuente, estadoFuente, preguntaHTML, preguntasZonaHTML, leccionHTML, leccionesHTML, zonaJuegoHTML, camposJuegoHTML, modalCursoHTML
   };
 });
