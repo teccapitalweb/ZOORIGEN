@@ -22,13 +22,13 @@ const MX = (iso) => Date.parse(iso);   // las fechas de prueba se dan en UTC
 
 /* ───────── contenido ───────── */
 
-test('cantidades de contenido: al menos 15 de cada tipo (hoy 32 quiz / 24 orden / 55 flashcards / 30 detective / 6x4 historia)', () => {
+test('cantidades de contenido: al menos 15 de cada tipo (hoy 32 quiz / 24 orden / 55 flashcards / 60 detective / 6x4 historia)', () => {
   assert.equal(D.quiz.length, 32);
   assert.equal(D.orden.length, 24);
   assert.equal(D.flashcards.length, 55);
   assert.equal(D.historia.length, 6);
   D.historia.forEach(m => assert.equal(m.casos.length, 4));
-  assert.equal(D.detective.length, 30);
+  assert.equal(D.detective.length, 60);
   for (const tipo of ['quiz', 'orden', 'flashcards', 'detective']) assert.ok(D[tipo].length >= 15, tipo + ' debe tener al menos 15');
 });
 
@@ -115,7 +115,7 @@ test('historia: mundos con nombre, descripción, fondo y color', () => {
     ['historia-selva.jpg', 'historia-humedal.jpg', 'historia-arrecife.jpg', 'historia-desierto.jpg', 'historia-bosque-niebla.jpg', 'historia-centro-rescate.jpg']);
 });
 
-test('detective: 30 escenas jugables, todas con imagen webp definida Y respaldo de texto (escena y 6 pistas), 3 riesgos', () => {
+test('detective: 60 escenas jugables, todas con imagen webp definida Y respaldo de texto (escena y 6 pistas), 3 riesgos', () => {
   D.detective.forEach(e => {
     assert.match(e.imagen, /^assets\/img\/retos\/detective-[a-z0-9-]+\.webp$/);
     assert.equal(e.riesgos.length, 3);
@@ -131,7 +131,7 @@ test('detective: 30 escenas jugables, todas con imagen webp definida Y respaldo 
     assert.equal(e.pistas.filter(x => x.ok).length, 3);
     assert.deepEqual(e.pistas.filter(x => x.ok).map(x => x.why), e.riesgos);
   });
-  assert.equal(R.escenasActivas(D.detective).length, 30);
+  assert.equal(R.escenasActivas(D.detective).length, 60);
   assert.equal(R.escenasPendientes(D.detective), 0);
   // los 17 nombres de imagen adicionales siguen assets/img/retos/detective-<tema>-<n>.webp
   assert.equal(D.detective.filter(e => /-\d\.webp$/.test(e.imagen)).length, 17);
@@ -433,7 +433,7 @@ test('la página usa el menú del club, los archivos de retos y cache-buster', (
 });
 
 
-test('detective visual: los 30 retos tienen tres zonas y cada centro encuentra su hallazgo', () => {
+test('detective visual: los 60 retos tienen tres zonas y cada centro encuentra su hallazgo', () => {
   for (const e of D.detective) {
     assert.equal(R.escenaConZonas(e), true, e.id);
     assert.equal(e.zonas.length, 3);

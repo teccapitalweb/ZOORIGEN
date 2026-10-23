@@ -40,7 +40,7 @@
   const TIPOS = [
     { id: 'quiz', titulo: 'Quiz relámpago', desc: 'Preguntas cortas de tres opciones sobre manejo, bioseguridad y legislación. Cada reto se abre al superar el anterior.',
       icono: 'zap', color: '#C75402', texto: 'var(--rz-naranja-txt)', tiempo: 'Un minuto por reto', imagen: 'assets/img/landing/area-manejo.webp', camino: true },
-    { id: 'detective', titulo: 'Detective de campo', desc: 'Explora 30 escenas de fauna de México y toca la imagen para descubrir tres hallazgos.',
+    { id: 'detective', titulo: 'Detective de campo', desc: 'Explora 60 escenas de fauna de México y toca la imagen para descubrir tres hallazgos.',
       icono: 'search', color: '#037BC9', texto: 'var(--rz-azul-txt)', tiempo: 'Tres minutos por escena', imagen: 'assets/img/landing/area-monitoreo.webp', camino: true },
     { id: 'orden', titulo: 'Ordena el procedimiento', desc: 'Coloca cada paso en el orden correcto y refuerza los protocolos de campo.',
       icono: 'list-checks', color: '#95A303', texto: 'var(--rz-verde-txt)', tiempo: 'Dos minutos por reto', imagen: 'assets/img/landing/area-conservacion.webp', camino: true },
@@ -677,7 +677,7 @@
     function metaDe(modo, it) {
       if (modo === 'quiz') return { titulo: it.q, sub: it.tema };
       if (modo === 'orden') return { titulo: it.titulo, sub: it.pasos.length + ' pasos' };
-      return { titulo: it.titulo, sub: it.tipo === 'identificacion' ? 'Identificación de rastros' : it.tipo === 'legal' ? 'Señales de alerta' : it.tipo === 'bienestar' ? 'Bienestar animal' : 'Seguridad en campo' };
+      return { titulo: it.titulo, sub: it.tipo === 'identificacion' ? 'Identificación de rastros' : it.tipo === 'legal' ? 'Señales de alerta' : it.tipo === 'bienestar' ? 'Bienestar animal' : it.tipo === 'conservacion' ? 'Conservación del sitio' : 'Seguridad en campo' };
     }
 
     function verCamino(modo) {

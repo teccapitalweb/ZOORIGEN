@@ -7,13 +7,14 @@
 /*   orden       24 secuencias de 4 a 6 pasos                     */
 /*   flashcards  55 tarjetas                                      */
 /*   historia    6 mundos x 4 casos de 3 opciones                 */
-/*   detective   30 escenas (13 originales y 17 adicionales de        */
-/*               identificación, legal y bienestar)               */
+/*   detective   60 escenas (13 originales, 17 adicionales de          */
+/*               identificación, legal y bienestar, y 30 de            */
+/*               seguridad, bioseguridad y conservación)       */
 /*                                                                */
 /* Forma de cada escena del detective:                            */
 /*   { id, titulo, imagen, zonas: [], activo: true,               */
 /*     tipo: 'seguridad' | 'identificacion' | 'bienestar' |       */
-/*           'legal',                                             */
+/*           'legal' | 'conservacion',                             */
 /*     consigna: lo que debe marcar el jugador,                   */
 /*     escena: descripción de la imagen (también sirve de         */
 /*             respaldo si la imagen no existe),                  */
@@ -357,12 +358,12 @@
       ] }
   ];
 
-  /* ───────────── Detective de campo: 30 escenas ───────────── */
+  /* ───────────── Detective de campo: 60 escenas ───────────── */
   // Cada escena trae su consigna, la descripción de la imagen (`escena`, respaldo si la imagen
   // no existe) y 6 pistas: 3 con ok:true (los hallazgos) y 3 con ok:false (cosas que se ven en la
   // escena pero están bien hechas, o afirmaciones que no se sostienen).
   // riesgos[i] es el `why` de la i-ésima pista ok:true, en el mismo orden en que aparecen en `pistas`.
-  // Las 21 primeras conservan su posición; las 9 nuevas se agregan al final.
+  // Las 30 primeras conservan su posición; las 30 nuevas (31 a 60) se agregan al final.
   const detective = [
     { id: 'serpiente-rescate', titulo: 'Rescate de una serpiente', imagen: 'assets/img/retos/detective-serpiente-rescate.webp', zonas: [{"x": 0.525, "y": 0.4, "w": 0.09, "h": 0.46}, {"x": 0.355, "y": 0.19, "w": 0.15, "h": 0.22}, {"x": 0.82, "y": 0.81, "w": 0.34, "h": 0.26}], activo: true,
       tipo: 'seguridad',
@@ -1103,6 +1104,697 @@
         "Los objetos movibles pueden obstruir el paso o enredar a las tortugas y sus crías; la playa de anidación debe mantenerse despejada.",
         "El tránsito recreativo de vehículos puede perturbar la anidación y afectar nidos o crías. El manejo autorizado requiere condiciones específicas.",
         "Los animales sueltos pueden perturbar a las hembras o dañar nidos y crías; deben mantenerse fuera de la zona de anidación."
+      ]
+    },
+    /* Escenas 31 a 60 (segunda tanda de Detective de campo): se agregan al final para conservar el avance guardado. */
+    {
+      "id": "campo-nuevo-cocina-fauna",
+      "titulo": "Preparación de alimento para fauna",
+      "imagen": "assets/img/retos/detective-nuevo-01-cocina-fauna.webp",
+      "zonas": [{"x": 0.17, "y": 0.48, "w": 0.3, "h": 0.22}, {"x": 0.545, "y": 0.46, "w": 0.13, "h": 0.38}, {"x": 0.82, "y": 0.36, "w": 0.16, "h": 0.21}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa la cocina y marca los 3 errores en la preparación del alimento de los animales.",
+      "escena": "En la cocina de un centro de fauna, sobre una mesa de acero hay una charola con verduras frescas picadas y, parado dentro de la misma charola, un atomizador amarillo de limpieza. A la izquierda, en un recipiente grande, las verduras están cubiertas de moho gris. A la derecha, sobre un estante, un ratón come de un costal de granos abierto. En la tabla de madera hay zanahorias y calabacita frescas, y al fondo se ven un fregadero y un refrigerador.",
+      "pistas": [
+        { "t": "Verduras con moho visible en un recipiente", "ok": true, "why": "El alimento con moho no se ofrece a los animales porque puede enfermarlos. Se desecha y se prepara alimento fresco." },
+        { "t": "Zanahorias y calabacita frescas sobre la tabla", "ok": false, "why": "Las verduras frescas y sin moho son lo esperado para preparar el alimento. No es un error." },
+        { "t": "Atomizador de limpieza dentro de la bandeja de alimento", "ok": true, "why": "Los productos de limpieza no deben tocar el alimento ni estar junto a él: dejan residuos que pueden intoxicar a los animales." },
+        { "t": "Hay un fregadero con llave al fondo de la cocina", "ok": false, "why": "Contar con un fregadero para lavar manos y utensilios ayuda a la higiene. No es un error." },
+        { "t": "Ratón comiendo en un costal de granos abierto", "ok": true, "why": "Un costal abierto atrae plagas. El alimento se guarda en recipientes cerrados para que no entren roedores, que además lo contaminan." },
+        { "t": "El refrigerador del fondo es la causa del moho", "ok": false, "why": "No se sostiene: el moho aparece por alimento viejo o guardado húmedo, no por tener refrigerador. Lo que está mal es dejar alimento con moho." }
+      ],
+      "riesgos": [
+        "El alimento con moho no se ofrece a los animales porque puede enfermarlos. Se desecha y se prepara alimento fresco.",
+        "Los productos de limpieza no deben tocar el alimento ni estar junto a él: dejan residuos que pueden intoxicar a los animales.",
+        "Un costal abierto atrae plagas. El alimento se guarda en recipientes cerrados para que no entren roedores, que además lo contaminan."
+      ]
+    },
+    {
+      "id": "campo-nuevo-estanque-residuos",
+      "titulo": "Estanque de educación ambiental",
+      "imagen": "assets/img/retos/detective-nuevo-02-estanque-residuos.webp",
+      "zonas": [{"x": 0.3, "y": 0.42, "w": 0.14, "h": 0.11}, {"x": 0.55, "y": 0.72, "w": 0.32, "h": 0.22}, {"x": 0.89, "y": 0.4, "w": 0.2, "h": 0.28}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el estanque y marca los 3 problemas que ponen en riesgo a los animales y al agua.",
+      "escena": "En un estanque de educación ambiental, una tortuga nada cerca de unos aros de plástico de empaque que flotan en el agua. En primer plano, la rejilla metálica del desagüe está en el suelo y deja el pozo abierto. A la derecha, una botella de aceite negro volcada sobre las rocas derrama aceite que llega al agua y forma manchas. Al fondo, dos visitantes observan desde una plataforma de madera y hay plantas acuáticas y nenúfares.",
+      "pistas": [
+        { "t": "Dos visitantes observan desde una plataforma de madera", "ok": false, "why": "Observar desde una plataforma, a distancia, es una buena práctica. No es un error." },
+        { "t": "Aros plásticos flotando junto a la tortuga", "ok": true, "why": "Los aros de plástico pueden atrapar o lastimar a los animales y no se degradan. La basura no se deja en el agua: se recoge y se lleva a su lugar." },
+        { "t": "Hay nenúfares y plantas acuáticas en el estanque", "ok": false, "why": "Las plantas acuáticas dan refugio y sombra a los animales. No es un error." },
+        { "t": "Rejilla del desagüe quitada, con el pozo abierto", "ok": true, "why": "Sin la rejilla el desagüe queda abierto: pueden caer personas o animales y entrar basura. La rejilla debe estar colocada." },
+        { "t": "La tortuga está en peligro solo por estar en el estanque", "ok": false, "why": "No se sostiene: el estanque es su hábitat. El riesgo viene de los residuos y del aceite, no de que la tortuga esté ahí." },
+        { "t": "Botella de aceite volcada que derrama hacia el agua", "ok": true, "why": "El aceite contamina el agua y daña a los animales y a las plantas acuáticas. Los líquidos se guardan cerrados y lejos del estanque." }
+      ],
+      "riesgos": [
+        "Los aros de plástico pueden atrapar o lastimar a los animales y no se degradan. La basura no se deja en el agua: se recoge y se lleva a su lugar.",
+        "Sin la rejilla el desagüe queda abierto: pueden caer personas o animales y entrar basura. La rejilla debe estar colocada.",
+        "El aceite contamina el agua y daña a los animales y a las plantas acuáticas. Los líquidos se guardan cerrados y lejos del estanque."
+      ]
+    },
+    {
+      "id": "campo-nuevo-observacion-murcielagos",
+      "titulo": "Observación de murciélagos al anochecer",
+      "imagen": "assets/img/retos/detective-nuevo-03-observacion-murcielagos.webp",
+      "zonas": [{"x": 0.14, "y": 0.32, "w": 0.18, "h": 0.2}, {"x": 0.47, "y": 0.6, "w": 0.14, "h": 0.3}, {"x": 0.87, "y": 0.73, "w": 0.16, "h": 0.3}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa la salida de los murciélagos y marca las 3 acciones que los perturban.",
+      "escena": "Al anochecer, un grupo observa una cueva de la que salen murciélagos. A la izquierda, un reflector sobre un tripié amarillo ilumina directamente la entrada de la cueva. Al centro, una persona de pie toma una fotografía con flash junto a la salida. A la derecha hay una bocina portátil grande junto a un observador sentado. Otras dos personas están sentadas en el suelo, a distancia, y varios murciélagos vuelan en el cielo del atardecer.",
+      "pistas": [
+        { "t": "Reflector blanco dirigido a la entrada de la cueva", "ok": true, "why": "La luz intensa desorienta a los murciélagos y puede alterar su salida. Se observa con la menor luz posible." },
+        { "t": "Dos personas observan sentadas y a distancia", "ok": false, "why": "Observar sentado, a distancia y sin molestar es lo recomendable. No es un error." },
+        { "t": "Varios murciélagos vuelan en el cielo del atardecer", "ok": false, "why": "Es lo que se quiere observar: que los murciélagos salgan y vuelen con normalidad. No es un error." },
+        { "t": "Visitante con flash junto a la salida de los murciélagos", "ok": true, "why": "El flash molesta a los murciélagos y los puede asustar al salir. En la observación de fauna no se usa flash." },
+        { "t": "Bocina portátil colocada frente a la cueva", "ok": true, "why": "El ruido de una bocina perturba a los murciélagos, que se orientan por sonido. Se observa en silencio." },
+        { "t": "A los murciélagos hay que ahuyentarlos con luz", "ok": false, "why": "No se sostiene: los murciélagos no se ahuyentan con luz ni ruido. Perturbarlos es justo lo que se evita en la observación." }
+      ],
+      "riesgos": [
+        "La luz intensa desorienta a los murciélagos y puede alterar su salida. Se observa con la menor luz posible.",
+        "El flash molesta a los murciélagos y los puede asustar al salir. En la observación de fauna no se usa flash.",
+        "El ruido de una bocina perturba a los murciélagos, que se orientan por sonido. Se observa en silencio."
+      ]
+    },
+    {
+      "id": "campo-nuevo-humedal-sendero",
+      "titulo": "Recorrido por un humedal",
+      "imagen": "assets/img/retos/detective-nuevo-04-humedal-sendero.webp",
+      "zonas": [{"x": 0.18, "y": 0.38, "w": 0.2, "h": 0.58}, {"x": 0.53, "y": 0.42, "w": 0.24, "h": 0.3}, {"x": 0.83, "y": 0.78, "w": 0.3, "h": 0.22}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el humedal y marca los 3 comportamientos o residuos que dañan el sitio.",
+      "escena": "Un visitante con mochila y sombrero camina por el borde de una pasarela de madera y pisa los tules y las plantas del humedal. En el agua, entre los juncos, hay un hilo de pesca enredado con un flotador rojo y blanco. En la orilla enlodada hay botellas de plástico y envolturas tiradas. Al fondo, una garza está parada en el agua tranquila y otra pasarela cruza el humedal.",
+      "pistas": [
+        { "t": "Una garza descansa en el agua, a lo lejos", "ok": false, "why": "Observar a la garza a distancia, sin molestarla, es lo esperado. No es un error." },
+        { "t": "Persona que abandona la pasarela y pisa las plantas del humedal", "ok": true, "why": "Pisar la vegetación del humedal la daña y puede destruir nidos y refugios. Se camina solo por las pasarelas y los senderos marcados." },
+        { "t": "Hilo de pesca abandonado entre los juncos", "ok": true, "why": "El hilo de pesca abandonado puede enredar y lastimar a aves y otros animales. Se recoge y se desecha correctamente." },
+        { "t": "Hay una pasarela de madera que cruza el humedal", "ok": false, "why": "Las pasarelas permiten recorrer el sitio sin pisar la vegetación. No es un error." },
+        { "t": "El humedal está contaminado porque el agua está quieta", "ok": false, "why": "No se sostiene: el agua tranquila es normal en un humedal. Lo que contamina son la basura y el hilo abandonado." },
+        { "t": "Botellas y envolturas en la orilla", "ok": true, "why": "La basura contamina el agua y los animales pueden ingerirla o enredarse. Cada persona se lleva sus residuos." }
+      ],
+      "riesgos": [
+        "Pisar la vegetación del humedal la daña y puede destruir nidos y refugios. Se camina solo por las pasarelas y los senderos marcados.",
+        "El hilo de pesca abandonado puede enredar y lastimar a aves y otros animales. Se recoge y se desecha correctamente.",
+        "La basura contamina el agua y los animales pueden ingerirla o enredarse. Cada persona se lleva sus residuos."
+      ]
+    },
+    {
+      "id": "campo-nuevo-terrario-revision",
+      "titulo": "Revisión de un terrario",
+      "imagen": "assets/img/retos/detective-nuevo-05-terrario-revision.webp",
+      "zonas": [{"x": 0.3, "y": 0.09, "w": 0.44, "h": 0.18}, {"x": 0.82, "y": 0.5, "w": 0.1, "h": 0.26}, {"x": 0.8, "y": 0.73, "w": 0.28, "h": 0.2}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa el terrario y marca los 3 riesgos para el animal.",
+      "escena": "Una persona de espaldas observa un terrario de vidrio con una iguana sobre un tronco. La tapa de malla del terrario está levantada y abierta. De la lámpara de calor cuelga un cable con el aislante dañado y el cobre a la vista, hasta los troncos donde el animal puede subir. A la derecha, el bebedero es un recipiente de piedra que solo tiene piedras, sin agua. Hay una cueva de corteza, plantas y sustrato de corteza.",
+      "pistas": [
+        { "t": "Una lámpara de calor ilumina una zona de asoleo", "ok": false, "why": "Dar calor y luz a un reptil forma parte de su manejo. No es un error." },
+        { "t": "Hay una cueva de corteza para que el animal se esconda", "ok": false, "why": "Los refugios ayudan al bienestar del animal. No es un error." },
+        { "t": "Tapa del terrario abierta, con un hueco de salida", "ok": true, "why": "Una tapa abierta deja que el animal escape y que entren otros animales. Los terrarios se mantienen cerrados." },
+        { "t": "Cable pelado de la lámpara al alcance del animal", "ok": true, "why": "Un cable con el cobre expuesto puede provocar una descarga o un incendio. Los cables dañados se cambian y se mantienen fuera del alcance." },
+        { "t": "La iguana está enferma porque descansa sobre el tronco", "ok": false, "why": "No se sostiene: descansar sobre un tronco es una conducta normal de una iguana. Los errores son la tapa abierta, el cable y el bebedero sin agua." },
+        { "t": "Bebedero seco ocupado por piedras", "ok": true, "why": "Un bebedero sin agua deja al animal sin poder beber. Debe haber agua limpia disponible." }
+      ],
+      "riesgos": [
+        "Una tapa abierta deja que el animal escape y que entren otros animales. Los terrarios se mantienen cerrados.",
+        "Un cable con el cobre expuesto puede provocar una descarga o un incendio. Los cables dañados se cambian y se mantienen fuera del alcance.",
+        "Un bebedero sin agua deja al animal sin poder beber. Debe haber agua limpia disponible."
+      ]
+    },
+    {
+      "id": "campo-nuevo-lancha-laguna",
+      "titulo": "Lancha de monitoreo en la laguna",
+      "imagen": "assets/img/retos/detective-nuevo-06-lancha-laguna.webp",
+      "zonas": [{"x": 0.22, "y": 0.46, "w": 0.4, "h": 0.24}, {"x": 0.54, "y": 0.67, "w": 0.26, "h": 0.17}, {"x": 0.86, "y": 0.47, "w": 0.2, "h": 0.3}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa la lancha y marca los 3 daños que causa al ambiente de la laguna.",
+      "escena": "Una persona con chaleco salvavidas naranja conduce una lancha de monitoreo por una laguna. La estela de la lancha avanza hacia un nido con huevos que está casi a ras del agua, entre los juncos, a la izquierda. En el agua flota una bolsa de plástico transparente cerca de la embarcación. De un bidón rojo de combustible que está sobre la lancha caen gotas al agua, y cerca del motor hay manchas de colores. En la lancha también hay una mochila, una hielera y unos binoculares.",
+      "pistas": [
+        { "t": "Estela de la lancha alcanzando un nido bajo entre juncos", "ok": true, "why": "Las olas de una lancha pueden mojar o arrastrar nidos que están a ras del agua. Se navega despacio y lejos de los sitios de anidación." },
+        { "t": "Bolsa plástica flotando junto a la embarcación", "ok": true, "why": "Una bolsa en el agua puede ser ingerida o enredar a los animales. Los residuos se recogen y se llevan fuera del sitio." },
+        { "t": "La persona que conduce usa chaleco salvavidas", "ok": false, "why": "Usar chaleco salvavidas es una medida de seguridad correcta. No es un error." },
+        { "t": "Combustible derramado desde un recipiente abierto", "ok": true, "why": "El combustible contamina el agua y daña a la fauna y a la vegetación. Se maneja en recipientes cerrados y sin derrames." },
+        { "t": "Hay binoculares y equipo acomodados en la lancha", "ok": false, "why": "Llevar el equipo de observación en la lancha es normal en el monitoreo. No es un error." },
+        { "t": "Los nenúfares indican que la laguna está contaminada", "ok": false, "why": "No se sostiene: los nenúfares son plantas acuáticas propias de una laguna. Lo que contamina son la bolsa y el combustible." }
+      ],
+      "riesgos": [
+        "Las olas de una lancha pueden mojar o arrastrar nidos que están a ras del agua. Se navega despacio y lejos de los sitios de anidación.",
+        "Una bolsa en el agua puede ser ingerida o enredar a los animales. Los residuos se recogen y se llevan fuera del sitio.",
+        "El combustible contamina el agua y daña a la fauna y a la vegetación. Se maneja en recipientes cerrados y sin derrames."
+      ]
+    },
+    {
+      "id": "campo-nuevo-equipo-entre-recintos",
+      "titulo": "Herramientas entre dos recintos",
+      "imagen": "assets/img/retos/detective-nuevo-07-equipo-entre-recintos.webp",
+      "zonas": [{"x": 0.46, "y": 0.5, "w": 0.74, "h": 0.14}, {"x": 0.47, "y": 0.27, "w": 0.18, "h": 0.32}, {"x": 0.77, "y": 0.85, "w": 0.2, "h": 0.14}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa los dos recintos y marca los 3 errores de limpieza que pueden llevar enfermedades de un área a otra.",
+      "escena": "Entre dos recintos de aves, con un guacamayo verde a la izquierda y un guacamayo rojo a la derecha, hay un pasillo de concreto. Una escoba con las cerdas sucias está atravesada entre las dos áreas. Sobre una mesa de acero hay unas botas con lodo junto a toallas limpias dobladas. En el piso, junto al recinto de la derecha, hay lodo y un comedero metálico apoyado directamente en él. Debajo de la mesa hay cajas organizadoras y al fondo se ven un muro de piedra y una manguera enrollada.",
+      "pistas": [
+        { "t": "La misma escoba sucia atraviesa las dos áreas", "ok": true, "why": "Compartir herramientas sucias entre áreas puede llevar gérmenes de un recinto a otro. Cada área tiene su propio equipo o se limpia y desinfecta entre usos." },
+        { "t": "Las toallas limpias están dobladas sobre la mesa", "ok": false, "why": "Tener el material limpio ordenado y doblado es una buena práctica. No es un error." },
+        { "t": "Botas con lodo sobre la mesa de material limpio", "ok": true, "why": "Las botas con lodo ensucian el material limpio y arrastran gérmenes. Se dejan en la entrada y el material limpio se guarda aparte." },
+        { "t": "Cada recinto tiene su propia malla y su puerta", "ok": false, "why": "Separar los recintos con malla y puerta propias es lo correcto. No es un error." },
+        { "t": "Comedero limpio apoyado en el suelo sucio", "ok": true, "why": "Un comedero limpio sobre un piso con lodo se contamina. Los utensilios de alimentación se mantienen elevados y lejos de lo sucio." },
+        { "t": "Las aves se enferman solo por estar en recintos vecinos", "ok": false, "why": "No se sostiene: tener recintos vecinos no las enferma por sí solo. El riesgo está en compartir herramientas y material sucios." }
+      ],
+      "riesgos": [
+        "Compartir herramientas sucias entre áreas puede llevar gérmenes de un recinto a otro. Cada área tiene su propio equipo o se limpia y desinfecta entre usos.",
+        "Las botas con lodo ensucian el material limpio y arrastran gérmenes. Se dejan en la entrada y el material limpio se guarda aparte.",
+        "Un comedero limpio sobre un piso con lodo se contamina. Los utensilios de alimentación se mantienen elevados y lejos de lo sucio."
+      ]
+    },
+    {
+      "id": "campo-nuevo-residuos-rio",
+      "titulo": "Punto de muestreo junto al río",
+      "imagen": "assets/img/retos/detective-nuevo-08-residuos-rio.webp",
+      "zonas": [{"x": 0.11, "y": 0.32, "w": 0.22, "h": 0.4}, {"x": 0.65, "y": 0.29, "w": 0.24, "h": 0.22}, {"x": 0.86, "y": 0.58, "w": 0.24, "h": 0.26}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el punto de muestreo y marca las 3 fuentes de contaminación del río.",
+      "escena": "Junto a un río de agua clara, un tubo corrugado negro descarga agua turbia y café directamente a la corriente. En la orilla, un bote verde de basura está volcado y deja residuos y envolturas regados entre las rocas. Más a la derecha, un bidón azul tumbado derrama un líquido verde azulado que escurre hacia el agua. Al fondo, una persona con sombrero anota en una libreta en una mesa de madera, con una mochila y equipo de campo a un lado.",
+      "pistas": [
+        { "t": "Una persona anota datos en una libreta junto al río", "ok": false, "why": "Registrar los datos del muestreo es parte del trabajo de campo. No es un error." },
+        { "t": "Manguera de aguas sucias descargando al río", "ok": true, "why": "Una descarga de aguas sucias contamina el río y afecta a los animales y plantas que viven en él. Las aguas residuales no se vierten a la corriente." },
+        { "t": "El agua del río es clara y tiene rocas", "ok": false, "why": "Un río de agua clara con rocas es una buena señal, no un problema. No es un error." },
+        { "t": "Recipiente de basura volcado en la ribera", "ok": true, "why": "La basura en la ribera termina arrastrada por el agua y los animales pueden ingerirla. Los botes se mantienen en pie y la basura se recoge." },
+        { "t": "El equipo de la mesa de trabajo contamina el agua", "ok": false, "why": "No se sostiene: el equipo sobre la mesa no contamina el agua. Los problemas son la descarga, la basura y el líquido derramado." },
+        { "t": "Envase de líquido derramándose hacia la corriente", "ok": true, "why": "Los líquidos derramados llegan al agua y la contaminan. Se guardan cerrados y lejos de la orilla." }
+      ],
+      "riesgos": [
+        "Una descarga de aguas sucias contamina el río y afecta a los animales y plantas que viven en él. Las aguas residuales no se vierten a la corriente.",
+        "La basura en la ribera termina arrastrada por el agua y los animales pueden ingerirla. Los botes se mantienen en pie y la basura se recoge.",
+        "Los líquidos derramados llegan al agua y la contaminan. Se guardan cerrados y lejos de la orilla."
+      ]
+    },
+    {
+      "id": "campo-nuevo-sendero-dunas",
+      "titulo": "Sendero entre las dunas",
+      "imagen": "assets/img/retos/detective-nuevo-09-sendero-dunas.webp",
+      "zonas": [{"x": 0.15, "y": 0.32, "w": 0.26, "h": 0.4}, {"x": 0.52, "y": 0.5, "w": 0.22, "h": 0.4}, {"x": 0.83, "y": 0.8, "w": 0.3, "h": 0.28}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el sendero y marca las 3 acciones que dañan la duna y la playa.",
+      "escena": "En una playa con dunas, un vehículo todo terreno verde está estacionado sobre la vegetación de la duna, con las huellas de las llantas marcadas en la arena. En el centro, un visitante con mochila sostiene una planta arrancada con todo y raíz, y a sus pies queda un hueco en la arena. A la derecha, botellas de plástico y envolturas están tiradas entre los pastos. Una pasarela de madera con barandal recorre la duna hasta la playa.",
+      "pistas": [
+        { "t": "Vehículo todo terreno sobre la vegetación de las dunas", "ok": true, "why": "Los vehículos aplastan la vegetación que sostiene la arena y pueden dañar nidos. Se usan solo los caminos y las pasarelas permitidos." },
+        { "t": "Hay una pasarela de madera con barandal hacia la playa", "ok": false, "why": "Las pasarelas permiten cruzar las dunas sin pisar la vegetación. No es un error." },
+        { "t": "La persona lleva mochila y sombrero para el sol", "ok": false, "why": "Protegerse del sol es una medida razonable. No es un error." },
+        { "t": "Visitante que arranca una planta con raíz", "ok": true, "why": "Las plantas de las dunas sujetan la arena y protegen la costa. No se arrancan ni se llevan." },
+        { "t": "Basura plástica entre los pastos", "ok": true, "why": "El plástico se queda en la duna y los animales pueden comerlo o enredarse. Cada persona se lleva su basura." },
+        { "t": "Hay que retirar la arena porque la playa tiene demasiada", "ok": false, "why": "No se sostiene: la arena de la duna y de la playa forma parte del ambiente y no se quita ni se lleva." }
+      ],
+      "riesgos": [
+        "Los vehículos aplastan la vegetación que sostiene la arena y pueden dañar nidos. Se usan solo los caminos y las pasarelas permitidos.",
+        "Las plantas de las dunas sujetan la arena y protegen la costa. No se arrancan ni se llevan.",
+        "El plástico se queda en la duna y los animales pueden comerlo o enredarse. Cada persona se lleva su basura."
+      ]
+    },
+    {
+      "id": "campo-nuevo-bodega-alimentos",
+      "titulo": "Bodega de alimento del centro",
+      "imagen": "assets/img/retos/detective-nuevo-10-bodega-alimentos.webp",
+      "zonas": [{"x": 0.17, "y": 0.68, "w": 0.34, "h": 0.44}, {"x": 0.56, "y": 0.27, "w": 0.16, "h": 0.5}, {"x": 0.85, "y": 0.77, "w": 0.28, "h": 0.3}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa la bodega y marca los 3 errores en el almacenamiento del alimento.",
+      "escena": "En una bodega de un centro de fauna, un costal roto deja salir croquetas que se esparcen por el piso. Al centro, una caja verde de alimento tiene la tapa abierta y, justo arriba, un garrafón de líquido azul verdoso de limpieza gotea hacia el alimento. A la derecha, una charola gris contiene granos húmedos cubiertos de moho blanco y gris. Al fondo a la izquierda, una trabajadora uniformada trabaja con tazones, y en los estantes hay cajas de madera y recipientes de acero.",
+      "pistas": [
+        { "t": "Hay estantes metálicos y cajas para guardar cosas", "ok": false, "why": "Almacenar en estantes, lejos del piso, es una buena práctica. No es un error." },
+        { "t": "Costal roto que derrama alimento en el piso", "ok": true, "why": "Un costal roto deja el alimento al alcance de las plagas y se contamina con el piso. Se pasa a recipientes cerrados y se limpia el derrame." },
+        { "t": "Líquidos de limpieza colocados sobre el alimento abierto", "ok": true, "why": "El producto de limpieza puede gotear en el alimento y envenenar a los animales. Los químicos se guardan aparte y lejos de la comida." },
+        { "t": "Una trabajadora uniformada trabaja al fondo", "ok": false, "why": "Trabajar con uniforme en la preparación del alimento es lo esperado. No es un error." },
+        { "t": "El alimento en croquetas siempre está en mal estado", "ok": false, "why": "No se sostiene: las croquetas son un alimento común. Lo que está mal es cómo se guardan, no el tipo de alimento." },
+        { "t": "Granos húmedos con moho en un recipiente", "ok": true, "why": "Los granos húmedos con moho pueden enfermar a los animales. Se desechan y el alimento se guarda seco." }
+      ],
+      "riesgos": [
+        "Un costal roto deja el alimento al alcance de las plagas y se contamina con el piso. Se pasa a recipientes cerrados y se limpia el derrame.",
+        "El producto de limpieza puede gotear en el alimento y envenenar a los animales. Los químicos se guardan aparte y lejos de la comida.",
+        "Los granos húmedos con moho pueden enfermar a los animales. Se desechan y el alimento se guarda seco."
+      ]
+    },
+    {
+      "id": "campo-nuevo-borde-carretera",
+      "titulo": "Paso de fauna junto a carretera",
+      "imagen": "assets/img/retos/detective-nuevo-11-borde-carretera.webp",
+      "zonas": [{"x": 0.2, "y": 0.43, "w": 0.3, "h": 0.32}, {"x": 0.58, "y": 0.45, "w": 0.18, "h": 0.4}, {"x": 0.82, "y": 0.8, "w": 0.3, "h": 0.26}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el paso de fauna y marca los 3 problemas que ponen en riesgo a los animales.",
+      "escena": "Junto a una carretera hay un paso de fauna de concreto, un túnel que cruza bajo el camino. Su entrada está tapada con piedras, tablones y escombros. La malla verde que guía a los animales hacia el paso está rota y deja un hueco hacia la carretera. En el acotamiento hay un recipiente de comida desechable abierto, bolsas de plástico y una bolsa negra de basura. Arriba, entre los árboles, un coatí camina lejos del camino.",
+      "pistas": [
+        { "t": "Un coatí camina entre los árboles, lejos de la carretera", "ok": false, "why": "Que el animal esté en su hábitat, lejos de la carretera, no es un error." },
+        { "t": "La malla verde sigue en pie a lo largo de la pendiente", "ok": false, "why": "Una malla en buen estado cumple su función de guiar a los animales. No es un error." },
+        { "t": "Entrada del paso de fauna bloqueada con escombros", "ok": true, "why": "Un paso bloqueado ya no sirve y los animales intentan cruzar por la carretera. La entrada debe mantenerse despejada." },
+        { "t": "Malla rota que deja un hueco hacia la carretera", "ok": true, "why": "La malla guía a los animales hacia el paso. Un hueco los deja salir a la carretera, donde pueden ser atropellados." },
+        { "t": "El paso de fauna es peligroso porque es oscuro", "ok": false, "why": "No se sostiene: un paso bajo el camino está hecho para que los animales crucen con seguridad. Lo que lo vuelve inútil es el bloqueo." },
+        { "t": "Restos de comida abandonados en el acotamiento", "ok": true, "why": "La comida atrae a los animales hacia la carretera y los pone en riesgo. No se deja comida ni basura en el camino." }
+      ],
+      "riesgos": [
+        "Un paso bloqueado ya no sirve y los animales intentan cruzar por la carretera. La entrada debe mantenerse despejada.",
+        "La malla guía a los animales hacia el paso. Un hueco los deja salir a la carretera, donde pueden ser atropellados.",
+        "La comida atrae a los animales hacia la carretera y los pone en riesgo. No se deja comida ni basura en el camino."
+      ]
+    },
+    {
+      "id": "campo-nuevo-vivero-restauracion",
+      "titulo": "Vivero para restauración",
+      "imagen": "assets/img/retos/detective-nuevo-12-vivero-restauracion.webp",
+      "zonas": [{"x": 0.16, "y": 0.73, "w": 0.3, "h": 0.38}, {"x": 0.48, "y": 0.72, "w": 0.3, "h": 0.28}, {"x": 0.84, "y": 0.75, "w": 0.3, "h": 0.3}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el vivero y marca los 3 descuidos que perjudican a las plantas y a los recursos.",
+      "escena": "En un vivero para restauración hay bancos con plantas en bolsas negras, ordenadas y a la sombra. En el piso, varias plántulas están tiradas con la raíz y la tierra a la vista. Una manguera sale de una llave y deja correr el agua sobre el camino de grava, formando un charco. A la derecha, en un contenedor negro con tierra para plantar, hay pedazos de plástico y envolturas de colores mezclados con la tierra, y una pala clavada. Al fondo hay un costal y más plantas bajo malla sombra.",
+      "pistas": [
+        { "t": "Plántulas tiradas con las raíces expuestas", "ok": true, "why": "Las raíces expuestas se secan y la planta puede morir. Las plántulas se mantienen en su recipiente, con tierra y a la sombra." },
+        { "t": "Manguera abierta desperdiciando agua en el camino", "ok": true, "why": "El agua se desperdicia y no llega a las plantas. El riego se aplica a las plantas y la llave se cierra al terminar." },
+        { "t": "Las plantas en bolsas negras están ordenadas en bancos", "ok": false, "why": "Mantener las plantas ordenadas y elevadas es una buena práctica. No es un error." },
+        { "t": "Residuos plásticos mezclados con la tierra para plantar", "ok": true, "why": "El plástico en la tierra no se degrada y estorba a las raíces. La tierra para plantar debe estar limpia." },
+        { "t": "Hay malla sombra sobre una parte del vivero", "ok": false, "why": "La sombra protege a las plántulas del sol fuerte. No es un error." },
+        { "t": "Usar una pala en el vivero daña a las plantas", "ok": false, "why": "No se sostiene: la pala es una herramienta normal para preparar la tierra. El problema es el plástico mezclado en ella." }
+      ],
+      "riesgos": [
+        "Las raíces expuestas se secan y la planta puede morir. Las plántulas se mantienen en su recipiente, con tierra y a la sombra.",
+        "El agua se desperdicia y no llega a las plantas. El riego se aplica a las plantas y la llave se cierra al terminar.",
+        "El plástico en la tierra no se degrada y estorba a las raíces. La tierra para plantar debe estar limpia."
+      ]
+    },
+    {
+      "id": "campo-nuevo-manglar-limpieza",
+      "titulo": "Jornada en el manglar",
+      "imagen": "assets/img/retos/detective-nuevo-13-manglar-limpieza.webp",
+      "zonas": [{"x": 0.17, "y": 0.67, "w": 0.34, "h": 0.44}, {"x": 0.54, "y": 0.22, "w": 0.22, "h": 0.32}, {"x": 0.82, "y": 0.58, "w": 0.3, "h": 0.54}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa la jornada y marca las 3 acciones que dañan el manglar.",
+      "escena": "En un manglar, a la izquierda hay un costal blanco abierto con botellas, envolturas y otros residuos que se salen y quedan entre las raíces. Al centro, una mochila cuelga de una rama de mangle que está quebrada. A la derecha, una persona con guantes lava algo con una manguera sobre una mesa de madera, y el agua con espuma escurre hacia las raíces y el lodo. Al fondo a la izquierda, otra persona se aleja con una bolsa de basura.",
+      "pistas": [
+        { "t": "Bolsas de basura abiertas que vuelven a dispersar residuos", "ok": true, "why": "Una bolsa abierta deja salir los residuos, que terminan de nuevo entre las raíces. Las bolsas se cierran y se sacan del manglar." },
+        { "t": "Una persona recoge residuos en una bolsa, al fondo", "ok": false, "why": "Recoger la basura en bolsas es parte de la limpieza. No es un error." },
+        { "t": "Rama de manglar rota para colgar equipo", "ok": true, "why": "Romper ramas daña al mangle, que protege la costa y da refugio a muchas especies. El equipo se lleva o se coloca sin dañar la vegetación." },
+        { "t": "Las raíces del mangle sobresalen del lodo", "ok": false, "why": "Las raíces aéreas son una característica normal del mangle. No es un error." },
+        { "t": "Manguera derramando agua jabonosa hacia las raíces", "ok": true, "why": "El jabón contamina el agua y el suelo del manglar. El lavado se hace fuera del manglar y sin verter detergentes." },
+        { "t": "Participar en una jornada de limpieza daña el manglar", "ok": false, "why": "No se sostiene: limpiar ayuda, siempre que se haga sin dañar la vegetación y sin dejar residuos." }
+      ],
+      "riesgos": [
+        "Una bolsa abierta deja salir los residuos, que terminan de nuevo entre las raíces. Las bolsas se cierran y se sacan del manglar.",
+        "Romper ramas daña al mangle, que protege la costa y da refugio a muchas especies. El equipo se lleva o se coloca sin dañar la vegetación.",
+        "El jabón contamina el agua y el suelo del manglar. El lavado se hace fuera del manglar y sin verter detergentes."
+      ]
+    },
+    {
+      "id": "campo-nuevo-caja-nido",
+      "titulo": "Inspección de una caja nido",
+      "imagen": "assets/img/retos/detective-nuevo-14-caja-nido.webp",
+      "zonas": [{"x": 0.37, "y": 0.15, "w": 0.42, "h": 0.3}, {"x": 0.265, "y": 0.535, "w": 0.11, "h": 0.09}, {"x": 0.64, "y": 0.71, "w": 0.3, "h": 0.32}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa la inspección y marca los 3 problemas en la caja nido.",
+      "escena": "Una persona de espaldas, con sombrero y libreta, inspecciona una caja nido de madera sujeta al tronco de un roble. La tapa superior está levantada y la puerta lateral de la caja está abierta; dentro, sobre el nido de ramitas y musgo, hay un pedazo de cuerda azul y un plástico transparente enredados. En el frente, junto al orificio de entrada, sobresale una pieza metálica, como un clavo largo. En una rama cercana hay un ave pequeña.",
+      "pistas": [
+        { "t": "La persona anota lo que observa en una libreta", "ok": false, "why": "Registrar lo observado es parte del monitoreo. No es un error." },
+        { "t": "Caja nido con la tapa abierta, sin volver a cerrar", "ok": true, "why": "Una caja abierta deja el nido expuesto a la lluvia, al frío y a los depredadores. Al terminar la revisión se cierra bien." },
+        { "t": "La caja está fija al tronco con tornillos", "ok": false, "why": "Una caja bien sujeta al tronco es más segura. No es un error." },
+        { "t": "Clavo o pieza metálica sobresaliendo junto a la entrada", "ok": true, "why": "Una pieza metálica que sobresale puede lastimar al ave cuando entra o sale. Se retira o se hunde y se revisa la caja." },
+        { "t": "Revisar una caja nido es un error en sí mismo", "ok": false, "why": "No se sostiene: revisar las cajas nido es una práctica de monitoreo. El problema es cómo se deja la caja, no que se revise." },
+        { "t": "Residuos de cuerda y plástico dentro de la caja", "ok": true, "why": "La cuerda y el plástico pueden enredar a las crías o a los adultos. No deben formar parte del nido: se retiran con cuidado durante la revisión." }
+      ],
+      "riesgos": [
+        "Una caja abierta deja el nido expuesto a la lluvia, al frío y a los depredadores. Al terminar la revisión se cierra bien.",
+        "Una pieza metálica que sobresale puede lastimar al ave cuando entra o sale. Se retira o se hunde y se revisa la caja.",
+        "La cuerda y el plástico pueden enredar a las crías o a los adultos. No deben formar parte del nido: se retiran con cuidado durante la revisión."
+      ]
+    },
+    {
+      "id": "campo-nuevo-laboratorio-agua",
+      "titulo": "Mesa de análisis de agua",
+      "imagen": "assets/img/retos/detective-nuevo-15-laboratorio-agua.webp",
+      "zonas": [{"x": 0.24, "y": 0.34, "w": 0.44, "h": 0.32}, {"x": 0.58, "y": 0.42, "w": 0.22, "h": 0.14}, {"x": 0.8, "y": 0.86, "w": 0.34, "h": 0.2}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa la mesa de análisis y marca los 3 riesgos para las muestras y para las personas.",
+      "escena": "En una mesa de trabajo de un laboratorio de campo al aire libre hay tres frascos de vidrio con muestras de agua, sin tapa y junto a un ventilador de mesa. En el centro de la mesa hay un sándwich sobre un papel. Al fondo, una persona usa un microscopio y otra observa con binoculares. En el piso hay un charco, y una regleta con varios cables conectados está dentro del charco. Sobre la mesa también hay una hoja de registro y, debajo, cajas de plástico.",
+      "pistas": [
+        { "t": "Frascos de muestras abiertos junto a un ventilador", "ok": true, "why": "El ventilador mueve el polvo y puede contaminar las muestras abiertas. Los frascos se mantienen tapados mientras no se usan." },
+        { "t": "Una persona observa muestras con un microscopio", "ok": false, "why": "Usar el microscopio es parte del análisis. No es un error." },
+        { "t": "Hay una hoja de registro junto a las muestras", "ok": false, "why": "Anotar los datos es una buena práctica. No es un error." },
+        { "t": "Sándwich sobre la mesa de muestras", "ok": true, "why": "No se come en la mesa de muestras: se contamina el trabajo y puede haber riesgo para la salud. Los alimentos van en otra área." },
+        { "t": "Cables eléctricos metidos en un charco", "ok": true, "why": "El agua y la electricidad juntas pueden provocar una descarga. Los cables se mantienen secos y lejos del agua." },
+        { "t": "Los frascos de vidrio son peligrosos por ser transparentes", "ok": false, "why": "No se sostiene: el vidrio transparente permite ver la muestra. El riesgo está en dejar los frascos abiertos." }
+      ],
+      "riesgos": [
+        "El ventilador mueve el polvo y puede contaminar las muestras abiertas. Los frascos se mantienen tapados mientras no se usan.",
+        "No se come en la mesa de muestras: se contamina el trabajo y puede haber riesgo para la salud. Los alimentos van en otra área.",
+        "El agua y la electricidad juntas pueden provocar una descarga. Los cables se mantienen secos y lejos del agua."
+      ]
+    },
+    {
+      "id": "campo-nuevo-observacion-primates",
+      "titulo": "Mirador de fauna en la selva",
+      "imagen": "assets/img/retos/detective-nuevo-16-observacion-primates.webp",
+      "zonas": [{"x": 0.22, "y": 0.32, "w": 0.3, "h": 0.34}, {"x": 0.55, "y": 0.54, "w": 0.24, "h": 0.56}, {"x": 0.84, "y": 0.83, "w": 0.24, "h": 0.3}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa el mirador y marca los 3 comportamientos de visitantes que ponen en riesgo a la fauna o a las personas.",
+      "escena": "En un mirador de madera con vista a una selva y a un lago, una visitante de espaldas extiende un plátano hacia un mono que está en una rama cercana. Al centro, otro visitante pasa una pierna por encima del barandal para salirse de la zona del mirador. A la derecha, dos personas observan desde la plataforma con cámara y mochila, y junto al bosque hay una bolsa de basura negra abierta con envolturas y una botella.",
+      "pistas": [
+        { "t": "Dos visitantes observan desde la plataforma, detrás del barandal", "ok": false, "why": "Observar desde la plataforma es lo correcto. No es un error." },
+        { "t": "Visitante ofrece comida a un mono silvestre", "ok": true, "why": "Dar de comer a la fauna silvestre cambia su conducta y puede enfermarla o volverla agresiva. Se observa sin alimentarla." },
+        { "t": "Persona que cruza la barrera del mirador", "ok": true, "why": "Cruzar la barrera pone en riesgo a la persona y perturba a la fauna. El mirador se usa desde la plataforma." },
+        { "t": "Hay un barandal de madera en el mirador", "ok": false, "why": "El barandal marca el límite seguro. No es un error." },
+        { "t": "Ver monos desde el mirador es una falta", "ok": false, "why": "No se sostiene: observar fauna silvestre desde un mirador es una actividad habitual. Las faltas son alimentarla, cruzar la barrera y dejar basura." },
+        { "t": "Bolsa de basura abierta junto al bosque", "ok": true, "why": "La basura abierta atrae a la fauna y contamina el sitio. Se cierra y se lleva a los contenedores." }
+      ],
+      "riesgos": [
+        "Dar de comer a la fauna silvestre cambia su conducta y puede enfermarla o volverla agresiva. Se observa sin alimentarla.",
+        "Cruzar la barrera pone en riesgo a la persona y perturba a la fauna. El mirador se usa desde la plataforma.",
+        "La basura abierta atrae a la fauna y contamina el sitio. Se cierra y se lleva a los contenedores."
+      ]
+    },
+    {
+      "id": "campo-nuevo-iguana-recinto",
+      "titulo": "Recinto exterior de iguanas",
+      "imagen": "assets/img/retos/detective-nuevo-17-iguana-recinto.webp",
+      "zonas": [{"x": 0.12, "y": 0.46, "w": 0.24, "h": 0.36}, {"x": 0.45, "y": 0.31, "w": 0.18, "h": 0.44}, {"x": 0.86, "y": 0.69, "w": 0.22, "h": 0.28}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa el recinto exterior y marca las 3 fallas que afectan a los animales.",
+      "escena": "En un recinto exterior para iguanas hay rocas, plantas y troncos. A la izquierda, la malla de la cerca tiene un hueco roto por el que se ve el camino de los visitantes. En el centro, una rama grande de asoleo está quebrada y cuelga de sus amarres. A la derecha, un bebedero hecho con un tubo grande de concreto está volcado y el agua se derramó sobre la tierra. Sobre una roca grande, una iguana descansa al sol. Del otro lado de la malla, dos visitantes caminan por el camino.",
+      "pistas": [
+        { "t": "Una iguana descansa al sol sobre una roca", "ok": false, "why": "Asolearse es una conducta normal de las iguanas. No es un error." },
+        { "t": "Hay plantas y rocas que dan refugio a los animales", "ok": false, "why": "Los refugios y la vegetación mejoran el bienestar. No es un error." },
+        { "t": "Malla con un hueco de salida", "ok": true, "why": "Un hueco en la malla permite que los animales escapen o que entren otros. La cerca se repara de inmediato." },
+        { "t": "Rama de asoleo rota y colgando", "ok": true, "why": "Una rama rota puede caer sobre los animales o dejarlos sin un lugar seguro para asolearse. Se repara o se cambia." },
+        { "t": "Los visitantes del camino son la causa del hueco en la malla", "ok": false, "why": "No se sostiene: nada en la imagen indica quién rompió la malla. Lo que importa es repararla." },
+        { "t": "Bebedero volcado, sin agua disponible", "ok": true, "why": "Si el bebedero está volcado, los animales no tienen agua para beber. Debe estar firme y con agua limpia." }
+      ],
+      "riesgos": [
+        "Un hueco en la malla permite que los animales escapen o que entren otros. La cerca se repara de inmediato.",
+        "Una rama rota puede caer sobre los animales o dejarlos sin un lugar seguro para asolearse. Se repara o se cambia.",
+        "Si el bebedero está volcado, los animales no tienen agua para beber. Debe estar firme y con agua limpia."
+      ]
+    },
+    {
+      "id": "campo-nuevo-ribera-restauracion",
+      "titulo": "Restauración de una ribera",
+      "imagen": "assets/img/retos/detective-nuevo-18-ribera-restauracion.webp",
+      "zonas": [{"x": 0.19, "y": 0.4, "w": 0.3, "h": 0.3}, {"x": 0.54, "y": 0.28, "w": 0.42, "h": 0.32}, {"x": 0.8, "y": 0.55, "w": 0.22, "h": 0.48}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa la ribera y marca los 3 problemas de la obra de restauración.",
+      "escena": "En la ribera de un arroyo de agua clara se siembran arbolitos con estacas. A la izquierda, costales de escombro y piedras tapan un cauce lateral del arroyo. Una malla plástica naranja está tendida sobre las plantas nuevas. A la derecha, una motobomba con una manguera verde está sobre la tierra y un aceite oscuro escurre desde ella por la orilla hacia el agua. Se ven las rocas del arroyo y montañas al fondo.",
+      "pistas": [
+        { "t": "Costales de escombro tapando el cauce lateral", "ok": true, "why": "Tapar el cauce cambia el paso del agua y puede dañar la vegetación y a los animales. Los materiales no se dejan en el cauce." },
+        { "t": "Malla plástica abandonada sobre plantas nuevas", "ok": true, "why": "La malla puede enredar a los animales y dañar a las plantas jóvenes. Si ya no se usa, se retira." },
+        { "t": "Los arbolitos nuevos tienen estacas de apoyo", "ok": false, "why": "Las estacas ayudan a que las plantas jóvenes crezcan derechas. No es un error." },
+        { "t": "Aceite derramado desde una herramienta hacia el agua", "ok": true, "why": "El aceite contamina el agua del arroyo. Los equipos con motor se revisan y se usan lejos del agua." },
+        { "t": "El arroyo tiene rocas y agua corriendo", "ok": false, "why": "Es lo esperado en un arroyo. No es un error." },
+        { "t": "Sembrar árboles en la ribera daña el arroyo", "ok": false, "why": "No se sostiene: restaurar la ribera con plantas ayuda al arroyo. Lo que daña son el escombro, la malla y el aceite." }
+      ],
+      "riesgos": [
+        "Tapar el cauce cambia el paso del agua y puede dañar la vegetación y a los animales. Los materiales no se dejan en el cauce.",
+        "La malla puede enredar a los animales y dañar a las plantas jóvenes. Si ya no se usa, se retira.",
+        "El aceite contamina el agua del arroyo. Los equipos con motor se revisan y se usan lejos del agua."
+      ]
+    },
+    {
+      "id": "campo-nuevo-equipo-campamento",
+      "titulo": "Revisión del equipo de campo",
+      "imagen": "assets/img/retos/detective-nuevo-19-equipo-campamento.webp",
+      "zonas": [{"x": 0.19, "y": 0.56, "w": 0.34, "h": 0.46}, {"x": 0.51, "y": 0.52, "w": 0.3, "h": 0.44}, {"x": 0.81, "y": 0.75, "w": 0.32, "h": 0.4}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa el equipo de campo y marca los 3 artículos en mal estado que no deben llevarse.",
+      "escena": "Sobre una lona verde, en un campamento de campo, hay unas botas de montaña muy gastadas, con la suela despegada y colgando. En el centro hay una caja rígida abierta y vacía, que corresponde al botiquín del grupo. A la derecha hay una linterna con la tapa abierta y tres pilas con sarro blanco y verdoso. Al fondo, dos integrantes del grupo acomodan equipo junto a una camioneta, y hay un rollo de dormir y mochilas.",
+      "pistas": [
+        { "t": "Botas con la suela desprendida", "ok": true, "why": "Unas botas con la suela despegada pueden hacer tropezar o lastimar el pie en terreno irregular. Se reparan o se cambian antes de salir." },
+        { "t": "El equipo está ordenado sobre una lona", "ok": false, "why": "Mantener el equipo ordenado ayuda a revisarlo y a no perder piezas. No es un error." },
+        { "t": "Botiquín abierto, completamente vacío", "ok": true, "why": "Un botiquín sin material no sirve en una emergencia. Se revisa y se repone antes de cada salida." },
+        { "t": "El grupo carga la camioneta al fondo", "ok": false, "why": "Preparar y cargar el equipo antes de salir es lo normal. No es un error." },
+        { "t": "Linterna con pilas sulfatadas", "ok": true, "why": "Las pilas con sarro pueden dañar la linterna y fallar justo cuando se necesita. Se cambian y se desechan donde corresponde." },
+        { "t": "El rollo de dormir enrollado es un riesgo", "ok": false, "why": "No se sostiene: llevar el material enrollado y amarrado es una forma ordenada de transportarlo." }
+      ],
+      "riesgos": [
+        "Unas botas con la suela despegada pueden hacer tropezar o lastimar el pie en terreno irregular. Se reparan o se cambian antes de salir.",
+        "Un botiquín sin material no sirve en una emergencia. Se revisa y se repone antes de cada salida.",
+        "Las pilas con sarro pueden dañar la linterna y fallar justo cuando se necesita. Se cambian y se desechan donde corresponde."
+      ]
+    },
+    {
+      "id": "campo-nuevo-puente-monitoreo",
+      "titulo": "Acceso al sitio de monitoreo",
+      "imagen": "assets/img/retos/detective-nuevo-20-puente-monitoreo.webp",
+      "zonas": [{"x": 0.43, "y": 0.49, "w": 0.4, "h": 0.16}, {"x": 0.7, "y": 0.26, "w": 0.16, "h": 0.32}, {"x": 0.62, "y": 0.79, "w": 0.44, "h": 0.26}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa el acceso al sitio de monitoreo y marca los 3 peligros para quien lo cruza.",
+      "escena": "Un puente de madera cruza un arroyo en un sendero. En la parte delantera del puente faltan tablones y queda un hueco por el que se ve el agua. En el costado derecho, un barandal está roto y la barra queda inclinada. En el camino de tierra de la entrada hay un cable negro suelto, extendido y enroscado, que atraviesa el acceso. Del otro lado, el sendero sigue entre árboles y rocas con musgo.",
+      "pistas": [
+        { "t": "El puente es de madera y por eso es inseguro", "ok": false, "why": "No se sostiene: la madera puede ser segura si está en buen estado. Lo inseguro son el hueco y el barandal roto." },
+        { "t": "Tablón faltante que deja un hueco en el puente", "ok": true, "why": "Un hueco en el piso puede provocar caídas y lesiones. El puente no se usa hasta repararlo y se avisa al responsable." },
+        { "t": "Hay rocas con musgo a un lado del camino", "ok": false, "why": "Las rocas con musgo son parte del paisaje. No es un error." },
+        { "t": "Barandal roto en un costado", "ok": true, "why": "Sin barandal firme es más fácil caer al arroyo. Se repara o se señaliza el riesgo." },
+        { "t": "El sendero de tierra al otro lado del puente se ve marcado", "ok": false, "why": "Un sendero definido ayuda a orientarse. No es un error." },
+        { "t": "Cable suelto atravesando el acceso", "ok": true, "why": "Un cable tendido en el paso puede hacer tropezar. Se recoge o se fija y se señaliza." }
+      ],
+      "riesgos": [
+        "Un hueco en el piso puede provocar caídas y lesiones. El puente no se usa hasta repararlo y se avisa al responsable.",
+        "Sin barandal firme es más fácil caer al arroyo. Se repara o se señaliza el riesgo.",
+        "Un cable tendido en el paso puede hacer tropezar. Se recoge o se fija y se señaliza."
+      ]
+    },
+    {
+      "id": "campo-nuevo-anfibios-cuarentena",
+      "titulo": "Área de mantenimiento de anfibios",
+      "imagen": "assets/img/retos/detective-nuevo-21-anfibios-cuarentena.webp",
+      "zonas": [{"x": 0.22, "y": 0.39, "w": 0.32, "h": 0.18}, {"x": 0.54, "y": 0.29, "w": 0.2, "h": 0.2}, {"x": 0.81, "y": 0.49, "w": 0.14, "h": 0.66}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa el área de mantenimiento y marca los 3 errores de bioseguridad con los anfibios.",
+      "escena": "En un área de mantenimiento de anfibios hay, sobre una mesa de madera, dos acuarios con agua y plantas y un terrario con puerta de vidrio. Una red de manejo sucia con lodo está apoyada en el borde del primer acuario y llega hasta el segundo. Al centro, una persona de espaldas sostiene un envase blanco de limpieza abierto, inclinado sobre el segundo acuario y con gotas cayendo. A la derecha, la puerta del terrario está abierta, con una rana verde dentro. En los acuarios hay un ajolote y una rana moteada.",
+      "pistas": [
+        { "t": "Red de manejo sucia compartida entre los dos acuarios", "ok": true, "why": "Una red sucia que pasa de un acuario a otro puede llevar enfermedades entre los animales. Cada acuario tiene su propia red o se desinfecta entre usos." },
+        { "t": "Hay plantas y un refugio de barro dentro de los acuarios", "ok": false, "why": "Las plantas y los refugios mejoran el bienestar. No es un error." },
+        { "t": "Hay un fregadero al fondo del área", "ok": false, "why": "Tener dónde lavarse las manos y el equipo es parte de la bioseguridad. No es un error." },
+        { "t": "Envase de limpieza abierto en el borde del acuario", "ok": true, "why": "Los productos de limpieza pueden caer al agua y dañar a los anfibios, que absorben sustancias por la piel. Se usan lejos de los animales y se mantienen cerrados." },
+        { "t": "Puerta del terrario abierta", "ok": true, "why": "Con la puerta abierta el animal puede escapar y pueden entrar contaminantes. Se cierra al terminar de trabajar." },
+        { "t": "Los anfibios no deben tener agua en el acuario", "ok": false, "why": "No se sostiene: los anfibios acuáticos necesitan agua limpia. El problema es el trato del equipo y de los químicos." }
+      ],
+      "riesgos": [
+        "Una red sucia que pasa de un acuario a otro puede llevar enfermedades entre los animales. Cada acuario tiene su propia red o se desinfecta entre usos.",
+        "Los productos de limpieza pueden caer al agua y dañar a los anfibios, que absorben sustancias por la piel. Se usan lejos de los animales y se mantienen cerrados.",
+        "Con la puerta abierta el animal puede escapar y pueden entrar contaminantes. Se cierra al terminar de trabajar."
+      ]
+    },
+    {
+      "id": "campo-nuevo-plastico-fauna-costera",
+      "titulo": "Residuos en una cala",
+      "imagen": "assets/img/retos/detective-nuevo-22-plastico-fauna-costera.webp",
+      "zonas": [{"x": 0.16, "y": 0.49, "w": 0.2, "h": 0.34}, {"x": 0.57, "y": 0.38, "w": 0.46, "h": 0.32}, {"x": 0.88, "y": 0.64, "w": 0.22, "h": 0.28}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa la cala y marca los 3 residuos que ponen en riesgo a la fauna costera.",
+      "escena": "En una cala rocosa con marea baja, un anillo de plástico de los que sujetan latas está enredado en las ramas de un arbusto costero. En el centro, una red de pesca verde abandonada cubre las rocas, con tres flotadores. A la derecha, un envase de aceite negro tumbado sobre las rocas gotea hacia una poza de agua. En el fondo, un ave marina descansa en las rocas y se ven el mar y los acantilados.",
+      "pistas": [
+        { "t": "Un ave marina descansa en las rocas del fondo", "ok": false, "why": "Que el ave descanse tranquila en su hábitat no es un error." },
+        { "t": "Anillo plástico alrededor de un arbusto costero", "ok": true, "why": "Los anillos de plástico pueden atrapar a aves y a otros animales. Se retiran y se llevan a la basura." },
+        { "t": "Red de pesca abandonada en las rocas", "ok": true, "why": "Las redes abandonadas pueden enredar a aves, tortugas y peces. Se retiran con cuidado." },
+        { "t": "Hay algas sobre las rocas de la cala", "ok": false, "why": "Las algas son parte natural de la costa. No es un error." },
+        { "t": "Las algas son lo que contamina la poza", "ok": false, "why": "No se sostiene: las algas son naturales. Lo que contamina la poza es el aceite." },
+        { "t": "Envase de aceite goteando en una poza", "ok": true, "why": "El aceite contamina las pozas de marea, donde viven muchos animales pequeños. Los envases se llevan cerrados y no se dejan en la orilla." }
+      ],
+      "riesgos": [
+        "Los anillos de plástico pueden atrapar a aves y a otros animales. Se retiran y se llevan a la basura.",
+        "Las redes abandonadas pueden enredar a aves, tortugas y peces. Se retiran con cuidado.",
+        "El aceite contamina las pozas de marea, donde viven muchos animales pequeños. Los envases se llevan cerrados y no se dejan en la orilla."
+      ]
+    },
+    {
+      "id": "campo-nuevo-registro-muestras",
+      "titulo": "Organización de muestras de suelo",
+      "imagen": "assets/img/retos/detective-nuevo-23-registro-muestras.webp",
+      "zonas": [{"x": 0.2, "y": 0.58, "w": 0.4, "h": 0.46}, {"x": 0.58, "y": 0.47, "w": 0.38, "h": 0.32}, {"x": 0.8, "y": 0.78, "w": 0.36, "h": 0.32}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa la mesa de trabajo y marca los 3 errores en el manejo de las muestras de suelo.",
+      "escena": "Bajo una carpa en el campo, una persona vacía dos bolsas de papel con tierra de colores distintos, una roja y una oscura, sobre la misma charola blanca, donde se mezclan. Al centro hay tres bolsas de papel abiertas, de las que el viento levanta polvo de tierra. A la derecha, una pala de mano con tierra está encima de una pila de hojas blancas, y junto a ellas hay un cuaderno y unos guantes. Al fondo, dos personas trabajan en el terreno.",
+      "pistas": [
+        { "t": "Dos personas trabajan con herramientas en el terreno, al fondo", "ok": false, "why": "El trabajo de campo es lo esperado en un muestreo. No es un error." },
+        { "t": "Hay una carpa que da sombra a la mesa de trabajo", "ok": false, "why": "La sombra protege a las personas y al material. No es un error." },
+        { "t": "Tierra de bolsas distintas mezclada en una sola charola", "ok": true, "why": "Al mezclar muestras de sitios distintos ya no se sabe de dónde viene cada una y se pierde el dato. Cada muestra va en su propio recipiente y con su etiqueta." },
+        { "t": "Bolsas de muestras abiertas expuestas al viento", "ok": true, "why": "El viento se lleva parte de la muestra y puede traer polvo de otro sitio. Las bolsas se cierran y se etiquetan." },
+        { "t": "Usar bolsas de papel para muestras de suelo siempre está mal", "ok": false, "why": "No se sostiene: lo que falla es cómo se manejan las bolsas (abiertas y mezcladas), no el tipo de bolsa." },
+        { "t": "Pala con tierra apoyada sobre papeles limpios", "ok": true, "why": "Una herramienta sucia contamina el material limpio y puede mezclar muestras. La herramienta se limpia entre una muestra y otra y se guarda aparte." }
+      ],
+      "riesgos": [
+        "Al mezclar muestras de sitios distintos ya no se sabe de dónde viene cada una y se pierde el dato. Cada muestra va en su propio recipiente y con su etiqueta.",
+        "El viento se lleva parte de la muestra y puede traer polvo de otro sitio. Las bolsas se cierran y se etiquetan.",
+        "Una herramienta sucia contamina el material limpio y puede mezclar muestras. La herramienta se limpia entre una muestra y otra y se guarda aparte."
+      ]
+    },
+    {
+      "id": "campo-nuevo-centro-visitantes",
+      "titulo": "Ingreso al área de fauna",
+      "imagen": "assets/img/retos/detective-nuevo-24-centro-visitantes.webp",
+      "zonas": [{"x": 0.15, "y": 0.45, "w": 0.2, "h": 0.8}, {"x": 0.54, "y": 0.75, "w": 0.2, "h": 0.14}, {"x": 0.85, "y": 0.31, "w": 0.24, "h": 0.44}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa la entrada al área de fauna y marca los 3 problemas de seguridad y de manejo.",
+      "escena": "En el pasillo de un centro de visitantes, a la izquierda, la puerta de malla del recinto de los venados está abierta y el candado cuelga sin cerrar. Dentro del recinto se ven dos venados pastando. Junto al muro de piedra bajo la malla hay un empaque de frituras abierto y pan en el piso. A la derecha, el vidrio del área de observación de un recinto con agua está agrietado, con un punto de impacto. Un barandal de madera bordea el pasillo.",
+      "pistas": [
+        { "t": "Puerta de acceso al recinto abierta sin cierre", "ok": true, "why": "Una puerta abierta permite que los animales salgan o que las personas entren. El acceso se cierra con seguro." },
+        { "t": "Comida humana colocada junto a la malla", "ok": true, "why": "La comida humana puede atraer a los animales a la malla y enfermarlos. Los visitantes no dejan comida ni la dan a los animales." },
+        { "t": "Hay un barandal de madera junto al pasillo", "ok": false, "why": "Los barandales ayudan a que los visitantes mantengan su distancia. No es un error." },
+        { "t": "Vidrio de observación agrietado", "ok": true, "why": "Un vidrio roto puede romperse del todo y es un riesgo para las personas y los animales. Se señaliza y se repara." },
+        { "t": "Los venados pastan dentro del recinto", "ok": false, "why": "Comer pasto dentro del recinto es una conducta normal. No es un error." },
+        { "t": "El muro de piedra de la base es un riesgo para los animales", "ok": false, "why": "No se sostiene: el muro de piedra es la base de la malla. Los problemas son la puerta, la comida y el vidrio." }
+      ],
+      "riesgos": [
+        "Una puerta abierta permite que los animales salgan o que las personas entren. El acceso se cierra con seguro.",
+        "La comida humana puede atraer a los animales a la malla y enfermarlos. Los visitantes no dejan comida ni la dan a los animales.",
+        "Un vidrio roto puede romperse del todo y es un riesgo para las personas y los animales. Se señaliza y se repara."
+      ]
+    },
+    {
+      "id": "campo-nuevo-herramientas-bosque",
+      "titulo": "Pausa durante el mantenimiento del sendero",
+      "imagen": "assets/img/retos/detective-nuevo-25-herramientas-bosque.webp",
+      "zonas": [{"x": 0.16, "y": 0.47, "w": 0.3, "h": 0.24}, {"x": 0.52, "y": 0.75, "w": 0.28, "h": 0.12}, {"x": 0.88, "y": 0.38, "w": 0.24, "h": 0.28}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa el área de descanso y marca los 3 riesgos con herramientas y combustible.",
+      "escena": "Durante una pausa en el mantenimiento de un sendero, un machete sin funda está sobre el asiento de una banca de madera, a la izquierda. En el centro del camino de tierra está tirado un serrucho curvo con los dientes a la vista. A la derecha, sobre una mesa de madera, hay un bidón rojo de combustible con el tapón quitado junto a una lonchera verde abierta con un sándwich. En la mesa del fondo hay una caja de herramientas cerrada, y atrás se ven un barandal de madera y un valle con montañas.",
+      "pistas": [
+        { "t": "Machete sin funda en el asiento de descanso", "ok": true, "why": "Un machete sin funda sobre un asiento puede cortar a quien se siente o lo tome sin ver. Las herramientas filosas se guardan en su funda y fuera de las zonas de descanso." },
+        { "t": "La caja de herramientas está cerrada sobre la mesa del fondo", "ok": false, "why": "Guardar las herramientas en una caja cerrada es una buena práctica. No es un error." },
+        { "t": "Serrucho con dientes expuestos sobre el camino", "ok": true, "why": "Un serrucho en el piso puede lastimar a quien pase. Se guarda con protección en su lugar." },
+        { "t": "Hay un barandal de madera junto al mirador", "ok": false, "why": "El barandal ayuda a evitar caídas. No es un error." },
+        { "t": "Combustible abierto junto al equipo de comida", "ok": true, "why": "El combustible destapado huele, puede derramarse y contaminar la comida, y es inflamable. Se guarda cerrado y lejos de los alimentos." },
+        { "t": "Hacer una pausa durante el trabajo es peligroso", "ok": false, "why": "No se sostiene: descansar es parte del trabajo seguro. El riesgo está en cómo se dejan las herramientas." }
+      ],
+      "riesgos": [
+        "Un machete sin funda sobre un asiento puede cortar a quien se siente o lo tome sin ver. Las herramientas filosas se guardan en su funda y fuera de las zonas de descanso.",
+        "Un serrucho en el piso puede lastimar a quien pase. Se guarda con protección en su lugar.",
+        "El combustible destapado huele, puede derramarse y contaminar la comida, y es inflamable. Se guarda cerrado y lejos de los alimentos."
+      ]
+    },
+    {
+      "id": "campo-nuevo-playa-limpieza",
+      "titulo": "Separación de residuos en la playa",
+      "imagen": "assets/img/retos/detective-nuevo-26-playa-limpieza.webp",
+      "zonas": [{"x": 0.2, "y": 0.6, "w": 0.38, "h": 0.58}, {"x": 0.68, "y": 0.76, "w": 0.6, "h": 0.42}, {"x": 0.83, "y": 0.32, "w": 0.28, "h": 0.56}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa la jornada de limpieza y marca los 3 errores en el manejo de los residuos.",
+      "escena": "En una playa de arena, a la izquierda hay una bolsa de plástico muy delgada, abierta, llena de botellas de vidrio, algunas rotas, cuyas puntas se ven a través del plástico. Al centro, una red de pesca abandonada está parcialmente enterrada en la arena, con flotadores. A la derecha, un contenedor verde de residuos está desbordado y deja salir bolsas y basura que se riega por la arena. Al fondo, cuatro personas con guantes recogen residuos a lo largo de la orilla.",
+      "pistas": [
+        { "t": "Las personas del fondo usan guantes para recoger residuos", "ok": false, "why": "Usar guantes es una medida de protección correcta. No es un error." },
+        { "t": "Vidrios rotos mezclados en una bolsa delgada abierta", "ok": true, "why": "Los vidrios rotos pueden cortar la bolsa y lastimar a quien la cargue. Se separan y se guardan en un recipiente resistente y cerrado." },
+        { "t": "Los residuos se recogen a lo largo de la orilla", "ok": false, "why": "Recoger la basura de la playa es el objetivo de la jornada. No es un error." },
+        { "t": "Red abandonada enterrada parcialmente en la arena", "ok": true, "why": "Una red enterrada es difícil de ver y puede enredar a los animales de la playa. Se retira con cuidado y se lleva al sitio correspondiente." },
+        { "t": "Las algas secas de la arena también son basura que retirar", "ok": false, "why": "No se sostiene: las algas que deja el mar son parte natural de la playa y no se retiran como basura." },
+        { "t": "Contenedor de residuos rebosante que dispersa basura", "ok": true, "why": "Un contenedor lleno deja salir los residuos, que el viento y los animales esparcen. Debe vaciarse a tiempo y mantenerse cerrado." }
+      ],
+      "riesgos": [
+        "Los vidrios rotos pueden cortar la bolsa y lastimar a quien la cargue. Se separan y se guardan en un recipiente resistente y cerrado.",
+        "Una red enterrada es difícil de ver y puede enredar a los animales de la playa. Se retira con cuidado y se lleva al sitio correspondiente.",
+        "Un contenedor lleno deja salir los residuos, que el viento y los animales esparcen. Debe vaciarse a tiempo y mantenerse cerrado."
+      ]
+    },
+    {
+      "id": "campo-nuevo-zona-reforestacion",
+      "titulo": "Cuidado de una reforestación",
+      "imagen": "assets/img/retos/detective-nuevo-27-zona-reforestacion.webp",
+      "zonas": [{"x": 0.21, "y": 0.46, "w": 0.4, "h": 0.46}, {"x": 0.56, "y": 0.48, "w": 0.14, "h": 0.22}, {"x": 0.87, "y": 0.55, "w": 0.25, "h": 0.5}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa la zona de reforestación y marca los 3 descuidos con las plantas jóvenes.",
+      "escena": "En una zona en reforestación, en primer plano a la izquierda, un protector plástico con orificios cayó y está tumbado sobre una plántula. En el centro, un tronco joven está atado a una estaca con una cinta negra muy apretada, y el tronco se ve hinchado arriba y abajo de la cinta. A la derecha, una manguera descarga agua sobre el suelo y forma una corriente que corre lejos de los árboles. Al fondo, una persona trabaja en el suelo, otra se aleja con una carretilla y otros árboles tienen protectores verdes parados.",
+      "pistas": [
+        { "t": "Protector plástico caído que aplasta una plántula", "ok": true, "why": "Un protector caído tapa y dobla a la plántula, y deja de protegerla. Se endereza y se asegura." },
+        { "t": "Otros árboles tienen protectores verdes bien parados", "ok": false, "why": "Los protectores firmes y rectos cumplen su función. No es un error." },
+        { "t": "Una persona trabaja en el suelo al fondo", "ok": false, "why": "Trabajar en el sitio de reforestación es lo esperado. No es un error." },
+        { "t": "Amarre demasiado apretado alrededor de un tronco joven", "ok": true, "why": "Un amarre apretado estrangula el tronco, que se hincha y se daña al crecer. Debe quedar flojo y revisarse." },
+        { "t": "Riego desperdiciado lejos de las plantas", "ok": true, "why": "El agua que corre por el suelo no llega a las raíces y se desperdicia. El riego se dirige a cada planta." },
+        { "t": "Poner estacas a los árboles jóvenes siempre es un error", "ok": false, "why": "No se sostiene: la estaca puede apoyar a un árbol joven. El problema es el amarre apretado." }
+      ],
+      "riesgos": [
+        "Un protector caído tapa y dobla a la plántula, y deja de protegerla. Se endereza y se asegura.",
+        "Un amarre apretado estrangula el tronco, que se hincha y se daña al crecer. Debe quedar flojo y revisarse.",
+        "El agua que corre por el suelo no llega a las raíces y se desperdicia. El riego se dirige a cada planta."
+      ]
+    },
+    {
+      "id": "campo-nuevo-lavado-equipo",
+      "titulo": "Lavado del equipo de monitoreo",
+      "imagen": "assets/img/retos/detective-nuevo-28-lavado-equipo.webp",
+      "zonas": [{"x": 0.22, "y": 0.55, "w": 0.3, "h": 0.5}, {"x": 0.65, "y": 0.28, "w": 0.22, "h": 0.3}, {"x": 0.8, "y": 0.8, "w": 0.36, "h": 0.26}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el lavado del equipo y marca los 3 errores que dañan el equipo o el arroyo.",
+      "escena": "A la orilla de un arroyo, una tina gris con agua y espuma, sobre una plataforma de madera, deja salir un chorro de agua jabonosa que cae por la orilla directo al arroyo. En la mesa de madera de la derecha, una cámara trampa abierta, con las pilas a la vista, está justo bajo el chorro de agua de una llave. También sobre la mesa hay una botella térmica, un cepillo y una charola. Abajo, sobre el lodo y dentro de un charco, hay una correa de nailon y una toalla.",
+      "pistas": [
+        { "t": "Hay un cepillo sobre la mesa", "ok": false, "why": "Un cepillo es una herramienta normal para limpiar el equipo. No es un error." },
+        { "t": "Agua con espuma descargada directamente al arroyo", "ok": true, "why": "El jabón llega al arroyo y daña a los organismos acuáticos. El lavado se hace lejos del agua y el agua con jabón no se vierte a la corriente." },
+        { "t": "Cámara abierta bajo el chorro de agua", "ok": true, "why": "El agua puede dañar los circuitos y las pilas de una cámara abierta. Se limpia con un paño húmedo y con la cámara cerrada." },
+        { "t": "Una botella térmica está sobre la mesa", "ok": false, "why": "Una botella sobre la mesa no daña el arroyo ni el equipo. No es un error." },
+        { "t": "Lavar el equipo de monitoreo es un error en sí mismo", "ok": false, "why": "No se sostiene: mantener limpio el equipo es parte del monitoreo. Lo que falla es dónde y cómo se lava." },
+        { "t": "Correa y toalla sobre un charco con lodo", "ok": true, "why": "El equipo que ya se limpió se vuelve a ensuciar en el lodo. Se seca y se guarda sobre una superficie limpia." }
+      ],
+      "riesgos": [
+        "El jabón llega al arroyo y daña a los organismos acuáticos. El lavado se hace lejos del agua y el agua con jabón no se vierte a la corriente.",
+        "El agua puede dañar los circuitos y las pilas de una cámara abierta. Se limpia con un paño húmedo y con la cámara cerrada.",
+        "El equipo que ya se limpió se vuelve a ensuciar en el lodo. Se seca y se guarda sobre una superficie limpia."
+      ]
+    },
+    {
+      "id": "campo-nuevo-polinizadores-camino",
+      "titulo": "Jardín de polinizadores junto al sendero",
+      "imagen": "assets/img/retos/detective-nuevo-29-polinizadores-camino.webp",
+      "zonas": [{"x": 0.17, "y": 0.45, "w": 0.24, "h": 0.6}, {"x": 0.53, "y": 0.8, "w": 0.28, "h": 0.26}, {"x": 0.87, "y": 0.38, "w": 0.24, "h": 0.6}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el jardín de polinizadores y marca los 3 daños al sitio.",
+      "escena": "Junto a un sendero de grava hay un jardín con flores amarillas, moradas y anaranjadas que atraen mariposas. A la izquierda, un visitante con mochila se sale del sendero y camina sobre las flores. Al centro, una botella de plástico aplastada está tirada entre las plantas, con su tapa azul al lado. A la derecha, una malla verde suelta está enredada en un arbusto con flores amarillas. Arriba vuelan dos mariposas anaranjadas y al fondo hay un camino de piedras y montañas.",
+      "pistas": [
+        { "t": "Dos mariposas vuelan sobre el jardín", "ok": false, "why": "Que las mariposas visiten el jardín es justo lo que se busca. No es un error." },
+        { "t": "Un sendero de grava y piedras marca el camino", "ok": false, "why": "Un sendero definido ayuda a no pisar las plantas. No es un error." },
+        { "t": "Visitante que pisotea el macizo de flores", "ok": true, "why": "Pisar las flores daña las plantas de las que se alimentan las mariposas y otros polinizadores. Se camina solo por el sendero." },
+        { "t": "Botella plástica abandonada junto a flores", "ok": true, "why": "La basura contamina el jardín y puede dañar a los animales. Se recoge y se lleva fuera." },
+        { "t": "Las flores silvestres hay que quitarlas para que el jardín se vea ordenado", "ok": false, "why": "No se sostiene: las flores son alimento de los polinizadores y no se arrancan." },
+        { "t": "Malla suelta enredada en un arbusto floreado", "ok": true, "why": "Una malla suelta puede atrapar a mariposas, aves y otros animales. Se retira con cuidado." }
+      ],
+      "riesgos": [
+        "Pisar las flores daña las plantas de las que se alimentan las mariposas y otros polinizadores. Se camina solo por el sendero.",
+        "La basura contamina el jardín y puede dañar a los animales. Se recoge y se lleva fuera.",
+        "Una malla suelta puede atrapar a mariposas, aves y otros animales. Se retira con cuidado."
+      ]
+    },
+    {
+      "id": "campo-nuevo-resguardo-equipo",
+      "titulo": "Resguardo al terminar la jornada",
+      "imagen": "assets/img/retos/detective-nuevo-30-resguardo-equipo.webp",
+      "zonas": [{"x": 0.17, "y": 0.6, "w": 0.34, "h": 0.44}, {"x": 0.53, "y": 0.47, "w": 0.28, "h": 0.5}, {"x": 0.84, "y": 0.7, "w": 0.3, "h": 0.36}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa el lugar de resguardo y marca los 3 descuidos con el equipo al terminar la jornada.",
+      "escena": "Bajo el techo de una caseta de madera, durante una lluvia, una charola de metal a la izquierda tiene pilas usadas con sarro y fugas, junto con una correa verde. Al centro, una caja rígida abierta, con una cámara trampa dentro, está afuera, expuesta a la lluvia. A la derecha, un cuaderno de campo está abierto sobre una mesa, justo debajo de una gotera, con las hojas mojadas. En el estante de la izquierda hay binoculares, una botella y una mochila.",
+      "pistas": [
+        { "t": "Baterías usadas con fugas mezcladas con equipo limpio", "ok": true, "why": "Las pilas con fugas dañan el equipo y sueltan sustancias que contaminan. Se separan y se desechan en un lugar adecuado." },
+        { "t": "Caja de cámara trampa abierta, expuesta a la lluvia", "ok": true, "why": "La lluvia puede dañar la cámara. El equipo se guarda en su caja cerrada y bajo techo." },
+        { "t": "Los binoculares están guardados en el estante", "ok": false, "why": "Guardar el equipo en un estante, bajo techo, es correcto. No es un error." },
+        { "t": "Cuaderno de campo abierto debajo de una gotera", "ok": true, "why": "El agua borra los registros. El cuaderno se guarda seco y cerrado." },
+        { "t": "La caseta de madera tiene un techo que protege del agua", "ok": false, "why": "Un techo protege el material de la lluvia. No es un error." },
+        { "t": "La lluvia daña todo el equipo y no hay nada que hacer", "ok": false, "why": "No se sostiene: el equipo se protege guardándolo bien y bajo techo." }
+      ],
+      "riesgos": [
+        "Las pilas con fugas dañan el equipo y sueltan sustancias que contaminan. Se separan y se desechan en un lugar adecuado.",
+        "La lluvia puede dañar la cámara. El equipo se guarda en su caja cerrada y bajo techo.",
+        "El agua borra los registros. El cuaderno se guarda seco y cerrado."
       ]
     }
   ];
