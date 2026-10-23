@@ -162,18 +162,15 @@ test('contraste AA de los pares de color de la barra (día y noche)', () => {
   assert.ok(ratio('#1F5F3A', '#FFFFFF') >= 4.5, 'Copiar'); assert.ok(ratio('#16241B', '#E8A317') >= 4.5, 'Usar mi cupón');
 });
 
-test('crear cuenta: casilla SIN marcar «No deseo recibir promociones y recordatorios por correo», con enlace al aviso; se registra tras crear la cuenta', () => {
+test('crear cuenta: el registro queda como antes (sin preguntas sobre promociones), acepta Términos y Aviso con enlaces y no guarda ninguna preferencia', () => {
   const h = leer('pages/club-login.html');
-  const casilla = /<input type="checkbox" id="reg-no-promos" name="noPromos">/.exec(h);
-  assert.ok(casilla, 'casilla sin atributo checked');
-  assert.match(h, /No deseo recibir promociones y recordatorios por correo\. <a href="\.\.\/aviso-de-privacidad\.html#promociones"/);
-  assert.match(h, /\/api\/recordatorios\/preferencia', \{ method: 'POST', body: \{ recibe: false, origen: 'registro' \} \}/);
-  assert.match(h, /if \(r\.ok\) \{\s*await guardarNoPromos\(\);/, 'correo y contraseña');
-  assert.match(h, /await guardarNoPromos\(\);\s*estado\.entrando = true;\s*mostrarOk\('Cuenta creada\. Entrando al Club/, 'Google');
-  assert.match(h, /localStorage\.setItem\('zoo_no_promos', '1'\)/, 'queda pendiente si no alcanza a guardarse');
-  assert.match(leer('assets/js/club-cupon.js'), /zoo_no_promos/);
-  // No toca reglas de Firestore: el navegador no escribe la preferencia
-  assert.doesNotMatch(h, /recordatoriosPago/);
+  assert.doesNotMatch(h, /reg-no-promos|promosFila|noPromos|guardarNoPromos|zoo_no_promos|No deseo recibir/, 'la casilla y su código ya no existen');
+  assert.doesNotMatch(h, /api\/recordatorios|recordatoriosPago/, 'el registro no llama a las rutas de recordatorios');
+  assert.match(h, /Acepto los <a href="\.\.\/terminos-y-condiciones\.html"[^>]*>Términos y condiciones<\/a> y el <a href="\.\.\/aviso-de-privacidad\.html"[^>]*>Aviso de privacidad<\/a> de Zoorigen/);
+  assert.match(h, /id="reg-terminos"/);
+  const js = leer('assets/js/club-cupon.js');
+  assert.doesNotMatch(js, /zoo_no_promos|reintentarPendiente|origen === 'registro'/, 'el módulo ya no reintenta ninguna preferencia del registro');
+  assert.match(js, /\/api\/recordatorios\/preferencia/, 'la ruta sigue sirviendo al interruptor de Mi perfil');
 });
 
 test('Mi perfil: interruptor «Recibir promociones por correo» accesible (role switch), con estado y enlace al aviso', () => {
@@ -193,7 +190,9 @@ test('aviso de privacidad: finalidad secundaria clara, cómo negarse, plazos, ve
   assert.match(h, /negarte no te quita ningún servicio ni acceso/);
   assert.match(h, /hasta 7 correos por vuelta[\s\S]*pausa de 4 días[\s\S]*máximo de 3 vueltas/);
   assert.match(h, /entre las 8:00 y las 22:00/);
-  for (const m of ['casilla «No deseo recibir promociones y recordatorios por correo»', 'enlace «No quiero recibir recordatorios ni promociones»', 'Mi perfil', 'zooorigen@gmail.com']) assert.ok(h.includes(m), m);
+  for (const m of ['enlace «No quiero recibir recordatorios ni promociones»', 'Mi perfil', 'zooorigen@gmail.com', 'Cómo decir que no, en cualquier momento']) assert.ok(h.includes(m), m);
+  assert.doesNotMatch(h, /casilla «No deseo recibir/, 'ya no hay casilla al crear la cuenta');
+  assert.match(h, /\(1\) usa el enlace[\s\S]*\(2\) apaga «Recibir promociones por correo»[\s\S]*\(3\) escríbenos a/, 'los tres mecanismos');
   assert.match(h, /Cuentas creadas antes del 22 de octubre de 2026/);
   assert.match(h, /<span>Versión 1\.1<\/span><span>Última actualización: 22 de octubre de 2026<\/span>/);
   assert.match(h, /Secretaría Anticorrupción y Buen Gobierno/);

@@ -15,7 +15,7 @@
 /* cada 5 minutos y al volver a la pestaña.                      */
 /*                                                               */
 /* También guarda la preferencia «Recibir promociones por       */
-/* correo» (casilla de crear cuenta e interruptor de Mi perfil). */
+/* correo» (interruptor de Mi perfil). */
 /* Las funciones puras se prueban en tests/club-cupon.test.js.   */
 /* ============================================================ */
 (function (root, factory) {
@@ -275,7 +275,6 @@
         if (!user) { limpiar(); return; }
         var rec = leerRecordado();
         if (rec && rec.uid && rec.uid !== user.uid) limpiar();          // otra cuenta usó este navegador antes
-        reintentarPendiente();
         sincronizar(true);
       });
     } catch (e) { /* sin Firebase: solo lo recordado */ }
@@ -285,7 +284,7 @@
 
   /* ───────────────────────── Preferencia «Recibir promociones por correo» ───────────────────────── */
   function leerPreferencia() { return api('/api/recordatorios/preferencia').then(function (r) { return { recibe: r.recibe !== false, baja: r.baja === true }; }); }
-  function guardarPreferencia(recibe, origen) { return api('/api/recordatorios/preferencia', { method: 'POST', body: { recibe: Boolean(recibe), origen: origen === 'registro' ? 'registro' : 'perfil' } }); }
+  function guardarPreferencia(recibe) { return api('/api/recordatorios/preferencia', { method: 'POST', body: { recibe: Boolean(recibe), origen: 'perfil' } }); }
 
   /* Mi perfil: interruptor «Recibir promociones por correo». Quien se dio de baja desde un correo no puede volver a activarlo (la baja es para siempre). */
   function textoPreferencia(p) {
@@ -308,19 +307,10 @@
     sw.addEventListener('click', function () {
       if (!actual || actual.baja) return;
       var quiere = !actual.recibe; sw.disabled = true;
-      guardarPreferencia(quiere, 'perfil').then(function (r) { pintarSw({ recibe: r.recibe !== false, baja: r.baja === true }); sincronizar(true); })
+      guardarPreferencia(quiere).then(function (r) { pintarSw({ recibe: r.recibe !== false, baja: r.baja === true }); sincronizar(true); })
         .catch(function () { estado.textContent = 'No se pudo guardar. Inténtalo de nuevo.'; sw.disabled = false; });
     });
     try { root.firebase.auth().onAuthStateChanged(function (user) { if (user) cargar(); }); } catch (e) { /* sin Firebase */ }
-  }
-
-  /* Si al crear la cuenta se marcó «No deseo recibir promociones» y no alcanzó a guardarse, se reintenta en la primera página con sesión */
-  function reintentarPendiente() {
-    var a = almacen();
-    if (!a) return;
-    var pendiente = null; try { pendiente = a.getItem('zoo_no_promos'); } catch (e) { pendiente = null; }
-    if (pendiente !== '1') return;
-    guardarPreferencia(false, 'registro').then(function () { try { a.removeItem('zoo_no_promos'); } catch (e) { /* nada */ } }).catch(function () { /* se vuelve a intentar en la siguiente página */ });
   }
 
   /* Página «Suscripción»: pone el bloque del cupón arriba de «Elige tu plan», ahora o cuando llegue el cupón */
@@ -346,6 +336,6 @@
     CLAVE: CLAVE, CADA_MS: CADA_MS, ALTO_MOVIL: ALTO_MOVIL, ALTO_ESCRITORIO: ALTO_ESCRITORIO,
     esc: esc, pesos: pesos, relojTexto: relojTexto, restanteHablado: restanteHablado, normalizar: normalizar, vigente: vigente, textos: textos,
     debeConsultar: debeConsultar, puedeMostrarRecordado: puedeMostrarRecordado, altoEstimado: altoEstimado, barraHTML: barraHTML, bloqueSuscripcionHTML: bloqueSuscripcionHTML, pagoMensualConCupon: pagoMensualConCupon,
-    actual: function () { return vivo.cupon; }, iniciar: iniciar, sincronizar: sincronizar, leerPreferencia: leerPreferencia, guardarPreferencia: guardarPreferencia, reintentarPendiente: reintentarPendiente, textoPreferencia: textoPreferencia, montarPerfil: montarPerfil, montarEnSuscripcion: montarEnSuscripcion
+    actual: function () { return vivo.cupon; }, iniciar: iniciar, sincronizar: sincronizar, leerPreferencia: leerPreferencia, guardarPreferencia: guardarPreferencia, textoPreferencia: textoPreferencia, montarPerfil: montarPerfil, montarEnSuscripcion: montarEnSuscripcion
   };
 });
