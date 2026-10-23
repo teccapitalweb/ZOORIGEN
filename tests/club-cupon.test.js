@@ -194,7 +194,7 @@ test('aviso de privacidad: finalidad secundaria clara, cómo negarse, plazos, ve
   assert.doesNotMatch(h, /casilla «No deseo recibir/, 'ya no hay casilla al crear la cuenta');
   assert.match(h, /\(1\) usa el enlace[\s\S]*\(2\) apaga «Recibir promociones por correo»[\s\S]*\(3\) escríbenos a/, 'los tres mecanismos');
   assert.match(h, /Cuentas creadas antes del 22 de octubre de 2026/);
-  assert.match(h, /<span>Versión 1\.1<\/span><span>Última actualización: 22 de octubre de 2026<\/span>/);
+  assert.match(h, /<span>Versión 1\.1<\/span><span>Última actualización: 23 de octubre de 2026<\/span>/);
   assert.match(h, /Secretaría Anticorrupción y Buen Gobierno/);
   assert.match(leer('terminos-y-condiciones.html'), /<span>Versión 1\.1<\/span>/);
   assert.match(leer('assets/js/club.js'), /TERMINOS_VERSION: '1\.1'/);
