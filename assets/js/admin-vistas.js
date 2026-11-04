@@ -384,6 +384,12 @@
     }
     var m = r.miembro;
     estado.fichaActual = m;
+    /* Pago pendiente: se agrega el motivo del último cobro rechazado (lo traduce el servidor). Si no se puede leer, la ficha sale igual. */
+    var motivoPago = '';
+    var SUSC = root.ZOO_ADMIN_SUSCRIPCIONES;
+    if (m.estado === 'pago-pendiente' && SUSC && SUSC.ultimoRechazoDe) {
+      try { var pg = await ctx.api('/api/admin/pagos'); motivoPago = SUSC.fichaMotivoHTML(SUSC.ultimoRechazoDe(pg && pg.pagos, m)); } catch (e) { motivoPago = ''; }
+    }
     var dato = function (t, v) { return '<div class="ap-dato"><dt>' + esc(t) + '</dt><dd>' + v + '</dd></div>'; };
     var progreso = r.progreso.length
       ? '<ul class="ap-progreso">' + r.progreso.map(function (p) {
@@ -406,7 +412,7 @@
       dato('Teléfono', esc(m.telefono || '—')) +
       dato('Racha', esc(P.fmtNum(m.racha)) + ' días') +
       (m.activadoPor ? dato('Activado por', esc(m.activadoPor) + (m.metodoPago ? ' · ' + esc(m.metodoPago) : '') + (m.montoManual ? ' · ' + esc(P.fmtMxn(m.montoManual)) : '')) : '') +
-      '</dl>' +
+      '</dl>' + motivoPago +
       '<h3>Progreso por curso</h3>' + progreso +
       '<h3>Certificados</h3>' + certs +
       '<h3>Comunidad</h3><dl class="ap-datos">' +
