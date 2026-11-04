@@ -102,5 +102,4 @@ test('la biblioteca y el panel usan estas reglas', () => {
   assert.match(bib, /ZOO_ACCESO\.ordenParaDesbloqueo\(cursosDeFirestore\)/);
   assert.match(adm, /CURSOS\.calcularOrdenVip\(cursosEstado\.items, actual, \{ disponibleSiempre, cursoMuestraGratis \}\)/);
   assert.match(adm, /if \(ordenVip !== undefined\) data\.ordenVip = ordenVip;/);
-  assert.match(adm, /CURSOS\.siguienteOrdenVip\(existentes\.concat\(creadosEnEstaCorrida\)\)/);
 });

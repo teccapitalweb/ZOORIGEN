@@ -165,15 +165,3 @@ test('las tarjetas muestran preguntas, muestra gratis, siempre disponible e inst
   assert.match(html, /Ana/);
   assert.ok(!/Muestra gratis|Siempre disponible|pregunta/.test(C.tarjetaGridHTML({ id: 'c2', title: 'X', lecciones: [{ videoId: 'v' }] })), 'un curso sin marcas se ve igual que antes');
 });
-
-test('sincronizar con Bunny conserva las preguntas, la marca de clase gratis y el juego de cada clase', () => {
-  const previas = [{ titulo: 'Intro', driveId: 'abc123456', gratis: true, preguntas: [{ pregunta: 'q', tipo: 'vof', correcta: 0 }], juego: { tipo: 'ahorcado', datos: {} } }];
-  const r = C.migrarLecciones(previas, [{ titulo: 'Clase 1', videoId: UUID }]);
-  assert.equal(r[0].videoId, UUID);
-  assert.equal(r[0].provider, 'bunny');
-  assert.equal(r[0].gratis, true);
-  assert.equal(r[0].preguntas.length, 1);
-  assert.equal(r[0].juego.tipo, 'ahorcado');
-  assert.equal(r[0].driveId, undefined);
-  assert.equal(r[0].driveIdAnterior, 'abc123456');
-});

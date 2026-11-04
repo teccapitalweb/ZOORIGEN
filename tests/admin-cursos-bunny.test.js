@@ -107,3 +107,79 @@ test('el formulario del curso trae el botón y su explicación', () => {
   assert.match(html, /Sincronizar con Bunny/);
   assert.match(html, /No cambia títulos que ya escribiste, preguntas, juegos ni clases gratis/);
 });
+
+/* ───────── el botón GLOBAL de la cabecera de Cursos ya no existe; el de cada curso sí ───────── */
+
+const fs = require('node:fs');
+const path = require('node:path');
+const paginaAdmin = fs.readFileSync(path.resolve(__dirname, '../pages/admin-club.html'), 'utf8').replace(/\r\n/g, '\n');
+
+test('la cabecera de Cursos solo trae "Nuevo curso": sin el botón de sincronizar todo', () => {
+  const cab = paginaAdmin.slice(paginaAdmin.indexOf('function renderCursos()'), paginaAdmin.indexOf('CURSOS.kpisHTML('));
+  assert.ok(cab.includes('sec-hero__acc'), 'se encontró la cabecera');
+  assert.ok(cab.includes('formCurso()'), 'sigue el botón Nuevo curso');
+  assert.equal(/Sincronizar/i.test(cab), false);
+  assert.equal(/syncBunnyBtn|sincronizarCatalogoBunny|61 videos/.test(paginaAdmin), false, 'no queda rastro de la sincronización masiva');
+  // ni el código que solo ella usaba
+  assert.equal(/normalizarTituloBunny|similitudTituloBunny|slugCursoBunny/.test(paginaAdmin), false);
+  assert.equal(typeof C.migrarLecciones, 'undefined');
+});
+
+test('el botón por curso sigue: usa el catálogo del servidor y el del curso, y llena solo ese curso', () => {
+  assert.match(paginaAdmin, /window\.sincronizarCursoBunny = async \(\) =>/);
+  assert.match(paginaAdmin, /\/api\/admin\/bunny-catalogo/);
+  assert.match(paginaAdmin, /CURSOS\.aplicarColeccion\(/);
+  assert.match(paginaAdmin, /CURSOS\.catalogoDesdeArchivo\(window\.ZOORIGEN_BUNNY_CATALOG\)/);
+  assert.match(C.modalCursoHTML({}, null, null), /id="cf-sync-bunny"/);
+  assert.match(C.modalCursoHTML({ id: 'c1', title: 'X', lecciones: [{ videoId: id(1) }] }, null, null), /id="cf-sync-bunny"/, 'también al editar');
+});
+
+/* ───────── ayuda: clases sin video ───────── */
+
+test('contarSinVideo(): solo cuenta las clases cargadas que no traen ID de Bunny ni de Drive', () => {
+  assert.equal(C.contarSinVideo({ lecciones: [{ videoId: id(1) }, { titulo: 'x' }, { driveId: ' ' }, { driveId: 'abc123456' }, { videoId: '' }] }), 3);
+  assert.equal(C.contarSinVideo({ lecciones: [{ videoId: id(1) }] }), 0);
+  assert.equal(C.contarSinVideo({ driveId: 'solo-uno' }), 0, 'curso viejo de un solo video: no inventa clases');
+  assert.equal(C.contarSinVideo({ totalClases: 5 }), 0, 'sin clases cargadas no se inventa nada');
+  assert.equal(C.contarSinVideo(null), 0);
+  assert.equal(C.contarSinVideo({ lecciones: [null, 'x'] }), 2);
+});
+
+test('la tarjeta y la fila del curso muestran "N clases sin video" solo si faltan', () => {
+  const con = { id: 'c1', title: 'Colmenas', lecciones: [{ videoId: id(1) }, { titulo: 'B' }, { titulo: 'C' }] };
+  const ok = { id: 'c2', title: 'Completo', lecciones: [{ videoId: id(2) }] };
+  for (const html of [C.tarjetaGridHTML(con), C.tarjetaListaHTML(con)]) {
+    assert.match(html, /cc-m--aviso/);
+    assert.match(html, /2 clases sin video/);
+    assert.match(html, /<svg/);
+  }
+  assert.match(C.tarjetaGridHTML({ ...con, lecciones: [{ videoId: id(1) }, { titulo: 'B' }] }), /1 clase sin video/);
+  for (const html of [C.tarjetaGridHTML(ok), C.tarjetaListaHTML(ok)]) assert.equal(/sin video/.test(html), false);
+});
+
+test('el resumen de arriba suma las clases sin video y muestra su estado vacío cuando todo está completo', () => {
+  const cursos = [
+    { id: 'a', title: 'A', lecciones: [{ videoId: id(1) }, { titulo: 'x' }] },
+    { id: 'b', title: 'B', lecciones: [{ titulo: 'y' }, { titulo: 'z' }, { videoId: id(2) }] },
+    { id: 'c', title: 'C', lecciones: [{ videoId: id(3) }] }
+  ];
+  const r = C.resumenCursos(cursos);
+  assert.equal(r.sinVideo, 3);
+  assert.equal(r.cursosSinVideo, 2);
+  const html = C.kpisHTML(r);
+  assert.match(html, /stat-box__aviso/);
+  assert.match(html, /3 clases sin video/);
+  assert.match(html, /en 2 cursos/);
+  const completo = C.kpisHTML(C.resumenCursos([cursos[2]]));
+  assert.equal(/sin video/.test(completo), false);
+  assert.match(completo, /stat-box__aviso--ok[^>]*>.*Todas con video/);
+  assert.match(C.kpisHTML(C.resumenCursos([{ id: 'u', title: 'U', lecciones: [{ titulo: 'x' }] }])), /1 clase sin video/);
+  assert.equal(/stat-box__aviso/.test(C.kpisHTML(C.resumenCursos([]))), false, 'sin cursos no hay nada que avisar');
+});
+
+test('el aviso usa color sólido de aviso (sin degradados)', () => {
+  const css = fs.readFileSync(path.resolve(__dirname, '../assets/css/admin-redesign.css'), 'utf8');
+  const bloque = css.slice(css.indexOf('.cc-m--aviso'), css.indexOf('.stat-box__aviso--ok') + 80);
+  assert.match(bloque, /\.cc-m--aviso \{ color: var\(--c-warn-ink\)/);
+  assert.equal(/gradient/i.test(bloque), false);
+});
