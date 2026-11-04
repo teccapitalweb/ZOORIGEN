@@ -266,3 +266,76 @@ test('FIRESTORE-REGLAS-v6: aviso de no publicar antes del servidor, certificados
   assert.equal(colecciones(v6), colecciones(v5));
   assert.equal(v6.includes('FIRESTORE-REGLAS-v5.txt'), false);
 });
+
+/* ───────── certificado con DOS firmas (Zoorigen + IPCIL Latinoamericano) y la fecha en el pie ───────── */
+
+test('ver-certificado.html: dos firmas (Erick a la izquierda, IPCIL a la derecha) y el QR en el centro', () => {
+  const html = leer('pages/ver-certificado.html');
+  const fila = html.slice(html.indexOf('class="cert-footer'), html.indexOf('id="certPie"'));
+  assert.ok(fila.length > 200, 'se encontró la fila inferior');
+  const iErick = fila.indexOf('Erick de Jesús Salas Rojas'), iQr = fila.indexOf('id="qrCode"'), iIpcil = fila.indexOf('id="firmaIpcil"');
+  assert.ok(iErick >= 0 && iQr > iErick && iIpcil > iQr, 'orden: Erick, QR, IPCIL');
+  assert.match(fila, /Director General · Zoorigen México/);
+  assert.match(fila, /Escanea para verificar/);
+  assert.match(fila, /src="\.\.\/assets\/img\/cert\/firma-ipcil\.png"[^>]*alt="Firma de la Coordinación de Certificación de IPCIL Latinoamericano"/);
+  assert.match(fila, /Coordinación de Certificación/);
+  assert.match(fila, /IPCIL Latinoamericano/);
+  // la firma de Erick sigue donde estaba (una sola imagen de firma de Zoorigen) y la de IPCIL es otra imagen distinta
+  assert.ok(fs.existsSync(path.join(RAIZ, 'assets/img/cert/firma-ipcil.png')), 'existe el archivo de la firma');
+});
+
+test('ver-certificado.html: la firma de IPCIL es un PNG con transparencia, ligero y de buen tamaño', () => {
+  const png = fs.readFileSync(path.join(RAIZ, 'assets/img/cert/firma-ipcil.png'));
+  assert.equal(png.subarray(1, 4).toString(), 'PNG');
+  assert.equal(png[25], 6, 'color con canal alfa (fondo transparente)');
+  assert.ok(png.length < 120 * 1024, 'pesa poco: ' + png.length);
+  assert.ok(png.readUInt32BE(16) >= 300, 'ancho suficiente para imprimir');
+});
+
+test('ver-certificado.html: la fecha ya no va como columna; pasa a un pie fino con folio, sitio, fecha y lugar', () => {
+  const html = leer('pages/ver-certificado.html');
+  assert.equal(html.includes('Fecha de expedición'), false, 'ya no hay columna de fecha');
+  assert.equal(html.includes('id="certDate"'), false);
+  assert.match(html, /<div class="cert-pie" id="certPie">/);
+  const js = html.slice(html.indexOf("getElementById('certPie')"));
+  for (const parte of ["'Folio: ' + c.folio", "'zoorigen.com'", "'Emitido el ' + c.fechaTexto", "'Tehuacán, Puebla, México'", "'Certificado emitido digitalmente por Zoorigen México'"]) {
+    assert.ok(js.includes(parte), parte);
+  }
+  // la fecha sale del dato real del certificado y se pone como texto (sin innerHTML)
+  assert.match(js, /\.textContent = \[/);
+  // el pie es chico y gris, dentro del marco
+  const css = html.slice(html.indexOf('.cert-pie {'), html.indexOf('.cert-pie {') + 500);
+  assert.match(css, /font-size: \.66rem/);
+  assert.match(css, /color: #6b7a72/);
+});
+
+test('ver-certificado.html: el QR y el folio oficial siguen en el certificado', () => {
+  const html = leer('pages/ver-certificado.html');
+  assert.match(html, /id="qrCode"/);
+  assert.match(html, /id="folioDisplay"/);
+  assert.match(html, /const verifyUrl = ZOO_CERT\.urlVerificacion\(c\.folio\)/);
+});
+
+test('ver-certificado.html: nombre largo y curso de dos líneas se ajustan para no encimarse con las firmas ni con el pie', () => {
+  const html = leer('pages/ver-certificado.html');
+  assert.match(html, /function ajustarCertificado\(\)/);
+  assert.match(html, /inner\.scrollHeight > inner\.clientHeight/);
+  assert.match(html, /ajustarCertificado\(\);[\s\S]*document\.fonts\.ready\.then\(ajustarCertificado\)/);
+});
+
+test('certificado ANTERIOR (folio viejo, respuesta anterior:true): se dibuja con el diseño nuevo, con la fecha en el pie', async () => {
+  const r = await C.consultar('ZOO-2025-48213', {
+    base: 'https://servidor.example',
+    fetch: async () => respuesta(200, {
+      valido: true, anterior: true,
+      certificado: { folio: 'ZOO-2025-48213', nombre: 'Ana Pérez', curso: 'Biología de tiburones', area: 'Fauna silvestre', horas: 6, sesiones: 3, instructor: 'Equipo Zoorigen', emitido: '2025-03-04T15:00:00.000Z' }
+    })
+  });
+  assert.equal(r.ok, true);
+  assert.equal(r.certificado.folio, 'ZOO-2025-48213');
+  assert.equal(r.certificado.fechaTexto, '4 de marzo de 2025', 'el pie recibe la fecha real del certificado viejo');
+  // la plantilla es la misma para firmados y anteriores: no hay otra versión del diseño ni distinción por folio
+  const html = leer('pages/ver-certificado.html');
+  assert.equal(/c\.anterior|\.anterior\b/.test(quitarComentarios(html)), false, 'la plantilla no cambia según el tipo de certificado');
+  assert.ok(html.includes("c.fechaTexto ? 'Emitido el ' + c.fechaTexto : ''"), 'sin fecha el pie no inventa una');
+});
