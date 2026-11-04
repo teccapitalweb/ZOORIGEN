@@ -9,8 +9,11 @@
 .ap-sb-lista { margin: 12px 0 0; padding: 0; list-style: none; }
 .ap-sb { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto 120px; gap: 8px 16px; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--c-line-soft); font-size: .9rem; }
 .ap-sb:last-child { border-bottom: 0; }
-.ap-sb__fecha strong, .ap-sb__quien strong { display: block; color: var(--c-text); font-weight: 700; overflow-wrap: anywhere; }
-.ap-sb__fecha span, .ap-sb__quien span { display: block; font-size: .82rem; color: var(--c-text-3); overflow-wrap: anywhere; }
+/* El nombre se parte solo entre palabras y el correo ocupa su propio renglón: nada se parte letra por letra salvo que de verdad no quepa */
+.ap-sb__quien { min-width: 0; }
+.ap-sb__fecha strong, .ap-sb__quien strong { display: block; color: var(--c-text); font-weight: 700; overflow-wrap: break-word; word-break: normal; }
+.ap-sb__fecha span, .ap-sb__quien span { display: block; font-size: .82rem; color: var(--c-text-3); overflow-wrap: break-word; word-break: normal; }
+.ap-sb__quien .ap-correo { display: block; }
 .ap-sb__chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .ap-sb__monto { text-align: right; font-weight: 800; font-size: 1rem; color: var(--c-text); font-variant-numeric: tabular-nums; }
 .ap-sb__monto small { display: block; font-weight: 500; font-size: .78rem; color: var(--c-text-3); }
@@ -18,10 +21,44 @@
 .ap-sb__ayuda { margin: 12px 2px 0; font-size: .84rem; line-height: 1.5; color: var(--c-text-3); }
 .ap-sb__pie { margin: 18px 4px 0; font-size: .82rem; line-height: 1.55; color: var(--c-text-3); }
 
+/* Motivo del rechazo: debajo de las insignias, ocupa todo el ancho del renglón */
+.ap-sb__motivo { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 8px 14px; flex-wrap: wrap; padding: 8px 12px; border-radius: 12px; background: var(--c-bad-bg); border: 1px solid var(--c-bad-line); }
+.ap-sb__motivo-t { display: inline-flex; align-items: flex-start; gap: 8px; min-width: 0; font-size: .9rem; line-height: 1.4; color: var(--c-bad-ink); }
+.ap-sb__motivo-t svg { flex: none; margin-top: 2px; }
+.ap-sb__motivo-t strong { color: var(--c-text); font-weight: 700; }
+.ap-sb__motivo-t--sin { color: var(--c-text-2); }
+.ap-sb__motivo:has(.ap-sb__motivo-t--sin) { background: var(--c-surface); border-color: var(--c-line); }
+.ap-sb__ver { min-height: 36px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--c-bad-line); background: var(--c-surface); color: var(--c-text); font: 700 .84rem var(--zoo-font-body, inherit); cursor: pointer; }
+.ap-sb__ver:hover { border-color: var(--c-bad-ink); }
+.ap-sb__ver:focus-visible { outline: 3px solid #F7CB62; outline-offset: 2px; }
+:root[data-modo="claro"] .ap-sb__ver:focus-visible { outline-color: #1F5F8F; }
+.ap-sb--fallido[data-pago] { cursor: default; }
+.ap-sb--fallido:has(.ap-sb__ver) { cursor: pointer; }
+.ap-sb__detalle { grid-column: 1 / -1; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--c-line); background: var(--c-surface); cursor: default; }
+.ap-sb__detalle dl { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 22px; }
+.ap-sb__detalle dl > div:nth-child(-n+2) { grid-column: 1 / -1; }
+.ap-sb__detalle dt { font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--c-text-3); }
+.ap-sb__detalle dd { margin: 2px 0 0; font-size: .92rem; line-height: 1.5; color: var(--c-text); }
+.ap-sb__ref { margin: 10px 0 0; font-size: .8rem; color: var(--c-text-3); }
+.ap-ficha__motivo { margin: 14px 0 0; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--c-bad-line); background: var(--c-bad-bg); }
+.ap-ficha__motivo strong { display: block; color: var(--c-text); }
+.ap-ficha__motivo span { display: block; font-size: .84rem; color: var(--c-text-3); }
+.ap-ficha__motivo p { display: flex; align-items: flex-start; gap: 8px; margin: 8px 0 0; font-size: .92rem; line-height: 1.45; color: var(--c-text-2); }
+.ap-ficha__motivo p svg { flex: none; margin-top: 2px; color: var(--c-bad-ink); }
+
+/* Tablet y celular: el nombre y el correo usan TODO el ancho; después la fecha y el monto; las insignias; y el motivo */
 @media (max-width: 900px) {
-  .ap-sb { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "quien monto" "fecha chips"; row-gap: 6px; }
+  .ap-sb { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "quien quien" "fecha monto" "chips chips" "motivo motivo"; row-gap: 8px; }
   .ap-sb__quien { grid-area: quien; }
-  .ap-sb__monto { grid-area: monto; }
+  .ap-sb__monto { grid-area: monto; align-self: start; }
   .ap-sb__fecha { grid-area: fecha; }
-  .ap-sb__chips { grid-area: chips; }
+  .ap-sb__chips { grid-area: chips; justify-content: flex-start; }
+  .ap-sb__motivo { grid-area: motivo; }
+  .ap-sb__detalle { grid-column: 1 / -1; }
 }
+@media (max-width: 520px) {
+  .ap-sb__detalle dl { grid-template-columns: minmax(0, 1fr); }
+  .ap-sb__ver { width: 100%; min-height: 44px; }
+  .ap-sb__motivo { flex-direction: column; align-items: stretch; }
+}
+.ap-ficha__motivo p span { display: inline; font-size: inherit; color: inherit; }

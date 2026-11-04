@@ -9,12 +9,17 @@
 /*   2. «Planes por vencer y vencidos»: quién vence (en 7, 15 o   */
 /*      30 días; con «Se renueva solo» o «No se renovará») y      */
 /*      quién ya perdió su plan                                   */
-/*   3. dos gráficas: ¿cuánto prefieren pagar? y dinero cobrado   */
+/*   3. gráficas: «Por qué se rechazan los cobros» (por motivo y   */
+/*      categoría), ¿cuánto prefieren pagar? y dinero cobrado     */
 /*      por mes                                                   */
-/*   4. «Pagos de suscripción»: cada cobro, con filtros y buscador*/
+/*   4. «Pagos de suscripción»: cada cobro, con filtros y buscador;*/
+/*      en cada cobro rechazado, el MOTIVO (ya en español, que     */
+/*      viene traducido del servidor) con «Qué significa», «Qué    */
+/*      hacer», intentos y fecha del último                        */
 /* Datos: GET /api/admin/pagos (cobros que guarda el servidor),   */
 /* GET /api/admin/miembros (quién vence) y                        */
-/* POST /api/admin/pagos/sincronizar («Traer pagos desde Stripe»).*/
+/* POST /api/admin/pagos/sincronizar («Traer pagos desde Stripe»,  */
+/* que además completa el motivo de los rechazados).              */
 /* Los constructores son puros y se prueban en                    */
 /* tests/admin-suscripciones.test.js.                             */
 /* ============================================================ */
@@ -182,6 +187,14 @@
     return cab + '<p class="ap-sb__ayuda">' + esc(ayuda) + '</p>' + cuerpo;
   }
 
+  /* «Causa más común: Fondos insuficientes (2 de 3)» para la cifra de cobros rechazados */
+  function rechazosTop(pagos) {
+    var a = agruparRechazos(pagos);
+    if (!a.conMotivo) return '';
+    var m = a.categorias[0].motivos[0];
+    return 'Causa más común: ' + m.texto + ' (' + m.n + ' de ' + a.total + ')';
+  }
+
   /* ───────────────────────── Las seis cifras de arriba ───────────────────────── */
   function cifrasHTML(pagos, miembros, ahora) {
     var t = ahora === undefined ? Date.now() : ahora;
@@ -195,7 +208,7 @@
       K({ icono: 'wallet', rotulo: 'Dinero cobrado', valor: hayPagos ? dinero(s.dineroCobrado) : '—', nota: hayPagos ? num(s.nPagos) + (s.nPagos === 1 ? ' pago' : ' pagos') + ' con monto registrado' : 'Aún no hay pagos guardados', tono: 'ok' }),
       K({ icono: 'users', rotulo: 'Personas que han pagado', valor: hayPagos ? num(s.personas) : '—', nota: hayPagos ? num(s.renovaciones) + (s.renovaciones === 1 ? ' renovación registrada' : ' renovaciones registradas') : 'Pulsa «Traer pagos desde Stripe»', tono: 'info' }),
       K({ icono: 'badge-check', rotulo: 'Monto más elegido', valor: s.modaMonto === null ? '—' : dinero(s.modaMonto), nota: s.modaMonto === null ? 'Aún no hay pagos' : s.modaCuantos + ' de ' + s.modaDe + (s.modaEsPrimer ? ' en su primer pago' : ' pagos'), tono: 'aviso' }),
-      K({ icono: 'triangle-alert', rotulo: 'Cobros rechazados', valor: hayPagos ? num(s.fallidos) : '—', nota: 'Tarjeta sin fondos o rechazada', tono: s.fallidos ? 'error' : 'neutro' }),
+      K({ icono: 'triangle-alert', rotulo: 'Cobros rechazados', valor: hayPagos ? num(s.fallidos) : '—', nota: s.fallidos ? (rechazosTop(pagos) || 'Pulsa «Traer pagos desde Stripe» para ver el motivo') : 'Ningún cobro rechazado', tono: s.fallidos ? 'error' : 'neutro' }),
       K({ icono: 'calendar-clock', rotulo: 'Planes por vencer', valor: num(en7.length), nota: en7.length ? no + (no === 1 ? ' no se renovará' : ' no se renovarán') + ' · próximos 7 días' : 'Nadie vence en los próximos 7 días', tono: en7.length ? 'aviso' : 'neutro' }),
       K({ icono: 'hourglass', rotulo: 'Planes vencidos', valor: num(c.vencidos.length), nota: c.vencidos.length ? 'El más reciente: ' + dia(c.vencidos[0].vence) : 'Nadie ha perdido su plan todavía', tono: 'neutro' })
     ].join('') + '</div>';
@@ -232,15 +245,116 @@
     return p.nombre || (porCorreo && porCorreo[c]) || c.split('@')[0] || 'Sin nombre';
   }
 
-  function filaPago(p, porCorreo) {
+  /* ───────────────────────── Motivo de un cobro rechazado ─────────────────────────
+     Lo traduce el servidor (services/motivos-rechazo.js): p.motivo = { texto, significa, queHacer, categoria, codigo } o null si aún no se conoce. */
+  var CATEGORIAS = { fondos: 'Fondos insuficientes', tarjeta: 'Problema con la tarjeta', banco: 'Decisión del banco', verificacion: 'Verificación del banco', seguridad: 'Seguridad o posible fraude', otro: 'Otro motivo' };
+  var ORDEN_CAT = ['fondos', 'tarjeta', 'banco', 'verificacion', 'seguridad', 'otro'];
+  var SIN_MOTIVO = 'Motivo no disponible todavía. Pulsa «Traer pagos desde Stripe» para completarlo.';
+
+  function conMotivo(p) { return !!(p && p.motivo && p.motivo.texto); }
+
+  /* «Motivo: Fondos insuficientes» (o el aviso de que aún no se conoce) + el botón «Ver detalle» */
+  function motivoLineaHTML(p, abierto) {
+    var id = esc(p.id || '');
+    var texto = conMotivo(p)
+      ? '<span class="ap-sb__motivo-t">' + ico('circle-alert', { size: 16 }) + '<span>Motivo: <strong>' + esc(p.motivo.texto) + '</strong></span></span>'
+      : '<span class="ap-sb__motivo-t ap-sb__motivo-t--sin">' + ico('info', { size: 16 }) + '<span>' + esc(SIN_MOTIVO) + '</span></span>';
+    var boton = conMotivo(p)
+      ? '<button type="button" class="ap-sb__ver" data-sb-detalle="' + id + '" aria-expanded="' + (abierto ? 'true' : 'false') + '" aria-controls="apSbDet-' + id + '">' + (abierto ? 'Ocultar detalle' : 'Ver detalle') + '</button>' : '';
+    return '<div class="ap-sb__motivo">' + texto + boton + '</div>';
+  }
+
+  /* El bloque «Qué significa / Qué hacer», con los intentos y la fecha del último */
+  function detalleRechazoHTML(p) {
+    if (!conMotivo(p)) return '';
+    var m = p.motivo;
+    var intentos = Number(p.intentos) > 0 ? num(p.intentos) + (Number(p.intentos) === 1 ? ' intento' : ' intentos') : 'Sin dato';
+    var ultimo = p.ultimoIntento ? dia(p.ultimoIntento) + ' · ' + hora(p.ultimoIntento) : 'Sin dato';
+    var proximo = p.proximoIntento && Date.parse(p.proximoIntento) > Date.parse(p.ultimoIntento || p.fecha || 0)
+      ? '<div><dt>Próximo intento de Stripe</dt><dd>' + esc(dia(p.proximoIntento)) + '</dd></div>' : '';
+    return '<div class="ap-sb__detalle" id="apSbDet-' + esc(p.id || '') + '"><dl>' +
+      '<div><dt>Qué significa</dt><dd>' + esc(m.significa || '') + '</dd></div>' +
+      '<div><dt>Qué hacer</dt><dd>' + esc(m.queHacer || '') + '</dd></div>' +
+      '<div><dt>Intentos de cobro</dt><dd>' + esc(intentos) + '</dd></div>' +
+      '<div><dt>Último intento</dt><dd>' + esc(ultimo) + '</dd></div>' + proximo +
+      '</dl><p class="ap-sb__ref">Referencia para el equipo técnico: ' + esc(m.codigo || 'sin código') + '</p></div>';
+  }
+
+  /* Los rechazados agrupados por categoría (y dentro, por motivo): { total, conMotivo, sinMotivo, categorias: [{ clave, nombre, n, pct, motivos: [{ texto, n }] }] } */
+  function agruparRechazos(pagos) {
+    var rech = (Array.isArray(pagos) ? pagos : []).filter(function (p) { return p && p.estado === 'fallido'; });
+    var grupos = {}; var con = 0;
+    rech.forEach(function (p) {
+      if (!conMotivo(p)) return;
+      con++;
+      var k = CATEGORIAS[p.motivo.categoria] ? p.motivo.categoria : 'otro';
+      var g = grupos[k] || (grupos[k] = { clave: k, nombre: CATEGORIAS[k], n: 0, mapa: {} });
+      g.n++; g.mapa[p.motivo.texto] = (g.mapa[p.motivo.texto] || 0) + 1;
+    });
+    var categorias = Object.keys(grupos).map(function (k) {
+      var g = grupos[k];
+      return { clave: g.clave, nombre: g.nombre, n: g.n, pct: con ? Math.round(g.n / con * 100) : 0,
+        motivos: Object.keys(g.mapa).map(function (t) { return { texto: t, n: g.mapa[t] }; }).sort(function (a, b) { return b.n - a.n || a.texto.localeCompare(b.texto, 'es'); }) };
+    }).sort(function (a, b) { return b.n - a.n || ORDEN_CAT.indexOf(a.clave) - ORDEN_CAT.indexOf(b.clave); });
+    return { total: rech.length, conMotivo: con, sinMotivo: rech.length - con, categorias: categorias };
+  }
+
+  /* La frase «Cómo leerlo» de la gráfica, armada con los datos */
+  function fraseRechazos(a) {
+    if (!a.conMotivo) return '';
+    var t = a.categorias[0]; var m = t.motivos[0];
+    var txt = 'La causa más común es «' + t.nombre + '»: ' + num(t.n) + ' de ' + num(a.conMotivo) + ' cobros rechazados con motivo conocido (' + t.pct + ' %)' +
+      (t.motivos.length === 1 || m.n === t.n ? ', casi siempre por «' + m.texto + '».' : '. El motivo más repetido dentro de esa categoría es «' + m.texto + '».');
+    if (a.categorias[1] && a.categorias[1].n === t.n) txt = 'Hay empate arriba: «' + t.nombre + '» y «' + a.categorias[1].nombre + '» tienen ' + num(t.n) + ' cobros rechazados cada una, de ' + num(a.conMotivo) + ' con motivo conocido.';
+    if (a.sinMotivo) txt += ' ' + num(a.sinMotivo) + (a.sinMotivo === 1 ? ' rechazo todavía no tiene motivo' : ' rechazos todavía no tienen motivo') + ': pulsa «Traer pagos desde Stripe» para completarlos.';
+    return txt;
+  }
+
+  /* La gráfica «Por qué se rechazan los cobros»: una barra por categoría (con los motivos dentro), cuántos y qué porcentaje */
+  function graficaRechazosHTML(pagos) {
+    var a = agruparRechazos(pagos);
+    var vacioT = !a.total
+      ? { titulo: 'Todavía no hay cobros rechazados', texto: 'Cuando Stripe rechace un cobro, aquí verás por qué: fondos insuficientes, tarjeta vencida, el banco, etc.' }
+      : { titulo: 'Aún no conocemos los motivos', texto: 'Hay ' + num(a.total) + (a.total === 1 ? ' cobro rechazado' : ' cobros rechazados') + ' sin motivo guardado. Pulsa «Traer pagos desde Stripe» para completarlos.' };
+    var cuerpo = G.barrasH({
+      titulo: 'Por qué se rechazan los cobros', color: 4, total: a.conMotivo || 1,
+      filas: a.categorias.map(function (c) { return { etiqueta: c.nombre, valor: c.n, nota: c.motivos.length === 1 && c.motivos[0].texto === c.nombre ? '' : c.motivos.map(function (m) { return m.texto + ': ' + m.n; }).join(' · ') }; }),
+      vacio: vacioT
+    });
+    var frase = fraseRechazos(a);
+    return cuerpo + (frase ? '<p class="ap-frase" role="note"><strong>Cómo leerlo:</strong> ' + esc(frase) + '</p>' : '');
+  }
+
+  /* El último rechazo de una persona (por uid o por correo), para su ficha de miembro: la fila pública o null */
+  function ultimoRechazoDe(pagos, miembro) {
+    if (!miembro) return null;
+    var correo = String(miembro.correo || '').toLowerCase();
+    var lista = (Array.isArray(pagos) ? pagos : []).filter(function (p) {
+      return p && p.estado === 'fallido' && ((miembro.uid && p.uid === miembro.uid) || (correo && String(p.correo || '').toLowerCase() === correo));
+    }).sort(function (a, b) { return Date.parse(b.fecha) - Date.parse(a.fecha); });
+    return lista[0] || null;
+  }
+
+  /* Lo que se agrega a la ficha de un miembro con pago pendiente */
+  function fichaMotivoHTML(p) {
+    if (!p) return '';
+    if (!conMotivo(p)) return '<div class="ap-ficha__motivo"><strong>Último cobro rechazado</strong><span>' + esc(dia(p.fecha)) + ' · ' + esc(dinero(p.monto)) + '</span><p>' + esc(SIN_MOTIVO) + '</p></div>';
+    return '<div class="ap-ficha__motivo"><strong>Último cobro rechazado</strong><span>' + esc(dia(p.fecha)) + ' · ' + esc(dinero(p.monto)) + (Number(p.intentos) > 0 ? ' · ' + num(p.intentos) + (Number(p.intentos) === 1 ? ' intento' : ' intentos') : '') + '</span>' +
+      '<p>' + ico('circle-alert', { size: 16 }) + '<span>Motivo: <strong>' + esc(p.motivo.texto) + '</strong></span></p>' +
+      '<p><b>Qué hacer:</b> ' + esc(p.motivo.queHacer || '') + '</p></div>';
+  }
+
+  function filaPago(p, porCorreo, abierto) {
     var tipo = p.estado === 'fallido' ? chip('Rechazado', 'error') : p.tipo === 'primer' ? chip('Primer pago', 'ok') : chip('Renovación', 'info');
     var plan = p.plan === 'anual' ? chip('Anual', 'ok') : p.plan === 'mensual' ? chip('Mensual', 'info') : '';
     var monto = p.monto === null || p.monto === undefined
       ? '<div class="ap-sb__monto"><small>Monto no registrado</small></div>'
       : '<div class="ap-sb__monto' + (p.estado === 'fallido' ? ' ap-sb__monto--fallido' : '') + '">' + esc(dinero(p.monto)) + (p.moneda && p.moneda !== 'MXN' ? '<small>' + esc(p.moneda) + '</small>' : '') + '</div>';
-    return '<li class="ap-sb"><div class="ap-sb__fecha"><strong>' + esc(dia(p.fecha)) + '</strong><span>' + esc(hora(p.fecha)) + '</span></div>' +
+    var fallido = p.estado === 'fallido';
+    return '<li class="ap-sb' + (fallido ? ' ap-sb--fallido' + (abierto && conMotivo(p) ? ' is-abierto' : '') : '') + '"' + (fallido ? ' data-pago="' + esc(p.id || '') + '"' : '') + '><div class="ap-sb__fecha"><strong>' + esc(dia(p.fecha)) + '</strong><span>' + esc(hora(p.fecha)) + '</span></div>' +
       '<div class="ap-sb__quien"><strong>' + esc(nombreDe(p, porCorreo)) + '</strong><span class="ap-correo">' + esc(p.correo || '') + '</span></div>' +
-      '<div class="ap-sb__chips">' + tipo + plan + '</div>' + monto + '</li>';
+      '<div class="ap-sb__chips">' + tipo + plan + '</div>' + monto +
+      (fallido ? motivoLineaHTML(p, !!abierto) + (abierto ? detalleRechazoHTML(p) : '') : '') + '</li>';
   }
 
   function filtrarPagos(pagos, filtro, texto, porCorreo) {
@@ -267,7 +381,7 @@
     var botones = '';
     if (faltan > 0) botones += '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="pagos-mas">Ver más (' + num(faltan) + ')</button>';
     if (mostrar.length > INI_PAGOS) botones += '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="pagos-menos">Ver menos</button>';
-    return '<ul class="ap-sb-lista" aria-label="Pagos de suscripción, del más reciente al más antiguo">' + mostrar.map(function (p) { return filaPago(p, porCorreo); }).join('') + '</ul>' +
+    return '<ul class="ap-sb-lista" aria-label="Pagos de suscripción, del más reciente al más antiguo">' + mostrar.map(function (p) { return filaPago(p, porCorreo, !!(u.abiertos && u.abiertos[p.id])); }).join('') + '</ul>' +
       '<p class="ap-pie-tabla" role="status">Mostrando ' + num(mostrar.length) + ' de ' + num(vistas.length) + '</p>' + (botones ? '<div class="ap-cp-mas">' + botones + '</div>' : '');
   }
 
@@ -298,6 +412,7 @@
     });
     var aviso = data.pagos === null ? '<div class="ap-aviso ap-aviso--info" role="note">' + ico('info', { size: 20 }) + '<div><p>El servidor todavía no ofrece el registro de pagos. Cuando termine su actualización aparecerán aquí; mientras tanto ves quién vence y quién ya venció.</p></div></div>' : '';
     return titulo + aviso + cifrasHTML(pagos, miembros, ahora) +
+      (pagos.length ? card('Por qué se rechazan los cobros', '<div id="apSbRechazos">' + graficaRechazosHTML(pagos) + '</div>', 'Qué dijo el banco o Stripe en cada cobro rechazado, ya traducido.', 'apSbRechazosCard') : '') +
       card('Planes por vencer y vencidos', '<div id="apSbVenc">' + vencimientosHTML(miembros, pagos, u, ahora) + '</div>', 'Quién está por perder el acceso y quién ya lo perdió.', 'apSbVencCard') +
       '<div class="ap-columnas">' +
       card('¿Cuánto prefieren pagar?', '<div id="apSbMonto">' + graficaMontoHTML(pagos, u.graf === 'todos' ? 'todos' : 'primer') + '</div>') +
@@ -307,12 +422,12 @@
   }
 
   /* ───────────────────────── Controlador (solo en el navegador) ───────────────────────── */
-  var est = { datos: null, tab: 'xvencer', horizonte: 7, solo: false, visibles: INI_VENCEN, graf: 'primer', filtro: 'todos', texto: '', visP: INI_PAGOS, ocupado: false };
+  var est = { datos: null, tab: 'xvencer', horizonte: 7, solo: false, visibles: INI_VENCEN, graf: 'primer', filtro: 'todos', texto: '', visP: INI_PAGOS, ocupado: false, abiertos: {} };
 
   function porCorreoActual() { var m = {}; ((est.datos && est.datos.miembros) || []).forEach(function (x) { if (x.correo) m[x.correo.toLowerCase()] = x.nombre; }); return m; }
   function pintarVenc() { var c = document.getElementById('apSbVenc'); if (c) c.innerHTML = vencimientosHTML(est.datos.miembros, est.datos.pagos || [], { tab: est.tab, horizonte: est.horizonte, solo: est.solo, visibles: est.visibles }); }
   function pintarMonto() { var c = document.getElementById('apSbMonto'); if (c) { c.innerHTML = graficaMontoHTML(est.datos.pagos || [], est.graf); G.activar(c); } }
-  function pintarPagos() { var c = document.getElementById('apSbPagos'); if (c) c.innerHTML = pagosListaHTML(est.datos.pagos || [], { filtro: est.filtro, texto: est.texto, visiblesPagos: est.visP }, porCorreoActual()); }
+  function pintarPagos() { var c = document.getElementById('apSbPagos'); if (c) c.innerHTML = pagosListaHTML(est.datos.pagos || [], { filtro: est.filtro, texto: est.texto, visiblesPagos: est.visP, abiertos: est.abiertos }, porCorreoActual()); }
   function pintarFiltros() { Array.prototype.forEach.call(document.querySelectorAll('[data-sb-filtro]'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-sb-filtro') === est.filtro)); }); }
 
   async function cargar(forzar) {
@@ -333,6 +448,20 @@
     pintar();
   }
 
+  /* Lo que se dice al terminar «Traer pagos desde Stripe»: pagos nuevos, rechazos nuevos y motivos completados */
+  function resumenSincronizacion(r) {
+    var x = r || {};
+    var partes = [];
+    if (x.nuevos) partes.push((x.nuevos === 1 ? 'se guardó ' : 'se guardaron ') + num(x.nuevos) + (x.nuevos === 1 ? ' pago nuevo' : ' pagos nuevos'));
+    if (x.fallidosNuevos) partes.push(num(x.fallidosNuevos) + (x.fallidosNuevos === 1 ? ' rechazo nuevo' : ' rechazos nuevos'));
+    if (x.motivosCompletados) partes.push('motivos completados: ' + num(x.motivosCompletados));
+    var texto = partes.length ? partes.join(' · ') : 'Todo estaba al día';
+    texto = texto.charAt(0).toUpperCase() + texto.slice(1) + '.';
+    if (x.motivosPendientes) texto += ' Quedan ' + num(x.motivosPendientes) + (x.motivosPendientes === 1 ? ' rechazo' : ' rechazos') + ' sin motivo (Stripe no lo informó o no respondió; puedes volver a intentarlo).';
+    if (x.errores) texto += ' ' + num(x.errores) + (x.errores === 1 ? ' consulta' : ' consultas') + ' a Stripe no se pudieron hacer.';
+    return texto;
+  }
+
   async function sincronizar(boton) {
     var ctx = V.util.contexto();
     if (est.ocupado) return;
@@ -341,7 +470,7 @@
     try {
       var r = await ctx.api('/api/admin/pagos/sincronizar', { method: 'POST', body: {} });
       est.ocupado = false;
-      ctx.toast(r.nuevos ? 'Se guardaron ' + num(r.nuevos) + (r.nuevos === 1 ? ' pago nuevo' : ' pagos nuevos') + ' desde Stripe.' : 'Todos los pagos ya estaban guardados' + (r.errores ? ' (' + num(r.errores) + ' no se pudieron revisar).' : '.'));
+      ctx.toast(resumenSincronizacion(r));
       await cargar(true);
     } catch (e) {
       est.ocupado = false; if (boton) boton.disabled = false;
@@ -352,7 +481,7 @@
   function pintar() {
     var u = V.util; var v = u.vista();
     var y = typeof window !== 'undefined' ? window.scrollY : 0;
-    v.innerHTML = vistaHTML(est.datos, { tab: est.tab, horizonte: est.horizonte, solo: est.solo, visibles: est.visibles, graf: est.graf, filtro: est.filtro, texto: est.texto, visiblesPagos: est.visP });
+    v.innerHTML = vistaHTML(est.datos, { tab: est.tab, horizonte: est.horizonte, solo: est.solo, visibles: est.visibles, graf: est.graf, filtro: est.filtro, texto: est.texto, visiblesPagos: est.visP, abiertos: est.abiertos });
     G.activar(v);
     if (y && typeof window !== 'undefined') window.scrollTo(0, y);
     var buscar = document.getElementById('apSbBuscar');
@@ -366,6 +495,13 @@
       if (so) { est.solo = so.getAttribute('data-sb-solo') === '1'; est.visibles = INI_VENCEN; pintarVenc(); return; }
       var g = ev.target.closest('[data-sb-graf]');
       if (g) { est.graf = g.getAttribute('data-sb-graf'); pintarMonto(); return; }
+      var det = ev.target.closest('[data-sb-detalle]') || (!ev.target.closest('a, button, input, select, label') ? ev.target.closest('.ap-sb--fallido[data-pago]') : null);
+      if (det) {
+        var idp = det.getAttribute('data-sb-detalle') || det.getAttribute('data-pago');
+        var fila = ((est.datos && est.datos.pagos) || []).filter(function (x) { return x.id === idp; })[0];
+        if (fila && conMotivo(fila)) { est.abiertos[idp] = !est.abiertos[idp]; pintarPagos(); }
+        return;
+      }
       var f = ev.target.closest('[data-sb-filtro]');
       if (f) { est.filtro = f.getAttribute('data-sb-filtro'); est.visP = INI_PAGOS; pintarFiltros(); pintarPagos(); return; }
       u.acciones(ev, {
@@ -383,7 +519,8 @@
     INI_VENCEN: INI_VENCEN, PASO_VENCEN: PASO_VENCEN, INI_PAGOS: INI_PAGOS, PASO_PAGOS: PASO_PAGOS,
     dinero: dinero, resumenPagos: resumenPagos, montosElegidos: montosElegidos, dineroPorMes: dineroPorMes, clasificarVencimientos: clasificarVencimientos, cuando: cuando,
     filaVencimiento: filaVencimiento, vencimientosHTML: vencimientosHTML, cifrasHTML: cifrasHTML, graficaMontoHTML: graficaMontoHTML, graficaMesesHTML: graficaMesesHTML,
-    filaPago: filaPago, filtrarPagos: filtrarPagos, conteos: conteos, pagosListaHTML: pagosListaHTML, pagosCardHTML: pagosCardHTML, vistaHTML: vistaHTML,
+    filaPago: filaPago, motivoLineaHTML: motivoLineaHTML, detalleRechazoHTML: detalleRechazoHTML, agruparRechazos: agruparRechazos, fraseRechazos: fraseRechazos, graficaRechazosHTML: graficaRechazosHTML,
+    ultimoRechazoDe: ultimoRechazoDe, fichaMotivoHTML: fichaMotivoHTML, resumenSincronizacion: resumenSincronizacion, rechazosTop: rechazosTop, SIN_MOTIVO: SIN_MOTIVO, CATEGORIAS: CATEGORIAS, filtrarPagos: filtrarPagos, conteos: conteos, pagosListaHTML: pagosListaHTML, pagosCardHTML: pagosCardHTML, vistaHTML: vistaHTML,
     suscripciones: cargar
   };
 });

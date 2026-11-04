@@ -118,7 +118,7 @@ test('las seis cifras de arriba, con su nota; sin pagos guardados no inventa nad
   const pagos = [pago('a', 3), pago('b', 5, { monto: 99 }), pago('c', 16)];
   const miembros = [miembro('a', { vence: dias(3), estado: 'cancelado-vigente' }), miembro('b', { vence: dias(20) }), miembro('v', { estado: 'vencido', conAcceso: false, vence: dias(-2) })];
   const h = A.cifrasHTML(pagos, miembros, AHORA);
-  for (const t of ['Dinero cobrado', '$497', '3 pagos con monto registrado', 'Personas que han pagado', '0 renovaciones registradas', 'Monto más elegido', '$199', '2 de 3 en su primer pago', 'Cobros rechazados', 'Tarjeta sin fondos o rechazada',
+  for (const t of ['Dinero cobrado', '$497', '3 pagos con monto registrado', 'Personas que han pagado', '0 renovaciones registradas', 'Monto más elegido', '$199', '2 de 3 en su primer pago', 'Cobros rechazados', 'Ningún cobro rechazado',
     'Planes por vencer', '1 no se renovará · próximos 7 días', 'Planes vencidos', 'El más reciente:']) assert.ok(h.includes(t), t);
   const v = A.cifrasHTML([], [], AHORA);
   assert.ok(v.includes('Aún no hay pagos guardados') && v.includes('Nadie vence en los próximos 7 días') && v.includes('Nadie ha perdido su plan todavía'));
