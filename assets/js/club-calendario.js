@@ -8,6 +8,11 @@
 /* respuesta y se arman las tarjetas (constructores de HTML sin  */
 /* efectos; todo texto de la base de datos se escapa).           */
 /*                                                                */
+/* Cambio de orden: con 35 y 55 retos nuevos (mínimo 8 y 14 de   */
+/* cada tipo) el miembro elige qué curso cerrado se abre primero. */
+/* Solo 2 cambios. Lo decide el servidor; aquí se pinta el        */
+/* avance, la ventana para elegir el curso y la confirmación.     */
+/*                                                                */
 /* Si el servidor no responde, las páginas siguen con la regla   */
 /* de siempre de club-acceso.js: nadie pierde un curso abierto.  */
 /* Se prueba en Node: tests/club-calendario.test.js              */
@@ -134,7 +139,10 @@
     check: '<path d="M20 6 9 17l-5-5"/>',
     calendario: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
     candadoAbierto: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
-    flecha: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>'
+    flecha: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    orden: '<path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/>',
+    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    insignia: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>'
   };
   function svg(nombre, tam) {
     return '<svg class="zcal-ic" width="' + (tam || 18) + '" height="' + (tam || 18) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (IC[nombre] || '') + '</svg>';
@@ -208,6 +216,133 @@
       esc(mod) + 'Tu ruta VIP: <strong>1 curso nuevo cada 8 días</strong> desde que te hiciste miembro.' + llevas + ' Tienes <strong>' + esc(abiertos) + '</strong> de ' + esc(r.total) + ' cursos disponibles.' + sig + '</div></div>';
   }
 
+  /* ───────────────────────── Cambio de orden de los cursos ───────────────────────── */
+
+  // Metas por si el servidor no las manda (las decide siempre el servidor: services/retos.js · CAMBIOS_ORDEN)
+  var METAS_CAMBIO = [{ n: 1, total: 35, porTipo: 8 }, { n: 2, total: 55, porTipo: 14 }];
+  var TIPOS_CORTOS = [['quiz', 'Quiz'], ['detective', 'Detective'], ['orden', 'Ordena']];
+
+  // GET /api/calendario/cambio-orden (o el campo cambioOrden de GET /api/retos) → modelo para pintar, o null si no aplica.
+  function cambioOrden(resp) {
+    if (!resp || typeof resp !== 'object' || resp.ok === false || resp.aplica === false) return null;
+    var c = resp.contados && typeof resp.contados === 'object' ? resp.contados : {};
+    var contados = { quiz: entero(c.quiz, 0, 1000), detective: entero(c.detective, 0, 1000), orden: entero(c.orden, 0, 1000) };
+    contados.total = contados.quiz + contados.detective + contados.orden;
+    var usados = entero(resp.usados, 0, 10);
+    var maximo = resp.maximo ? entero(resp.maximo, 1, 10) : METAS_CAMBIO.length;
+    var tramos = METAS_CAMBIO.map(function (m, i) {
+      var t = Array.isArray(resp.tramos) && resp.tramos[i] && typeof resp.tramos[i] === 'object' ? resp.tramos[i] : {};
+      var total = Number(t.total) > 0 ? entero(t.total, 1, 1000) : m.total, porTipo = Number(t.porTipo) > 0 ? entero(t.porTipo, 1, 1000) : m.porTipo;
+      var cumple = contados.total >= total && TIPOS_CORTOS.every(function (x) { return contados[x[0]] >= porTipo; });
+      return { n: m.n, total: total, porTipo: porTipo, usado: usados >= m.n, cumple: cumple };
+    });
+    var sig = null;
+    for (var i = 0; i < tramos.length; i++) { if (!tramos[i].usado) { sig = tramos[i]; break; } }
+    var xp = resp.xpInsignias && typeof resp.xpInsignias === 'object' ? resp.xpInsignias : {};
+    var cerrados = (Array.isArray(resp.cursosCerrados) ? resp.cursosCerrados : []).filter(function (x) { return x && typeof x.cursoId === 'string' && x.cursoId; }).map(function (x) {
+      return { cursoId: x.cursoId, titulo: String(x.titulo || ''), lugar: entero(x.lugar, 1, 1000), desbloqueoEn: fechaMs(x.desbloqueoEn), diasFalta: Number.isFinite(Number(x.diasFalta)) ? Math.max(0, Math.floor(Number(x.diasFalta))) : null };
+    });
+    var cambios = (Array.isArray(resp.cambios) ? resp.cambios : []).filter(function (x) { return x && typeof x === 'object'; }).map(function (x) {
+      return { n: entero(x.n, 1, 10), cursoId: String(x.cursoId || ''), titulo: String(x.titulo || ''), en: fechaMs(x.en) };
+    });
+    return {
+      usados: Math.min(usados, maximo), maximo: maximo, completo: usados >= maximo, contados: contados, tramos: tramos, siguiente: sig,
+      disponible: resp.disponible === true && !!sig && sig.cumple, cerrados: cerrados, cambios: cambios,
+      xp: { 1: entero(xp[1], 0, 1000) || 40, 2: entero(xp[2], 0, 1000) || 60 }
+    };
+  }
+
+  function faltanTexto(co) {
+    var t = co.siguiente;
+    if (!t) return '';
+    var partes = [];
+    TIPOS_CORTOS.forEach(function (x) { var f = t.porTipo - co.contados[x[0]]; if (f > 0) partes.push(f + ' de ' + x[1].toLowerCase()); });
+    var faltaTotal = Math.max(t.total - co.contados.total, 0);
+    if (!partes.length) return faltaTotal === 1 ? 'Te falta 1 reto de cualquier tipo' : 'Te faltan ' + faltaTotal + ' retos de cualquier tipo';
+    return 'Te faltan ' + partes.join(', ') + (faltaTotal > 0 ? ' y, en total, ' + faltaTotal + ' retos más' : '');
+  }
+
+  function fechaCorta(ms) {
+    if (!Number.isFinite(ms)) return '';
+    var d = new Date(ms);
+    return d.getDate() + ' de ' + MESES[d.getMonth()];
+  }
+
+  // Bloque "Cambia el orden de tu calendario".
+  //   o.modo: 'cursos' (con el botón para elegir el curso) | 'retos' (solo avance; el botón lleva a Cursos)
+  //   o.href: enlace de Cursos para el modo 'retos'; o.hrefRetos: enlace a Retos para el modo 'cursos'
+  function cambioOrdenHTML(co, o) {
+    if (!co) return '';
+    var op = o || {};
+    var t = co.siguiente;
+    var pasos = co.tramos.map(function (x) {
+      var estado = x.usado ? 'Hecho' : (t && t.n === x.n ? (x.cumple ? 'Disponible' : 'En curso') : 'Pendiente');
+      var clase = x.usado ? ' is-hecho' : (t && t.n === x.n ? (x.cumple ? ' is-listo' : ' is-actual') : '');
+      return '<li class="zco-paso' + clase + '"><span class="zco-paso__n">' + (x.usado ? svg('check', 16) : esc(x.n)) + '</span><span class="zco-paso__txt"><b>Cambio ' + esc(x.n) + ' de ' + esc(co.maximo) + '</b>' +
+        '<small>' + esc(x.total) + ' retos nuevos · mínimo ' + esc(x.porTipo) + ' de cada tipo</small></span>' +
+        '<span class="zco-paso__xp">' + svg('insignia', 14) + '+' + esc(co.xp[x.n]) + ' XP</span><span class="zco-paso__e">' + esc(estado) + '</span></li>';
+    }).join('');
+    var cuerpo;
+    if (co.completo) {
+      cuerpo = '<p class="zco__fin">' + svg('check', 18) + '<span>Ya usaste tus 2 cambios. No hay más, pero tus insignias se quedan en Mis logros.</span></p>';
+    } else {
+      var hecho = Math.min(co.contados.total, t.total);
+      var pct = t.total ? Math.max(0, Math.min(100, Math.round(hecho * 100 / t.total))) : 0;
+      var tipos = TIPOS_CORTOS.map(function (x) {
+        var h = Math.min(co.contados[x[0]], t.porTipo), ok = co.contados[x[0]] >= t.porTipo;
+        return '<li class="zcal-tipo' + (ok ? ' is-ok' : '') + '"><span class="zcal-tipo__n">' + esc(x[1]) + '</span><span class="zcal-tipo__b"><i style="width:' + Math.round(h * 100 / t.porTipo) + '%"></i></span>' +
+          '<span class="zcal-tipo__c">' + (ok ? svg('check', 14) : esc(co.contados[x[0]] + '/' + t.porTipo)) + '</span></li>';
+      }).join('');
+      // En Retos solo llega el avance (sin la lista de cursos): se considera listo cuando se cumplen los retos
+      var listo = op.modo === 'retos' ? t.cumple : co.disponible;
+      var boton = '';
+      if (listo && op.modo !== 'retos') boton = '<button type="button" class="zcal-btn" data-zco="elegir">' + svg('orden', 16) + 'Elegir el curso que se abre primero</button>';
+      else if (listo && op.href) boton = '<a class="zcal-btn" href="' + esc(op.href) + '">' + svg('orden', 16) + 'Elegir mi curso</a>';
+      else if (op.modo !== 'retos' && op.hrefRetos) boton = '<a class="zcal-btn" href="' + esc(op.hrefRetos) + '">Ir a los retos' + svg('flecha', 16) + '</a>';
+      var nota = listo ? 'Ya cumpliste los retos del cambio ' + t.n + '. Puedes hacerlo cuando quieras.'
+        : (t.cumple ? 'Ya cumpliste los retos, pero no hay otro curso cerrado que mover por ahora.' : faltanTexto(co) + '.');
+      cuerpo = '<div class="zcal-barra" role="progressbar" aria-label="Retos nuevos para el cambio ' + esc(t.n) + '" aria-valuemin="0" aria-valuemax="' + t.total + '" aria-valuenow="' + hecho + '"><span style="width:' + pct + '%"></span></div>' +
+        '<p class="zcal-retos__n"><b>' + esc(hecho) + ' de ' + esc(t.total) + '</b> retos nuevos para el cambio ' + esc(t.n) + ' · ' + esc(nota) + '</p>' +
+        '<ul class="zcal-tipos">' + tipos + '</ul>' + (boton ? '<div class="zco__acc">' + boton + '</div>' : '');
+    }
+    var hechos = co.cambios.length ? '<ul class="zco__hist">' + co.cambios.map(function (x) {
+      return '<li>' + svg('check', 14) + '<span>Cambio ' + esc(x.n) + ': «' + esc(x.titulo || 'Tu curso') + '» pasó a ser el siguiente en abrirse' + (Number.isFinite(x.en) ? ' (' + esc(fechaCorta(x.en)) + ')' : '') + '.</span></li>';
+    }).join('') + '</ul>' : '';
+    return '<section class="zco" id="cambiar-orden" aria-labelledby="zcoTitulo">' +
+      '<span class="zco__ic" aria-hidden="true">' + svg('orden', 26) + '</span>' +
+      '<div class="zco__cuerpo">' +
+        '<p class="zcal-eyebrow">Tu calendario</p>' +
+        '<h3 class="zco__t" id="zcoTitulo">Cambia el orden de tu calendario</h3>' +
+        '<p class="zcal-retos__txt">Resuelve retos nuevos y elige qué curso cerrado se abre primero. <b>Solo hay 2 cambios en total</b> (mueves 2 cursos): uno con 35 retos nuevos y otro con 55, con al menos 8 y 14 de cada tipo. ' +
+        'Las fechas de apertura no cambian, solo se reparten distinto, y los cursos que ya abriste no se tocan.</p>' +
+        '<ol class="zco__pasos">' + pasos + '</ol>' + cuerpo + hechos +
+        '<p class="zco__nota">Cuentan los retos del camino (quiz, detective y ordena) que superes desde ahora. Si repites uno que ya habías resuelto antes, cuenta una sola vez (sin XP nuevo). El modo historia no cuenta.</p>' +
+      '</div></section>';
+  }
+
+  // Ventana para elegir el curso y confirmar (el cambio es definitivo). Los textos de la base de datos se escapan.
+  function cambioOrdenModalHTML(co) {
+    if (!co || !co.siguiente) return '';
+    var primero = co.cerrados[0] || null;
+    var otros = co.cerrados.filter(function (c) { return c.lugar !== 1; });
+    var items = otros.map(function (c) {
+      var llegaria = primero && Number.isFinite(primero.diasFalta) ? ' · pasaría a abrirse ' + esc(cuando(primero.diasFalta)) : '';
+      return '<li><label class="zco-op"><input type="radio" name="zcoCurso" value="' + esc(c.cursoId) + '">' +
+        '<span class="zco-op__t"><b>' + esc(c.titulo || 'Curso') + '</b><small>Ahora se abre ' + (Number.isFinite(c.diasFalta) ? esc(cuando(c.diasFalta)) : 'más adelante') + (Number.isFinite(c.desbloqueoEn) ? ' (' + esc(fechaLarga(c.desbloqueoEn)) + ')' : '') + llegaria + '</small></span></label></li>';
+    }).join('');
+    return '<div class="zco-fondo" data-zco="cerrar"></div>' +
+      '<div class="zco-modal" role="dialog" aria-modal="true" aria-labelledby="zcoModalT" tabindex="-1">' +
+        '<button type="button" class="zco-x" data-zco="cerrar" aria-label="Cerrar">' + svg('x', 18) + '</button>' +
+        '<p class="zcal-eyebrow">Cambio ' + esc(co.siguiente.n) + ' de ' + esc(co.maximo) + '</p>' +
+        '<h3 id="zcoModalT" class="zco-modal__t">Elige el curso que se abre primero</h3>' +
+        (primero ? '<p class="zco-modal__txt">Ahora se abre primero «' + esc(primero.titulo || 'tu siguiente curso') + '»' + (Number.isFinite(primero.diasFalta) ? ' (' + esc(cuando(primero.diasFalta)) + ')' : '') + '. El curso que elijas ocupará ese lugar y los demás se recorren; las fechas son las mismas.</p>' : '') +
+        '<ul class="zco-lista" role="radiogroup" aria-label="Cursos cerrados">' + items + '</ul>' +
+        '<p class="zco-modal__aviso">' + svg('orden', 16) + '<span><b>Este cambio es definitivo.</b> No se puede deshacer.</span></p>' +
+        '<p class="zco-modal__err" role="alert" hidden></p>' +
+        '<div class="zco-pie"><button type="button" class="zco-sec" data-zco="cerrar">Cancelar</button><button type="button" class="zcal-btn" data-zco="confirmar" disabled>Confirmar el cambio</button></div>' +
+      '</div>';
+  }
+
   /* ───────────────────────── Red (solo navegador) ───────────────────────── */
 
   // apiFetch: ZOORIGEN_CLUB.apiFetch. Nunca lanza: si el servidor no responde devuelve null y la página usa la regla de siempre.
@@ -225,6 +360,7 @@
   return {
     RETOS_META: RETOS_META, TIPOS: TIPOS,
     normalizar: normalizar, primerCurso: primerCurso, desbloqueo: desbloqueo, resumen: resumen, cargar: cargar,
+    cambioOrden: cambioOrden, cambioOrdenHTML: cambioOrdenHTML, cambioOrdenModalHTML: cambioOrdenModalHTML, faltanTexto: faltanTexto,
     cuando: cuando, fechaLarga: fechaLarga, tituloTarjeta: tituloTarjeta, textoFaltan: textoFaltan,
     tarjetaRetosHTML: tarjetaRetosHTML, tiraRetosHTML: tiraRetosHTML, avisoRetosHTML: avisoRetosHTML, proximoHTML: proximoHTML, bannerRutaHTML: bannerRutaHTML
   };

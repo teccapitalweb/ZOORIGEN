@@ -416,7 +416,7 @@
     const reducir = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     const img = ruta => (/^(https?:|\/|data:)/.test(ruta) ? ruta : base + ruta);
 
-    const estado = { primerCurso: null, cargado: false, error: false, membresia: sesionMiembro, nivel: null, xp: 0, superados: 0, camino: { quiz: 0, detective: 0, orden: 0 }, caminoHechos: { quiz: [], detective: [], orden: [] }, totales: {}, retosHoy: [], porReto: {} };
+    const estado = { cambioOrden: null, primerCurso: null, cargado: false, error: false, membresia: sesionMiembro, nivel: null, xp: 0, superados: 0, camino: { quiz: 0, detective: 0, orden: 0 }, caminoHechos: { quiz: [], detective: [], orden: [] }, totales: {}, retosHoy: [], porReto: {} };
     let nivelAnterior = null;
 
     /* ── Red ── */
@@ -445,6 +445,7 @@
       estado.camino = n.camino; estado.caminoHechos = n.caminoHechos; estado.totales = n.totales; estado.retosHoy = n.retosHoy; estado.porReto = n.porReto;
       estado.cargado = true; estado.error = false;
       avisarPrimerCurso(r && r.primerCurso);
+      aplicarCambioOrden(r && r.cambioOrden, n.membresia);
     }
     async function cargarEstado() {
       try { aplicarEstado(await pedir('/api/retos')); }
@@ -458,6 +459,7 @@
       '<div id="rzAviso" class="rz-aviso-zona" aria-live="polite"></div>' +
       '<div id="rzHero"></div>' +
       '<div id="rzPrimer"></div>' +
+      '<div id="rzCambioOrden"></div>' +
       '<div class="rz-atajos"><div id="rzHistoria"></div><div id="rzDia"></div></div>' +
       '<h2 class="rz-h2">Elige tu reto</h2><div id="rzTarjetas" class="rz-grid"></div>' +
       '<section id="rzEscenario" class="rz-escenario" aria-live="polite" tabindex="-1" hidden></section>' +
@@ -501,6 +503,17 @@
         }
       } else estado.primerCurso = n;
       if (typeof pintarPrimerCurso === 'function' && q('rzPrimer')) pintarPrimerCurso();
+    }
+
+    /* ── Cambia el orden de tu calendario: solo el avance (35 y 55 retos nuevos); elegir el curso se hace en Cursos ── */
+    function pintarCambioOrden() {
+      const caja = q('rzCambioOrden');
+      if (!caja) return;
+      caja.innerHTML = CAL && esMiembro() && estado.cambioOrden ? CAL.cambioOrdenHTML(estado.cambioOrden, { modo: 'retos', href: 'club-biblioteca.html#cambiar-orden' }) : '';
+    }
+    function aplicarCambioOrden(co, membresia) {
+      estado.cambioOrden = CAL && membresia && co ? CAL.cambioOrden(Object.assign({}, co, { disponible: undefined })) : null;
+      if (q('rzCambioOrden')) pintarCambioOrden();
     }
 
     /* ── Hero de nivel ── */
@@ -648,6 +661,7 @@
       if (r.aceptado === false) toast('Este reto ya estaba superado', 'Puedes elegir otro reto del camino.', 'info');
       else avisarRecompensa(r, 'Reto del camino superado', true);
       if (r.primerCurso) avisarPrimerCurso(r.primerCurso);
+      if (r.cambioOrden) aplicarCambioOrden(r.cambioOrden, true);
       cargarEstado().then(() => { revisarSubida(); pintarHero(); pintarDia(); pintarTarjetas(); });   // el nivel lo recalcula el servidor
       return r;
     }
@@ -667,7 +681,7 @@
           stage.hidden = true; stage.innerHTML = '';
           return;
         }
-        pintarHero(); pintarPrimerCurso(); pintarTarjetas();
+        pintarHero(); pintarPrimerCurso(); pintarCambioOrden(); pintarTarjetas();
         if (!esMiembro()) { verBloqueado(); return; }
       }
       verCamino(modo);
@@ -1052,7 +1066,7 @@
       else if (a === 'reintentar-ranking') pintarRanking();
     });
 
-    function pintarTodo() { pintarAviso(); pintarHero(); pintarPrimerCurso(); pintarBannerHistoria(); pintarDia(); pintarTarjetas(); }
+    function pintarTodo() { pintarAviso(); pintarHero(); pintarPrimerCurso(); pintarCambioOrden(); pintarBannerHistoria(); pintarDia(); pintarTarjetas(); }
 
     /* ── Arranque ── */
     pintarTodo();
