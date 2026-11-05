@@ -235,7 +235,13 @@
       var t = Array.isArray(resp.tramos) && resp.tramos[i] && typeof resp.tramos[i] === 'object' ? resp.tramos[i] : {};
       var total = Number(t.total) > 0 ? entero(t.total, 1, 1000) : m.total, porTipo = Number(t.porTipo) > 0 ? entero(t.porTipo, 1, 1000) : m.porTipo;
       var cumple = contados.total >= total && TIPOS_CORTOS.every(function (x) { return contados[x[0]] >= porTipo; });
-      return { n: m.n, total: total, porTipo: porTipo, usado: usados >= m.n, cumple: cumple };
+      // Retos «de cualquier tipo»: los manda el servidor (hechos y meta). Si un servidor anterior no los trae, se calculan con la misma regla.
+      var metaLibres = total - porTipo * TIPOS_CORTOS.length;
+      var sl = t.libres && typeof t.libres === 'object' ? t.libres : null;
+      var libres = sl ? { hechos: entero(sl.hechos, 0, 1000), meta: entero(sl.meta, 0, 1000) } : {
+        hechos: Math.min(metaLibres, TIPOS_CORTOS.reduce(function (acc, x) { return acc + Math.max(0, contados[x[0]] - porTipo); }, 0)), meta: metaLibres };
+      libres.hechos = Math.min(libres.hechos, libres.meta);
+      return { n: m.n, total: total, porTipo: porTipo, usado: usados >= m.n, cumple: cumple, libres: libres };
     });
     var sig = null;
     for (var i = 0; i < tramos.length; i++) { if (!tramos[i].usado) { sig = tramos[i]; break; } }
@@ -297,6 +303,7 @@
   function comoFuncionaHTML(co) {
     var lineas = [
       'Cada cambio pide retos nuevos del camino: 35 el primero y 55 el segundo, con mínimo 8 y 14 de cada tipo.',
+      '«Cualquier tipo» son los retos que pasan de ese mínimo: 11 en el primer cambio y 13 en el segundo.',
       'El modo historia no cuenta.',
       'Si repites un reto que ya habías resuelto, cuenta una sola vez.',
       'Las fechas no cambian, solo se reparten distinto. Los cursos ya abiertos no se tocan.',
@@ -310,11 +317,19 @@
 
   // Tres mini-barras por tipo (Quiz, Detective, Ordena) hacia el mínimo del cambio que sigue
   function tiposHTML(co, t) {
-    return '<ul class="zcal-tipos">' + TIPOS_CORTOS.map(function (x) {
+    var filas = TIPOS_CORTOS.map(function (x) {
       var h = Math.min(co.contados[x[0]], t.porTipo), ok = co.contados[x[0]] >= t.porTipo;
       return '<li class="zcal-tipo' + (ok ? ' is-ok' : '') + '"><span class="zcal-tipo__n">' + esc(x[1]) + '</span><span class="zcal-tipo__b"><i style="width:' + Math.round(h * 100 / t.porTipo) + '%"></i></span>' +
         '<span class="zcal-tipo__c">' + (ok ? svg('check', 14) : esc(co.contados[x[0]] + '/' + t.porTipo)) + '</span></li>';
-    }).join('') + '</ul>';
+    });
+    /* Cuarta fila: los retos que pasan del mínimo de cada tipo (11 en el cambio 1 y 13 en el 2), de CUALQUIER tipo. Sale del servidor. */
+    var l = t.libres || { hechos: 0, meta: 0 };
+    if (l.meta > 0) {
+      var okL = l.hechos >= l.meta;
+      filas.push('<li class="zcal-tipo zcal-tipo--libres' + (okL ? ' is-ok' : '') + '"><span class="zcal-tipo__n">Cualquier tipo</span><span class="zcal-tipo__b"><i style="width:' + Math.round(l.hechos * 100 / l.meta) + '%"></i></span>' +
+        '<span class="zcal-tipo__c">' + (okL ? svg('check', 14) : esc(l.hechos + '/' + l.meta)) + '</span></li>');
+    }
+    return '<ul class="zcal-tipos">' + filas.join('') + '</ul>';
   }
 
   function barraTotalHTML(co, t) {
@@ -324,8 +339,7 @@
   }
 
   // Bloque "Cambia el orden de tu calendario" (Mis logros): título, una línea, dos tarjetas, una barra, tres mini-barras y un botón.
-  //   o.modo: 'cursos' (con el botón para elegir el curso) | 'retos' (solo avance; el botón lleva a Cursos)
-  //   o.href: enlace de Cursos para el modo 'retos'; o.hrefRetos: enlace a Retos para el modo 'cursos'
+  //   o.hrefRetos: enlace a Retos para cuando todavía no se puede elegir
   function cambioOrdenHTML(co, o) {
     if (!co) return '';
     var op = o || {};
@@ -341,12 +355,10 @@
       cuerpo = '<p class="zco__fin">' + svg('check', 18) + '<span>Usaste tus 2 cambios.</span></p>';
     } else {
       var hecho = Math.min(co.contados.total, t.total);
-      // En Retos solo llega el avance (sin la lista de cursos): se considera listo cuando se cumplen los retos
-      var listo = op.modo === 'retos' ? t.cumple : co.disponible;
+      var listo = co.disponible;
       var boton = '';
-      if (listo && op.modo !== 'retos') boton = '<button type="button" class="zcal-btn" data-zco="elegir">' + svg('orden', 16) + 'Elegir curso</button>';
-      else if (listo && op.href) boton = '<a class="zcal-btn" href="' + esc(op.href) + '">' + svg('orden', 16) + 'Elegir curso</a>';
-      else if (op.modo !== 'retos' && op.hrefRetos) boton = '<a class="zcal-btn" href="' + esc(op.hrefRetos) + '">Ir a los retos' + svg('flecha', 16) + '</a>';
+      if (listo) boton = '<button type="button" class="zcal-btn" data-zco="elegir">' + svg('orden', 16) + 'Elegir curso</button>';
+      else if (op.hrefRetos) boton = '<a class="zcal-btn" href="' + esc(op.hrefRetos) + '">Ir a los retos' + svg('flecha', 16) + '</a>';
       var estadoTxt = listo ? ' · Listo para elegir' : (t.cumple ? ' · No hay otro curso cerrado' : '');
       cuerpo = barraTotalHTML(co, t) + '<p class="zco__total"><b>' + esc(hecho) + ' de ' + esc(t.total) + '</b> retos nuevos' + esc(estadoTxt) + '</p>' +
         tiposHTML(co, t) + (boton ? '<div class="zco__acc">' + boton + '</div>' : '');
