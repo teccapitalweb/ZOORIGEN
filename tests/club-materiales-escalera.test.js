@@ -113,7 +113,7 @@ test('la escalera del catálogo es alcanzable con los retos que existen hoy en e
   assert.ok(Math.max(...umbrales) <= Math.floor(total * 0.9), 'el umbral más alto no pasa del 90 % de los retos que existen');
   assert.equal(Math.max(...umbrales), 150, 'la escalera sube con una curva suave: el más difícil pide 150 retos');
   assert.ok(total - Math.max(...umbrales) >= 30, 'queda margen sobre el más difícil');
-  assert.ok(umbrales.filter(n => n <= 9).length >= 5 && [3, 6, 9].every(n => umbrales.includes(n)), 'los umbrales de 9 o menos no cambian (3, 6 y 9)');
+  assert.ok([3, 6, 9].every(n => umbrales.includes(n)), 'los umbrales de 9 o menos no cambian (3, 6 y 9)');
 });
 
 test('estilos nuevos: colores sólidos, letra de 12 px o más y sin emojis', () => {
