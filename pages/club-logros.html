@@ -32,6 +32,7 @@
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261114-prueba">
   <link rel="stylesheet" href="../assets/css/club-logros.css?v=20261108-paleta">
+  <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261106-cambioorden2">
   <link rel="stylesheet" href="../assets/css/club-cupon.css?v=20261210-cupon">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
@@ -69,7 +70,8 @@
   <script src="../assets/js/admin-iconos.js?v=20261207-integrado"></script>
   <script src="../assets/js/club-acceso.js?v=20261218"></script>
   <script src="../assets/js/club-cursos-ui.js?v=20261129-integrado"></script>
-  <script src="../assets/js/club-calendario.js?v=20261105-cambioorden"></script>
+  <script src="../assets/js/club-calendario.js?v=20261106-cambioorden2"></script>
+  <script src="../assets/js/club-cambio-orden.js?v=20261106-cambioorden2"></script>
   <script src="../assets/js/club-premios.js?v=20261218-admin-abierto"></script>
   <script src="../assets/js/club-logros-ui.js?v=20261128-arreglos"></script>
   <script>
@@ -122,6 +124,17 @@
             ctx.titulosCursos = t; ctx.faltanInvitados = f;
           }
           cont.innerHTML = '<div class="lg-wrap">' + UI.paginaHTML(d, ctx) + '</div>';
+          // Cambia el orden de tu calendario: junto a las metas de trayectoria. Solo miembros con calendario (no administradores).
+          const premiosEl = cont.querySelector('.lg-premios');
+          if (premiosEl && window.ZOO_CAMBIO_ORDEN && d.membresia && !(window.ZOO_ACCESO && ZOO_ACCESO.esAdminVisor && ZOO_ACCESO.esAdminVisor(session))) {
+            premiosEl.insertAdjacentHTML('afterend', '<div id="cambioOrden" class="lg-cambio-orden"></div>');
+            const co = ZOO_CAMBIO_ORDEN.iniciar({
+              contenedor: document.getElementById('cambioOrden'), apiFetch: (ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op), modo: 'completo', hrefRetos: 'club-retos.html',
+              toast: () => {}, alCambiar: () => { cargar(); }
+            });
+            window.__zooCambioOrden = co;
+            co.cargar().then(() => co.irAlBloque());
+          }
           if (window.ZOO_SECCION && d && d.membresia) ZOO_SECCION.cifras({ nivel: d.nivel && d.nivel.nombre ? d.nivel.nombre : '—', xp: UI.fmt(d.xp.total), logros: UI.fmt(d.logros.filter(l => l.ganado).length) + '/' + UI.fmt(d.logros.length), dias: UI.fmt(d.diasActivos) });
         } catch (e) {
           console.error('[logros]', e);

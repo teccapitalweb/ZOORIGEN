@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="../assets/css/club-prueba.css?v=20261116-tamanos">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261116-tamanos">
   <link rel="stylesheet" href="../assets/css/club-resenas.css?v=20261214-cupones">
-  <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261105-cambioorden">
+  <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261106-cambioorden2">
   <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
@@ -506,8 +506,8 @@
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-acceso.js?v=20261218"></script>
-  <script src="../assets/js/club-calendario.js?v=20261105-cambioorden"></script>
-  <script src="../assets/js/club-cambio-orden.js?v=20261105-cambioorden"></script>
+  <script src="../assets/js/club-calendario.js?v=20261106-cambioorden2"></script>
+  <script src="../assets/js/club-cambio-orden.js?v=20261106-cambioorden2"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261207-integrado"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
@@ -823,13 +823,23 @@
       // Si el servidor no responde, el bloque simplemente no aparece y todo sigue como siempre.
       if (window.ZOO_CAMBIO_ORDEN && isActive && window.__zooCal && !(window.ZOO_ACCESO && ZOO_ACCESO.esAdminVisor(session))) {
         const cambioOrden = ZOO_CAMBIO_ORDEN.iniciar({
-          contenedor: document.getElementById('cambioOrden'), apiFetch: (ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op), hrefRetos: 'club-retos.html',
+          contenedor: document.getElementById('cambioOrden'), apiFetch: (ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op), modo: 'linea',
           toast: (texto, error) => zcToast(texto, error),
-          // Con el nuevo orden, el calendario se vuelve a pedir al servidor y las tarjetas de los cursos se pintan de nuevo
-          alCambiar: async () => { const nuevo = await cargarCalendarioServidor(session); if (nuevo) window.__zooCal = nuevo; render(window.__zooFiltro || 'Todas'); }
+          // "Cambiar": abre la página de ESE curso (el siguiente por abrirse), donde están los requisitos y, si ya cumple, el botón para elegir
+          alVer: (cursoId) => {
+            if (!window.__zooCourseCards || !window.__zooCourseCards[cursoId]) { window.__zooSegmento = 'todos'; render('Todas'); }
+            openCourseCard({ type: 'click', target: document.body, currentTarget: document.body }, cursoId);
+          },
+          // Con el nuevo orden, el calendario se vuelve a pedir al servidor, se cierra la página del curso y las tarjetas se pintan de nuevo
+          alCambiar: async () => {
+            const nuevo = await cargarCalendarioServidor(session); if (nuevo) window.__zooCal = nuevo;
+            const ov = document.getElementById('playerOverlay');
+            if (ov && ov.classList.contains('is-open')) closePlayer();
+            render(window.__zooFiltro || 'Todas');
+          }
         });
         window.__zooCambioOrden = cambioOrden;
-        cambioOrden.cargar().then(() => cambioOrden.irAlBloque());
+        cambioOrden.cargar();
       }
 
       // Un solo juego de eventos para todas las tarjetas
@@ -1126,7 +1136,7 @@
         curso: { ...course, description: course.description }, imagen, completadas: hechas.length, total, filas, espera,
         accionPrincipal, certificadoHTML, etiquetaPrueba: enPrueba ? 'Prueba gratuita' : '',
         materialesHTML: window.ZOO_MATERIALES ? ZOO_MATERIALES.seccionDetalleCursoHTML((window.__zooMatCursos || {})[course.id]) : '',
-        retosHTML: esMiembro && window.__zooCal && window.__zooCal.primerCurso && window.__zooCal.primerCurso.cursoId === course.id && window.ZOO_CALENDARIO ? ZOO_CALENDARIO.avisoRetosHTML(window.__zooCal.primerCurso) : ''
+        retosHTML: esMiembro && window.ZOO_CALENDARIO ? ZOO_CALENDARIO.ofertasCursoHTML(window.__zooCal ? window.__zooCal.primerCurso : null, window.__zooCambioOrden ? window.__zooCambioOrden.estado() : null, course.id) : ''
       });
       box.appendChild(listEl);
       mostrarVentanaClase();
@@ -1141,6 +1151,8 @@
         if (fila) { zcClickClase(parseInt(fila.dataset.i, 10), fila.dataset.accion); return; }
         const mat = ev.target.closest('.mt-fila[data-fila]');
         if (mat) { zcAbrirMaterial(mat.getAttribute('data-fila')); return; }
+        const zo = ev.target.closest('[data-zco="elegir"]');
+        if (zo && window.__zooCambioOrden) { window.__zooCambioOrden.abrir(zo); return; }
         const b = ev.target.closest('[data-zc]');
         if (b) zcAccion(b.dataset.zc);
       });

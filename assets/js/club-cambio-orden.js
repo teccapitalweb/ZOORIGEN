@@ -17,7 +17,9 @@
   var CAL = root.ZOO_CALENDARIO;
   var doc = root.document;
 
-  // opciones: { contenedor: elemento, apiFetch: fn(ruta, op), alCambiar: fn(respuesta), hrefRetos: 'club-retos.html', toast: fn(texto, esError) }
+  // opciones: { contenedor: elemento, apiFetch: fn(ruta, op), alCambiar: fn(respuesta), hrefRetos: 'club-retos.html', toast: fn(texto, esError),
+  //             modo: 'linea' (Cursos: una línea corta con el botón Cambiar) | 'completo' (Logros: el bloque entero) | 'nada' (solo carga y ofrece la ventana),
+  //             alVer: fn(cursoId) (el botón Cambiar de la línea: abre la página de ese curso) }
   function iniciar(opciones) {
     var o = opciones || {};
     var cont = o.contenedor;
@@ -25,7 +27,9 @@
     var estado = { co: null, ocupado: false, modal: null, retorno: null };
 
     function pintar() {
-      cont.innerHTML = estado.co ? CAL.cambioOrdenHTML(estado.co, { modo: 'cursos', hrefRetos: o.hrefRetos || 'club-retos.html' }) : '';
+      var modo = o.modo || 'completo';
+      if (modo === 'nada') return;
+      cont.innerHTML = !estado.co ? '' : (modo === 'linea' ? CAL.cambioOrdenLineaHTML(estado.co) : CAL.cambioOrdenHTML(estado.co, { modo: 'cursos', hrefRetos: o.hrefRetos || 'club-retos.html' }));
     }
 
     function cargar() {
@@ -116,7 +120,9 @@
 
     cont.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-zco="elegir"]');
-      if (b) abrir(b);
+      if (b) { abrir(b); return; }
+      var v = ev.target.closest('[data-zco="ver"]');
+      if (v && typeof o.alVer === 'function') o.alVer(v.getAttribute('data-curso'), v);
     });
 
     // Si la página llegó con #cambiar-orden, el bloque se muestra una vez que carga
