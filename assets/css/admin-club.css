@@ -1093,5 +1093,5 @@ body.ap-sin-scroll { overflow: hidden; }
   .ap-tabla--cambios tr:last-child { border-bottom: 0; }
   .ap-tabla--cambios td { display: block; padding: 6px 0; border: 0; text-align: left; }
   .ap-tabla--cambios td:first-child { padding-top: 0; }
-  .ap-tabla--cambios td:not(:first-child)::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c-text-3); }
+  .ap-tabla--cambios td:not(:first-child)::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c-text-3); }
 }
