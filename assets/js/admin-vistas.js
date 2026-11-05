@@ -686,7 +686,7 @@
     }
     if (!lista.length) { cont.innerHTML = vacio('Nadie coincide con esa búsqueda', 'Prueba con otro nombre o con el nombre de un curso.', 'search-x'); return; }
     var mostrar = lista.slice(0, coEst.visibles);
-    cont.innerHTML = tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Persona</th><th scope="col">Fecha y hora</th><th scope="col">Retos al cambiar</th><th scope="col">Curso que pasó a abrirse primero</th></tr></thead><tbody>' +
+    cont.innerHTML = tablaZona('<table class="ap-tabla ap-tabla--simple ap-tabla--cambios"><thead><tr><th scope="col">Persona</th><th scope="col">Fecha y hora</th><th scope="col">Retos al cambiar</th><th scope="col">Curso que pasó a abrirse primero</th></tr></thead><tbody>' +
       mostrar.map(function (c) {
         return '<tr><td data-label="Persona"><button type="button" class="ap-enlace" data-accion="ficha" data-uid="' + esc(c.uid) + '">' + esc(c.nombre) + '</button>' + (c.correo ? '<small class="ap-sub">' + esc(c.correo) + '</small>' : '') + '</td>' +
           '<td data-label="Fecha y hora"><span class="ap-fecha">' + esc(P.fmtFechaHora(c.en)) + '</span><small class="ap-sub">' + esc(P.relativo(c.en)) + '</small></td>' +
