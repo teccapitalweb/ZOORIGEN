@@ -126,3 +126,7 @@
   .vz-csv { width: 100%; justify-content: center; }
 }
 @media (max-width: 480px) { .vz-kpis { grid-template-columns: minmax(0, 1fr); } .vz-kpi__val { font-size: 1.9rem; } }
+
+/* Los anillos (dispositivos, cómo llegan) van con la leyenda debajo: en tarjetas angostas la leyenda no se parte letra por letra */
+.vz-card .zg-anillo__fila { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+.vz-card .zg-anillo__leyenda { width: 100%; }
