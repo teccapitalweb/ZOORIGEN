@@ -110,7 +110,8 @@
 .zco__total { margin: 8px 0 12px; font-size: .9rem; color: var(--zcal-muted); }
 .zco__total b { color: var(--zcal-text); font-size: 1rem; }
 .zco .zcal-tipos, .zco-oferta .zcal-tipos { grid-template-columns: minmax(0, 1fr); margin: 0 0 14px; }
-.zco .zcal-tipo, .zco-oferta .zcal-tipo { grid-template-columns: minmax(84px, auto) minmax(40px, 1fr) 34px; }
+.zco .zcal-tipo, .zco-oferta .zcal-tipo { grid-template-columns: minmax(78px, auto) minmax(40px, 1fr) minmax(34px, auto); }
+.zco .zcal-tipo__c, .zco-oferta .zcal-tipo__c { white-space: nowrap; }
 @media (min-width: 900px) { .zco .zcal-tipos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 22px; } }
 .zco .zcal-tipo__n, .zco-oferta .zcal-tipo__n { overflow-wrap: normal; white-space: nowrap; }
 .zco__acc { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 4px; }

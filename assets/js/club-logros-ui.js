@@ -153,13 +153,19 @@
 
   /* ───────────── Insignias por categoría ───────────── */
 
+  // Las dos insignias del cambio de orden de cursos: icono propio y SIN mostrar su valor en XP (el servidor lo otorga igual)
+  const ICONO_PROPIO = { r11: 'calendar-clock', r12: 'map-pin' };
+  const SIN_XP_VISIBLE = ['r11', 'r12'];
+
   function insigniaHTML(l, miembro, color, icono) {
     const ganada = miembro && l.ganado;
-    return `<article class="lg-ins ${ganada ? 'is-ganada' : 'is-bloqueada'}" style="--cat:${color}">
-      <span class="lg-ins__ico">${ico(ganada ? icono : 'lock', { size: 26 })}</span>
+    const sinXp = SIN_XP_VISIBLE.includes(l.id);
+    const iconoFinal = ICONO_PROPIO[l.id] || icono;
+    return `<article class="lg-ins ${ganada ? 'is-ganada' : 'is-bloqueada'}" style="--cat:${color}" data-logro="${esc(l.id)}">
+      <span class="lg-ins__ico">${ico(ganada ? iconoFinal : 'lock', { size: 26 })}</span>
       <h4>${esc(l.nombre)}</h4>
       ${miembro && l.descripcion ? `<p>${esc(l.descripcion)}</p>` : ''}
-      ${miembro ? `<span class="lg-ins__xp">${ganada ? ico('check', { size: 13, trazo: 3 }) + 'Ganada · ' : ''}+${fmt(l.xp)} XP</span>` : ''}</article>`;
+      ${miembro && sinXp ? (ganada ? `<span class="lg-ins__xp">${ico('check', { size: 13, trazo: 3 })}Ganada</span>` : '') : (miembro ? `<span class="lg-ins__xp">${ganada ? ico('check', { size: 13, trazo: 3 }) + 'Ganada · ' : ''}+${fmt(l.xp)} XP</span>` : '')}</article>`;
   }
 
   function categoriasHTML(d) {

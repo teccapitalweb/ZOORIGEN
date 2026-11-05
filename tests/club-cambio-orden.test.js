@@ -50,13 +50,14 @@ test('cambioOrden: normaliza avance, tramos y siguiente (35/8 y 55/14)', () => {
 
 const textoVisible = html => html.replace(/<details[\s\S]*?<\/details>/g, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
-test('bloque (Mis logros): título, UNA línea de apoyo, dos tarjetas con insignia y XP, una barra, tres mini-barras y un botón', () => {
+test('bloque (Mis logros): título, UNA línea de apoyo, dos tarjetas, una barra, tres mini-barras y un botón; SIN insignias ni XP', () => {
   const html = CAL.cambioOrdenHTML(CAL.cambioOrden(resp()), { modo: 'cursos', hrefRetos: 'club-retos.html' });
   assert.match(html, /<h3 class="zco__t" id="zcoTitulo">Cambia el orden de tu calendario<\/h3>/);
   assert.match(html, /<p class="zco__apoyo">2 cambios en total\. Tú eliges qué curso se abre antes\.<\/p>/);
   assert.equal((html.match(/<li class="zco-tj/g) || []).length, 2, 'dos tarjetas');
-  assert.match(html, /Cambio 1<\/b>[\s\S]*35 retos[\s\S]*\+40 XP · Calendario a tu medida/);
-  assert.match(html, /Cambio 2<\/b>[\s\S]*55 retos[\s\S]*\+60 XP · Rumbo propio/);
+  assert.match(html, /Cambio 1<\/b>[\s\S]*35 retos/);
+  assert.match(html, /Cambio 2<\/b>[\s\S]*55 retos/);
+  assert.equal(/XP|Calendario a tu medida|Rumbo propio|insignia/i.test(html), false, 'ni insignias ni su valor en XP en el bloque');
   assert.match(html, /zco-tj__estado">En curso/);
   assert.match(html, /zco-tj__estado">Pendiente/);
   assert.equal((html.match(/role="progressbar"/g) || []).length, 1, 'una barra de avance total');
@@ -81,7 +82,7 @@ test('bloque: nada de párrafos largos visibles; las reglas van en el desplegabl
   assert.match(det, /<summary>Cómo funciona<\/summary>/);
   assert.equal((det.match(/<li>/g) || []).length >= 5 && (det.match(/<li>/g) || []).length <= 7, true, '5 reglas cortas (más "Tus cambios")');
   assert.match(det, /El modo historia no cuenta/);
-  assert.match(det, /cuenta una sola vez y sin XP nuevo/);
+  assert.match(det, /cuenta una sola vez./);
   assert.match(det, /Las fechas no cambian/);
   assert.match(det, /cursos ya abiertos no se tocan/);
   assert.match(det, /mínimo 8 y 14 de cada tipo/);
@@ -161,7 +162,7 @@ test('el módulo del navegador usa los dos endpoints, pide confirmación explíc
 test('Cursos: línea corta, orden por desbloqueo y carátulas; Logros: el bloque completo; Retos: solo el avance', () => {
   const cursos = leer('pages/club-biblioteca.html');
   assert.match(cursos, /<div id="cambioOrden"><\/div>/);
-  assert.match(cursos, /club-cambio-orden\.js\?v=20261107-cambioorden3/);
+  assert.match(cursos, /club-cambio-orden\.js\?v=20261107-cambioorden4/);
   assert.match(cursos, /modo: 'linea'/, 'en Cursos solo la línea corta');
   assert.match(cursos, /alVer:/, 'el botón Cambiar abre la página de ese curso');
   assert.match(cursos, /alCambiar:[\s\S]{0,400}render\(/, 'después del cambio se vuelven a pintar los cursos');
@@ -320,4 +321,51 @@ test('estilos: desplegable, tarjetas lado a lado, carátulas, palabras sin parti
   assert.match(css, /\.zco-op__img \{[^}]*object-fit|\.zco-op__img img \{[^}]*object-fit: cover/);
   assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.zco-op__img \{ width: 72px/);
   assert.equal(/gradient/.test(css), false);
+});
+
+/* ───────────── Las insignias viven en la lista de logros, sin XP visible ───────────── */
+
+test('ni el bloque, ni la oferta del curso, ni "Cómo funciona", ni la línea muestran XP o insignias', () => {
+  const casos = [
+    resp(), resp({ contados: { quiz: 19, detective: 8, orden: 8 }, disponible: true }),
+    resp({ usados: 1, contados: { quiz: 20, detective: 10, orden: 10 }, cambios: [{ n: 1, titulo: 'Curso 4', en: Date.now() }] }), resp({ usados: 2 })
+  ];
+  for (const r of casos) {
+    const co = CAL.cambioOrden(r);
+    const todo = CAL.cambioOrdenHTML(co, { modo: 'cursos' }) + CAL.cambioOrdenHTML(co, { modo: 'retos', href: 'x' }) + CAL.cambioOrdenOfertaHTML(co, 'c2') + CAL.cambioOrdenLineaHTML(co) +
+      CAL.cambioOrdenModalHTML(co, {}) + CAL.comoFuncionaHTML(co);
+    assert.equal(/\bXP\b|Calendario a tu medida|Rumbo propio|insignia/i.test(todo), false, 'sin XP ni insignias: ' + (todo.match(/.{0,30}(XP|insignia|Rumbo propio|Calendario a tu medida).{0,30}/i) || [''])[0]);
+  }
+  const js = leer('assets/js/club-calendario.js');
+  assert.equal(/NOMBRES_INSIGNIA|co\.xp\[/.test(js), false);
+});
+
+const LG = require('../assets/js/club-logros-ui.js');
+const logro = (id, extra = {}) => ({ id, nombre: 'Nombre ' + id, descripcion: 'Descripción corta', categoria: 'Retos', xp: 40, ganado: false, ...extra });
+
+test('Mis logros: r11 y r12 salen como un logro más (categoría Retos, icono propio, nombre y descripción), bloqueados hasta ganarlos y SIN valor en XP', () => {
+  const d = { membresia: true, logros: [logro('r10', { xp: 70 }), logro('r11', { nombre: 'Calendario a tu medida', descripcion: 'Cambiaste el orden de tu calendario por primera vez', xp: 40 }), logro('r12', { nombre: 'Rumbo propio', descripcion: 'Usaste tu segundo y último cambio de orden', xp: 60 })] };
+  const html = LG.categoriasHTML(d);
+  assert.match(html, /<h3>Retos<\/h3>/);
+  assert.match(html, /<span class="lg-cat__cuenta">0\/3<\/span>/);
+  const bloque = id => html.match(new RegExp('<article class="lg-ins[^>]*data-logro="' + id + '"[\\s\\S]*?<\\/article>'))[0];
+  const r11 = bloque('r11'), r12 = bloque('r12'), r10 = bloque('r10');
+  assert.match(r11, /is-bloqueada/);
+  assert.match(r11, /Calendario a tu medida/);
+  assert.match(r11, /Cambiaste el orden de tu calendario por primera vez/);
+  assert.equal(/XP/.test(r11 + r12), false, 'sin XP visible');
+  assert.match(r10, /\+70 XP/, 'las demás insignias siguen mostrando su XP');
+  const ganadas = LG.categoriasHTML({ membresia: true, logros: [logro('r11', { ganado: true, nombre: 'Calendario a tu medida' }), logro('r12', { ganado: true, nombre: 'Rumbo propio' })] });
+  assert.match(ganadas, /is-ganada[\s\S]*?Ganada<\/span>/);
+  assert.equal(/XP/.test(ganadas), false, 'ganadas tampoco muestran XP');
+  assert.match(ganadas, /<span class="lg-cat__cuenta">2\/2<\/span>/, 'cuentan en el N/total de la categoría');
+});
+
+test('Mis logros: el icono propio es Lucide y existe en la biblioteca de iconos; sin membresía no se muestra nada de XP ni descripción', () => {
+  const I = require('../assets/js/admin-iconos.js');
+  for (const n of ['calendar-clock', 'map-pin']) assert.ok(I.existe(n), n);
+  const ganada = LG.insigniaHTML(logro('r11', { ganado: true }), true, '#E8A317', 'target');
+  assert.match(ganada, /<svg/);
+  const vista = LG.insigniaHTML(logro('r11'), false, '#E8A317', 'target');
+  assert.equal(/XP|Descripción corta/.test(vista), false);
 });

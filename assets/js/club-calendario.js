@@ -222,7 +222,6 @@
   // Metas por si el servidor no las manda (las decide siempre el servidor: services/retos.js · CAMBIOS_ORDEN)
   var METAS_CAMBIO = [{ n: 1, total: 35, porTipo: 8 }, { n: 2, total: 55, porTipo: 14 }];
   var TIPOS_CORTOS = [['quiz', 'Quiz'], ['detective', 'Detective'], ['orden', 'Ordena']];
-  var NOMBRES_INSIGNIA = { 1: 'Calendario a tu medida', 2: 'Rumbo propio' };   // las mismas de Mis logros (r11 y r12)
 
   // GET /api/calendario/cambio-orden (o el campo cambioOrden de GET /api/retos) → modelo para pintar, o null si no aplica.
   function cambioOrden(resp) {
@@ -299,7 +298,7 @@
     var lineas = [
       'Cada cambio pide retos nuevos del camino: 35 el primero y 55 el segundo, con mínimo 8 y 14 de cada tipo.',
       'El modo historia no cuenta.',
-      'Si repites un reto que ya habías resuelto, cuenta una sola vez y sin XP nuevo.',
+      'Si repites un reto que ya habías resuelto, cuenta una sola vez.',
       'Las fechas no cambian, solo se reparten distinto. Los cursos ya abiertos no se tocan.',
       'Si tu siguiente curso se abre solo, la oferta pasa al nuevo siguiente y tus retos se conservan.'
     ];
@@ -335,8 +334,7 @@
       var estado = x.usado ? 'Hecho' : (t && t.n === x.n ? (x.cumple ? 'Listo' : 'En curso') : 'Pendiente');
       var clase = x.usado ? ' is-hecho' : (t && t.n === x.n ? (x.cumple ? ' is-listo' : ' is-actual') : '');
       return '<li class="zco-tj' + clase + '"><span class="zco-tj__top"><b>Cambio ' + esc(x.n) + '</b><span class="zco-tj__estado">' + (x.usado ? svg('check', 13) : '') + esc(estado) + '</span></span>' +
-        '<span class="zco-tj__meta">' + esc(x.total) + ' retos</span>' +
-        '<span class="zco-tj__ins">' + svg('insignia', 13) + '<span>+' + esc(co.xp[x.n]) + ' XP · ' + esc(NOMBRES_INSIGNIA[x.n]) + '</span></span></li>';
+        '<span class="zco-tj__meta">' + esc(x.total) + ' retos</span></li>';
     }).join('');
     var cuerpo;
     if (co.completo) {
