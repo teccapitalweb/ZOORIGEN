@@ -48,7 +48,12 @@
     libroConfirmarTexto: function (titulo, costo) { return 'Solo puedes canjear UN libro con créditos y no se puede cambiar. Se descontarán ' + fmt(costo) + ' créditos y el libro ' + titulo + ' quedará desbloqueado para ti. ¿Quieres este libro?'; },
     libroConfirmarSi: 'Sí, canjear este libro',
     confirmarTitulo: 'Canjear material',
-    confirmarTexto: function (costo) { return 'Se descontarán ' + fmt(costo) + ' créditos y el material quedará desbloqueado para ti.'; }
+    confirmarTexto: function (costo) { return 'Se descontarán ' + fmt(costo) + ' créditos y el material quedará desbloqueado para ti.'; },
+    // Resultado después de canjear: qué se desbloqueó, cuánto se descontó y cuánto queda
+    resultadoTitulo: function (libro) { return libro ? 'Libro desbloqueado' : 'Material desbloqueado'; },
+    resultadoTexto: function (costo, saldo) { return 'Se descontaron ' + fmt(costo) + ' créditos. Te ' + (entero(saldo) === 1 ? 'queda 1 crédito' : 'quedan ' + fmt(saldo) + ' créditos') + '.'; },
+    resultadoAbrir: { leer: 'Leer ahora', ver: 'Ver ahora', abrir: 'Abrir ahora' },
+    resultadoCerrar: 'Ahora no'
   };
 
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -224,17 +229,22 @@
     });
   }
 
-  // Confirmación antes de gastar créditos: promesa con true / false
-  // opc.libro: confirmación de un libro («solo UN libro con créditos, no se puede cambiar»)
-  function confirmarCanje(titulo, costo, opc) {
-    var libro = !!(opc && opc.libro);
+  /* Tarjeta de resultado (HTML puro): título, material, cuánto se descontó y cuánto queda; botones «Ahora no» y «Abrir ahora». */
+  function resultadoCanjeHTML(titulo, costo, saldo, opc) {
+    var libro = !!(opc && opc.libro), accion = (opc && opc.accion && TEXTOS.resultadoAbrir[opc.accion]) ? opc.accion : (libro ? 'leer' : 'abrir');
+    return '<div class="zcr-conf__caja zcr-res" role="alertdialog" aria-modal="true" aria-labelledby="zcr-conf-t" aria-describedby="zcr-conf-d" data-zoo-creditos="1">' +
+      '<span class="zcr-res__ic" aria-hidden="true">' + icono('check', 26) + '</span>' +
+      '<h2 id="zcr-conf-t">' + esc(TEXTOS.resultadoTitulo(libro)) + '</h2><p class="zcr-conf__mat">' + esc(titulo) + '</p><p id="zcr-conf-d">' + esc(TEXTOS.resultadoTexto(costo, saldo)) + '</p>' +
+      '<div class="zcr__botones"><button type="button" class="zcr__btn zcr__btn--suave" data-no>' + esc(TEXTOS.resultadoCerrar) + '</button><button type="button" class="zcr__btn zcr__btn--oro" data-si>' + esc(TEXTOS.resultadoAbrir[accion]) + '</button></div></div>';
+  }
+
+  /* Diálogo con foco atrapado, Esc y foco de regreso. Promesa con true (botón principal) o false. */
+  function abrirDialogo(html, claseExtra) {
     return new Promise(function (resolver) {
       var previo = document.activeElement;
       var el = document.createElement('div');
-      el.className = 'zcr-conf'; el.setAttribute('data-zoo-creditos', '1');
-      el.innerHTML = '<div class="zcr-conf__caja" role="alertdialog" aria-modal="true" aria-labelledby="zcr-conf-t" aria-describedby="zcr-conf-d" data-zoo-creditos="1">' +
-        '<h2 id="zcr-conf-t">' + esc(libro ? TEXTOS.libroConfirmarTitulo : TEXTOS.confirmarTitulo) + '</h2><p class="zcr-conf__mat">' + esc(titulo) + '</p><p id="zcr-conf-d">' + esc(libro ? TEXTOS.libroConfirmarTexto('«' + titulo + '»', costo || COSTO) : TEXTOS.confirmarTexto(costo || COSTO)) + '</p>' +
-        '<div class="zcr__botones"><button type="button" class="zcr__btn zcr__btn--suave" data-no>Mejor no</button><button type="button" class="zcr__btn zcr__btn--oro" data-si>' + esc(libro ? TEXTOS.libroConfirmarSi : 'Canjear') + '</button></div></div>';
+      el.className = 'zcr-conf' + (claseExtra ? ' ' + claseExtra : ''); el.setAttribute('data-zoo-creditos', '1');
+      el.innerHTML = html;
       document.body.appendChild(el);
       var listo = false;
       function fin(r) {
@@ -259,6 +269,20 @@
       });
       setTimeout(function () { var b = el.querySelector('[data-si]'); if (b) b.focus({ preventScroll: true }); }, 30);
     });
+  }
+
+  // Confirmación antes de gastar créditos: promesa con true / false
+  // opc.libro: confirmación de un libro («solo UN libro con créditos, no se puede cambiar»)
+  function confirmarCanje(titulo, costo, opc) {
+    var libro = !!(opc && opc.libro);
+    return abrirDialogo('<div class="zcr-conf__caja" role="alertdialog" aria-modal="true" aria-labelledby="zcr-conf-t" aria-describedby="zcr-conf-d" data-zoo-creditos="1">' +
+      '<h2 id="zcr-conf-t">' + esc(libro ? TEXTOS.libroConfirmarTitulo : TEXTOS.confirmarTitulo) + '</h2><p class="zcr-conf__mat">' + esc(titulo) + '</p><p id="zcr-conf-d">' + esc(libro ? TEXTOS.libroConfirmarTexto('«' + titulo + '»', costo || COSTO) : TEXTOS.confirmarTexto(costo || COSTO)) + '</p>' +
+      '<div class="zcr__botones"><button type="button" class="zcr__btn zcr__btn--suave" data-no>Mejor no</button><button type="button" class="zcr__btn zcr__btn--oro" data-si>' + esc(libro ? TEXTOS.libroConfirmarSi : 'Canjear') + '</button></div></div>');
+  }
+
+  // Resultado del canje (después de gastar): promesa con true si la persona pide abrirlo ahora
+  function resultadoCanje(titulo, costo, saldo, opc) {
+    return abrirDialogo(resultadoCanjeHTML(titulo, costo, saldo, opc));
   }
 
   /* Felicitación: espera su turno en la cola y se muestra UNA vez por regalo (el servidor recuerda que ya se vio).
@@ -291,6 +315,6 @@
   return {
     COSTO: COSTO, PRIORIDAD: PRIORIDAD, RUTA_CANJEABLES: RUTA_CANJEABLES, TEXTOS: TEXTOS,
     esc: esc, fmt: fmt, hayAviso: hayAviso, tarjetaHTML: tarjetaHTML, colaLibre: colaLibre, esperarTurno: esperarTurno, estadoCanje: estadoCanje,
-    canjeHTML: canjeHTML, pastillaHTML: pastillaHTML, fraseAlcance: fraseAlcance, AYUDA: AYUDA, abrirTarjeta: abrirTarjeta, confirmarCanje: confirmarCanje, iniciarAviso: iniciarAviso, hayVentanaAbierta: hayVentanaAbierta
+    canjeHTML: canjeHTML, pastillaHTML: pastillaHTML, fraseAlcance: fraseAlcance, AYUDA: AYUDA, abrirTarjeta: abrirTarjeta, confirmarCanje: confirmarCanje, resultadoCanje: resultadoCanje, resultadoCanjeHTML: resultadoCanjeHTML, iniciarAviso: iniciarAviso, hayVentanaAbierta: hayVentanaAbierta
   };
 });
