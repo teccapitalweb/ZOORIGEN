@@ -162,7 +162,7 @@ test('el módulo del navegador usa los dos endpoints, pide confirmación explíc
 test('Cursos: línea corta, orden por desbloqueo y carátulas; Logros: el bloque completo; Retos: solo el avance', () => {
   const cursos = leer('pages/club-biblioteca.html');
   assert.match(cursos, /<div id="cambioOrden"><\/div>/);
-  assert.match(cursos, /club-cambio-orden\.js\?v=20261107-cambioorden4/);
+  assert.match(cursos, /club-cambio-orden\.js\?v=20261108-cambioorden5/);
   assert.match(cursos, /modo: 'linea'/, 'en Cursos solo la línea corta');
   assert.match(cursos, /alVer:/, 'el botón Cambiar abre la página de ese curso');
   assert.match(cursos, /alCambiar:[\s\S]{0,400}render\(/, 'después del cambio se vuelven a pintar los cursos');
@@ -246,16 +246,16 @@ test('los días coinciden: línea, ventana y tarjetas calculan los días desde l
 
 /* ───────────── Línea corta y oferta dentro de la página del curso ───────────── */
 
-test('línea corta: nombre del siguiente curso, cuándo se abre y el botón Cambiar (sin botón si ya usó los 2 cambios)', () => {
+test('línea corta: nombre del siguiente curso, cuándo se abre y el botón Cambiar; desaparece por completo con los 2 cambios usados o sin cursos cerrados', () => {
   const co = CAL.cambioOrden(resp());
   const html = CAL.cambioOrdenLineaHTML(co);
   assert.match(html, /Tu siguiente curso en desbloquearse es <b class="zco-linea__nombre">«Curso 2»<\/b> \(en 5 días\)\.<span class="zco-linea__ayuda"> Puedes cambiarlo\.<\/span>/);
   assert.match(html, /data-zco="ver" data-curso="c2">Cambiar<\/button>/);
   assert.ok(html.length < 900, 'es una sola línea compacta');
   assert.equal((html.match(/<button/g) || []).length, 1);
-  const fin = CAL.cambioOrdenLineaHTML(CAL.cambioOrden(resp({ usados: 2 })));
-  assert.match(fin, /Tu siguiente curso en desbloquearse es/);
-  assert.equal(/Puedes cambiarlo|<button/.test(fin), false, 'sin botón');
+  assert.equal(CAL.cambioOrdenLineaHTML(CAL.cambioOrden(resp({ usados: 2 }))), '', 'con los 2 cambios usados no queda ni la línea');
+  assert.equal(CAL.cambioOrdenLineaHTML(CAL.cambioOrden(resp({ usados: 2, contados: { quiz: 30, detective: 20, orden: 20 } }))), '');
+  assert.equal(CAL.cambioOrdenLineaHTML(CAL.cambioOrden(resp({ usados: 1 }))).includes('Cambiar</button>'), true, 'con 1 cambio usado todavía hay otro');
   assert.equal(CAL.cambioOrdenLineaHTML(CAL.cambioOrden(resp({ cursosCerrados: [] }))), '', 'sin cursos cerrados no se muestra nada');
   assert.equal(CAL.cambioOrdenLineaHTML(null), '');
   const raro = CAL.cambioOrdenLineaHTML(CAL.cambioOrden(resp({ cursosCerrados: [{ cursoId: 'x', titulo: '<img src=x>', lugar: 1, desbloqueoEn: new Date(Date.now() + 3600000).toISOString() }] })));

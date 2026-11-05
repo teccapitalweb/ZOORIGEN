@@ -358,15 +358,16 @@
   }
 
   // Línea corta de Cursos: "Tu siguiente curso en desbloquearse es «X» (en N días). Puedes cambiarlo." con el botón Cambiar,
-  // que lleva a la página de ESE curso (ahí están los requisitos y, si ya cumple, el botón para elegir). Con los 2 cambios usados: solo la línea.
+  // que lleva a la página de ESE curso (ahí están los requisitos y, si ya cumple, el botón para elegir).
+  // Con los 2 cambios usados o sin cursos cerrados NO se muestra nada.
   function cambioOrdenLineaHTML(co) {
-    if (!co || !co.cerrados.length) return '';
+    if (!co || co.completo || !co.cerrados.length) return '';
     var p = co.cerrados[0];
     var dias = diasDe(p);
     var cuandoSe = Number.isFinite(dias) ? ' (' + cuando(dias) + ')' : '';
     return '<div class="zco-linea" id="cambiar-orden-linea"><span class="zco-linea__ic" aria-hidden="true">' + svg('orden', 16) + '</span>' +
-      '<p class="zco-linea__t">Tu siguiente curso en desbloquearse es <b class="zco-linea__nombre">«' + esc(p.titulo || 'tu siguiente curso') + '»</b>' + esc(cuandoSe) + '.' + (co.completo ? '' : '<span class="zco-linea__ayuda"> Puedes cambiarlo.</span>') + '</p>' +
-      (co.completo ? '' : '<button type="button" class="zco-linea__btn" data-zco="ver" data-curso="' + esc(p.cursoId) + '">Cambiar</button>') + '</div>';
+      '<p class="zco-linea__t">Tu siguiente curso en desbloquearse es <b class="zco-linea__nombre">«' + esc(p.titulo || 'tu siguiente curso') + '»</b>' + esc(cuandoSe) + '.<span class="zco-linea__ayuda"> Puedes cambiarlo.</span></p>' +
+      '<button type="button" class="zco-linea__btn" data-zco="ver" data-curso="' + esc(p.cursoId) + '">Cambiar</button></div>';
   }
 
   // Oferta dentro de la página del curso: solo en el SIGUIENTE curso por abrirse (si ese se abre solo, pasa al nuevo siguiente).
