@@ -19,7 +19,7 @@
   var esc = P.esc;
   var CIRC = 2 * Math.PI * 48;   // circunferencia del anillo (radio 48 en un lienzo de 120)
   var contador = 0;
-  var COLORES = 8;               // --zg-1 … --zg-8 (admin-club.css, distintos entre sí y con contraste en día y noche)
+  var COLORES = 25;              // --zg-1 … --zg-25 (admin-club.css): 1–8 para las gráficas de siempre; 9–25 para los orígenes de visita
 
   function id(prefijo) { contador += 1; return prefijo + contador; }
   function color(n) { var c = Math.round(Number(n) || 1); return c < 1 || c > COLORES ? ((Math.abs(c) - 1) % COLORES) + 1 : c; }

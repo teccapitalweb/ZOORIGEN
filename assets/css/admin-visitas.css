@@ -1,0 +1,128 @@
+/* ============================================================ */
+/* PANEL DE ADMINISTRACIÓN · MÉTRICAS DE VISITAS                  */
+/* Colores sólidos (sin degradados). Usa las variables del panel  */
+/* (admin-club.css) para verse bien en modo claro y oscuro.       */
+/* ============================================================ */
+
+.vz-hero { margin: 0 0 18px; }
+.vz-eyebrow { margin: 0 0 6px; font: 700 .75rem/1 var(--zoo-font-mono, monospace); letter-spacing: .14em; text-transform: uppercase; color: var(--c-acento, #2A7A4E); }
+.vz-hero h1 { margin: 0 0 8px; font: 800 clamp(1.7rem, 4vw, 2.4rem)/1.1 var(--zoo-font-display, inherit); color: var(--c-text); }
+.vz-hero__sub { margin: 0 0 14px; max-width: 68ch; font-size: .98rem; line-height: 1.5; color: var(--c-text-2); }
+
+.vz-estado { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--c-line); background: var(--c-surface); font: 600 .86rem/1.2 var(--zoo-font-body, inherit); color: var(--c-text); }
+.vz-estado i { width: 9px; height: 9px; border-radius: 50%; background: #8794A8; flex: 0 0 auto; }
+.vz-estado--ok i { background: #22A55A; box-shadow: 0 0 0 4px rgba(34, 165, 90, .2); }
+.vz-estado--error i { background: #D94141; }
+.vz-estado--apagado i { background: #E08A00; }
+
+/* Controles: periodo, semana y CSV */
+.vz-controles { margin: 0 0 16px; padding: 14px; border: 1px solid var(--c-line); border-radius: 18px; background: var(--c-surface); box-shadow: var(--c-card-shadow); }
+.vz-barra { display: grid; gap: 12px; }
+.vz-barra__fila { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.vz-seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 14px; background: var(--c-line-soft); }
+.vz-seg button { padding: 9px 16px; border: 0; border-radius: 11px; background: transparent; color: var(--c-text-2); font: 700 .9rem/1 var(--zoo-font-body, inherit); cursor: pointer; }
+.vz-seg button[aria-pressed="true"] { background: var(--c-surface); color: var(--c-acento, #2A7A4E); box-shadow: 0 1px 4px rgba(0, 0, 0, .12); }
+.vz-seg button:disabled { opacity: .6; cursor: wait; }
+.vz-seg--chico button { padding: 7px 12px; font-size: .84rem; }
+.vz-semana { display: inline-flex; align-items: center; gap: 10px; }
+.vz-semana__t { display: grid; text-align: center; min-width: 130px; }
+.vz-semana__t strong { font: 700 .98rem/1.2 var(--zoo-font-body, inherit); color: var(--c-text); }
+.vz-semana__t span { font: 700 .75rem/1.4 var(--zoo-font-mono, monospace); letter-spacing: .1em; color: var(--c-text-3); }
+.vz-flecha { display: inline-grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--c-line); border-radius: 10px; background: var(--c-surface); color: var(--c-text); cursor: pointer; }
+.vz-flecha:disabled { opacity: .4; cursor: not-allowed; }
+.vz-csv { white-space: nowrap; }
+
+/* Cuatro cifras */
+.vz-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 0 0 16px; }
+.vz-kpi { position: relative; padding: 16px 16px 12px 20px; border: 1px solid var(--c-line); border-radius: 16px; background: var(--c-surface); box-shadow: var(--c-card-shadow); overflow: hidden; }
+.vz-kpi::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--vz-k); }
+.vz-kpi--1 { --vz-k: var(--zg-1); } .vz-kpi--2 { --vz-k: var(--zg-2); } .vz-kpi--3 { --vz-k: var(--zg-3); } .vz-kpi--4 { --vz-k: var(--zg-25); }
+.vz-kpi__rot { margin: 0 0 4px; font: 700 .75rem/1.2 var(--zoo-font-mono, monospace); letter-spacing: .12em; text-transform: uppercase; color: var(--c-text-3); }
+.vz-kpi__val { margin: 0; font: 800 2.1rem/1.1 var(--zoo-font-display, inherit); color: var(--c-text); font-variant-numeric: tabular-nums; }
+.vz-kpi__sub { margin: 4px 0 8px; font-size: .88rem; color: var(--c-text-2); }
+.vz-kpi__spark { margin-top: 8px; min-height: 40px; color: var(--vz-k); }
+.vz-kpi__spark svg { display: block; width: 100%; height: 44px; }
+.vz-kpi .zg-spark, .vz-kpi__spark .zg { --zg-c: var(--vz-k); }
+
+.vz-d { display: inline-block; padding: 3px 9px; border-radius: 8px; font: 700 .75rem/1.3 var(--zoo-font-mono, monospace); }
+.vz-d--up { background: rgba(22, 163, 74, .14); color: #0E7A43; }
+.vz-d--down { background: rgba(220, 38, 38, .12); color: #B91C1C; }
+.vz-d--eq { background: var(--c-line-soft); color: var(--c-text-2); }
+:root[data-modo="oscuro"] .vz-d--up { color: #6FDD9E; }
+:root[data-modo="oscuro"] .vz-d--down { color: #FF8A8A; }
+
+.vz-card { margin: 0 0 16px; }
+.vz-card .ap-card__cab p strong { color: var(--c-text); }
+.vz-card--destacada { border-color: var(--zg-1); }
+.vz-nota { margin: 12px 0 0; font-size: .84rem; line-height: 1.5; color: var(--c-text-2); }
+.vz-nota code { padding: 1px 6px; border-radius: 6px; background: var(--c-line-soft); font-size: .82rem; }
+.vz-trio { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+
+/* «Visitas por periodo» */
+.vz-log__cab { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.vz-log__cab h2 { margin: 0 0 4px; }
+.vz-log__cab p { margin: 0; }
+.vz-filas { list-style: none; margin: 0; padding: 0; max-height: 520px; overflow: auto; }
+.vz-fila { display: grid; grid-template-columns: 150px minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--c-line); align-items: start; }
+.vz-fila:last-child { border-bottom: 0; }
+.vz-fila__h { font: 600 .8rem/1.4 var(--zoo-font-mono, monospace); color: var(--c-text-2); }
+.vz-fila__o strong, .vz-fila__p strong { color: var(--c-text); font-weight: 700; }
+.vz-fila small { display: block; margin-top: 3px; font-size: .78rem; color: var(--c-text-3); overflow-wrap: anywhere; }
+.vz-punto { display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: var(--zg-c, var(--zg-8)); vertical-align: 1px; }
+.vz-pie { margin: 12px 0 0; font-size: .82rem; color: var(--c-text-3); }
+.vz-cargando, .vz-error { margin: 0; padding: 16px 4px; color: var(--c-text-2); }
+.vz-error { color: var(--c-warn-ink, #B45309); }
+
+/* ¿De dónde vienen tus miembros? */
+.vz-ganador { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; padding: 14px 16px; border: 1px solid var(--c-line); border-radius: 14px; background: var(--c-surface); }
+.vz-ganador p { margin: 0; line-height: 1.45; color: var(--c-text); }
+.vz-ganador__ini { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; color: #fff; font: 800 1.2rem/1 var(--zoo-font-display, inherit); flex: 0 0 auto; }
+.vz-origen { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 10px; }
+.vz-origen li { display: grid; grid-template-columns: 130px minmax(0, 1fr) 36px; align-items: center; gap: 12px; }
+.vz-origen__t { font-size: .88rem; font-weight: 700; color: var(--c-text-2); }
+.vz-origen__b { position: relative; display: block; height: 18px; border-radius: 9px; background: var(--c-line-soft); overflow: hidden; }
+.vz-origen__b i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 9px; background: var(--zg-c); opacity: .9; }
+.vz-origen__b b { position: absolute; left: 0; top: 4px; bottom: 4px; border-radius: 6px; background: var(--c-surface); opacity: .8; }
+.vz-origen__n { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--c-text); }
+.vz-leyenda { display: flex; flex-wrap: wrap; gap: 14px; margin: 4px 0 14px; font-size: .82rem; color: var(--c-text-2); }
+.vz-sw { display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; vertical-align: -1px; }
+.vz-sw--cuentas { background: var(--zg-11); } .vz-sw--vip { background: var(--c-surface); border: 2px solid var(--zg-11); }
+.vz-conv { display: inline-block; padding: 2px 9px; border-radius: 8px; background: var(--c-line-soft); font: 700 .78rem/1.4 var(--zoo-font-mono, monospace); }
+
+/* Páginas más vistas */
+.vz-paginas { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.vz-paginas li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: baseline; }
+.vz-paginas__t { color: var(--c-text); }
+.vz-paginas li strong { font-variant-numeric: tabular-nums; color: var(--c-text-2); }
+.vz-paginas__b { grid-column: 1 / -1; height: 10px; border-radius: 6px; background: var(--c-line-soft); overflow: hidden; }
+.vz-paginas__b i { display: block; height: 100%; border-radius: 6px; background: var(--zg-1); }
+
+/* Quiénes entraron al panel */
+.vz-quienes { list-style: none; margin: 0; padding: 0; }
+.vz-quienes li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--c-line); align-items: center; }
+.vz-quienes li:last-child { border-bottom: 0; }
+.vz-av { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--zg-1); color: #fff; font: 800 .95rem/1 var(--zoo-font-body, inherit); }
+.vz-q__t { display: grid; gap: 2px; min-width: 0; }
+.vz-q__t strong { color: var(--c-text); overflow-wrap: anywhere; }
+.vz-q__t span { font-size: .84rem; color: var(--c-text-3); overflow-wrap: anywhere; }
+.vz-tag { display: inline-block; width: fit-content; margin: 2px 6px 0 0; padding: 2px 9px; border-radius: 8px; background: var(--c-line-soft); font: 700 .75rem/1.4 var(--zoo-font-mono, monospace); font-style: normal; color: var(--c-text-2); }
+.vz-tag--vip { background: rgba(224, 138, 0, .16); color: #9A5B00; }
+:root[data-modo="oscuro"] .vz-tag--vip { color: #F5B95A; }
+.vz-q__n { text-align: right; display: grid; gap: 2px; font-family: var(--zoo-font-mono, monospace); }
+.vz-q__n strong { font-size: .84rem; color: var(--c-text-2); }
+.vz-q__n span { font-size: .78rem; color: var(--c-text-3); }
+
+@media (max-width: 1100px) { .vz-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) {
+  .vz-hero h1 { font-size: 1.7rem; }
+  .vz-fila { grid-template-columns: 1fr; gap: 4px; padding: 12px 2px; }
+  .vz-fila__h { color: var(--c-text-3); }
+  .vz-origen li { grid-template-columns: 96px minmax(0, 1fr) 30px; gap: 8px; }
+  .vz-quienes li { grid-template-columns: 40px minmax(0, 1fr); }
+  .vz-q__n { grid-column: 2; text-align: left; }
+  .vz-controles { padding: 12px; }
+  .vz-seg button { padding: 8px 11px; font-size: .84rem; }
+  .vz-barra__fila { justify-content: center; }
+  .vz-csv { width: 100%; justify-content: center; }
+}
+@media (max-width: 480px) { .vz-kpis { grid-template-columns: minmax(0, 1fr); } .vz-kpi__val { font-size: 1.9rem; } }
