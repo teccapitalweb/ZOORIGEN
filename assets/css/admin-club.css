@@ -1085,13 +1085,8 @@ body.ap-sin-scroll { overflow: hidden; }
 @media (max-width: 640px) {
   .ap-co-tipos { flex-direction: column; gap: 2px; }
 }
-/* La lista de quién usó el cambio, en celular: cada persona es una tarjeta con sus datos rotulados (el contenedor decide, no la ventana) */
-@container tabla (max-width: 639px) {
-  .ap-tabla--cambios, .ap-tabla--cambios tbody { display: block; width: 100%; }
-  .ap-tabla--cambios thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .ap-tabla--cambios tr { display: block; padding: 12px 14px; border-bottom: 1px solid var(--c-line); }
-  .ap-tabla--cambios tr:last-child { border-bottom: 0; }
-  .ap-tabla--cambios td { display: block; padding: 6px 0; border: 0; text-align: left; }
-  .ap-tabla--cambios td:first-child { padding-top: 0; }
-  .ap-tabla--cambios td:not(:first-child)::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c-text-3); }
+/* La lista de quién usó el cambio: en pantallas angostas el contenedor esconde las columnas de fecha y retos y su resumen sale bajo el nombre */
+.ap-solo-estrecho { display: none; }
+@container tabla (max-width: 899px) {
+  .ap-solo-estrecho { display: block; }
 }
