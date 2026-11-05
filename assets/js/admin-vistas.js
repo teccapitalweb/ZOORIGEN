@@ -419,7 +419,8 @@
       dato('Invitados', esc(P.fmtNum(r.referidos.total)) + ' (' + esc(P.fmtNum(r.referidos.validos)) + ' válidos)') +
       dato('Retos superados', esc(P.fmtNum(r.retos.superados))) +
       dato('XP de retos', esc(P.fmtNum(r.retos.xp))) +
-      '</dl>' + historialFichaHTML(r.retos) + '</div>';
+      cambioOrdenFichaDato(r.retos.cambioOrden, dato) +
+      '</dl>' + cambioOrdenFichaLista(r.retos.cambioOrden) + historialFichaHTML(r.retos) + '</div>';
     var botones = [{ id: 'cerrar', texto: 'Cerrar', tipo: 'suave' }];
     if (!m.esAdmin) {
       botones.push({ id: 'eliminar', texto: 'Eliminar', tipo: 'peligro' });
@@ -632,7 +633,9 @@
   /* ───────── RETOS Y XP ───────── */
   var NOMBRES_RETO = { quiz: 'Quiz relámpago', detective: 'Detective de campo', orden: 'Ordena la secuencia', historia: 'Modo historia', flashcards: 'Flashcards' };
   var RETO_CORTO = { quiz: 'Quiz', detective: 'Detective', orden: 'Ordena', historia: 'Historia', flashcards: 'Flashcards' };
-  var rEst = { tipo: 'todos', q: '', desde: '', hasta: '', pagina: 1, hist: null, usuarios: null, uq: '', uVisibles: 25 };
+  var rEst = { tipo: 'todos', q: '', desde: '', hasta: '', pagina: 1, hist: null, usuarios: null, graficas: null, total: 0, uq: '', uVisibles: 25, uMostrar: 'todos', uOrden: 'xp' };
+  var ORDENES_RETOS = [['xp', 'XP total (mayor a menor)'], ['retos', 'Retos superados'], ['reciente', 'Última vez'], ['nombre', 'Nombre']];
+  var MOSTRAR_RETOS = [['todos', 'Todas las personas'], ['con', 'Con retos'], ['sin', 'Sin retos todavía']];
 
   function nombreReto(e) {
     var n = NOMBRES_RETO[e.retoId] || e.reto || e.retoId || 'Reto';
@@ -653,6 +656,48 @@
           (e.puntaje !== null && e.total ? ' · ' + e.puntaje + '/' + e.total : '') + (e.perfecto ? ' · perfecto' : '') + ' · ' + esc(P.fmtFechaHora(e.en)) + '</small></span>' +
           '<span class="ap-progreso__e"><span class="ap-badge ap-badge--ok">' + ico('zap', { size: 14 }) + '<span>+' + esc(P.fmtNum(e.xp)) + ' XP</span></span></span></li>';
       }).join('') + '</ul>';
+  }
+
+  // Cambios de orden de cursos (ficha del miembro)
+  function cambioOrdenFichaDato(co, dato) {
+    if (!co) return '';
+    return dato('Cambios de orden de cursos', esc(co.usados + ' de ' + co.maximo) + ' · ' + esc(P.fmtNum(co.contados ? co.contados.total : 0)) + ' retos nuevos contados');
+  }
+  function cambioOrdenFichaLista(co) {
+    if (!co || !co.cambios || !co.cambios.length) return '';
+    return '<h3>Cambios de orden de cursos</h3><ul class="ap-progreso">' + co.cambios.map(function (c) {
+      return '<li><span class="ap-progreso__t">Cambio ' + esc(c.n) + ': ' + esc(c.curso || 'Curso') + '<small>' + (c.deLugar ? 'Estaba en el lugar ' + esc(c.deLugar) + ' de los cursos cerrados y pasó al primero' : 'Pasó a ser el siguiente en abrirse') + '</small></span>' +
+        '<span class="ap-progreso__e">' + esc(P.fmtFechaHora(c.en)) + '</span></li>';
+    }).join('') + '</ul>';
+  }
+
+  // Gráficas de la sección Retos: por tipo y por nivel (totales de todos) y por día (solo historial detallado)
+  function graficasRetosHTML(g) {
+    if (!g) return '';
+    var porTipo = G.barrasH({
+      titulo: 'Retos superados por tipo', variado: true, porcentaje: true,
+      filas: g.porTipo.map(function (t) { return { etiqueta: t.nombre, valor: t.superados }; }),
+      vacio: { titulo: 'Aún no hay retos superados', texto: 'Cuando alguien supere un reto verás aquí qué tipo resuelven más.' }
+    });
+    var niveles = G.barrasH({
+      titulo: 'Personas por nivel', color: 3, porcentaje: false,
+      filas: g.niveles.map(function (n) { return { etiqueta: n.nombre, valor: n.personas, nota: 'desde ' + P.fmtNum(n.desde) + ' XP' }; }),
+      vacio: { titulo: 'Aún no hay personas', texto: 'Cuando haya miembros aparecerán aquí por nivel.' }
+    });
+    var dias = g.porDia || [];
+    var desde = g.historialDesde ? ' (desde el ' + P.fmtFecha(g.historialDesde) + ')' : '';
+    var porDia = G.serie({
+      titulo: 'Retos superados por día', tipo: 'barras', unidad: 'retos superados en los últimos 30 días', alto: 200, formato: 'num',
+      etiquetas: dias.map(function (d) { return d.dia.slice(8) + '/' + d.dia.slice(5, 7); }),
+      titulos: dias.map(function (d) { return P.fmtFecha(d.dia + 'T12:00:00-06:00'); }),
+      series: [{ nombre: 'Retos superados', valores: dias.map(function (d) { return d.retos; }), color: 1 }],
+      vacio: { titulo: 'Sin retos en los últimos 30 días', texto: 'Esta gráfica usa el historial detallado' + desde + '. Los retos de antes solo tienen totales por persona.' }
+    });
+    return '<div class="ap-columnas">' +
+      tarjeta('Qué retos resuelven más', porTipo, { nota: 'Suma de todos los retos superados por todas las personas (incluye lo de antes del historial detallado).' }) +
+      tarjeta('Personas por nivel', niveles, { nota: 'Cuántas personas hay en cada nivel, según su XP total. No cuenta cuentas de administración.' }) +
+      '</div>' +
+      tarjeta('Retos superados por día', porDia, { nota: 'Últimos 30 días, hora de México. Viene del historial detallado' + desde + ': lo anterior solo tiene totales por persona y no sale aquí.' });
   }
 
   function parametrosHistorial() {
@@ -697,20 +742,49 @@
     pintarHistorialRetos();
   }
 
+  function ordenarUsuariosRetos(lista) {
+    var o = rEst.uOrden;
+    return lista.slice().sort(function (a, b) {
+      if (o === 'retos') return b.superados - a.superados || b.xpTotal - a.xpTotal;
+      if (o === 'reciente') return String(b.ultimaVez || '').localeCompare(String(a.ultimaVez || '')) || b.xpTotal - a.xpTotal;
+      if (o === 'nombre') return a.nombre.localeCompare(b.nombre, 'es');
+      return b.xpTotal - a.xpTotal || b.superados - a.superados || a.nombre.localeCompare(b.nombre, 'es');
+    });
+  }
+  function conRetos(u) { return u.xp > 0 || u.superados > 0 || Object.keys(u.porReto).length > 0; }
+
   function pintarUsuariosRetos() {
     var cont = document.getElementById('apRUsuarios');
     if (!cont || !rEst.usuarios) return;
     var q = P.sinAcentos ? P.sinAcentos(rEst.uq) : String(rEst.uq).toLowerCase();
-    var lista = rEst.usuarios.filter(function (u) { return !q.trim() || (P.sinAcentos ? P.sinAcentos(u.nombre) : u.nombre.toLowerCase()).indexOf(q.trim()) !== -1; });
-    if (!lista.length) { cont.innerHTML = vacio(rEst.uq ? 'Nadie coincide con esa búsqueda' : 'Aún nadie ha jugado retos', rEst.uq ? 'Prueba con otro nombre.' : 'Cuando los miembros superen retos aparecerán aquí con su XP.', 'target'); return; }
+    var lista = rEst.usuarios.filter(function (u) {
+      if (rEst.uMostrar === 'con' && !conRetos(u)) return false;
+      if (rEst.uMostrar === 'sin' && conRetos(u)) return false;
+      return !q.trim() || (P.sinAcentos ? P.sinAcentos(u.nombre) : u.nombre.toLowerCase()).indexOf(q.trim()) !== -1;
+    });
+    lista = ordenarUsuariosRetos(lista);
+    if (!lista.length) {
+      var filtrado = rEst.uq || rEst.uMostrar !== 'todos';
+      cont.innerHTML = vacio(filtrado ? 'Nadie coincide con ese filtro' : 'Aún no hay personas registradas', filtrado ? 'Prueba con otro nombre o con otro filtro.' : 'Cuando haya miembros aparecerán aquí con su XP.', 'target');
+      return;
+    }
     var mostrar = lista.slice(0, rEst.uVisibles);
-    cont.innerHTML = tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">#</th><th scope="col">Persona</th><th scope="col">Retos superados</th><th scope="col">XP</th><th scope="col">Días activos</th><th scope="col">Por tipo (superados)</th><th scope="col">Última vez</th></tr></thead><tbody>' +
-      mostrar.map(function (u, i) {
-        var tipos = Object.keys(u.porReto).map(function (k) { return esc(RETO_CORTO[k] || k) + ' ' + P.fmtNum(u.porReto[k].superados); }).join(' · ') || '—';
-        return '<tr><td data-label="Lugar">' + (rEst.usuarios.indexOf(u) + 1) + '</td><td data-label="Persona"><button type="button" class="ap-enlace" data-accion="ficha" data-uid="' + esc(u.uid) + '">' + esc(u.nombre) + '</button></td>' +
-          '<td data-label="Retos superados">' + esc(P.fmtNum(u.superados)) + '</td><td data-label="XP"><strong>' + esc(P.fmtNum(u.xp)) + '</strong></td>' +
-          '<td data-label="Días activos">' + esc(P.fmtNum(u.dias)) + '</td><td data-label="Por tipo (superados)">' + tipos + '</td>' +
-          '<td data-label="Última vez">' + (u.ultimaVez ? esc(P.fmtFecha(u.ultimaVez)) + '<small class="ap-sub">' + esc(P.relativo(u.ultimaVez)) + '</small>' : '—') + '</td></tr>';
+    var lugar = {};
+    rEst.usuarios.forEach(function (u, i) { lugar[u.uid] = i + 1; });
+    cont.innerHTML = tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">#</th><th scope="col">Persona</th><th scope="col">XP total</th><th scope="col">Nivel</th><th scope="col">Retos superados</th><th scope="col">Por tipo (superados)</th><th scope="col">Días activos</th><th scope="col">Última vez</th><th scope="col">Cambio de orden</th><th scope="col">Historial</th></tr></thead><tbody>' +
+      mostrar.map(function (u) {
+        var tipos = Object.keys(u.porReto).filter(function (k) { return u.porReto[k].superados > 0; }).map(function (k) { return esc(RETO_CORTO[k] || k) + ' ' + P.fmtNum(u.porReto[k].superados); }).join(' · ') || '—';
+        var plan = u.admin ? '<span class="ap-badge ap-badge--info">Administración</span>' : (u.membresia === 'activa' ? '<span class="ap-badge ap-badge--ok">Membresía activa</span>' : '<span class="ap-badge ap-badge--neutro">Sin membresía</span>');
+        var nombre = u.esMiembro ? '<button type="button" class="ap-enlace" data-accion="ficha" data-uid="' + esc(u.uid) + '">' + esc(u.nombre) + '</button>' : esc(u.nombre);
+        return '<tr><td data-label="Lugar">' + lugar[u.uid] + '</td><td data-label="Persona">' + nombre + '<small class="ap-sub">' + plan + '</small></td>' +
+          '<td data-label="XP total"><strong>' + esc(P.fmtNum(u.xpTotal)) + '</strong><small class="ap-sub">De retos: ' + esc(P.fmtNum(u.xp)) + '</small></td>' +
+          '<td data-label="Nivel">' + esc(u.nivel.nombre) + '</td>' +
+          '<td data-label="Retos superados">' + esc(P.fmtNum(u.superados)) + '</td>' +
+          '<td data-label="Por tipo (superados)">' + tipos + '</td>' +
+          '<td data-label="Días activos">' + esc(P.fmtNum(u.dias)) + '</td>' +
+          '<td data-label="Última vez">' + (u.ultimaVez ? esc(P.fmtFecha(u.ultimaVez)) + '<small class="ap-sub">' + esc(P.relativo(u.ultimaVez)) + '</small>' : '—') + '</td>' +
+          '<td data-label="Cambio de orden">' + esc(u.cambioOrden.usados + ' de 2') + '<small class="ap-sub">' + esc(P.fmtNum(u.cambioOrden.contados)) + ' retos nuevos</small></td>' +
+          '<td data-label="Historial">' + (u.esMiembro ? '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="ficha" data-uid="' + esc(u.uid) + '">' + ico('history', { size: 14 }) + 'Ver historial</button>' : '—') + '</td></tr>';
       }).join('') + '</tbody></table>') +
       '<p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(mostrar.length) + ' de ' + P.fmtNum(lista.length) + '</p>' +
       (lista.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="usuarios-mas">Mostrar ' + Math.min(25, lista.length - mostrar.length) + ' más</button>' : '');
@@ -726,7 +800,7 @@
         ctx.api('/api/admin/retos/usuarios' + (forzar ? '?refrescar=1' : '')),
         ctx.api('/api/admin/retos/historial' + parametrosHistorial() + (forzar ? '&refrescar=1' : ''))
       ]);
-      r = par[0]; rEst.usuarios = par[1].usuarios; rEst.hist = par[2];
+      r = par[0]; rEst.usuarios = par[1].usuarios; rEst.graficas = par[1].graficas || null; rEst.total = par[1].total || 0; rEst.hist = par[2];
       if (rEst.hist.pagina !== rEst.pagina) rEst.pagina = rEst.hist.pagina;
     } catch (e) {
       if (mi !== contador) return;
@@ -742,17 +816,19 @@
       sub: 'Quién resuelve los retos, cuáles y cuándo, y cuánto XP ganó. El historial detallado empieza el día que se publicó y los totales por persona incluyen todo lo anterior.',
       cifras: [
         { valor: P.fmtNum(t.conActividad), rotulo: 'personas con retos' },
+        { valor: P.fmtNum(rEst.total), rotulo: 'personas en total' },
         { valor: P.fmtNum(t.retosSuperados), rotulo: 'retos superados' },
         { valor: P.fmtNum(t.xpTotal), rotulo: 'XP en total' }
       ],
       acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }]
     }) +
       '<div class="ap-kpis">' + [
-        kpi({ icono: 'users', rotulo: 'Personas con actividad', valor: P.fmtNum(t.conActividad), nota: 'De ' + P.fmtNum(t.personas) + ' con registro de retos', tono: 'info' }),
+        kpi({ icono: 'users', rotulo: 'Personas con actividad', valor: P.fmtNum(t.conActividad), nota: 'De ' + P.fmtNum(rEst.total) + ' personas registradas', tono: 'info' }),
         kpi({ icono: 'target', rotulo: 'Retos superados', valor: P.fmtNum(t.retosSuperados), nota: 'Suma de los totales por persona', tono: 'ok' }),
         kpi({ icono: 'zap', rotulo: 'XP acumulado', valor: P.fmtNum(t.xpTotal), nota: 'Solo XP de retos', tono: 'aviso' }),
         kpi({ icono: 'trophy', rotulo: 'XP promedio', valor: P.fmtNum(t.xpPromedio), nota: 'Por persona con actividad', tono: 'neutro' })
       ].join('') + '</div>' +
+      graficasRetosHTML(rEst.graficas) +
       tarjeta('Historial de retos resueltos', '<div class="ap-controles ap-controles--hist">' +
         '<label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por persona o reto</span><input type="search" id="apRQ" placeholder="Buscar persona o reto" autocomplete="off" value="' + esc(rEst.q) + '"></label>' +
         '<label class="ap-campo-fila"><span>Tipo</span><select id="apRTipo"><option value="todos">Todos</option><option value="practica">Práctica diaria</option><option value="camino">Camino</option></select></label>' +
@@ -760,9 +836,14 @@
         '<label class="ap-campo-fila"><span>Hasta</span><input type="date" id="apRHasta" value="' + esc(rEst.hasta) + '"></label>' +
         '<button type="button" class="ap-btn ap-btn--suave" data-accion="limpiar-filtros">' + ico('x', { size: 16 }) + 'Limpiar</button></div>' +
         '<div id="apRHist"></div>', { nota: 'Cada vez que alguien supera un reto: quién, cuál, de qué tipo, cuándo (hora de México) y cuánto XP ganó.' }) +
-      tarjeta('Totales por persona', '<div class="ap-controles"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar persona</span><input type="search" id="apRUQ" placeholder="Buscar por nombre" autocomplete="off" value="' + esc(rEst.uq) + '"></label></div><div id="apRUsuarios"></div>',
-        { nota: 'Retos superados y XP de cada persona, también de antes del historial detallado.', id: 'apRetosPersonas' });
+      tarjeta('Todas las personas', '<div class="ap-controles"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar persona</span><input type="search" id="apRUQ" placeholder="Buscar por nombre" autocomplete="off" value="' + esc(rEst.uq) + '"></label>' +
+        '<label class="ap-campo-fila"><span>Mostrar</span><select id="apRUMostrar">' + MOSTRAR_RETOS.map(function (x) { return '<option value="' + x[0] + '">' + esc(x[1]) + '</option>'; }).join('') + '</select></label>' +
+        '<label class="ap-campo-fila"><span>Ordenar por</span><select id="apRUOrden">' + ORDENES_RETOS.map(function (x) { return '<option value="' + x[0] + '">' + esc(x[1]) + '</option>'; }).join('') + '</select></label></div><div id="apRUsuarios"></div>',
+        { nota: 'Cada persona registrada con su XP total (el que ve ella), su nivel, lo que ha resuelto y su historial. Lo de antes del historial detallado solo tiene totales.', id: 'apRetosPersonas' });
     document.getElementById('apRTipo').value = rEst.tipo;
+    document.getElementById('apRUMostrar').value = rEst.uMostrar;
+    document.getElementById('apRUOrden').value = rEst.uOrden;
+    G.activar(vista());
     pintarHistorialRetos();
     pintarUsuariosRetos();
     var espera = null;
@@ -779,6 +860,8 @@
       if (e.target.id === 'apRTipo') { rEst.tipo = e.target.value; recargarHist(false); }
       else if (e.target.id === 'apRDesde') { rEst.desde = e.target.value; recargarHist(false); }
       else if (e.target.id === 'apRHasta') { rEst.hasta = e.target.value; recargarHist(false); }
+      else if (e.target.id === 'apRUMostrar') { rEst.uMostrar = e.target.value; rEst.uVisibles = 25; pintarUsuariosRetos(); }
+      else if (e.target.id === 'apRUOrden') { rEst.uOrden = e.target.value; rEst.uVisibles = 25; pintarUsuariosRetos(); }
     };
     vista().onclick = function (e) {
       acciones(e, {

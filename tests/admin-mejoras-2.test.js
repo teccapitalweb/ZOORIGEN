@@ -76,7 +76,8 @@ test('Retos y XP: historial por persona con filtros, totales por persona reales 
   for (const clave of ['apRQ', 'apRTipo', 'apRDesde', 'apRHasta', 'pag-ant', 'pag-sig', 'limpiar-filtros']) assert.ok(vistas.includes(clave), clave);
   assert.match(vistas, /El historial detallado empieza el día que se publique esta versión/);
   assert.match(vistas, /historialDesde/);
-  assert.match(vistas, /Totales por persona/);
+  assert.match(vistas, /Todas las personas/);
+  assert.match(vistas, /xpTotal/);
   // el espacio reservado «Créditos por retos» ya no existe: los créditos tienen su propia sección en el menú
   assert.doesNotMatch(vistas, /Créditos por retos|Espacio reservado|apRetosCreditos/);
   // la ficha del miembro lleva el historial
