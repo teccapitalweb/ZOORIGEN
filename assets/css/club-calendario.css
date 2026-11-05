@@ -112,7 +112,7 @@
 .zco .zcal-tipos, .zco-oferta .zcal-tipos { grid-template-columns: minmax(0, 1fr); margin: 0 0 14px; }
 .zco .zcal-tipo, .zco-oferta .zcal-tipo { grid-template-columns: minmax(78px, auto) minmax(40px, 1fr) minmax(34px, auto); }
 .zco .zcal-tipo__c, .zco-oferta .zcal-tipo__c { white-space: nowrap; }
-@media (min-width: 900px) { .zco .zcal-tipos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 22px; } }
+@media (min-width: 900px) { .zco .zcal-tipos { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 18px; } }
 .zco .zcal-tipo__n, .zco-oferta .zcal-tipo__n { overflow-wrap: normal; white-space: nowrap; }
 .zco__acc { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 4px; }
 .zco__fin { display: flex; gap: 10px; align-items: center; margin: 0 0 4px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--zcal-ok); color: var(--zcal-text); font-size: .92rem; }

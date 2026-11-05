@@ -62,7 +62,9 @@ test('bloque (Mis logros): título, UNA línea de apoyo, dos tarjetas, una barra
   assert.match(html, /zco-tj__estado">Pendiente/);
   assert.equal((html.match(/role="progressbar"/g) || []).length, 1, 'una barra de avance total');
   assert.match(html, /<b>35 de 35<\/b> retos nuevos/);
-  assert.equal((html.match(/<li class="zcal-tipo/g) || []).length, 3, 'tres mini-barras');
+  assert.equal((html.match(/<li class="zcal-tipo/g) || []).length, 4, 'tres mini-barras por tipo y una de «Cualquier tipo»');
+  assert.match(html, /Cualquier tipo<\/span>/);
+  assert.match(html, /zcal-tipo--libres[\s\S]*?11\/11|zcal-tipo--libres[\s\S]*?<svg/, 'con 35 retos (20 + 8 + 7) los 11 libres están llenos');
   assert.match(html, /Quiz<\/span>/);
   assert.match(html, /Detective<\/span>/);
   assert.match(html, /Ordena<\/span>/);
@@ -90,15 +92,12 @@ test('bloque: nada de párrafos largos visibles; las reglas van en el desplegabl
   for (const li of det.match(/<li>[\s\S]*?<\/li>/g)) assert.ok(li.length < 140, 'regla corta: ' + li);
 });
 
-test('bloque: con los retos cumplidos aparece el botón; en Retos lleva a Cursos; con los 2 cambios usados no hay botón ni barra', () => {
+test('bloque: con los retos cumplidos aparece el botón; con los 2 cambios usados no hay botón ni barra', () => {
   const co = CAL.cambioOrden(resp({ contados: { quiz: 19, detective: 8, orden: 8 }, disponible: true }));
   const h = CAL.cambioOrdenHTML(co, { modo: 'cursos' });
   assert.match(h, /data-zco="elegir">[\s\S]*Elegir curso/);
   assert.match(h, /zco-tj__estado">Listo/);
   assert.match(h, /Listo para elegir/);
-  const enRetos = CAL.cambioOrdenHTML(CAL.cambioOrden({ usados: 0, maximo: 2, contados: { quiz: 19, detective: 8, orden: 8 } }), { modo: 'retos', href: 'club-biblioteca.html#cambiar-orden' });
-  assert.match(enRetos, /href="club-biblioteca.html#cambiar-orden"/);
-  assert.equal(/data-zco="elegir"/.test(enRetos), false);
   const sinCursos = CAL.cambioOrden(resp({ contados: { quiz: 19, detective: 8, orden: 8 }, disponible: false, cursosCerrados: [cerrados()[0]] }));
   const t = CAL.cambioOrdenHTML(sinCursos, { modo: 'cursos' });
   assert.equal(/data-zco="elegir"/.test(t), false);
@@ -159,10 +158,10 @@ test('el módulo del navegador usa los dos endpoints, pide confirmación explíc
   assert.match(js, /llegaraTexto/);
 });
 
-test('Cursos: línea corta, orden por desbloqueo y carátulas; Logros: el bloque completo; Retos: solo el avance', () => {
+test('Cursos: línea corta, orden por desbloqueo y carátulas; Logros: el bloque completo; Retos: NADA de este bloque', () => {
   const cursos = leer('pages/club-biblioteca.html');
   assert.match(cursos, /<div id="cambioOrden"><\/div>/);
-  assert.match(cursos, /club-cambio-orden\.js\?v=20261108-cambioorden5/);
+  assert.match(cursos, /club-cambio-orden\.js\?v=20261111-libres/);
   assert.match(cursos, /modo: 'linea'/, 'en Cursos solo la línea corta');
   assert.match(cursos, /alVer:/, 'el botón Cambiar abre la página de ese curso');
   assert.match(cursos, /alCambiar:[\s\S]{0,400}render\(/, 'después del cambio se vuelven a pintar los cursos');
@@ -180,7 +179,9 @@ test('Cursos: línea corta, orden por desbloqueo y carátulas; Logros: el bloque
   assert.match(logros, /alCambiar: \(\) => \{ cargar\(\); \}/, 'al cambiar se refrescan XP e insignias');
   const retos = leer('pages/club-retos.html');
   assert.equal(retos.includes('club-cambio-orden.js'), false, 'en Retos no se elige curso');
-  assert.match(leer('assets/js/club-retos.js'), /rzCambioOrden/);
+  const retosJs = leer('assets/js/club-retos.js');
+  assert.equal(/rzCambioOrden|pintarCambioOrden|aplicarCambioOrden|cambioOrdenHTML|estado\.cambioOrden/.test(retosJs), false, 'la página de Retos ya no tiene el bloque ni su lógica');
+  assert.equal(/modo: 'retos'/.test(leer('assets/js/club-calendario.js')), false);
   const versiones = new Set();
   for (const f of fs.readdirSync(path.join(RAIZ, 'pages')).filter(x => x.endsWith('.html'))) {
     for (const m of leer('pages/' + f).matchAll(/club-calendario\.(?:js|css)\?v=([\w.-]+)/g)) versiones.add(m[1]);
@@ -269,7 +270,7 @@ test('oferta en la página del curso: solo en el SIGUIENTE curso por abrirse y l
   assert.match(html, /<h4 class="zco-oferta__t">Elige otro curso en lugar de este<\/h4>/);
   assert.match(html, /Cambio 1 de 2 · 35 retos nuevos \(mínimo 8 de cada tipo\)/);
   assert.match(html, /<b>35 de 35<\/b> retos nuevos/);
-  assert.equal((html.match(/<li class="zcal-tipo/g) || []).length, 3);
+  assert.equal((html.match(/<li class="zcal-tipo/g) || []).length, 4, 'tres tipos y «Cualquier tipo»');
   assert.match(html, /7\/8/);
   assert.equal(/data-zco="elegir"/.test(html), false, 'todavía no cumple: sin botón');
   assert.match(html, /<summary>Cómo funciona<\/summary>/);
@@ -332,7 +333,7 @@ test('ni el bloque, ni la oferta del curso, ni "Cómo funciona", ni la línea mu
   ];
   for (const r of casos) {
     const co = CAL.cambioOrden(r);
-    const todo = CAL.cambioOrdenHTML(co, { modo: 'cursos' }) + CAL.cambioOrdenHTML(co, { modo: 'retos', href: 'x' }) + CAL.cambioOrdenOfertaHTML(co, 'c2') + CAL.cambioOrdenLineaHTML(co) +
+    const todo = CAL.cambioOrdenHTML(co, { modo: 'cursos' }) + CAL.cambioOrdenOfertaHTML(co, 'c2') + CAL.cambioOrdenLineaHTML(co) +
       CAL.cambioOrdenModalHTML(co, {}) + CAL.comoFuncionaHTML(co);
     assert.equal(/\bXP\b|Calendario a tu medida|Rumbo propio|insignia/i.test(todo), false, 'sin XP ni insignias: ' + (todo.match(/.{0,30}(XP|insignia|Rumbo propio|Calendario a tu medida).{0,30}/i) || [''])[0]);
   }
@@ -368,4 +369,52 @@ test('Mis logros: el icono propio es Lucide y existe en la biblioteca de iconos;
   assert.match(ganada, /<svg/);
   const vista = LG.insigniaHTML(logro('r11'), false, '#E8A317', 'target');
   assert.equal(/XP|Descripción corta/.test(vista), false);
+});
+
+/* ───────────── Retos «de cualquier tipo» ───────────── */
+
+const conLibres = (contados, libres, extra = {}) => resp({
+  contados, tramos: [{ total: 35, porTipo: 8, libres: libres[0] }, { total: 55, porTipo: 14, libres: libres[1] }], ...extra
+});
+
+test('libres: los manda el servidor (hechos y meta) y la fila "Cualquier tipo" los pinta: 8/8/8 son 24 de 35 y faltan 11', () => {
+  const co = CAL.cambioOrden(conLibres({ quiz: 8, detective: 8, orden: 8 }, [{ hechos: 0, meta: 11 }, { hechos: 0, meta: 13 }]));
+  assert.deepEqual(co.tramos.map(x => x.libres), [{ hechos: 0, meta: 11 }, { hechos: 0, meta: 13 }]);
+  const h = CAL.cambioOrdenHTML(co, { modo: 'cursos', hrefRetos: 'club-retos.html' });
+  assert.match(h, /<b>24 de 35<\/b> retos nuevos/, 'el total no cambia');
+  assert.match(h, /zcal-tipo__n">Cualquier tipo<\/span>[\s\S]*?<i style="width:0%"><\/i>[\s\S]*?0\/11/);
+  assert.equal((h.match(/<li class="zcal-tipo/g) || []).length, 4);
+  // la ficha de la oferta del curso muestra lo mismo
+  const o = CAL.cambioOrdenOfertaHTML(co, 'c2');
+  assert.match(o, /Cualquier tipo<\/span>[\s\S]*?0\/11/);
+});
+
+test('libres: lo que dice el servidor manda; 20 + 8 + 8 = 36 llena los 11 y se ve con su palomita; el cambio 2 usa 13', () => {
+  const lleno = CAL.cambioOrden(conLibres({ quiz: 20, detective: 8, orden: 8 }, [{ hechos: 11, meta: 11 }, { hechos: 0, meta: 13 }], { disponible: true }));
+  const h = CAL.cambioOrdenHTML(lleno, { modo: 'cursos' });
+  assert.match(h, /zcal-tipo zcal-tipo--libres is-ok/);
+  assert.match(h, /<b>35 de 35<\/b> retos nuevos/, 'el total se topa en 35');
+  const dos = CAL.cambioOrden(conLibres({ quiz: 26, detective: 14, orden: 14 }, [{ hechos: 11, meta: 11 }, { hechos: 12, meta: 13 }], { usados: 1 }));
+  const h2 = CAL.cambioOrdenOfertaHTML(dos, 'c2');
+  assert.match(h2, /<b>54 de 55<\/b> retos nuevos/);
+  assert.match(h2, /Cualquier tipo<\/span>[\s\S]*?12\/13/);
+  // sin dato del servidor (servidor anterior) se calcula con la misma regla
+  const sin = CAL.cambioOrden(resp({ contados: { quiz: 12, detective: 9, orden: 8 } }));
+  assert.deepEqual(sin.tramos[0].libres, { hechos: 5, meta: 11 });
+  // un dato fuera de rango no rompe la barra
+  const raro = CAL.cambioOrden(conLibres({ quiz: 8, detective: 8, orden: 8 }, [{ hechos: 99, meta: 11 }, { hechos: -4, meta: 13 }]));
+  assert.deepEqual(raro.tramos.map(x => x.libres), [{ hechos: 11, meta: 11 }, { hechos: 0, meta: 13 }]);
+});
+
+test('"Cómo funciona" explica en una línea qué son los retos de cualquier tipo (11 y 13); sin XP ni insignias', () => {
+  const det = CAL.comoFuncionaHTML(CAL.cambioOrden(resp())).match(/<details[\s\S]*<\/details>/)[0];
+  assert.match(det, /«Cualquier tipo» son los retos que pasan de ese mínimo: 11 en el primer cambio y 13 en el segundo\./);
+  assert.ok((det.match(/<li>/g) || []).length <= 7);
+  assert.equal(/XP|insignia/i.test(det), false);
+});
+
+test('estilos: la fila "Cualquier tipo" cabe en celular (etiqueta sin partir) y en escritorio se acomoda en 4 columnas', () => {
+  const css = leer('assets/css/club-calendario.css');
+  assert.match(css, /\.zco \.zcal-tipos \{ grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
+  assert.match(css, /\.zco \.zcal-tipo__n, \.zco-oferta \.zcal-tipo__n \{[^}]*white-space: nowrap/);
 });
