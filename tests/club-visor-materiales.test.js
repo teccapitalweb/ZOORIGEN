@@ -107,7 +107,7 @@ test('estilos: pantalla completa en celular con botones grandes, colores sólido
   assert.ok(visor.length > 1500);
   assert.equal(/gradient/.test(visor), false);
   assert.equal(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(visor), false);
-  assert.match(css, /@media \(max-width: 640px\) \{\s*\.mt-visor \{ padding: 0; \}\s*\.mt-visor__ventana \{ width: 100%; height: 100vh; height: 100dvh; border-radius: 0/);
+  assert.match(css, /\.mt-visor \{ padding: 0 !important; \}\s*\.mt-visor \.mt-visor__ventana \{ width: 100%; max-width: none; height: 100vh; height: 100dvh; max-height: none; border-radius: 0/);
   assert.match(css, /\.mt-visor__btn \{ min-height: 44px/);
   assert.match(css, /\.mt-visor__grande \{ width: 100%; min-height: 56px/);
   for (const m of visor.matchAll(/font(?:-size)?:\s*(?:[0-9]{3}\s+)?([0-9.]+)(rem|px)/g)) assert.ok((m[2] === 'rem' ? Number(m[1]) * 16 : Number(m[1])) >= 12, m[0]);
