@@ -637,6 +637,129 @@
   var ORDENES_RETOS = [['xp', 'XP total (mayor a menor)'], ['retos', 'Retos superados'], ['reciente', 'Última vez'], ['nombre', 'Nombre']];
   var MOSTRAR_RETOS = [['todos', 'Todas las personas'], ['con', 'Con retos'], ['sin', 'Sin retos todavía']];
 
+  /* ───────── Cambio de orden de cursos (dentro de Retos) ─────────
+     Lista de quién lo usó, embudo (¿lo están usando?), cambios por día y cursos más elegidos. Todo lo calcula el servidor (GET /api/admin/cambios-orden). */
+  var coEst = { datos: null, error: null, q: '', orden: 'reciente', visibles: 10 };
+  var ORDENES_CAMBIO = [['reciente', 'Más reciente primero'], ['antiguo', 'Más antiguo primero'], ['nombre', 'Nombre']];
+  var NOTAS_EMBUDO = {
+    activos: 'Membresía vigente, sin contar cuentas de administración.',
+    conRetos: 'Superó al menos 1 reto del camino desde que existe esta función.',
+    alcanzaron: 'Cumplió los retos del cambio (con el mínimo de cada tipo). Incluye a quien ya lo usó.',
+    usaron: 'Ya eligió qué curso se abre primero.',
+    disponibles: 'Ya cumple los retos y todavía no lo usa. Para cambiar, además, debe tener otro curso cerrado.'
+  };
+
+  function retosAlCambiarHTML(x) {
+    if (!x) return '<span class="ap-nada">Sin dato</span>';
+    return '<span class="ap-co-tipos"><span>Quiz ' + esc(P.fmtNum(x.quiz)) + '</span><span>Detective ' + esc(P.fmtNum(x.detective)) + '</span><span>Ordena ' + esc(P.fmtNum(x.orden)) + '</span></span>' +
+      '<small class="ap-sub">' + esc(P.fmtNum(x.total)) + ' retos nuevos</small>';
+  }
+
+  function cursosCambioHTML(c) {
+    var lugar = c.deLugar && c.aLugar ? 'Estaba en el lugar ' + esc(c.deLugar) + ' de los cursos cerrados y pasó al ' + esc(c.aLugar) : 'Pasó a abrirse primero';
+    return '<strong>' + esc(c.curso || 'Curso') + '</strong><small class="ap-sub">Antes iba primero: ' + (c.anterior ? esc(c.anterior) : '<span class="ap-nada">sin dato</span>') + '</small><small class="ap-sub">' + lugar + '</small>';
+  }
+
+  function listaCambiosFiltrada() {
+    var d = coEst.datos;
+    if (!d) return [];
+    var q = (P.sinAcentos ? P.sinAcentos(coEst.q) : String(coEst.q).toLowerCase()).trim();
+    var lista = d.cambios.filter(function (c) {
+      if (!q) return true;
+      var pajar = (P.sinAcentos ? P.sinAcentos : function (s) { return String(s).toLowerCase(); })([c.nombre, c.correo, c.curso, c.anterior].join(' '));
+      return pajar.indexOf(q) !== -1;
+    });
+    return lista.slice().sort(function (a, b) {
+      if (coEst.orden === 'nombre') return a.nombre.localeCompare(b.nombre, 'es');
+      var ta = Date.parse(a.en) || 0, tb = Date.parse(b.en) || 0;
+      return coEst.orden === 'antiguo' ? ta - tb : tb - ta;
+    });
+  }
+
+  function pintarListaCambios() {
+    var cont = document.getElementById('apCOLista');
+    if (!cont || !coEst.datos) return;
+    var lista = listaCambiosFiltrada();
+    if (!coEst.datos.cambios.length) {
+      cont.innerHTML = vacio('Todavía nadie ha usado el cambio de orden', 'Cuando alguien elija qué curso se abre primero aparecerá aquí con fecha, hora, retos y cursos.', 'calendar-clock');
+      return;
+    }
+    if (!lista.length) { cont.innerHTML = vacio('Nadie coincide con esa búsqueda', 'Prueba con otro nombre o con el nombre de un curso.', 'search-x'); return; }
+    var mostrar = lista.slice(0, coEst.visibles);
+    cont.innerHTML = tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">Persona</th><th scope="col">Fecha y hora</th><th scope="col">Retos al cambiar</th><th scope="col">Curso que pasó a abrirse primero</th></tr></thead><tbody>' +
+      mostrar.map(function (c) {
+        return '<tr><td data-label="Persona"><button type="button" class="ap-enlace" data-accion="ficha" data-uid="' + esc(c.uid) + '">' + esc(c.nombre) + '</button>' + (c.correo ? '<small class="ap-sub">' + esc(c.correo) + '</small>' : '') + '</td>' +
+          '<td data-label="Fecha y hora"><span class="ap-fecha">' + esc(P.fmtFechaHora(c.en)) + '</span><small class="ap-sub">' + esc(P.relativo(c.en)) + '</small></td>' +
+          '<td data-label="Retos al cambiar">' + retosAlCambiarHTML(c.retos) + '</td>' +
+          '<td data-label="Curso que pasó a abrirse primero">' + cursosCambioHTML(c) + '</td></tr>';
+      }).join('') + '</tbody></table>') +
+      '<p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(mostrar.length) + ' de ' + P.fmtNum(lista.length) + '</p>' +
+      (lista.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="co-mas">Mostrar ' + Math.min(10, lista.length - mostrar.length) + ' más</button>' : '');
+  }
+
+  function cambioOrdenAdminHTML() {
+    var cab = function (cuerpo) { return tarjeta('Cambio de orden de cursos', cuerpo, { id: 'apCambioOrden', nota: 'Cada miembro puede elegir qué curso cerrado se abre primero. Aquí ves quién lo usó y si la función se está aprovechando.' }); };
+    if (coEst.error) return cab(errorHTML('Cambio de orden de cursos', coEst.error, 'recargar-co'));
+    var d = coEst.datos;
+    if (!d) return cab('<div class="ap-esqueleto"><div class="ap-esqueleto__fila"></div></div>');
+    var por = {};
+    d.embudo.forEach(function (x) { por[x.id] = x.personas; });
+    var t1 = d.tramos && d.tramos[0] ? d.tramos[0] : { total: 35, porTipo: 8 };
+    var regla = '<p class="ap-co-regla">' + ico('info', { size: 16 }) + '<span>' + (d.maximo === 1 ? 'Cada miembro tiene <strong>1 cambio</strong>' : 'Cada miembro tiene <strong>' + esc(d.maximo) + ' cambios</strong>') +
+      ' y se activa al llegar a <strong>' + esc(t1.total) + ' retos nuevos</strong> (mínimo ' + esc(t1.porTipo) + ' de cada tipo).</span></p>';
+    var kpis = '<div class="ap-kpis">' + [
+      kpi({ icono: 'calendar-clock', rotulo: 'Ya lo usaron', valor: P.fmtNum(por.usaron), nota: 'De ' + P.fmtNum(por.activos) + ' miembros activos', tono: 'ok' }),
+      kpi({ icono: 'users', rotulo: 'Pueden y no lo han usado', valor: P.fmtNum(por.disponibles), nota: 'Cumplen los retos y siguen esperando', tono: 'aviso' }),
+      kpi({ icono: 'history', rotulo: 'Cambios hechos', valor: P.fmtNum(d.resumen.cambios), nota: d.resumen.personas + (d.resumen.personas === 1 ? ' persona' : ' personas'), tono: 'info' })
+    ].join('') + '</div>';
+    var embudo = G.barrasH({
+      titulo: 'Quién llega al cambio de orden', color: 1, porcentaje: false,
+      filas: d.embudo.map(function (x) { return { etiqueta: x.nombre, valor: x.personas, nota: NOTAS_EMBUDO[x.id] || '' }; }),
+      vacio: { titulo: 'Aún no hay miembros activos', texto: 'Cuando haya miembros con membresía vigente verás aquí cuántos llegan a cada paso.' }
+    });
+    var dias = d.porDia || [];
+    var serie = G.serie({
+      titulo: 'Cambios de orden por día', tipo: 'barras', unidad: 'cambios de orden en los últimos 30 días', alto: 200, formato: 'num',
+      etiquetas: dias.map(function (x) { return x.dia.slice(8) + '/' + x.dia.slice(5, 7); }),
+      titulos: dias.map(function (x) { return P.fmtFecha(x.dia + 'T12:00:00-06:00'); }),
+      series: [{ nombre: 'Cambios de orden', valores: dias.map(function (x) { return x.cambios; }), color: 2 }],
+      vacio: { titulo: 'Todavía nadie ha usado el cambio de orden', texto: 'Aquí verás, día por día, cuántos cambios se hacen en los últimos 30 días (hora de México).' }
+    });
+    var cursos = G.barrasH({
+      titulo: 'Cursos más elegidos para abrirse primero', color: 3, porcentaje: false,
+      filas: (d.cursos || []).map(function (c) { return { etiqueta: c.curso, valor: c.veces, nota: c.veces === 1 ? 'vez' : 'veces' }; }),
+      vacio: { titulo: 'Todavía no hay cursos elegidos', texto: 'Cuando alguien cambie el orden verás qué cursos prefieren adelantar.' }
+    });
+    var esperan = (d.puedenSinUsar || []).length
+      ? '<ul class="ap-co-esperan">' + d.puedenSinUsar.slice(0, 10).map(function (x) {
+        return '<li><button type="button" class="ap-enlace" data-accion="ficha" data-uid="' + esc(x.uid) + '">' + esc(x.nombre) + '</button><small class="ap-sub">' + esc(x.correo) + ' · ' + esc(P.fmtNum(x.retos)) + ' retos nuevos</small></li>';
+      }).join('') + '</ul>' + (d.puedenSinUsar.length > 10 ? '<p class="ap-pie-tabla">Y ' + (d.puedenSinUsar.length - 10) + ' más.</p>' : '')
+      : vacio('Nadie está esperando', 'Cuando alguien cumpla los retos y no haya usado el cambio aparecerá aquí.', 'users');
+    return cab(regla + kpis +
+      '<div class="ap-columnas">' +
+        tarjeta('¿Lo están usando?', embudo, { nota: 'Cada barra es un paso del camino. Si muchas personas llegan a «disponible» y pocas a «ya lo usaron», la función no se está descubriendo.' }) +
+        tarjeta('Cambios por día', serie, { nota: 'Últimos 30 días, hora de México.' }) +
+      '</div>' +
+      '<div class="ap-columnas">' +
+        tarjeta('Cursos más elegidos', cursos, { nota: 'Qué curso pasaron a abrir primero (cuántas veces).' }) +
+        tarjeta('Pueden cambiar y no lo han hecho', esperan, { nota: 'Personas a las que se les puede recordar que tienen el cambio disponible.' }) +
+      '</div>' +
+      '<h3 class="ap-co-sub">Quién lo usó</h3>' +
+      '<div class="ap-controles"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por persona o curso</span><input type="search" id="apCOQ" placeholder="Buscar persona o curso" autocomplete="off" value="' + esc(coEst.q) + '"></label>' +
+      '<label class="ap-campo-fila"><span>Ordenar por</span><select id="apCOOrden">' + ORDENES_CAMBIO.map(function (x) { return '<option value="' + x[0] + '"' + (coEst.orden === x[0] ? ' selected' : '') + '>' + esc(x[1]) + '</option>'; }).join('') + '</select></label></div>' +
+      '<div id="apCOLista"></div>');
+  }
+
+  async function cargarCambiosOrden(forzar) {
+    try { coEst.datos = await ctx.api('/api/admin/cambios-orden' + (forzar ? '?refrescar=1' : '')); coEst.error = null; }
+    catch (e) { coEst.datos = null; coEst.error = e; }
+    var cont = document.getElementById('apCOContenedor');
+    if (!cont) return;
+    cont.innerHTML = cambioOrdenAdminHTML();
+    G.activar(cont);
+    pintarListaCambios();
+  }
+
   function nombreReto(e) {
     var n = NOMBRES_RETO[e.retoId] || e.reto || e.retoId || 'Reto';
     return e.tipo === 'camino' && e.indice !== null && e.indice !== undefined ? n + ' · reto ' + (e.indice + 1) : n;
@@ -782,7 +905,7 @@
           '<td data-label="Por tipo (superados)" class="ap-col-2">' + tipos + '</td>' +
           '<td data-label="Días activos" class="ap-col-2">' + esc(P.fmtNum(u.dias)) + '</td>' +
           '<td data-label="Última vez" class="ap-col-2">' + (u.ultimaVez ? esc(P.fmtFecha(u.ultimaVez)) + '<small class="ap-sub">' + esc(P.relativo(u.ultimaVez)) + '</small>' : '—') + '</td>' +
-          '<td data-label="Cambio de orden" class="ap-col-2">' + esc(u.cambioOrden.usados + ' de 2') + '<small class="ap-sub">' + esc(P.fmtNum(u.cambioOrden.contados)) + ' retos nuevos</small></td>' +
+          '<td data-label="Cambio de orden" class="ap-col-2">' + esc(u.cambioOrden.usados + ' de ' + (u.cambioOrden.maximo || 1)) + '<small class="ap-sub">' + esc(P.fmtNum(u.cambioOrden.contados)) + ' retos nuevos</small></td>' +
           '<td data-label="Historial" class="ap-col-3">' + (u.esMiembro ? '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="ficha" data-uid="' + esc(u.uid) + '">' + ico('history', { size: 14 }) + 'Ver historial</button>' : '—') + '</td></tr>';
       }).join('') + '</tbody></table>') +
       '<p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(mostrar.length) + ' de ' + P.fmtNum(lista.length) + '</p>' +
@@ -828,6 +951,7 @@
         kpi({ icono: 'trophy', rotulo: 'XP promedio', valor: P.fmtNum(t.xpPromedio), nota: 'Por persona con actividad', tono: 'neutro' })
       ].join('') + '</div>' +
       graficasRetosHTML(rEst.graficas) +
+      '<div id="apCOContenedor">' + cambioOrdenAdminHTML() + '</div>' +
       tarjeta('Historial de retos resueltos', '<div class="ap-controles ap-controles--hist">' +
         '<label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por persona o reto</span><input type="search" id="apRQ" placeholder="Buscar persona o reto" autocomplete="off" value="' + esc(rEst.q) + '"></label>' +
         '<label class="ap-campo-fila"><span>Tipo</span><select id="apRTipo"><option value="todos">Todos</option><option value="practica">Práctica diaria</option><option value="camino">Camino</option></select></label>' +
@@ -845,6 +969,8 @@
     G.activar(vista());
     pintarHistorialRetos();
     pintarUsuariosRetos();
+    coEst.datos = null; coEst.error = null; coEst.visibles = 10;
+    cargarCambiosOrden(forzar);
     var espera = null;
     var recargarHist = function (conEspera) {
       clearTimeout(espera);
@@ -854,6 +980,7 @@
     vista().oninput = function (e) {
       if (e.target.id === 'apRQ') { rEst.q = e.target.value; recargarHist(true); }
       else if (e.target.id === 'apRUQ') { rEst.uq = e.target.value; rEst.uVisibles = 25; pintarUsuariosRetos(); }
+      else if (e.target.id === 'apCOQ') { coEst.q = e.target.value; coEst.visibles = 10; pintarListaCambios(); }
     };
     vista().onchange = function (e) {
       if (e.target.id === 'apRTipo') { rEst.tipo = e.target.value; recargarHist(false); }
@@ -861,11 +988,14 @@
       else if (e.target.id === 'apRHasta') { rEst.hasta = e.target.value; recargarHist(false); }
       else if (e.target.id === 'apRUMostrar') { rEst.uMostrar = e.target.value; rEst.uVisibles = 25; pintarUsuariosRetos(); }
       else if (e.target.id === 'apRUOrden') { rEst.uOrden = e.target.value; rEst.uVisibles = 25; pintarUsuariosRetos(); }
+      else if (e.target.id === 'apCOOrden') { coEst.orden = e.target.value; coEst.visibles = 10; pintarListaCambios(); }
     };
     vista().onclick = function (e) {
       acciones(e, {
         recargar: function () { retos(true); },
         'recargar-hist': function () { cargarHistorialRetos(); },
+        'recargar-co': function () { coEst.error = null; coEst.datos = null; var c = document.getElementById('apCOContenedor'); if (c) c.innerHTML = cambioOrdenAdminHTML(); cargarCambiosOrden(true); },
+        'co-mas': function () { coEst.visibles += 10; pintarListaCambios(); },
         ficha: function (b) { abrirFicha(b.dataset.uid); },
         'pag-ant': function () { rEst.pagina = Math.max(1, rEst.pagina - 1); cargarHistorialRetos(); },
         'pag-sig': function () { rEst.pagina += 1; cargarHistorialRetos(); },
