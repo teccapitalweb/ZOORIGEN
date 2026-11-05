@@ -148,9 +148,11 @@
   function icoFormato(nombre, tam) {
     return '<svg class="mt-ico" width="' + tam + '" height="' + tam + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONOS_FORMATO[nombre] || ICONOS_FORMATO.pdf) + '</svg>';
   }
-  function botonDescargarHTML(m, clase) {
-    return '<button type="button" class="mt-descargar ' + (clase || '') + '" data-descargar="' + esc(m.id) + '" aria-label="Descargar ' + esc(m.titulo) + ' (' + esc(FORMATOS[formatoDe(m)].nombre) + ')">' + icoFormato('descargar', 16) + '<span>Descargar</span></button>';
+  /* El botón de la tarjeta ABRE la ventana del material; ahí se decide si se descarga */
+  function botonVerHTML(m, clase) {
+    return '<button type="button" class="mt-ver ' + (clase || '') + '" data-ver="' + esc(m.id) + '" aria-label="Ver ' + esc(m.titulo) + ' (' + esc(FORMATOS[formatoDe(m)].nombre) + ')">' + icoFormato('ver', 16) + '<span>Ver</span></button>';
   }
+  var botonDescargarHTML = botonVerHTML;   // nombre anterior (ya no descarga)
 
   var PESTANAS = [['todo', 'Todo'], ['guardados', 'Guardados'], ['libros', 'Libros'], ['guias', 'Guías y plantillas'], ['presentaciones', 'Presentaciones'], ['cursos', 'De tus cursos'], ['oficiales', 'Documentos oficiales'], ['mas', 'Más materiales']];
 
@@ -480,7 +482,7 @@
         '<div class="mt-doc__tarjeta"><small>' + esc(m.area || t.nombre) + '</small><strong>' + esc(m.titulo) + '</strong><em>' + esc(t.nombre) + (pags ? ' · ' + pags : '') + '</em></div></div>' +
       '<div class="mt-doc__pie"><span class="mt-doc__chip mt-doc__chip--' + fm + '">' + icoFormato(fm, 13) + esc(F.nombre) + '</span><span class="mt-doc__sub">' + esc(sub) + '</span></div>' +
       (detalle ? '<div class="mt-doc__det">' + esc(detalle) + '</div>' : '') +
-      '<div class="mt-doc__area">' + FOLDER + esc(m.area || '') + '</div>' + etiq + (abierto && F.descarga ? botonDescargarHTML(m, 'mt-descargar--tarjeta') : '') + (ctx.canje || '') + '</article>';
+      '<div class="mt-doc__area">' + FOLDER + esc(m.area || '') + '</div>' + etiq + (abierto && F.descarga ? botonVerHTML(m, 'mt-ver--tarjeta') : '') + (ctx.canje || '') + '</article>';
   }
 
   /* ───── materiales de curso, por retos y para miembros: la condición, clara, y la fila con candado y avance ─────
@@ -536,7 +538,7 @@
       '<span class="mt-fila__ico">' + (fm === 'pdf' ? ICO_ARCHIVO : icoFormato(fm, 22)) + '</span>' +
       '<div class="mt-fila__cuerpo"><strong>' + esc(m.titulo) + '</strong>' + (meta ? '<small>' + meta + '</small>' : '') +
         '<span class="mt-fila__cond' + (abierto ? ' is-ok' : '') + '">' + (abierto ? ICO_OK : CANDADO) + '<span>' + esc(texto) + '</span></span>' + progreso + '</div>' +
-      '<span class="mt-fila__acc">' + (abierto ? '<span class="mt-fila__abrir">' + (descarga ? 'Descargar' : 'Abrir') + '</span>' : (previa ? chipMiembrosHTML('Solo miembros') : '')) + (ctx.canje || '') + '</span></article>';
+      '<span class="mt-fila__acc">' + (abierto ? '<span class="mt-fila__abrir">' + (descarga ? 'Ver' : 'Abrir') + '</span>' : (previa ? chipMiembrosHTML('Solo miembros') : '')) + (ctx.canje || '') + '</span></article>';
   }
 
   /* Agrupa por curso (en el orden en que aparecen); dentro de cada curso, por clase y luego por título. */
@@ -631,6 +633,50 @@
     }).join('') + '</div>';
   }
 
+  /* ───── Ventana del material (visor): se ve primero y ahí se decide si se descarga ─────
+     Partes puras (se prueban en Node). El archivo lo entrega SOLO el servidor y solo a quien cumple la regla del material. */
+  var ICO_VER = '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>';
+  ICONOS_FORMATO.ver = ICO_VER;
+  ICONOS_FORMATO.cerrar = '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>';
+  ICONOS_FORMATO.externo = '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>';
+
+  /* Texto de la ventana para un formato que el navegador no puede mostrar (Excel, PowerPoint) */
+  function textoSinVista(m) {
+    return 'Este archivo es de tipo ' + FORMATOS[formatoDe(m)].nombre + ' y se abre en tu programa. Descárgalo para usarlo y editarlo.';
+  }
+
+  /* HTML de la ventana. opc.fuente: 'catalogo' | 'drive' · opc.vista: 'sin' (tarjeta informativa) | 'cargando' | 'pdf' (lector incrustado) | 'abrir' (PDF en pantalla chica) | 'error'
+     opc.url (PDF o Drive) · opc.mensaje (error) · opc.descargaLista: el botón Descargar ya se puede usar */
+  function visorHTML(m, opc) {
+    var o = opc || {};
+    var drive = o.fuente === 'drive';
+    var fm = drive ? 'pdf' : formatoDe(m), F = FORMATOS[fm];
+    var titulo = esc(m && m.titulo);
+    var vista = o.vista || (!drive && F.descarga ? 'sin' : 'cargando');
+    var botonDescargar = '<button type="button" class="mt-visor__btn" id="mvDescargar"' + (o.descargaLista === false || vista === 'cargando' || vista === 'error' ? ' disabled' : '') + '>' + icoFormato('descargar', 17) + '<span>Descargar</span></button>';
+    var abrirAparte = '<a class="mt-visor__btn mt-visor__btn--suave" id="mvAbrir" target="_blank" rel="noopener"' + (o.url && (vista === 'pdf' || vista === 'abrir') ? ' href="' + esc(o.url) + '"' : ' hidden') + '>' + icoFormato('externo', 17) + '<span>Abrir aparte</span></a>';
+    var cuerpo;
+    if (vista === 'sin') {
+      cuerpo = '<div class="mt-visor__sin"><i class="mt-visor__sin-ico" style="--fmt:' + colorSeguro(F.color, '#1F5F8F') + '">' + icoFormato(fm, 40) + '</i><h3>' + titulo + '</h3>' +
+        '<p>' + esc(textoSinVista(m)) + '</p>' +
+        '<button type="button" class="mt-visor__grande" id="mvDescargar2">' + icoFormato('descargar', 20) + '<span>Descargar ' + esc(F.nombre) + '</span></button>' +
+        '<p class="mt-visor__estado" id="mvEstado" role="status" aria-live="polite"></p></div>';
+    } else if (vista === 'pdf') {
+      cuerpo = '<iframe title="' + titulo + '" src="' + esc(o.url) + (drive ? '' : '#navpanes=0') + '"' + (drive ? ' allow="autoplay"' : '') + '></iframe>';
+    } else if (vista === 'abrir') {
+      cuerpo = '<div class="mt-visor__sin"><i class="mt-visor__sin-ico" style="--fmt:' + colorSeguro(F.color, '#1F5F8F') + '">' + icoFormato('pdf', 40) + '</i><h3>' + titulo + '</h3>' +
+        '<p>Tu documento está listo. En el celular es mejor abrirlo en otra pestaña o descargarlo.</p>' +
+        '<a class="mt-visor__grande" id="mvAbrir2" target="_blank" rel="noopener" href="' + esc(o.url) + '">' + icoFormato('externo', 20) + '<span>Abrir PDF</span></a></div>';
+    } else if (vista === 'error') {
+      cuerpo = '<div class="mt-visor__sin"><h3>No se pudo abrir</h3><p>' + esc(o.mensaje || 'Inténtalo de nuevo.') + '</p></div>';
+    } else {
+      cuerpo = '<div class="mt-visor__sin"><p>Preparando el documento…</p></div>';
+    }
+    return '<div class="mt-visor__ventana"><header class="mt-visor__cab"><strong id="mvTitulo">' + titulo + '</strong><span class="mt-visor__fmt">' + esc(F.nombre) + '</span>' +
+      '<div class="mt-visor__acc">' + abrirAparte + botonDescargar + '<button type="button" class="mt-icono" id="mvX" aria-label="Cerrar">' + icoFormato('cerrar', 18) + '</button></div></header>' +
+      '<div class="mt-visor__cuerpo" id="mvCuerpo">' + cuerpo + '</div></div>';
+  }
+
   var API = {
     OFICIALES: OFICIALES, TIPOS: TIPOS, PESTANAS: PESTANAS,
     fotoDeMaterial: function (m) { return fotoDeMaterial(m); }, portadaDe: portadaDe, portadaRespaldoDe: portadaRespaldoDe, PORTADAS: PORTADAS, PORTADAS_RESPALDO: PORTADAS_RESPALDO, esc: esc, normalizar: normalizar, urlHttps: urlHttps, siguienteMeta: siguienteMeta, textoBloqueo: textoBloqueo, mensajeBloqueo: mensajeBloqueo,
@@ -641,7 +687,7 @@
     condicionTexto: condicionTexto, reglaTexto: reglaTexto, textoAbierto: textoAbierto, filaMaterialHTML: filaMaterialHTML, agruparPorCurso: agruparPorCurso,
     estadoMaterialHTML: estadoMaterialHTML, ordenarEscalera: ordenarEscalera, filtrarDisponibilidad: filtrarDisponibilidad, disponibilidadHTML: disponibilidadHTML, FILTROS_DISPONIBILIDAD: FILTROS_DISPONIBILIDAD,
     formatosHTML: formatosHTML, FORMATOS: FORMATOS, FILTROS_FORMATO: FILTROS_FORMATO, formatoDe: formatoDe, esDescarga: esDescarga, cantidadTexto: cantidadTexto, tamanoTexto: tamanoTexto, fechaTexto: fechaTexto,
-    detalleArchivoTexto: detalleArchivoTexto, botonDescargarHTML: botonDescargarHTML, icoFormato: icoFormato, esPresentacion: esPresentacion,
+    detalleArchivoTexto: detalleArchivoTexto, botonDescargarHTML: botonDescargarHTML, botonVerHTML: botonVerHTML, visorHTML: visorHTML, textoSinVista: textoSinVista, icoFormato: icoFormato, esPresentacion: esPresentacion,
     seccionCursosHTML: seccionCursosHTML, seccionDetalleCursoHTML: seccionDetalleCursoHTML, esDeCurso: esDeCurso,
     esVistaPrevia: esVistaPrevia, hayVistaPrevia: hayVistaPrevia, respaldoLibros: respaldoLibros, respaldoMateriales: respaldoMateriales,
     resumenCatalogo: resumenCatalogo, textoPaywallRecurso: textoPaywallRecurso, chipMiembrosHTML: chipMiembrosHTML,
@@ -657,13 +703,28 @@
        · material del catálogo de archivos → GET /api/materiales/:id/archivo (el PDF; aquí se muestra con una URL de blob)
        · PDF de Drive del panel → GET /api/materiales/drive/:id/enlace (la dirección de Drive; se muestra su vista previa). */
   var visorActivo = null;
-  var DRIVE_URL = /^https:\/\/drive\.google\.com\/file\/d\/[A-Za-z0-9_-]{10,200}\/(view|preview)$/;
+  var DRIVE_URL = /^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]{10,200})\/(view|preview)$/;
+  var ENFOCABLES = 'a[href], button:not([disabled]), iframe';
   function cerrarVisorMaterial() {
     if (!visorActivo) return;
-    if (visorActivo.url) URL.revokeObjectURL(visorActivo.url);
-    visorActivo.nodo.remove(); document.body.classList.remove('mt-noscroll'); visorActivo = null;
+    var v = visorActivo; visorActivo = null;
+    if (v.url) URL.revokeObjectURL(v.url);
+    v.nodo.remove(); document.body.classList.remove('mt-noscroll');
+    /* El foco vuelve a quien abrió la ventana */
+    if (v.previo && v.previo.isConnected && typeof v.previo.focus === 'function') { try { v.previo.focus({ preventScroll: true }); } catch (e) { /* sin foco */ } }
   }
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarVisorMaterial(); });
+  /* Esc cierra y el foco se queda dentro de la ventana (Tab y Mayús+Tab dan la vuelta) */
+  document.addEventListener('keydown', function (e) {
+    if (!visorActivo) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cerrarVisorMaterial(); return; }
+    if (e.key !== 'Tab') return;
+    var l = [].filter.call(visorActivo.nodo.querySelectorAll(ENFOCABLES), function (x) { return !x.hidden && x.offsetParent !== null; });
+    if (!l.length) { e.preventDefault(); return; }
+    var p = l[0], u = l[l.length - 1];
+    if (!visorActivo.nodo.contains(document.activeElement)) { e.preventDefault(); p.focus(); }
+    else if (e.shiftKey && document.activeElement === p) { e.preventDefault(); u.focus(); }
+    else if (!e.shiftKey && document.activeElement === u) { e.preventDefault(); p.focus(); }
+  }, true);
 
   function mostrarToast(msg, malo) {
     var t = document.getElementById('mtToast');
@@ -672,61 +733,104 @@
     clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('is-on'); }, 4200);
   }
 
-  /* Excel y PowerPoint no se muestran en la página: se descargan. Se piden con fetch + token (el servidor solo los entrega a quien
-     cumple la regla: membresía, retos o créditos), se guardan desde una URL de blob y esa URL se libera enseguida. */
+  /* Guarda un blob en el equipo (se libera la URL poco después) */
+  function guardarBlob(blob, nombre) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = nombre; a.rel = 'noopener'; a.style.display = 'none';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+  }
+
+  /* Excel y PowerPoint: la descarga real, SOLO desde dentro de la ventana del material (botón Descargar). Se pide con fetch + token (el servidor
+     solo lo entrega a quien cumple la regla: membresía, retos o créditos) y se guarda desde una URL de blob que se libera enseguida.
+     op.alEstado(texto, malo): mensaje dentro de la ventana (si no hay, sale un aviso flotante). */
   var descargando = Object.create(null);
-  function descargarMaterial(club, m) {
+  function descargarMaterial(club, m, op) {
     var F = FORMATOS[formatoDe(m)], nombre = m.id + '.' + F.extension;
+    var avisar = op && typeof op.alEstado === 'function' ? op.alEstado : mostrarToast;
     if (descargando[m.id]) return descargando[m.id];
-    mostrarToast('Preparando ' + F.nombre + '…');
+    avisar('Preparando ' + F.nombre + '…');
     descargando[m.id] = Promise.resolve().then(function () { return club.apiBlob('/api/materiales/' + encodeURIComponent(m.id) + '/archivo'); }).then(function (blob) {
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a'); a.href = url; a.download = nombre; a.rel = 'noopener'; a.style.display = 'none';
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
-      mostrarToast('Descargando «' + m.titulo + '» (' + nombre + ').');
+      guardarBlob(blob, nombre);
+      avisar('Listo: se guardó «' + m.titulo + '» (' + nombre + ') en tu equipo.');
       return { ok: true, nombre: nombre, bytes: blob.size };
     }).catch(function (e) {
-      mostrarToast(e && e.message ? e.message : 'No se pudo descargar. Inténtalo de nuevo.', true);
+      avisar(e && e.message ? e.message : 'No se pudo descargar. Inténtalo de nuevo.', true);
       return { ok: false };
     }).then(function (r) { delete descargando[m.id]; return r; });
     return descargando[m.id];
   }
 
-  /* club: ZOORIGEN_CLUB (apiFetch / apiBlob) · m: el resumen que mandó el servidor · fuente: 'catalogo' | 'drive' */
+  /* ¿El navegador puede mostrar un PDF dentro de la ventana? En pantallas chicas o sin lector de PDF se ofrece abrirlo aparte. */
+  function puedeIncrustarPdf() {
+    return window.innerWidth >= 760 && navigator.pdfViewerEnabled !== false;
+  }
+
+  /* club: ZOORIGEN_CLUB (apiFetch / apiBlob) · m: el resumen que mandó el servidor · fuente: 'catalogo' | 'drive'
+     Se abre una VENTANA con el material; la descarga solo ocurre desde ahí. */
   function abrirVisorMaterial(club, m, fuente) {
-    if (fuente !== 'drive' && esDescarga(m)) return descargarMaterial(club, m);
+    var previo = document.activeElement;
     cerrarVisorMaterial();
     var esDrive = fuente === 'drive';
-    var nodo = document.createElement('div'); nodo.className = 'mt-visor'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-label', m.titulo);
-    nodo.innerHTML = '<div class="mt-visor__ventana"><div class="mt-visor__cab"><strong>' + esc(m.titulo) + '</strong><div class="mt-visor__acc"><a class="mt-icono" id="mvDescargar" hidden title="Descargar PDF" aria-label="Descargar PDF"><svg class="zi" aria-hidden="true"><use href="#zi-download"/></svg></a><a class="mt-icono" id="mvAbrir" hidden target="_blank" rel="noopener noreferrer" title="Abrir en otra pestaña" aria-label="Abrir en otra pestaña"><svg class="zi" aria-hidden="true"><use href="#zi-arrow-up-right"/></svg></a><button type="button" class="mt-icono" id="mvX" aria-label="Cerrar"><svg class="zi" aria-hidden="true"><use href="#zi-x"/></svg></button></div></div>' +
-      '<div class="mt-visor__cuerpo" id="mvCuerpo"><div class="mt-vacio">Preparando el documento…</div></div></div>';
+    var fm = esDrive ? 'pdf' : formatoDe(m), F = FORMATOS[fm];
+    var nodo = document.createElement('div'); nodo.className = 'mt-visor'; nodo.setAttribute('role', 'dialog'); nodo.setAttribute('aria-modal', 'true'); nodo.setAttribute('aria-labelledby', 'mvTitulo');
+    var directo = !esDrive && F.descarga;
+    nodo.innerHTML = visorHTML(m, { fuente: fuente, vista: directo ? 'sin' : 'cargando' });
     document.body.appendChild(nodo); document.body.classList.add('mt-noscroll');
-    visorActivo = { nodo: nodo, url: '' };
-    nodo.querySelector('#mvX').onclick = cerrarVisorMaterial;
-    nodo.addEventListener('click', function (e) { if (e.target === nodo) cerrarVisorMaterial(); });
+    visorActivo = { nodo: nodo, url: '', previo: previo, blob: null, drive: '' };
+    var v = visorActivo;
+    function repintar(opc) {
+      if (visorActivo !== v) return;
+      nodo.innerHTML = visorHTML(m, Object.assign({ fuente: fuente }, opc));
+      enlazar();
+    }
+    function estado(texto, malo) {
+      var e = nodo.querySelector('#mvEstado');
+      if (!e) return;
+      e.textContent = texto; e.classList.toggle('is-mal', !!malo);
+    }
+    function descargar() {
+      if (visorActivo !== v) return;
+      if (esDrive) {
+        var id = DRIVE_URL.exec(v.drive || '');
+        if (id) window.open('https://drive.google.com/uc?export=download&id=' + id[1], '_blank', 'noopener');
+        return;
+      }
+      if (fm === 'pdf') { if (v.blob) guardarBlob(v.blob, m.id + '.pdf'); return; }
+      var b1 = nodo.querySelector('#mvDescargar'), b2 = nodo.querySelector('#mvDescargar2');
+      [b1, b2].forEach(function (b) { if (b) b.disabled = true; });
+      descargarMaterial(club, m, { alEstado: estado }).then(function () {
+        if (visorActivo !== v) return;
+        [b1, b2].forEach(function (b) { if (b) b.disabled = false; });
+      });
+    }
+    function enlazar() {
+      var x = nodo.querySelector('#mvX'); if (x) x.onclick = cerrarVisorMaterial;
+      ['#mvDescargar', '#mvDescargar2'].forEach(function (s) { var b = nodo.querySelector(s); if (b) b.onclick = descargar; });
+      var foco = nodo.querySelector('#mvDescargar2') || nodo.querySelector('#mvDescargar:not([disabled])') || nodo.querySelector('#mvX');
+      if (foco && foco.focus) foco.focus({ preventScroll: true });
+    }
+    nodo.addEventListener('mousedown', function (e) { if (e.target === nodo) cerrarVisorMaterial(); });
+    enlazar();
+    if (directo) return Promise.resolve();   // Excel / PowerPoint: nada que pedir hasta que se pulse Descargar
     var pedir = esDrive
       ? Promise.resolve().then(function () { return club.apiFetch('/api/materiales/drive/' + encodeURIComponent(m.id) + '/enlace'); })
       : Promise.resolve().then(function () { return club.apiBlob('/api/materiales/' + encodeURIComponent(m.id) + '/archivo'); });
     return pedir.then(function (r) {
-      if (!visorActivo || visorActivo.nodo !== nodo) return;
-      var cuerpo = nodo.querySelector('#mvCuerpo'), ab = nodo.querySelector('#mvAbrir');
+      if (visorActivo !== v) return;
       if (esDrive) {
         var vista = r && DRIVE_URL.test(String(r.vista || '')) ? r.vista : '', ver = r && DRIVE_URL.test(String(r.url || '')) ? r.url : '';
         if (!vista) throw new Error('El enlace del material no es válido.');
-        cuerpo.innerHTML = '<iframe title="' + esc(m.titulo) + '" src="' + esc(vista) + '" allow="autoplay"></iframe>';
-        if (ver) { ab.href = ver; ab.hidden = false; }
+        v.drive = ver || vista;
+        repintar({ vista: 'pdf', url: vista });
+        var ab = nodo.querySelector('#mvAbrir'); if (ab && ver) { ab.href = ver; ab.hidden = false; }
         return;
       }
-      visorActivo.url = URL.createObjectURL(r);
-      var d = nodo.querySelector('#mvDescargar'); d.href = visorActivo.url; d.download = m.id + '.pdf'; d.hidden = false; ab.href = visorActivo.url; ab.hidden = false;
-      var chico = window.innerWidth < 760;
-      cuerpo.innerHTML = chico
-        ? '<div class="mt-vacio"><strong>Tu documento está listo</strong><span>En el celular es mejor abrirlo o descargarlo.</span><a class="mt-btn" href="' + esc(visorActivo.url) + '" target="_blank" rel="noopener">Abrir PDF</a></div>'
-        : '<iframe title="' + esc(m.titulo) + '" src="' + esc(visorActivo.url) + '#navpanes=0"></iframe>';
+      v.blob = r; v.url = URL.createObjectURL(r);
+      repintar({ vista: puedeIncrustarPdf() ? 'pdf' : 'abrir', url: v.url });
     }).catch(function (e) {
-      if (!visorActivo || visorActivo.nodo !== nodo) return;
-      nodo.querySelector('#mvCuerpo').innerHTML = '<div class="mt-vacio"><strong>No se pudo abrir</strong><span>' + esc(e && e.message ? e.message : 'Inténtalo de nuevo.') + '</span></div>';
+      if (visorActivo !== v) return;
+      repintar({ vista: 'error', mensaje: e && e.message ? e.message : 'Inténtalo de nuevo.' });
     });
   }
 
@@ -1001,13 +1105,13 @@
       if (!m.desbloqueado) { toast(mensajeBloqueo(m), true); return; }
       abrirVisorMaterial(club, m, 'catalogo');
     }
-    /* Descargar un Excel o PowerPoint: mismas reglas que abrir un PDF (membresía, retos o créditos); el servidor decide */
-    function descargarDoc(id) {
+    /* Un Excel o PowerPoint también se ve primero en la ventana (con su botón Descargar); mismas reglas que abrir un PDF (membresía, retos o créditos); el servidor decide */
+    function verDoc(id) {
       var m = estado.materiales.filter(function (x) { return x.id === id; })[0];
       if (!m) return;
       if (esVistaPrevia(m)) { pedirMembresiaRecurso(m, false); return; }
       if (!m.desbloqueado) { toast(mensajeBloqueo(m), true); return; }
-      descargarMaterial(club, m);
+      abrirVisorMaterial(club, m, 'catalogo');
     }
     /* Una fila (material de curso o suelto de Drive): el servidor decide si abre */
     function abrirFila(fuente, id) {
@@ -1036,13 +1140,17 @@
           /* El saldo se actualiza al instante con lo que respondió el servidor, sin esperar a recargar la lista */
           if (estado.creditos && esLibro) estado.creditos.libroCanjeado = clave.slice(6);
           if (estado.creditos && r && Number.isInteger(r.saldo)) { estado.creditos.saldo = r.saldo; if (estado.creditos.porClave[clave]) estado.creditos.porClave[clave].desbloqueado = true; pintar(); }
-          toast((esLibro ? 'Libro desbloqueado: ya es tuyo. ' : 'Material desbloqueado: ya es tuyo. ') + 'Se descontaron ' + m.fmt(c.costo) + ' créditos.');
           return cargar().then(function () {
             var tipo = String(r.tipo || ''), id = String(r.id || '');
             var canjeado = estado.materiales.filter(function (x) { return x.id === id; })[0];
-            if (tipo === 'libro') abrirLibro(id);
-            else if (tipo === 'pdf') { if (canjeado && esDescarga(canjeado)) toast('Ya es tuyo: pulsa Descargar en «' + canjeado.titulo + '» para guardarlo.'); else abrirDoc(id); }
-            else if (tipo === 'drive') abrirFila('drive', id);
+            /* Tarjeta con el resultado: qué se desbloqueó, cuántos créditos se descontaron y cuántos quedan. Ahí se decide si se abre ahora. */
+            var accion = esLibro ? 'leer' : (canjeado && esDescarga(canjeado) ? 'ver' : 'abrir');
+            return m.resultadoCanje(item.titulo, c.costo, r && Number.isInteger(r.saldo) ? r.saldo : (estado.creditos ? estado.creditos.saldo : 0), { libro: esLibro, accion: accion }).then(function (abrirYa) {
+              if (!abrirYa) return;
+              if (tipo === 'libro') abrirLibro(id);
+              else if (tipo === 'pdf') abrirDoc(id);
+              else if (tipo === 'drive') abrirFila('drive', id);
+            });
           });
         }, function (err) {
           estado.canjeando = false;
@@ -1084,8 +1192,8 @@
       var vt = t.closest && t.closest('[data-zcr-ver-todos]');
       if (vt) { e.preventDefault(); estado.soloCanjeables = false; estado.ayuda = false; ponerParametroCanjeables(false); pintar(); return; }
       if (estado.ayuda && !(t.closest && t.closest('#zcrPastilla'))) { estado.ayuda = false; pintar(); }
-      var desc = t.closest && t.closest('[data-descargar]');
-      if (desc) { e.stopPropagation(); e.preventDefault(); descargarDoc(desc.getAttribute('data-descargar')); return; }
+      var ver = t.closest && t.closest('[data-ver]');
+      if (ver) { e.stopPropagation(); e.preventDefault(); verDoc(ver.getAttribute('data-ver')); return; }
       var fd = t.closest && t.closest('[data-disp-filtro]');
       if (fd) { estado.disp = fd.getAttribute('data-disp-filtro'); pintar(); return; }
       var ff = t.closest && t.closest('[data-formato-filtro]');
@@ -1104,7 +1212,7 @@
     });
     cont.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      if (e.target.closest && e.target.closest('[data-canjear], [data-descargar]')) return;
+      if (e.target.closest && e.target.closest('[data-canjear], [data-ver]')) return;
       var libro = e.target.closest && e.target.closest('.mt-libro[data-libro]'), doc = e.target.closest && e.target.closest('.mt-doc[data-doc]'), fila = e.target.closest && e.target.closest('.mt-fila[data-fila]');
       if (libro) { e.preventDefault(); abrirLibro(libro.getAttribute('data-libro')); } else if (doc) { e.preventDefault(); abrirDoc(doc.getAttribute('data-doc')); }
       else if (fila) { e.preventDefault(); var par = String(fila.getAttribute('data-fila')); abrirFila(par.slice(0, par.indexOf(':')), par.slice(par.indexOf(':') + 1)); }

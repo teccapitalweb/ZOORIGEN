@@ -45,34 +45,35 @@ test('textos: cantidad con su unidad, tamaño, fecha y detalle del archivo', () 
   assert.equal(M.detalleArchivoTexto({}), '');
 });
 
-test('tarjeta de Excel y PowerPoint: insignia del formato, detalle del archivo y botón Descargar (sin visor) si está abierto', () => {
+test('tarjeta de Excel y PowerPoint: insignia del formato, detalle del archivo y botón Ver (abre la ventana; ahí se descarga) si está abierto', () => {
   const hoja = M.materialCardHTML({ ...base, id: 'inventario-botiquin-caducidad', tipo: 'excel', formato: 'excel', paginas: 3, tamanoKb: 28, version: '1.0', fecha: '2026-10-22' }, {});
   assert.match(hoja, /mt-doc--excel/);
   assert.match(hoja, /mt-doc__fmt--excel/);
   assert.match(hoja, />Excel</);
   assert.match(hoja, /3 hojas/);
   assert.match(hoja, /v1\.0 · 22\/10\/2026 · 28 KB/);
-  assert.match(hoja, /data-descargar="inventario-botiquin-caducidad"/);
-  assert.match(hoja, /Descargar/);
+  assert.match(hoja, /data-ver="inventario-botiquin-caducidad"/);
+  assert.match(hoja, /<span>Ver<\/span>/);
+  assert.doesNotMatch(hoja, /Descargar|data-descargar/, 'la tarjeta ya no descarga: solo ve');
   assert.doesNotMatch(hoja, />PDF</);
   const deck = M.materialCardHTML({ ...base, id: 'ppt-x', tipo: 'powerpoint', formato: 'powerpoint', paginas: 16 }, {});
   assert.match(deck, /16 diapositivas/);
   assert.match(deck, /mt-doc__chip--powerpoint/);
-  assert.match(deck, /data-descargar="ppt-x"/);
-  // Bloqueado o en vista previa: sin botón Descargar (solo el candado y la condición)
+  assert.match(deck, /data-ver="ppt-x"/);
+  // Bloqueado o en vista previa: sin botón Ver (solo el candado y la condición)
   const cerrada = M.materialCardHTML({ ...base, tipo: 'excel', formato: 'excel', desbloqueado: false, faltan: 3, requiereRetos: 4 }, {});
-  assert.doesNotMatch(cerrada, /data-descargar/);
+  assert.doesNotMatch(cerrada, /data-ver=/);
   const previa = M.materialCardHTML({ ...base, tipo: 'powerpoint', formato: 'powerpoint', desbloqueado: false, soloMiembros: true }, {});
-  assert.doesNotMatch(previa, /data-descargar/);
+  assert.doesNotMatch(previa, /data-ver=/);
   assert.match(previa, /Solo miembros/);
 });
 
-test('tarjeta de un PDF no cambia: insignia PDF y sin botón Descargar (se abre en el visor)', () => {
+test('tarjeta de un PDF no cambia: insignia PDF y sin botón Ver (se abre en el visor)', () => {
   const pdf = M.materialCardHTML({ ...base, tipo: 'guia', formato: 'pdf', paginas: 3 }, {});
   assert.match(pdf, /mt-doc__fmt--pdf/);
   assert.match(pdf, />PDF</);
   assert.match(pdf, /3 páginas/);
-  assert.doesNotMatch(pdf, /data-descargar/);
+  assert.doesNotMatch(pdf, /data-ver=/);
 });
 
 test('la tarjeta de un material canjeable sigue mostrando la insignia y el botón de créditos que le pasa el módulo de créditos', () => {
@@ -113,9 +114,10 @@ test('formatosHTML: los cuatro filtros con su cuenta; sin Excel ni PowerPoint en
   assert.equal(M.formatosHTML([{ tipo: 'guia' }], 'todos'), '');
 });
 
-test('fila de material (curso o suelto): un Excel dice Descargar y lleva su ícono; un PDF sigue diciendo Abrir', () => {
+test('fila de material (curso o suelto): un Excel dice Ver y lleva su ícono; un PDF sigue diciendo Abrir', () => {
   const f = M.filaMaterialHTML({ ...base, tipo: 'excel', formato: 'excel', paginas: 3 }, {});
-  assert.match(f, /Descargar/);
+  assert.match(f, />Ver</);
+  assert.doesNotMatch(f, /Descargar/);
   assert.match(f, /Excel · 3 hojas/);
   assert.doesNotMatch(f, />Abrir</);
   assert.match(M.filaMaterialHTML({ ...base, tipo: 'guia' }, {}), />Abrir</);
@@ -165,15 +167,20 @@ test('la foto de la tarjeta lleva su respaldo (data-respaldo) y la pantalla lo u
   assert.match(js, /addEventListener\('error'[\s\S]{0,300}data-respaldo[\s\S]{0,120}true\)/);
 });
 
-test('la descarga de Excel y PowerPoint se pide con fetch + token (apiBlob), se guarda desde una URL de blob y no hay visor', () => {
+test('la descarga de Excel y PowerPoint se pide con fetch + token (apiBlob) y se guarda desde una URL de blob, SOLO desde la ventana del material', () => {
   const js = leer('assets/js/club-materiales.js');
-  const desc = js.slice(js.indexOf('function descargarMaterial'), js.indexOf('function abrirVisorMaterial'));
+  const desc = js.slice(js.indexOf('function descargarMaterial'), js.indexOf('function puedeIncrustarPdf'));
   assert.match(desc, /club\.apiBlob\('\/api\/materiales\/' \+ encodeURIComponent\(m\.id\) \+ '\/archivo'\)/);
-  assert.match(desc, /URL\.createObjectURL\(blob\)/);
-  assert.match(desc, /a\.download = nombre/);
-  assert.match(desc, /URL\.revokeObjectURL/);
+  assert.match(js, /URL\.createObjectURL\(blob\)/);
+  assert.match(js, /a\.download = nombre/);
+  assert.match(js, /URL\.revokeObjectURL/);
   assert.doesNotMatch(desc, /iframe|window\.open|location\.href/);
-  assert.match(js, /if \(fuente !== 'drive' && esDescarga\(m\)\) return descargarMaterial\(club, m\);/);
+  // ya no se descarga al pulsar la tarjeta: abrirVisorMaterial NO salta directo a descargarMaterial
+  assert.doesNotMatch(js, /if \(fuente !== 'drive' && esDescarga\(m\)\) return descargarMaterial\(club, m\);/);
+  const sitios = js.split('descargarMaterial(club, m').length - 1;
+  assert.equal(sitios, 2, 'la definición y UNA sola llamada: la del botón Descargar de la ventana');
+  const visor = js.slice(js.indexOf('function abrirVisorMaterial'), js.indexOf('  function montar('));
+  assert.match(visor, /function descargar\(\) \{[\s\S]*descargarMaterial\(club, m, \{ alEstado: estado \}\)/, 'la llamada vive dentro de descargar() de la ventana');
   assert.ok(M.descargarMaterial === undefined || typeof M.descargarMaterial === 'function');
 });
 
