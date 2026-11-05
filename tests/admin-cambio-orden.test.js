@@ -183,3 +183,9 @@ test('estilos y versiones: iconos Lucide del panel, colores sólidos, sin emojis
   assert.equal(html.match(/admin-vistas\.js\?v=([\w-]+)/)[1], v);
   assert.equal(html.match(/admin-panel\.js\?v=([\w-]+)/)[1], v);
 });
+
+test('en celular la lista de quién usó el cambio se vuelve tarjetas con cada dato rotulado (sin barra lateral ni columnas cortadas)', () => {
+  assert.match(vistasJs, /ap-tabla ap-tabla--simple ap-tabla--cambios/);
+  assert.match(css, /@container tabla \(max-width: 639px\) \{\s*\.ap-tabla--cambios, \.ap-tabla--cambios tbody \{ display: block/);
+  assert.match(css, /\.ap-tabla--cambios td:not\(:first-child\)::before \{ content: attr\(data-label\)/);
+});
