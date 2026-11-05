@@ -22,9 +22,9 @@ const MX = (iso) => Date.parse(iso);   // las fechas de prueba se dan en UTC
 
 /* ───────── contenido ───────── */
 
-test('cantidades de contenido: al menos 15 de cada tipo (hoy 47 quiz / 39 orden / 55 flashcards / 60 detective / 6x4 historia)', () => {
-  assert.equal(D.quiz.length, 47);
-  assert.equal(D.orden.length, 39);
+test('cantidades de contenido: al menos 15 de cada tipo (hoy 67 quiz / 59 orden / 55 flashcards / 60 detective / 6x4 historia)', () => {
+  assert.equal(D.quiz.length, 67);
+  assert.equal(D.orden.length, 59);
   assert.equal(D.flashcards.length, 55);
   assert.equal(D.historia.length, 6);
   D.historia.forEach(m => assert.equal(m.casos.length, 4));
@@ -62,7 +62,7 @@ test('revisarContenido() sí detecta contenido roto', () => {
 
 test('quiz e historia: 3 opciones distintas, una sola correcta, textos con contenido', () => {
   const casos = D.quiz.concat(...D.historia.map(m => m.casos));
-  assert.equal(casos.length, 47 + 24);
+  assert.equal(casos.length, 67 + 24);
   casos.forEach(c => {
     assert.equal(c.a.length, 3);
     assert.equal(new Set(c.a).size, 3);
@@ -457,4 +457,38 @@ test('zonas rectangulares: límites válidos, aciertos dentro y fallos fuera sin
     assert.equal(R.tocaZona(z, .61, .5, aspecto), false);
     assert.equal(R.tocaZona(z, .5, .56, aspecto), false);
   }
+});
+
+/* ───────── tercera tanda: quiz 48 a 67 y ordena 40 a 59 ───────── */
+
+test('tercera tanda: ids consecutivos (q48 a q67, o40 a o59) y sin tocar los anteriores', () => {
+  assert.deepEqual(D.quiz.slice(47).map(q => q.id), Array.from({ length: 20 }, (_, i) => 'q' + (48 + i)));
+  assert.deepEqual(D.orden.slice(39).map(o => o.id), Array.from({ length: 20 }, (_, i) => 'o' + (40 + i)));
+  // las posiciones guardadas del avance no cambian: los 47 y 39 originales siguen en su lugar
+  assert.equal(D.quiz[0].id, 'q01');
+  assert.equal(D.quiz[46].id, 'q47');
+  assert.equal(D.orden[38].id, 'o39');
+});
+
+test('tercera tanda: la respuesta correcta se reparte pareja (0, 1 y 2) y las preguntas son completas', () => {
+  const nuevas = D.quiz.slice(47);
+  const cuenta = [0, 0, 0];
+  nuevas.forEach(q => { cuenta[q.ok]++; assert.equal(q.a.length, 3); assert.ok(q.q.trim().endsWith('?') || q.q.trim().endsWith('…')); });
+  cuenta.forEach(n => assert.ok(n >= 6 && n <= 8, 'posiciones de las 20 nuevas: ' + cuenta));
+  const todas = [0, 0, 0];
+  D.quiz.forEach(q => todas[q.ok]++);
+  assert.ok(Math.max(...todas) - Math.min(...todas) <= 3, 'las 67 quedan parejas: ' + todas);
+  assert.ok(new Set(nuevas.map(q => q.tema)).size >= 10, 'temas variados');
+});
+
+test('tercera tanda: ordena con 4 a 6 pasos cortos, y nada de dosis ni tratamientos en el contenido nuevo', () => {
+  const nuevas = D.orden.slice(39);
+  nuevas.forEach(o => {
+    assert.ok(o.pasos.length >= 4 && o.pasos.length <= 6, o.id);
+    o.pasos.forEach(p => assert.ok(p.length <= 100, o.id + ' paso largo: ' + p));
+  });
+  assert.ok(new Set(nuevas.map(o => o.tema)).size >= 10, 'temas variados');
+  const texto = JSON.stringify([D.quiz.slice(47), nuevas]);
+  assert.equal(/\b\d+\s?(mg|ml|mL|ug|µg|kg\/|UI)\b|dosis|inyect|suero|antiveneno|tratamiento/i.test(texto), false, 'sin dosis ni indicaciones clínicas');
+  assert.equal(R.revisarContenido(D).length, 0);
 });
