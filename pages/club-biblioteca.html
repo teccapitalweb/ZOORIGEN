@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="../assets/css/club-prueba.css?v=20261116-tamanos">
   <link rel="stylesheet" href="../assets/css/club-curso-premio.css?v=20261116-tamanos">
   <link rel="stylesheet" href="../assets/css/club-resenas.css?v=20261214-cupones">
-  <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261106-cambioorden2">
+  <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261107-cambioorden3">
   <link rel="stylesheet" href="../assets/css/club-paywall.css?v=20261108-paleta">
   <style>
     /* Overlay centrado, con scroll si contenido excede */
@@ -506,8 +506,8 @@
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-acceso.js?v=20261218"></script>
-  <script src="../assets/js/club-calendario.js?v=20261106-cambioorden2"></script>
-  <script src="../assets/js/club-cambio-orden.js?v=20261106-cambioorden2"></script>
+  <script src="../assets/js/club-calendario.js?v=20261107-cambioorden3"></script>
+  <script src="../assets/js/club-cambio-orden.js?v=20261107-cambioorden3"></script>
   <script src="../assets/js/club-curso-pref.js?v=20261104"></script>
   <script src="../assets/js/admin-iconos.js?v=20261207-integrado"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
@@ -769,6 +769,9 @@
             return seg === 'completados' ? pr.isCompleted === true : (hechas > 0 && pr.isCompleted !== true);
           });
         }
+        // Los cursos CERRADOS van en el orden real en que se abren (el que se abre primero, primero), también con el filtro de categoría:
+        // después de un cambio de orden ya no siguen el orden fijo del catálogo. Los abiertos conservan su lugar y, sin cambios, todo sale igual que antes.
+        if (isActive && window.ZOO_CALENDARIO && ZOO_CALENDARIO.ordenarPorDesbloqueo) lista = ZOO_CALENDARIO.ordenarPorDesbloqueo(lista, window.__zooDesbloqueo);
         // El curso de prueba (si lo hay) se muestra primero; no cambia el orden de desbloqueo de los demás.
         if (p.elegida) lista = lista.slice().sort((a, b) => (b.id === p.elegida ? 1 : 0) - (a.id === p.elegida ? 1 : 0));
         // Pendiente de elegir: el curso que escogió en la guía (si sigue siendo elegible) va primero y destacado.
@@ -824,6 +827,8 @@
       if (window.ZOO_CAMBIO_ORDEN && isActive && window.__zooCal && !(window.ZOO_ACCESO && ZOO_ACCESO.esAdminVisor(session))) {
         const cambioOrden = ZOO_CAMBIO_ORDEN.iniciar({
           contenedor: document.getElementById('cambioOrden'), apiFetch: (ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op), modo: 'linea',
+          // Carátulas reales de los cursos (las mismas de la biblioteca) para la ventana de elegir
+          imagenes: () => Object.fromEntries((window.__zooCursosLista || []).map(c => [c.id, (window.ZOO_PORTADAS && ZOO_PORTADAS.paraCurso(c, '../')) || convertImageUrl(c.image) || ''])),
           toast: (texto, error) => zcToast(texto, error),
           // "Cambiar": abre la página de ESE curso (el siguiente por abrirse), donde están los requisitos y, si ya cumple, el botón para elegir
           alVer: (cursoId) => {

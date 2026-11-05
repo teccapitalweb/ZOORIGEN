@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../assets/css/club-seccion.css?v=20261123-sinmorado">
   <link rel="stylesheet" href="../assets/css/club-cursos.css?v=20261114-prueba">
   <link rel="stylesheet" href="../assets/css/club-logros.css?v=20261108-paleta">
-  <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261106-cambioorden2">
+  <link rel="stylesheet" href="../assets/css/club-calendario.css?v=20261107-cambioorden3">
   <link rel="stylesheet" href="../assets/css/club-cupon.css?v=20261210-cupon">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
@@ -70,8 +70,9 @@
   <script src="../assets/js/admin-iconos.js?v=20261207-integrado"></script>
   <script src="../assets/js/club-acceso.js?v=20261218"></script>
   <script src="../assets/js/club-cursos-ui.js?v=20261129-integrado"></script>
-  <script src="../assets/js/club-calendario.js?v=20261106-cambioorden2"></script>
-  <script src="../assets/js/club-cambio-orden.js?v=20261106-cambioorden2"></script>
+  <script src="../assets/js/club-calendario.js?v=20261107-cambioorden3"></script>
+  <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
+  <script src="../assets/js/club-cambio-orden.js?v=20261107-cambioorden3"></script>
   <script src="../assets/js/club-premios.js?v=20261218-admin-abierto"></script>
   <script src="../assets/js/club-logros-ui.js?v=20261128-arreglos"></script>
   <script>
@@ -85,6 +86,7 @@
       if (ZOORIGEN_CLUB.initNotifications) ZOORIGEN_CLUB.initNotifications(session);
 
       const UI = window.ZOO_LOGROS_UI;
+      const cursosDelClub = () => ZOORIGEN_CLUB.getCursos();
       const cont = document.getElementById('logrosContent');
       let ocupado = false;
 
@@ -130,6 +132,11 @@
             premiosEl.insertAdjacentHTML('afterend', '<div id="cambioOrden" class="lg-cambio-orden"></div>');
             const co = ZOO_CAMBIO_ORDEN.iniciar({
               contenedor: document.getElementById('cambioOrden'), apiFetch: (ruta, op) => ZOORIGEN_CLUB.apiFetch(ruta, op), modo: 'completo', hrefRetos: 'club-retos.html',
+              // Carátulas reales de los cursos para la ventana de elegir (se piden solo al abrirla)
+              imagenes: async () => {
+                const cursos = await cursosDelClub();
+                return Object.fromEntries(cursos.map(c => [c.id, window.ZOO_PORTADAS ? ZOO_PORTADAS.resolver(c, '../') : (c.image || '')]));
+              },
               toast: () => {}, alCambiar: () => { cargar(); }
             });
             window.__zooCambioOrden = co;

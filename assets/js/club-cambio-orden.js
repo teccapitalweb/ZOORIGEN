@@ -19,7 +19,8 @@
 
   // opciones: { contenedor: elemento, apiFetch: fn(ruta, op), alCambiar: fn(respuesta), hrefRetos: 'club-retos.html', toast: fn(texto, esError),
   //             modo: 'linea' (Cursos: una línea corta con el botón Cambiar) | 'completo' (Logros: el bloque entero) | 'nada' (solo carga y ofrece la ventana),
-  //             alVer: fn(cursoId) (el botón Cambiar de la línea: abre la página de ese curso) }
+  //             alVer: fn(cursoId) (el botón Cambiar de la línea: abre la página de ese curso),
+  //             imagenes: fn() -> { cursoId: url } o promesa de eso (las carátulas de la ventana de elegir; sin imagen sale un relleno) }
   function iniciar(opciones) {
     var o = opciones || {};
     var cont = o.contenedor;
@@ -61,18 +62,40 @@
       else if (!ev.shiftKey && doc.activeElement === ultimo) { ev.preventDefault(); primero.focus(); }
     }
 
+    // Carátulas de los cursos (una sola vez); si no se pueden obtener, la ventana sale con el relleno
+    function caratulas() {
+      if (estado.imagenes) return Promise.resolve(estado.imagenes);
+      return Promise.resolve().then(function () { return typeof o.imagenes === 'function' ? o.imagenes() : {}; })
+        .then(function (m) { estado.imagenes = m && typeof m === 'object' ? m : {}; return estado.imagenes; })
+        .catch(function () { return {}; });
+    }
+
     function abrir(disparador) {
-      if (!estado.co || !estado.co.disponible || estado.modal) return;
+      if (!estado.co || !estado.co.disponible || estado.modal || estado.abriendo) return;
+      estado.abriendo = true;
+      caratulas().then(function (imgs) { estado.abriendo = false; if (!estado.modal) montarVentana(disparador, imgs); });
+    }
+
+    function montarVentana(disparador, imgs) {
       var envoltura = doc.createElement('div');
       envoltura.className = 'zco-envoltura';
-      envoltura.innerHTML = CAL.cambioOrdenModalHTML(estado.co);
+      envoltura.innerHTML = CAL.cambioOrdenModalHTML(estado.co, imgs);
       doc.body.appendChild(envoltura);
       estado.modal = envoltura;
       estado.retorno = disparador || null;
       doc.addEventListener('keydown', alTeclear, true);
       envoltura.addEventListener('change', function (ev) {
-        if (ev.target && ev.target.name === 'zcoCurso') envoltura.querySelector('[data-zco="confirmar"]').disabled = false;
+        if (!ev.target || ev.target.name !== 'zcoCurso') return;
+        envoltura.querySelector('[data-zco="confirmar"]').disabled = false;
+        // Lo que pasaría con el curso elegido, una sola vez, en el pie
+        var sel = envoltura.querySelector('#zcoSel');
+        if (sel) { sel.textContent = CAL.llegaraTexto(estado.co, ev.target.value); sel.hidden = !sel.textContent; }
       });
+      // Si una carátula no carga, queda el relleno de color
+      envoltura.addEventListener('error', function (ev) {
+        var t = ev.target;
+        if (t && t.tagName === 'IMG' && t.parentNode) { t.parentNode.classList.add('zco-op__img--vacia'); t.remove(); }
+      }, true);
       envoltura.addEventListener('click', function (ev) {
         var b = ev.target.closest('[data-zco]');
         if (!b) return;

@@ -48,100 +48,134 @@ test('cambioOrden: normaliza avance, tramos y siguiente (35/8 y 55/14)', () => {
   assert.deepEqual([fin.completo, fin.siguiente], [true, null]);
 });
 
-test('bloque: título, aviso de solo 2 cambios, avance por tipo y las dos insignias con su XP', () => {
+const textoVisible = html => html.replace(/<details[\s\S]*?<\/details>/g, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+
+test('bloque (Mis logros): título, UNA línea de apoyo, dos tarjetas con insignia y XP, una barra, tres mini-barras y un botón', () => {
   const html = CAL.cambioOrdenHTML(CAL.cambioOrden(resp()), { modo: 'cursos', hrefRetos: 'club-retos.html' });
-  assert.match(html, /Cambia el orden de tu calendario/);
-  assert.match(html, /Solo&nbsp;hay&nbsp;2&nbsp;cambios&nbsp;en&nbsp;total/, 'sin partirse en el celular');
-  assert.match(html, /mueves&nbsp;2&nbsp;cursos/);
-  assert.match(html, /Insignia «Calendario a tu medida» · \+40 XP/);
-  assert.match(html, /Insignia «Rumbo propio» · \+60 XP/);
-  assert.match(html, /35 retos nuevos/);
-  assert.match(html, /55 retos nuevos/);
-  assert.match(html, /\+40 XP/);
-  assert.match(html, /\+60 XP/);
-  assert.match(html, /35 de 35<\/b> retos nuevos/);
+  assert.match(html, /<h3 class="zco__t" id="zcoTitulo">Cambia el orden de tu calendario<\/h3>/);
+  assert.match(html, /<p class="zco__apoyo">2 cambios en total\. Tú eliges qué curso se abre antes\.<\/p>/);
+  assert.equal((html.match(/<li class="zco-tj/g) || []).length, 2, 'dos tarjetas');
+  assert.match(html, /Cambio 1<\/b>[\s\S]*35 retos[\s\S]*\+40 XP · Calendario a tu medida/);
+  assert.match(html, /Cambio 2<\/b>[\s\S]*55 retos[\s\S]*\+60 XP · Rumbo propio/);
+  assert.match(html, /zco-tj__estado">En curso/);
+  assert.match(html, /zco-tj__estado">Pendiente/);
+  assert.equal((html.match(/role="progressbar"/g) || []).length, 1, 'una barra de avance total');
+  assert.match(html, /<b>35 de 35<\/b> retos nuevos/);
+  assert.equal((html.match(/<li class="zcal-tipo/g) || []).length, 3, 'tres mini-barras');
   assert.match(html, /Quiz<\/span>/);
+  assert.match(html, /Detective<\/span>/);
   assert.match(html, /Ordena<\/span>/);
   assert.match(html, /7\/8/, 'ordena va 7 de 8');
-  assert.match(html, /El modo historia no cuenta/);
-  assert.equal(/data-zco="elegir"/.test(html), false, 'sin botón de elegir: todavía no alcanza');
-  assert.match(html, /href="club-retos.html"/, 'en su lugar, ir a los retos');
-  assert.match(html, /Te faltan 1 de ordena/);
+  assert.equal(/data-zco="elegir"/.test(html), false, 'todavía no alcanza: sin botón de elegir');
+  assert.equal((html.match(/<(button|a) /g) || []).length, 1, 'un solo botón');
+  assert.match(html, /href="club-retos.html"/);
 });
 
-test('bloque: con los retos cumplidos aparece el botón para elegir; en Retos lleva a Cursos', () => {
+test('bloque: nada de párrafos largos visibles; las reglas van en el desplegable cerrado "Cómo funciona"', () => {
+  const html = CAL.cambioOrdenHTML(CAL.cambioOrden(resp({ cambios: [{ n: 1, titulo: 'Curso 4', en: Date.now() }], usados: 1 })), { modo: 'cursos' });
+  const visible = textoVisible(html);
+  assert.ok(visible.length < 420, 'poco texto visible: ' + visible.length + ' caracteres -> ' + visible);
+  for (const regla of ['historia', 'una sola vez', 'fechas', 'ya abiertos', 'mínimo']) assert.equal(visible.toLowerCase().includes(regla), false, 'la regla "' + regla + '" no va a la vista');
+  const det = html.match(/<details class="zco-como">([\s\S]*?)<\/details>/)[1];
+  assert.equal(/<details[^>]*\sopen/.test(html), false, 'cerrado');
+  assert.match(det, /<summary>Cómo funciona<\/summary>/);
+  assert.equal((det.match(/<li>/g) || []).length >= 5 && (det.match(/<li>/g) || []).length <= 7, true, '5 reglas cortas (más "Tus cambios")');
+  assert.match(det, /El modo historia no cuenta/);
+  assert.match(det, /cuenta una sola vez y sin XP nuevo/);
+  assert.match(det, /Las fechas no cambian/);
+  assert.match(det, /cursos ya abiertos no se tocan/);
+  assert.match(det, /mínimo 8 y 14 de cada tipo/);
+  assert.match(det, /Tus cambios[\s\S]*Cambio 1: «Curso 4»/);
+  for (const li of det.match(/<li>[\s\S]*?<\/li>/g)) assert.ok(li.length < 140, 'regla corta: ' + li);
+});
+
+test('bloque: con los retos cumplidos aparece el botón; en Retos lleva a Cursos; con los 2 cambios usados no hay botón ni barra', () => {
   const co = CAL.cambioOrden(resp({ contados: { quiz: 19, detective: 8, orden: 8 }, disponible: true }));
-  assert.match(CAL.cambioOrdenHTML(co, { modo: 'cursos' }), /data-zco="elegir"/);
+  const h = CAL.cambioOrdenHTML(co, { modo: 'cursos' });
+  assert.match(h, /data-zco="elegir">[\s\S]*Elegir curso/);
+  assert.match(h, /zco-tj__estado">Listo/);
+  assert.match(h, /Listo para elegir/);
   const enRetos = CAL.cambioOrdenHTML(CAL.cambioOrden({ usados: 0, maximo: 2, contados: { quiz: 19, detective: 8, orden: 8 } }), { modo: 'retos', href: 'club-biblioteca.html#cambiar-orden' });
   assert.match(enRetos, /href="club-biblioteca.html#cambiar-orden"/);
   assert.equal(/data-zco="elegir"/.test(enRetos), false);
-  // sin otro curso cerrado que mover no hay botón y se explica
   const sinCursos = CAL.cambioOrden(resp({ contados: { quiz: 19, detective: 8, orden: 8 }, disponible: false, cursosCerrados: [cerrados()[0]] }));
   const t = CAL.cambioOrdenHTML(sinCursos, { modo: 'cursos' });
   assert.equal(/data-zco="elegir"/.test(t), false);
-  assert.match(t, /no hay otro curso cerrado que mover/);
+  assert.match(t, /No hay otro curso cerrado/);
+  const fin = CAL.cambioOrdenHTML(CAL.cambioOrden(resp({ usados: 2, contados: { quiz: 30, detective: 20, orden: 20 }, cambios: [{ n: 2, titulo: '<img src=x onerror=alert(1)>', en: Date.now() }] })), { modo: 'cursos' });
+  assert.match(fin, /Usaste tus 2 cambios/);
+  assert.equal(/role="progressbar"|data-zco="elegir"/.test(fin), false);
+  assert.equal(/<img/.test(fin), false, 'los títulos se escapan');
+  assert.match(fin, /zco-tj__estado"><svg[^>]*>[\s\S]*?<\/svg>Hecho/, 'las dos tarjetas quedan en Hecho');
 });
 
-test('bloque: con los 2 cambios usados no hay botón ni barra, y se listan los cambios hechos', () => {
-  const co = CAL.cambioOrden(resp({ usados: 2, contados: { quiz: 30, detective: 20, orden: 20 }, cambios: [
-    { n: 1, cursoId: 'c4', titulo: 'Curso 4', en: '2026-11-10T12:00:00.000Z' }, { n: 2, cursoId: 'c3', titulo: '<img src=x onerror=alert(1)>', en: '2026-12-20T12:00:00.000Z' }] }));
-  const html = CAL.cambioOrdenHTML(co, { modo: 'cursos' });
-  assert.match(html, /Ya usaste tus 2 cambios/);
-  assert.equal(/role="progressbar"/.test(html), false);
-  assert.equal(/data-zco="elegir"/.test(html), false);
-  assert.match(html, /Cambio 1: «Curso 4»/);
-  assert.equal(/<img/.test(html), false, 'los títulos se escapan');
-  assert.match(html, /&lt;img/);
-});
-
-test('ventana: lista solo los cursos que NO son el siguiente, escapa títulos, avisa que es definitivo y el botón nace apagado', () => {
+test('ventana: cada opción trae carátula, nombre y "Se abre en N días (fecha)"; sin texto largo repetido; en el orden de apertura', () => {
   const co = CAL.cambioOrden(resp({ contados: { quiz: 19, detective: 8, orden: 8 }, disponible: true }));
-  const html = CAL.cambioOrdenModalHTML(co);
+  const html = CAL.cambioOrdenModalHTML(co, { c3: '../assets/img/cursos/c3.jpg', c4: 'https://ejemplo.test/c4.webp' });
   assert.match(html, /role="dialog" aria-modal="true"/);
   assert.match(html, /Cambio 1 de 2/);
-  assert.match(html, /Ahora se abre primero «Curso 2»/);
+  assert.match(html, /Ahora se abre primero «Curso 2» \(en 5 días\)\./);
   assert.equal((html.match(/name="zcoCurso"/g) || []).length, 2, 'c3 y c4 (c2 ya es el siguiente)');
-  assert.match(html, /value="c3"/);
-  assert.match(html, /value="c4"/);
-  assert.equal(/value="c2"/.test(html), false);
+  assert.ok(html.indexOf('value="c3"') < html.indexOf('value="c4"'), 'orden de apertura');
+  assert.match(html, /<span class="zco-op__img" aria-hidden="true"><img src="\.\.\/assets\/img\/cursos\/c3\.jpg" alt="" loading="lazy"/);
+  assert.match(html, /<img src="https:\/\/ejemplo\.test\/c4\.webp"/);
   assert.match(html, /Curso &lt;b&gt;3&lt;\/b&gt;/);
+  assert.match(html, /<small>Se abre en 13 días \(\d{1,2} de [a-zé]+\)<\/small>/);
+  assert.match(html, /<small>Se abre en 21 días/);
+  assert.equal(/pasaría a abrirse/.test(html), false, 'sin el texto largo repetido en cada opción');
+  assert.match(html, /<p class="zco-modal__sel" id="zcoSel"[^>]*hidden>/, 'la frase de lo que pasaría va una sola vez, en el pie');
   assert.match(html, /Este cambio es definitivo/);
   assert.match(html, /data-zco="confirmar" disabled/);
-  assert.match(html, /pasaría a abrirse en 5 días/);
+  // sin imagen: relleno decente; imagen peligrosa: se descarta
+  const sin = CAL.cambioOrdenModalHTML(co, { c3: 'javascript:alert(1)' });
+  assert.match(sin, /zco-op__img zco-op__img--vacia/);
+  assert.equal(/javascript:|<img/.test(sin), false);
+  assert.equal((sin.match(/zco-op__img--vacia/g) || []).length, 2, 'las dos opciones con relleno');
+});
+
+test('ventana: la frase de lo que pasaría con el curso elegido sale una sola vez y con los días reales', () => {
+  const co = CAL.cambioOrden(resp({ contados: { quiz: 19, detective: 8, orden: 8 }, disponible: true }));
+  assert.match(CAL.llegaraTexto(co, 'c4'), /^«Curso 4» pasará a abrirse en 5 días \(\d{1,2} de [a-zé]+\)\.$/);
+  assert.equal(CAL.llegaraTexto(co, 'zzz'), '');
+  assert.equal(CAL.llegaraTexto(null, 'c4'), '');
 });
 
 test('sin emojis ni degradados en los textos, estilos y archivos nuevos', () => {
   const co = CAL.cambioOrden(resp({ contados: { quiz: 19, detective: 8, orden: 8 }, disponible: true, cambios: [{ n: 1, titulo: 'X', en: Date.now() }] }));
-  const todo = CAL.cambioOrdenHTML(co, { modo: 'cursos' }) + CAL.cambioOrdenModalHTML(co) + leer('assets/js/club-cambio-orden.js') + leer('assets/css/club-calendario.css');
+  const todo = CAL.cambioOrdenHTML(co, { modo: 'cursos' }) + CAL.cambioOrdenModalHTML(co, {}) + CAL.cambioOrdenOfertaHTML(co, 'c2') + CAL.cambioOrdenLineaHTML(co) + leer('assets/js/club-cambio-orden.js') + leer('assets/css/club-calendario.css');
   assert.equal(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(todo.replace(/[«»·…→]/g, '')), false, 'sin emojis');
   assert.equal(/gradient/.test(leer('assets/css/club-calendario.css')), false, 'solo colores sólidos');
 });
 
-test('el módulo del navegador usa los dos endpoints, pide confirmación explícita y no toca cursos por su cuenta', () => {
+test('el módulo del navegador usa los dos endpoints, pide confirmación explícita, carga carátulas y no toca cursos por su cuenta', () => {
   const js = leer('assets/js/club-cambio-orden.js');
   assert.match(js, /\/api\/calendario\/cambio-orden/);
   assert.match(js, /\/api\/calendario\/cambiar-orden/);
   assert.match(js, /confirmar: true/);
   assert.match(js, /method: 'POST'/);
   assert.match(js, /Escape/, 'se cierra con Esc');
+  assert.match(js, /o\.imagenes/, 'las carátulas las pone la página');
+  assert.match(js, /llegaraTexto/);
 });
 
-test('Cursos: línea corta con el siguiente curso y el botón Cambiar; Logros: el bloque completo; Retos: solo el avance', () => {
+test('Cursos: línea corta, orden por desbloqueo y carátulas; Logros: el bloque completo; Retos: solo el avance', () => {
   const cursos = leer('pages/club-biblioteca.html');
   assert.match(cursos, /<div id="cambioOrden"><\/div>/);
-  assert.match(cursos, /club-cambio-orden\.js\?v=20261106-cambioorden2/);
-  assert.match(cursos, /ZOO_CAMBIO_ORDEN\.iniciar/);
+  assert.match(cursos, /club-cambio-orden\.js\?v=20261107-cambioorden3/);
   assert.match(cursos, /modo: 'linea'/, 'en Cursos solo la línea corta');
   assert.match(cursos, /alVer:/, 'el botón Cambiar abre la página de ese curso');
-  assert.match(cursos, /openCourseCard\(\{ type: 'click'[^\n]*cursoId\)/);
   assert.match(cursos, /alCambiar:[\s\S]{0,400}render\(/, 'después del cambio se vuelven a pintar los cursos');
   assert.match(cursos, /ZOO_CALENDARIO\.ofertasCursoHTML\(/, 'la página del curso cerrado trae las ofertas ordenadas');
-  assert.match(cursos, /data-zco="elegir"[^\n]*\n[^\n]*abrir\(zo\)|\[data-zco="elegir"\]'\);\s*if \(zo/, 'el botón de la página del curso abre la ventana de elegir');
+  assert.match(cursos, /imagenes: \(\) =>[^\n]*ZOO_PORTADAS\.paraCurso/, 'la ventana usa las carátulas reales de la biblioteca');
+  assert.match(cursos, /lista = ZOO_CALENDARIO\.ordenarPorDesbloqueo\(lista, window\.__zooDesbloqueo\)/, 'las tarjetas siguen el orden real de desbloqueo');
+  assert.ok(cursos.indexOf('ordenarPorDesbloqueo(lista') < cursos.indexOf('if (p.elegida) lista'), 'primero el orden de desbloqueo y luego el curso de prueba al frente');
   const logros = leer('pages/club-logros.html');
   assert.match(logros, /club-cambio-orden\.js/);
   assert.match(logros, /club-calendario\.css/);
+  assert.match(logros, /club-portadas\.js/);
   assert.match(logros, /modo: 'completo'/, 'en Logros el bloque entero');
   assert.match(logros, /insertAdjacentHTML\('afterend'/, 'justo después de las metas de trayectoria (premios)');
+  assert.match(logros, /ZOO_PORTADAS\.resolver\(c, '\.\.\/'\)/, 'carátulas reales también en Logros');
   assert.match(logros, /alCambiar: \(\) => \{ cargar\(\); \}/, 'al cambiar se refrescan XP e insignias');
   const retos = leer('pages/club-retos.html');
   assert.equal(retos.includes('club-cambio-orden.js'), false, 'en Retos no se elige curso');
@@ -151,6 +185,62 @@ test('Cursos: línea corta con el siguiente curso y el botón Cambiar; Logros: e
     for (const m of leer('pages/' + f).matchAll(/club-calendario\.(?:js|css)\?v=([\w.-]+)/g)) versiones.add(m[1]);
   }
   assert.equal(versiones.size, 1, 'versiones distintas de club-calendario: ' + [...versiones].join(', '));
+});
+
+/* ───────────── Orden de las tarjetas de Cursos y días que coinciden ───────────── */
+
+const cursoDe = (id, desbloqueoEn, extra = {}) => ({ id, desbloqueoEn, ...extra });
+const desbloqueoDe = mapa => c => mapa[c.id];
+const ids = l => l.map(c => c.id);
+
+test('orden de tarjetas: tras un cambio los cerrados salen por días restantes de menor a mayor (el caso de Elena: 10, 18, 26, 2, 34, 42)', () => {
+  const t = Date.now();
+  const mapa = {
+    a: { desbloqueado: true }, b: { desbloqueado: true },
+    c10: { desbloqueado: false, desbloqueoEn: t + 10 * DIA }, c18: { desbloqueado: false, desbloqueoEn: t + 18 * DIA }, c26: { desbloqueado: false, desbloqueoEn: t + 26 * DIA },
+    c2: { desbloqueado: false, desbloqueoEn: t + 2 * DIA }, c34: { desbloqueado: false, desbloqueoEn: t + 34 * DIA }, c42: { desbloqueado: false, desbloqueoEn: t + 42 * DIA }
+  };
+  const catalogo = ['a', 'b', 'c10', 'c18', 'c26', 'c2', 'c34', 'c42'].map(id => cursoDe(id));
+  assert.deepEqual(ids(CAL.ordenarPorDesbloqueo(catalogo, desbloqueoDe(mapa))), ['a', 'b', 'c2', 'c10', 'c18', 'c26', 'c34', 'c42']);
+  // con el filtro por categoría (una parte de la lista) también
+  const filtrada = ['b', 'c26', 'c2', 'c42'].map(id => cursoDe(id));
+  assert.deepEqual(ids(CAL.ordenarPorDesbloqueo(filtrada, desbloqueoDe(mapa))), ['b', 'c2', 'c26', 'c42']);
+});
+
+test('orden de tarjetas: sin cambios todo queda exactamente igual; los abiertos conservan su lugar (también los abiertos por premio entre cerrados)', () => {
+  const t = Date.now();
+  const mapa = {
+    a: { desbloqueado: true }, b: { desbloqueado: true }, c: { desbloqueado: false, desbloqueoEn: t + 3 * DIA },
+    d: { desbloqueado: true, porPremio: true }, e: { desbloqueado: false, desbloqueoEn: t + 11 * DIA }, f: { desbloqueado: false, desbloqueoEn: t + 19 * DIA }
+  };
+  const catalogo = ['a', 'b', 'c', 'd', 'e', 'f'].map(id => cursoDe(id));
+  assert.deepEqual(ids(CAL.ordenarPorDesbloqueo(catalogo, desbloqueoDe(mapa))), ['a', 'b', 'c', 'd', 'e', 'f'], 'ya estaban en orden: no se mueve nada');
+  const dos = catalogo.slice().reverse();
+  const alReves = ids(CAL.ordenarPorDesbloqueo(dos, desbloqueoDe(mapa)));
+  assert.deepEqual(alReves.filter(x => ['c', 'e', 'f'].includes(x)), ['c', 'e', 'f'], 'los cerrados salen por fecha');
+  assert.deepEqual(alReves.map((x, i) => (['a', 'b', 'd'].includes(x) ? x === dos[i].id : true)).every(Boolean), true, 'los abiertos no cambian de posición');
+  assert.deepEqual(ids(CAL.ordenarPorDesbloqueo([], desbloqueoDe(mapa))), []);
+  assert.deepEqual(ids(CAL.ordenarPorDesbloqueo(null, desbloqueoDe(mapa))), []);
+});
+
+test('orden de tarjetas: sin fecha (regla local) usa los días; los que no tienen fecha van después y estable; empates conservan el orden', () => {
+  const mapa = { a: { desbloqueado: false, diasFalta: 20 }, b: { desbloqueado: false, diasFalta: 4 }, c: { desbloqueado: false }, d: { desbloqueado: false, diasFalta: 4 }, e: { desbloqueado: false } };
+  assert.deepEqual(ids(CAL.ordenarPorDesbloqueo(['a', 'b', 'c', 'd', 'e'].map(id => cursoDe(id)), desbloqueoDe(mapa))), ['b', 'd', 'a', 'c', 'e']);
+  assert.deepEqual(ids(CAL.ordenarPorDesbloqueo(['a', 'b'].map(id => cursoDe(id)), () => null)), ['a', 'b'], 'sin dato no cambia nada');
+});
+
+test('los días coinciden: línea, ventana y tarjetas calculan los días desde la MISMA fecha de apertura', () => {
+  const f = Date.now() + 10 * DIA - 3600000;   // faltan 9 días y 23 horas -> 10 días
+  assert.equal(CAL.diasDe({ desbloqueoEn: f, diasFalta: 99 }), 10, 'manda la fecha, no un conteo viejo');
+  assert.equal(CAL.diasDe({ desbloqueoEn: null, diasFalta: 7 }), 7);
+  assert.equal(CAL.diasDe({ desbloqueoEn: Date.now() - 1000 }), 0);
+  const co = CAL.cambioOrden(resp({ cursosCerrados: [{ cursoId: 'x', titulo: 'X', lugar: 1, desbloqueoEn: new Date(f).toISOString(), diasFalta: 99 }, { cursoId: 'y', titulo: 'Y', lugar: 2, desbloqueoEn: new Date(f + 8 * DIA).toISOString(), diasFalta: 99 }], contados: { quiz: 19, detective: 8, orden: 8 }, disponible: true }));
+  assert.match(CAL.cambioOrdenLineaHTML(co), /\(en 10 días\)/);
+  assert.match(CAL.cambioOrdenModalHTML(co, {}), /Ahora se abre primero «X» \(en 10 días\)/);
+  assert.match(CAL.cambioOrdenModalHTML(co, {}), /Se abre en 18 días/);
+  // el desbloqueo que usan las tarjetas (ZOO_CALENDARIO.desbloqueo) da los mismos días para la misma fecha
+  const cal = { orden: ['x'], cursos: { x: { cursoId: 'x', titulo: 'X', abierto: false, desbloqueoEn: f, porPremio: false, porRetos: false, esPrueba: false } } };
+  assert.equal(CAL.desbloqueo(cal, 'x').diasFalta, 10);
 });
 
 /* ───────────── Línea corta y oferta dentro de la página del curso ───────────── */
@@ -167,21 +257,24 @@ test('línea corta: nombre del siguiente curso, cuándo se abre y el botón Camb
   assert.equal(/Puedes cambiarlo|<button/.test(fin), false, 'sin botón');
   assert.equal(CAL.cambioOrdenLineaHTML(CAL.cambioOrden(resp({ cursosCerrados: [] }))), '', 'sin cursos cerrados no se muestra nada');
   assert.equal(CAL.cambioOrdenLineaHTML(null), '');
-  const raro = CAL.cambioOrdenLineaHTML(CAL.cambioOrden(resp({ cursosCerrados: [{ cursoId: 'x', titulo: '<img src=x>', lugar: 1, diasFalta: 1 }] })));
+  const raro = CAL.cambioOrdenLineaHTML(CAL.cambioOrden(resp({ cursosCerrados: [{ cursoId: 'x', titulo: '<img src=x>', lugar: 1, desbloqueoEn: new Date(Date.now() + 3600000).toISOString() }] })));
   assert.equal(/<img/.test(raro), false);
   assert.match(raro, /\(mañana\)/);
 });
 
-test('oferta en la página del curso: solo en el SIGUIENTE curso por abrirse, con requisitos 35/8 y progreso por tipo', () => {
+test('oferta en la página del curso: solo en el SIGUIENTE curso por abrirse y lo mínimo visible (qué necesita, progreso y botón)', () => {
   const co = CAL.cambioOrden(resp());
   const html = CAL.cambioOrdenOfertaHTML(co, 'c2');
-  assert.match(html, /Si completas <b>35 retos nuevos<\/b> \(mínimo 8 de quiz, 8 de detective y 8 de ordena\) podrás elegir cuál curso se desbloquea antes en lugar de este\./);
-  assert.match(html, /35 de 35<\/b> retos nuevos/);
-  assert.match(html, /Ordena<\/span>/);
+  assert.match(html, /<h4 class="zco-oferta__t">Elige otro curso en lugar de este<\/h4>/);
+  assert.match(html, /Cambio 1 de 2 · 35 retos nuevos \(mínimo 8 de cada tipo\)/);
+  assert.match(html, /<b>35 de 35<\/b> retos nuevos/);
+  assert.equal((html.match(/<li class="zcal-tipo/g) || []).length, 3);
   assert.match(html, /7\/8/);
   assert.equal(/data-zco="elegir"/.test(html), false, 'todavía no cumple: sin botón');
-  assert.match(html, /el modo historia no cuenta/);
-  assert.match(html, /la oferta pasa al siguiente y tus retos se conservan/);
+  assert.match(html, /<summary>Cómo funciona<\/summary>/);
+  const visible = textoVisible(html);
+  assert.ok(visible.length < 330, 'poco texto visible: ' + visible.length + ' -> ' + visible);
+  assert.equal(/historia|una sola vez|fechas|abre solo/i.test(visible), false, 'las reglas largas no se ven');
   assert.equal(CAL.cambioOrdenOfertaHTML(co, 'c3'), '', 'en otro curso cerrado no hay oferta');
   assert.equal(CAL.cambioOrdenOfertaHTML(co, 'c1'), '', 'ni en uno abierto');
   assert.equal(CAL.cambioOrdenOfertaHTML(CAL.cambioOrden(resp({ usados: 2 })), 'c2'), '', 'con los 2 cambios usados no hay oferta');
@@ -190,43 +283,41 @@ test('oferta en la página del curso: solo en el SIGUIENTE curso por abrirse, co
 
 test('oferta: cuando ya cumple aparece el botón de elegir; el 2.º cambio pide 55 y 14 de cada tipo', () => {
   const listo = CAL.cambioOrdenOfertaHTML(CAL.cambioOrden(resp({ contados: { quiz: 19, detective: 8, orden: 8 }, disponible: true })), 'c2');
-  assert.match(listo, /data-zco="elegir"/);
-  assert.match(listo, /Ya cumpliste los retos del cambio 1/);
+  assert.match(listo, /data-zco="elegir">[\s\S]*Elegir curso/);
+  assert.match(listo, /Listo para elegir/);
   const dos = CAL.cambioOrdenOfertaHTML(CAL.cambioOrden(resp({ usados: 1, contados: { quiz: 20, detective: 10, orden: 10 } })), 'c2');
-  assert.match(dos, /Cambio 2 de 2/);
-  assert.match(dos, /Ya usaste tu primer cambio\./);
-  assert.match(dos, /<b>55 retos nuevos<\/b> \(mínimo 14 de quiz, 14 de detective y 14 de ordena\)/);
-  assert.match(dos, /Te faltan 4 de detective, 4 de ordena/);
+  assert.match(dos, /Cambio 2 de 2 · 55 retos nuevos \(mínimo 14 de cada tipo\)/);
+  assert.match(dos, /<b>40 de 55<\/b> retos nuevos/);
+  assert.match(dos, /10\/14/);
 });
 
-test('convivencia con los 15 retos: si hay dos ofertas se numeran y se explica a quién aplica cada una', () => {
+test('convivencia con los 15 retos: si hay dos ofertas se numeran y se explica a quién aplica cada una (en una frase)', () => {
   const co = CAL.cambioOrden(resp());
   const pc = CAL.primerCurso({ aplica: true, estado: 'pendiente', cursoId: 'c2', titulo: 'Curso 2', diasFalta: 5, progreso: { hechos: 9, meta: 15, tipos: {}, libres: { hechos: 0, meta: 3 } } });
   const ambas = CAL.ofertasCursoHTML(pc, co, 'c2');
-  assert.match(ambas, /dos opciones/);
+  assert.match(ambas, /Dos opciones con los retos, independientes/);
   assert.match(ambas, /solo cuentas nuevas con prueba gratuita/);
   assert.match(ambas, /todos los miembros/);
   assert.ok(ambas.indexOf('Opción 1 · Abrir este curso antes') < ambas.indexOf('Ábrelo antes resolviendo 15 retos'), 'primero la de 15 retos');
   assert.ok(ambas.indexOf('Ábrelo antes resolviendo 15 retos') < ambas.indexOf('Opción 2 · Elegir otro curso en su lugar'));
-  assert.ok(ambas.indexOf('Opción 2') < ambas.indexOf('Si completas <b>35 retos nuevos'));
-  // solo una de las dos: sin explicaciones de más
+  assert.ok(ambas.indexOf('Opción 2') < ambas.indexOf('zco-oferta__t'));
   const soloCambio = CAL.ofertasCursoHTML(null, co, 'c2');
-  assert.equal(/dos opciones|Opción 1/.test(soloCambio), false);
+  assert.equal(/Dos opciones|Opción 1/.test(soloCambio), false);
   assert.match(soloCambio, /zco-oferta/);
   const soloAcelera = CAL.ofertasCursoHTML(pc, null, 'c2');
   assert.match(soloAcelera, /Ábrelo antes resolviendo 15 retos/);
-  assert.equal(/zco-oferta|dos opciones/.test(soloAcelera), false);
-  // la de 15 retos es de OTRO curso (no es este): no se mezcla
+  assert.equal(/zco-oferta|Dos opciones/.test(soloAcelera), false);
   assert.equal(/Ábrelo antes/.test(CAL.ofertasCursoHTML(pc, co, 'c3')), false);
   assert.equal(CAL.ofertasCursoHTML(null, null, 'c2'), '');
 });
 
-test('estilos: palabras sin partirse, etiquetas de tipo completas y tarjeta de pasos legible en pantalla angosta', () => {
+test('estilos: desplegable, tarjetas lado a lado, carátulas, palabras sin partirse y pantalla angosta', () => {
   const css = leer('assets/css/club-calendario.css');
-  assert.match(css, /\.zco-linea/);
-  assert.match(css, /\.zco-oferta/);
+  for (const c of ['.zco-linea', '.zco-oferta', '.zco-tj', '.zco__tarjetas', '.zco-como', '.zco-op__img']) assert.ok(css.includes(c), c);
+  assert.match(css, /\.zco__tarjetas \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/, 'dos tarjetas lado a lado');
   assert.match(css, /\.zco \.zcal-tipo__n[^}]*white-space: nowrap/, 'Detective no se parte');
   assert.match(css, /overflow-wrap: normal; word-break: normal/);
-  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.zco-paso \{ grid-template-columns: 30px minmax\(0, 1fr\)/);
+  assert.match(css, /\.zco-op__img \{[^}]*object-fit|\.zco-op__img img \{[^}]*object-fit: cover/);
+  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.zco-op__img \{ width: 72px/);
   assert.equal(/gradient/.test(css), false);
 });

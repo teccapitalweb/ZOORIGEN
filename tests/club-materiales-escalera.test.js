@@ -111,6 +111,8 @@ test('la escalera del catálogo es alcanzable con los retos que existen hoy en e
   const umbrales = JSON.parse(fs.readFileSync(rutaCatalogo, 'utf8')).filter(m => m.acceso === 'retos').map(m => m.requiereRetos);
   assert.ok(umbrales.length >= 23);
   assert.ok(Math.max(...umbrales) <= Math.floor(total * 0.9), 'el umbral más alto no pasa del 90 % de los retos que existen');
+  assert.equal(Math.max(...umbrales), 120, 'los últimos 10 materiales suben la dificultad: el más difícil pide 120 retos');
+  assert.ok(total - Math.max(...umbrales) >= 60, 'queda margen sobre el más difícil');
 });
 
 test('estilos nuevos: colores sólidos, letra de 12 px o más y sin emojis', () => {
