@@ -313,8 +313,8 @@
       '<div class="zco__cuerpo">' +
         '<p class="zcal-eyebrow">Tu calendario</p>' +
         '<h3 class="zco__t" id="zcoTitulo">Cambia el orden de tu calendario</h3>' +
-        '<p class="zcal-retos__txt">Resuelve retos nuevos y elige qué curso cerrado se abre primero. <b>Solo hay 2 cambios en total</b> (mueves 2 cursos): uno con 35 retos nuevos y otro con 55, con al menos 8 y 14 de cada tipo. ' +
-        'Las fechas de apertura no cambian, solo se reparten distinto, y los cursos que ya abriste no se tocan.</p>' +
+        '<p class="zcal-retos__txt">Resuelve retos nuevos y elige qué curso cerrado se abre primero. <b>Solo hay 2 cambios en total</b> (mueves 2 cursos): con 35 y con 55 retos nuevos, con al menos 8 y 14 de cada tipo. ' +
+        'Las fechas no cambian, solo se reparten distinto, y los cursos que ya abriste no se tocan.</p>' +
         '<ol class="zco__pasos">' + pasos + '</ol>' + cuerpo + hechos +
         '<p class="zco__nota">Cuentan los retos del camino (quiz, detective y ordena) que superes desde ahora. Si repites uno que ya habías resuelto antes, cuenta una sola vez (sin XP nuevo). El modo historia no cuenta.</p>' +
       '</div></section>';

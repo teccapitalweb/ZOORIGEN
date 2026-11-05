@@ -771,20 +771,19 @@
     var mostrar = lista.slice(0, rEst.uVisibles);
     var lugar = {};
     rEst.usuarios.forEach(function (u, i) { lugar[u.uid] = i + 1; });
-    cont.innerHTML = tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">#</th><th scope="col">Persona</th><th scope="col">XP total</th><th scope="col">Nivel</th><th scope="col">Retos superados</th><th scope="col">Por tipo (superados)</th><th scope="col">Días activos</th><th scope="col">Última vez</th><th scope="col">Cambio de orden</th><th scope="col">Historial</th></tr></thead><tbody>' +
+    cont.innerHTML = tablaZona('<table class="ap-tabla ap-tabla--simple"><thead><tr><th scope="col">#</th><th scope="col">Persona</th><th scope="col">XP total</th><th scope="col">Retos superados</th><th scope="col" class="ap-col-2">Por tipo (superados)</th><th scope="col" class="ap-col-2">Días activos</th><th scope="col" class="ap-col-2">Última vez</th><th scope="col" class="ap-col-2">Cambio de orden</th><th scope="col" class="ap-col-3">Historial</th></tr></thead><tbody>' +
       mostrar.map(function (u) {
         var tipos = Object.keys(u.porReto).filter(function (k) { return u.porReto[k].superados > 0; }).map(function (k) { return esc(RETO_CORTO[k] || k) + ' ' + P.fmtNum(u.porReto[k].superados); }).join(' · ') || '—';
         var plan = u.admin ? '<span class="ap-badge ap-badge--info">Administración</span>' : (u.membresia === 'activa' ? '<span class="ap-badge ap-badge--ok">Membresía activa</span>' : '<span class="ap-badge ap-badge--neutro">Sin membresía</span>');
         var nombre = u.esMiembro ? '<button type="button" class="ap-enlace" data-accion="ficha" data-uid="' + esc(u.uid) + '">' + esc(u.nombre) + '</button>' : esc(u.nombre);
         return '<tr><td data-label="Lugar">' + lugar[u.uid] + '</td><td data-label="Persona">' + nombre + '<small class="ap-sub">' + plan + '</small></td>' +
-          '<td data-label="XP total"><strong>' + esc(P.fmtNum(u.xpTotal)) + '</strong><small class="ap-sub">De retos: ' + esc(P.fmtNum(u.xp)) + '</small></td>' +
-          '<td data-label="Nivel">' + esc(u.nivel.nombre) + '</td>' +
-          '<td data-label="Retos superados">' + esc(P.fmtNum(u.superados)) + '</td>' +
-          '<td data-label="Por tipo (superados)">' + tipos + '</td>' +
-          '<td data-label="Días activos">' + esc(P.fmtNum(u.dias)) + '</td>' +
-          '<td data-label="Última vez">' + (u.ultimaVez ? esc(P.fmtFecha(u.ultimaVez)) + '<small class="ap-sub">' + esc(P.relativo(u.ultimaVez)) + '</small>' : '—') + '</td>' +
-          '<td data-label="Cambio de orden">' + esc(u.cambioOrden.usados + ' de 2') + '<small class="ap-sub">' + esc(P.fmtNum(u.cambioOrden.contados)) + ' retos nuevos</small></td>' +
-          '<td data-label="Historial">' + (u.esMiembro ? '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="ficha" data-uid="' + esc(u.uid) + '">' + ico('history', { size: 14 }) + 'Ver historial</button>' : '—') + '</td></tr>';
+          '<td data-label="XP total"><strong>' + esc(P.fmtNum(u.xpTotal)) + '</strong><small class="ap-sub">Nivel ' + esc(u.nivel.nombre) + '</small></td>' +
+          '<td data-label="Retos superados">' + esc(P.fmtNum(u.superados)) + '<small class="ap-sub">XP de retos: ' + esc(P.fmtNum(u.xp)) + '</small></td>' +
+          '<td data-label="Por tipo (superados)" class="ap-col-2">' + tipos + '</td>' +
+          '<td data-label="Días activos" class="ap-col-2">' + esc(P.fmtNum(u.dias)) + '</td>' +
+          '<td data-label="Última vez" class="ap-col-2">' + (u.ultimaVez ? esc(P.fmtFecha(u.ultimaVez)) + '<small class="ap-sub">' + esc(P.relativo(u.ultimaVez)) + '</small>' : '—') + '</td>' +
+          '<td data-label="Cambio de orden" class="ap-col-2">' + esc(u.cambioOrden.usados + ' de 2') + '<small class="ap-sub">' + esc(P.fmtNum(u.cambioOrden.contados)) + ' retos nuevos</small></td>' +
+          '<td data-label="Historial" class="ap-col-3">' + (u.esMiembro ? '<button type="button" class="ap-btn ap-btn--chico ap-btn--suave" data-accion="ficha" data-uid="' + esc(u.uid) + '">' + ico('history', { size: 14 }) + 'Ver historial</button>' : '—') + '</td></tr>';
       }).join('') + '</tbody></table>') +
       '<p class="ap-pie-tabla" role="status">Mostrando ' + P.fmtNum(mostrar.length) + ' de ' + P.fmtNum(lista.length) + '</p>' +
       (lista.length > mostrar.length ? '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="usuarios-mas">Mostrar ' + Math.min(25, lista.length - mostrar.length) + ' más</button>' : '');

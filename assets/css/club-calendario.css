@@ -96,6 +96,11 @@
 .zco__cuerpo { min-width: 0; flex: 1 1 auto; }
 .zco__t { margin: 0 0 6px; font: 700 1.2rem/1.25 var(--zoo-font-display, 'Outfit', sans-serif); color: var(--zcal-text); overflow-wrap: anywhere; }
 .zco__pasos { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+.zco .zcal-tipos { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) {
+  .zco__pasos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .zco .zcal-tipos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 .zco-paso {
   display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; align-items: center; gap: 10px; padding: 9px 12px;
   border: 1px solid var(--zcal-line); border-radius: 12px; font-size: .86rem; color: var(--zcal-muted);

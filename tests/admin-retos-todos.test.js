@@ -19,7 +19,7 @@ test('la sección Retos pide las personas y sus gráficas al servidor y no inven
 });
 
 test('la tabla trae XP total y de retos, nivel, tipo, días, última vez, cambio de orden y el botón Ver historial', () => {
-  for (const t of ['XP total', 'Nivel', 'Retos superados', 'Por tipo (superados)', 'Días activos', 'Última vez', 'Cambio de orden', 'Ver historial', 'De retos:', 'Membresía activa', 'Sin membresía']) {
+  for (const t of ['XP total', 'Nivel ', 'Retos superados', 'Por tipo (superados)', 'Días activos', 'Última vez', 'Cambio de orden', 'Ver historial', 'XP de retos:', 'Membresía activa', 'Sin membresía']) {
     assert.ok(retos.includes(t), 'falta: ' + t);
   }
   assert.match(retos, /data-accion="ficha" data-uid=/, 'el historial se abre con la ficha');
