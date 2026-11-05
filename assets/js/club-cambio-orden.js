@@ -2,12 +2,12 @@
 /* CAMBIA EL ORDEN DE TU CALENDARIO · Cursos · Club VIP Zoorigen  */
 /*                                                                */
 /* Pinta el bloque "Cambia el orden de tu calendario" (avance de  */
-/* retos nuevos, 2 cambios en total), abre la ventana para elegir */
+/* retos nuevos; cuántos cambios hay lo manda el servidor), abre la ventana para elegir */
 /* un curso cerrado y manda la confirmación al servidor:          */
 /*   GET  /api/calendario/cambio-orden                            */
 /*   POST /api/calendario/cambiar-orden { cursoId, confirmar }    */
 /* Todo lo decide el servidor (retos nuevos, variedad por tipo,   */
-/* solo 2 cambios, solo cursos cerrados). Aquí no se calcula nada */
+/* cuántos cambios hay, solo cursos cerrados). Aquí no se calcula nada */
 /* que no se pueda comprobar allá. Los constructores de HTML      */
 /* viven en club-calendario.js (se prueban en Node).              */
 /* ============================================================ */
