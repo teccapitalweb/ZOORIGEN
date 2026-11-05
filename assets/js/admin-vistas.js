@@ -286,7 +286,7 @@
     return '<li class="ap-mi ap-mi--' + esc(m.estado) + '" data-uid="' + esc(m.uid) + '">' +
       '<span class="ap-mi__av"><span class="ap-avatar ap-avatar--' + esc(m.estado) + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span></span>' +
       '<div class="ap-mi__txt">' +
-      '<button type="button" class="ap-mi__nombre" data-accion="ficha" data-uid="' + esc(m.uid) + '">' + esc(m.nombre || 'Sin nombre') + (m.esAdmin ? ' <span class="ap-etiqueta">Admin</span>' : '') + '</button>' +
+      '<button type="button" class="ap-mi__nombre" data-accion="acciones" data-uid="' + esc(m.uid) + '">' + esc(m.nombre || 'Sin nombre') + (m.esAdmin ? ' <span class="ap-etiqueta">Admin</span>' : '') + '</button>' +
       '<span class="ap-mi__linea ap-mi__correo">' + ico('mail', { size: 14 }) + '<span class="ap-correo">' + esc(m.correo || 'Sin correo') + '</span></span>' +
       registro + '</div>' +
       '<div class="ap-mi__estado"><span class="ap-mi__insignias">' + P.insigniasMiembro(m) + '</span>' + (origen ? '<span class="ap-mi__origen">' + esc(origen) + '</span>' : '') + vence + '</div>' +
@@ -351,6 +351,7 @@
         recargar: function () { miembros(true); },
         mas: function () { estado.visibles += 25; pintarListaMiembros(); },
         ficha: function (b) { abrirFicha(b.dataset.uid); },
+        acciones: function (b) { abrirAcciones(b.dataset.uid); },
         activar: function (b) { abrirActivar(b.dataset.uid); },
         cancelar: function (b) { abrirCancelar(b.dataset.uid); },
         regalar: function (b) { abrirRegalar(b.dataset.uid); },
@@ -430,6 +431,165 @@
     if (elegido === 'activar') abrirActivar(uid);
     else if (elegido === 'regalar') abrirRegalar(uid);
     else if (elegido === 'eliminar') abrirEliminar(uid);
+  }
+
+  /* ───────── ACCIONES DEL MIEMBRO (ventana al tocar a una persona) ─────────
+     Reúne en un solo lugar lo que ya existía (ficha completa, activar o ampliar, regalar, eliminar con papelera de 30 días) y suma tres cosas:
+     ver el avance por curso (solo lectura), editar nombre, teléfono y especialidad, y quitar acceso. Ninguna toca Stripe. */
+
+  function estadoLinea(m) {
+    var plan = m.planTipo === 'anual' ? 'ANUAL' : m.planTipo === 'mensual' ? 'MENSUAL' : '';
+    var texto = {
+      activo: 'MIEMBRO ACTIVO', 'cancelado-vigente': 'CANCELADO CON ACCESO', 'pago-pendiente': 'PAGO PENDIENTE', vencido: 'MEMBRESÍA VENCIDA', 'sin-plan': 'SIN MEMBRESÍA', admin: 'ADMINISTRACIÓN'
+    }[m.estado] || (m.conAcceso ? 'MIEMBRO ACTIVO' : 'SIN MEMBRESÍA');
+    return texto + (plan && m.conAcceso !== false && m.estado !== 'sin-plan' ? ' · ' + plan : '');
+  }
+
+  function tarjetaAccion(id, icono, titulo, subtitulo, tono) {
+    return '<button type="button" class="ap-acc ap-acc--' + tono + '" data-modal="' + id + '"><span class="ap-acc__ic" aria-hidden="true">' + ico(icono, { size: 20 }) + '</span>' +
+      '<span class="ap-acc__t"><strong>' + esc(titulo) + '</strong><small>' + esc(subtitulo) + '</small></span></button>';
+  }
+
+  // Cuerpo de la ventana «Acciones del miembro» (puro: se prueba sin red)
+  function accionesMiembroHTML(m) {
+    var activo = m.conAcceso === true;
+    var cab = '<div class="ap-acc-cab"><span class="ap-avatar ap-avatar--grande ap-avatar--' + esc(m.estado) + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span>' +
+      '<div class="ap-acc-cab__t"><strong>' + esc(m.nombre || 'Sin nombre') + '</strong><span class="ap-correo">' + esc(m.correo || 'Sin correo') + '</span>' +
+      '<span class="ap-acc-cab__e ap-acc-cab__e--' + (activo ? 'ok' : 'no') + '">' + esc(estadoLinea(m)) + '</span></div></div>';
+    var t = [tarjetaAccion('progreso', 'chart-column', 'Ver progreso', 'Avance por curso', 'azul')];
+    t.push(tarjetaAccion('ficha', 'eye', 'Ver ficha completa', 'Plan, pagos, certificados, retos y cambios de orden', 'gris'));
+    if (!m.esAdmin) {
+      t.push(tarjetaAccion('editar', 'pencil', 'Editar datos', 'Nombre, teléfono y especialidad', 'verde'));
+      t.push(tarjetaAccion('regalar30', 'gift', 'Regalar 30 días', 'Suma 30 días al acceso actual', 'ambar'));
+      t.push(tarjetaAccion('activar', 'calendar-plus', activo ? 'Ampliar membresía' : 'Activar membresía', 'Pago fuera de Stripe, otro plan o más días', 'ambar'));
+      if (activo) t.push(tarjetaAccion('quitar', 'ban', 'Quitar acceso', 'Pasa la cuenta a sin membresía', 'rojo'));
+      t.push(tarjetaAccion('eliminar', 'trash-2', 'Eliminar miembro', 'Va a la papelera: se puede restaurar. Su avance se conserva', 'rojo'));
+    }
+    return cab + '<div class="ap-acc-lista">' + t.join('') + '</div>' +
+      '<p class="ap-acc-nota">Las activaciones manuales no registran un cobro: sirven para accesos de cortesía o ajustes. Los pagos reales los registra Stripe solo.</p>';
+  }
+
+  async function abrirAcciones(uid) {
+    var m = miembroLocal(uid);
+    if (!m) {
+      try { var r = await ctx.api('/api/admin/miembros/' + encodeURIComponent(uid)); m = r.miembro; estado.fichaActual = m; } catch (e) {
+        ctx.toast(e.status === 404 ? 'No encontramos a esa persona.' : (e.message || 'No se pudo abrir.'), true);
+        return;
+      }
+    }
+    var elegido = await modal({ titulo: 'Acciones del miembro', cuerpo: accionesMiembroHTML(m), botones: [], ancho: 'acciones' });
+    if (elegido === 'progreso') abrirProgreso(uid);
+    else if (elegido === 'ficha') abrirFicha(uid);
+    else if (elegido === 'editar') abrirEditar(uid);
+    else if (elegido === 'regalar30') abrirRegalar30(uid);
+    else if (elegido === 'activar') abrirActivar(uid);
+    else if (elegido === 'quitar') abrirQuitarAcceso(uid);
+    else if (elegido === 'eliminar') abrirEliminar(uid);
+  }
+
+  // Avance por curso: N/M clases y una barra por curso, de solo lectura (puro)
+  function avanceCursosHTML(avance, certificados) {
+    var lista = avance || [];
+    if (!lista.length) return '<p class="ap-nada">Todavía no hay cursos publicados.</p>';
+    var hechas = 0; var total = 0;
+    lista.forEach(function (c) { hechas += Math.min(c.clasesVistas, c.clasesTotal || c.clasesVistas); total += c.clasesTotal; });
+    var resumen = '<p class="ap-avance-res"><strong>' + esc(P.fmtNum(hechas)) + '</strong> clases completadas de ' + esc(P.fmtNum(total)) + ' · ' + esc(P.fmtNum((certificados || []).length)) + (certificados && certificados.length === 1 ? ' certificado' : ' certificados') + '</p>';
+    return resumen + '<ul class="ap-avance">' + lista.map(function (c) {
+      var pct = c.clasesTotal ? Math.max(0, Math.min(100, Math.round(c.clasesVistas / c.clasesTotal * 100))) : 0;
+      var listo = c.clasesTotal > 0 && c.clasesVistas >= c.clasesTotal;
+      return '<li class="ap-avance__fila' + (listo ? ' is-listo' : '') + '"><div class="ap-avance__t"><span>' + esc(c.curso) + '</span><b>' + esc(c.clasesVistas) + '/' + esc(c.clasesTotal) + (listo ? ' ' + ico('check', { size: 14 }) : '') + '</b></div>' +
+        '<div class="ap-avance__barra" role="progressbar" aria-label="Avance en ' + esc(c.curso) + '" aria-valuemin="0" aria-valuemax="' + esc(c.clasesTotal) + '" aria-valuenow="' + esc(c.clasesVistas) + '"><i style="width:' + pct + '%"></i></div></li>';
+    }).join('') + '</ul>';
+  }
+
+  async function abrirProgreso(uid) {
+    var r;
+    try { r = await ctx.api('/api/admin/miembros/' + encodeURIComponent(uid)); } catch (e) { ctx.toast(e.message || 'No se pudo cargar el avance.', true); return; }
+    var m = r.miembro;
+    var elegido = await modal({
+      titulo: 'Avance de ' + (m.nombre || m.correo || 'este miembro'),
+      cuerpo: avanceCursosHTML(r.avance || [], r.certificados) + '<p class="ap-acc-nota">Solo lectura: aquí se ve lo que la persona ha completado; no se puede cambiar desde el panel.</p>',
+      botones: [{ id: 'volver', texto: 'Volver', tipo: 'suave' }, { id: 'cerrar', texto: 'Cerrar', tipo: 'primario' }], ancho: 'acciones'
+    });
+    if (elegido === 'volver') abrirAcciones(uid);
+  }
+
+  async function abrirEditar(uid) {
+    var r;
+    try { r = await ctx.api('/api/admin/miembros/' + encodeURIComponent(uid)); } catch (e) { ctx.toast(e.message || 'No se pudo abrir la ficha.', true); return; }
+    var m = r.miembro;
+    var cuerpo = '<p class="ap-modal__texto">Cambia los datos de contacto de <strong>' + esc(m.nombre || m.correo || 'esta persona') + '</strong>. El correo no se edita desde aquí.</p>' +
+      '<div class="ap-campo"><label for="apEdNombre">Nombre</label><input type="text" id="apEdNombre" data-foco maxlength="80" autocomplete="off" value="' + esc(m.nombre || '') + '"></div>' +
+      '<div class="ap-campo"><label for="apEdTel">Teléfono <small>(opcional)</small></label><input type="tel" id="apEdTel" maxlength="30" inputmode="tel" autocomplete="off" value="' + esc(m.telefono || '') + '"></div>' +
+      '<div class="ap-campo"><label for="apEdEsp">Especialidad <small>(opcional)</small></label><input type="text" id="apEdEsp" maxlength="80" autocomplete="off" value="' + esc(m.especialidad || '') + '"></div>' +
+      '<p class="ap-error" id="apEdError" role="alert" hidden></p>';
+    var hecho = await modal({
+      titulo: 'Editar datos', cuerpo: cuerpo,
+      botones: [{ id: 'cerrar', texto: 'Cancelar', tipo: 'suave' }, { id: 'guardar', texto: 'Guardar', tipo: 'primario' }],
+      alElegir: async function (id, caja, cerrar) {
+        if (id !== 'guardar') return cerrar(null);
+        var err = caja.querySelector('#apEdError'); var boton = caja.querySelector('[data-modal="guardar"]');
+        boton.disabled = true; err.hidden = true;
+        try {
+          cerrar(await ctx.api('/api/admin/miembros/' + encodeURIComponent(uid) + '/datos', { method: 'POST', body: {
+            nombre: caja.querySelector('#apEdNombre').value, telefono: caja.querySelector('#apEdTel').value, especialidad: caja.querySelector('#apEdEsp').value
+          } }));
+        } catch (e) { err.textContent = e.message || 'No se pudieron guardar los datos.'; err.hidden = false; boton.disabled = false; }
+      }
+    });
+    if (hecho && hecho.ok) { ctx.toast('Datos guardados.'); await recargarSiMiembros(); }
+  }
+
+  async function abrirRegalar30(uid) {
+    var m = miembroLocal(uid) || { nombre: '', correo: '' };
+    var base = m.conAcceso && m.vence && new Date(m.vence).getTime() > Date.now() ? new Date(m.vence) : new Date();
+    var nuevo = P.fmtFecha(new Date(base.getTime() + 30 * 86400000).toISOString());
+    var cuerpo = '<p class="ap-modal__texto">Le regalarás <strong>30 días</strong> de acceso a <strong>' + esc(m.nombre || m.correo || 'esta persona') + '</strong>. ' +
+      (m.conAcceso && m.vence ? 'Se suman a su vencimiento actual y quedará hasta el <strong>' + esc(nuevo) + '</strong>.' : 'Empieza hoy porque ahora no tiene acceso vigente; quedará hasta el <strong>' + esc(nuevo) + '</strong>.') +
+      ' No cuenta como pago y no toca Stripe.</p>' +
+      (m.stripeActiva ? '<div class="ap-aviso ap-aviso--error" role="note">' + ico('triangle-alert', { size: 20 }) + '<div><strong>Sigue cobrándose en Stripe</strong><p>Esta persona tiene una suscripción de Stripe activa. El regalo no la detiene y, en su próximo cobro, Stripe vuelve a fijar la fecha de vencimiento.</p></div></div>' : '') +
+      '<p class="ap-error" id="apR30Error" role="alert" hidden></p>';
+    var hecho = await modal({
+      titulo: 'Regalar 30 días', cuerpo: cuerpo,
+      botones: [{ id: 'cerrar', texto: 'Cancelar', tipo: 'suave' }, { id: 'guardar', texto: 'Sí, regalar 30 días', tipo: 'primario' }],
+      alElegir: async function (id, caja, cerrar) {
+        if (id !== 'guardar') return cerrar(null);
+        var err = caja.querySelector('#apR30Error'); var boton = caja.querySelector('[data-modal="guardar"]');
+        boton.disabled = true; err.hidden = true;
+        try { cerrar(await ctx.api('/api/admin/miembros/' + encodeURIComponent(uid) + '/regalar', { method: 'POST', body: { dias: 30, nota: 'Regalo de 30 días desde Acciones del miembro' } })); }
+        catch (e) { err.textContent = e.message || 'No se pudo regalar el acceso.'; err.hidden = false; boton.disabled = false; }
+      }
+    });
+    if (hecho && hecho.ok) { ctx.toast('Se regalaron 30 días. Vence el ' + P.fmtFecha(hecho.vence) + '.' + (hecho.stripeActiva ? ' Ojo: sigue cobrándose en Stripe.' : '')); await recargarSiMiembros(); }
+  }
+
+  async function abrirQuitarAcceso(uid) {
+    var m = miembroLocal(uid) || { nombre: '', correo: '' };
+    var cuerpo = '<p class="ap-modal__texto">Vas a quitarle el acceso a <strong>' + esc(m.nombre || m.correo || 'esta persona') + '</strong>.</p>' +
+      '<div class="ap-peligro"><strong>La cuenta pasa a «sin membresía» ahora mismo</strong><ul>' +
+      '<li>Deja de ver los cursos y el material del Club de inmediato.</li>' +
+      '<li>La cuenta, su avance y sus certificados se conservan.</li>' +
+      '<li>Si después le regalas o le activas un plan, recupera el acceso.</li></ul></div>' +
+      (m.stripeActiva ? '<div class="ap-aviso ap-aviso--error" role="alert">' + ico('triangle-alert', { size: 20 }) + '<div><strong>Tiene una suscripción de Stripe activa</strong><p>Quitar el acceso aquí NO detiene los cobros ni cancela la suscripción, y Stripe podría volver a darle acceso en su próximo cobro. Primero cancélala en Stripe y después quita el acceso desde aquí.</p></div></div>' : '') +
+      '<label class="ap-casilla"><input type="checkbox" id="apQuitarOk"' + (m.stripeActiva ? ' disabled' : '') + '><span>Entiendo que pierde el acceso al instante.</span></label>' +
+      '<p class="ap-error" id="apQuitarError" role="alert" hidden></p>';
+    var hecho = await modal({
+      titulo: 'Quitar acceso', cuerpo: cuerpo,
+      alAbrir: function (caja) {
+        var ok = caja.querySelector('#apQuitarOk'); var boton = caja.querySelector('[data-modal="quitar"]');
+        boton.disabled = true;
+        ok.addEventListener('change', function () { boton.disabled = !ok.checked; });
+      },
+      botones: [{ id: 'cerrar', texto: 'Mejor no', tipo: 'suave' }, { id: 'quitar', texto: 'Quitar acceso', tipo: 'peligro' }],
+      alElegir: async function (id, caja, cerrar) {
+        if (id !== 'quitar') return cerrar(null);
+        var err = caja.querySelector('#apQuitarError'); var boton = caja.querySelector('[data-modal="quitar"]');
+        boton.disabled = true; err.hidden = true;
+        try { cerrar(await ctx.api('/api/admin/miembros/' + encodeURIComponent(uid) + '/quitar-acceso', { method: 'POST', body: { confirmar: true } })); }
+        catch (e) { err.textContent = e.message || 'No se pudo quitar el acceso.'; err.hidden = false; boton.disabled = false; }
+      }
+    });
+    if (hecho && hecho.ok) { ctx.toast('Acceso quitado: la cuenta pasó a sin membresía.'); await recargarSiMiembros(); }
   }
 
   async function abrirActivar(uid) {
@@ -1467,6 +1627,8 @@
     referidos: referidos, configuracion: configuracion, avance: avanceMiembros,
     agregarVerificadorFolio: agregarVerificadorFolio, modal: modal, confirmar: confirmar,
     abrirFicha: function (uid) { return abrirFicha(uid); },
+    abrirAcciones: function (uid) { return abrirAcciones(uid); },
+    miembroUI: { accionesHTML: accionesMiembroHTML, avanceHTML: avanceCursosHTML, estadoLinea: estadoLinea },
     // Piezas que reutilizan las vistas de Marketing (admin-marketing.js)
     util: {
       contexto: function () { return ctx; }, vista: vista, cargando: cargando, errorHTML: errorHTML, vacio: vacio, kpi: kpi, tarjeta: tarjeta,
