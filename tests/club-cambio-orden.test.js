@@ -161,7 +161,7 @@ test('el módulo del navegador usa los dos endpoints, pide confirmación explíc
 test('Cursos: línea corta, orden por desbloqueo y carátulas; Logros: el bloque completo; Retos: NADA de este bloque', () => {
   const cursos = leer('pages/club-biblioteca.html');
   assert.match(cursos, /<div id="cambioOrden"><\/div>/);
-  assert.match(cursos, /club-cambio-orden\.js\?v=20261111-libres/);
+  assert.match(cursos, /club-cambio-orden\.js\?v=20261119-uncambio/);
   assert.match(cursos, /modo: 'linea'/, 'en Cursos solo la línea corta');
   assert.match(cursos, /alVer:/, 'el botón Cambiar abre la página de ese curso');
   assert.match(cursos, /alCambiar:[\s\S]{0,400}render\(/, 'después del cambio se vuelven a pintar los cursos');
@@ -417,4 +417,71 @@ test('estilos: la fila "Cualquier tipo" cabe en celular (etiqueta sin partir) y 
   const css = leer('assets/css/club-calendario.css');
   assert.match(css, /\.zco \.zcal-tipos \{ grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
   assert.match(css, /\.zco \.zcal-tipo__n, \.zco-oferta \.zcal-tipo__n \{[^}]*white-space: nowrap/);
+});
+
+/* ───────────── Un solo cambio (el modo de salida; con 2 se amplía desde el servidor) ───────────── */
+
+const uno = (extra = {}) => resp({ maximo: 1, tramos: [{ n: 1, total: 35, porTipo: 8, libres: { hechos: 0, meta: 11 } }], xpInsignias: { 1: 40, 2: 0 }, ...extra });
+
+test('un cambio: el modelo toma maximo y tramos del servidor (no los tiene escritos a fuego) y solo hay un tramo', () => {
+  const co = CAL.cambioOrden(uno());
+  assert.equal(co.maximo, 1);
+  assert.equal(co.tramos.length, 1);
+  assert.deepEqual([co.tramos[0].n, co.tramos[0].total, co.tramos[0].porTipo], [1, 35, 8]);
+  assert.equal(co.siguiente.n, 1);
+  // aunque el servidor no mande maximo, 1 tramo = 1 cambio; y con maximo 2 reaparece el segundo sin tocar código
+  assert.equal(CAL.cambioOrden(resp({ maximo: undefined, tramos: [{ n: 1, total: 35, porTipo: 8 }] })).maximo, 1);
+  const dos = CAL.cambioOrden(resp({ maximo: 2, tramos: [{ n: 1, total: 35, porTipo: 8 }, { n: 2, total: 55, porTipo: 14 }] }));
+  assert.deepEqual(dos.tramos.map(t => t.total), [35, 55]);
+  // usado el único cambio: completo, sin siguiente y sin oferta
+  const hecho = CAL.cambioOrden(uno({ usados: 1 }));
+  assert.equal(hecho.completo, true);
+  assert.equal(hecho.siguiente, null);
+  assert.equal(hecho.disponible, false);
+});
+
+test('un cambio: el bloque de Logros dice "1 cambio en total", tiene UNA tarjeta ("Tu cambio") y no menciona el segundo cambio ni el 55', () => {
+  const html = CAL.cambioOrdenHTML(CAL.cambioOrden(uno()), { modo: 'cursos', hrefRetos: 'club-retos.html' });
+  assert.match(html, /1 cambio en total\. Tú eliges qué curso se abre antes\./);
+  assert.equal((html.match(/<li class="zco-tj/g) || []).length, 1, 'una sola tarjeta');
+  assert.match(html, /<b>Tu cambio<\/b>/);
+  assert.match(html, /35 retos<\/span>/);
+  assert.equal((html.match(/<li class="zcal-tipo/g) || []).length, 4, 'Quiz, Detective, Ordena y Cualquier tipo');
+  assert.match(html, /Cualquier tipo<\/span>/);
+  assert.match(html, /<b>35 de 35<\/b> retos nuevos/);
+  assert.equal(/55|Cambio 2|segundo|2 cambios|XP|insignia/i.test(html), false, 'nada del segundo cambio: ' + (html.match(/.{0,30}(55|Cambio 2|segundo|2 cambios).{0,30}/) || [''])[0]);
+});
+
+test('un cambio: "Cómo funciona" se ajusta (35 retos, 8 de cada tipo, 11 libres, un solo cambio) sin hablar del segundo', () => {
+  const det = CAL.comoFuncionaHTML(CAL.cambioOrden(uno())).match(/<details[\s\S]*<\/details>/)[0];
+  assert.match(det, /Pide 35 retos nuevos del camino, con mínimo 8 de cada tipo\./);
+  assert.match(det, /«Cualquier tipo» son los retos que pasan de ese mínimo: 11\./);
+  assert.equal(/55|14|segundo|primer cambio|XP|insignia/i.test(det), false);
+  assert.ok((det.match(/<li>/g) || []).length <= 7);
+  // con 2 cambios el desplegable vuelve a hablar de los dos
+  const det2 = CAL.comoFuncionaHTML(CAL.cambioOrden(resp({ maximo: 2, tramos: [{ n: 1, total: 35, porTipo: 8 }, { n: 2, total: 55, porTipo: 14 }] }))).match(/<details[\s\S]*<\/details>/)[0];
+  assert.match(det2, /35 el primero y 55 el segundo, con mínimo 8 y 14 de cada tipo/);
+  assert.match(det2, /11 en el primer cambio y 13 en el segundo/);
+});
+
+test('un cambio: usado el cambio, Logros queda en "Hecho" (con "Ya usaste tu cambio"), Cursos no muestra la línea y la página del curso no ofrece nada', () => {
+  const co = CAL.cambioOrden(uno({ usados: 1, cambios: [{ n: 1, cursoId: 'c3', titulo: 'Aves rapaces', en: '2026-11-05T10:00:00.000Z' }] }));
+  const html = CAL.cambioOrdenHTML(co, { modo: 'cursos' });
+  assert.match(html, /is-hecho/);
+  assert.match(html, />Hecho</);
+  assert.match(html, /Ya usaste tu cambio\./);
+  assert.equal(/Usaste tus|data-zco="elegir"/.test(html), false);
+  assert.match(html, /Tu cambio: «Aves rapaces»/);
+  assert.equal(CAL.cambioOrdenLineaHTML(co), '', 'sin línea en Cursos');
+  assert.equal(CAL.cambioOrdenOfertaHTML(co, 'c2'), '', 'sin oferta en la página del curso');
+});
+
+test('un cambio: la oferta del curso y la ventana dicen "Tu cambio" (sin "Cambio 1 de 1")', () => {
+  const co = CAL.cambioOrden(uno({ contados: { quiz: 20, detective: 8, orden: 8 }, disponible: true }));
+  const oferta = CAL.cambioOrdenOfertaHTML(co, 'c2');
+  assert.match(oferta, /Tu cambio · 35 retos nuevos \(mínimo 8 de cada tipo\)/);
+  assert.equal(/1 de 1/.test(oferta), false);
+  const modal = CAL.cambioOrdenModalHTML(co, {});
+  assert.match(modal, /<p class="zcal-eyebrow">Tu cambio<\/p>/);
+  assert.equal(/1 de 1/.test(modal), false);
 });
