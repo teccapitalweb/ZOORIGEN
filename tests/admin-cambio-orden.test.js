@@ -184,8 +184,12 @@ test('estilos y versiones: iconos Lucide del panel, colores sólidos, sin emojis
   assert.equal(html.match(/admin-panel\.js\?v=([\w-]+)/)[1], v);
 });
 
-test('en celular la lista de quién usó el cambio se vuelve tarjetas con cada dato rotulado (sin barra lateral ni columnas cortadas)', () => {
-  assert.match(vistasJs, /ap-tabla ap-tabla--simple ap-tabla--cambios/);
-  assert.match(css, /@container tabla \(max-width: 639px\) \{\s*\.ap-tabla--cambios, \.ap-tabla--cambios tbody \{ display: block/);
-  assert.match(css, /\.ap-tabla--cambios td:not\(:first-child\)::before \{ content: attr\(data-label\)/);
+test('en celular la lista sigue compacta: el contenedor esconde las columnas de fecha y retos y su resumen sale bajo el nombre', async () => {
+  const { elementos } = await abrir(cambios());
+  const lista = elementos.apCOLista.innerHTML;
+  assert.match(lista, /<th scope="col" class="ap-col-2">Fecha y hora<\/th><th scope="col" class="ap-col-2">Retos al cambiar<\/th>/);
+  assert.match(lista, /ap-sub ap-solo-estrecho">[^<]*· 50 retos nuevos \(Quiz 22, Detective 14, Ordena 14\)/);
+  assert.match(css, /\.ap-solo-estrecho \{ display: none; \}/);
+  assert.match(css, /@container tabla \(max-width: 899px\) \{\s*\.ap-solo-estrecho \{ display: block; \}/);
+  assert.doesNotMatch(css.slice(css.indexOf('ap-solo-estrecho')), /attr\(data-label\)/, 'sin pasar a tarjetas grandes');
 });
