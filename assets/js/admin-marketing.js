@@ -157,7 +157,7 @@
     });
     var graficas = selectorAgrupar(modo) +
       card('Actividad del Club', actividad, 'Pruebas, certificados y pagos juntos (las cuentas nuevas están en la pestaña Visitas). Pasa el cursor o toca la gráfica para ver cada valor.') +
-      '<div class="ap-columnas">' +
+      '<div class="ap-columnas vz-cols3">' +
       card('Ingresos estimados', G.serie({ titulo: 'Ingresos estimados', tipo: 'barras', formato: 'mxn', unidad: 'estimados', etiquetas: si.etiquetas, titulos: si.titulos,
         series: [{ nombre: 'Ingresos estimados (MXN)', valores: si.valores, color: 3 }], vacio: { titulo: 'Sin pagos en este periodo', texto: 'Cuando haya pagos aparecerá la estimación.' } }), d.notas.ingresos) +
       card('Pruebas gratuitas elegidas', G.serie({ titulo: 'Pruebas gratuitas elegidas', tipo: 'area', unidad: 'pruebas elegidas', etiquetas: sp.etiquetas, titulos: sp.titulos,
@@ -239,22 +239,25 @@
       vacio: { titulo: 'Sin registros', texto: 'Cuando haya cuentas aparecerán por mes.' }
     }) : '';
 
+    var cCuentas = card('Cuentas hoy', '<div class="vz-dobles-zona"><div class="vz-dobles"><div>' + estados + '</div><div>' + planes + '</div></div></div><p class="ap-nota">Retención: ' + esc(d.notas.retencion) + '</p>', 'Cómo se reparten las ' + num(c.total) + ' cuentas.');
+    var cCuando = card('Cuándo se mueve el Club', mapa + '<p class="ap-nota">' + esc(ac.nota) + '</p>', 'Altas, pruebas, certificados, pagos y retos por día y hora de México. Más oscuro es más actividad.');
+    var cDia = card('Qué día se mueve más', porDia, ac.horaPico === null ? 'Sin actividad en el periodo.' : 'La hora con más movimiento es ' + ac.horaPico + ':00.');
+    var cPrueba = card('De prueba gratuita a miembro', conversion, 'Cuántas personas que eligieron su curso de prueba terminaron con membresía.');
+    var cConversion = card('Conversión y retención por mes', cohortesGrafica || vacio('Sin registros todavía', 'Cuando haya cuentas nuevas aparecerá cada mes aquí.', 'users'), 'De cada mes de registro: qué parte tuvo membresía y qué parte conserva el acceso.');
+    var cCohortes = card('Cohortes por mes de registro', cohortesHTML(d.cohortes) + (d.cohortes.length ? '<div class="ap-acciones-lote"><button type="button" class="ap-btn ap-btn--suave" data-accion="csv-cohortes">' + ico('download', { size: 16 }) + 'Descargar cohortes (CSV)</button></div>' : ''), 'De cada mes: cuántos se registraron, cuántos tuvieron membresía y cuántos tienen acceso hoy.');
+    var cElegidos = card('Cursos más elegidos como prueba', rankingCursos(d.cursos.masElegidos, 'Cursos más elegidos como prueba', 'Nadie ha elegido prueba', 'Cuando alguien elija su curso aparecerá aquí.', 2, d.cursos.totales && d.cursos.totales.elegidos, 'pruebas elegidas'), 'Toda la historia, no solo el periodo.');
+    var cCompletados = card('Cursos más completados', rankingCursos(d.cursos.masCompletados, 'Cursos más completados', 'Aún no hay cursos completados', 'Cuando alguien termine un curso aparecerá aquí.', 1, d.cursos.totales && d.cursos.totales.completados, 'cursos terminados'), 'Certificados y cursos terminados.');
+    var cEmpezados = card('Cursos más empezados', rankingCursos(d.cursos.masEmpezados, 'Cursos más empezados', 'Nadie ha empezado un curso', 'El avance de los miembros aparecerá aquí.', 3, d.cursos.totales && d.cursos.totales.empezados, 'personas'), 'Cuántas personas vieron al menos una clase de cada curso.');
+    var cRetos = card('Retos y XP', retos, d.notas.retos);
+
+    // Filas de tarjetas parejas, sin huecos: cada fila junta tarjetas de forma y alto parecidos (ver admin-visitas.css, «Filas de tarjetas de Métricas»)
     return titulo + barraRango(d, u) + kpis + graficas +
-      '<div class="ap-columnas">' + embudoCard +
-      card('Cuentas hoy', estados + '<div class="ap-separador"></div>' + planes + '<p class="ap-nota">Retención: ' + esc(d.notas.retencion) + '</p>', 'Cómo se reparten las ' + num(c.total) + ' cuentas.') + '</div>' +
-      '<div class="ap-columnas">' +
-      card('Cuándo se mueve el Club', mapa + '<p class="ap-nota">' + esc(ac.nota) + '</p>', 'Altas, pruebas, certificados, pagos y retos por día y hora de México. Más oscuro es más actividad.') +
-      card('Qué día se mueve más', porDia, ac.horaPico === null ? 'Sin actividad en el periodo.' : 'La hora con más movimiento es ' + ac.horaPico + ':00.') + '</div>' +
-      '<div class="ap-columnas">' +
-      card('De prueba gratuita a miembro', conversion, 'Cuántas personas que eligieron su curso de prueba terminaron con membresía.') +
-      card('Conversión y retención por mes', cohortesGrafica || vacio('Sin registros todavía', 'Cuando haya cuentas nuevas aparecerá cada mes aquí.', 'users'), 'De cada mes de registro: qué parte tuvo membresía y qué parte conserva el acceso.') + '</div>' +
-      card('Cohortes por mes de registro', cohortesHTML(d.cohortes) + (d.cohortes.length ? '<div class="ap-acciones-lote"><button type="button" class="ap-btn ap-btn--suave" data-accion="csv-cohortes">' + ico('download', { size: 16 }) + 'Descargar cohortes (CSV)</button></div>' : ''), 'De cada mes: cuántos se registraron, cuántos tuvieron membresía y cuántos tienen acceso hoy.') +
-      '<div class="ap-columnas">' +
-      card('Cursos más elegidos como prueba', rankingCursos(d.cursos.masElegidos, 'Cursos más elegidos como prueba', 'Nadie ha elegido prueba', 'Cuando alguien elija su curso aparecerá aquí.', 2, d.cursos.totales && d.cursos.totales.elegidos, 'pruebas elegidas'), 'Toda la historia, no solo el periodo.') +
-      card('Cursos más completados', rankingCursos(d.cursos.masCompletados, 'Cursos más completados', 'Aún no hay cursos completados', 'Cuando alguien termine un curso aparecerá aquí.', 1, d.cursos.totales && d.cursos.totales.completados, 'cursos terminados'), 'Certificados y cursos terminados.') +
-      '</div>' +
-      card('Cursos más empezados', rankingCursos(d.cursos.masEmpezados, 'Cursos más empezados', 'Nadie ha empezado un curso', 'El avance de los miembros aparecerá aquí.', 3, d.cursos.totales && d.cursos.totales.empezados, 'personas'), 'Cuántas personas vieron al menos una clase de cada curso.') +
-      card('Retos y XP', retos, d.notas.retos);
+      '<div class="ap-columnas vz-cols2">' + embudoCard + cPrueba + '</div>' +
+      cCuentas +
+      '<div class="ap-columnas vz-cols2">' + cCuando + cDia + '</div>' +
+      '<div class="ap-columnas vz-cols2">' + cConversion + cCohortes + '</div>' +
+      '<div class="ap-columnas vz-cols3">' + cElegidos + cCompletados + cEmpezados + '</div>' +
+      cRetos;
   }
 
   /* ───────────────────────── PRUEBAS GRATUITAS ───────────────────────── */

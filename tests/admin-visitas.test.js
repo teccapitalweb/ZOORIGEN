@@ -155,7 +155,7 @@ test('quiénes entraron: solo los que tuvieron actividad en el periodo, por visi
 test('la pantalla trae todas las secciones de la referencia, en su orden, con los textos de Zoorigen', () => {
   const h = VZ.paginaHTML(datos(), ui({ rango: '30' }));
   const orden = ['Visitas', 'Personas distintas', 'Cuentas nuevas', 'Promedio por día', 'Visitas día a día', 'Visitas por periodo', '¿De dónde vienen tus miembros?',
-    'Redes sociales · ¿cuánta gente llega de cada una?', 'Redes sociales a lo largo del tiempo', '¿Qué día entra más gente?', 'Mapa de calor · día y hora', 'Países', 'Dispositivos', 'Cómo llegan al sitio', 'Páginas más vistas', 'Quiénes entraron al panel'];
+    'Redes sociales · ¿cuánta gente llega de cada una?', 'Redes sociales a lo largo del tiempo', '¿Qué día entra más gente?', 'Mapa de calor · día y hora', 'Países', 'Páginas más vistas', 'Dispositivos', 'Cómo llegan al sitio', 'Quiénes entraron al panel'];
   let desde = 0;
   for (const t of orden) { const i = h.indexOf(t, desde); assert.ok(i >= 0, 'falta o está fuera de orden: ' + t); desde = i; }
   assert.match(h, /Cuánta gente visita Zoorigen, desde dónde llega y de qué red social salen tus miembros\. Conteo anónimo y sin cookies/);

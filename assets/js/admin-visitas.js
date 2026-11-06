@@ -351,7 +351,7 @@
         vacio: { titulo: 'Sin redes en este periodo', texto: 'Cuando alguien llegue desde una red social aparecerá aquí.' }
       })
       : vacioRedes;
-    return '<div class="ap-columnas">' + card('Redes sociales · ¿cuánta gente llega de cada una?', cuerpo1, sub1) + card('Redes sociales a lo largo del tiempo', cuerpo2, esc(sub2)) + '</div>';
+    return '<div class="ap-columnas vz-cols2">' + card('Redes sociales · ¿cuánta gente llega de cada una?', cuerpo1, sub1) + card('Redes sociales a lo largo del tiempo', cuerpo2, esc(sub2)) + '</div>';
   }
 
   function semanaHTML(m) {
@@ -366,9 +366,17 @@
       columnas: Array.apply(null, Array(24)).map(function (_, h) { return h + 'h'; }), mostrarCada: 6,
       vacio: { titulo: 'Sin visitas en este periodo', texto: 'Cuando entre gente verás a qué hora llega.' }
     });
-    return '<div class="ap-columnas">' +
+    return '<div class="ap-columnas vz-cols2">' +
       card('¿Qué día entra más gente?', graf, 'Promedio de visitas por día de la semana en el periodo.' + (m.mejorDia >= 0 ? ' El más fuerte: <strong>' + DIAS[m.mejorDia] + '</strong>.' : '')) +
       card('Mapa de calor · día y hora', calor, 'Cuándo entra la gente (hora de México). Más oscuro = más visitas.') + '</div>';
+  }
+
+  // Las partes más grandes y, juntas, todas las demás como «Otros» (gris), para que la leyenda no crezca sin límite
+  function conOtros(partes, max) {
+    var l = partes.slice().sort(function (a, b) { return b.valor - a.valor; });
+    if (l.length <= max) return partes;
+    var resto = l.slice(max - 1).reduce(function (t, p) { return t + p.valor; }, 0);
+    return l.slice(0, max - 1).concat([{ etiqueta: 'Otros', valor: resto, color: 8 }]);
   }
 
   function trioHTML(m) {
@@ -386,10 +394,12 @@
     });
     var llegan = G.anillo({
       titulo: 'Cómo llegan al sitio', centro: { valor: num(suma(m.fuentes, function (x) { return x.n; })), rotulo: 'PERSONAS' },
-      partes: m.fuentes.map(function (x) { return { etiqueta: NOMBRE_FUENTE[x.k], valor: x.n, color: COLOR_FUENTE[x.k] }; }),
+      partes: conOtros(m.fuentes.map(function (x) { return { etiqueta: NOMBRE_FUENTE[x.k], valor: x.n, color: COLOR_FUENTE[x.k] }; }), 6),
       vacio: { titulo: 'Sin datos en este periodo', texto: 'Cuando entre gente verás por dónde llegó.' }
     });
-    return '<div class="ap-columnas vz-trio">' + card('Países', paises, subPaises) + card('Dispositivos', disp, 'Desde qué aparato entra la gente.') +
+    // Parejas del mismo tipo para que las alturas se parezcan: barras con barras (Países y Páginas) y donas con donas (Dispositivos y Cómo llegan)
+    return '<div class="ap-columnas vz-cols2">' + card('Países', paises, subPaises) + paginasHTML(m) + '</div>' +
+      '<div class="ap-columnas vz-cols2">' + card('Dispositivos', disp, 'Desde qué aparato entra la gente.') +
       card('Cómo llegan al sitio', llegan, 'Por dónde entró cada persona en su primera visita del día.') + '</div>';
   }
 
@@ -466,8 +476,7 @@
         ? 'El contador está apagado. Enciéndelo en Configuración (Contador de visitas) y, en cuanto entre la primera persona al sitio, verás aquí las gráficas; el historial se irá guardando solo, día tras día.'
         : 'El contador ya está encendido. En cuanto entre la primera persona al sitio verás aquí las gráficas, y el historial se irá guardando solo, día tras día.', 'globe') + '</div>';
     }
-    return cab + barra + kpisHTML(m) + principalHTML(m) + registroHTML(ui, m) + atribucionHTML(m) + redesHTML(m) + semanaHTML(m) + trioHTML(m) +
-      '<div class="ap-columnas">' + paginasHTML(m) + quienesHTML(m) + '</div>';
+    return cab + barra + kpisHTML(m) + principalHTML(m) + registroHTML(ui, m) + atribucionHTML(m) + redesHTML(m) + semanaHTML(m) + trioHTML(m) + quienesHTML(m);
   }
 
   /* ───────────────────────── CSV ───────────────────────── */

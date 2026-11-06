@@ -61,7 +61,6 @@
 .vz-card--destacada { border-color: var(--zg-1); }
 .vz-nota { margin: 12px 0 0; font-size: .84rem; line-height: 1.5; color: var(--c-text-2); }
 .vz-nota code { padding: 1px 6px; border-radius: 6px; background: var(--c-line-soft); font-size: .82rem; }
-.vz-trio { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
 
 /* «Visitas por periodo» */
 .vz-log__cab { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
@@ -137,3 +136,45 @@
 /* Los anillos (dispositivos, cómo llegan) van con la leyenda debajo: en tarjetas angostas la leyenda no se parte letra por letra */
 .vz-card .zg-anillo__fila { grid-template-columns: minmax(0, 1fr); justify-items: center; }
 .vz-card .zg-anillo__leyenda { width: 100%; }
+
+/* ── Filas de tarjetas de «Métricas» (pestañas Visitas y Negocio) ──
+   El ancho que manda es el del CONTENEDOR (el panel tiene barra lateral, así que el ancho útil es menor que el de la ventana).
+   · vz-cols2: dos tarjetas por fila (una debajo de otra en pantallas angostas).
+   · vz-cols3: tres por fila; en ancho medio, dos y la tercera ocupa toda la fila (nunca queda un hueco a un lado).
+   · Las tarjetas de una misma fila miden lo mismo (align-items: stretch) y el contenido de las gráficas se reparte al centro del alto,
+     así ni con pocos datos ni con muchos se ven huecos grandes ni tarjetas desparejas. */
+#vzCuerpo { container: vz / inline-size; }
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+#vzCuerpo .ap-columnas.vz-cols3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) > .ap-card { display: flex; flex-direction: column; min-width: 0; }
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) > .ap-card > .ap-card__cuerpo { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-start; min-width: 0; }
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) > .ap-card > .ap-card__cuerpo:has(.zg, .zg-anillo, .zg-bh, .zg-hm, .zs-vacio) { justify-content: center; }
+#vzCuerpo .ap-card__cuerpo > * { min-width: 0; }
+#vzCuerpo .zs-vacio { padding-block: 18px; }
+@container vz (max-width: 939px) {
+  #vzCuerpo .ap-columnas.vz-cols3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #vzCuerpo .ap-columnas.vz-cols3 > .ap-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@container vz (max-width: 759px) {
+  #vzCuerpo .ap-columnas:not(.ap-columnas--interna), #vzCuerpo .ap-columnas.vz-cols3 { grid-template-columns: minmax(0, 1fr); }
+  #vzCuerpo .ap-columnas.vz-cols3 > .ap-card:last-child:nth-child(odd) { grid-column: auto; }
+}
+/* «Quiénes entraron al panel»: en ancho de sobra, dos personas por renglón */
+@container vz (min-width: 900px) {
+  .vz-quienes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; }
+}
+
+/* Listas, barras y mapa de calor dentro de una tarjeta de fila: ocupan todo el alto y reparten su contenido parejo (sin huecos abajo) */
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) > .ap-card > .ap-card__cuerpo > .zg-bh,
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) > .ap-card > .ap-card__cuerpo > .zg-rk,
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) > .ap-card > .ap-card__cuerpo > .zg-hm { flex: 1 1 auto; display: flex; flex-direction: column; margin: 0; }
+#vzCuerpo .zg-bh__lista, #vzCuerpo .zg-rk__lista, #vzCuerpo .vz-paginas { flex: 1 1 auto; align-content: space-evenly; }
+#vzCuerpo .ap-card__cuerpo > .vz-paginas { flex: 1 1 auto; }
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) .zg-hm__rejilla { flex: 1 1 auto; grid-auto-rows: minmax(16px, 1fr); }
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) .zg-hm__c { aspect-ratio: auto; height: 100%; min-height: 14px; }
+#vzCuerpo .ap-columnas:not(.ap-columnas--interna) .zg-hm__escala .zg-hm__c { height: 14px; min-height: 14px; }
+/* «Cuentas hoy» (dos donas) lleva su propia zona: con 640 px o más van lado a lado, si no, una debajo de la otra */
+.vz-dobles-zona { container: vzd / inline-size; }
+.vz-dobles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px 24px; }
+.vz-dobles > div { min-width: 0; }
+@container vzd (min-width: 640px) { .vz-dobles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
