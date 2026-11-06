@@ -195,6 +195,153 @@
     return 'Causa más común: ' + m.texto + ' (' + m.n + ' de ' + a.total + ')';
   }
 
+  /* ───────────────────────── Usuarios activos (miembros con acceso vigente) ───────────────────────── */
+  var INI_ACTIVOS = 10, PASO_ACTIVOS = 15;
+  var PLANES_ACTIVOS = [['todos', 'Todos'], ['mensual', 'Mensual'], ['anual', 'Anual'], ['regalo', 'Regalo']];
+  var ORIGENES_ACTIVOS = [['todos', 'Todos'], ['stripe', 'Stripe'], ['manual', 'Activación manual'], ['regalo', 'Regalo'], ['heredado', 'Heredado']];
+  var ESTADOS_ACTIVOS = [['todos', 'Todos'], ['corriente', 'Al corriente'], ['cancela', 'Cancelará al final del periodo']];
+  var ORDENES_ACTIVOS = [['vence', 'Por vencimiento (el más cercano primero)'], ['reciente', 'Más recientes primero'], ['nombre', 'Nombre (A a Z)']];
+  var ORIGEN_TEXTO = { stripe: 'Stripe (cobro automático)', manual: 'Activación manual (cortesía o transferencia)', regalo: 'Regalo del administrador', heredado: 'Heredado de la tienda anterior', otro: 'Otro' };
+
+  function esActivo(m) { return !!m && !esAdmin(m) && m.conAcceso === true; }
+  function planClave(m) { return m.esRegalo ? 'regalo' : m.planTipo === 'anual' ? 'anual' : m.planTipo === 'mensual' ? 'mensual' : 'otro'; }
+  function origenClave(m) { return ORIGEN_TEXTO[m.origen] && m.origen !== 'otro' ? m.origen : 'otro'; }
+  function estadoClave(m) { return noSeRenueva(m) ? 'cancela' : 'corriente'; }
+  function desdeDe(m) { return m.inicioPlan || m.ultimoPago || m.registro || null; }
+  function diasRestantes(m, ahora) {
+    var t = ahora === undefined ? Date.now() : ahora;
+    if (!m.vence || isNaN(Date.parse(m.vence))) return null;
+    return Math.ceil((Date.parse(m.vence) - t) / DIA);
+  }
+  function activosDe(miembros) { return (Array.isArray(miembros) ? miembros : []).filter(esActivo); }
+
+  /* Cifras de arriba: activos hoy, por plan, por vencer en 7 días y cuántos de esos no se renovarán */
+  function resumenActivos(miembros, ahora) {
+    var t = ahora === undefined ? Date.now() : ahora;
+    var a = activosDe(miembros);
+    var r = { total: a.length, mensual: 0, anual: 0, regalo: 0, otro: 0, stripe: 0, manual: 0, porVencer7: 0, noRenuevan7: 0 };
+    a.forEach(function (m) {
+      r[planClave(m)] += 1;
+      if (origenClave(m) === 'stripe') r.stripe += 1; else if (origenClave(m) === 'manual') r.manual += 1;
+      var d = diasRestantes(m, t);
+      if (d !== null && d <= 7) { r.porVencer7 += 1; if (!seRenueva(m)) r.noRenuevan7 += 1; }
+    });
+    return r;
+  }
+
+  /* ui: { plan, origen, estado, texto, orden } */
+  function filtrarActivos(miembros, ui) {
+    var u = ui || {};
+    var q = P.sinAcentos ? P.sinAcentos(String(u.texto || '').trim().toLowerCase()) : String(u.texto || '').trim().toLowerCase();
+    return activosDe(miembros).filter(function (m) {
+      if (u.plan && u.plan !== 'todos' && planClave(m) !== u.plan) return false;
+      if (u.origen && u.origen !== 'todos' && origenClave(m) !== u.origen) return false;
+      if (u.estado && u.estado !== 'todos' && estadoClave(m) !== u.estado) return false;
+      if (q) {
+        var h = (m.nombre || '') + ' ' + (m.correo || '');
+        h = P.sinAcentos ? P.sinAcentos(h.toLowerCase()) : h.toLowerCase();
+        if (h.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function ordenarActivos(lista, orden) {
+    var l = lista.slice();
+    var ms = function (iso) { var x = Date.parse(iso); return isNaN(x) ? null : x; };
+    if (orden === 'nombre') return l.sort(function (a, b) { return String(a.nombre || a.correo || '').localeCompare(String(b.nombre || b.correo || ''), 'es'); });
+    if (orden === 'reciente') return l.sort(function (a, b) { return (ms(desdeDe(b)) || 0) - (ms(desdeDe(a)) || 0); });
+    return l.sort(function (a, b) {   // por vencimiento: los que no tienen fecha van al final
+      var x = ms(a.vence), y = ms(b.vence);
+      if (x === null && y === null) return 0;
+      if (x === null) return 1;
+      if (y === null) return -1;
+      return x - y;
+    });
+  }
+
+  function planChipActivo(m) {
+    var k = planClave(m);
+    return k === 'regalo' ? chip('Regalo', 'info') : k === 'anual' ? chip('Anual', 'ok') : k === 'mensual' ? chip('Mensual', 'info') : chip('Plan', 'neutro');
+  }
+
+  /* «Quedan 12 días» · «Vence mañana» · «Vence hoy» */
+  function diasTexto(d) {
+    if (d === null) return '';
+    if (d <= 0) return 'Vence hoy';
+    if (d === 1) return 'Queda 1 día';
+    return 'Quedan ' + d + ' días';
+  }
+
+  function filaActivo(m, ahora) {
+    var t = ahora === undefined ? Date.now() : ahora;
+    var d = diasRestantes(m, t);
+    var pronto = d !== null && d <= 7;
+    var etiquetaFecha = seRenueva(m) ? 'Próximo cobro' : noSeRenueva(m) ? 'Termina' : 'Vence';
+    var desde = desdeDe(m);
+    var nombre = m.nombre || (m.correo || '').split('@')[0] || 'Sin nombre';
+    var estado = estadoClave(m) === 'cancela' ? chip('Cancelará al final del periodo', 'aviso') : chip('Al corriente', 'ok');
+    return '<li class="ap-ua" data-ua-uid="' + esc(m.uid) + '">' +
+      '<span class="ap-ua__av"><span class="ap-avatar ap-avatar--' + esc(m.estado) + '" aria-hidden="true">' + esc(P.iniciales(m.nombre || m.correo)) + '</span></span>' +
+      '<div class="ap-ua__quien"><button type="button" class="ap-ua__nombre" data-accion="acciones" data-uid="' + esc(m.uid) + '">' + esc(nombre) + '</button><span class="ap-correo">' + esc(m.correo || 'Sin correo') + '</span></div>' +
+      '<div class="ap-ua__plan">' + planChipActivo(m) + '<span class="ap-ua__origen">' + esc(ORIGEN_TEXTO[origenClave(m)]) + '</span></div>' +
+      '<div class="ap-ua__dato ap-ua__desde"><small>Desde</small><strong>' + (desde ? esc(dia(desde)) : '—') + '</strong></div>' +
+      '<div class="ap-ua__dato ap-ua__vence' + (pronto ? ' ap-ua__vence--aviso' : '') + '"><small>' + esc(etiquetaFecha) + '</small><strong>' + (m.vence ? esc(dia(m.vence)) : 'Sin fecha') + '</strong>' +
+      (d !== null ? '<span>' + esc(diasTexto(d)) + '</span>' : '') + '</div>' +
+      '<div class="ap-ua__estado">' + estado + '</div></li>';
+  }
+
+  function chipsActivos(grupo, clave, items, actual) {
+    return '<div class="zs-chips" role="group" aria-label="' + esc(grupo) + '"><span class="ap-ua__grupo">' + esc(grupo) + '</span>' + items.map(function (x) {
+      return '<button type="button" class="zs-chip" data-ua-' + clave + '="' + esc(x[0]) + '" aria-pressed="' + (x[0] === actual) + '">' + esc(x[1]) + '</button>';
+    }).join('') + '</div>';
+  }
+
+  /* Solo la lista y el contador (se repinta al buscar o filtrar sin perder el foco del buscador) */
+  function listaActivosHTML(miembros, ui, ahora) {
+    var u = ui || {};
+    var t = ahora === undefined ? Date.now() : ahora;
+    var todos = activosDe(miembros);
+    var lista = ordenarActivos(filtrarActivos(miembros, u), u.orden);
+    var visibles = Math.max(INI_ACTIVOS, Number(u.visibles) || INI_ACTIVOS);
+    var mostrar = lista.slice(0, visibles);
+    if (!lista.length) {
+      return vacio(todos.length ? 'Nadie coincide con esos filtros' : 'Todavía no hay usuarios activos',
+        todos.length ? 'Prueba con otro nombre o correo, o quita algún filtro.' : 'Cuando alguien pague su membresía, o se la actives o se la regales, aparecerá aquí.', todos.length ? 'search-x' : 'users');
+    }
+    var faltan = lista.length - mostrar.length;
+    var botones = '';
+    if (faltan > 0) botones += '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="activos-mas">Ver más (' + num(faltan) + ')</button>';
+    if (mostrar.length > INI_ACTIVOS) botones += '<button type="button" class="ap-btn ap-btn--suave ap-mas" data-accion="activos-menos">Ver menos</button>';
+    return '<ul class="ap-ua-lista" aria-label="Usuarios activos">' + mostrar.map(function (m) { return filaActivo(m, t); }).join('') + '</ul>' +
+      '<p class="ap-pie-tabla" role="status">Mostrando ' + num(mostrar.length) + ' de ' + num(lista.length) + (lista.length === 1 ? ' usuario activo' : ' usuarios activos') + '</p>' + (botones ? '<div class="ap-cp-mas">' + botones + '</div>' : '');
+  }
+
+  function resumenActivosHTML(miembros, ahora) {
+    var r = resumenActivos(miembros, ahora);
+    var cifra = function (v, rot, nota, aviso) { return '<div class="ap-ua-cifra' + (aviso ? ' ap-ua-cifra--aviso' : '') + '"><strong>' + num(v) + '</strong><span>' + esc(rot) + '</span>' + (nota ? '<small>' + esc(nota) + '</small>' : '') + '</div>'; };
+    return '<div class="ap-ua-resumen">' +
+      cifra(r.total, 'Activos hoy', (r.stripe ? num(r.stripe) + ' con cobro en Stripe' : 'Con acceso vigente') + (r.manual ? ' · ' + num(r.manual) + (r.manual === 1 ? ' activado a mano' : ' activados a mano') : '')) +
+      cifra(r.mensual, 'Plan mensual') + cifra(r.anual, 'Plan anual') + cifra(r.regalo, 'Regalo') +
+      cifra(r.porVencer7, 'Por vencer en 7 días', r.porVencer7 ? num(r.noRenuevan7) + (r.noRenuevan7 === 1 ? ' no se renovará' : ' no se renovarán') : 'Nadie vence esta semana', r.porVencer7 > 0) + '</div>';
+  }
+
+  /* La sección completa: cifras, buscador, filtros por plan, origen y estado, orden y la lista */
+  function activosHTML(miembros, ui, ahora) {
+    var u = ui || {};
+    var orden = ORDENES_ACTIVOS.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === (u.orden || 'vence') ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('');
+    var controles = '<div class="ap-ua-controles"><div class="ap-controles__der"><label class="ap-buscar">' + ico('search', { size: 18 }) + '<span class="sr-only">Buscar por nombre o correo</span>' +
+      '<input type="search" id="apUaBuscar" placeholder="Buscar por nombre o correo" autocomplete="off" value="' + esc(u.texto || '') + '"></label>' +
+      '<label class="ap-orden"><span class="sr-only">Ordenar usuarios activos</span><select id="apUaOrden">' + orden + '</select></label></div>' +
+      '<div id="apUaFiltros">' + filtrosActivosHTML(u) + '</div></div>';
+    return resumenActivosHTML(miembros, ahora) + controles + '<div id="apUaLista">' + listaActivosHTML(miembros, u, ahora) + '</div>' +
+      '<p class="ap-sb__ayuda">Tocar a una persona abre «Acciones del miembro» (ver su avance, editar datos, regalar, ampliar o quitar el acceso). «Próximo cobro» es la fecha en que Stripe vuelve a cobrar; en regalos y activaciones a mano es cuando termina el acceso.</p>';
+  }
+
+  function filtrosActivosHTML(u) {
+    return chipsActivos('Plan', 'plan', PLANES_ACTIVOS, u.plan || 'todos') + chipsActivos('Origen', 'origen', ORIGENES_ACTIVOS, u.origen || 'todos') + chipsActivos('Estado', 'estado', ESTADOS_ACTIVOS, u.estado || 'todos');
+  }
+
   /* ───────────────────────── Las seis cifras de arriba ───────────────────────── */
   function cifrasHTML(pagos, miembros, ahora) {
     var t = ahora === undefined ? Date.now() : ahora;
@@ -412,6 +559,7 @@
     });
     var aviso = data.pagos === null ? '<div class="ap-aviso ap-aviso--info" role="note">' + ico('info', { size: 20 }) + '<div><p>El servidor todavía no ofrece el registro de pagos. Cuando termine su actualización aparecerán aquí; mientras tanto ves quién vence y quién ya venció.</p></div></div>' : '';
     return titulo + aviso + cifrasHTML(pagos, miembros, ahora) +
+      card('Usuarios activos (' + num(activosDe(miembros).length) + ')', '<div id="apUaCuerpo">' + activosHTML(miembros, u.activos, ahora) + '</div>', 'Quién tiene acceso hoy: su plan, de dónde viene el acceso, desde cuándo y cuándo vence o se cobra de nuevo.', 'apUaCard') +
       (pagos.length ? card('Por qué se rechazan los cobros', '<div id="apSbRechazos">' + graficaRechazosHTML(pagos) + '</div>', 'Qué dijo el banco o Stripe en cada cobro rechazado, ya traducido.', 'apSbRechazosCard') : '') +
       card('Planes por vencer y vencidos', '<div id="apSbVenc">' + vencimientosHTML(miembros, pagos, u, ahora) + '</div>', 'Quién está por perder el acceso y quién ya lo perdió.', 'apSbVencCard') +
       '<div class="ap-columnas">' +
@@ -422,11 +570,16 @@
   }
 
   /* ───────────────────────── Controlador (solo en el navegador) ───────────────────────── */
-  var est = { datos: null, tab: 'xvencer', horizonte: 7, solo: false, visibles: INI_VENCEN, graf: 'primer', filtro: 'todos', texto: '', visP: INI_PAGOS, ocupado: false, abiertos: {} };
+  var est = { datos: null, ua: { plan: 'todos', origen: 'todos', estado: 'todos', texto: '', orden: 'vence', visibles: INI_ACTIVOS }, tab: 'xvencer', horizonte: 7, solo: false, visibles: INI_VENCEN, graf: 'primer', filtro: 'todos', texto: '', visP: INI_PAGOS, ocupado: false, abiertos: {} };
 
   function porCorreoActual() { var m = {}; ((est.datos && est.datos.miembros) || []).forEach(function (x) { if (x.correo) m[x.correo.toLowerCase()] = x.nombre; }); return m; }
   function pintarVenc() { var c = document.getElementById('apSbVenc'); if (c) c.innerHTML = vencimientosHTML(est.datos.miembros, est.datos.pagos || [], { tab: est.tab, horizonte: est.horizonte, solo: est.solo, visibles: est.visibles }); }
   function pintarMonto() { var c = document.getElementById('apSbMonto'); if (c) { c.innerHTML = graficaMontoHTML(est.datos.pagos || [], est.graf); G.activar(c); } }
+  function pintarActivos(conFiltros) {
+    var c = document.getElementById('apUaLista'); if (!c) return;
+    c.innerHTML = listaActivosHTML(est.datos.miembros, est.ua);
+    if (conFiltros) { var f = document.getElementById('apUaFiltros'); if (f) f.innerHTML = filtrosActivosHTML(est.ua); }
+  }
   function pintarPagos() { var c = document.getElementById('apSbPagos'); if (c) c.innerHTML = pagosListaHTML(est.datos.pagos || [], { filtro: est.filtro, texto: est.texto, visiblesPagos: est.visP, abiertos: est.abiertos }, porCorreoActual()); }
   function pintarFiltros() { Array.prototype.forEach.call(document.querySelectorAll('[data-sb-filtro]'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-sb-filtro') === est.filtro)); }); }
 
@@ -481,12 +634,27 @@
   function pintar() {
     var u = V.util; var v = u.vista();
     var y = typeof window !== 'undefined' ? window.scrollY : 0;
-    v.innerHTML = vistaHTML(est.datos, { tab: est.tab, horizonte: est.horizonte, solo: est.solo, visibles: est.visibles, graf: est.graf, filtro: est.filtro, texto: est.texto, visiblesPagos: est.visP, abiertos: est.abiertos });
+    v.innerHTML = vistaHTML(est.datos, { activos: est.ua, tab: est.tab, horizonte: est.horizonte, solo: est.solo, visibles: est.visibles, graf: est.graf, filtro: est.filtro, texto: est.texto, visiblesPagos: est.visP, abiertos: est.abiertos });
     G.activar(v);
     if (y && typeof window !== 'undefined') window.scrollTo(0, y);
+    var buscaUa = document.getElementById('apUaBuscar');
+    if (buscaUa) buscaUa.addEventListener('input', function (e) { est.ua.texto = e.target.value; est.ua.visibles = INI_ACTIVOS; pintarActivos(false); });
+    var ordenUa = document.getElementById('apUaOrden');
+    if (ordenUa) ordenUa.addEventListener('change', function (e) { est.ua.orden = e.target.value; pintarActivos(false); });
     var buscar = document.getElementById('apSbBuscar');
     if (buscar) buscar.addEventListener('input', function (e) { est.texto = e.target.value; est.visP = INI_PAGOS; pintarPagos(); });
     v.onclick = function (ev) {
+      var fu = ev.target.closest('[data-ua-plan], [data-ua-origen], [data-ua-estado]');
+      if (fu) {
+        ['plan', 'origen', 'estado'].forEach(function (k) { if (fu.hasAttribute('data-ua-' + k)) est.ua[k] = fu.getAttribute('data-ua-' + k); });
+        est.ua.visibles = INI_ACTIVOS; pintarActivos(true); return;
+      }
+      // Tocar cualquier parte de la fila de un usuario activo abre «Acciones del miembro»
+      var fila = ev.target.closest('li.ap-ua');
+      if (fila && !ev.target.closest('a, button, input, select, textarea, label') && !(typeof window.getSelection === 'function' && String(window.getSelection()).length)) {
+        if (V && V.abrirAcciones) V.abrirAcciones(fila.getAttribute('data-ua-uid'));
+        return;
+      }
       var vt = ev.target.closest('[data-sb-v]');
       if (vt) { est.tab = vt.getAttribute('data-sb-v'); est.visibles = INI_VENCEN; pintarVenc(); return; }
       var h = ev.target.closest('[data-sb-h]');
@@ -507,6 +675,9 @@
       u.acciones(ev, {
         recargar: function () { cargar(true); },
         sincronizar: function (b) { sincronizar(b); },
+        acciones: function (b) { if (V && V.abrirAcciones) V.abrirAcciones(b.dataset.uid); },
+        'activos-mas': function () { est.ua.visibles += PASO_ACTIVOS; pintarActivos(false); },
+        'activos-menos': function () { est.ua.visibles = INI_ACTIVOS; pintarActivos(false); },
         'venc-mas': function () { est.visibles += PASO_VENCEN; pintarVenc(); },
         'venc-menos': function () { est.visibles = INI_VENCEN; pintarVenc(); },
         'pagos-mas': function () { est.visP += PASO_PAGOS; pintarPagos(); },
@@ -521,6 +692,8 @@
     filaVencimiento: filaVencimiento, vencimientosHTML: vencimientosHTML, cifrasHTML: cifrasHTML, graficaMontoHTML: graficaMontoHTML, graficaMesesHTML: graficaMesesHTML,
     filaPago: filaPago, motivoLineaHTML: motivoLineaHTML, detalleRechazoHTML: detalleRechazoHTML, agruparRechazos: agruparRechazos, fraseRechazos: fraseRechazos, graficaRechazosHTML: graficaRechazosHTML,
     ultimoRechazoDe: ultimoRechazoDe, fichaMotivoHTML: fichaMotivoHTML, resumenSincronizacion: resumenSincronizacion, rechazosTop: rechazosTop, SIN_MOTIVO: SIN_MOTIVO, CATEGORIAS: CATEGORIAS, filtrarPagos: filtrarPagos, conteos: conteos, pagosListaHTML: pagosListaHTML, pagosCardHTML: pagosCardHTML, vistaHTML: vistaHTML,
+    INI_ACTIVOS: INI_ACTIVOS, PASO_ACTIVOS: PASO_ACTIVOS, esActivo: esActivo, planClave: planClave, origenClave: origenClave, estadoClave: estadoClave, diasRestantes: diasRestantes,
+    resumenActivos: resumenActivos, filtrarActivos: filtrarActivos, ordenarActivos: ordenarActivos, filaActivo: filaActivo, listaActivosHTML: listaActivosHTML, resumenActivosHTML: resumenActivosHTML, activosHTML: activosHTML,
     suscripciones: cargar
   };
 });

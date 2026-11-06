@@ -171,3 +171,108 @@ test('el módulo solo habla con los endpoints del servidor, no guarda nada en el
   assert.doesNotMatch(css, /gradient/i);
   for (const m of css.matchAll(/font(?:-size)?:\s*(?:[0-9]+\s+)?([\d.]+)(px|rem)/g)) assert.ok((m[2] === 'px' ? Number(m[1]) : Number(m[1]) * 16) >= 12, 'letra de ' + m[0]);
 });
+
+/* ───────────── Usuarios activos ───────────── */
+
+const activos = () => [
+  miembro('a', { nombre: 'Ana Pérez', planTipo: 'mensual', vence: dias(3), inicioPlan: dias(-27) }),
+  miembro('b', { nombre: 'Beto Díaz', planTipo: 'anual', vence: dias(300), inicioPlan: dias(-65), origen: 'manual', stripeActiva: false }),
+  miembro('c', { nombre: 'Cata Ruiz', planTipo: 'mensual', vence: dias(6), estado: 'cancelado-vigente', inicioPlan: dias(-50) }),
+  miembro('d', { nombre: 'Dani Gil', planTipo: 'mensual', esRegalo: true, origen: 'regalo', stripeActiva: false, vence: dias(25), inicioPlan: dias(-5) }),
+  miembro('e', { nombre: 'Eli Admin', esAdmin: true }),
+  miembro('v', { nombre: 'Vera Vieja', estado: 'vencido', conAcceso: false, vence: dias(-2) }),
+  miembro('s', { nombre: 'Sin Plan', estado: 'sin-plan', conAcceso: false, vence: null, origen: 'ninguno', planTipo: null })
+];
+
+test('usuarios activos: solo cuentan quienes tienen acceso vigente (sin administración, vencidos ni sin membresía)', () => {
+  assert.deepEqual(A.filtrarActivos(activos(), {}).map(m => m.uid).sort(), ['a', 'b', 'c', 'd']);
+  assert.equal(A.esActivo(miembro('x', { esAdmin: true })), false);
+  assert.equal(A.esActivo(miembro('x', { conAcceso: false })), false);
+});
+
+test('usuarios activos: resumen con activos hoy, por plan (mensual, anual, regalo) y por vencer en 7 días con cuántos no se renovarán', () => {
+  const r = A.resumenActivos(activos(), AHORA);
+  assert.equal(r.total, 4);
+  assert.equal(r.mensual, 2);
+  assert.equal(r.anual, 1);
+  assert.equal(r.regalo, 1);
+  assert.equal(r.stripe, 2);
+  assert.equal(r.manual, 1);
+  assert.equal(r.porVencer7, 2, 'Ana vence en 3 días y Cata en 6');
+  assert.equal(r.noRenuevan7, 1, 'Cata canceló: no se renueva');
+  const h = A.resumenActivosHTML(activos(), AHORA);
+  for (const t of ['Activos hoy', 'Plan mensual', 'Plan anual', 'Regalo', 'Por vencer en 7 días', '1 no se renovará']) assert.ok(h.includes(t), t);
+});
+
+test('usuarios activos: filtros por plan, origen y estado, y búsqueda por nombre o correo sin acentos', () => {
+  const u = ui => A.filtrarActivos(activos(), ui).map(m => m.uid).sort();
+  assert.deepEqual(u({ plan: 'anual' }), ['b']);
+  assert.deepEqual(u({ plan: 'regalo' }), ['d']);
+  assert.deepEqual(u({ origen: 'stripe' }), ['a', 'c']);
+  assert.deepEqual(u({ origen: 'manual' }), ['b']);
+  assert.deepEqual(u({ origen: 'regalo' }), ['d']);
+  assert.deepEqual(u({ estado: 'cancela' }), ['c']);
+  assert.deepEqual(u({ estado: 'corriente' }), ['a', 'b', 'd']);
+  assert.deepEqual(u({ texto: 'PEREZ' }), ['a'], 'sin acentos ni mayúsculas');
+  assert.deepEqual(u({ texto: 'd@x.test' }), ['d']);
+  assert.deepEqual(u({ plan: 'mensual', estado: 'cancela' }), ['c']);
+  assert.deepEqual(u({ texto: 'nadie' }), []);
+});
+
+test('usuarios activos: orden por vencimiento (el más cercano primero), por más recientes y por nombre', () => {
+  const o = orden => A.ordenarActivos(A.filtrarActivos(activos(), {}), orden).map(m => m.uid);
+  assert.deepEqual(o('vence'), ['a', 'c', 'd', 'b']);
+  assert.deepEqual(o('reciente'), ['d', 'a', 'c', 'b'], 'por desde cuándo empezó el plan');
+  assert.deepEqual(o('nombre'), ['a', 'b', 'c', 'd']);
+  const sinFecha = [miembro('z', { vence: null }), miembro('y', { vence: dias(2) })];
+  assert.deepEqual(A.ordenarActivos(sinFecha, 'vence').map(m => m.uid), ['y', 'z'], 'sin fecha al final');
+});
+
+test('usuarios activos: cada renglón trae nombre, correo, plan, origen, desde cuándo, próximo cobro o vencimiento con días restantes y estado', () => {
+  const [a, b, c, d] = ['a', 'b', 'c', 'd'].map(id => activos().find(m => m.uid === id));
+  const fa = A.filaActivo(a, AHORA);
+  for (const t of ['Ana Pérez', 'a@x.test', 'Mensual', 'Stripe (cobro automático)', 'Desde', 'Próximo cobro', 'Quedan 3 días', 'Al corriente']) assert.ok(fa.includes(t), t);
+  assert.match(fa, /ap-ua__vence--aviso/, 'vence en 7 días o menos: aviso');
+  assert.match(fa, /data-accion="acciones" data-uid="a"/, 'el nombre abre Acciones del miembro');
+  const fb = A.filaActivo(b, AHORA);
+  assert.ok(fb.includes('Anual') && fb.includes('Activación manual') && fb.includes('Vence') && !fb.includes('Próximo cobro'));
+  assert.doesNotMatch(fb, /ap-ua__vence--aviso/);
+  const fc = A.filaActivo(c, AHORA);
+  assert.ok(fc.includes('Termina') && fc.includes('Cancelará al final del periodo'));
+  const fd = A.filaActivo(d, AHORA);
+  assert.ok(fd.includes('Regalo') && fd.includes('Regalo del administrador'));
+  assert.equal(A.diasRestantes(a, AHORA), 3);
+  assert.equal(A.diasRestantes(miembro('q', { vence: null }), AHORA), null);
+  assert.match(A.filaActivo(miembro('h', { vence: dias(0.2) }), AHORA), /Quedan 1 día|Queda 1 día/);
+  assert.match(A.filaActivo(miembro('h2', { vence: dias(-0.2) }), AHORA), /Vence hoy/);
+});
+
+test('usuarios activos: la tarjeta va arriba de los pagos con su contador, buscador, filtros y orden; vacío claro; Ver más; los pagos siguen intactos', () => {
+  const h = A.vistaHTML({ miembros: activos(), pagos: [pago('a', 3)] }, {}, AHORA);
+  assert.match(h, /Usuarios activos \(4\)/);
+  assert.ok(h.indexOf('apUaCard') < h.indexOf('apSbVencCard') && h.indexOf('apUaCard') < h.indexOf('apSbPagosCard'));
+  assert.match(h, /id="apUaBuscar"/);
+  assert.match(h, /id="apUaOrden"/);
+  for (const k of ['data-ua-plan="mensual"', 'data-ua-plan="anual"', 'data-ua-plan="regalo"', 'data-ua-origen="stripe"', 'data-ua-origen="manual"', 'data-ua-origen="regalo"', 'data-ua-estado="cancela"', 'data-ua-estado="corriente"']) assert.ok(h.includes(k), k);
+  for (const t of ['Traer pagos desde Stripe', 'Planes por vencer y vencidos', 'Pagos de suscripción', 'Por qué se rechazan los cobros']) assert.ok(h.includes(t), t + ' sigue');
+  assert.match(A.listaActivosHTML([], {}, AHORA), /Todavía no hay usuarios activos/);
+  assert.match(A.listaActivosHTML(activos(), { texto: 'zzz' }, AHORA), /Nadie coincide con esos filtros/);
+  const muchos = Array.from({ length: 25 }, (_, i) => miembro('m' + i, { vence: dias(10 + i) }));
+  const l1 = A.listaActivosHTML(muchos, {}, AHORA);
+  assert.equal((l1.match(/<li class="ap-ua"/g) || []).length, A.INI_ACTIVOS);
+  assert.match(l1, /Ver más \(15\)/);
+  assert.match(l1, /Mostrando 10 de 25 usuarios activos/);
+  assert.equal((A.listaActivosHTML(muchos, { visibles: 25 }, AHORA).match(/<li class="ap-ua"/g) || []).length, 25);
+});
+
+test('usuarios activos: tocar la fila abre «Acciones del miembro» y, al cambiar algo, la lista se vuelve a cargar; sin Firestore directo ni degradados', () => {
+  const js = leer('assets/js/admin-suscripciones.js');
+  assert.match(js, /V\.abrirAcciones\(/);
+  assert.match(js, /closest\('li\.ap-ua'\)/);
+  assert.match(leer('assets/js/admin-vistas.js'), /apUaLista[\s\S]{0,160}ZOO_ADMIN_SUSCRIPCIONES\.suscripciones\(true\)/);
+  assert.doesNotMatch(js, /firebase|firestore/i);
+  const css = leer('assets/css/admin-suscripciones.css');
+  assert.doesNotMatch(css, /gradient/i);
+  assert.doesNotMatch(css.slice(css.indexOf('/* Usuarios activos */'), css.indexOf('.ap-sb-lista {')), /overflow-wrap: anywhere/);
+  assert.ok(!/[\p{Extended_Pictographic}\u{FE0F}]/u.test(js.replace(/[▲▼]/g, '')));
+});
