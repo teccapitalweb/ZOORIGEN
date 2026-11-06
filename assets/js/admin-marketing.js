@@ -125,12 +125,12 @@
     var t = d.totales; var a = d.anterior; var c = d.cuentas; var cv = d.conversion;
     var modo = modoDe(u, d.rango.dias);
     var ag = function (serie) { return agrupada(serie, modo); };
-    var sa = ag(d.series.altas); var sp = ag(d.series.pruebas); var sc = ag(d.series.certificados); var sg = ag(d.series.pagos); var si = ag(d.series.ingresos || []);
+    var sp = ag(d.series.pruebas); var sc = ag(d.series.certificados); var sg = ag(d.series.pagos); var si = ag(d.series.ingresos || []);
     var titulo = P.tarjetaTitulo({
-      icono: 'chart-line', eyebrow: 'Marketing', titulo: 'Cómo va', acento: 'el Club.',
+      icono: 'chart-line', eyebrow: 'Negocio', titulo: 'Cómo va', acento: 'el Club.',
       sub: 'Altas, pruebas gratuitas, membresías, cursos y comunidad con los datos que ya guarda el servidor. Elige el periodo y compáralo con el anterior.',
       cifras: [
-        { valor: num(t.altas), rotulo: 'cuentas nuevas en el periodo' },
+        { valor: num(t.pruebas), rotulo: 'pruebas elegidas en el periodo' },
         { valor: P.fmtPct(cv.tasaRango), rotulo: 'de prueba a miembro' },
         { valor: num(c.conAccesoHoy), rotulo: 'con acceso hoy' }
       ],
@@ -138,7 +138,6 @@
     });
 
     var kpis = '<div class="ap-kpis">' + [
-      kpiTend({ icono: 'user-plus', rotulo: 'Cuentas nuevas', valor: num(t.altas), tono: 'info', tendencia: P.variacion(t.altas, a.altas), spark: G.sparkline(sa.valores, { color: 1 }) }),
       kpiTend({ icono: 'flask-conical', rotulo: 'Pruebas gratuitas elegidas', valor: num(t.pruebas), tono: 'info', tendencia: P.variacion(t.pruebas, a.pruebas), spark: G.sparkline(sp.valores, { color: 2 }) }),
       kpiTend({ icono: 'percent', rotulo: 'De prueba a miembro', valor: P.fmtPct(cv.tasaRango), tono: cv.tasaRango === null ? 'neutro' : 'ok',
         nota: cv.eligieronRango ? num(cv.seHicieronMiembroRango) + ' de ' + num(cv.eligieronRango) + ' que eligieron en el periodo' : 'Nadie eligió su prueba en este periodo' }),
@@ -147,31 +146,20 @@
       kpiTend({ icono: 'rotate-ccw', rotulo: 'Retención', valor: P.fmtPct(c.retencion), tono: c.retencion === null ? 'neutro' : 'ok',
         nota: c.conPlanAlgunaVez ? num(c.conAccesoHoy) + ' de ' + num(c.conPlanAlgunaVez) + ' que alguna vez tuvieron membresía' : 'Aún nadie ha tenido membresía' }),
       kpiTend({ icono: 'award', rotulo: 'Certificados emitidos', valor: num(t.certificados), tono: 'info', tendencia: P.variacion(t.certificados, a.certificados), spark: G.sparkline(sc.valores, { color: 5 }) }),
-      kpiTend({ icono: 'wallet', rotulo: 'Últimos pagos registrados', valor: num(t.pagos), tono: 'ok', tendencia: P.variacion(t.pagos, a.pagos), nota: 'Cuenta el último pago de cada miembro', spark: G.sparkline(sg.valores, { color: 4 }) }),
-      d.visitas.activo
-        ? kpiTend({ icono: 'globe', rotulo: 'Visitas a la portada', valor: num(d.visitas.total), tono: 'info', nota: 'Conteo agregado, sin cookies ni IP', spark: G.sparkline(valoresDe(d.visitas.porDia), { color: 6 }) })
-        : kpiTend({ icono: 'globe', rotulo: 'Visitas a la portada', valor: null, tono: 'neutro', nota: 'El contador está apagado' })
+      kpiTend({ icono: 'wallet', rotulo: 'Últimos pagos registrados', valor: num(t.pagos), tono: 'ok', tendencia: P.variacion(t.pagos, a.pagos), nota: 'Cuenta el último pago de cada miembro', spark: G.sparkline(sg.valores, { color: 4 }) })
     ].join('') + '</div>';
-
-    // Comparación con el periodo anterior (marca punteada): solo cuando se ve día por día, que es cuando coinciden uno a uno
-    var previa = modo === 'dia' && d.seriesAnterior ? valoresDe(d.seriesAnterior.altas) : null;
-    var altasSeries = [{ nombre: 'Cuentas nuevas', valores: sa.valores, color: 1 }];
-    if (previa && previa.length === sa.valores.length && P.sumaSerie(d.seriesAnterior.altas)) altasSeries.push({ nombre: 'Periodo anterior', valores: previa, color: 8, punteada: true });
 
     var actividad = G.serie({
       titulo: 'Actividad del Club', tipo: 'lineas', unidad: '', alto: 260,
-      etiquetas: sa.etiquetas, titulos: sa.titulos,
-      series: [{ nombre: 'Cuentas nuevas', valores: sa.valores, color: 1 }, { nombre: 'Pruebas elegidas', valores: sp.valores, color: 2 }, { nombre: 'Certificados', valores: sc.valores, color: 3 }, { nombre: 'Últimos pagos', valores: sg.valores, color: 4 }],
-      vacio: { titulo: 'Sin actividad en este periodo', texto: 'Prueba con un periodo más largo o espera a que haya altas, pruebas, certificados o pagos.' }
+      etiquetas: sp.etiquetas, titulos: sp.titulos,
+      series: [{ nombre: 'Pruebas elegidas', valores: sp.valores, color: 2 }, { nombre: 'Certificados', valores: sc.valores, color: 3 }, { nombre: 'Últimos pagos', valores: sg.valores, color: 4 }],
+      vacio: { titulo: 'Sin actividad en este periodo', texto: 'Prueba con un periodo más largo o espera a que haya pruebas, certificados o pagos.' }
     });
     var graficas = selectorAgrupar(modo) +
-      card('Actividad del Club', actividad, 'Las cuatro señales principales juntas. Pasa el cursor o toca la gráfica para ver cada valor.') +
+      card('Actividad del Club', actividad, 'Pruebas, certificados y pagos juntos (las cuentas nuevas están en la pestaña Visitas). Pasa el cursor o toca la gráfica para ver cada valor.') +
       '<div class="ap-columnas">' +
-      card('Cuentas nuevas', G.serie({ titulo: 'Cuentas nuevas', tipo: 'barras', unidad: 'cuentas nuevas', etiquetas: sa.etiquetas, titulos: sa.titulos, series: altasSeries,
-        vacio: { titulo: 'Sin cuentas nuevas', texto: 'Cuando alguien cree su cuenta en este periodo aparecerá aquí.' } }), previa && altasSeries.length > 1 ? 'La raya punteada marca el periodo anterior, día por día.' : 'Personas que crearon su cuenta (sin administradores).') +
       card('Ingresos estimados', G.serie({ titulo: 'Ingresos estimados', tipo: 'barras', formato: 'mxn', unidad: 'estimados', etiquetas: si.etiquetas, titulos: si.titulos,
         series: [{ nombre: 'Ingresos estimados (MXN)', valores: si.valores, color: 3 }], vacio: { titulo: 'Sin pagos en este periodo', texto: 'Cuando haya pagos aparecerá la estimación.' } }), d.notas.ingresos) +
-      '</div><div class="ap-columnas">' +
       card('Pruebas gratuitas elegidas', G.serie({ titulo: 'Pruebas gratuitas elegidas', tipo: 'area', unidad: 'pruebas elegidas', etiquetas: sp.etiquetas, titulos: sp.titulos,
         series: [{ nombre: 'Pruebas elegidas', valores: sp.valores, color: 2 }], vacio: { titulo: 'Nadie eligió su prueba', texto: 'Cuando alguien escoja su curso de prueba aparecerá aquí.' } }), 'Quienes escogieron su curso de prueba.') +
       card('Certificados emitidos', G.serie({ titulo: 'Certificados emitidos', tipo: 'barras', unidad: 'certificados', etiquetas: sc.etiquetas, titulos: sc.titulos,
@@ -190,14 +178,6 @@
       }) +
       '<p class="ap-nota">' + esc(d.embudo.nota) + (emb.pagaronSinPrueba ? ' Aquí hay ' + esc(num(emb.pagaronSinPrueba)) + ' que pagaron sin pasar por la prueba.' : '') + '</p>',
       'Cuántas de las personas que se registraron llegan a cada paso.');
-
-    var visitas = d.visitas.activo
-      ? card('Visitas a la portada', G.serie({ titulo: 'Visitas a la portada', tipo: 'area', unidad: 'visitas', etiquetas: ag(d.visitas.porDia).etiquetas, titulos: ag(d.visitas.porDia).titulos,
-        series: [{ nombre: 'Visitas', valores: ag(d.visitas.porDia).valores, color: 6 }], vacio: { titulo: 'Sin visitas en este periodo', texto: 'El contador está encendido; cuando alguien entre a la portada aparecerá aquí.' } }) +
-        (d.visitas.porPagina.length ? '<div class="ap-separador"></div><h3 class="ap-subtitulo">Páginas más vistas</h3>' + G.barrasH({ titulo: 'Páginas más vistas', filas: d.visitas.porPagina.map(function (p) { return { etiqueta: p.pagina, valor: p.n }; }), color: 6 }) : ''),
-        'Conteo agregado por día y página. No guarda IP, cookies ni identificadores.')
-      : '<div class="ap-aviso ap-aviso--info" role="note">' + ico('globe', { size: 20 }) + '<div><strong>El contador de visitas está apagado</strong><p>Cuando lo enciendas, aquí verás cuántas personas visitan la portada por día y qué páginas se ven más. Es un conteo agregado: sin cookies, sin IP y sin identificar a nadie. El conteo empieza cuando lo activas y no reconstruye visitas anteriores.</p>' +
-        '<a class="ap-btn ap-btn--suave" href="#/configuracion">' + ico('settings', { size: 16 }) + 'Ir a Configuración</a></div></div>';
 
     var estados = G.anillo({
       titulo: 'Cuentas hoy', centro: { valor: num(c.total), rotulo: 'cuentas' },
@@ -265,7 +245,6 @@
       '<div class="ap-columnas">' +
       card('Cuándo se mueve el Club', mapa + '<p class="ap-nota">' + esc(ac.nota) + '</p>', 'Altas, pruebas, certificados, pagos y retos por día y hora de México. Más oscuro es más actividad.') +
       card('Qué día se mueve más', porDia, ac.horaPico === null ? 'Sin actividad en el periodo.' : 'La hora con más movimiento es ' + ac.horaPico + ':00.') + '</div>' +
-      visitas +
       '<div class="ap-columnas">' +
       card('De prueba gratuita a miembro', conversion, 'Cuántas personas que eligieron su curso de prueba terminaron con membresía.') +
       card('Conversión y retención por mes', cohortesGrafica || vacio('Sin registros todavía', 'Cuando haya cuentas nuevas aparecerá cada mes aquí.', 'users'), 'De cada mes de registro: qué parte tuvo membresía y qué parte conserva el acceso.') + '</div>' +
@@ -503,7 +482,8 @@
   function pintarMetricas() {
     var u = V.util; var v = u.vista();
     var y = typeof window !== 'undefined' ? window.scrollY : 0;
-    v.innerHTML = metricasHTML(estadoM.datos, estadoM);
+    // Va dentro de «Métricas» (pestaña Negocio): el título principal de la página ya es «Métricas», así que este queda como título de sección.
+    v.innerHTML = metricasHTML(estadoM.datos, estadoM).replace('<h1 class="zs-seccion__titulo"', '<h2 class="zs-seccion__titulo"').replace(/(zs-seccion__titulo[^>]*>[\s\S]*?)<\/h1>/, '$1</h2>');
     G.activar(v);
     if (y && typeof window !== 'undefined') window.scrollTo(0, y);
     v.onclick = function (ev) {

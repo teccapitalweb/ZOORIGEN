@@ -23,7 +23,12 @@
   var contador = 0;             // descarta respuestas de una sección que ya no está a la vista
 
   function iniciar(contexto) { ctx = contexto; }
-  function vista() { return ctx.contenedor(); }
+  // La pantalla «Métricas» tiene pestañas (Visitas | Negocio): su contenido va en #vzCuerpo; el resto de secciones pinta directo en el contenedor.
+  function vista() {
+    var base = ctx.contenedor();
+    var cuerpo = base && base.querySelector ? base.querySelector('#vzCuerpo') : null;
+    return cuerpo || base;
+  }
 
   /* ───────── Piezas comunes ───────── */
   function cargando(titulo) {

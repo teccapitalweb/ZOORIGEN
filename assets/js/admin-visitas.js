@@ -132,7 +132,11 @@
 
     var cuentas = (datos.origenes || []).map(function (o) { return { uid: o.uid, origen: o.origen, vip: o.vip === true, dia: diaDeCuenta(o.creada, datos.zona) }; }).filter(function (o) { return o.dia; });
     var nuevas = cuentas.filter(function (o) { return claves.indexOf(o.dia) !== -1; });
-    var nuevasPrev = cuentas.filter(function (o) { return prev.indexOf(o.dia) !== -1; });
+    // «Cuentas nuevas» cuenta a TODAS las personas que se registraron (el servidor las suma por día en «altas»); la lista con origen solo sirve para saber por dónde llegaron.
+    var altas = datos.altas || null;
+    var altasDe = function (lista) { return altas ? suma(lista, function (c) { return (altas[c] || { n: 0 }).n; }) : cuentas.filter(function (o) { return lista.indexOf(o.dia) !== -1; }).length; };
+    var altasVipDe = function (lista) { return altas ? suma(lista, function (c) { return (altas[c] || { vip: 0 }).vip; }) : cuentas.filter(function (o) { return o.vip && lista.indexOf(o.dia) !== -1; }).length; };
+    var nuevasN = altasDe(claves), nuevasVipN = altasVipDe(claves), nuevasPrevN = altasDe(prev);
 
     var total = suma(da, function (d) { return d.total; });
     var unicos = suma(da, function (d) { return d.unicos; });
@@ -188,14 +192,14 @@
     return {
       r: r, claves: claves, hayPrev: hayPrev, dato: dato,
       kpis: {
-        total: total, unicos: unicos, nuevas: nuevas.length, nuevasVip: nuevas.filter(function (o) { return o.vip; }).length,
+        total: total, unicos: unicos, nuevas: nuevasN, nuevasVip: nuevasVipN,
         promedio: Math.round(total / Math.max(1, claves.length)), horaPico: horaPico,
         dTotal: delta(total, totalPrev, hayPrev), dUnicos: delta(unicos, unicosPrev, hayPrev),
-        dNuevas: delta(nuevas.length, nuevasPrev.length, hayPrev && nuevasPrev.length > 0), dPromedio: delta(total / Math.max(1, claves.length), totalPrev / Math.max(1, prev.length), hayPrev),
+        dNuevas: delta(nuevasN, nuevasPrevN, hayPrev && nuevasPrevN > 0), dPromedio: delta(total / Math.max(1, claves.length), totalPrev / Math.max(1, prev.length), hayPrev),
         spark: {
           total: grupos.map(function (g) { return suma(g.claves, function (c) { return dato(c).total; }); }),
           unicos: grupos.map(function (g) { return suma(g.claves, function (c) { return dato(c).unicos; }); }),
-          nuevas: grupos.map(function (g) { return cuentas.filter(function (o) { return g.claves.indexOf(o.dia) !== -1; }).length; }),
+          nuevas: grupos.map(function (g) { return altasDe(g.claves); }),
           promedio: grupos.map(function (g) { return suma(g.claves, function (c) { return dato(c).total; }); })
         }
       },
@@ -455,8 +459,7 @@
       datos.dias.forEach(function (d) { mapa[d.dia] = d; });
       m.logPersonas = suma(claves, function (c) { return (mapa[c] || VACIO).unicos; });
     }
-    var cab = '<header class="vz-hero"><p class="vz-eyebrow">Marketing</p><h1>Métricas de visitas</h1>' +
-      '<p class="vz-hero__sub">Cuánta gente visita Zoorigen, desde dónde llega y de qué red social salen tus miembros. Conteo anónimo y sin cookies; todo se guarda día a día para que consultes el historial.</p>' + pildoraEstado(datos) + '</header>';
+    var cab = '<header class="vz-intro"><p class="vz-hero__sub">Cuánta gente visita Zoorigen, desde dónde llega y de qué red social salen tus miembros. Conteo anónimo y sin cookies; todo se guarda día a día para que consultes el historial.</p>' + pildoraEstado(datos) + '</header>';
     var barra = '<section class="vz-controles" aria-label="Periodo de las métricas">' + controlesHTML(m, ui) + '</section>';
     if (!m.hayAlgo) {
       return cab + barra + '<div class="ap-card vz-card">' + vacio('Todavía no hay visitas registradas', datos.activo === false
@@ -523,12 +526,12 @@
   async function visitas(forzar) {
     var u = V.util; var mi = u.nuevoContador(); estado.mi = mi;
     clearInterval(temporizador);
-    u.vista().innerHTML = u.cargando('Métricas de visitas');
+    u.vista().innerHTML = u.cargando('Visitas');
     estado.ui = estado.ui || uiInicial();
     estado.pidio730 = false;
     try { estado.datos = await cargarDatos(190, forzar); } catch (e) {
       if (mi !== u.contadorActual()) return;
-      u.vista().innerHTML = u.errorHTML('Métricas de visitas', e, 'vz-recargar');
+      u.vista().innerHTML = u.errorHTML('Visitas', e, 'vz-recargar');
       u.vista().onclick = function (ev) { u.acciones(ev, { 'vz-recargar': function () { visitas(true); } }); };
       return;
     }
@@ -561,7 +564,35 @@
     };
   }
 
+  /* ───────────────────────── Pantalla «Métricas»: pestañas Visitas | Negocio ───────────────────────── */
+
+  var PESTANAS = [['visitas', 'Visitas', 'globe'], ['negocio', 'Negocio', 'chart-line']];
+
+  function cabeceraHTML(sel) {
+    return '<header class="vz-hero"><p class="vz-eyebrow">Marketing</p><h1>Métricas</h1>' +
+      '<p class="vz-hero__sub">Todo lo que mide Zoorigen en un solo lugar: <strong>Visitas</strong> (quién entra al sitio, desde dónde llega y de qué red salen tus miembros) y <strong>Negocio</strong> (altas, pruebas gratuitas, membresías, ingresos y retención).</p>' +
+      '<div class="vz-pestanas" role="tablist" aria-label="Tipo de métricas">' + PESTANAS.map(function (p) {
+        return '<button type="button" role="tab" class="vz-pestana" id="vzTab-' + p[0] + '" data-accion="vz-pestana" data-pestana="' + p[0] + '" aria-selected="' + (sel === p[0]) + '" aria-controls="vzCuerpo">' + ico(p[2], { size: 16 }) + esc(p[1]) + '</button>';
+      }).join('') + '</div></header>' +
+      '<div id="vzCuerpo" role="tabpanel" aria-labelledby="vzTab-' + sel + '"></div>';
+  }
+
+  var pestana = 'visitas';
+  function metricas(forzar, cual) {
+    var u = V.util; var ctx = u.contexto();
+    if (cual) pestana = cual === 'negocio' ? 'negocio' : 'visitas';
+    var cont = ctx.contenedor();
+    cont.innerHTML = cabeceraHTML(pestana);
+    cont.onclick = function (ev) {
+      var b = ev.target.closest ? ev.target.closest('[data-accion="vz-pestana"]') : null;
+      if (b && cont.contains(b) && b.dataset.pestana !== pestana) metricas(false, b.dataset.pestana);
+    };
+    if (pestana === 'negocio') return window.ZOO_ADMIN_MARKETING.metricas(forzar);
+    return visitas(forzar);
+  }
+
   return {
+    metricas: metricas, cabeceraHTML: cabeceraHTML, PESTANAS: PESTANAS,
     RANGOS: RANGOS, DIAS: DIAS, NOMBRE_FUENTE: NOMBRE_FUENTE, NOMBRE_PAGINA: NOMBRE_PAGINA, NOMBRE_DISP: NOMBRE_DISP, COLOR_FUENTE: COLOR_FUENTE, FUENTES: FUENTES, REDES: REDES,
     sumarDias: sumarDias, dow: dow, lunesDe: lunesDe, rangoActual: rangoActual, delta: delta, construir: construir, agrupar: agrupar,
     paginaHTML: paginaHTML, kpisHTML: kpisHTML, controlesHTML: controlesHTML, registroHTML: registroHTML, filaVisitaHTML: filaVisitaHTML, pistaTexto: pistaTexto,

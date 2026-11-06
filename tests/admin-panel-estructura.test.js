@@ -70,7 +70,11 @@ test('los endpoints que usa el panel son los del servidor (inventario)', () => {
 /* ───────── estructura ───────── */
 
 test('cada sección del panel tiene botón en la barra lateral con ícono y se dibuja desde renderSection', () => {
-  assert.equal(P.SECCIONES.length, 21);
+  assert.equal(P.SECCIONES.length, 20);
+  // «Métricas de visitas» y «Métricas» se juntaron en una sola: «Métricas» (pestañas Visitas y Negocio); el enlace viejo #/visitas lleva allá
+  assert.equal(P.seccion('visitas'), null);
+  assert.equal(P.seccionDeHash('#/visitas'), 'metricas');
+  assert.equal(P.seccionDeHash('#/metricas'), 'metricas');
   // «Estado del sistema» ya no existe: vive dentro de Configuración (los enlaces viejos llevan allá)
   assert.equal(P.seccion('estado'), null);
   assert.equal(P.seccionDeHash('#/estado'), 'configuracion');
@@ -87,7 +91,7 @@ test('cada sección del panel tiene botón en la barra lateral con ícono y se d
   assert.equal(P.seccion('herramientas'), null);
   assert.doesNotMatch(html, /data-sec="herramientas"|V\.herramientas/);
   assert.equal(P.seccionDeHash('#/herramientas'), 'resumen');
-  for (const id of ['metricas', 'visitas', 'pruebas']) assert.ok(P.seccion(id), id);
+  for (const id of ['metricas', 'pruebas']) assert.ok(P.seccion(id), id);
 });
 
 test('barra lateral: marca real, "Ver como usuario", ir al Club y cerrar sesión; menú móvil accesible', () => {

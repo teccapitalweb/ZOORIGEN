@@ -87,7 +87,7 @@ test('metricasHTML: tarjetas, tendencias, gráficas, cohortes, cursos y retos; t
   const h = M.metricasHTML(metricas(), { preset: '30' });
   assert.match(h, /Cómo va/);
   assert.match(h, /ap-kpi__tend/);
-  assert.match(h, /\+75 % frente a 4/);
+  assert.match(h, /-17 % frente a 1,194 del periodo anterior/);
   assert.match(h, /data-rango="30" aria-pressed="true"/);
   assert.match(h, /id="apDesde" value="2026-09-17"/);
   assert.match(h, /data-agrupar="dia" aria-pressed="true"/);
@@ -108,18 +108,17 @@ test('metricasHTML: tarjetas, tendencias, gráficas, cohortes, cursos y retos; t
   assert.match(h, /Ingresos estimados/);
   assert.match(h, /data-embudo="rango" aria-pressed="true"/);
   assert.match(h, /6 meses/);
-  assert.match(h, /El contador de visitas está apagado/);
-  assert.match(h, /href="#\/configuracion"/);
   assert.doesNotMatch(h, /gradient\(|[\p{Extended_Pictographic}]/u);
 });
 
-test('metricasHTML con el contador encendido muestra la gráfica y las páginas más vistas', () => {
+test('«Negocio» ya no repite lo de «Visitas»: ni las visitas, ni las páginas más vistas, ni las cuentas nuevas (viven en la pestaña Visitas de Métricas)', () => {
   const d = metricas();
   d.visitas = { activo: true, total: 120, porDia: dias(30), porPagina: [{ pagina: 'portada', n: 100 }, { pagina: 'terminos', n: 20 }] };
   const h = M.metricasHTML(d, {});
-  assert.match(h, /Visitas a la portada/);
-  assert.match(h, /Páginas más vistas/);
-  assert.doesNotMatch(h, /El contador de visitas está apagado/);
+  assert.doesNotMatch(h, /Visitas a la portada|Páginas más vistas|Cuentas nuevas|El contador de visitas/);
+  assert.match(h, /pruebas elegidas en el periodo/);
+  assert.match(h, /De prueba a miembro/);
+  assert.match(h, /Ingresos estimados/);
 });
 
 test('agrupación automática: día hasta 45 días, semana hasta 200 y mes después', () => {
@@ -235,11 +234,11 @@ test('csvCohortes: porcentajes vacíos cuando no hay base', () => {
   assert.equal(csv, 'mes_de_registro,se_registraron,tuvieron_membresia,conversion_pct,con_acceso_hoy,retencion_pct\r\n2026-09,12,7,58,6,');
 });
 
-test('metricasHTML: con el embudo de «todas las cuentas» y el periodo anterior solo en vista diaria', () => {
+test('metricasHTML: con el embudo de «todas las cuentas» y la agrupación por día o semana', () => {
   const d = metricas();
   const todo = M.metricasHTML(d, { embudo: 'total' });
   assert.match(todo, /data-embudo="total" aria-pressed="true"/);
   assert.match(todo, /60/);
-  assert.match(M.metricasHTML(d, { agrupar: 'dia' }), /Periodo anterior/);
-  assert.doesNotMatch(M.metricasHTML(d, { agrupar: 'semana' }), /Periodo anterior/);
+  assert.match(M.metricasHTML(d, { agrupar: 'dia' }), /data-agrupar="dia" aria-pressed="true"/);
+  assert.match(M.metricasHTML(d, { agrupar: 'semana' }), /data-agrupar="semana" aria-pressed="true"/);
 });
