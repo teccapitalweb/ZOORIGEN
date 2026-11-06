@@ -18,7 +18,10 @@
 .ap-ua-controles .zs-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .ap-ua__grupo { min-width: 56px; font: 700 .75rem/1.2 var(--zoo-font-mono, monospace); letter-spacing: .1em; text-transform: uppercase; color: var(--c-text-3); }
 .ap-ua-lista { margin: 0; padding: 0; list-style: none; }
-.ap-ua { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1.5fr) minmax(0, 1.2fr) 108px 150px minmax(0, 1fr); gap: 10px 14px; align-items: center; padding: 13px 8px; border-bottom: 1px solid var(--c-line-soft); font-size: .9rem; cursor: pointer; border-radius: 10px; }
+/* El ancho que importa es el del CONTENEDOR (el panel tiene barra lateral: el ancho útil es menor que el de la ventana). Tres formas de fila:
+   ancha (una sola línea), media (dos líneas) y angosta (apilada). Todas con grid y minmax(0, …): nada se encima ni crea scroll horizontal. */
+#apUaCuerpo { container: apua / inline-size; }
+.ap-ua { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1.4fr) minmax(0, 1.1fr) 112px 158px minmax(150px, auto); gap: 8px 14px; align-items: center; padding: 13px 8px; border-bottom: 1px solid var(--c-line-soft); font-size: .9rem; cursor: pointer; border-radius: 10px; min-width: 0; }
 .ap-ua:last-child { border-bottom: 0; }
 .ap-ua:hover, .ap-ua:focus-within { background: var(--c-row-hover); }
 .ap-ua__quien { display: grid; min-width: 0; gap: 2px; }
@@ -36,22 +39,28 @@
 .ap-ua__dato span { font-size: .8rem; color: var(--c-text-3); }
 .ap-ua__vence--aviso span { color: var(--c-warn-ink, #8A5300); font-weight: 700; }
 .ap-ua__estado { display: flex; justify-content: flex-end; min-width: 0; }
-@media (max-width: 1100px) { .ap-ua-resumen { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 900px) {
-  .ap-ua { grid-template-columns: 44px minmax(0, 1fr) auto; grid-template-areas: "av quien estado" ". plan plan" ". desde vence"; row-gap: 8px; align-items: start; }
+.ap-ua > * { min-width: 0; }
+.ap-ua__nombre, .ap-ua__quien .ap-correo, .ap-ua__origen { overflow-wrap: break-word; word-break: normal; min-width: 0; max-width: 100%; }
+.ap-ua__quien .ap-correo { overflow-wrap: break-word; }
+.ap-ua__plan { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.ap-ua__estado .ap-badge { white-space: normal; text-align: left; }
+@container apua (max-width: 1100px) { .ap-ua-resumen { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Media (menos de 940 px de contenedor): línea 1 = avatar, identidad y estado; línea 2 = plan, desde, próximo cobro */
+@container apua (max-width: 939px) {
+  .ap-ua { grid-template-columns: 44px minmax(0, 1fr) minmax(104px, auto) minmax(150px, auto); grid-template-areas: "av quien quien estado" ". plan desde vence"; align-items: start; }
   .ap-ua__av { grid-area: av; }
   .ap-ua__quien { grid-area: quien; }
-  .ap-ua__estado { grid-area: estado; }
-  .ap-ua__plan { grid-area: plan; grid-auto-flow: column; justify-content: start; align-items: center; gap: 8px; }
+  .ap-ua__estado { grid-area: estado; justify-content: flex-end; }
+  .ap-ua__plan { grid-area: plan; }
   .ap-ua__desde { grid-area: desde; }
   .ap-ua__vence { grid-area: vence; }
 }
-@media (max-width: 560px) {
+/* Angosta (menos de 560 px de contenedor): todo apilado; las dos fechas, una junto a la otra */
+@container apua (max-width: 559px) {
   .ap-ua-resumen { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ap-ua-cifra:last-child { grid-column: 1 / -1; }
-  .ap-ua { grid-template-columns: 40px minmax(0, 1fr); grid-template-areas: "av quien" ". estado" ". plan" ". desde" ". vence"; }
+  .ap-ua { grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "av quien quien" ". estado estado" ". plan plan" ". desde vence"; }
   .ap-ua__estado { justify-content: flex-start; }
-  .ap-ua__plan { grid-auto-flow: row; gap: 4px; }
 }
 
 .ap-sb-lista { margin: 12px 0 0; padding: 0; list-style: none; }
