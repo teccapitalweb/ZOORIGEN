@@ -24,10 +24,13 @@
 
   function iniciar(contexto) { ctx = contexto; }
   // La pantalla «Métricas» tiene pestañas (Visitas | Negocio): su contenido va en #vzCuerpo; el resto de secciones pinta directo en el contenedor.
+  // Solo vale si el cuerpo sigue dentro de SU pantalla (el encabezado de «Métricas» va primero): un cuerpo suelto de otra sección no se reutiliza.
   function vista() {
     var base = ctx.contenedor();
     var cuerpo = base && base.querySelector ? base.querySelector('#vzCuerpo') : null;
-    return cuerpo || base;
+    var primero = base && base.firstElementChild;
+    if (cuerpo && primero && primero.classList && primero.classList.contains('vz-hero') && cuerpo.parentNode === base) return cuerpo;
+    return base;
   }
 
   /* ───────── Piezas comunes ───────── */

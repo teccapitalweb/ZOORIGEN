@@ -536,7 +536,8 @@
 
     function renderSection(sec) {
       const V = window.ZOO_ADMIN_VISTAS;
-      { const sv = document.getElementById('secView'); sv.onclick = null; sv.oninput = null; sv.onchange = null; } // cada vista nueva registra los suyos
+      // Cada vista nueva registra lo suyo y parte de una pantalla vacía: así no queda nada de la sección anterior (por ejemplo el encabezado y las pestañas de «Métricas»)
+      { const sv = document.getElementById('secView'); sv.onclick = null; sv.oninput = null; sv.onchange = null; sv.onsubmit = null; sv.innerHTML = ''; }
       if (sec === 'resumen') V.resumen();
       else if (sec === 'miembros') V.miembros();
       else if (sec === 'suscripciones') window.ZOO_ADMIN_SUSCRIPCIONES.suscripciones();
