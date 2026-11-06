@@ -38,7 +38,7 @@
 
   // Orden fijo: el reto del día rota entre estos cuatro.
   const TIPOS = [
-    { id: 'quiz', titulo: 'Quiz relámpago', desc: 'Preguntas cortas de tres opciones sobre manejo, bioseguridad y legislación. Cada reto se abre al superar el anterior.',
+    { id: 'quiz', titulo: 'Quiz relámpago', desc: 'Preguntas cortas de tres opciones sobre manejo, bioseguridad y legislación. Elige el reto que quieras, en el orden que prefieras.',
       icono: 'zap', color: '#C75402', texto: 'var(--rz-naranja-txt)', tiempo: 'Un minuto por reto', imagen: 'assets/img/landing/area-manejo.webp', camino: true },
     { id: 'detective', titulo: 'Detective de campo', desc: 'Explora 80 escenas de fauna de México y toca la imagen para descubrir tres hallazgos.',
       icono: 'search', color: '#037BC9', texto: 'var(--rz-azul-txt)', tiempo: 'Tres minutos por escena', imagen: 'assets/img/landing/area-monitoreo.webp', camino: true },

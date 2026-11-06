@@ -541,3 +541,15 @@ test('detective nuevo: las 20 escenas 31 a 50 tienen su webp, sus 3 zonas y qued
   assert.equal(D.detective[0].id, 'serpiente-rescate');
   assert.equal(D.detective[59].id, 'campo-nuevo-resguardo-equipo');
 });
+
+test('Retos: ninguna tarjeta sugiere un orden forzoso (todos los retos del camino están abiertos); solo el modo Historia avanza por mundos', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'assets', 'js', 'club-retos.js'), 'utf8');
+  assert.doesNotMatch(js, /Cada reto se abre al superar el anterior/);
+  const tarjetas = js.slice(js.indexOf('const TIPOS = ['), js.indexOf('const IDS = TIPOS'));
+  assert.match(tarjetas, /Elige el reto que quieras, en el orden que prefieras\./);
+  assert.doesNotMatch(tarjetas, /se abre al superar|desbloque|el anterior/i);
+  assert.match(js, /Elige el reto que quieras, en el orden que prefieras\. Cada uno da XP la primera vez/);
+  assert.match(js, /con 3 aciertos de 4 abres el siguiente mundo/, 'la Historia sí avanza por mundos');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'pages', 'club-retos.html'), 'utf8');
+  assert.match(html, /club-retos\.js\?v=20261126-textos/);
+});
