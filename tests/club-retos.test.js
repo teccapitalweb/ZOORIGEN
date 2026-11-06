@@ -22,7 +22,7 @@ const MX = (iso) => Date.parse(iso);   // las fechas de prueba se dan en UTC
 
 /* ───────── contenido ───────── */
 
-test('cantidades de contenido: al menos 15 de cada tipo (hoy 67 quiz / 59 orden / 55 flashcards / 80 detective, 79 activas / 6x4 historia)', () => {
+test('cantidades de contenido: al menos 15 de cada tipo (hoy 67 quiz / 59 orden / 55 flashcards / 80 detective / 6x4 historia)', () => {
   assert.equal(D.quiz.length, 67);
   assert.equal(D.orden.length, 59);
   assert.equal(D.flashcards.length, 55);
@@ -115,7 +115,7 @@ test('historia: mundos con nombre, descripción, fondo y color', () => {
     ['historia-selva.jpg', 'historia-humedal.jpg', 'historia-arrecife.jpg', 'historia-desierto.jpg', 'historia-bosque-niebla.jpg', 'historia-centro-rescate.jpg']);
 });
 
-test('detective: 79 escenas jugables (de 80), todas con imagen webp definida Y respaldo de texto (escena y 6 pistas), 3 riesgos; las inactivas no se juegan ni cuentan', () => {
+test('detective: 80 escenas jugables, todas con imagen webp definida Y respaldo de texto (escena y 6 pistas), 3 riesgos; una escena inactiva no se juega ni cuenta', () => {
   D.detective.forEach(e => {
     assert.match(e.imagen, /^assets\/img\/retos\/detective-[a-z0-9-]+\.webp$/);
     assert.equal(e.riesgos.length, 3);
@@ -131,12 +131,11 @@ test('detective: 79 escenas jugables (de 80), todas con imagen webp definida Y r
     assert.equal(e.pistas.filter(x => x.ok).length, 3);
     assert.deepEqual(e.pistas.filter(x => x.ok).map(x => x.why), e.riesgos);
   });
-  assert.equal(R.escenasActivas(D.detective).length, 79);
-  // La única inactiva: la imagen de las huellas de mapache (el pie trasero parece un pie humano). Va AL FINAL para que activarla después no mueva las posiciones guardadas.
-  assert.equal(R.escenasPendientes(D.detective), 1);
-  assert.deepEqual(D.detective.filter(e => !e.activo).map(e => e.id), ['campo-nuevo-huellas-mapache']);
-  assert.equal(D.detective[D.detective.length - 1].activo, false, 'la inactiva va al final');
-  assert.equal(D.detective.slice(0, 79).every(e => e.activo === true), true, 'las 79 primeras son las jugables y no se mueven');
+  assert.equal(R.escenasActivas(D.detective).length, 80);
+  assert.equal(R.escenasPendientes(D.detective), 0);
+  // Las huellas de mapache (35) se regeneraron y se activaron; siguen AL FINAL de la lista, así que las posiciones guardadas de las demás no se movieron.
+  assert.equal(D.detective[D.detective.length - 1].id, 'campo-nuevo-huellas-mapache');
+  assert.equal(D.detective.every(e => e.activo === true), true);
   // los 17 nombres de imagen adicionales siguen assets/img/retos/detective-<tema>-<n>.webp
   assert.equal(D.detective.filter(e => /-\d\.webp$/.test(e.imagen)).length, 17);
 });

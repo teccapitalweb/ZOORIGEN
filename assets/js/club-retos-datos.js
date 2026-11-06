@@ -10,8 +10,8 @@
 /*   detective   80 escenas (13 originales, 17 adicionales de          */
 /*               identificación, legal y bienestar, 30 de              */
 /*               seguridad, bioseguridad y conservación y 20 en estilo */
-/*               de ilustración editorial; las que tienen activo:false */
-/*               no cuentan ni se juegan hasta regenerar su imagen)    */
+/*               de ilustración editorial; las que tengan activo:false */
+/*               no cuentan ni se juegan hasta tener su imagen)        */
 /*                                                                */
 /* Forma de cada escena del detective:                            */
 /*   { id, titulo, imagen, zonas: [], activo: true,               */
@@ -434,7 +434,7 @@
       ] }
   ];
 
-  /* ───────────── Detective de campo: 80 escenas (79 activas) ───────────── */
+  /* ───────────── Detective de campo: 80 escenas ───────────── */
   // Cada escena trae su consigna, la descripción de la imagen (`escena`, respaldo si la imagen
   // no existe) y 6 pistas: 3 con ok:true (los hallazgos) y 3 con ok:false (cosas que se ven en la
   // escena pero están bien hechas, o afirmaciones que no se sostienen).
@@ -2314,8 +2314,8 @@
       "id": "campo-nuevo-huellas-mapache",
       "titulo": "Huellas junto al arroyo",
       "imagen": "assets/img/retos/detective-nuevo-35-huellas-mapache.webp",
-      "zonas": [{"x": 0.18, "y": 0.7, "w": 0.26, "h": 0.4}, {"x": 0.5, "y": 0.46, "w": 0.2, "h": 0.2}, {"x": 0.79, "y": 0.4, "w": 0.18, "h": 0.5}],
-      "activo": false,
+      "zonas": [{"x": 0.19, "y": 0.69, "w": 0.26, "h": 0.4}, {"x": 0.5, "y": 0.455, "w": 0.2, "h": 0.2}, {"x": 0.78, "y": 0.4, "w": 0.18, "h": 0.46}],
+      "activo": true,
       "tipo": "identificacion",
       "consigna": "Observa las huellas en el lodo y marca los 3 rasgos que indican que son de un mapache.",
       "escena": "En el lodo de la orilla de un arroyo se ve una línea de huellas de un mamífero. Cada huella tiene cinco dedos largos y delgados; las delanteras se parecen a una mano pequeña, con los dedos abiertos en abanico. Las huellas traseras son más largas y muestran la planta del pie completa, con el talón apoyado. Junto a una huella hay una regla como referencia de tamaño.",
