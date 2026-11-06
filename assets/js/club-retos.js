@@ -40,7 +40,7 @@
   const TIPOS = [
     { id: 'quiz', titulo: 'Quiz relámpago', desc: 'Preguntas cortas de tres opciones sobre manejo, bioseguridad y legislación. Cada reto se abre al superar el anterior.',
       icono: 'zap', color: '#C75402', texto: 'var(--rz-naranja-txt)', tiempo: 'Un minuto por reto', imagen: 'assets/img/landing/area-manejo.webp', camino: true },
-    { id: 'detective', titulo: 'Detective de campo', desc: 'Explora 60 escenas de fauna de México y toca la imagen para descubrir tres hallazgos.',
+    { id: 'detective', titulo: 'Detective de campo', desc: 'Explora 79 escenas de fauna de México y toca la imagen para descubrir tres hallazgos.',
       icono: 'search', color: '#037BC9', texto: 'var(--rz-azul-txt)', tiempo: 'Tres minutos por escena', imagen: 'assets/img/landing/area-monitoreo.webp', camino: true },
     { id: 'orden', titulo: 'Ordena el procedimiento', desc: 'Coloca cada paso en el orden correcto y refuerza los protocolos de campo.',
       icono: 'list-checks', color: '#95A303', texto: 'var(--rz-verde-txt)', tiempo: 'Dos minutos por reto', imagen: 'assets/img/landing/area-conservacion.webp', camino: true },
@@ -699,7 +699,7 @@
       const introDetective = modo === 'detective' ? '<p class="rz-nota">Observa, identifica y aprende. Busca prácticas que deben corregirse, rasgos de identificación o señales de buen bienestar, según la consigna de cada escena.</p>' : '';
       abrirEscenario('<div class="rz-panel">' + cabecera(NOMBRE_MODO[modo], 'Tu camino', 'Elige el reto que quieras, en el orden que prefieras. Cada uno da XP la primera vez que lo superas y puedes repasar los que ya resolviste, sin XP.', hechos + ' de ' + items.length) + introDetective +
         '<div class="rz-barra rz-barra--fina" role="progressbar" aria-label="Avance del camino" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><div style="width:' + pct + '%"></div></div>' +
-        (pend ? '<p class="rz-nota">' + ic('info', 16) + ' Faltan por llegar ' + pend + ' escenas del detective. Se agregan poco a poco.</p>' : '') +
+        (pend ? '<p class="rz-nota">' + ic('info', 16) + (pend === 1 ? ' Falta por llegar 1 escena del detective. Se agrega pronto.' : ' Faltan por llegar ' + pend + ' escenas del detective. Se agregan poco a poco.') + '</p>' : '') +
         (fin ? '<p class="rz-nota rz-nota--ok">' + ic('trophy', 16) + ' Completaste todo el camino disponible. Puedes repasar cualquier reto.</p>' : '') +
         '<ol class="rz-camino">' + nodos + '</ol></div>');
       stage.querySelectorAll('[data-nodo]').forEach(b => b.addEventListener('click', () => {

@@ -22,13 +22,13 @@ const MX = (iso) => Date.parse(iso);   // las fechas de prueba se dan en UTC
 
 /* ───────── contenido ───────── */
 
-test('cantidades de contenido: al menos 15 de cada tipo (hoy 67 quiz / 59 orden / 55 flashcards / 60 detective / 6x4 historia)', () => {
+test('cantidades de contenido: al menos 15 de cada tipo (hoy 67 quiz / 59 orden / 55 flashcards / 80 detective, 79 activas / 6x4 historia)', () => {
   assert.equal(D.quiz.length, 67);
   assert.equal(D.orden.length, 59);
   assert.equal(D.flashcards.length, 55);
   assert.equal(D.historia.length, 6);
   D.historia.forEach(m => assert.equal(m.casos.length, 4));
-  assert.equal(D.detective.length, 60);
+  assert.equal(D.detective.length, 80);
   for (const tipo of ['quiz', 'orden', 'flashcards', 'detective']) assert.ok(D[tipo].length >= 15, tipo + ' debe tener al menos 15');
 });
 
@@ -115,24 +115,28 @@ test('historia: mundos con nombre, descripción, fondo y color', () => {
     ['historia-selva.jpg', 'historia-humedal.jpg', 'historia-arrecife.jpg', 'historia-desierto.jpg', 'historia-bosque-niebla.jpg', 'historia-centro-rescate.jpg']);
 });
 
-test('detective: 60 escenas jugables, todas con imagen webp definida Y respaldo de texto (escena y 6 pistas), 3 riesgos', () => {
+test('detective: 79 escenas jugables (de 80), todas con imagen webp definida Y respaldo de texto (escena y 6 pistas), 3 riesgos; las inactivas no se juegan ni cuentan', () => {
   D.detective.forEach(e => {
     assert.match(e.imagen, /^assets\/img\/retos\/detective-[a-z0-9-]+\.webp$/);
     assert.equal(e.riesgos.length, 3);
     e.riesgos.forEach(r => assert.ok(r.trim().length > 10));
     assert.ok(fs.existsSync(path.join(raiz, e.imagen)), 'imagen existente: ' + e.id);
     assert.ok(Array.isArray(e.zonas));
-    assert.equal(e.activo, true);
+    assert.equal(typeof e.activo, 'boolean');
     // Sin imagen (o con ella) la escena se resuelve con su descripción y sus pistas: no hay hueco ni error
     assert.equal(R.escenaConPistas(e), true, 'respaldo de texto: ' + e.id);
-    assert.equal(R.escenaActiva(e), true, 'jugable: ' + e.id);
+    assert.equal(R.escenaActiva(e), e.activo, 'jugable solo si está activa: ' + e.id);
     assert.ok(e.escena.length > 60 && e.consigna.length > 20);
     assert.equal(e.pistas.length, 6);
     assert.equal(e.pistas.filter(x => x.ok).length, 3);
     assert.deepEqual(e.pistas.filter(x => x.ok).map(x => x.why), e.riesgos);
   });
-  assert.equal(R.escenasActivas(D.detective).length, 60);
-  assert.equal(R.escenasPendientes(D.detective), 0);
+  assert.equal(R.escenasActivas(D.detective).length, 79);
+  // La única inactiva: la imagen de las huellas de mapache (el pie trasero parece un pie humano). Va AL FINAL para que activarla después no mueva las posiciones guardadas.
+  assert.equal(R.escenasPendientes(D.detective), 1);
+  assert.deepEqual(D.detective.filter(e => !e.activo).map(e => e.id), ['campo-nuevo-huellas-mapache']);
+  assert.equal(D.detective[D.detective.length - 1].activo, false, 'la inactiva va al final');
+  assert.equal(D.detective.slice(0, 79).every(e => e.activo === true), true, 'las 79 primeras son las jugables y no se mueven');
   // los 17 nombres de imagen adicionales siguen assets/img/retos/detective-<tema>-<n>.webp
   assert.equal(D.detective.filter(e => /-\d\.webp$/.test(e.imagen)).length, 17);
 });
@@ -433,7 +437,7 @@ test('la página usa el menú del club, los archivos de retos y cache-buster', (
 });
 
 
-test('detective visual: los 60 retos tienen tres zonas y cada centro encuentra su hallazgo', () => {
+test('detective visual: los 80 retos tienen tres zonas y cada centro encuentra su hallazgo', () => {
   for (const e of D.detective) {
     assert.equal(R.escenaConZonas(e), true, e.id);
     assert.equal(e.zonas.length, 3);
@@ -491,4 +495,50 @@ test('tercera tanda: ordena con 4 a 6 pasos cortos, y nada de dosis ni tratamien
   const texto = JSON.stringify([D.quiz.slice(47), nuevas]);
   assert.equal(/\b\d+\s?(mg|ml|mL|ug|µg|kg\/|UI)\b|dosis|inyect|suero|antiveneno|tratamiento/i.test(texto), false, 'sin dosis ni indicaciones clínicas');
   assert.equal(R.revisarContenido(D).length, 0);
+});
+
+/* ───────────── Imágenes nuevas: modo Historia (6 mundos) y Detective (20 escenas en estilo de ilustración) ───────────── */
+
+function medidasJpg(buf) {
+  let i = 2;
+  while (i < buf.length) {
+    if (buf[i] !== 0xFF) { i += 1; continue; }
+    const marca = buf[i + 1];
+    if (marca >= 0xC0 && marca <= 0xCF && marca !== 0xC4 && marca !== 0xC8 && marca !== 0xCC) return { alto: buf.readUInt16BE(i + 5), ancho: buf.readUInt16BE(i + 7) };
+    i += 2 + buf.readUInt16BE(i + 2);
+  }
+  return null;
+}
+
+test('historia: cada uno de los 6 mundos tiene su imagen JPG de 1600 x 686 y menos de 250 KB, en el orden de los mundos', () => {
+  const esperado = ['selva', 'humedal', 'arrecife', 'desierto', 'bosque-niebla', 'centro-rescate'];
+  D.historia.forEach((m, i) => {
+    assert.equal(m.imagen, `assets/img/retos/historia-${esperado[i]}.jpg`, 'mundo ' + (i + 1));
+    const archivo = path.join(raiz, m.imagen);
+    assert.ok(fs.existsSync(archivo), m.imagen);
+    const buf = fs.readFileSync(archivo);
+    assert.deepEqual([buf[0], buf[1]], [0xFF, 0xD8], 'es un JPG');
+    assert.ok(buf.length < 250 * 1024, `${m.imagen} pesa ${Math.round(buf.length / 1024)} KB`);
+    assert.deepEqual(medidasJpg(buf), { ancho: 1600, alto: 686 }, m.imagen);
+  });
+  // El avance guardado por mundo no depende de la imagen: los ids 1 a 6 y los 4 casos de cada mundo no cambian
+  assert.deepEqual(D.historia.map(m => m.id), [1, 2, 3, 4, 5, 6]);
+});
+
+test('detective nuevo: las 20 escenas 31 a 50 tienen su webp, sus 3 zonas y quedan al final del arreglo (las posiciones guardadas no se mueven)', () => {
+  const nuevas = D.detective.slice(60);
+  assert.equal(nuevas.length, 20);
+  const numeros = nuevas.map(e => Number(e.imagen.match(/detective-nuevo-(\d\d)-/)[1]));
+  assert.deepEqual(numeros, [31, 32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 35]);
+  nuevas.forEach(e => {
+    const buf = fs.readFileSync(path.join(raiz, e.imagen));
+    assert.equal(buf.toString('ascii', 0, 4) + buf.toString('ascii', 8, 12), 'RIFFWEBP', e.id);
+    assert.ok(buf.length < 400 * 1024, `${e.imagen} pesa ${Math.round(buf.length / 1024)} KB`);
+    assert.equal(e.zonas.length, 3, e.id);
+    assert.equal(e.pistas.filter(p => p.ok).length, 3, e.id);
+    assert.ok(!('ubicacionEnPrompt' in e), 'la guía de ubicación no forma parte del esquema final');
+  });
+  // Las 60 anteriores conservan su lugar
+  assert.equal(D.detective[0].id, 'serpiente-rescate');
+  assert.equal(D.detective[59].id, 'campo-nuevo-resguardo-equipo');
 });
