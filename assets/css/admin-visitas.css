@@ -7,6 +7,11 @@
 .vz-hero { margin: 0 0 18px; }
 .vz-eyebrow { margin: 0 0 6px; font: 700 .75rem/1 var(--zoo-font-mono, monospace); letter-spacing: .14em; text-transform: uppercase; color: var(--c-acento, #2A7A4E); }
 .vz-hero h1 { margin: 0 0 8px; font: 800 clamp(1.7rem, 4vw, 2.4rem)/1.1 var(--zoo-font-display, inherit); color: var(--c-text); }
+.vz-intro { margin: 0 0 14px; }
+.vz-pestanas { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; margin: 4px 0 0; border-radius: 14px; background: var(--c-line-soft); }
+.vz-pestana { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border: 0; border-radius: 11px; background: transparent; color: var(--c-text-2); font: 700 .95rem/1 var(--zoo-font-body, inherit); cursor: pointer; }
+.vz-pestana[aria-selected="true"] { background: var(--c-surface); color: var(--c-acento, #2A7A4E); box-shadow: 0 1px 4px rgba(0, 0, 0, .12); }
+.vz-pestana:focus-visible { outline: 3px solid var(--c-acento, #2A7A4E); outline-offset: 2px; }
 .vz-hero__sub { margin: 0 0 14px; max-width: 68ch; font-size: .98rem; line-height: 1.5; color: var(--c-text-2); }
 
 .vz-estado { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--c-line); background: var(--c-surface); font: 600 .86rem/1.2 var(--zoo-font-body, inherit); color: var(--c-text); }
@@ -114,6 +119,8 @@
 
 @media (max-width: 1100px) { .vz-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) {
+  .vz-pestanas { display: flex; }
+  .vz-pestana { flex: 1 1 0; justify-content: center; padding: 10px 12px; }
   .vz-hero h1 { font-size: 1.7rem; }
   .vz-fila { grid-template-columns: 1fr; gap: 4px; padding: 12px 2px; }
   .vz-fila__h { color: var(--c-text-3); }

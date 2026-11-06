@@ -154,7 +154,7 @@ test('quiénes entraron: solo los que tuvieron actividad en el periodo, por visi
 
 test('la pantalla trae todas las secciones de la referencia, en su orden, con los textos de Zoorigen', () => {
   const h = VZ.paginaHTML(datos(), ui({ rango: '30' }));
-  const orden = ['Métricas de visitas', 'Visitas', 'Personas distintas', 'Cuentas nuevas', 'Promedio por día', 'Visitas día a día', 'Visitas por periodo', '¿De dónde vienen tus miembros?',
+  const orden = ['Visitas', 'Personas distintas', 'Cuentas nuevas', 'Promedio por día', 'Visitas día a día', 'Visitas por periodo', '¿De dónde vienen tus miembros?',
     'Redes sociales · ¿cuánta gente llega de cada una?', 'Redes sociales a lo largo del tiempo', '¿Qué día entra más gente?', 'Mapa de calor · día y hora', 'Países', 'Dispositivos', 'Cómo llegan al sitio', 'Páginas más vistas', 'Quiénes entraron al panel'];
   let desde = 0;
   for (const t of orden) { const i = h.indexOf(t, desde); assert.ok(i >= 0, 'falta o está fuera de orden: ' + t); desde = i; }
@@ -283,13 +283,19 @@ test('estilos: colores sólidos, sin emojis; la sección está en Marketing con 
   assert.ok(!/[\p{Extended_Pictographic}\u{FE0F}]/u.test(css));
   for (const rel of ['assets/js/admin-visitas.js', 'assets/css/admin-visitas.css']) assert.ok(!/alintec|alitec/i.test(leer(rel)), rel + ' sin marca de otra empresa');
   assert.ok(!/[\p{Extended_Pictographic}\u{FE0F}]/u.test(leer('assets/js/admin-visitas.js').replace(/[▲▼]/g, '')));
-  const s = P.seccion('visitas');
+  // Una sola «Métricas» (Marketing): el menú ya no tiene «Métricas de visitas» aparte; el enlace viejo #/visitas lleva a Métricas
+  const s = P.seccion('metricas');
   assert.equal(s.grupo, 'Marketing');
-  assert.equal(s.titulo, 'Métricas de visitas');
+  assert.equal(s.titulo, 'Métricas');
   assert.ok(I.existe(s.icono));
+  assert.equal(P.seccion('visitas'), null);
+  assert.equal(P.seccionDeHash('#/visitas'), 'metricas');
   const html = leer('pages/admin-club.html');
-  assert.match(html, /data-sec="visitas"><svg class="zi"/);
-  assert.match(html, /sec === 'visitas'\) window\.ZOO_ADMIN_VISITAS\.visitas\(\)/);
+  assert.match(html, /data-sec="metricas"><svg class="zi"/);
+  assert.doesNotMatch(html, /data-sec="visitas"/);
+  assert.match(html, /sec === 'metricas'\) window\.ZOO_ADMIN_VISITAS\.metricas\(\)/);
+  assert.doesNotMatch(html, /ZOO_ADMIN_MARKETING\.metricas\(\)/);
+  assert.match(html, /replaceState\(null, '', '#\/metricas'\)/);
   const v = html.match(/admin-visitas\.js\?v=([\w-]+)/)[1];
   assert.equal(html.match(/admin-visitas\.css\?v=([\w-]+)/)[1], v);
   assert.ok(html.indexOf('admin-visitas.js') > html.indexOf('admin-vistas.js'), 'después de las vistas (usa sus piezas)');
@@ -305,4 +311,43 @@ test('la paleta de gráficas tiene un color sólido por cada origen de visita, e
   assert.equal((css.match(/--zg-25: #/g) || []).length, 2, 'claro y oscuro');
   assert.equal(Object.keys(VZ.COLOR_FUENTE).length, 16);
   assert.deepEqual(Object.values(VZ.COLOR_FUENTE), Array.from({ length: 16 }, (_, i) => 9 + i));
+});
+
+/* ───────────── Una sola «Métricas»: pestañas Visitas | Negocio ───────────── */
+
+test('«Métricas»: un solo título, dos pestañas (Visitas y Negocio) y el cuerpo donde se pinta cada una', () => {
+  const v = VZ.cabeceraHTML('visitas');
+  assert.equal((v.match(/<h1>/g) || []).length, 1);
+  assert.match(v, /<h1>Métricas<\/h1>/);
+  assert.match(v, /role="tablist"/);
+  assert.match(v, /id="vzTab-visitas"[^>]*aria-selected="true"/);
+  assert.match(v, /id="vzTab-negocio"[^>]*aria-selected="false"/);
+  assert.match(v, /id="vzCuerpo" role="tabpanel"/);
+  assert.match(VZ.cabeceraHTML('negocio'), /id="vzTab-negocio"[^>]*aria-selected="true"/);
+  assert.deepEqual(VZ.PESTANAS.map(p => p[1]), ['Visitas', 'Negocio']);
+  assert.doesNotMatch(v, /[\p{Extended_Pictographic}]/u);
+  // La pestaña Visitas ya no trae su propio h1
+  assert.doesNotMatch(VZ.paginaHTML(datos(), ui({ rango: '30' })), /<h1>/);
+});
+
+test('«Métricas»: las cuentas nuevas salen de «altas» del servidor (todas, con o sin origen) y las demás cifras no cambian', () => {
+  const base = VZ.construir(datos(), ui({ rango: '30' }));
+  assert.equal(base.kpis.nuevas, 3, 'sin «altas»: las que tienen origen');
+  const altas = { [HOY]: { n: 2, vip: 1 }, [VZ.sumarDias(HOY, -5)]: { n: 4, vip: 0 }, [VZ.sumarDias(HOY, -40)]: { n: 5, vip: 2 } };
+  const m = VZ.construir(datos({ extra: { altas } }), ui({ rango: '30' }));
+  assert.equal(m.kpis.nuevas, 6, '30 días: 2 + 4 (las de hace 40 días caen en el periodo anterior)');
+  assert.equal(m.kpis.nuevasVip, 1);
+  assert.equal(m.kpis.dNuevas.clase, 'up');
+  assert.equal(m.kpis.total, base.kpis.total);
+  assert.equal(m.kpis.unicos, base.kpis.unicos);
+  assert.match(VZ.kpisHTML(m), /Cuentas nuevas[\s\S]*?>6</);
+});
+
+test('«Métricas»: admin-vistas pinta dentro de #vzCuerpo cuando existe y la pestaña Negocio no repite el título de la página', () => {
+  const vistas = leer('assets/js/admin-vistas.js');
+  assert.match(vistas, /querySelector\('#vzCuerpo'\)/);
+  const mk = leer('assets/js/admin-marketing.js');
+  assert.match(mk, /<h2 class="zs-seccion__titulo"/);
+  assert.doesNotMatch(mk, /visitas_a_la_portada.*Cuentas nuevas/);
+  assert.match(leer('assets/js/admin-visitas.js'), /window\.ZOO_ADMIN_MARKETING\.metricas\(forzar\)/);
 });

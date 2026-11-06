@@ -31,7 +31,6 @@
     { id: 'referidos', grupo: 'Comunidad', titulo: 'Referidos', icono: 'gift', zoo: 'referidos', origen: 'servidor' },
     { id: 'creditos', grupo: 'Comunidad', titulo: 'Créditos', icono: 'wallet', zoo: 'logros', origen: 'servidor' },
     { id: 'metricas', grupo: 'Marketing', titulo: 'Métricas', icono: 'chart-line', zoo: 'videos', origen: 'servidor' },
-    { id: 'visitas', grupo: 'Marketing', titulo: 'Métricas de visitas', icono: 'globe', zoo: 'videos', origen: 'servidor' },
     { id: 'pruebas', grupo: 'Marketing', titulo: 'Pruebas gratuitas', icono: 'flask-conical', zoo: 'registro', origen: 'servidor' },
     { id: 'recordatorios', grupo: 'Marketing', titulo: 'Recordatorios de pago', icono: 'mail', zoo: 'canal', origen: 'servidor' },
     { id: 'encuesta', grupo: 'Marketing', titulo: 'Encuesta', icono: 'list-checks', zoo: 'canal', origen: 'servidor' },
@@ -43,6 +42,7 @@
   function seccion(id) { return SECCIONES.filter(function (s) { return s.id === id; })[0] || null; }
   function seccionDeHash(hash) {
     var m = /^#\/?([a-z-]+)/.exec(String(hash || ''));
+    if (m && m[1] === 'visitas') return 'metricas';   // «Métricas de visitas» ahora es la pestaña Visitas de «Métricas» (enlaces viejos)
     if (m && m[1] === 'estado') return 'configuracion'; // «Estado del sistema» ya vive dentro de Configuración (enlaces viejos)
     return m && IDS.indexOf(m[1]) !== -1 ? m[1] : 'resumen';
   }
