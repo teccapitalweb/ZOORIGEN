@@ -119,18 +119,20 @@ test('hoja del menú: contenedor flotante sobre todo, objetivos de 40 px o más,
 
 /* ───────── cada acción sigue disponible, ahora en el menú ───────── */
 
-test('Miembros: las cinco acciones están en el menú de cada miembro (el administrador solo tiene Ver ficha)', () => {
+test('Miembros: «Acciones del miembro» y «Ver progreso» abren el menú «…» y siguen las demás acciones (el administrador solo tiene esas dos y Ver ficha)', () => {
   // las acciones se evalúan directamente del código de la vista
   const trozo = vistas.slice(vistas.indexOf('function accionesMiembro'), vistas.indexOf('function filaMiembro'));
   const acciones = m => new Function(trozo + ' return accionesMiembro;')()(m);
   const normal = acciones({ esAdmin: false, conAcceso: true, estado: 'activo' });
-  assert.deepEqual(normal.map(a => a.a), ['ficha', 'activar', 'regalar', 'cancelar', 'eliminar']);
+  assert.deepEqual(normal.map(a => a.a), ['acciones', 'progreso', 'ficha', 'activar', 'regalar', 'cancelar', 'eliminar']);
+  assert.equal(normal[0].t, 'Acciones del miembro');
+  assert.equal(normal[1].t, 'Ver progreso');
   assert.equal(normal.find(a => a.a === 'activar').t, 'Ampliar membresía');
   assert.equal(normal.find(a => a.a === 'eliminar').p, true);
   const sinAcceso = acciones({ esAdmin: false, conAcceso: false, estado: 'vencido' });
-  assert.deepEqual(sinAcceso.map(a => a.a), ['ficha', 'activar', 'regalar', 'eliminar'], 'sin acceso no hay Cancelar');
+  assert.deepEqual(sinAcceso.map(a => a.a), ['acciones', 'progreso', 'ficha', 'activar', 'regalar', 'eliminar'], 'sin acceso no hay Cancelar');
   assert.equal(sinAcceso.find(a => a.a === 'activar').t, 'Activar membresía');
-  assert.deepEqual(acciones({ esAdmin: true, conAcceso: true, estado: 'activo' }).map(a => a.a), ['ficha']);
+  assert.deepEqual(acciones({ esAdmin: true, conAcceso: true, estado: 'activo' }).map(a => a.a), ['acciones', 'progreso', 'ficha']);
   const cancelada = acciones({ esAdmin: false, conAcceso: true, estado: 'cancelado-vigente' });
   assert.ok(!cancelada.some(a => a.a === 'cancelar'), 'ya cancelada: sin Cancelar');
   assert.equal(normal.find(a => a.a === 'regalar').t, 'Regalar 1 mes o 1 año');

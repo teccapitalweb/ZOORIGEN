@@ -270,7 +270,7 @@
 
   // Acciones del menú «…» de cada miembro. Las cuentas de administración solo tienen «Ver ficha» (no se regalan ni se eliminan).
   function accionesMiembro(m) {
-    var a = [{ t: 'Ver ficha', i: 'eye', a: 'ficha' }];
+    var a = [{ t: 'Acciones del miembro', i: 'settings', a: 'acciones' }, { t: 'Ver progreso', i: 'chart-column', a: 'progreso' }, { t: 'Ver ficha', i: 'eye', a: 'ficha' }];
     if (m.esAdmin) return a;
     a.push({ t: m.conAcceso ? 'Ampliar membresía' : 'Activar membresía', i: m.conAcceso ? 'calendar-plus' : 'badge-check', a: 'activar' });
     a.push({ t: 'Regalar 1 mes o 1 año', i: 'gift', a: 'regalar' });
@@ -352,9 +352,16 @@
     vista().onclick = function (e) {
       var chip = e.target.closest('[data-filtro]');
       if (chip) { estado.filtro = chip.dataset.filtro; estado.visibles = 25; pintarListaMiembros(); return; }
+      // Tocar CUALQUIER parte de la fila de un miembro abre «Acciones del miembro» (como en Fisioteck). Los botones, enlaces y el menú «…» siguen con lo suyo,
+      // y si la persona está seleccionando texto (para copiar un correo) no se abre nada.
+      var fila = e.target.closest('li.ap-mi');
+      if (fila && !e.target.closest('a, button, input, select, textarea, label, [data-accion]') && !(typeof window.getSelection === 'function' && String(window.getSelection()).length)) {
+        abrirAcciones(fila.dataset.uid); return;
+      }
       acciones(e, {
         recargar: function () { miembros(true); },
         mas: function () { estado.visibles += 25; pintarListaMiembros(); },
+        progreso: function (b) { abrirProgreso(b.dataset.uid); },
         ficha: function (b) { abrirFicha(b.dataset.uid); },
         acciones: function (b) { abrirAcciones(b.dataset.uid); },
         activar: function (b) { abrirActivar(b.dataset.uid); },
@@ -499,11 +506,14 @@
     if (!lista.length) return '<p class="ap-nada">Todavía no hay cursos publicados.</p>';
     var hechas = 0; var total = 0;
     lista.forEach(function (c) { hechas += Math.min(c.clasesVistas, c.clasesTotal || c.clasesVistas); total += c.clasesTotal; });
+    var conCertificado = function (curso) { var n = String(curso || '').trim().toLowerCase(); return (certificados || []).some(function (x) { return String(x.curso || '').trim().toLowerCase() === n; }); };
     var resumen = '<p class="ap-avance-res"><strong>' + esc(P.fmtNum(hechas)) + '</strong> clases completadas de ' + esc(P.fmtNum(total)) + ' · ' + esc(P.fmtNum((certificados || []).length)) + (certificados && certificados.length === 1 ? ' certificado' : ' certificados') + '</p>';
-    return resumen + '<ul class="ap-avance">' + lista.map(function (c) {
+    var vacioAvance = hechas === 0 && !(certificados || []).length ? '<p class="ap-nada ap-avance__vacio">Todavía no ha empezado ningún curso: aquí aparecerá su avance en cuanto vea la primera clase.</p>' : '';
+    return resumen + vacioAvance + '<ul class="ap-avance">' + lista.map(function (c) {
       var pct = c.clasesTotal ? Math.max(0, Math.min(100, Math.round(c.clasesVistas / c.clasesTotal * 100))) : 0;
       var listo = c.clasesTotal > 0 && c.clasesVistas >= c.clasesTotal;
       return '<li class="ap-avance__fila' + (listo ? ' is-listo' : '') + '"><div class="ap-avance__t"><span>' + esc(c.curso) + '</span><b>' + esc(c.clasesVistas) + '/' + esc(c.clasesTotal) + (listo ? ' ' + ico('check', { size: 14 }) : '') + '</b></div>' +
+        (conCertificado(c.curso) ? '<span class="ap-avance__cert">' + ico('award', { size: 14 }) + 'Certificado emitido</span>' : '') +
         '<div class="ap-avance__barra" role="progressbar" aria-label="Avance en ' + esc(c.curso) + '" aria-valuemin="0" aria-valuemax="' + esc(c.clasesTotal) + '" aria-valuenow="' + esc(c.clasesVistas) + '"><i style="width:' + pct + '%"></i></div></li>';
     }).join('') + '</ul>';
   }
@@ -655,8 +665,11 @@
   }
 
   /* ───────── REGALAR, ELIMINAR Y RESTAURAR ───────── */
-  // Recarga la tabla de Miembros solo si es la que se está viendo.
-  function recargarSiMiembros() { if (document.getElementById('apMiembrosLista')) return miembros(true); }
+  // Recarga la tabla de Miembros solo si es la que se está viendo (o la lista de «Usuarios activos» si las acciones se abrieron desde Suscripciones y pagos).
+  function recargarSiMiembros() {
+    if (document.getElementById('apMiembrosLista')) return miembros(true);
+    if (document.getElementById('apUaLista') && root.ZOO_ADMIN_SUSCRIPCIONES) return root.ZOO_ADMIN_SUSCRIPCIONES.suscripciones(true);
+  }
 
   async function abrirRegalar(uid) {
     var m = miembroLocal(uid) || { nombre: '', correo: '' };

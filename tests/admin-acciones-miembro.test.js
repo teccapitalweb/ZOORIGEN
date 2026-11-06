@@ -121,3 +121,28 @@ test('estilos: tarjetas de colores sólidos, sin emojis ni degradados, y la vent
   const codigo = vistasJs.slice(vistasJs.indexOf('ACCIONES DEL MIEMBRO'), vistasJs.indexOf('async function abrirActivar'));
   assert.ok(!/[\p{Extended_Pictographic}\u{FE0F}]/u.test(codigo));
 });
+
+test('Miembros: tocar CUALQUIER parte de la fila abre «Acciones del miembro»; el menú «…» trae «Acciones del miembro» y «Ver progreso» primero; Ver progreso marca completos, certificados y el estado vacío', () => {
+  const vistas = leer('assets/js/admin-vistas.js');
+  // clic en la fila (menos botones, enlaces y texto seleccionado) y el mismo destino que el nombre
+  assert.match(vistas, /closest\('li\.ap-mi'\)/);
+  assert.match(vistas, /abrirAcciones\(fila\.dataset\.uid\)/);
+  assert.match(vistas, /progreso: function \(b\) \{ abrirProgreso\(b\.dataset\.uid\); \}/);
+  // la fila entera se ve tocable
+  assert.match(leer('assets/css/admin-club.css'), /\.ap-mi \{ cursor: pointer; \}/);
+  assert.match(leer('assets/css/admin-club.css'), /\.ap-mi__nombre::after \{ content: ''; position: absolute; inset: 0; \}/);
+  // el avance por curso
+  const V = cargar();
+  const html = V.miembroUI.avanceHTML(
+    [{ curso: 'Fototrampeo', clasesVistas: 3, clasesTotal: 3 }, { curso: 'Etología', clasesVistas: 1, clasesTotal: 4 }, { curso: 'Aves', clasesVistas: 0, clasesTotal: 5 }],
+    [{ curso: 'Fototrampeo', folio: 'ZOO-1' }]);
+  assert.match(html, /4<\/strong> clases completadas de 12 · 1 certificado/);
+  assert.match(html, /3\/3/);
+  assert.match(html, /is-listo/);
+  assert.match(html, /Certificado emitido/);
+  assert.equal((html.match(/Certificado emitido/g) || []).length, 1, 'solo el curso con certificado');
+  assert.doesNotMatch(html, /Todavía no ha empezado/);
+  const vacio = V.miembroUI.avanceHTML([{ curso: 'Aves', clasesVistas: 0, clasesTotal: 5 }], []);
+  assert.match(vacio, /Todavía no ha empezado ningún curso/);
+  assert.match(vacio, /0\/5/);
+});

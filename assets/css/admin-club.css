@@ -844,7 +844,9 @@ body.ap-sin-scroll { overflow: hidden; }
 .ap-mi:first-child { border-radius: 18px 18px 0 0; }
 .ap-mi:last-child { border-radius: 0 0 18px 18px; }
 .ap-mi:only-child { border-radius: 18px; }
+.ap-mi { cursor: pointer; }
 .ap-mi:hover { background: var(--c-row-hover); }
+.ap-mi:focus-within { background: var(--c-row-hover); }
 .ap-mi__av { display: grid; place-items: center; }
 .ap-mi__txt { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
 .ap-mi__nombre { margin: 0; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; color: var(--c-text); font: 700 1rem/1.3 var(--zoo-font-display); overflow-wrap: anywhere; }
@@ -1117,6 +1119,7 @@ body.ap-sin-scroll { overflow: hidden; }
 .ap-avance__t { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; font-weight: 700; color: var(--c-text); }
 .ap-avance__t b { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--c-text-2); }
 .ap-avance__fila.is-listo .ap-avance__t b { color: #0E7A43; }
+.ap-avance__cert { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font: 700 .8rem/1.2 var(--zoo-font-body, inherit); color: #0E7A43; }
 .ap-avance__barra { height: 10px; margin-top: 6px; border-radius: 6px; background: var(--c-line-soft); overflow: hidden; }
 .ap-avance__barra i { display: block; height: 100%; border-radius: 6px; background: var(--zg-2); }
 .ap-avance__fila.is-listo .ap-avance__barra i { background: var(--zg-1); }
