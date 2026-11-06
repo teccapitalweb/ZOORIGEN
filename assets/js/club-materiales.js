@@ -173,7 +173,8 @@
     var lista = (Array.isArray(libros) ? libros : []).filter(function (l) { return l && entero(l.requiereRetos, 0) > 0; })
       .sort(function (a, b) { return a.requiereRetos - b.requiereRetos; });
     if (!lista.length) return null;
-    var pendiente = lista.filter(function (l) { return s < l.requiereRetos; })[0];
+    // Un libro que ya está abierto (por retos, créditos o porque lo conservó de antes de subir el umbral) no es «el siguiente por abrir»
+    var pendiente = lista.filter(function (l) { return l.desbloqueado !== true && s < l.requiereRetos; })[0];
     if (!pendiente) return { todosAbiertos: true, superados: s, total: lista.length };
     return { todosAbiertos: false, libro: pendiente, requiere: pendiente.requiereRetos, superados: s, faltan: pendiente.requiereRetos - s, porcentaje: Math.min(100, Math.round(s * 100 / pendiente.requiereRetos)) };
   }
@@ -209,9 +210,9 @@
   /* Catálogo mínimo de respaldo (solo títulos, tipo y área; las portadas salen de PORTADAS). Se usa SOLO para quien
      no es miembro cuando el servidor no responde, para no dejar la pantalla en blanco. No lleva ningún contenido. */
   var RESPALDO_LIBROS = [
-    { id: 'ley-fauna-mx', titulo: 'Fauna silvestre y ley en México', subtitulo: 'Guía de bolsillo para profesionales y estudiantes', categoria: 'Normatividad', color: '#1F5F3A', icono: 'scale', requiereRetos: 5, paginasTotal: 17 },
-    { id: 'bienestar-cautiverio', titulo: 'Bienestar animal en cautiverio', subtitulo: 'Cinco dominios, enriquecimiento y manejo cotidiano', categoria: 'Bienestar animal', color: '#C75402', icono: 'heartpulse', requiereRetos: 15, paginasTotal: 17 },
-    { id: 'conservacion-mx', titulo: 'Conservación de la vida silvestre en México', subtitulo: 'Especies, amenazas y herramientas', categoria: 'Conservación', color: '#2F7A4F', icono: 'leaf', requiereRetos: 30, paginasTotal: 17 }
+    { id: 'ley-fauna-mx', titulo: 'Fauna silvestre y ley en México', subtitulo: 'Guía de bolsillo para profesionales y estudiantes', categoria: 'Normatividad', color: '#1F5F3A', icono: 'scale', requiereRetos: 25, paginasTotal: 17 },
+    { id: 'bienestar-cautiverio', titulo: 'Bienestar animal en cautiverio', subtitulo: 'Cinco dominios, enriquecimiento y manejo cotidiano', categoria: 'Bienestar animal', color: '#C75402', icono: 'heartpulse', requiereRetos: 35, paginasTotal: 17 },
+    { id: 'conservacion-mx', titulo: 'Conservación de la vida silvestre en México', subtitulo: 'Especies, amenazas y herramientas', categoria: 'Conservación', color: '#2F7A4F', icono: 'leaf', requiereRetos: 45, paginasTotal: 17 }
   ];
   var RESPALDO_MATERIALES = [
     { id: 'checklist-bioseguridad', titulo: 'Checklist de bioseguridad para unidades de manejo de fauna', tipo: 'checklist', area: 'Sanidad y manejo de fauna silvestre', paginas: 3 },
