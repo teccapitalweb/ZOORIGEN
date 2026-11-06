@@ -219,11 +219,12 @@
   <link rel="stylesheet" href="../assets/css/club-noticias.css?v=20261109-cromo">
   <link rel="stylesheet" href="../assets/css/admin-noticias.css?v=20261106-noticias">
   <link rel="stylesheet" href="../assets/css/admin-encuesta.css?v=20261128-admin2">
-  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261104-motivos3">
+  <link rel="stylesheet" href="../assets/css/admin-club.css?v=20261124-historial">
   <link rel="stylesheet" href="../assets/css/admin-recordatorios.css?v=20261209-cupon">
-  <link rel="stylesheet" href="../assets/css/admin-resenas.css?v=20261104-motivos3">
-  <link rel="stylesheet" href="../assets/css/admin-cupones.css?v=20261104-motivos3">
-  <link rel="stylesheet" href="../assets/css/admin-suscripciones.css?v=20261104-motivos3">
+  <link rel="stylesheet" href="../assets/css/admin-resenas.css?v=20261124-historial">
+  <link rel="stylesheet" href="../assets/css/admin-cupones.css?v=20261124-historial">
+  <link rel="stylesheet" href="../assets/css/admin-suscripciones.css?v=20261124-historial">
+  <link rel="stylesheet" href="../assets/css/admin-historial.css?v=20261124-historial">
   <link rel="stylesheet" href="../assets/css/club-responsivo.css?v=20261128-arreglos">
 </head>
 <body data-zoo="inicio">
@@ -314,28 +315,29 @@
   <script src="../assets/js/herramientas-iconos.js?v=20261104"></script>
   <script src="../assets/js/club.js?v=20261218-admin-abierto"></script>
   <script src="../assets/js/club-contacto.js?v=20261203-contacto"></script>
-  <script src="../assets/js/admin-iconos.js?v=20261104-motivos3"></script>
+  <script src="../assets/js/admin-iconos.js?v=20261124-historial"></script>
   <script src="../assets/js/club-config.js?v=20261104"></script>
-  <script src="../assets/js/admin-panel.js?v=20261104-motivos3"></script>
-  <script src="../assets/js/admin-graficas.js?v=20261104-motivos3"></script>
-  <script src="../assets/js/admin-filas.js?v=20261104-motivos3"></script>
-  <script src="../assets/js/admin-servidor.js?v=20261104-motivos3"></script>
-  <script src="../assets/js/admin-vistas.js?v=20261104-motivos3"></script>
-  <script src="../assets/js/admin-marketing.js?v=20261104-motivos3"></script>
-  <script src="../assets/js/admin-creditos.js?v=20261104-motivos3"></script>
-  <script src="../assets/js/admin-suscripciones.js?v=20261104-motivos3"></script>
+  <script src="../assets/js/admin-panel.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-graficas.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-filas.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-servidor.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-historial.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-vistas.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-marketing.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-creditos.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-suscripciones.js?v=20261124-historial"></script>
   <script src="../assets/js/admin-recordatorios.js?v=20261209-cupon"></script>
-  <script src="../assets/js/admin-resenas.js?v=20261104-motivos3"></script>
+  <script src="../assets/js/admin-resenas.js?v=20261124-historial"></script>
   <script src="../assets/js/club-juegos.js?v=20261123"></script>
   <script src="../assets/js/club-quiz.js?v=20261104"></script>
   <script src="../assets/js/club-portadas.js?v=20261201-graficas"></script>
-  <script src="../assets/js/admin-materiales-curso.js?v=20261104-motivos3"></script>
-  <script src="../assets/js/admin-cursos.js?v=20261104-motivos3"></script>
-  <script src="../assets/js/admin-certificados.js?v=20261104-motivos3"></script>
+  <script src="../assets/js/admin-materiales-curso.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-cursos.js?v=20261124-historial"></script>
+  <script src="../assets/js/admin-certificados.js?v=20261124-historial"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
-  <script src="../assets/js/admin-noticias.js?v=20261104-motivos3"></script>
+  <script src="../assets/js/admin-noticias.js?v=20261124-historial"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
-  <script src="../assets/js/admin-encuesta.js?v=20261104-motivos3"></script>
+  <script src="../assets/js/admin-encuesta.js?v=20261124-historial"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -364,6 +366,12 @@
         caja.appendChild(a);
       });
     }
+
+    // Historial de movimientos: lo que este panel guarda directo en Firestore (cursos, videos, PDF, clases en vivo) se avisa al servidor,
+    // que pone al administrador desde su token verificado y arma la frase. «Lo mejor posible»: si falla, no estorba a quien guarda.
+    const historialAviso = (accion, nombre, id, extra) => {
+      try { Promise.resolve(ZOORIGEN_CLUB.apiFetch('/api/admin/historial/registrar', { method: 'POST', body: Object.assign({ accion, nombre: nombre || '', id: id || '' }, extra || {}) })).catch(() => {}); } catch (e) { /* sin historial */ }
+    };
 
     let panelIniciado = false;
     async function verificarAcceso() {
@@ -836,6 +844,7 @@
         try { await batch.commit(); } finally { if (guardar) guardar.disabled = false; }
         cursosParaPdf = null;
         toast(id ? 'Curso y materiales actualizados' : 'Curso creado');
+        historialAviso(id ? 'curso-editar' : 'curso-crear', data.title, ref.id);
         closeModal(); loadCursos(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
@@ -935,6 +944,7 @@
         }
 
         toast(`61 videos sincronizados · ${actualizados} cursos actualizados · ${creados} creados`);
+        historialAviso('curso-sync-bunny', '', '', { creados, actualizados });
         await loadCursos();
         loadBadges();
       } catch (error) {
@@ -1008,6 +1018,7 @@
       try {
         if (id) await db.collection('videos').doc(id).update(data);
         else { data.createdAt = new Date().toISOString(); await db.collection('videos').add(data); }
+        historialAviso(id ? 'video-editar' : 'video-crear', data.title, id);
         toast('Guardado'); closeModal(); loadVideos(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
@@ -1111,6 +1122,7 @@
       try {
         if (id) await db.collection('pdfs').doc(id).update(data);
         else { data.createdAt = new Date().toISOString(); await db.collection('pdfs').add(data); }
+        historialAviso(id ? 'pdf-editar' : 'pdf-crear', data.title, id);
         toast('Guardado'); closeModal(); loadPdfs(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
@@ -1162,6 +1174,7 @@
       try {
         if (id) await db.collection('sesiones').doc(id).update(data);
         else { data.createdAt = new Date().toISOString(); await db.collection('sesiones').add(data); }
+        historialAviso(id ? 'sesion-editar' : 'sesion-crear', data.title, id);
         toast('Guardado'); closeModal(); loadSesiones(); loadBadges();
       } catch (err) { toast('Error: ' + err.message, true); }
     };
@@ -1183,6 +1196,8 @@
       if (!confirm(`¿Eliminar "${name}"?`)) return;
       try {
         await db.collection(col).doc(id).delete();
+        const codigoBorrado = { cursos: 'curso-eliminar', videos: 'video-eliminar', pdfs: 'pdf-eliminar', sesiones: 'sesion-eliminar' }[col];
+        if (codigoBorrado) historialAviso(codigoBorrado, name, id);
         toast('Eliminado');
         renderSection(currentSec);
         loadBadges();

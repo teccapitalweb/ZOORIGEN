@@ -1136,8 +1136,11 @@
         h ? { valor: P.fmtNum(h.caidas), rotulo: 'caídas en ' + d.historial.dias + ' días' } : null
       ].filter(Boolean),
       acciones: [{ id: 'recargar', texto: 'Actualizar todo', icono: 'refresh-cw' }]
-    }) + S.tarjetasHTML(d, { modo: cfg.modo });
+    }) + (root.ZOO_ADMIN_HISTORIAL ? root.ZOO_ADMIN_HISTORIAL.tarjetaHTML({ items: [], cargando: true }) : '') + S.tarjetasHTML(d, { modo: cfg.modo });
     var v = vista();
+    // Historial de movimientos (quién hizo qué y cuándo): se carga solo, 10 al abrir y «Ver más» de 20 en 20
+    var tm = document.getElementById('apCfgMovimientos');
+    if (tm && root.ZOO_ADMIN_HISTORIAL) root.ZOO_ADMIN_HISTORIAL.montar(tm, function (ruta) { return ctx.api(ruta); });
 
     var copiar = async function (texto, ok) {
       try { await navigator.clipboard.writeText(texto); ctx.toast(ok); } catch (e) { ctx.toast('No se pudo copiar el reporte.', true); }
