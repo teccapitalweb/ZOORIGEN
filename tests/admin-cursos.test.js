@@ -47,7 +47,7 @@ test('resumenCursos(): totales, horas y cursos con juego', () => {
 test('resumenCursos(): no cuenta juegos inválidos y tolera catálogos vacíos', () => {
   const r = C.resumenCursos([curso({ lecciones: [{ videoId: 'a', juego: { tipo: 'sopa_letras', datos: { palabras: ['uno'] } } }] })]);
   assert.equal(r.juegos, 0);
-  assert.deepEqual(C.resumenCursos([]), { total: 0, clases: 0, horas: 0, conJuego: 0, juegos: 0, promedioClases: 0 });
+  assert.deepEqual(C.resumenCursos([]), { total: 0, clases: 0, horas: 0, conJuego: 0, juegos: 0, sinVideo: 0, cursosSinVideo: 0, promedioClases: 0 });
 });
 
 test('contarClases() usa las clases reales y, si no hay, totalClases o la clase antigua de Drive', () => {
@@ -193,37 +193,6 @@ test('limpiarLecciones(): no modifica los datos de entrada y tolera entradas rar
   assert.equal(JSON.stringify(entrada), copia);
   assert.deepEqual(C.limpiarLecciones(null), { lecciones: [], errores: [] });
   assert.deepEqual(C.limpiarLecciones('x'), { lecciones: [], errores: [] });
-});
-
-/* ───────── sincronización con Bunny: los juegos sobreviven ───────── */
-
-test('migrarLecciones(): al sincronizar con Bunny se conservan los juegos y los títulos de cada clase', () => {
-  const anteriores = [
-    { titulo: 'Intro', driveId: 'drive1', duration: '10 min', juego: juegoSopa() },
-    { titulo: 'Manejo', videoId: 'viejo', juego: { tipo: 'rompecabezas', datos: { dificultad: '4', imagenUrl: null } } }];
-  const r = C.migrarLecciones(anteriores, [{ videoId: 'bunny-1', titulo: 'T1' }, { videoId: 'bunny-2', titulo: 'T2' }, { videoId: 'bunny-3', titulo: 'T3' }]);
-  assert.equal(r.length, 3);
-  assert.deepEqual(r[0].juego, juegoSopa());
-  assert.equal(r[0].titulo, 'Intro');
-  assert.equal(r[0].videoId, 'bunny-1');
-  assert.equal(r[0].driveId, undefined);
-  assert.equal(r[0].driveIdAnterior, 'drive1');
-  assert.equal(r[1].juego.tipo, 'rompecabezas');
-  assert.equal(r[2].titulo, 'T3');
-  assert.equal(r[2].juego, undefined);
-  assert.ok(r.every(l => l.provider === 'bunny'));
-});
-
-test('migrarLecciones(): sin clases anteriores usa los títulos del catálogo o "Clase N"', () => {
-  const r = C.migrarLecciones(undefined, [{ videoId: 'a', titulo: 'Uno' }, { videoId: 'b' }]);
-  assert.deepEqual(r.map(l => l.titulo), ['Uno', 'Clase 2']);
-});
-
-test('migrarLecciones(): no modifica las clases anteriores', () => {
-  const anteriores = [{ titulo: 'Intro', driveId: 'd' }];
-  const copia = JSON.stringify(anteriores);
-  C.migrarLecciones(anteriores, [{ videoId: 'a' }]);
-  assert.equal(JSON.stringify(anteriores), copia);
 });
 
 /* ───────── editor: estado ───────── */

@@ -207,10 +207,10 @@ test('Configuración trae la tarjeta, la página la carga con la misma versión 
   assert.match(css, /@media \(max-width: 700px\)[\s\S]*\.ap-hm \{ grid-template-columns: 40px minmax\(0, 1fr\); \}/);
 });
 
-test('lo que el panel guarda directo en Firestore avisa al servidor: curso (crear, editar, eliminar), Bunny, video, PDF y clase en vivo', () => {
+test('lo que el panel guarda directo en Firestore avisa al servidor: curso (crear, editar, eliminar), video, PDF y clase en vivo (el botón global de Bunny ya no existe)', () => {
   const html = leer('pages/admin-club.html');
   assert.match(html, /\/api\/admin\/historial\/registrar/);
-  for (const a of ["id ? 'curso-editar' : 'curso-crear'", "'curso-sync-bunny'", "id ? 'video-editar' : 'video-crear'", "id ? 'pdf-editar' : 'pdf-crear'", "id ? 'sesion-editar' : 'sesion-crear'"]) {
+  for (const a of ["id ? 'curso-editar' : 'curso-crear'", "id ? 'video-editar' : 'video-crear'", "id ? 'pdf-editar' : 'pdf-crear'", "id ? 'sesion-editar' : 'sesion-crear'"]) {
     assert.ok(html.includes('historialAviso(' + a), a);
   }
   assert.match(html, /curso-eliminar[\s\S]{0,80}video-eliminar[\s\S]{0,80}pdf-eliminar[\s\S]{0,80}sesion-eliminar/);

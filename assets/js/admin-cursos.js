@@ -53,11 +53,16 @@
   const contarClases = c => leccionesDe(c).length || Number(c && c.totalClases) || 0;
   const contarPreguntas = c => leccionesDe(c).reduce((n, l) => n + (l && quiz ? quiz.preguntasDeClase(l).length : 0), 0);
   const contarJuegos = c => leccionesDe(c).filter(l => l && juegos && juegos.limpiarJuego(l.juego)).length;
+  // Una clase tiene video si trae el ID de Bunny o el de Google Drive. Se cuenta solo con las clases cargadas del curso: no se inventa nada.
+  const claseSinVideo = l => !l || typeof l !== 'object' || (!String(l.videoId || '').trim() && !String(l.driveId || '').trim());
+  const contarSinVideo = c => (Array.isArray(c && c.lecciones) ? c.lecciones.filter(claseSinVideo).length : 0);
 
   function resumenCursos(cursos) {
-    const r = { total: cursos.length, clases: 0, horas: 0, conJuego: 0, juegos: 0 };
+    const r = { total: cursos.length, clases: 0, horas: 0, conJuego: 0, juegos: 0, sinVideo: 0, cursosSinVideo: 0 };
     for (const c of cursos) {
       r.clases += contarClases(c);
+      const sv = contarSinVideo(c);
+      if (sv) { r.sinVideo += sv; r.cursosSinVideo++; }
       const h = parseHoras(c.duration);
       if (h) r.horas += h;
       const j = contarJuegos(c);
@@ -181,11 +186,20 @@
 
   /* ───────────────────────── Tarjetas y filtros (HTML) ───────────────────────── */
 
+  // Debajo de la cifra de clases: cuántas no tienen video (solo si hay) o, cuando todo está completo, que todas lo tienen.
+  function avisoSinVideoHTML(r) {
+    if (!r.total || !r.clases) return '';
+    if (r.sinVideo > 0) {
+      return `<div class="stat-box__aviso" role="status">${ico('circle-alert', { size: 14 })}${r.sinVideo} clase${r.sinVideo === 1 ? '' : 's'} sin video <span class="stat-box__aviso-de">en ${r.cursosSinVideo} curso${r.cursosSinVideo === 1 ? '' : 's'}</span></div>`;
+    }
+    return `<div class="stat-box__aviso stat-box__aviso--ok">${ico('badge-check', { size: 14 })}Todas con video</div>`;
+  }
+
   function kpisHTML(r) {
     return `
       <div class="admin-stats cols-4">
         <div class="stat-box total"><div class="stat-box__label">Cursos</div><div class="stat-box__value">${r.total}</div><div class="stat-box__note">en el catálogo</div></div>
-        <div class="stat-box green"><div class="stat-box__label">Clases</div><div class="stat-box__value">${r.clases}</div><div class="stat-box__note">${String(r.promedioClases).replace('.', ',')} por curso en promedio</div></div>
+        <div class="stat-box green"><div class="stat-box__label">Clases</div><div class="stat-box__value">${r.clases}</div><div class="stat-box__note">${String(r.promedioClases).replace('.', ',')} por curso en promedio</div>${avisoSinVideoHTML(r)}</div>
         <div class="stat-box amber"><div class="stat-box__label">Horas de contenido</div><div class="stat-box__value">${String(r.horas).replace('.', ',')}h</div><div class="stat-box__note">según la duración de cada curso</div></div>
         <div class="stat-box review"><div class="stat-box__label">Con juegos</div><div class="stat-box__value">${r.conJuego}<span class="stat-box__of"> / ${r.total}</span></div><div class="stat-box__note">${r.juegos} juego${r.juegos === 1 ? '' : 's'} en total</div></div>
       </div>`;
@@ -209,6 +223,8 @@
   function metaHTML(c) {
     const clases = contarClases(c), j = contarJuegos(c);
     const partes = [`<span class="cc-m">${ico('clapperboard', { size: 14 })}${clases} clase${clases === 1 ? '' : 's'}</span>`];
+    const sv = contarSinVideo(c);
+    if (sv) partes.push(`<span class="cc-m cc-m--aviso" title="Abre el curso y pulsa Sincronizar con Bunny, o pega el ID del video en cada clase">${ico('circle-alert', { size: 14 })}${sv} clase${sv === 1 ? '' : 's'} sin video</span>`);
     if (c.duration) partes.push(`<span class="cc-m">${ico('clock', { size: 14 })}${esc(c.duration)}</span>`);
     if (j) partes.push(`<span class="cc-m cc-m--juego">${ico('gamepad-2', { size: 14 })}${j} juego${j === 1 ? '' : 's'}</span>`);
     const p = contarPreguntas(c);
@@ -559,18 +575,6 @@
     return siguienteOrdenVip(cursos);
   }
 
-  // Sincronización con Bunny: reemplaza videos por posición pero CONSERVA todo lo demás (títulos, juegos…).
-  function migrarLecciones(anteriores, nuevas) {
-    const previas = Array.isArray(anteriores) ? anteriores : [];
-    return nuevas.map((lesson, index) => {
-      const anterior = previas[index] || {};
-      const migrada = { ...anterior, titulo: anterior.titulo || lesson.titulo || `Clase ${index + 1}`, provider: 'bunny', videoId: lesson.videoId };
-      if (anterior.driveId) migrada.driveIdAnterior = anterior.driveId;
-      delete migrada.driveId; delete migrada.fuente;
-      return migrada;
-    });
-  }
-
   /* ── HTML del editor ── */
 
   function inputHTML(ruta, valor, ph, extra) {
@@ -744,7 +748,7 @@
     portadaDe, origenPortada, vistaPortada, cambiosPortada, errorPortada, valorCampoPortada, portadaFormHTML,
     kpisHTML, chipsAreasHTML, ordenHTML, vistaHTML, tarjetaGridHTML, tarjetaListaHTML, listaHTML,
     FILAS_MINIMAS, leccionVacia, nuevoJuego, agregarFila, quitarFila, asignarRuta, moverLeccion,
-    limpiarLecciones, migrarLecciones, normalizarFuente,
+    limpiarLecciones, claseSinVideo, contarSinVideo, normalizarFuente,
     siguienteOrdenVip, calcularOrdenVip,
     puntajeTitulo, mejorColeccion, catalogoDesdeArchivo, aplicarColeccion, videosUsadosPorOtros,
     nuevaPregunta, agregarPregunta, quitarPregunta, cambiarTipoPregunta, agregarOpcion, quitarOpcion,

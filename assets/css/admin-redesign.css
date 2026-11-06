@@ -874,6 +874,12 @@ textarea.ce-input { min-height: 84px; resize: vertical; line-height: 1.5; }
 /* ─────────────── Preguntas, clases gratis y disponibilidad ─────────────── */
 .cc-m--preg { color: var(--c-accent-text); font-weight: 700; }
 .cc-m--gratis { color: var(--c-ok-ink); font-weight: 700; }
+/* Aviso de clases sin video (color de aviso sólido, sin fondo ni degradado) */
+.cc-m--aviso { color: var(--c-warn-ink); font-weight: 700; }
+.stat-box__aviso { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 6px; font-size: .78rem; font-weight: 700; line-height: 1.3; color: var(--c-warn-ink); }
+.stat-box__aviso svg { flex: none; }
+.stat-box__aviso-de { font-weight: 500; color: var(--c-text-3); }
+.stat-box__aviso--ok { color: var(--c-ok-ink); }
 .ce-gratis { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; cursor: pointer; background: var(--c-ok-bg); border: 1px solid var(--c-ok-line); border-radius: 12px; }
 .ce-gratis input { flex: none; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--c-accent); cursor: pointer; }
 .ce-gratis span { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: .84rem; font-weight: 700; color: var(--c-ok-ink); }
