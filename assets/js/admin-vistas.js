@@ -337,7 +337,8 @@
       sub: 'Busca a una persona, revisa el estado de su plan y entra a su ficha. Aquí ves solo lo necesario para administrar.',
       cifras: [
         { valor: P.fmtNum(conteo.todos), rotulo: 'miembros' },
-        { valor: P.fmtNum(conteo.activo + conteo['cancelado-vigente']), rotulo: 'con acceso hoy' },
+        // Igual que Resumen, Suscripciones y Métricas: las cuentas de administración tienen acceso pero no cuentan como membresías
+        { valor: P.fmtNum(r.miembros.filter(function (m) { return m.conAcceso === true && !m.esAdmin; }).length), rotulo: 'con acceso hoy (sin administradores)' },
         { valor: P.fmtNum(conteo['pago-pendiente'] + conteo.vencido), rotulo: 'vencidos o con pago pendiente' }
       ],
       acciones: [{ id: 'recargar', texto: 'Actualizar', icono: 'refresh-cw' }, { id: 'csv-miembros', texto: 'Descargar lista (CSV)', icono: 'download' }, { id: 'eliminados', texto: 'Eliminados', icono: 'archive-restore' }]
@@ -355,7 +356,7 @@
     vista().onclick = function (e) {
       var chip = e.target.closest('[data-filtro]');
       if (chip) { estado.filtro = chip.dataset.filtro; estado.visibles = 25; pintarListaMiembros(); return; }
-      // Tocar CUALQUIER parte de la fila de un miembro abre «Acciones del miembro» (como en Fisioteck). Los botones, enlaces y el menú «…» siguen con lo suyo,
+      // Tocar CUALQUIER parte de la fila de un miembro abre «Acciones del miembro» (referencia de miembros). Los botones, enlaces y el menú «…» siguen con lo suyo,
       // y si la persona está seleccionando texto (para copiar un correo) no se abre nada.
       var fila = e.target.closest('li.ap-mi');
       if (fila && !e.target.closest('a, button, input, select, textarea, label, [data-accion]') && !(typeof window.getSelection === 'function' && String(window.getSelection()).length)) {
