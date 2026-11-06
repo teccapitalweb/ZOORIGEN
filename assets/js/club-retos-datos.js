@@ -7,9 +7,11 @@
 /*   orden       59 secuencias de 4 a 6 pasos                     */
 /*   flashcards  55 tarjetas                                      */
 /*   historia    6 mundos x 4 casos de 3 opciones                 */
-/*   detective   60 escenas (13 originales, 17 adicionales de          */
-/*               identificación, legal y bienestar, y 30 de            */
-/*               seguridad, bioseguridad y conservación)       */
+/*   detective   80 escenas (13 originales, 17 adicionales de          */
+/*               identificación, legal y bienestar, 30 de              */
+/*               seguridad, bioseguridad y conservación y 20 en estilo */
+/*               de ilustración editorial; las que tienen activo:false */
+/*               no cuentan ni se juegan hasta regenerar su imagen)    */
 /*                                                                */
 /* Forma de cada escena del detective:                            */
 /*   { id, titulo, imagen, zonas: [], activo: true,               */
@@ -432,7 +434,7 @@
       ] }
   ];
 
-  /* ───────────── Detective de campo: 60 escenas ───────────── */
+  /* ───────────── Detective de campo: 80 escenas (79 activas) ───────────── */
   // Cada escena trae su consigna, la descripción de la imagen (`escena`, respaldo si la imagen
   // no existe) y 6 pistas: 3 con ok:true (los hallazgos) y 3 con ok:false (cosas que se ven en la
   // escena pero están bien hechas, o afirmaciones que no se sostienen).
@@ -1869,6 +1871,466 @@
         "Las pilas con fugas dañan el equipo y sueltan sustancias que contaminan. Se separan y se desechan en un lugar adecuado.",
         "La lluvia puede dañar la cámara. El equipo se guarda en su caja cerrada y bajo techo.",
         "El agua borra los registros. El cuaderno se guarda seco y cerrado."
+      ]
+    },
+    {
+      "id": "campo-nuevo-cuarto-limpieza-quimicos",
+      "titulo": "Cuarto de limpieza de un centro de fauna",
+      "imagen": "assets/img/retos/detective-nuevo-31-cuarto-limpieza-quimicos.webp",
+      "zonas": [{"x": 0.585, "y": 0.5, "w": 0.3, "h": 0.4}, {"x": 0.88, "y": 0.38, "w": 0.22, "h": 0.3}, {"x": 0.19, "y": 0.81, "w": 0.37, "h": 0.34}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa el cuarto de limpieza y marca los 3 riesgos en el manejo de los productos de limpieza.",
+      "escena": "En el cuarto de limpieza de un centro de fauna, una persona de espaldas, sin guantes ni lentes, vierte el contenido de dos botellas de productos distintos en una misma cubeta. A la derecha, sobre una repisa junto a los envases de químicos, hay una botella de agua para beber y un sándwich envuelto. A la izquierda, en el piso, un envase grande sin tapa está volcado y deja correr un líquido. En la pared hay guantes y lentes de protección colgados y un lavaojos de emergencia.",
+      "pistas": [
+        { "t": "Hay un lavaojos de emergencia en la pared", "ok": false, "why": "Es un equipo de seguridad que debe haber donde se usan productos químicos. No es un error." },
+        { "t": "Se mezclan dos productos de limpieza en una cubeta, sin guantes ni lentes", "ok": true, "why": "Mezclar productos de limpieza puede producir gases peligrosos y salpicaduras. Cada producto se usa por separado, con guantes y lentes de protección y siguiendo sus instrucciones." },
+        { "t": "Los guantes y los lentes cuelgan de un gancho en la pared", "ok": false, "why": "Tener el equipo de protección a la mano facilita usarlo. No es un error; el error es no ponérselo." },
+        { "t": "Comida y agua de beber junto a los productos químicos", "ok": true, "why": "Los alimentos y las bebidas no se guardan ni se consumen donde hay productos químicos, porque pueden contaminarse. Se mantienen en un área aparte." },
+        { "t": "Un envase destapado derramando su contenido en el piso", "ok": true, "why": "Un derrame sin atender es resbaloso y expone a las personas y a los animales a los químicos. Los envases se cierran y los derrames se limpian de inmediato con el equipo adecuado." },
+        { "t": "Usar desinfectantes en un centro de fauna es peligroso para los animales y debe evitarse", "ok": false, "why": "No se sostiene: la limpieza y la desinfección son parte de la bioseguridad. Lo importante es usarlos bien: sin mezclarlos, con equipo de protección y respetando su tiempo de contacto y su enjuague." }
+      ],
+      "riesgos": [
+        "Mezclar productos de limpieza puede producir gases peligrosos y salpicaduras. Cada producto se usa por separado, con guantes y lentes de protección y siguiendo sus instrucciones.",
+        "Los alimentos y las bebidas no se guardan ni se consumen donde hay productos químicos, porque pueden contaminarse. Se mantienen en un área aparte.",
+        "Un derrame sin atender es resbaloso y expone a las personas y a los animales a los químicos. Los envases se cierran y los derrames se limpian de inmediato con el equipo adecuado."
+      ]
+    },
+    {
+      "id": "campo-nuevo-recinto-venados",
+      "titulo": "Limpieza del recinto de venados",
+      "imagen": "assets/img/retos/detective-nuevo-32-recinto-venados.webp",
+      "zonas": [{"x": 0.135, "y": 0.34, "w": 0.26, "h": 0.56}, {"x": 0.355, "y": 0.385, "w": 0.18, "h": 0.4}, {"x": 0.92, "y": 0.59, "w": 0.14, "h": 0.7}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa el recinto y marca los 3 riesgos para la persona que hace la limpieza.",
+      "escena": "En un recinto de venados cola blanca, una persona de espaldas recoge heno con un rastrillo en el centro-izquierda; la puerta de servicio de la cerca, a su izquierda, está abierta de par en par. Detrás de la persona, a pocos pasos, hay un venado macho adulto con astas. En el primer plano de la derecha, una horquilla con las puntas hacia arriba está recargada dentro del recinto. Al fondo hay dos hembras bajo un árbol, un comedero elevado con heno y un bebedero.",
+      "pistas": [
+        { "t": "La puerta del recinto queda abierta mientras se trabaja dentro", "ok": true, "why": "Una puerta abierta permite que los animales escapen y deja a la persona sin una salida segura. Las puertas se cierran y se aseguran al entrar." },
+        { "t": "Hay un comedero elevado con heno en el recinto", "ok": false, "why": "El alimento en un comedero limpio y a buena altura es una práctica adecuada. No es un error." },
+        { "t": "Se trabaja de espaldas a un macho adulto con astas, a muy poca distancia", "ok": true, "why": "Los machos adultos con astas pueden embestir. Se mantiene la distancia y no se les da la espalda; si es necesario, se aparta al animal antes de entrar." },
+        { "t": "Dos venados descansan a la sombra de un árbol", "ok": false, "why": "Descansar a la sombra es normal y muestra que tienen un lugar de refugio. No es un error." },
+        { "t": "Entrar a un recinto de animales herbívoros no tiene ningún riesgo", "ok": false, "why": "No se sostiene: los herbívoros grandes también pueden embestir o patear. Todo recinto exige un plan de seguridad." },
+        { "t": "Una horquilla con las puntas hacia arriba, olvidada dentro del recinto", "ok": true, "why": "Las herramientas filosas dentro del recinto pueden lastimar a los animales o a las personas. Se sacan y se guardan al terminar." }
+      ],
+      "riesgos": [
+        "Una puerta abierta permite que los animales escapen y deja a la persona sin una salida segura. Las puertas se cierran y se aseguran al entrar.",
+        "Los machos adultos con astas pueden embestir. Se mantiene la distancia y no se les da la espalda; si es necesario, se aparta al animal antes de entrar.",
+        "Las herramientas filosas dentro del recinto pueden lastimar a los animales o a las personas. Se sacan y se guardan al terminar."
+      ]
+    },
+    {
+      "id": "campo-nuevo-torre-observacion",
+      "titulo": "Torre de observación en el humedal",
+      "imagen": "assets/img/retos/detective-nuevo-33-torre-observacion.webp",
+      "zonas": [{"x": 0.52, "y": 0.42, "w": 0.28, "h": 0.6}, {"x": 0.795, "y": 0.37, "w": 0.15, "h": 0.12}, {"x": 0.25, "y": 0.27, "w": 0.22, "h": 0.3}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa la torre de observación y marca los 3 riesgos de seguridad.",
+      "escena": "Junto a una laguna hay una torre de observación de madera de dos niveles. Una persona de espaldas sube por la escalera vertical cargando con las dos manos un trípode con telescopio; a la izquierda, otra persona espera abajo sujetando la base de la escalera. En la plataforma superior, a la derecha, falta un tablón y se ve un hueco; en el lado izquierdo del borde falta una sección del barandal, con las tablas colgando. Al fondo hay garzas en la orilla de la laguna.",
+      "pistas": [
+        { "t": "Una persona espera abajo sujetando la base de la escalera", "ok": false, "why": "Sujetar la base de la escalera es una buena práctica. No es un error." },
+        { "t": "Subir la escalera con las dos manos ocupadas cargando equipo", "ok": true, "why": "Para subir una escalera se mantienen tres puntos de apoyo. El equipo se sube con una cuerda o en una segunda vuelta." },
+        { "t": "Un tablón roto deja un hueco en la plataforma", "ok": true, "why": "Una plataforma dañada puede provocar una caída. No se usa hasta repararla y se señaliza como fuera de servicio." },
+        { "t": "Observar aves desde una torre las asusta y debe evitarse", "ok": false, "why": "No se sostiene: una torre permite observar a distancia sin molestar. El riesgo está en el estado de la estructura y en cómo se sube." },
+        { "t": "Falta una sección del barandal en el borde de la plataforma", "ok": true, "why": "El barandal evita caídas desde la altura. Sin él, la plataforma no es segura." },
+        { "t": "La persona de abajo lleva unos binoculares colgados del cuello", "ok": false, "why": "Los binoculares son equipo normal de observación. No es un error." }
+      ],
+      "riesgos": [
+        "Para subir una escalera se mantienen tres puntos de apoyo. El equipo se sube con una cuerda o en una segunda vuelta.",
+        "Una plataforma dañada puede provocar una caída. No se usa hasta repararla y se señaliza como fuera de servicio.",
+        "El barandal evita caídas desde la altura. Sin él, la plataforma no es segura."
+      ]
+    },
+    {
+      "id": "campo-nuevo-estacion-carga-equipo",
+      "titulo": "Estación de carga del campamento",
+      "imagen": "assets/img/retos/detective-nuevo-34-estacion-carga-equipo.webp",
+      "zonas": [{"x": 0.85, "y": 0.73, "w": 0.29, "h": 0.3}, {"x": 0.48, "y": 0.52, "w": 0.13, "h": 0.1}, {"x": 0.185, "y": 0.37, "w": 0.34, "h": 0.58}],
+      "activo": true,
+      "tipo": "seguridad",
+      "consigna": "Observa la estación de carga y marca los 3 riesgos eléctricos.",
+      "escena": "Bajo la lona de un campamento hay una mesa con equipo de monitoreo. A la derecha, en el suelo mojado, un multicontacto con muchos cargadores conectados está dentro de un charco. En el centro, un cable con el aislante pelado deja ver el cobre y está conectado a una batería. A la izquierda, una computadora portátil abierta está en la orilla de la mesa, justo bajo un goteo que cae por un agujero de la lona. En un poste cuelga un extintor y las baterías de repuesto están guardadas en una caja de plástico con tapa.",
+      "pistas": [
+        { "t": "Una extensión con varios aparatos conectados, sobre un charco", "ok": true, "why": "La electricidad y el agua no se mezclan. Los multicontactos se colocan en un lugar seco y elevado, y no se sobrecargan." },
+        { "t": "Las baterías de repuesto están guardadas en una caja de plástico con tapa", "ok": false, "why": "Guardar las baterías en una caja cerrada y seca es lo correcto. No es un error." },
+        { "t": "Un cable con el cobre expuesto", "ok": true, "why": "Un cable dañado puede causar descargas o incendios. Se retira de uso y se repara o se reemplaza." },
+        { "t": "Hay un extintor colgado en un poste", "ok": false, "why": "Tener un extintor a la mano en un campamento es una buena práctica. No es un error." },
+        { "t": "Los paneles solares portátiles son peligrosos y no deben usarse en un campamento", "ok": false, "why": "No se sostiene: los paneles solares son una fuente de energía común en campo. El riesgo está en los cables dañados y en la humedad." },
+        { "t": "Un equipo electrónico bajo el goteo de una lona rota", "ok": true, "why": "La humedad daña el equipo y puede provocar un cortocircuito. Los equipos se guardan y se usan en un lugar seco y cubierto." }
+      ],
+      "riesgos": [
+        "La electricidad y el agua no se mezclan. Los multicontactos se colocan en un lugar seco y elevado, y no se sobrecargan.",
+        "Un cable dañado puede causar descargas o incendios. Se retira de uso y se repara o se reemplaza.",
+        "La humedad daña el equipo y puede provocar un cortocircuito. Los equipos se guardan y se usan en un lugar seco y cubierto."
+      ]
+    },
+    {
+      "id": "campo-nuevo-nidos-oropendola",
+      "titulo": "Nidos colgantes en un árbol",
+      "imagen": "assets/img/retos/detective-nuevo-36-nidos-oropendola.webp",
+      "zonas": [{"x": 0.105, "y": 0.26, "w": 0.1, "h": 0.35}, {"x": 0.48, "y": 0.27, "w": 0.17, "h": 0.22}, {"x": 0.92, "y": 0.31, "w": 0.12, "h": 0.34}],
+      "activo": true,
+      "tipo": "identificacion",
+      "consigna": "Observa el árbol y marca los 3 rasgos que indican que los nidos son de oropéndolas.",
+      "escena": "En la copa de un árbol alto y aislado cuelgan varios nidos en forma de bolsa larga, tejidos con fibras vegetales, de las puntas de las ramas altas. Los nidos están juntos, formando una colonia. En el tronco hay un termitero oscuro. Debajo, un potrero con pasto.",
+      "pistas": [
+        { "t": "Nidos en forma de bolsa larga colgante, tejidos con fibras", "ok": true, "why": "Las oropéndolas tejen nidos largos en forma de bolsa que cuelgan de las ramas. Es uno de los rasgos que se combinan para identificarlos." },
+        { "t": "Hay un termitero oscuro pegado al tronco", "ok": false, "why": "El termitero es una construcción de termitas, no un nido de aves. No cuenta como rasgo de las oropéndolas." },
+        { "t": "Si un nido parece vacío, se puede bajar para estudiarlo", "ok": false, "why": "No se sostiene: los nidos de aves silvestres no se manipulan sin autorización y sin necesidad, porque pueden estar ocupados o volver a usarse." },
+        { "t": "Varios nidos juntos en la misma copa, como una colonia", "ok": true, "why": "Las oropéndolas anidan en colonias, con muchos nidos en un mismo árbol. Un solo nido aislado no basta para identificarlas." },
+        { "t": "El árbol está en medio de un potrero", "ok": false, "why": "Estar en un potrero describe el lugar, pero no basta para identificar a las aves." },
+        { "t": "Los nidos cuelgan de las puntas de las ramas altas", "ok": true, "why": "Suelen colgar de las puntas de las ramas, alejados del tronco, lo que dificulta el acceso de depredadores. Es un rasgo del lugar donde anidan." }
+      ],
+      "riesgos": [
+        "Las oropéndolas tejen nidos largos en forma de bolsa que cuelgan de las ramas. Es uno de los rasgos que se combinan para identificarlos.",
+        "Las oropéndolas anidan en colonias, con muchos nidos en un mismo árbol. Un solo nido aislado no basta para identificarlas.",
+        "Suelen colgar de las puntas de las ramas, alejados del tronco, lo que dificulta el acceso de depredadores. Es un rasgo del lugar donde anidan."
+      ]
+    },
+    {
+      "id": "campo-nuevo-salamandra-lagartija",
+      "titulo": "Dos animales bajo un tronco",
+      "imagen": "assets/img/retos/detective-nuevo-37-salamandra-lagartija.webp",
+      "zonas": [{"x": 0.2, "y": 0.56, "w": 0.32, "h": 0.3}, {"x": 0.3, "y": 0.82, "w": 0.15, "h": 0.15}, {"x": 0.45, "y": 0.53, "w": 0.17, "h": 0.18}],
+      "activo": true,
+      "tipo": "identificacion",
+      "consigna": "Observa a los dos animales y marca los 3 rasgos que indican que el de la izquierda es una salamandra y no una lagartija.",
+      "escena": "Bajo un tronco caído, en la hojarasca húmeda, hay dos animales: a la izquierda, una salamandra de piel lisa y brillante, sin escamas, con los dedos sin uñas; a la derecha, una lagartija de piel con escamas y dedos con uñas. Ambos tienen cuatro patas y una cola larga.",
+      "pistas": [
+        { "t": "Los dos animales tienen cuatro patas", "ok": false, "why": "Tener cuatro patas no distingue a una salamandra de una lagartija: las dos las tienen." },
+        { "t": "La piel es lisa y húmeda, sin escamas", "ok": true, "why": "Las salamandras son anfibios: su piel es húmeda y sin escamas. Las lagartijas son reptiles y tienen escamas." },
+        { "t": "Los dos animales tienen una cola larga", "ok": false, "why": "La cola larga la comparten, así que tampoco sirve para distinguirlos." },
+        { "t": "Los dedos no tienen uñas", "ok": true, "why": "Los anfibios no tienen uñas en los dedos; las lagartijas sí tienen uñas. Es uno de los rasgos para distinguirlos." },
+        { "t": "No se ve la abertura del oído a un lado de la cabeza", "ok": true, "why": "Muchas lagartijas tienen una abertura de oído visible a cada lado de la cabeza; las salamandras no. Se usa junto con los demás rasgos." },
+        { "t": "Una salamandra es un tipo de lagartija", "ok": false, "why": "No se sostiene: las salamandras son anfibios y las lagartijas son reptiles; son grupos distintos." }
+      ],
+      "riesgos": [
+        "Las salamandras son anfibios: su piel es húmeda y sin escamas. Las lagartijas son reptiles y tienen escamas.",
+        "Los anfibios no tienen uñas en los dedos; las lagartijas sí tienen uñas. Es uno de los rasgos para distinguirlos.",
+        "Muchas lagartijas tienen una abertura de oído visible a cada lado de la cabeza; las salamandras no. Se usa junto con los demás rasgos."
+      ]
+    },
+    {
+      "id": "campo-nuevo-insectos-acuaticos",
+      "titulo": "Insectos acuáticos de un arroyo",
+      "imagen": "assets/img/retos/detective-nuevo-38-insectos-acuaticos.webp",
+      "zonas": [{"x": 0.26, "y": 0.55, "w": 0.24, "h": 0.38}, {"x": 0.49, "y": 0.54, "w": 0.2, "h": 0.46}, {"x": 0.69, "y": 0.56, "w": 0.22, "h": 0.25}],
+      "activo": true,
+      "tipo": "identificacion",
+      "consigna": "Observa la charola y marca los 3 grupos de insectos acuáticos que suelen indicar agua de buena calidad.",
+      "escena": "Sobre una piedra a la orilla de un arroyo hay una charola blanca con agua y larvas de insectos: una larva de efémera con tres filamentos largos en la cola y branquias en el costado del abdomen; una larva de plecóptero con dos filamentos largos en la cola; y una larva de tricóptero dentro de un estuche de granitos de arena. También hay unas larvas rojas, delgadas, de mosquito. Junto a la charola hay una lupa y una libreta.",
+      "pistas": [
+        { "t": "Larva con tres filamentos en la cola y branquias en el abdomen (efémera)", "ok": true, "why": "Las larvas de efémeras viven en agua limpia y con buen oxígeno. Su presencia, junto con otros grupos sensibles, indica buena calidad del agua." },
+        { "t": "Hay unas larvas rojas y delgadas en la charola", "ok": false, "why": "Las larvas rojas de mosquito (quironómidos) suelen tolerar agua con poco oxígeno, así que su presencia por sí sola no indica agua limpia." },
+        { "t": "Larva con dos filamentos largos en la cola (plecóptero)", "ok": true, "why": "Las larvas de plecópteros son muy sensibles a la contaminación. Encontrarlas indica agua limpia y bien oxigenada." },
+        { "t": "Hay una lupa y una libreta junto a la charola", "ok": false, "why": "Son material de trabajo para observar y anotar. No indican nada sobre el agua." },
+        { "t": "Si hay insectos en el agua, el agua está limpia", "ok": false, "why": "No se sostiene: algunos insectos toleran la contaminación. Lo que importa es qué grupos aparecen y en qué cantidad." },
+        { "t": "Larva dentro de un estuche de granitos de arena (tricóptero)", "ok": true, "why": "Muchas larvas de tricópteros construyen un estuche y también son sensibles a la contaminación. Se usan como bioindicadores junto con las otras dos." }
+      ],
+      "riesgos": [
+        "Las larvas de efémeras viven en agua limpia y con buen oxígeno. Su presencia, junto con otros grupos sensibles, indica buena calidad del agua.",
+        "Las larvas de plecópteros son muy sensibles a la contaminación. Encontrarlas indica agua limpia y bien oxigenada.",
+        "Muchas larvas de tricópteros construyen un estuche y también son sensibles a la contaminación. Se usan como bioindicadores junto con las otras dos."
+      ]
+    },
+    {
+      "id": "campo-nuevo-estanque-aves-acuaticas",
+      "titulo": "Estanque de aves acuáticas",
+      "imagen": "assets/img/retos/detective-nuevo-39-estanque-aves-acuaticas.webp",
+      "zonas": [{"x": 0.15, "y": 0.58, "w": 0.3, "h": 0.42}, {"x": 0.445, "y": 0.735, "w": 0.2, "h": 0.19}, {"x": 0.8, "y": 0.45, "w": 0.32, "h": 0.42}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa el estanque y marca los 3 problemas que afectan el bienestar de las aves.",
+      "escena": "En el estanque de un zoológico nadan patos y gansos. El agua se ve verde y turbia, con bolsas de plástico flotando cerca de la orilla izquierda. En la orilla del centro hay un plato con alimento cubierto de manchas verdes de moho. A la derecha, un visitante de espaldas lanza pan y papas fritas a las aves. En el centro del estanque hay una isla de descanso con árboles y sombra, y un cuidador mira desde la orilla.",
+      "pistas": [
+        { "t": "Hay una isla de descanso con árboles y sombra", "ok": false, "why": "La isla ofrece refugio y descanso a las aves. Es una buena práctica; no es un error." },
+        { "t": "Agua turbia y verde, con bolsas de plástico flotando", "ok": true, "why": "El agua sucia puede enfermar a las aves y es parte de su hábitat diario. Se mantiene limpia, se retira la basura y se renueva cuando hace falta." },
+        { "t": "Alimento con moho sobre la orilla", "ok": true, "why": "El alimento con moho puede enfermar a los animales. Se retira lo que sobra y se ofrece alimento fresco." },
+        { "t": "Mantener aves en un estanque siempre es maltrato", "ok": false, "why": "No se sostiene: lo que importa son las condiciones: agua limpia, alimento adecuado, refugio y manejo respetuoso." },
+        { "t": "Un visitante lanza pan y papas fritas a las aves", "ok": true, "why": "El pan y la comida procesada no son alimento adecuado para las aves y ensucian el agua. Los animales se alimentan solo con la dieta que define el personal." },
+        { "t": "Un cuidador observa el estanque desde la orilla", "ok": false, "why": "Revisar a los animales a distancia es parte del manejo diario. No es un error." }
+      ],
+      "riesgos": [
+        "El agua sucia puede enfermar a las aves y es parte de su hábitat diario. Se mantiene limpia, se retira la basura y se renueva cuando hace falta.",
+        "El alimento con moho puede enfermar a los animales. Se retira lo que sobra y se ofrece alimento fresco.",
+        "El pan y la comida procesada no son alimento adecuado para las aves y ensucian el agua. Los animales se alimentan solo con la dieta que define el personal."
+      ]
+    },
+    {
+      "id": "campo-nuevo-recinto-coatis-enriquecimiento",
+      "titulo": "Recinto de coatíes con enriquecimiento",
+      "imagen": "assets/img/retos/detective-nuevo-40-recinto-coatis-enriquecimiento.webp",
+      "zonas": [{"x": 0.24, "y": 0.4, "w": 0.48, "h": 0.78}, {"x": 0.46, "y": 0.72, "w": 0.34, "h": 0.34}, {"x": 0.835, "y": 0.58, "w": 0.3, "h": 0.56}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa el recinto de coatíes y marca las 3 señales de buen bienestar.",
+      "escena": "En un recinto amplio, tres coatíes recorren el espacio. Hay troncos y plataformas a distintas alturas por donde trepan; en el suelo, un tronco hueco con alimento escondido y un coatí que busca con las patas; a un lado hay un bebedero con agua limpia y una zona de sombra con una madriguera de piedra. Un coatí duerme en una plataforma y, al fondo, una puerta de servicio cerrada con candado.",
+      "pistas": [
+        { "t": "Troncos y plataformas a distintas alturas para trepar", "ok": true, "why": "Los coatíes trepan en la naturaleza. Un recinto con troncos y plataformas les permite una conducta natural y es una forma de enriquecimiento ambiental." },
+        { "t": "La puerta de servicio está cerrada con candado", "ok": false, "why": "Es una medida de seguridad del recinto. No es una señal de bienestar ni de maltrato." },
+        { "t": "Alimento escondido en un tronco para que lo busquen", "ok": true, "why": "Esconder alimento estimula la búsqueda y el forrajeo, conductas naturales de la especie. Es un enriquecimiento alimentario." },
+        { "t": "Un coatí duerme sobre una plataforma", "ok": false, "why": "Descansar es normal. La quietud por sí sola no demuestra ni buen bienestar ni enfermedad: se evalúan las condiciones y la conducta en conjunto." },
+        { "t": "Un coatí que se mueve poco está enfermo", "ok": false, "why": "No se sostiene: los animales descansan buena parte del día. La enfermedad se juzga por varios signos y por un cambio en su conducta habitual." },
+        { "t": "Agua limpia y una zona de sombra con refugio", "ok": true, "why": "El agua limpia y un refugio con sombra cubren necesidades básicas y permiten que el animal elija dónde estar." }
+      ],
+      "riesgos": [
+        "Los coatíes trepan en la naturaleza. Un recinto con troncos y plataformas les permite una conducta natural y es una forma de enriquecimiento ambiental.",
+        "Esconder alimento estimula la búsqueda y el forrajeo, conductas naturales de la especie. Es un enriquecimiento alimentario.",
+        "El agua limpia y un refugio con sombra cubren necesidades básicas y permiten que el animal elija dónde estar."
+      ]
+    },
+    {
+      "id": "campo-nuevo-comederos-aves-jardin",
+      "titulo": "Comederos para aves en un jardín",
+      "imagen": "assets/img/retos/detective-nuevo-41-comederos-aves-jardin.webp",
+      "zonas": [{"x": 0.865, "y": 0.4, "w": 0.2, "h": 0.5}, {"x": 0.16, "y": 0.58, "w": 0.32, "h": 0.3}, {"x": 0.45, "y": 0.62, "w": 0.22, "h": 0.2}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa el jardín y marca los 3 problemas que ponen en riesgo a las aves que visitan los comederos.",
+      "escena": "En un jardín hay un comedero colgante a la derecha, con semillas visiblemente mohosas y sucio, y un bebedero a la izquierda con el agua verde por las algas. Al centro, un gato doméstico acecha agazapado bajo un arbusto, junto a unos gorriones que comen en el suelo. Otro comedero, limpio y con techito, cuelga cerca de un arbusto, y en el cristal de la ventana hay siluetas adheridas.",
+      "pistas": [
+        { "t": "Hay siluetas pegadas en el cristal de la ventana", "ok": false, "why": "Las siluetas ayudan a evitar que las aves choquen con el vidrio. No es un error." },
+        { "t": "Un comedero sucio con semillas mohosas", "ok": true, "why": "Las semillas con moho y un comedero sucio pueden enfermar a las aves. Se limpia con frecuencia y se ofrece alimento fresco." },
+        { "t": "Hay un comedero con techito cerca de un arbusto", "ok": false, "why": "Un comedero protegido y cerca de un refugio es una buena práctica. No es un error." },
+        { "t": "Un bebedero con el agua verde por las algas", "ok": true, "why": "El agua estancada y con algas favorece enfermedades. El agua se cambia con frecuencia y el bebedero se limpia." },
+        { "t": "Un gato suelto acechando junto a las aves", "ok": true, "why": "Los gatos domésticos son una causa importante de muerte de aves silvestres. Se mantienen dentro de casa o los comederos se colocan lejos de su alcance." },
+        { "t": "Alimentar a las aves silvestres en un jardín siempre es ilegal", "ok": false, "why": "No se sostiene: no se prohíbe por sí mismo; lo que importa es hacerlo con higiene y sin poner en riesgo a las aves." }
+      ],
+      "riesgos": [
+        "Las semillas con moho y un comedero sucio pueden enfermar a las aves. Se limpia con frecuencia y se ofrece alimento fresco.",
+        "El agua estancada y con algas favorece enfermedades. El agua se cambia con frecuencia y el bebedero se limpia.",
+        "Los gatos domésticos son una causa importante de muerte de aves silvestres. Se mantienen dentro de casa o los comederos se colocan lejos de su alcance."
+      ]
+    },
+    {
+      "id": "campo-nuevo-recorrido-nocturno",
+      "titulo": "Recorrido nocturno de observación",
+      "imagen": "assets/img/retos/detective-nuevo-42-recorrido-nocturno.webp",
+      "zonas": [{"x": 0.17, "y": 0.3, "w": 0.34, "h": 0.36}, {"x": 0.55, "y": 0.49, "w": 0.2, "h": 0.34}, {"x": 0.9, "y": 0.77, "w": 0.2, "h": 0.2}],
+      "activo": true,
+      "tipo": "bienestar",
+      "consigna": "Observa el recorrido nocturno y marca los 3 comportamientos que perturban a la fauna.",
+      "escena": "De noche, en un sendero de bosque, un grupo de visitantes con linternas sigue a una guía. A la izquierda, un visitante de espaldas apunta con una cámara con flash a un búho posado en una rama, a un par de metros. En el centro, otro visitante sostiene con las manos a un tlacuache para tomarse una foto. A la derecha, una persona reproduce cantos desde una bocina en el piso para atraer aves. La guía lleva una linterna con luz roja tenue y el resto del grupo permanece en el sendero.",
+      "pistas": [
+        { "t": "Un flash directo sobre un búho posado, desde muy cerca", "ok": true, "why": "El flash cerca de los ojos de animales nocturnos los desorienta y los perturba. Se evita el flash y se observa a distancia." },
+        { "t": "La guía usa una linterna con luz roja tenue", "ok": false, "why": "Una luz tenue y de color rojo molesta menos a la fauna. Es una buena práctica; no es un error." },
+        { "t": "Hacer recorridos nocturnos en el bosque siempre daña a la fauna", "ok": false, "why": "No se sostiene: pueden hacerse con guía, en grupos pequeños, sin flash ni contacto. El daño viene de las conductas, no del recorrido." },
+        { "t": "Un visitante sostiene a un tlacuache para tomarse una foto", "ok": true, "why": "Tocar o cargar fauna silvestre la estresa y puede transmitir enfermedades en los dos sentidos. Se observa sin tocarla." },
+        { "t": "El grupo avanza en fila sobre el sendero", "ok": false, "why": "Permanecer en el sendero reduce el disturbio al hábitat. No es un error." },
+        { "t": "Una bocina reproduce cantos para atraer a las aves", "ok": true, "why": "Atraer aves con grabaciones las desvía de sus actividades naturales y las estresa. Se evita, sobre todo en zonas de anidación." }
+      ],
+      "riesgos": [
+        "El flash cerca de los ojos de animales nocturnos los desorienta y los perturba. Se evita el flash y se observa a distancia.",
+        "Tocar o cargar fauna silvestre la estresa y puede transmitir enfermedades en los dos sentidos. Se observa sin tocarla.",
+        "Atraer aves con grabaciones las desvía de sus actividades naturales y las estresa. Se evita, sobre todo en zonas de anidación."
+      ]
+    },
+    {
+      "id": "campo-nuevo-vereda-trampas-anp",
+      "titulo": "Vereda con trampas en un área protegida",
+      "imagen": "assets/img/retos/detective-nuevo-43-vereda-trampas-anp.webp",
+      "zonas": [{"x": 0.155, "y": 0.68, "w": 0.27, "h": 0.34}, {"x": 0.6, "y": 0.43, "w": 0.28, "h": 0.65}, {"x": 0.875, "y": 0.575, "w": 0.25, "h": 0.34}],
+      "activo": true,
+      "tipo": "legal",
+      "consigna": "Observa la vereda y marca las 3 señales de alerta de una posible cacería ilegal.",
+      "escena": "En una vereda de un área natural protegida hay, a la izquierda, unos lazos de cable de acero colocados entre arbustos a ras de suelo, en un paso de animales. En el centro, bajo un árbol, hay varios casquillos de cartucho tirados y una plataforma improvisada de ramas atada al tronco, a media altura. A la derecha, una jaula-trampa pequeña, abierta y con fruta como cebo, está escondida entre las ramas. Más adelante hay una cámara trampa atada a un tronco con una cinta, y en la vereda se ven huellas de botas.",
+      "pistas": [
+        { "t": "Hay una cámara trampa atada a un tronco", "ok": false, "why": "Las cámaras trampa se usan para monitorear fauna de forma legítima. No son una señal de alerta." },
+        { "t": "Lazos de cable colocados en un paso de fauna", "ok": true, "why": "Los lazos ocultos capturan animales sin selección y no tienen autorización en un área protegida. Es una señal de alerta, no una acusación: la confirma la autoridad." },
+        { "t": "Hay huellas de botas sobre la vereda", "ok": false, "why": "Una vereda es un sendero de paso: caminar por ella no es una falta por sí mismo." },
+        { "t": "Casquillos de cartucho y una plataforma de ramas en el árbol", "ok": true, "why": "Son indicios de cacería desde un escondite. El aprovechamiento extractivo de la vida silvestre requiere autorización de la autoridad ambiental. Es una señal de alerta, no una acusación." },
+        { "t": "Una jaula-trampa con cebo, escondida entre las ramas", "ok": true, "why": "Una trampa escondida y sin identificación es una señal de captura no autorizada. Las trampas de investigación están autorizadas y se identifican y se revisan con frecuencia." },
+        { "t": "Cualquier trampa en el campo es ilegal", "ok": false, "why": "No se sostiene: las trampas de captura con fines de investigación o manejo pueden estar autorizadas. Lo que cuenta es la autorización y la identificación." }
+      ],
+      "riesgos": [
+        "Los lazos ocultos capturan animales sin selección y no tienen autorización en un área protegida. Es una señal de alerta, no una acusación: la confirma la autoridad.",
+        "Son indicios de cacería desde un escondite. El aprovechamiento extractivo de la vida silvestre requiere autorización de la autoridad ambiental. Es una señal de alerta, no una acusación.",
+        "Una trampa escondida y sin identificación es una señal de captura no autorizada. Las trampas de investigación están autorizadas y se identifican y se revisan con frecuencia."
+      ]
+    },
+    {
+      "id": "campo-nuevo-extraccion-plantas",
+      "titulo": "Camino con extracción de plantas silvestres",
+      "imagen": "assets/img/retos/detective-nuevo-44-extraccion-plantas.webp",
+      "zonas": [{"x": 0.2, "y": 0.66, "w": 0.4, "h": 0.55}, {"x": 0.58, "y": 0.5, "w": 0.32, "h": 0.65}, {"x": 0.83, "y": 0.45, "w": 0.24, "h": 0.3}],
+      "activo": true,
+      "tipo": "legal",
+      "consigna": "Observa el camino y marca las 3 señales de alerta de una posible extracción ilegal de plantas silvestres.",
+      "escena": "En un camino de terracería de un bosque de niebla, a la izquierda hay varios costales y cajas abiertos llenos de orquídeas y bromelias arrancadas con todo y raíz. En el centro, un árbol tiene el tronco pelado de plantas hasta donde alcanza una escalera recargada, con un machete en el suelo. A la derecha, una camioneta cargada con costales está escondida entre los arbustos, sin identificación. Más lejos, un guardaparques camina por el camino con binoculares y radio.",
+      "pistas": [
+        { "t": "Costales llenos de orquídeas y bromelias arrancadas con raíz", "ok": true, "why": "La extracción de plantas silvestres requiere autorización y muchas están protegidas. Es una señal de alerta, no una acusación: la confirma la autoridad." },
+        { "t": "Un guardaparques camina por el camino con binoculares y radio", "ok": false, "why": "La vigilancia es parte del cuidado del área. No es una señal de alerta." },
+        { "t": "Un árbol pelado de plantas hasta donde llega una escalera", "ok": true, "why": "Retirar las plantas que viven sobre los árboles daña el hábitat de otras especies. Es un indicio de extracción no autorizada." },
+        { "t": "Hay bromelias y orquídeas intactas en los árboles del fondo", "ok": false, "why": "Las plantas en su lugar son el estado natural del bosque. No es un error." },
+        { "t": "Recoger una flor o una planta del campo siempre es un delito", "ok": false, "why": "No se sostiene: lo que se regula es el aprovechamiento y el comercio sin autorización. La autoridad determina si hay una infracción." },
+        { "t": "Una camioneta cargada y escondida entre los arbustos", "ok": true, "why": "Cargar y ocultar plantas silvestres sin documentos es una señal de alerta de comercio sin autorización. Para trasladar ejemplares se requieren los documentos correspondientes." }
+      ],
+      "riesgos": [
+        "La extracción de plantas silvestres requiere autorización y muchas están protegidas. Es una señal de alerta, no una acusación: la confirma la autoridad.",
+        "Retirar las plantas que viven sobre los árboles daña el hábitat de otras especies. Es un indicio de extracción no autorizada.",
+        "Cargar y ocultar plantas silvestres sin documentos es una señal de alerta de comercio sin autorización. Para trasladar ejemplares se requieren los documentos correspondientes."
+      ]
+    },
+    {
+      "id": "campo-nuevo-liberacion-mascotas-acuario",
+      "titulo": "Liberación de mascotas de acuario",
+      "imagen": "assets/img/retos/detective-nuevo-45-liberacion-mascotas-acuario.webp",
+      "zonas": [{"x": 0.575, "y": 0.45, "w": 0.28, "h": 0.34}, {"x": 0.19, "y": 0.77, "w": 0.2, "h": 0.15}, {"x": 0.815, "y": 0.73, "w": 0.31, "h": 0.26}],
+      "activo": true,
+      "tipo": "legal",
+      "consigna": "Observa la laguna y marca las 3 acciones que pueden introducir especies exóticas invasoras.",
+      "escena": "A la orilla de una laguna natural, en el centro, una persona de espaldas vierte al agua una bolsa de plástico con peces de acuario de colores y peces dorados. A la izquierda, una pecera vacía está en el suelo y, junto a ella, una tortuga de agua de las que se venden como mascota camina hacia el agua. A la derecha, plantas acuáticas de acuario, con raíz y sustrato, están tiradas en la orilla. Al fondo nadan patos nativos y una persona fotografía aves desde el camino.",
+      "pistas": [
+        { "t": "Hay patos nadando al fondo de la laguna", "ok": false, "why": "Las aves nativas son parte natural de la laguna. No es un error." },
+        { "t": "Se vierte una bolsa de peces de acuario en la laguna", "ok": true, "why": "Liberar mascotas de acuario puede introducir especies exóticas invasoras, que desplazan a las nativas. La Ley General de Vida Silvestre no permite liberar especies exóticas invasoras en ecosistemas naturales." },
+        { "t": "Una tortuga mascota dejada junto al agua", "ok": true, "why": "Abandonar una mascota exótica en un cuerpo de agua puede dañar a las especies nativas y a la propia mascota. Se entrega a quien pueda recibirla de forma adecuada." },
+        { "t": "Liberar un animal de compañía en la naturaleza es un acto de bondad", "ok": false, "why": "No se sostiene: una mascota exótica en un ecosistema natural puede morir o dañar a las especies nativas." },
+        { "t": "Plantas de acuario tiradas en la orilla", "ok": true, "why": "Las plantas de acuario también pueden volverse invasoras si llegan al agua natural. Se desechan de forma segura, nunca en cuerpos de agua." },
+        { "t": "Una persona fotografía aves desde el camino", "ok": false, "why": "Observar y fotografiar aves a distancia es una actividad habitual. No es un error." }
+      ],
+      "riesgos": [
+        "Liberar mascotas de acuario puede introducir especies exóticas invasoras, que desplazan a las nativas. La Ley General de Vida Silvestre no permite liberar especies exóticas invasoras en ecosistemas naturales.",
+        "Abandonar una mascota exótica en un cuerpo de agua puede dañar a las especies nativas y a la propia mascota. Se entrega a quien pueda recibirla de forma adecuada.",
+        "Las plantas de acuario también pueden volverse invasoras si llegan al agua natural. Se desechan de forma segura, nunca en cuerpos de agua."
+      ]
+    },
+    {
+      "id": "campo-nuevo-exhibicion-reptiles-itinerante",
+      "titulo": "Exhibición itinerante de reptiles",
+      "imagen": "assets/img/retos/detective-nuevo-46-exhibicion-reptiles-itinerante.webp",
+      "zonas": [{"x": 0.16, "y": 0.6, "w": 0.27, "h": 0.54}, {"x": 0.48, "y": 0.37, "w": 0.36, "h": 0.26}, {"x": 0.84, "y": 0.5, "w": 0.32, "h": 0.4}],
+      "activo": true,
+      "tipo": "legal",
+      "consigna": "Observa la exhibición y marca las 3 señales de mal manejo de fauna en exhibición.",
+      "escena": "En un salón de una feria hay tres mesas con terrarios de reptiles. En la mesa de la izquierda, terrarios pequeños están apilados unos sobre otros y varios lagartos están amontonados en cada uno, sin refugio. En la mesa del centro, los terrarios están bajo el sol directo de una ventana, sin sombra. A la derecha, un visitante de espaldas mete la mano en un terrario para tocar a una iguana, mientras la persona a cargo habla con otra. En una mesa del fondo hay un terrario amplio con refugio y un bebedero.",
+      "pistas": [
+        { "t": "Terrarios muy pequeños apilados, con los lagartos amontonados", "ok": true, "why": "En la exhibición de fauna se debe evitar o disminuir la tensión y el sufrimiento de los animales. Los recintos deben tener espacio y refugio suficientes para la especie." },
+        { "t": "La persona a cargo habla con un visitante", "ok": false, "why": "Dar información a los visitantes es parte de una exhibición. El problema es la falta de supervisión en el contacto." },
+        { "t": "Terrarios bajo el sol directo de una ventana, sin sombra", "ok": true, "why": "El sol directo sobre un recinto pequeño sobrecalienta a los animales. Los recintos deben tener sombra y control de la temperatura." },
+        { "t": "Hay un terrario amplio con refugio y bebedero en la mesa del fondo", "ok": false, "why": "Un recinto con espacio, refugio y agua es una buena práctica. No es un error." },
+        { "t": "Exhibir reptiles es ilegal en cualquier caso", "ok": false, "why": "No se sostiene: la exhibición puede ser legal si se cumple la normatividad y se da un trato digno y respetuoso a los animales." },
+        { "t": "Un visitante toca a una iguana sin supervisión", "ok": true, "why": "El contacto sin control estresa a los animales y puede transmitir enfermedades. La exhibición debe tener barreras y supervisión." }
+      ],
+      "riesgos": [
+        "En la exhibición de fauna se debe evitar o disminuir la tensión y el sufrimiento de los animales. Los recintos deben tener espacio y refugio suficientes para la especie.",
+        "El sol directo sobre un recinto pequeño sobrecalienta a los animales. Los recintos deben tener sombra y control de la temperatura.",
+        "El contacto sin control estresa a los animales y puede transmitir enfermedades. La exhibición debe tener barreras y supervisión."
+      ]
+    },
+    {
+      "id": "campo-nuevo-snorkel-arrecife",
+      "titulo": "Snorkel en un arrecife",
+      "imagen": "assets/img/retos/detective-nuevo-47-snorkel-arrecife.webp",
+      "zonas": [{"x": 0.17, "y": 0.58, "w": 0.26, "h": 0.55}, {"x": 0.4, "y": 0.7, "w": 0.2, "h": 0.28}, {"x": 0.84, "y": 0.55, "w": 0.3, "h": 0.4}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el arrecife y marca los 3 comportamientos que dañan el coral y a los peces.",
+      "escena": "En un arrecife poco profundo, a la izquierda un visitante con aletas está parado sobre el coral. En el centro, el ancla de una lancha está clavada en el coral. A la derecha, otro visitante reparte comida de una bolsa a un grupo de peces. Al fondo, una boya de amarre para lanchas y visitantes con chaleco salvavidas flotando sobre la superficie.",
+      "pistas": [
+        { "t": "Los visitantes flotan con chaleco salvavidas", "ok": false, "why": "El chaleco es una medida de seguridad y ayuda a no tocar el fondo. No es un error." },
+        { "t": "Un visitante de pie sobre el coral", "ok": true, "why": "El coral es un animal vivo y frágil: pisarlo o tocarlo lo daña y puede tardar años en recuperarse. Se observa flotando, sin tocar." },
+        { "t": "Hay una boya de amarre para lanchas", "ok": false, "why": "Las boyas de amarre evitan que las lanchas echen ancla sobre el coral. Es una buena práctica." },
+        { "t": "El ancla de una lancha clavada en el coral", "ok": true, "why": "El ancla rompe y arrastra el coral. Las lanchas se amarran a las boyas del sitio o se anclan en fondo de arena." },
+        { "t": "Un visitante da de comer a los peces", "ok": true, "why": "Alimentar a los peces cambia su conducta y su dieta y altera el equilibrio del arrecife. Se observa sin alimentar." },
+        { "t": "Tocar el coral con cuidado no lo daña", "ok": false, "why": "No se sostiene: el coral es un animal vivo y su tejido es muy delicado; incluso un toque suave puede dañarlo." }
+      ],
+      "riesgos": [
+        "El coral es un animal vivo y frágil: pisarlo o tocarlo lo daña y puede tardar años en recuperarse. Se observa flotando, sin tocar.",
+        "El ancla rompe y arrastra el coral. Las lanchas se amarran a las boyas del sitio o se anclan en fondo de arena.",
+        "Alimentar a los peces cambia su conducta y su dieta y altera el equilibrio del arrecife. Se observa sin alimentar."
+      ]
+    },
+    {
+      "id": "campo-nuevo-parcela-arroyo-agroquimicos",
+      "titulo": "Parcela junto a un arroyo",
+      "imagen": "assets/img/retos/detective-nuevo-48-parcela-arroyo-agroquimicos.webp",
+      "zonas": [{"x": 0.19, "y": 0.37, "w": 0.28, "h": 0.55}, {"x": 0.465, "y": 0.77, "w": 0.22, "h": 0.2}, {"x": 0.875, "y": 0.55, "w": 0.25, "h": 0.34}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa la parcela y marca los 3 descuidos que ponen en riesgo al arroyo y a la fauna.",
+      "escena": "Junto a un arroyo hay una parcela con surcos de cultivo. A la izquierda, una persona de espaldas, con pantalón corto, camiseta y sin mascarilla, fumiga con una aspersora de mochila a pocos metros del agua. En el centro, en la orilla del arroyo, hay envases vacíos de plaguicida tirados. A la derecha, un tubo vierte al arroyo un agua con espuma. Entre la parcela y el agua hay una franja de vegetación nativa sin cultivar; una garza descansa en la orilla.",
+      "pistas": [
+        { "t": "Se fumiga sin protección y cerca del agua", "ok": true, "why": "Los plaguicidas pueden dañar a la persona y llegar al arroyo. Se usa equipo de protección completo y se mantiene una distancia segura del agua." },
+        { "t": "Hay una franja de vegetación sin cultivar junto al arroyo", "ok": false, "why": "La vegetación de la orilla filtra y protege el agua. Es una buena práctica; no es un error." },
+        { "t": "Cultivar cerca de un arroyo siempre está prohibido", "ok": false, "why": "No se sostiene: se puede cultivar con medidas de protección, como franjas de vegetación y un manejo cuidadoso de los insumos." },
+        { "t": "Envases vacíos de plaguicida tirados junto al arroyo", "ok": true, "why": "Los envases tienen residuos que contaminan el agua y el suelo. Se lavan, se perforan y se entregan en los centros de acopio." },
+        { "t": "Una garza descansa en la orilla del arroyo", "ok": false, "why": "Las aves en la orilla son parte natural del arroyo. No es un error." },
+        { "t": "Un tubo vierte agua con espuma al arroyo", "ok": true, "why": "Las descargas sin tratamiento contaminan el agua y afectan a los peces, los anfibios y las aves que dependen de ella." }
+      ],
+      "riesgos": [
+        "Los plaguicidas pueden dañar a la persona y llegar al arroyo. Se usa equipo de protección completo y se mantiene una distancia segura del agua.",
+        "Los envases tienen residuos que contaminan el agua y el suelo. Se lavan, se perforan y se entregan en los centros de acopio.",
+        "Las descargas sin tratamiento contaminan el agua y afectan a los peces, los anfibios y las aves que dependen de ella."
+      ]
+    },
+    {
+      "id": "campo-nuevo-aves-playeras-dron-perro",
+      "titulo": "Aves playeras en la orilla",
+      "imagen": "assets/img/retos/detective-nuevo-49-aves-playeras-dron-perro.webp",
+      "zonas": [{"x": 0.125, "y": 0.66, "w": 0.24, "h": 0.3}, {"x": 0.55, "y": 0.335, "w": 0.2, "h": 0.13}, {"x": 0.835, "y": 0.4, "w": 0.24, "h": 0.4}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa la playa y marca los 3 comportamientos que perturban a las aves playeras.",
+      "escena": "En una playa hay una bandada de aves playeras descansando en el centro del área marcada con estacas y cuerda. A la izquierda, un perro sin correa corre hacia la bandada. En el centro, un dron vuela muy bajo, casi encima de las aves. A la derecha, un grupo de visitantes camina por dentro del área marcada. A un lado, tres observadores se sientan a lo lejos con binoculares y un telescopio, y un fotógrafo con teleobjetivo se mantiene fuera de la cuerda.",
+      "pistas": [
+        { "t": "Hay observadores con binoculares y un telescopio a lo lejos", "ok": false, "why": "Observar desde lejos y con equipo óptico es la forma correcta de ver aves sin molestarlas." },
+        { "t": "Un perro sin correa corre hacia la bandada", "ok": true, "why": "Los perros sueltos persiguen a las aves y las obligan a gastar energía y a abandonar sus sitios de descanso y de alimentación. Se mantienen con correa." },
+        { "t": "Un fotógrafo con teleobjetivo se mantiene fuera de la cuerda", "ok": false, "why": "El teleobjetivo permite fotografiar desde lejos. Respetar el límite es lo correcto; no es un error." },
+        { "t": "Un dron vuela muy bajo sobre las aves", "ok": true, "why": "Los drones asustan y perturban a las aves, que pueden abandonar el sitio. Se evita volarlos cerca de la fauna." },
+        { "t": "Visitantes caminan dentro del área de descanso marcada", "ok": true, "why": "Las áreas marcadas protegen los sitios de descanso y de alimentación de las aves. Se respetan los límites y se observa desde afuera." },
+        { "t": "Observar aves playeras desde lejos las molesta igual que acercarse", "ok": false, "why": "No se sostiene: la distancia reduce el disturbio. Lo que daña es acercarse, perseguirlas o invadir sus sitios de descanso." }
+      ],
+      "riesgos": [
+        "Los perros sueltos persiguen a las aves y las obligan a gastar energía y a abandonar sus sitios de descanso y de alimentación. Se mantienen con correa.",
+        "Los drones asustan y perturban a las aves, que pueden abandonar el sitio. Se evita volarlos cerca de la fauna.",
+        "Las áreas marcadas protegen los sitios de descanso y de alimentación de las aves. Se respetan los límites y se observa desde afuera."
+      ]
+    },
+    {
+      "id": "campo-nuevo-cenote-turistico",
+      "titulo": "Cenote turístico",
+      "imagen": "assets/img/retos/detective-nuevo-50-cenote-turistico.webp",
+      "zonas": [{"x": 0.18, "y": 0.38, "w": 0.26, "h": 0.46}, {"x": 0.545, "y": 0.4, "w": 0.2, "h": 0.42}, {"x": 0.845, "y": 0.745, "w": 0.22, "h": 0.13}],
+      "activo": true,
+      "tipo": "conservacion",
+      "consigna": "Observa el cenote y marca los 3 comportamientos que dañan el ecosistema.",
+      "escena": "En un cenote, a la izquierda, un visitante de pie en la plataforma se rocía con repelente en aerosol justo al borde del agua. En el centro, otro visitante de la orilla toca con las manos una formación de roca colgante. A la derecha, una botella de plástico y una bolsa flotan sobre el agua. Al fondo hay una regadera para ducharse antes de entrar y visitantes con chaleco salvavidas nadando.",
+      "pistas": [
+        { "t": "Un visitante se rocía repelente al borde del agua", "ok": true, "why": "Los bloqueadores y repelentes se desprenden en el agua y contaminan el cenote. Se recomienda ducharse antes de entrar y no usarlos." },
+        { "t": "Hay una regadera para ducharse antes de entrar", "ok": false, "why": "La ducha previa elimina residuos del cuerpo antes de entrar al agua. Es una buena práctica." },
+        { "t": "Un visitante toca las formaciones de roca de la pared", "ok": true, "why": "Las formaciones crecen muy despacio y se dañan con el contacto de las manos. Se observan sin tocar." },
+        { "t": "Los visitantes nadan con chaleco salvavidas", "ok": false, "why": "El chaleco es una medida de seguridad. No es un error." },
+        { "t": "Nadar en un cenote está prohibido", "ok": false, "why": "No se sostiene: se permite en muchos cenotes, con reglas como ducharse antes y no usar bloqueadores ni repelentes." },
+        { "t": "Una botella y una bolsa de plástico flotando en el agua", "ok": true, "why": "La basura contamina el agua y daña a la fauna. Se lleva de regreso todo lo que se trae." }
+      ],
+      "riesgos": [
+        "Los bloqueadores y repelentes se desprenden en el agua y contaminan el cenote. Se recomienda ducharse antes de entrar y no usarlos.",
+        "Las formaciones crecen muy despacio y se dañan con el contacto de las manos. Se observan sin tocar.",
+        "La basura contamina el agua y daña a la fauna. Se lleva de regreso todo lo que se trae."
+      ]
+    },
+    {
+      "id": "campo-nuevo-huellas-mapache",
+      "titulo": "Huellas junto al arroyo",
+      "imagen": "assets/img/retos/detective-nuevo-35-huellas-mapache.webp",
+      "zonas": [{"x": 0.18, "y": 0.7, "w": 0.26, "h": 0.4}, {"x": 0.5, "y": 0.46, "w": 0.2, "h": 0.2}, {"x": 0.79, "y": 0.4, "w": 0.18, "h": 0.5}],
+      "activo": false,
+      "tipo": "identificacion",
+      "consigna": "Observa las huellas en el lodo y marca los 3 rasgos que indican que son de un mapache.",
+      "escena": "En el lodo de la orilla de un arroyo se ve una línea de huellas de un mamífero. Cada huella tiene cinco dedos largos y delgados; las delanteras se parecen a una mano pequeña, con los dedos abiertos en abanico. Las huellas traseras son más largas y muestran la planta del pie completa, con el talón apoyado. Junto a una huella hay una regla como referencia de tamaño.",
+      "pistas": [
+        { "t": "Las huellas están en el lodo de la orilla de un arroyo", "ok": false, "why": "El lugar es una pista, porque muchos animales buscan agua o alimento ahí, pero por sí solo no identifica a la especie." },
+        { "t": "Cada huella tiene cinco dedos largos y delgados", "ok": true, "why": "El mapache deja huellas con cinco dedos largos y separados; un perro o un gato marcan cuatro. Es uno de los rasgos que se combinan para identificarlo." },
+        { "t": "Hay una regla junto a una de las huellas", "ok": false, "why": "Incluir una referencia de tamaño al fotografiar un rastro es una buena práctica, pero no dice de qué animal es la huella." },
+        { "t": "Las huellas delanteras parecen una mano pequeña", "ok": true, "why": "Los dedos largos y abiertos de las patas delanteras del mapache dejan una huella parecida a una mano. Se usa junto con los demás rasgos." },
+        { "t": "La huella trasera muestra la planta completa del pie", "ok": true, "why": "El mapache camina apoyando toda la planta del pie, por eso la huella trasera es alargada y muestra el talón. Se usa junto con los demás rasgos." },
+        { "t": "Tener cinco dedos es exclusivo de los primates", "ok": false, "why": "No se sostiene: muchos mamíferos tienen cinco dedos. Lo que ayuda a identificar al mapache es su forma y la huella completa." }
+      ],
+      "riesgos": [
+        "El mapache deja huellas con cinco dedos largos y separados; un perro o un gato marcan cuatro. Es uno de los rasgos que se combinan para identificarlo.",
+        "Los dedos largos y abiertos de las patas delanteras del mapache dejan una huella parecida a una mano. Se usa junto con los demás rasgos.",
+        "El mapache camina apoyando toda la planta del pie, por eso la huella trasera es alargada y muestra el talón. Se usa junto con los demás rasgos."
       ]
     }
   ];
