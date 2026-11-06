@@ -41,8 +41,14 @@
     [/canin|entrenamiento/, 'curso-entrenamiento-canino'],
     [/legislaci|\bumas?\b|zoologico/, 'curso-legislacion-uma'],
     [/impacto ambiental|manifiesto/, 'curso-impacto-ambiental'],
-    [/vector|zoonosis/, 'curso-vectores-zoonosis']
+    [/vector|zoonosis/, 'curso-vectores-zoonosis'],
+    [/cucaracha|control sanitario/, 'curso-control-cucarachas']
   ];
+
+  /* Portadas que ya tienen su regla pero cuyos archivos TODAVÍA NO están en assets/img/cursos/portadas/: mientras estén aquí no se usan
+     (el curso sigue con la portada de la marca y no hay ninguna imagen rota ni 404). Cuando lleguen las tres variantes
+     (curso-control-cucarachas.webp, curso-control-cucarachas-4x3.webp y curso-control-cucarachas.jpg), se quita la clave de esta lista (un solo cambio). */
+  var PENDIENTES = ['curso-control-cucarachas'];
 
   function normalizar(t) {
     return String(t == null ? '' : t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
@@ -53,7 +59,10 @@
     if (!curso || typeof curso !== 'object') return '';
     var titulo = normalizar(curso.title || curso.titulo || '');
     if (!titulo) return '';
-    for (var i = 0; i < REGLAS.length; i++) if (REGLAS[i][0].test(titulo)) return REGLAS[i][1];
+    for (var i = 0; i < REGLAS.length; i++) {
+      if (!REGLAS[i][0].test(titulo)) continue;
+      return PENDIENTES.indexOf(REGLAS[i][1]) === -1 ? REGLAS[i][1] : '';   // sin archivo todavía: se ignora y sigue la portada de siempre
+    }
     return '';
   }
 
@@ -72,7 +81,8 @@
     return rel;
   }
 
-  function todas() { return REGLAS.map(function (r) { return r[1]; }); }
+  function todas() { return REGLAS.map(function (r) { return r[1]; }).filter(function (k) { return PENDIENTES.indexOf(k) === -1; }); }
+  function pendientes() { return PENDIENTES.slice(); }
 
   /* Portada por defecto de la marca: un solo archivo vectorial que sirve para 16x9 y 4x3 (se recorta con cover). */
   var DEFECTO = 'curso-por-defecto.svg';
@@ -118,7 +128,7 @@
   }
 
   return {
-    paraCurso: paraCurso, claveDe: claveDe, todas: todas, RUTA: RUTA, normalizar: normalizar,
+    paraCurso: paraCurso, claveDe: claveDe, todas: todas, pendientes: pendientes, RUTA: RUTA, normalizar: normalizar,
     DEFECTO: DEFECTO, defecto: defecto, propia: propia, imagenPropia: imagenPropia, resolver: resolver, origenDe: origenDe
   };
 });
