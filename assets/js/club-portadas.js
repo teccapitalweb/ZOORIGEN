@@ -46,9 +46,9 @@
   ];
 
   /* Portadas que ya tienen su regla pero cuyos archivos TODAVÍA NO están en assets/img/cursos/portadas/: mientras estén aquí no se usan
-     (el curso sigue con la portada de la marca y no hay ninguna imagen rota ni 404). Cuando lleguen las tres variantes
-     (curso-control-cucarachas.webp, curso-control-cucarachas-4x3.webp y curso-control-cucarachas.jpg), se quita la clave de esta lista (un solo cambio). */
-  var PENDIENTES = ['curso-control-cucarachas'];
+     (el curso sigue con la portada de la marca y no hay ninguna imagen rota ni 404). Se agrega la clave al tener la regla y se quita
+     cuando llegan las tres variantes (<clave>.webp, <clave>-4x3.webp y <clave>.jpg). Hoy no hay ninguna pendiente. */
+  var PENDIENTES = [];
 
   function normalizar(t) {
     return String(t == null ? '' : t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();

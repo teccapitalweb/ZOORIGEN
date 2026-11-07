@@ -180,31 +180,51 @@ test('las versiones ?v= de los scripts cambiados son iguales en todas las págin
   }
 });
 
-test('curso 16 (Control Sanitario de Cucarachas): la regla ya está lista con su nombre de archivo; mientras no existan las imágenes NO se usa (sigue el marcador, sin 404)', () => {
-  const curso = { title: 'Control Sanitario de Cucarachas en Ambientes Urbanos y Domésticos' };
-  assert.deepEqual(PO.pendientes(), ['curso-control-cucarachas']);
-  // las tres variantes que tienen los demás cursos
-  const ruta = k => path.join(RAIZ, 'assets', 'img', 'cursos', 'portadas', k);
-  const existen = ['curso-control-cucarachas.webp', 'curso-control-cucarachas-4x3.webp', 'curso-control-cucarachas.jpg'].map(a => fs.existsSync(ruta(a)));
-  if (existen.every(Boolean)) {
-    // ya llegaron los archivos: hay que quitar la clave de PENDIENTES (un solo cambio) y entonces la portada se usa
-    assert.fail('Ya están las tres imágenes de curso-control-cucarachas: quita la clave de PENDIENTES en assets/js/club-portadas.js');
-  }
-  assert.equal(PO.claveDe(curso), '', 'pendiente: no se pide ninguna imagen que no existe');
-  assert.equal(PO.paraCurso(curso, '../'), '');
-  assert.equal(PO.origenDe(curso), 'defecto');
-  assert.match(PO.resolver(curso, '../'), /curso-por-defecto\.svg$/, 'sigue la portada de la marca');
-  assert.ok(!PO.todas().includes('curso-control-cucarachas'));
-  // y la regla existe: al quitarla de pendientes, el título correcto cae en ese archivo (se comprueba sobre el código)
+const TITULO_16 = 'Control Sanitario de Cucarachas en Ambientes Urbanos y Domésticos';
+const rutaPortada = a => path.join(RAIZ, 'assets', 'img', 'cursos', 'portadas', a);
+
+test('curso 16 (Control Sanitario de Cucarachas): ya tiene portada por título, activa (nada pendiente) y sin romper a los otros 15', () => {
+  const curso = { title: TITULO_16 };
+  assert.deepEqual(PO.pendientes(), [], 'ya no hay portadas pendientes');
+  assert.equal(PO.claveDe(curso), 'curso-control-cucarachas');
+  assert.equal(PO.claveDe({ title: 'Control Sanitario de Cucarachas en Ambientes Urbanos y Domesticos' }), 'curso-control-cucarachas', 'sin acentos también');
+  assert.equal(PO.claveDe({ title: 'CONTROL SANITARIO DE CUCARACHAS' }), 'curso-control-cucarachas', 'en mayúsculas también');
+  assert.equal(PO.paraCurso(curso, '../'), '../assets/img/cursos/portadas/curso-control-cucarachas.webp');
+  assert.equal(PO.paraCurso(curso, '../', '4x3'), '../assets/img/cursos/portadas/curso-control-cucarachas-4x3.webp');
+  assert.equal(PO.origenDe(curso), 'titulo');
+  assert.equal(PO.resolver({ ...curso, image: 'https://x.com/volante.jpg' }, '../'), PO.paraCurso(curso, '../'), 'un volante antiguo no gana a la portada por título');
+  assert.ok(PO.todas().includes('curso-control-cucarachas'));
+  // la regla queda después de las demás: ningún otro título cambia de portada
   const codigo = leer('assets/js/club-portadas.js');
-  assert.match(codigo, /\[\/cucaracha\|control sanitario\/, 'curso-control-cucarachas'\]/);
-  assert.match(codigo, /var PENDIENTES = \['curso-control-cucarachas'\];/);
-  // una imagen propia del curso (portadaPropia o campo image) sigue mandando
-  assert.match(PO.resolver({ ...curso, image: 'assets/img/cursos/portadas/curso-fototrampeo.webp' }, '../'), /curso-fototrampeo\.webp$/);
-  // los 15 cursos de siempre no cambian
+  assert.match(codigo, /\[\/cucaracha\|control sanitario\/, 'curso-control-cucarachas'\]\n  \];/);
+  assert.match(codigo, /var PENDIENTES = \[\];/);
+  for (const t of QUINCE) assert.notEqual(PO.claveDe({ title: t }), 'curso-control-cucarachas', t);
   for (const t of QUINCE) assert.ok(PO.claveDe({ title: t }), t);
-  // todas las portadas activas tienen sus tres variantes en el sitio
-  for (const k of PO.todas()) for (const a of [k + '.webp', k + '-4x3.webp', k + '.jpg']) assert.ok(fs.existsSync(ruta(a)), a);
+  // una imagen propia fijada por el administrador sigue mandando
+  assert.equal(PO.resolver({ ...curso, image: 'https://x.com/mia.jpg', portadaPropia: true }, '../'), 'https://x.com/mia.jpg');
+});
+
+test('curso 16: sus tres archivos existen, con pesos razonables (como los de los demás cursos) y todas las portadas activas tienen sus tres variantes', () => {
+  const peso = a => fs.statSync(rutaPortada(a)).size;
+  const kb = a => Math.round(peso(a) / 1024);
+  // el .webp 16:9 y el -4x3.webp son los que cargan las pantallas: entre 30 y 250 KB; el .jpg es el original (hasta 1,2 MB)
+  assert.ok(peso('curso-control-cucarachas.webp') > 30 * 1024 && peso('curso-control-cucarachas.webp') < 250 * 1024, 'webp 16:9: ' + kb('curso-control-cucarachas.webp') + ' KB');
+  assert.ok(peso('curso-control-cucarachas-4x3.webp') > 30 * 1024 && peso('curso-control-cucarachas-4x3.webp') < 250 * 1024, 'webp 4:3: ' + kb('curso-control-cucarachas-4x3.webp') + ' KB');
+  assert.ok(peso('curso-control-cucarachas.jpg') > 80 * 1024 && peso('curso-control-cucarachas.jpg') < 1200 * 1024, 'jpg: ' + kb('curso-control-cucarachas.jpg') + ' KB');
+  // formas de siempre: JPEG 1536x1024, WebP 1600x900 (16:9) y 1200x900 (4:3)
+  const jpg = fs.readFileSync(rutaPortada('curso-control-cucarachas.jpg'));
+  assert.deepEqual([...jpg.subarray(0, 3)], [0xff, 0xd8, 0xff], 'es un JPEG de verdad');
+  const dimWebp = a => {
+    const b = fs.readFileSync(rutaPortada(a));
+    assert.equal(b.toString('ascii', 0, 4), 'RIFF'); assert.equal(b.toString('ascii', 8, 12), 'WEBP');
+    const tipo = b.toString('ascii', 12, 16);
+    if (tipo === 'VP8 ') return [b.readUInt16LE(26) & 0x3fff, b.readUInt16LE(28) & 0x3fff];
+    if (tipo === 'VP8X') return [1 + b.readUIntLE(24, 3), 1 + b.readUIntLE(27, 3)];
+    throw new Error('tipo WebP no esperado: ' + tipo);
+  };
+  assert.deepEqual(dimWebp('curso-control-cucarachas.webp'), [1600, 900]);
+  assert.deepEqual(dimWebp('curso-control-cucarachas-4x3.webp'), [1200, 900]);
+  for (const k of PO.todas()) for (const a of [k + '.webp', k + '-4x3.webp', k + '.jpg']) assert.ok(fs.existsSync(rutaPortada(a)), a);
 });
 
 test('el prompt de la portada del curso 16 está preparado fuera de Git (PROMPT-PORTADA-CUCARACHAS.md) con el nombre de archivo que espera el código', () => {
