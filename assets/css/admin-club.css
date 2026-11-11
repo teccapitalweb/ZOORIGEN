@@ -721,8 +721,14 @@ body.ap-sin-scroll { overflow: hidden; }
 .zg-spark__trazo { fill: none; stroke: var(--zg-c); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 
 /* Anillo */
-.zg-anillo__fila { display: grid; grid-template-columns: minmax(150px, 190px) minmax(0, 1fr); gap: 18px 24px; align-items: center; }
-.zg-anillo__graf { position: relative; width: 100%; max-width: 190px; aspect-ratio: 1; margin: 0 auto; }
+/* El anillo se adapta al ancho de SU tarjeta (no al de la ventana): angosta = anillo arriba (centrado, tamaño acotado) y la leyenda debajo,
+   en una sola columna; con espacio = anillo a la izquierda y leyenda a la derecha, con anchos mínimos reales (nunca letra por letra). */
+.zg-anillo { container: zgan / inline-size; }
+.zg-anillo__fila { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 18px 24px; align-items: center; }
+.zg-anillo__fila > .zg-anillo__leyenda { width: 100%; }
+@container zgan (min-width: 460px) { .zg-anillo__fila { grid-template-columns: minmax(150px, 190px) minmax(260px, 1fr); justify-items: stretch; } }
+.zg-anillo__graf { position: relative; width: 100%; max-width: 176px; aspect-ratio: 1; margin: 0 auto; }
+@container zgan (min-width: 460px) { .zg-anillo__graf { max-width: 190px; } }
 .zg-anillo__graf svg { display: block; width: 100%; height: 100%; }
 .zg-anillo__pista { stroke: var(--zg-pista); }
 .zg-anillo__seg { stroke: var(--zg-c); transition: opacity .15s, stroke-width .15s; cursor: pointer; }
@@ -732,14 +738,13 @@ body.ap-sin-scroll { overflow: hidden; }
 .zg-anillo__centro strong { font: 800 clamp(1.3rem, 1.1rem + 1vw, 1.8rem)/1.05 var(--zoo-font-display); letter-spacing: -.02em; color: var(--c-text); font-variant-numeric: tabular-nums; }
 .zg-anillo__centro span { margin-top: 2px; font-size: .75rem; line-height: 1.25; color: var(--c-text-3); }
 .zg-anillo__leyenda { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; min-width: 0; }
-.zg-anillo__leyenda li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto auto; align-items: center; gap: 10px; min-height: 36px; padding: 2px 8px; border-radius: 10px; font-size: .88rem; color: var(--c-text-2); cursor: default; }
+.zg-anillo__leyenda li { display: grid; grid-template-columns: 14px minmax(7ch, 1fr) auto auto; align-items: center; gap: 10px; min-height: 36px; padding: 2px 8px; border-radius: 10px; font-size: .88rem; color: var(--c-text-2); cursor: default; }
 .zg-anillo__leyenda li.is-sel, .zg-anillo__leyenda li:hover { background: var(--c-row-hover); }
 .zg-anillo__leyenda li:focus-visible { outline: 3px solid #F7CB62; outline-offset: -2px; }
 :root[data-modo="claro"] .zg-anillo__leyenda li:focus-visible { outline-color: #1F5F8F; }
-.zg-anillo__txt { overflow-wrap: anywhere; }
-.zg-anillo__leyenda strong { color: var(--c-text); font-variant-numeric: tabular-nums; }
-.zg-anillo__pct { min-width: 44px; text-align: right; color: var(--c-text-3); font-size: .8rem; font-variant-numeric: tabular-nums; }
-@media (max-width: 520px) { .zg-anillo__fila { grid-template-columns: minmax(0, 1fr); } }
+.zg-anillo__txt { min-width: 0; overflow-wrap: break-word; word-break: normal; hyphens: manual; text-align: left; }
+.zg-anillo__leyenda strong { color: var(--c-text); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.zg-anillo__pct { min-width: 44px; white-space: nowrap; text-align: right; color: var(--c-text-3); font-size: .8rem; font-variant-numeric: tabular-nums; }
 
 /* Barras horizontales */
 .zg-bh__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
