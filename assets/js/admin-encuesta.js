@@ -725,6 +725,8 @@
     var y = typeof window !== 'undefined' ? window.scrollY : 0;
     contenedor.innerHTML = vistaHTML(estado);
     if (typeof window !== 'undefined') window.scrollTo(0, y);
+    // Las gráficas se activan al pintar (rótulos del eje sin pisarse, ayudas al pasar el cursor, resalte de la leyenda)
+    if (G && typeof G.activar === 'function' && contenedor.querySelectorAll) G.activar(contenedor);
     var enc = estado.encuesta || {};
     var detalle = enc.ok && enc.detalle === true;
     var calculado = enc.ok ? calcular(enc.docs) : null;
