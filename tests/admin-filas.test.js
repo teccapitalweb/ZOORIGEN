@@ -165,16 +165,19 @@ test('Cursos: las acciones de lista siguen disponibles internamente; el catálog
   assert.match(html, /orden: 'recientes', vista: 'grid' \}/);
 });
 
-test('Videos, PDFs y webinars: Editar y Eliminar en el menú de cada fila, con el mismo manejo de clics', () => {
+test('Videos y PDFs: Editar y Eliminar en el menú de cada fila, con el mismo manejo de clics', () => {
   assert.match(html, /function listaContenido\(coleccion, items, icono, tono, meta, etiqueta\)/);
   assert.match(html, /acciones: \[\{ t: 'Editar', i: 'pencil', a: 'editar' \}, \{ t: 'Eliminar', i: 'trash-2', a: 'eliminar', p: true, sep: true \}\]/);
-  for (const [col, fn] of [['videos', 'formVideo'], ['pdfs', 'formPdf'], ['sesiones', 'formSesion']]) {
+  for (const [col, fn] of [['videos', 'formVideo'], ['pdfs', 'formPdf']]) {
     assert.match(html, new RegExp("listaContenido\\('" + col + "'"));
     assert.match(html, new RegExp(col + ': window\\.' + fn));
   }
   assert.match(html, /window\.delDoc\(b\.dataset\.col, x\.id, x\.title \|\| ''\)/);
   assert.doesNotMatch(html, /class="btn-small (edit|delete)"/, 'sin botones Editar y Eliminar sueltos en cada fila');
-  assert.equal((html.match(/enlazarContenido\(\);/g) || []).length, 3);
+  assert.equal((html.match(/enlazarContenido\(\);/g) || []).length, 2);
+  // Las clases en vivo ya no usan este sistema genérico de Firestore: las gestiona assets/js/admin-webinars.js contra el servidor.
+  assert.doesNotMatch(html, /listaContenido\('sesiones'/);
+  assert.match(html, /ZOO_ADMIN_WEBINARS\.montar/);
 });
 
 test('Noticias y avisos: noticias, datos curiosos y avisos usan filas con menú y los mismos data-* de siempre', () => {

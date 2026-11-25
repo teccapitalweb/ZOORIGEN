@@ -1,0 +1,224 @@
+// ============================================================================
+// FIRESTORE-REGLAS-v7  (clases en vivo: Meet automatico, grabacion y clases de prueba)
+//
+// NO PUBLICAR HASTA QUE zoorigen-webhook CON services/webinars.js (rama
+// feature/clases-en-vivo) ESTE DESPLEGADO EN RAILWAY Y EL SITIO NUEVO PUBLICADO.
+//
+// Orden de despliegue: 1) servidor (zoorigen-webhook, rama feature/clases-en-vivo)
+//                       2) sitio (ZOORIGEN, misma rama)   3) estas reglas v7.
+// Si se publican antes, el navegador ya no podria escribir en `sesiones` (el
+// panel de administracion viejo, que escribia directo a Firestore, se rompe)
+// mientras el sitio nuevo que llama al servidor todavia no este publicado.
+//
+// Cambios respecto a v6:
+//  - sesiones: YA NO se escribe desde el navegador (antes "allow write: if isAdmin()").
+//    Ahora el servidor (Admin SDK, se salta estas reglas) es quien crea, edita y
+//    borra las clases en vivo -- junto con el evento de Google Calendar/Meet, el
+//    aviso a los miembros y, mas tarde, la grabacion. El documento publico YA NO
+//    lleva `meetUrl` (antes si): el enlace de Meet vive aparte y el navegador lo
+//    pide al servidor justo al entrar (GET /api/webinars/:id/unirse), solo dentro
+//    de la ventana de la clase y con membresia vigente (o admin).
+//  - sesionesPrivadas (NUEVA): meetUrl, calendarEventId, driveArchivoId, bunnyVideoId
+//    y videoManual de cada clase real. Solo la lee y escribe el servidor.
+//  - sesionesPrueba / sesionesPruebaPrivadas (NUEVAS): mismo esquema que
+//    sesiones/sesionesPrivadas, pero para las clases de PRUEBA del administrador
+//    (nunca salen en el listado publico ni avisan a los miembros). Solo servidor.
+//  - sesionInscripciones y webinarsAuto (NUEVAS, sin regla propia: ya las niega la
+//    regla comodin del final): "Mis registradas" de cada miembro y el estado de la
+//    automatizacion Drive->Bunny de cada clase. Las escribe y lee solo el servidor.
+// ============================================================================
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthed()
+        && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isActiveVIP() {
+      return isAuthed()
+        && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planActivo == true
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planVence is timestamp
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.planVence > request.time;
+    }
+
+    // Perfiles y estado de membresia. Solo Admin SDK/admin puede cambiar pagos.
+    match /miembros/{uid} {
+      allow get: if isAuthed() && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isAuthed() && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.role == 'member'
+        && request.resource.data.planActivo == false
+        && request.resource.data.planCancelado == false
+        && request.resource.data.planTipo == null
+        && request.resource.data.planInicio == null
+        && request.resource.data.planVence == null
+        && request.resource.data.ultimoPago == null
+        && !request.resource.data.keys().hasAny([
+          'planStatus', 'stripeCustomerId', 'stripeSubscriptionId',
+          'stripeSubscriptionStatus', 'activadoManualmente', 'activadoPor',
+          'metodoPago', 'montoPagado', 'actualizadoDesdeStripe', 'shopifyOrderId',
+          'courseProgress', 'progresoLegadoImportado',
+          'nombreCertificadoConfirmadoEn', 'nombreCertificadoFolio', 'adminOrigen'
+        ]);
+      // El avance de los cursos (courseProgress) y la marca de importacion del avance anterior
+      // (progresoLegadoImportado) los escribe SOLO el servidor: el titular no puede tocarlos.
+      allow update: if isAdmin() || (
+        isAuthed() && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'planActivo', 'planCancelado', 'planTipo', 'planVence',
+          'planInicio', 'ultimoPago', 'planStatus', 'role',
+          'stripeCustomerId', 'stripeSubscriptionId',
+          'stripeSubscriptionStatus', 'activadoManualmente', 'activadoPor',
+          'metodoPago', 'montoPagado', 'actualizadoDesdeStripe', 'shopifyOrderId',
+          'courseProgress', 'progresoLegadoImportado',
+          'nombreCertificadoConfirmadoEn', 'nombreCertificadoFolio', 'adminOrigen'
+        ])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Coleccion espejo mantenida exclusivamente por el webhook/Admin SDK.
+    match /usuarios/{uid} {
+      allow read: if isAuthed() && (request.auth.uid == uid || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    // El catalogo se puede mostrar a usuarios registrados. La reproduccion
+    // completa se valida otra vez en el backend con membresia vigente.
+    match /cursos/{cursoId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /videos/{videoId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+    match /pdfs/{pdfId} {
+      // Solo el administrador: el enlace de Drive de cada PDF lo entrega el servidor a quien cumple la regla del material
+      allow read, write: if isAdmin();
+    }
+
+    // Clases en vivo (publico, SIN meetUrl ni bunnyVideoId): el servidor crea, edita y
+    // borra -- junto con el evento de Calendar/Meet y los avisos. El navegador ya NO escribe aqui.
+    match /sesiones/{sesionId} {
+      allow read: if isAuthed();
+      allow write: if false;
+    }
+    // Datos privados de cada clase (mismo id que su doc en `sesiones`): enlace de Meet, ids de
+    // Calendar/Drive/Bunny. Solo los lee y escribe el servidor (el navegador nunca, ni el admin).
+    match /sesionesPrivadas/{sesionId} {
+      allow read, write: if false;
+    }
+    // Clases de PRUEBA del administrador: mismo esquema que sesiones/sesionesPrivadas, pero nunca
+    // salen en el listado publico ni avisan a los miembros. Solo servidor (GET /api/admin/webinars
+    // y GET /api/webinars si quien pregunta es superadmin).
+    match /sesionesPrueba/{sesionId} {
+      allow read, write: if false;
+    }
+    match /sesionesPruebaPrivadas/{sesionId} {
+      allow read, write: if false;
+    }
+
+    match /noticias/{noticiaId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // Foro exclusivo para membresias con fecha vigente.
+    match /foroPosts/{postId} {
+      allow read: if isActiveVIP() || isAdmin();
+      allow create: if isActiveVIP()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.content is string
+        && request.resource.data.likes is list
+        && request.resource.data.likes.size() == 0
+        && request.resource.data.views == 0
+        && request.resource.data.repliesCount == 0;
+      allow update: if isAdmin()
+        || (isActiveVIP()
+          && resource.data.authorUid == request.auth.uid
+          && request.resource.data.authorUid == resource.data.authorUid
+          && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['authorUid', 'createdAt', 'likes', 'views', 'repliesCount']))
+        || (isActiveVIP()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views'])
+          && request.resource.data.views == resource.data.views + 1)
+        || (isActiveVIP()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['repliesCount'])
+          && request.resource.data.repliesCount == resource.data.repliesCount + 1)
+        || (isActiveVIP()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+          && request.resource.data.likes is list
+          && resource.data.likes is list
+          && (
+            (request.resource.data.likes.size() == resource.data.likes.size() + 1
+              && request.resource.data.likes.hasAll(resource.data.likes)
+              && request.resource.data.likes.hasAny([request.auth.uid]))
+            ||
+            (request.resource.data.likes.size() == resource.data.likes.size() - 1
+              && resource.data.likes.hasAll(request.resource.data.likes)
+              && resource.data.likes.hasAny([request.auth.uid])
+              && !request.resource.data.likes.hasAny([request.auth.uid]))
+          ));
+      allow delete: if isAdmin()
+        || (isActiveVIP() && resource.data.authorUid == request.auth.uid);
+
+      match /replies/{replyId} {
+        allow read: if isActiveVIP() || isAdmin();
+        allow create: if isActiveVIP()
+          && request.resource.data.authorUid == request.auth.uid
+          && request.resource.data.text is string;
+        allow update: if isAdmin()
+          || (isActiveVIP()
+            && resource.data.authorUid == request.auth.uid
+            && request.resource.data.authorUid == resource.data.authorUid
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['authorUid', 'createdAt']));
+        allow delete: if isAdmin()
+          || (isActiveVIP() && resource.data.authorUid == request.auth.uid);
+      }
+    }
+
+    // Los certificados los emite el SERVIDOR (Admin SDK, se salta estas reglas) al completar la ultima
+    // clase de un curso. La verificacion publica por folio tambien la hace el servidor
+    // (GET /api/certificados/:folio), asi que aqui ya NO hay lectura publica: cada documento trae
+    // nombre y correo del alumno. Solo lee el admin o el titular (consulta filtrada por memberUid).
+    // Nadie desde el navegador, salvo el admin, puede crear, editar ni borrar certificados.
+    match /certificados/{certId} {
+      allow get, list: if isAdmin()
+        || (isAuthed() && (
+          resource.data.get('memberUid', '') == request.auth.uid
+          || resource.data.get('uid', '') == request.auth.uid
+        ));
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ---- Encuesta de la portada y preguntas sin respuesta de la guia ----
+    // Cada envio de la encuesta (parcial o completa) lo guarda el servidor en encuestasProspectos:
+    // { sessionId, respuestas, completada, creado, contacto?, avisoAceptado?, avisoVersion? }.
+    // El WhatsApp es un dato personal: solo el administrador puede leerlo. Nadie escribe desde el navegador.
+    match /encuestasProspectos/{docId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+    // Preguntas que la guia virtual no supo contestar, agrupadas por texto normalizado:
+    // { texto/ejemplo, veces, ultimaVez, tipo }. Las escribe y suma solo el servidor.
+    match /chatbotSinRespuesta/{clave} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

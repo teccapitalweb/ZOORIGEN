@@ -171,12 +171,34 @@ const ZOORIGEN_CLUB = {
     } catch (err) { console.error('Error cargando pdfs:', err); return []; }
   },
 
+  // Clases en vivo: las trae el SERVIDOR (GET /api/webinars), nunca Firestore directo. El servidor nunca
+  // manda el enlace de Meet aquí: eso se pide aparte, justo al entrar, con obtenerEnlaceWebinar().
   async getSesiones() {
     try {
-      const hoy = new Date().toISOString().slice(0, 10);
-      const snap = await db.collection('sesiones').where('date', '>=', hoy).orderBy('date', 'asc').get();
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const r = await this.apiFetch('/api/webinars');
+      const horaCDMX = iso => { try { return new Intl.DateTimeFormat('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Mexico_City' }).format(new Date(iso)); } catch (e) { return '19:00'; } };
+      return (r.sesiones || []).map(s => ({
+        id: s.id, title: s.titulo, descripcion: s.descripcion, speaker: s.instructor,
+        date: s.inicioISO, time: horaCDMX(s.inicioISO), duration: `${s.duracionMin} min`,
+        duracionMin: s.duracionMin, estado: s.estado, tieneGrabacion: s.tieneGrabacion === true,
+        esPrueba: s.esPrueba === true, inscrito: s.inscrito === true
+      }));
     } catch (err) { console.error('Error cargando sesiones:', err); return []; }
+  },
+
+  // Enlace de Meet de una clase, SOLO disponible cerca del horario (el servidor lo decide). Lanza un Error
+  // con .status y .data.codigo ('sin-membresia' | 'fuera-de-ventana' | 'sin-enlace' | 'no-existe').
+  async obtenerEnlaceWebinar(id, esPrueba = false) {
+    const r = await this.apiFetch(`/api/webinars/${encodeURIComponent(id)}/unirse${esPrueba ? '?prueba=1' : ''}`);
+    return r.meetUrl;
+  },
+
+  async inscribirmeWebinar(id, esPrueba = false) {
+    return this.apiFetch(`/api/webinars/${encodeURIComponent(id)}/inscribirme`, { method: 'POST', body: { esPrueba } });
+  },
+
+  async cancelarInscripcionWebinar(id) {
+    return this.apiFetch(`/api/webinars/${encodeURIComponent(id)}/inscribirme`, { method: 'DELETE' });
   },
 
   async getProximaSesion() {

@@ -69,8 +69,11 @@ test('webinars: el botón del enlace avisa y lleva a Suscripción; el enlace de 
   assert.match(h, /id="btnLinkMiembros"/);
   assert.match(h, /PW\.requiereMembresia\('Entrar al webinar'\)/);
   assert.ok(!/<a href="club-suscripcion\.html" class="btn-meet"/.test(h), 'ya no es un enlace directo sin aviso');
-  // Miembros: el enlace a Meet de siempre
-  assert.match(h, /isActive && meetUrl\s*\?\s*`<a href="\$\{meetUrl\}" target="_blank" class="btn-meet">[\s\S]*Entrar al webinar<\/a>`/);
+  // Miembros: el enlace de Meet ya NO viaja con la lista (lo pide el servidor justo al tocar el botón,
+  // solo dentro de la ventana de la clase); ver ZOORIGEN_CLUB.obtenerEnlaceWebinar() en assets/js/club.js.
+  assert.match(h, /id="btnEntrarMeet"/);
+  assert.match(h, /ZOORIGEN_CLUB\.obtenerEnlaceWebinar\(next\.id, next\.esPrueba\)/);
+  assert.doesNotMatch(h, /next\.meetUrl/, 'el enlace de Meet ya no se lee de la lista en el navegador');
   // La lista de próximos webinars sigue visible y marca el enlace como de miembros
   assert.match(h, /PW\.chipCandadoHTML\('Enlace solo para miembros'\)/);
 });
