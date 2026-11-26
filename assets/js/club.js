@@ -197,6 +197,12 @@ const ZOORIGEN_CLUB = {
     return this.apiFetch(`/api/webinars/${encodeURIComponent(id)}/inscribirme`, { method: 'POST', body: { esPrueba } });
   },
 
+  // Enlace de reproducción (firmado, de corta duración) para ver la grabación de una clase ya terminada.
+  async obtenerGrabacionWebinar(id, esPrueba = false) {
+    const r = await this.apiFetch('/api/bunny/webinar-embed-token', { method: 'POST', body: { sesionId: id, esPrueba } });
+    return r.embedUrl;
+  },
+
   async cancelarInscripcionWebinar(id) {
     return this.apiFetch(`/api/webinars/${encodeURIComponent(id)}/inscribirme`, { method: 'DELETE' });
   },

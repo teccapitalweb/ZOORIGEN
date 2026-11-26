@@ -171,10 +171,10 @@ test('modo noche: paleta neutra definida y sin verde oscuro de superficie', () =
   }
 });
 
-/* ───────── clases en vivo = Próximamente ───────── */
-test('clases en vivo: una sola bandera global, activada', () => {
-  assert.equal(CONFIG.clasesEnVivoPronto, true);
-  assert.equal(CONFIG.enVivoPronto(), true);
+/* ───────── clases en vivo: lanzadas el 26 nov 2026 (ver CONFIGURAR-CLASES-EN-VIVO.md) ───────── */
+test('clases en vivo: una sola bandera global, ya desactivada (sección lanzada)', () => {
+  assert.equal(CONFIG.clasesEnVivoPronto, false);
+  assert.equal(CONFIG.enVivoPronto(), false);
   // solo se define en un lugar
   const definiciones = ['assets/js/club.js', 'assets/js/club-shell.js', 'assets/js/club-avisos.js', 'assets/js/club-onboarding.js', 'pages/club-sesiones.html', 'pages/club-dashboard.html']
     .filter(f => /clasesEnVivoPronto\s*:\s*(true|false)/.test(leer(f)));
