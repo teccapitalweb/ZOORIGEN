@@ -36,6 +36,17 @@
     'procesando-bunny': 'Procesando en Bunny…', lista: '✓ Grabación disponible', error: 'Error en la automatización'
   };
 
+  // Los mismos 5 pasos que guarda el servidor en webinarsAuto/{id}.paso (services/webinars.js),
+  // en el orden en que de verdad ocurren.
+  var PASOS_AUTO = [
+    { clave: 'programada', titulo: 'Clase programada', texto: function (s) { return 'Para el ' + fechaHora(s.inicioISO) + '.'; } },
+    { clave: 'grabacion-encontrada', titulo: 'Grabación encontrada', texto: function (s) { return s.automatizacionMensaje || 'Se encontró el archivo en Drive.'; } },
+    { clave: 'subiendo-bunny', titulo: 'Pasando el video a Bunny', texto: function () { return 'A la colección «clases en vivo».'; } },
+    { clave: 'procesando-bunny', titulo: 'Procesando en Bunny', texto: function () { return 'Bunny prepara el video para reproducirlo.'; } },
+    { clave: 'lista', titulo: 'Lista', texto: function () { return 'Cuando Bunny termine, se enlaza sola con la clase.'; } }
+  ];
+  var ocultosAutomatizacion = Object.create(null); // "Quitar de la lista": solo visual, se reinicia al recargar la página.
+
   var API = { esc: esc, fechaHora: fechaHora };
   if (typeof document === 'undefined') return API;
 
@@ -94,7 +105,8 @@
             return '<button type="button" class="btn-cancel" data-filtro="' + f[0] + '"' + (filtro === f[0] ? ' style="background:#2F7A4F;color:#fff;"' : '') + '>' + f[1] + '</button>';
           }).join('') +
         '</div>' +
-        (visibles.length === 0 ? '<div class="no-data">No hay clases que mostrar con ese filtro.</div>' : visibles.map(filaHTML).join(''));
+        (visibles.length === 0 ? '<div class="no-data">No hay clases que mostrar con ese filtro.</div>' : visibles.map(filaHTML).join('')) +
+        seccionAutomatizacionHTML(lista);
 
       $('wbNueva').addEventListener('click', function () { formWebinar(); });
       $('wbNuevaPrueba').addEventListener('click', function () { formWebinar({ esPrueba: true }); });
@@ -116,6 +128,65 @@
           .then(function () { cargar(); }, falla);
       }); });
       cont.querySelectorAll('[data-video-manual]').forEach(function (b) { b.addEventListener('click', function () { formVideoManual(b.dataset.videoManual, b.dataset.prueba === '1'); }); });
+      var btnActualizarAuto = $('wbActualizarAuto');
+      if (btnActualizarAuto) btnActualizarAuto.addEventListener('click', function () { cargar(); });
+      cont.querySelectorAll('[data-quitar]').forEach(function (b) { b.addEventListener('click', function () {
+        ocultosAutomatizacion[b.dataset.quitar] = true;
+        pintar(lista, legadoPendiente);
+      }); });
+    }
+
+    // «Grabaciones automáticas (Meet → Drive → Bunny)»: una tarjeta por clase SIN grabación todavía
+    // (solo las que tienen Meet automático: una con enlace manual no tiene nada que rastrear en Drive),
+    // y una tarjeta simplificada «YA DISPONIBLE» para las que ya terminaron.
+    function seccionAutomatizacionHTML(lista) {
+      var pendientes = lista.filter(function (s) { return s.meetAutomatico && !s.videoManual && !ocultosAutomatizacion[s.id]; });
+      if (!pendientes.length) return '';
+      return '' +
+        '<div class="content-toolbar" style="margin-top:24px;">' +
+          '<h3 style="color:#fff;margin:0;">Grabaciones automáticas (Meet → Drive → Bunny)</h3>' +
+          '<button class="btn-cancel" id="wbActualizarAuto">Actualizar</button>' +
+        '</div>' +
+        '<p class="hint">Las clases creadas con «Crear la reunión de Google Meet automáticamente». Al terminar la clase, el servidor busca la grabación en el Drive de la cuenta conectada, la sube a la colección «clases en vivo» de Bunny y la enlaza con la clase. Puede tardar unos minutos. Un video que pongas a mano nunca se reemplaza.</p>' +
+        pendientes.map(tarjetaAutomatizacionHTML).join('');
+    }
+
+    function tarjetaAutomatizacionHTML(s) {
+      var caja = 'style="border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px;margin-bottom:10px;"';
+      if (s.tieneGrabacion || s.automatizacion === 'lista') {
+        return '<div ' + caja + '>' +
+          '<div class="hint" style="color:#2F7A4F;font-weight:700;">✓ CLASE YA DISPONIBLE</div>' +
+          '<strong>' + esc(s.titulo) + '</strong>' + (s.esPrueba ? ' <span class="hint" style="color:#E8A317;">· clase de prueba</span>' : '') + '<br>' +
+          '<span class="hint">Google Meet · ' + esc(fechaHora(s.inicioISO)) + ' · ' + esc(s.instructor) + '</span><br>' +
+          '<p class="hint">Ya aparece en Grabaciones.' + (s.esPrueba ? ' Mírala en «Ver como usuario» (clase de prueba: solo la ve la cuenta de superadministración).' : '') + '</p>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+            '<button class="btn-cancel" data-editar="' + s.id + '">Editar</button>' +
+            '<button class="btn-cancel" data-eliminar="' + s.id + '" data-prueba="' + (s.esPrueba ? '1' : '0') + '" style="color:#e05252;">Eliminar</button>' +
+          '</div></div>';
+      }
+      var errorEnPaso = s.automatizacion === 'error';
+      // El «paso» guardado es el que el servidor está haciendo ahora mismo (o acaba de empezar), no uno
+      // ya terminado — salvo 'programada', que ya está completo en cuanto la clase existe.
+      var indiceActual = PASOS_AUTO.findIndex(function (p) { return p.clave === (errorEnPaso ? 'programada' : s.automatizacion); });
+      if (indiceActual < 0) indiceActual = 0;
+      return '<div ' + caja + '>' +
+        '<strong>' + esc(s.titulo) + '</strong> <span class="hint">· Google Meet' + (s.esPrueba ? ' · clase de prueba' : '') + '</span>' +
+        PASOS_AUTO.map(function (p, i) {
+          var estado = i < indiceActual ? 'hecho' : (i === indiceActual ? (errorEnPaso ? 'error' : 'curso') : 'pendiente');
+          if (p.clave === 'programada') estado = 'hecho'; // completo en cuanto la clase existe, nunca "en curso"
+          var icono = estado === 'hecho' ? '✓' : estado === 'error' ? '⚠' : estado === 'curso' ? '…' : '○';
+          var color = estado === 'hecho' ? '#2F7A4F' : estado === 'error' ? '#e05252' : estado === 'curso' ? '#2AA4D5' : 'rgba(255,255,255,0.25)';
+          return '<div style="display:flex;gap:10px;margin-top:10px;">' +
+            '<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;border:2px solid ' + color + ';color:' + color + ';display:flex;align-items:center;justify-content:center;font-size:.8rem;">' + icono + '</span>' +
+            '<div><strong style="color:' + (estado === 'pendiente' ? 'rgba(255,255,255,0.5)' : '#fff') + ';">' + p.titulo + '</strong><br>' +
+            '<span class="hint">' + esc(p.texto(s)) + '</span>' +
+            (estado === 'error' ? '<br><span class="hint" style="color:#e05252;">' + esc(s.automatizacionMensaje || 'Error desconocido') + '</span>' : '') +
+            '</div></div>';
+        }).join('') +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">' +
+          '<button class="btn-cancel" data-reintentar="' + s.id + '" data-prueba="' + (s.esPrueba ? '1' : '0') + '">Buscar ahora</button>' +
+          '<button class="btn-cancel" data-quitar="' + s.id + '">Quitar de la lista</button>' +
+        '</div></div>';
     }
 
     function filaHTML(s) {
