@@ -359,12 +359,11 @@
       }
 
       const next = sesiones[0];
-      const meetUrl = next.meetUrl || next.zoomUrl || '';
-      const linkBtn = isActive && meetUrl
-        ? `<a href="${meetUrl}" target="_blank" class="btn-meet"><span class="btn-meet__icon">M</span>Entrar al webinar</a>`
-        : !isActive
-        ? `<button type="button" class="btn-meet" id="btnLinkMiembros" style="background:var(--zoo-amber);color:#1f1d17;border:0;cursor:pointer;font-family:inherit;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar para ver link</button>`
-        : `<span style="color:rgba(255,255,255,0.7);font-size:.9rem;"><svg class="zi" aria-hidden="true"><use href="#zi-hourglass"/></svg> Link de Meet disponible 15 min antes</span>`;
+      // El enlace de Meet ya NO viaja con la lista: se pide al servidor justo al tocar el botón (solo
+      // responde dentro de la ventana de la clase). Mientras tanto se muestra un botón neutro.
+      const linkBtn = isActive
+        ? `<button type="button" class="btn-meet" id="btnEntrarMeet"><span class="btn-meet__icon">M</span>Entrar al webinar</button>`
+        : `<button type="button" class="btn-meet" id="btnLinkMiembros" style="background:var(--zoo-amber);color:#1f1d17;border:0;cursor:pointer;font-family:inherit;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar para ver link</button>`;
 
       const mesesShort = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
 
@@ -420,6 +419,25 @@
       if (btnLink) btnLink.addEventListener('click', () => {
         if (PW) PW.requiereMembresia('Entrar al webinar');
         else window.location.href = 'club-suscripcion.html';
+      });
+
+      // El enlace de Meet se pide al servidor justo al tocar el botón (nunca viaja con la lista).
+      const btnEntrar = document.getElementById('btnEntrarMeet');
+      if (btnEntrar) btnEntrar.addEventListener('click', async () => {
+        btnEntrar.disabled = true;
+        const original = btnEntrar.innerHTML;
+        btnEntrar.innerHTML = 'Abriendo…';
+        try {
+          const meetUrl = await ZOORIGEN_CLUB.obtenerEnlaceWebinar(next.id, next.esPrueba);
+          window.open(meetUrl, '_blank', 'noopener');
+        } catch (e) {
+          const codigo = e && e.data && e.data.codigo;
+          if (codigo === 'fuera-de-ventana') alert('El enlace se activa 10 minutos antes de la hora de la clase.');
+          else if (codigo === 'sin-membresia' && PW) PW.requiereMembresia('Entrar al webinar');
+          else alert((e && e.message) || 'No se pudo abrir el webinar. Inténtalo de nuevo.');
+        } finally {
+          btnEntrar.disabled = false; btnEntrar.innerHTML = original;
+        }
       });
 
       if (sesiones.length > 1) {

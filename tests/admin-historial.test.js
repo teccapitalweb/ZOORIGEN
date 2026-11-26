@@ -207,13 +207,14 @@ test('Configuración trae la tarjeta, la página la carga con la misma versión 
   assert.match(css, /@media \(max-width: 700px\)[\s\S]*\.ap-hm \{ grid-template-columns: 40px minmax\(0, 1fr\); \}/);
 });
 
-test('lo que el panel guarda directo en Firestore avisa al servidor: curso (crear, editar, eliminar), video, PDF y clase en vivo (el botón global de Bunny ya no existe)', () => {
+test('lo que el panel guarda directo en Firestore avisa al servidor: curso (crear, editar, eliminar), video y PDF (el botón global de Bunny ya no existe); las clases en vivo ya no se guardan directo: las registra el propio servidor (adminAcciones)', () => {
   const html = leer('pages/admin-club.html');
   assert.match(html, /\/api\/admin\/historial\/registrar/);
-  for (const a of ["id ? 'curso-editar' : 'curso-crear'", "id ? 'video-editar' : 'video-crear'", "id ? 'pdf-editar' : 'pdf-crear'", "id ? 'sesion-editar' : 'sesion-crear'"]) {
+  for (const a of ["id ? 'curso-editar' : 'curso-crear'", "id ? 'video-editar' : 'video-crear'", "id ? 'pdf-editar' : 'pdf-crear'"]) {
     assert.ok(html.includes('historialAviso(' + a), a);
   }
-  assert.match(html, /curso-eliminar[\s\S]{0,80}video-eliminar[\s\S]{0,80}pdf-eliminar[\s\S]{0,80}sesion-eliminar/);
+  assert.doesNotMatch(html, /sesion-editar|sesion-crear|sesion-eliminar/, 'las clases en vivo ya no pasan por historialAviso: las anota el servidor con anotarAccion');
+  assert.match(html, /curso-eliminar[\s\S]{0,80}video-eliminar[\s\S]{0,80}pdf-eliminar/);
   // el aviso va DESPUÉS de guardar y no puede romper el guardado
   assert.ok(html.indexOf("historialAviso(id ? 'curso-editar' : 'curso-crear'") > html.indexOf('await batch.commit()'));
   assert.match(html, /const historialAviso = [\s\S]{0,400}\.catch\(\(\) => \{\}\)[\s\S]{0,120}catch \(e\)/);

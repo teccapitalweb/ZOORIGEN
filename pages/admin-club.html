@@ -338,6 +338,7 @@
   <script src="../assets/js/admin-certificados.js?v=20261212-resumen"></script>
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
   <script src="../assets/js/admin-noticias.js?v=20261212-resumen"></script>
+  <script src="../assets/js/admin-webinars.js?v=20261125-servidor"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
   <script src="../assets/js/admin-encuesta.js?v=20261212-resumen"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
@@ -872,7 +873,7 @@
         if (!b || !b.dataset.col) return;
         const x = (contenidoCache[b.dataset.col] || []).find(i => i.id === b.dataset.id);
         if (!x) return;
-        if (b.dataset.accion === 'editar') ({ videos: window.formVideo, pdfs: window.formPdf, sesiones: window.formSesion })[b.dataset.col](x);
+        if (b.dataset.accion === 'editar') ({ videos: window.formVideo, pdfs: window.formPdf })[b.dataset.col](x);
         else if (b.dataset.accion === 'eliminar') window.delDoc(b.dataset.col, x.id, x.title || '');
       };
     }
@@ -1025,57 +1026,20 @@
       } catch (err) { toast('Error: ' + err.message, true); }
     };
 
-    // ═══════════ WEBINARS ═══════════
-    async function loadSesiones() {
-      const v = document.getElementById('secView');
-      v.innerHTML = '<h1>Webinars en vivo</h1><p class="sub">Masterclasses por Google Meet</p>';
-      try {
-        const snap = await db.collection('sesiones').orderBy('date', 'asc').get();
-        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        v.innerHTML += `
-          <div class="content-toolbar">
-            <strong style="color:#fff;">${items.length} webinar${items.length !== 1 ? 's' : ''}</strong>
-            <button class="btn-add" onclick="formSesion()">+ Nuevo webinar</button>
-          </div>
-          ${items.length === 0 ? '<div class="no-data">Aún no hay webinars programados.</div>' : listaContenido('sesiones', items, 'radio', 'aviso', x => esc(x.speaker || '—') + ' · ' + esc(ZOORIGEN_CLUB.formatShort(x.date)) + ' · ' + esc(x.time || '19:00') + ' · Google Meet', 'Webinars en vivo')}
-        `;
-        enlazarContenido();
-      } catch (err) { v.innerHTML += `<div class="error-msg show">Error: ${err.message}</div>`; }
+    // ═══════════ CLASES EN VIVO (webinars) ═══════════
+    // Todo va por el servidor (assets/js/admin-webinars.js): Meet automático, grabación Drive→Bunny,
+    // clases de prueba y avisos. El navegador ya NO escribe directo en `sesiones` (ver FIRESTORE-REGLAS-v7.txt).
+    function loadSesiones() {
+      ZOO_ADMIN_WEBINARS.montar({
+        contenedor: document.getElementById('secView'),
+        base: 'https://zoorigen-webhook-production.up.railway.app',
+        getToken: () => auth.currentUser.getIdToken(),
+        toast: (m, malo) => toast(m, malo),
+        confirmar: (m) => confirm(m),
+        openModal: openModal,
+        closeModal: closeModal
+      });
     }
-
-    window.formSesion = (data = {}) => {
-      openModal(`
-        <h3>${data.id ? 'Editar' : 'Nuevo'} webinar</h3>
-        <div class="field"><label>Título del webinar *</label><input type="text" id="f_title" value="${data.title || ''}" placeholder="Ej. Manejo de fauna silvestre en UMAs"></div>
-        <div class="field"><label>Ponente / Especialista</label><input type="text" id="f_speaker" value="${data.speaker || ''}" placeholder="Ej. Dr. Iván Coronel"></div>
-        <div class="field"><label>Fecha *</label><input type="date" id="f_date" value="${data.date || ''}"></div>
-        <div class="field"><label>Hora</label><input type="time" id="f_time" value="${data.time || '19:00'}"></div>
-        <div class="field"><label>Duración estimada</label><input type="text" id="f_duration" value="${data.duration || '60 min'}" placeholder="Ej. 60 min"></div>
-        <div class="field"><label>Link de Google Meet *</label><input type="text" id="f_meet" value="${data.meetUrl || data.zoomUrl || ''}" placeholder="https://meet.google.com/xxx-xxxx-xxx"><p class="hint">Solo miembros VIP activos verán este link</p></div>
-        <div class="modal-actions">
-          <button class="btn-cancel" onclick="closeM()">Cancelar</button>
-          <button class="btn-save" onclick="saveSesion('${data.id || ''}')">${data.id ? 'Guardar' : 'Crear webinar'}</button>
-        </div>`);
-    };
-
-    window.saveSesion = async (id) => {
-      const data = {
-        title: document.getElementById('f_title').value.trim(),
-        speaker: document.getElementById('f_speaker').value.trim(),
-        date: document.getElementById('f_date').value,
-        time: document.getElementById('f_time').value,
-        duration: document.getElementById('f_duration').value.trim(),
-        meetUrl: document.getElementById('f_meet').value.trim()
-      };
-      if (!data.title) { toast('Título requerido', true); return; }
-      if (!data.date) { toast('Fecha requerida', true); return; }
-      try {
-        if (id) await db.collection('sesiones').doc(id).update(data);
-        else { data.createdAt = new Date().toISOString(); await db.collection('sesiones').add(data); }
-        historialAviso(id ? 'sesion-editar' : 'sesion-crear', data.title, id);
-        toast('Guardado'); closeModal(); loadSesiones(); loadBadges();
-      } catch (err) { toast('Error: ' + err.message, true); }
-    };
 
     // ═══════════ NOTICIAS Y AVISOS ═══════════
     // Todo va por el servidor (admin-noticias.js): noticias del sector, datos curiosos y avisos de la campana.
@@ -1094,7 +1058,7 @@
       if (!confirm(`¿Eliminar "${name}"?`)) return;
       try {
         await db.collection(col).doc(id).delete();
-        const codigoBorrado = { cursos: 'curso-eliminar', videos: 'video-eliminar', pdfs: 'pdf-eliminar', sesiones: 'sesion-eliminar' }[col];
+        const codigoBorrado = { cursos: 'curso-eliminar', videos: 'video-eliminar', pdfs: 'pdf-eliminar' }[col];
         if (codigoBorrado) historialAviso(codigoBorrado, name, id);
         toast('Eliminado');
         renderSection(currentSec);
