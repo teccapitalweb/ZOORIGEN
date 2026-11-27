@@ -268,17 +268,49 @@
       .webinar-countdown__num { font-size: 1.6rem; }
     }
 
-    /* Grabaciones: misma tarjeta visual que los próximos webinars, con un botón de reproducir. */
-    .webinar-recordings { margin-top: 10px; }
-    .webinar-card--grabacion { cursor: pointer; }
-    .webinar-card--grabacion:hover { border-color: var(--zoo-amber); }
-    .webinar-card__play {
-      flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
-      background: var(--zoo-solid-mid, #2A7A4F); color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      border: 0; cursor: pointer;
+    /* Grabaciones: cuadrícula de tarjetas con miniatura, igual al resto de catálogos del sitio (cursos, materiales). */
+    .webinar-rec-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 18px; margin-top: 16px;
     }
-    .webinar-card__play svg { width: 20px; height: 20px; }
+    .webinar-rec-card {
+      background: var(--zoo-bg-card); border: 1px solid var(--zoo-border); border-radius: 16px; overflow: hidden;
+      cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      display: flex; flex-direction: column;
+    }
+    .webinar-rec-card:hover, .webinar-rec-card:focus-visible {
+      transform: translateY(-4px); border-color: var(--zoo-amber); box-shadow: 0 14px 28px rgba(0,0,0,0.18); outline: none;
+    }
+    .webinar-rec-card__thumb {
+      position: relative; aspect-ratio: 16 / 9; width: 100%;
+      background: var(--zoo-panel, #1F5F3A);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .webinar-rec-card__thumb svg.webinar-rec-card__deco { width: 46px; height: 46px; color: rgba(255,255,255,0.35); }
+    .webinar-rec-card__play-circle {
+      position: absolute; inset: 0; margin: auto; width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center;
+      color: var(--zoo-solid-mid, #2A7A4F); box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+      transition: transform .2s ease;
+    }
+    .webinar-rec-card:hover .webinar-rec-card__play-circle { transform: scale(1.08); }
+    .webinar-rec-card__play-circle svg { width: 22px; height: 22px; margin-left: 2px; }
+    .webinar-rec-card__badge {
+      position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.55); color: #fff;
+      font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 999px; backdrop-filter: blur(4px);
+    }
+    .webinar-rec-card__badge--prueba { background: rgba(232,163,23,0.85); color: #1f1d17; }
+    .webinar-rec-card__body { padding: 14px 16px 16px; flex: 1; }
+    .webinar-rec-card__title {
+      font-family: var(--zoo-font-display); font-weight: 700; font-size: .96rem; line-height: 1.3;
+      color: var(--zoo-text); margin: 0 0 6px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .webinar-rec-card__meta { font-size: .8rem; color: var(--zoo-text-muted); display: flex; flex-direction: column; gap: 3px; }
+    .webinar-rec-card__meta span { display: flex; align-items: center; gap: 5px; }
+    .webinar-rec-lock {
+      position: absolute; inset: 0; background: rgba(10,14,12,0.55); display: flex; align-items: center; justify-content: center; color: #fff;
+    }
 
     .webinar-player-overlay {
       position: fixed; inset: 0; z-index: 2000;
@@ -509,26 +541,35 @@
         `;
       }
 
-      // ── Grabaciones disponibles ──
+      // ── Grabaciones disponibles: cuadrícula con miniatura, igual al resto de catálogos del sitio ──
       const grabaciones = sesiones.filter(s => s.tieneGrabacion);
       const recWrap = document.getElementById('recordingsWrap');
       if (grabaciones.length) {
+        const iconoVideo = `<svg class="webinar-rec-card__deco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 4.553-2.276A1 1 0 0 1 22 8.618v6.764a1 1 0 0 1-1.447.894L16 14z"/></svg>`;
+        const iconoPlay = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
+        const iconoCandado = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="28" height="28"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
         recWrap.innerHTML = `
           <div class="section-title-webinars"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg> Grabaciones</div>
-          ${grabaciones.map(s => `
-            <div class="webinar-card webinar-card--grabacion" data-grabacion-id="${s.id}" data-grabacion-prueba="${s.esPrueba ? '1' : '0'}" role="button" tabindex="0">
-              <button type="button" class="webinar-card__play" aria-label="Reproducir ${s.title}">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-              </button>
-              <div class="webinar-card__body">
-                <div class="webinar-card__title">${s.title}</div>
-                <div class="webinar-card__speaker"><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> ${s.speaker || 'Especialista Zoorigen'}</div>
-                <div class="webinar-card__meta">
-                  <span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${ZOORIGEN_CLUB.formatShort(s.date)}</span>
+          <div class="webinar-rec-grid">
+            ${grabaciones.map(s => `
+              <div class="webinar-rec-card" data-grabacion-id="${s.id}" data-grabacion-prueba="${s.esPrueba ? '1' : '0'}" role="button" tabindex="0" aria-label="Reproducir ${s.title}">
+                <div class="webinar-rec-card__thumb">
+                  ${iconoVideo}
+                  ${s.esPrueba ? '<span class="webinar-rec-card__badge webinar-rec-card__badge--prueba">Prueba</span>' : ''}
+                  ${isActive
+                    ? `<span class="webinar-rec-card__play-circle">${iconoPlay}</span>`
+                    : `<div class="webinar-rec-lock">${iconoCandado}</div>`}
+                </div>
+                <div class="webinar-rec-card__body">
+                  <p class="webinar-rec-card__title">${s.title}</p>
+                  <div class="webinar-rec-card__meta">
+                    <span><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> ${s.speaker || 'Especialista Zoorigen'}</span>
+                    <span><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${ZOORIGEN_CLUB.formatShort(s.date)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          `).join('')}
+            `).join('')}
+          </div>
         `;
         const overlay = document.getElementById('webinarPlayerOverlay');
         const videoBox = document.getElementById('webinarPlayerVideo');
