@@ -270,6 +270,7 @@
       <button class="asb-item" data-sec="comunidad"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="asb-label">Foro y directorio</span><span class="nbg" id="nb-comunidad" hidden>0</span></button>
       <button class="asb-item" data-sec="referidos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 7v14" /><path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" /><path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5" /><rect x="3" y="7" width="18" height="4" rx="1" /></svg><span class="asb-label">Referidos</span><span class="nbg" id="nb-referidos" hidden>0</span></button>
       <button class="asb-item" data-sec="creditos"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg><span class="asb-label">Créditos</span><span class="nbg" id="nb-creditos" hidden>0</span></button>
+      <button class="asb-item" data-sec="soporte"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" /></svg><span class="asb-label">Soporte</span><span class="nbg" id="nb-soporte" hidden>0</span></button>
 
       <div class="asb-section">Marketing</div>
       <button class="asb-item" data-sec="metricas"><svg class="zi" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/></svg><span class="asb-label">Métricas</span><span class="nbg" id="nb-metricas" hidden>0</span></button>
@@ -339,6 +340,7 @@
   <script src="../assets/js/club-noticias-ui.js?v=20261123-sinmorado"></script>
   <script src="../assets/js/admin-noticias.js?v=20261212-resumen"></script>
   <script src="../assets/js/admin-webinars.js?v=20261125-servidor"></script>
+  <script src="../assets/js/admin-soporte.js?v=20261127-soporte"></script>
   <script src="../assets/js/encuesta-motor.js?v=20261104"></script>
   <script src="../assets/js/admin-encuesta.js?v=20261212-resumen"></script>
   <script src="../assets/js/zoorigen-bunny-catalog.js?v=20261104"></script>
@@ -550,6 +552,7 @@
       else if (sec === 'noticias') loadNoticias();
       else if (sec === 'retos') V.retos();
       else if (sec === 'comunidad') V.comunidad();
+      else if (sec === 'soporte') loadSoporte();
       else if (sec === 'referidos') V.referidos();
       else if (sec === 'creditos') window.ZOO_ADMIN_CREDITOS.creditos();
       else if (sec === 'metricas') window.ZOO_ADMIN_VISITAS.metricas();
@@ -1038,6 +1041,18 @@
         confirmar: (m) => confirm(m),
         openModal: openModal,
         closeModal: closeModal
+      });
+    }
+
+    // ═══════════ SOPORTE PRIVADO ═══════════
+    // Buzón 1-a-1 con los miembros (assets/js/admin-soporte.js): todo va por el servidor.
+    function loadSoporte() {
+      ZOO_ADMIN_SOPORTE.montar({
+        contenedor: document.getElementById('secView'),
+        base: 'https://zoorigen-webhook-production.up.railway.app',
+        getToken: () => auth.currentUser.getIdToken(),
+        toast: (m, malo) => toast(m, malo),
+        confirmar: (m) => confirm(m)
       });
     }
 

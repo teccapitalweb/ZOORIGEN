@@ -207,6 +207,20 @@ const ZOORIGEN_CLUB = {
     return this.apiFetch(`/api/webinars/${encodeURIComponent(id)}/inscribirme`, { method: 'DELETE' });
   },
 
+  // Soporte privado: buzón 1-a-1 con la administración (nunca Firestore directo).
+  async misTicketsSoporte() {
+    return this.apiFetch('/api/soporte/tickets');
+  },
+  async crearTicketSoporte(tema, mensaje) {
+    return this.apiFetch('/api/soporte/tickets', { method: 'POST', body: { tema, mensaje } });
+  },
+  async obtenerTicketSoporte(id) {
+    return this.apiFetch(`/api/soporte/tickets/${encodeURIComponent(id)}`);
+  },
+  async responderTicketSoporte(id, texto) {
+    return this.apiFetch(`/api/soporte/tickets/${encodeURIComponent(id)}/mensajes`, { method: 'POST', body: { texto } });
+  },
+
   async getProximaSesion() {
     const lista = await this.getSesiones();
     return lista.length > 0 ? lista[0] : null;

@@ -96,7 +96,7 @@ test('preferencia: textos del interruptor de Mi perfil y de la baja', () => {
 });
 
 test('todas las páginas de miembros cargan la barra: hoja ANTES de club-responsivo, módulo y reserva de alto desde el <head>', () => {
-  assert.equal(delPanel.length, 18);
+  assert.equal(delPanel.length, 19);
   for (const f of delPanel) {
     const h = leer('pages/' + f);
     assert.match(h, /assets\/css\/club-cupon\.css\?v=[\w.-]+/, f);

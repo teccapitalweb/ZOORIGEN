@@ -29,6 +29,7 @@
     { id: 'retos', grupo: 'Comunidad', titulo: 'Retos y XP', icono: 'target', zoo: 'retos', origen: 'servidor' },
     { id: 'comunidad', grupo: 'Comunidad', titulo: 'Foro y directorio', icono: 'message-square', zoo: 'foro', origen: 'servidor' },
     { id: 'referidos', grupo: 'Comunidad', titulo: 'Referidos', icono: 'gift', zoo: 'referidos', origen: 'servidor' },
+    { id: 'soporte', grupo: 'Comunidad', titulo: 'Soporte', icono: 'message-circle', zoo: 'foro', origen: 'club' },
     { id: 'creditos', grupo: 'Comunidad', titulo: 'Créditos', icono: 'wallet', zoo: 'logros', origen: 'servidor' },
     { id: 'metricas', grupo: 'Marketing', titulo: 'Métricas', icono: 'chart-line', zoo: 'videos', origen: 'servidor' },
     { id: 'pruebas', grupo: 'Marketing', titulo: 'Pruebas gratuitas', icono: 'flask-conical', zoo: 'registro', origen: 'servidor' },

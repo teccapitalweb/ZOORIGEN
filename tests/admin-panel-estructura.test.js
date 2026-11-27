@@ -70,7 +70,7 @@ test('los endpoints que usa el panel son los del servidor (inventario)', () => {
 /* ───────── estructura ───────── */
 
 test('cada sección del panel tiene botón en la barra lateral con ícono y se dibuja desde renderSection', () => {
-  assert.equal(P.SECCIONES.length, 20);
+  assert.equal(P.SECCIONES.length, 21);
   // «Métricas de visitas» y «Métricas» se juntaron en una sola: «Métricas» (pestañas Visitas y Negocio); el enlace viejo #/visitas lleva allá
   assert.equal(P.seccion('visitas'), null);
   assert.equal(P.seccionDeHash('#/visitas'), 'metricas');

@@ -38,7 +38,8 @@
     { id: 'comunidad', titulo: 'Comunidad', items: [
       { id: 'foro', label: 'Foro VIP', icon: 'messages', href: 'club-foro.html' },
       { id: 'directorio', label: 'Directorio VIP', icon: 'users', href: 'club-directorio.html' },
-      { id: 'canal', label: 'Canal de WhatsApp', icon: 'brandwhatsapp', href: 'club-canal.html' }
+      { id: 'canal', label: 'Canal de WhatsApp', icon: 'brandwhatsapp', href: 'club-canal.html' },
+      { id: 'soporte', label: 'Soporte privado', icon: 'headset', href: 'club-soporte.html' }
     ] },
     { id: 'cuenta', titulo: 'Mi cuenta', items: [
       { id: 'perfil', label: 'Mi perfil', icon: 'user', href: 'club-perfil.html' },
@@ -143,7 +144,8 @@
     tools: '<path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5"/>',
     x: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>',
     download: '<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/>',
-    bulb: '<path d="M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7"/><path d="M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3"/><path d="M9.7 17l4.6 0"/>'
+    bulb: '<path d="M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7"/><path d="M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3"/><path d="M9.7 17l4.6 0"/>',
+    headset: '<path d="M4 13m0 2a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2z"/><path d="M15 13m0 2a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2z"/><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><path d="M18 20a2 2 0 0 0 2 -2v-1"/>'
   };
 
   function enlaceHTML(item, activo, clase) {

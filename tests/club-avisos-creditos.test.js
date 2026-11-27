@@ -84,7 +84,7 @@ test('la campana pide /api/creditos/regalos con tolerancia a fallos y la fila ll
 
 test('todas las páginas con campana cargan la versión nueva de club-avisos.js y la hoja de la campana respeta 12 px y 40 px', () => {
   const paginas = fs.readdirSync(path.join(RAIZ, 'pages')).filter(f => f.endsWith('.html') && /club-avisos\.js\?v=/.test(leer('pages/' + f)));
-  assert.equal(paginas.length, 18);
+  assert.equal(paginas.length, 19);
   const versiones = new Set(paginas.map(f => /club-avisos\.js\?v=([\w.-]+)/.exec(leer('pages/' + f))[1]));
   assert.deepEqual([...versiones], ['20261210-creditos']);
   const shell = leer('assets/css/club-shell.css');
