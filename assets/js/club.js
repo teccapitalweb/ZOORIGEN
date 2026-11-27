@@ -181,7 +181,7 @@ const ZOORIGEN_CLUB = {
         id: s.id, title: s.titulo, descripcion: s.descripcion, speaker: s.instructor,
         date: s.inicioISO, time: horaCDMX(s.inicioISO), duration: `${s.duracionMin} min`,
         duracionMin: s.duracionMin, estado: s.estado, tieneGrabacion: s.tieneGrabacion === true,
-        esPrueba: s.esPrueba === true, inscrito: s.inscrito === true
+        esPrueba: s.esPrueba === true, inscrito: s.inscrito === true, thumbnailUrl: s.thumbnailUrl || null
       }));
     } catch (err) { console.error('Error cargando sesiones:', err); return []; }
   },

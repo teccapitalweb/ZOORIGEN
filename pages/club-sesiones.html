@@ -312,6 +312,50 @@
       position: absolute; inset: 0; background: rgba(10,14,12,0.55); display: flex; align-items: center; justify-content: center; color: #fff;
     }
 
+    /* Pestañas Próximas / Grabaciones / Mis inscritas */
+    .webinar-tabs { display: flex; gap: 8px; margin: 24px 0 4px; flex-wrap: wrap; }
+    .webinar-tab {
+      border: 1px solid var(--zoo-border); background: var(--zoo-bg-card); color: var(--zoo-text-muted);
+      padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: .88rem; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .webinar-tab.is-active { background: var(--zoo-solid-mid, #2A7A4F); border-color: var(--zoo-solid-mid, #2A7A4F); color: #fff; }
+    .webinar-tab__n {
+      background: rgba(0,0,0,0.12); border-radius: 999px; padding: 1px 8px; font-size: .78rem;
+    }
+    .webinar-tab.is-active .webinar-tab__n { background: rgba(255,255,255,0.25); }
+
+    /* Tarjeta destacada (próximo webinar o última grabación), con imagen a un lado. */
+    .webinar-destacada {
+      display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+      background: var(--zoo-bg-card); border: 1px solid var(--zoo-border); border-radius: 18px;
+      padding: 24px; margin-bottom: 8px;
+    }
+    .webinar-destacada__txt { flex: 1; min-width: 240px; }
+    .webinar-destacada__eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--zoo-amber); margin: 0 0 6px; }
+    .webinar-destacada__titulo { font-family: var(--zoo-font-display); font-size: 1.35rem; font-weight: 800; color: var(--zoo-text); margin: 0 0 6px; }
+    .webinar-destacada__meta { color: var(--zoo-text-muted); font-size: .9rem; margin-bottom: 14px; }
+    .webinar-destacada__media {
+      flex: none; width: 320px; max-width: 100%; aspect-ratio: 16/9; border-radius: 14px; overflow: hidden;
+      background: var(--zoo-panel, #1F5F3A); display: flex; align-items: center; justify-content: center;
+    }
+    .webinar-destacada__media img { width: 100%; height: 100%; object-fit: cover; }
+    .webinar-destacada__media svg { width: 48px; height: 48px; color: rgba(255,255,255,0.4); }
+
+    /* Cuadrícula genérica (Próximas / Mis inscritas): mismo porte que las de Grabaciones. */
+    .webinar-rec-card__date {
+      position: absolute; top: 10px; right: 10px; background: #fff; color: var(--zoo-text);
+      border-radius: 10px; padding: 4px 9px; text-align: center; line-height: 1.1; min-width: 42px;
+    }
+    .webinar-rec-card__date strong { display: block; font-size: 1.05rem; font-weight: 800; }
+    .webinar-rec-card__date span { display: block; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--zoo-text-muted); }
+    .webinar-rec-card__inscribir {
+      margin-top: 10px; width: 100%; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--zoo-border);
+      background: transparent; color: var(--zoo-text); font-weight: 700; font-size: .82rem; cursor: pointer;
+    }
+    .webinar-rec-card__inscribir.is-inscrito { background: var(--zoo-solid-mid, #2A7A4F); border-color: var(--zoo-solid-mid, #2A7A4F); color: #fff; }
+    .webinar-rec-empty { padding: 30px 20px; text-align: center; color: var(--zoo-text-muted); }
+
     .webinar-player-overlay {
       position: fixed; inset: 0; z-index: 2000;
       background: rgba(10, 14, 12, 0.92);
@@ -340,8 +384,12 @@
       <div id="zsSeccion"><header class="zs-seccion zs-seccion--deco zs-seccion--con-personaje" id="zsSeccionSesiones" data-seccion="sesiones" data-anim="cabecea" data-deco="parpadea" data-acento="naranja" data-zs-firma="xvov6g"><div class="zs-deco" aria-hidden="true"><span class="zs-deco__i zs-deco__i--1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg></span><span class="zs-deco__i zs-deco__i--2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></span><span class="zs-deco__i zs-deco__i--3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16.247 7.761a6 6 0 0 1 0 8.478"/><path d="M19.075 4.933a10 10 0 0 1 0 14.134"/><path d="M4.925 19.067a10 10 0 0 1 0-14.134"/><path d="M7.753 16.239a6 6 0 0 1 0-8.478"/><circle cx="12" cy="12" r="2"/></svg></span><span class="zs-deco__i zs-deco__i--4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="zs-deco__i zs-deco__i--5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg></span><span class="zs-deco__i zs-deco__i--6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg></span><span class="zs-deco__i zs-deco__i--7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg></span></div><div class="zs-personaje" aria-hidden="true" data-personaje="seccion-webinars"><span class="zs-personaje__halo"></span><img class="zs-personaje__img" src="../assets/img/guia/secciones/seccion-webinars.webp" alt="" width="240" height="240" loading="eager" fetchpriority="high" decoding="async"><div class="zs-burbuja" aria-hidden="true"><span class="zs-burbuja__txt">Masterclasses con especialistas invitados.</span></div></div><div class="zs-seccion__cuerpo"><div class="zs-seccion__texto"><span class="zs-seccion__pildora"><svg class="zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478"/><path d="M19.075 4.933a10 10 0 0 1 0 14.134"/><path d="M4.925 19.067a10 10 0 0 1 0-14.134"/><path d="M7.753 16.239a6 6 0 0 1 0-8.478"/><circle cx="12" cy="12" r="2"/></svg><span>Webinars en vivo</span></span><h1 class="zs-seccion__titulo">Masterclasses en vivo, <span class="zs-acento">con especialistas.</span></h1><p class="zs-seccion__sub">Masterclasses exclusivas con especialistas invitados, transmitidas por Google Meet.</p></div></div><div class="zs-seccion__cifras" role="list"><div class="zs-cifra" role="listitem"><strong class="zs-cifra__v" data-cifra="proximos">—</strong><span class="zs-cifra__r">webinars próximos</span></div></div></header></div>
       <div id="lockedNotice"></div>
       <div id="nextSession">Cargando...</div>
-      <div id="sessionsWrap"></div>
-      <div id="recordingsWrap"></div>
+      <div class="webinar-tabs" id="webinarTabs" hidden>
+        <button type="button" class="webinar-tab is-active" data-tab="proximas">Próximas <span class="webinar-tab__n" data-n="proximas">0</span></button>
+        <button type="button" class="webinar-tab" data-tab="grabaciones">Grabaciones <span class="webinar-tab__n" data-n="grabaciones">0</span></button>
+        <button type="button" class="webinar-tab" data-tab="inscritas">Mis inscritas <span class="webinar-tab__n" data-n="inscritas">0</span></button>
+      </div>
+      <div id="webinarTabContent"></div>
     </main>
   </div>
   <!-- zs:flotantes -->
@@ -409,12 +457,18 @@
       }
 
       const sesiones = await ZOORIGEN_CLUB.getSesiones();
-      if (window.ZOO_SECCION) ZOO_SECCION.cifras({ proximos: (sesiones || []).length });
       const isActive = ZOORIGEN_CLUB.hasActiveMembership(session);
       const nextBox = document.getElementById('nextSession');
-      const listWrap = document.getElementById('sessionsWrap');
+      const tabsBox = document.getElementById('webinarTabs');
+      const contentBox = document.getElementById('webinarTabContent');
+      const mesesShort = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+      const iconoVideo = `<svg class="webinar-rec-card__deco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 4.553-2.276A1 1 0 0 1 22 8.618v6.764a1 1 0 0 1-1.447.894L16 14z"/></svg>`;
+      const iconoPlay = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
+      const iconoCandado = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="28" height="28"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+      const iconoCalendario = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>`;
 
       if (!sesiones || sesiones.length === 0) {
+        if (window.ZOO_SECCION) ZOO_SECCION.cifras({ proximos: 0 });
         nextBox.innerHTML = `
           <div class="webinars-empty">
             <div class="webinars-empty__icon"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg></div>
@@ -427,175 +481,207 @@
         return;
       }
 
-      const next = sesiones[0];
-      // El enlace de Meet ya NO viaja con la lista: se pide al servidor justo al tocar el botón (solo
-      // responde dentro de la ventana de la clase). Mientras tanto se muestra un botón neutro.
-      const linkBtn = isActive
-        ? `<button type="button" class="btn-meet" id="btnEntrarMeet"><span class="btn-meet__icon">M</span>Entrar al webinar</button>`
-        : `<button type="button" class="btn-meet" id="btnLinkMiembros" style="background:var(--zoo-amber);color:#1f1d17;border:0;cursor:pointer;font-family:inherit;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar para ver link</button>`;
+      // Se considera "próxima" desde que falta tiempo hasta 1 h después de iniciada (margen para "EN VIVO").
+      const proximas = sesiones.filter(s => new Date(s.date).getTime() >= Date.now() - 3600000);
+      const grabaciones = sesiones.filter(s => s.tieneGrabacion);
+      const inscritas = sesiones.filter(s => s.inscrito);
+      if (window.ZOO_SECCION) ZOO_SECCION.cifras({ proximos: proximas.length });
 
-      const mesesShort = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+      // ── Reproductor de grabaciones (token firmado, se pide justo al abrir) ──
+      const overlay = document.getElementById('webinarPlayerOverlay');
+      const videoBox = document.getElementById('webinarPlayerVideo');
+      const cerrarPlayer = () => { overlay.hidden = true; videoBox.innerHTML = ''; };
+      document.getElementById('webinarPlayerClose').addEventListener('click', cerrarPlayer);
+      overlay.addEventListener('click', e => { if (e.target === overlay) cerrarPlayer(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !overlay.hidden) cerrarPlayer(); });
+      async function abrirGrabacion(s) {
+        if (!isActive) { if (PW) PW.requiereMembresia('Ver la grabación'); return; }
+        videoBox.innerHTML = '<div style="color:#fff;display:flex;align-items:center;justify-content:center;height:100%;">Preparando reproducción…</div>';
+        overlay.hidden = false;
+        try {
+          const url = await ZOORIGEN_CLUB.obtenerGrabacionWebinar(s.id, s.esPrueba);
+          const f = document.createElement('iframe');
+          f.src = url; f.allow = 'accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;'; f.allowFullscreen = true;
+          videoBox.innerHTML = ''; videoBox.appendChild(f);
+        } catch (e) {
+          videoBox.innerHTML = '<div style="color:#fff;padding:20px;text-align:center;">' + ((e && e.message) || 'No se pudo abrir la grabación.') + '</div>';
+        }
+      }
 
-      nextBox.innerHTML = `
-        <div class="webinar-hero">
-          <div class="webinar-hero__content">
-            <div class="webinar-hero__live-badge">
-              <span class="webinar-hero__live-dot"></span>
-              Próximo webinar
-            </div>
-            <h2 class="webinar-hero__title">${next.title}</h2>
-            <div class="webinar-hero__speaker">${next.speaker || 'Especialista Zoorigen'}</div>
-            <div class="webinar-hero__info">
-              <div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${ZOORIGEN_CLUB.formatShort(next.date)}</div>
-              <div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-clock"/></svg> ${next.time || '19:00'} hrs</div>
-              <div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-laptop"/></svg> Google Meet</div>
-              ${next.duration ? `<div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> ${next.duration}</div>` : ''}
-            </div>
-            <div class="webinar-countdown" id="liveCountdown"></div>
-            ${linkBtn}
-          </div>
-        </div>
-      `;
-
-      function renderCountdown() {
-        const diff = new Date(next.date).getTime() - Date.now();
-        const el = document.getElementById('liveCountdown');
-        if (!el) return;
-        if (diff <= 0) {
-          el.innerHTML = `
-            <div class="webinar-countdown__unit" style="border-color:#ff4a4a;background:rgba(255,74,74,0.15);">
-              <span class="webinar-countdown__num" style="color:#ff4a4a;"><span class="zdot" style="background:#C0392B"></span></span>
-              <span class="webinar-countdown__lbl">EN VIVO</span>
+      // ── Tarjeta destacada: el próximo webinar en vivo o, si no hay ninguno, la última grabación ──
+      function pintarDestacada() {
+        if (proximas.length) {
+          const next = proximas[0];
+          const linkBtn = isActive
+            ? `<button type="button" class="btn-meet" id="btnEntrarMeet"><span class="btn-meet__icon">M</span>Entrar al webinar</button>`
+            : `<button type="button" class="btn-meet" id="btnLinkMiembros" style="background:var(--zoo-amber);color:#1f1d17;border:0;cursor:pointer;font-family:inherit;"><svg class="zi" aria-hidden="true"><use href="#zi-lock"/></svg> Activar para ver link</button>`;
+          nextBox.innerHTML = `
+            <div class="webinar-hero">
+              <div class="webinar-hero__content">
+                <div class="webinar-hero__live-badge"><span class="webinar-hero__live-dot"></span>Próximo webinar</div>
+                <h2 class="webinar-hero__title">${next.title}</h2>
+                <div class="webinar-hero__speaker">${next.speaker || 'Especialista Zoorigen'}</div>
+                <div class="webinar-hero__info">
+                  <div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${ZOORIGEN_CLUB.formatShort(next.date)}</div>
+                  <div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-clock"/></svg> ${next.time || '19:00'} hrs</div>
+                  <div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-laptop"/></svg> Google Meet</div>
+                  ${next.duration ? `<div class="webinar-hero__info-chip"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> ${next.duration}</div>` : ''}
+                </div>
+                <div class="webinar-countdown" id="liveCountdown"></div>
+                ${linkBtn}
+              </div>
             </div>`;
+
+          function renderCountdown() {
+            const diff = new Date(next.date).getTime() - Date.now();
+            const el = document.getElementById('liveCountdown');
+            if (!el) return;
+            if (diff <= 0) {
+              el.innerHTML = `<div class="webinar-countdown__unit" style="border-color:#ff4a4a;background:rgba(255,74,74,0.15);"><span class="webinar-countdown__num" style="color:#ff4a4a;"><span class="zdot" style="background:#C0392B"></span></span><span class="webinar-countdown__lbl">EN VIVO</span></div>`;
+              return;
+            }
+            const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+            el.innerHTML = `
+              <div class="webinar-countdown__unit"><span class="webinar-countdown__num">${d}</span><span class="webinar-countdown__lbl">Días</span></div>
+              <div class="webinar-countdown__unit"><span class="webinar-countdown__num">${String(h).padStart(2,'0')}</span><span class="webinar-countdown__lbl">Horas</span></div>
+              <div class="webinar-countdown__unit"><span class="webinar-countdown__num">${String(m).padStart(2,'0')}</span><span class="webinar-countdown__lbl">Min</span></div>
+              <div class="webinar-countdown__unit"><span class="webinar-countdown__num">${String(s).padStart(2,'0')}</span><span class="webinar-countdown__lbl">Seg</span></div>`;
+          }
+          renderCountdown();
+          setInterval(renderCountdown, 1000);
+
+          const btnLink = document.getElementById('btnLinkMiembros');
+          if (btnLink) btnLink.addEventListener('click', () => { if (PW) PW.requiereMembresia('Entrar al webinar'); else window.location.href = 'club-suscripcion.html'; });
+          const btnEntrar = document.getElementById('btnEntrarMeet');
+          if (btnEntrar) btnEntrar.addEventListener('click', async () => {
+            btnEntrar.disabled = true; const original = btnEntrar.innerHTML; btnEntrar.innerHTML = 'Abriendo…';
+            try {
+              const meetUrl = await ZOORIGEN_CLUB.obtenerEnlaceWebinar(next.id, next.esPrueba);
+              window.open(meetUrl, '_blank', 'noopener');
+            } catch (e) {
+              const codigo = e && e.data && e.data.codigo;
+              if (codigo === 'fuera-de-ventana') alert('El enlace se activa 10 minutos antes de la hora de la clase.');
+              else if (codigo === 'sin-membresia' && PW) PW.requiereMembresia('Entrar al webinar');
+              else alert((e && e.message) || 'No se pudo abrir el webinar. Inténtalo de nuevo.');
+            } finally { btnEntrar.disabled = false; btnEntrar.innerHTML = original; }
+          });
           return;
         }
-        const d = Math.floor(diff / (1000*60*60*24));
-        const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-        const m = Math.floor((diff % (1000*60*60)) / (1000*60));
-        const s = Math.floor((diff % (1000*60)) / 1000);
-        el.innerHTML = `
-          <div class="webinar-countdown__unit"><span class="webinar-countdown__num">${d}</span><span class="webinar-countdown__lbl">Días</span></div>
-          <div class="webinar-countdown__unit"><span class="webinar-countdown__num">${String(h).padStart(2,'0')}</span><span class="webinar-countdown__lbl">Horas</span></div>
-          <div class="webinar-countdown__unit"><span class="webinar-countdown__num">${String(m).padStart(2,'0')}</span><span class="webinar-countdown__lbl">Min</span></div>
-          <div class="webinar-countdown__unit"><span class="webinar-countdown__num">${String(s).padStart(2,'0')}</span><span class="webinar-countdown__lbl">Seg</span></div>
-        `;
-      }
-      renderCountdown();
-      setInterval(renderCountdown, 1000);
 
-      // El botón del enlace avisa y lleva a Suscripción (si el módulo no cargó, va directo a Suscripción)
-      const btnLink = document.getElementById('btnLinkMiembros');
-      if (btnLink) btnLink.addEventListener('click', () => {
-        if (PW) PW.requiereMembresia('Entrar al webinar');
-        else window.location.href = 'club-suscripcion.html';
-      });
-
-      // El enlace de Meet se pide al servidor justo al tocar el botón (nunca viaja con la lista).
-      const btnEntrar = document.getElementById('btnEntrarMeet');
-      if (btnEntrar) btnEntrar.addEventListener('click', async () => {
-        btnEntrar.disabled = true;
-        const original = btnEntrar.innerHTML;
-        btnEntrar.innerHTML = 'Abriendo…';
-        try {
-          const meetUrl = await ZOORIGEN_CLUB.obtenerEnlaceWebinar(next.id, next.esPrueba);
-          window.open(meetUrl, '_blank', 'noopener');
-        } catch (e) {
-          const codigo = e && e.data && e.data.codigo;
-          if (codigo === 'fuera-de-ventana') alert('El enlace se activa 10 minutos antes de la hora de la clase.');
-          else if (codigo === 'sin-membresia' && PW) PW.requiereMembresia('Entrar al webinar');
-          else alert((e && e.message) || 'No se pudo abrir el webinar. Inténtalo de nuevo.');
-        } finally {
-          btnEntrar.disabled = false; btnEntrar.innerHTML = original;
+        if (grabaciones.length) {
+          const ultima = grabaciones[grabaciones.length - 1];
+          nextBox.innerHTML = `
+            <div class="webinar-destacada">
+              <div class="webinar-destacada__txt">
+                <p class="webinar-destacada__eyebrow">Última clase grabada${ultima.esPrueba ? ' · Prueba' : ''}</p>
+                <h2 class="webinar-destacada__titulo">${ultima.title}</h2>
+                <p class="webinar-destacada__meta">${ultima.speaker || 'Especialista Zoorigen'} · ${ultima.duration} · ${ZOORIGEN_CLUB.formatShort(ultima.date)}</p>
+                <button type="button" class="btn-meet" id="btnVerUltima" style="background:var(--zoo-solid-mid,#2A7A4F);color:#fff;"><span class="btn-meet__icon" style="background:transparent;">${iconoPlay}</span>Ver la grabación</button>
+              </div>
+              <div class="webinar-destacada__media">${ultima.thumbnailUrl ? `<img src="${ultima.thumbnailUrl}" alt="">` : iconoVideo}</div>
+            </div>`;
+          document.getElementById('btnVerUltima').addEventListener('click', () => abrirGrabacion(ultima));
+          return;
         }
-      });
 
-      if (sesiones.length > 1) {
-        const resto = sesiones.slice(1);
-        listWrap.innerHTML = `
-          <div class="section-title-webinars"><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> Próximos webinars</div>
-          ${resto.map(s => {
-            const d = new Date(s.date);
-            const diffDays = Math.ceil((d - new Date()) / (1000*60*60*24));
-            const tagClass = diffDays <= 7 && diffDays > 0 ? 'webinar-card__tag is-soon' : 'webinar-card__tag';
-            const tagText = diffDays <= 0 ? 'EN VIVO' : diffDays <= 7 ? `En ${diffDays} día${diffDays !== 1 ? 's' : ''}` : 'Próximo';
-            return `
-              <div class="webinar-card">
-                <div class="webinar-card__date">
-                  <div class="webinar-card__date-day">${d.getDate()}</div>
-                  <div class="webinar-card__date-month">${mesesShort[d.getMonth()]}</div>
-                </div>
-                <div class="webinar-card__body">
-                  <div class="webinar-card__title">${s.title}</div>
-                  <div class="webinar-card__speaker"><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> ${s.speaker || 'Especialista Zoorigen'}</div>
-                  <div class="webinar-card__meta">
-                    <span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-clock"/></svg> ${s.time || '19:00'} hrs</span>
-                    <span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-laptop"/></svg> Google Meet</span>
-                    ${s.duration ? `<span class="webinar-card__meta-item"><svg class="zi" aria-hidden="true"><use href="#zi-timer"/></svg> ${s.duration}</span>` : ''}
-                    ${!isActive && PW ? PW.chipCandadoHTML('Enlace solo para miembros') : ''}
-                  </div>
-                </div>
-                <span class="${tagClass}">${tagText}</span>
+        nextBox.innerHTML = `
+          <div class="webinars-empty">
+            <div class="webinars-empty__icon"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg></div>
+            <div class="webinars-empty__title">Ahora mismo no hay una clase en vivo programada</div>
+            <div class="webinars-empty__text">Te avisaremos en cuanto se programe la siguiente.</div>
+          </div>`;
+      }
+      pintarDestacada();
+
+      // ── Pestañas: Próximas / Grabaciones / Mis inscritas ──
+      tabsBox.hidden = false;
+      tabsBox.querySelector('[data-n="proximas"]').textContent = proximas.length;
+      tabsBox.querySelector('[data-n="grabaciones"]').textContent = grabaciones.length;
+      tabsBox.querySelector('[data-n="inscritas"]').textContent = inscritas.length;
+
+      function tarjetaGrabacionHTML(s) {
+        return `
+          <div class="webinar-rec-card" data-accion="ver" data-id="${s.id}" data-prueba="${s.esPrueba ? '1' : '0'}" role="button" tabindex="0" aria-label="Reproducir ${s.title}">
+            <div class="webinar-rec-card__thumb">
+              ${s.thumbnailUrl ? `<img src="${s.thumbnailUrl}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">` : iconoVideo}
+              ${s.esPrueba ? '<span class="webinar-rec-card__badge webinar-rec-card__badge--prueba">Prueba</span>' : '<span class="webinar-rec-card__badge">Grabación</span>'}
+              ${isActive ? `<span class="webinar-rec-card__play-circle">${iconoPlay}</span>` : `<div class="webinar-rec-lock">${iconoCandado}</div>`}
+            </div>
+            <div class="webinar-rec-card__body">
+              <p class="webinar-rec-card__title">${s.title}</p>
+              <div class="webinar-rec-card__meta">
+                <span><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> ${s.speaker || 'Especialista Zoorigen'}</span>
+                <span><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${ZOORIGEN_CLUB.formatShort(s.date)}</span>
               </div>
-            `;
-          }).join('')}
-        `;
+            </div>
+          </div>`;
       }
 
-      // ── Grabaciones disponibles: cuadrícula con miniatura, igual al resto de catálogos del sitio ──
-      const grabaciones = sesiones.filter(s => s.tieneGrabacion);
-      const recWrap = document.getElementById('recordingsWrap');
-      if (grabaciones.length) {
-        const iconoVideo = `<svg class="webinar-rec-card__deco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 4.553-2.276A1 1 0 0 1 22 8.618v6.764a1 1 0 0 1-1.447.894L16 14z"/></svg>`;
-        const iconoPlay = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
-        const iconoCandado = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="28" height="28"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
-        recWrap.innerHTML = `
-          <div class="section-title-webinars"><svg class="zi" aria-hidden="true"><use href="#zi-video"/></svg> Grabaciones</div>
-          <div class="webinar-rec-grid">
-            ${grabaciones.map(s => `
-              <div class="webinar-rec-card" data-grabacion-id="${s.id}" data-grabacion-prueba="${s.esPrueba ? '1' : '0'}" role="button" tabindex="0" aria-label="Reproducir ${s.title}">
-                <div class="webinar-rec-card__thumb">
-                  ${iconoVideo}
-                  ${s.esPrueba ? '<span class="webinar-rec-card__badge webinar-rec-card__badge--prueba">Prueba</span>' : ''}
-                  ${isActive
-                    ? `<span class="webinar-rec-card__play-circle">${iconoPlay}</span>`
-                    : `<div class="webinar-rec-lock">${iconoCandado}</div>`}
-                </div>
-                <div class="webinar-rec-card__body">
-                  <p class="webinar-rec-card__title">${s.title}</p>
-                  <div class="webinar-rec-card__meta">
-                    <span><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> ${s.speaker || 'Especialista Zoorigen'}</span>
-                    <span><svg class="zi" aria-hidden="true"><use href="#zi-calendar"/></svg> ${ZOORIGEN_CLUB.formatShort(s.date)}</span>
-                  </div>
-                </div>
+      function tarjetaProximaHTML(s) {
+        const d = new Date(s.date);
+        const diffDays = Math.ceil((d - new Date()) / 86400000);
+        const etiqueta = diffDays <= 0 ? 'EN VIVO' : diffDays === 1 ? 'Mañana' : `En ${diffDays} días`;
+        return `
+          <div class="webinar-rec-card" style="cursor:default;">
+            <div class="webinar-rec-card__thumb">
+              ${iconoCalendario}
+              <div class="webinar-rec-card__date"><strong>${d.getDate()}</strong><span>${mesesShort[d.getMonth()]}</span></div>
+              ${s.esPrueba ? '<span class="webinar-rec-card__badge webinar-rec-card__badge--prueba">Prueba</span>' : `<span class="webinar-rec-card__badge">${etiqueta}</span>`}
+            </div>
+            <div class="webinar-rec-card__body">
+              <p class="webinar-rec-card__title">${s.title}</p>
+              <div class="webinar-rec-card__meta">
+                <span><svg class="zi" aria-hidden="true"><use href="#zi-user"/></svg> ${s.speaker || 'Especialista Zoorigen'}</span>
+                <span><svg class="zi" aria-hidden="true"><use href="#zi-clock"/></svg> ${s.time || '19:00'} hrs</span>
+                ${!isActive && PW ? PW.chipCandadoHTML('Enlace solo para miembros') : ''}
               </div>
-            `).join('')}
-          </div>
-        `;
-        const overlay = document.getElementById('webinarPlayerOverlay');
-        const videoBox = document.getElementById('webinarPlayerVideo');
-        const cerrarPlayer = () => { overlay.hidden = true; videoBox.innerHTML = ''; };
-        document.getElementById('webinarPlayerClose').addEventListener('click', cerrarPlayer);
-        overlay.addEventListener('click', e => { if (e.target === overlay) cerrarPlayer(); });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape' && !overlay.hidden) cerrarPlayer(); });
+              <button type="button" class="webinar-rec-card__inscribir${s.inscrito ? ' is-inscrito' : ''}" data-accion="inscribir" data-id="${s.id}" data-prueba="${s.esPrueba ? '1' : '0'}" data-estado="${s.inscrito ? '1' : '0'}">
+                ${s.inscrito ? '✓ Inscrita' : 'Inscribirme'}
+              </button>
+            </div>
+          </div>`;
+      }
 
-        recWrap.querySelectorAll('[data-grabacion-id]').forEach(tarjeta => {
-          const abrir = async () => {
-            if (!isActive) { if (PW) PW.requiereMembresia('Ver la grabación'); return; }
-            videoBox.innerHTML = '<div style="color:#fff;display:flex;align-items:center;justify-content:center;height:100%;">Preparando reproducción…</div>';
-            overlay.hidden = false;
+      let tabActual = 'proximas';
+      function pintarTab() {
+        const fuente = tabActual === 'proximas' ? proximas : tabActual === 'grabaciones' ? grabaciones : inscritas;
+        if (!fuente.length) {
+          contentBox.innerHTML = `<div class="webinar-rec-empty">${tabActual === 'proximas' ? 'No hay próximos webinars.' : tabActual === 'grabaciones' ? 'Todavía no hay grabaciones disponibles.' : 'Aún no te has inscrito a ninguna clase.'}</div>`;
+          return;
+        }
+        contentBox.innerHTML = `<div class="webinar-rec-grid">${fuente.map(tabActual === 'grabaciones' ? tarjetaGrabacionHTML : tarjetaProximaHTML).join('')}</div>`;
+
+        contentBox.querySelectorAll('[data-accion="ver"]').forEach(t => {
+          const abrir = () => abrirGrabacion({ id: t.dataset.id, esPrueba: t.dataset.prueba === '1' });
+          t.addEventListener('click', abrir);
+          t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } });
+        });
+        contentBox.querySelectorAll('[data-accion="inscribir"]').forEach(b => {
+          b.addEventListener('click', async () => {
+            if (!isActive) { if (PW) PW.requiereMembresia('Inscribirte a esta clase'); return; }
+            const yaInscrito = b.dataset.estado === '1';
+            b.disabled = true;
             try {
-              const url = await ZOORIGEN_CLUB.obtenerGrabacionWebinar(tarjeta.dataset.grabacionId, tarjeta.dataset.grabacionPrueba === '1');
-              const f = document.createElement('iframe');
-              f.src = url; f.allow = 'accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;'; f.allowFullscreen = true;
-              videoBox.innerHTML = ''; videoBox.appendChild(f);
+              if (yaInscrito) await ZOORIGEN_CLUB.cancelarInscripcionWebinar(b.dataset.id);
+              else await ZOORIGEN_CLUB.inscribirmeWebinar(b.dataset.id, b.dataset.prueba === '1');
+              const s = sesiones.find(x => x.id === b.dataset.id); if (s) s.inscrito = !yaInscrito;
+              const idx = inscritas.findIndex(x => x.id === b.dataset.id);
+              if (yaInscrito && idx >= 0) inscritas.splice(idx, 1); else if (!yaInscrito && s) inscritas.push(s);
+              tabsBox.querySelector('[data-n="inscritas"]').textContent = inscritas.length;
+              pintarTab();
             } catch (e) {
-              videoBox.innerHTML = '<div style="color:#fff;padding:20px;text-align:center;">' + ((e && e.message) || 'No se pudo abrir la grabación.') + '</div>';
+              alert((e && e.message) || 'No se pudo actualizar tu inscripción.');
+              b.disabled = false;
             }
-          };
-          tarjeta.addEventListener('click', abrir);
-          tarjeta.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } });
+          });
         });
       }
+      pintarTab();
+      tabsBox.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {
+        tabActual = b.dataset.tab;
+        tabsBox.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('is-active', x === b));
+        pintarTab();
+      }));
     })();
   </script>
 <script>
