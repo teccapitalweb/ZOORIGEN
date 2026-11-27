@@ -482,7 +482,7 @@
       }
 
       // Se considera "próxima" desde que falta tiempo hasta 1 h después de iniciada (margen para "EN VIVO").
-      const proximas = sesiones.filter(s => new Date(s.date).getTime() >= Date.now() - 3600000);
+      const proximas = sesiones.filter(s => !s.tieneGrabacion && new Date(s.date).getTime() >= Date.now() - 3600000);
       const grabaciones = sesiones.filter(s => s.tieneGrabacion);
       const inscritas = sesiones.filter(s => s.inscrito);
       if (window.ZOO_SECCION) ZOO_SECCION.cifras({ proximos: proximas.length });
