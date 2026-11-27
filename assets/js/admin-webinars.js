@@ -180,7 +180,7 @@
       }); });
       cont.querySelectorAll('[data-reintentar]').forEach(function (b) { b.addEventListener('click', function () {
         b.disabled = true; b.textContent = 'Buscando…';
-        api('/api/admin/webinars/' + encodeURIComponent(b.dataset.reintentar) + (b.dataset.prueba === '1' ? '?prueba=1' : '') + '/reintentar-grabacion', { method: 'POST', body: {} })
+        api('/api/admin/webinars/' + encodeURIComponent(b.dataset.reintentar) + '/reintentar-grabacion' + (b.dataset.prueba === '1' ? '?prueba=1' : ''), { method: 'POST', body: {} })
           .then(function () { cargar(); }, falla);
       }); });
       cont.querySelectorAll('[data-video-manual]').forEach(function (b) { b.addEventListener('click', function () { formVideoManual(b.dataset.videoManual, b.dataset.prueba === '1'); }); });
